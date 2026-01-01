@@ -850,51 +850,111 @@ HTML_TEMPLATE = '''
         </div>
     </div>
 
-   <!-- Footer -->
-<footer class="bg-dark text-center py-4 mt-5">
+<!-- Footer amélioré -->
+<footer class="footer-custom text-center py-4 mt-5">
     <div class="container">
-        <!-- Développeur -->
-        <p class="mb-2">
-            <i class="fas fa-code text-info me-1"></i>
-            Développé avec passion par <strong class="text-light">MYBSOW</strong>
-        </p>
+        <!-- Développeur avec badge -->
+        <div class="developer-badge mb-3">
+            <i class="fas fa-user-tie me-2"></i>
+            <span class="fw-bold">MYBSOW</span>
+            <span class="mx-2">|</span>
+            <i class="fas fa-envelope me-1"></i>
+            <a href="mailto:banousow@gmail.com" class="text-light">banousow@gmail.com</a>
+        </div>
         
-        <!-- Contact -->
-        <p class="mb-3">
-            <i class="fas fa-envelope text-info me-1"></i>
-            Contact: 
-            <a href="mailto:banousow@gmail.com" class="text-info text-decoration-none">
-                banousow@gmail.com
-            </a>
-        </p>
-        
-        <!-- Informations légales -->
-        <p class="text-muted small mb-0">
-            <i class="fas fa-copyright me-1"></i>
-            2025 PDF Fusion Pro - Service gratuit
-            <span class="mx-2">•</span>
-            <a href="#" class="text-muted text-decoration-none" onclick="showPrivacy()">
-                Politique de confidentialité
-            </a>
-            <span class="mx-2">•</span>
-            Hébergé sur <span class="text-info">Render.com</span>
-        </p>
+        <!-- Informations -->
+        <div class="footer-info">
+            <p class="mb-2 small">
+                <i class="fas fa-code me-1"></i>
+                Développé avec passion • 
+                <i class="fas fa-heart text-danger mx-1"></i>
+                • PDF Fusion Pro Ultimate
+            </p>
+            
+            <p class="text-muted small mb-0">
+                © 2025 
+                <span class="mx-1">•</span>
+                <a href="#" class="text-muted" onclick="showPrivacy()">Confidentialité</a>
+                <span class="mx-1">•</span>
+                <span class="text-info">Render.com</span>
+                <span class="mx-1">•</span>
+                <span class="badge bg-success">Version 3.0</span>
+            </p>
+        </div>
     </div>
 </footer>
 
-<!-- Ajoutez cette fonction JavaScript -->
+<style>
+.footer-custom {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.developer-badge {
+    background: rgba(102, 126, 234, 0.2);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 20px;
+    padding: 8px 20px;
+    display: inline-block;
+    backdrop-filter: blur(10px);
+}
+
+.developer-badge a:hover {
+    color: #4cc9f0 !important;
+    text-decoration: underline !important;
+}
+
+.footer-info a:hover {
+    color: #fff !important;
+}
+</style>
+
 <script>
 function showPrivacy() {
-    alert("Politique de confidentialité:\n\n" +
-          "✅ Vos fichiers sont traités localement dans votre navigateur\n" +
-          "✅ Aucune donnée personnelle n'est collectée\n" +
-          "✅ Aucun fichier n'est stocké sur nos serveurs\n" +
-          "✅ Service 100% gratuit et sécurisé\n\n" +
-          "Développé par: MYBSOW\n" +
-          "Contact: banousow@gmail.com");
+    const privacyModal = `
+    <div class="modal fade" id="privacyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Politique de confidentialité
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Développeur:</h6>
+                    <p><strong>MYBSOW</strong> - banousow@gmail.com</p>
+                    
+                    <h6>Notre engagement:</h6>
+                    <ul>
+                        <li>✅ Vos fichiers sont traités localement</li>
+                        <li>✅ Aucune donnée personnelle collectée</li>
+                        <li>✅ Aucun stockage sur nos serveurs</li>
+                        <li>✅ Service 100% gratuit</li>
+                        <li>✅ Connexion HTTPS sécurisée</li>
+                    </ul>
+                    
+                    <p class="mt-3 small text-muted">
+                        Application développée avec Flask, PyPDF2 et ReportLab
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>`;
+    
+    // Créer et afficher le modal
+    document.body.insertAdjacentHTML('beforeend', privacyModal);
+    const modal = new bootstrap.Modal(document.getElementById('privacyModal'));
+    modal.show();
+    
+    // Nettoyer après fermeture
+    document.getElementById('privacyModal').addEventListener('hidden.bs.modal', function () {
+        this.remove();
+    });
 }
 </script>
-
+   
     <!-- Modal de progression -->
     <div class="modal fade" id="progressModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
@@ -1417,4 +1477,5 @@ if __name__ == '__main__':
         serve(app, host='0.0.0.0', port=port)
     else:
         app.run(host='0.0.0.0', port=port, debug=True)
+
 
