@@ -1,3 +1,9 @@
+# === PERSONNALISATION ===
+DEVELOPER_NAME = "MYBSOW"  # ← VOTRE NOM ICI
+DEVELOPER_EMAIL = "banousow@gmail.com"  # ← VOTRE EMAIL
+APP_VERSION = "3.0.0"
+# ========================
+
 import os
 import sys
 import tempfile
@@ -844,22 +850,50 @@ HTML_TEMPLATE = '''
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-center py-4 mt-5">
-        <div class="container">
-            <p class="mb-2">
-                <i class="fas fa-code text-info me-1"></i>
-                Développé avec passion par PDF Fusion Pro
-            </p>
-            <p class="text-muted small mb-0">
-                © 2024 PDF Fusion Pro - Service gratuit
-                <span class="mx-2">•</span>
-                <a href="#" class="text-muted text-decoration-none" onclick="showPrivacy()">Politique de confidentialité</a>
-                <span class="mx-2">•</span>
-                Hébergé sur <span class="text-info">Render.com</span>
-            </p>
-        </div>
-    </footer>
+   <!-- Footer -->
+<footer class="bg-dark text-center py-4 mt-5">
+    <div class="container">
+        <!-- Développeur -->
+        <p class="mb-2">
+            <i class="fas fa-code text-info me-1"></i>
+            Développé avec passion par <strong class="text-light">MYBSOW</strong>
+        </p>
+        
+        <!-- Contact -->
+        <p class="mb-3">
+            <i class="fas fa-envelope text-info me-1"></i>
+            Contact: 
+            <a href="mailto:banousow@gmail.com" class="text-info text-decoration-none">
+                banousow@gmail.com
+            </a>
+        </p>
+        
+        <!-- Informations légales -->
+        <p class="text-muted small mb-0">
+            <i class="fas fa-copyright me-1"></i>
+            2025 PDF Fusion Pro - Service gratuit
+            <span class="mx-2">•</span>
+            <a href="#" class="text-muted text-decoration-none" onclick="showPrivacy()">
+                Politique de confidentialité
+            </a>
+            <span class="mx-2">•</span>
+            Hébergé sur <span class="text-info">Render.com</span>
+        </p>
+    </div>
+</footer>
+
+<!-- Ajoutez cette fonction JavaScript -->
+<script>
+function showPrivacy() {
+    alert("Politique de confidentialité:\n\n" +
+          "✅ Vos fichiers sont traités localement dans votre navigateur\n" +
+          "✅ Aucune donnée personnelle n'est collectée\n" +
+          "✅ Aucun fichier n'est stocké sur nos serveurs\n" +
+          "✅ Service 100% gratuit et sécurisé\n\n" +
+          "Développé par: MYBSOW\n" +
+          "Contact: banousow@gmail.com");
+}
+</script>
 
     <!-- Modal de progression -->
     <div class="modal fade" id="progressModal" tabindex="-1" data-bs-backdrop="static">
@@ -1383,3 +1417,4 @@ if __name__ == '__main__':
         serve(app, host='0.0.0.0', port=port)
     else:
         app.run(host='0.0.0.0', port=port, debug=True)
+
