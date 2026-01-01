@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: pdf-fusion-pro
+    runtime: python
+    repo: https://github.com/mybsow/pdf-fusion-pro
+    region: frankfurt
+    plan: free
+    branch: main
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.9.16
+    healthCheckPath: /health
+    disk:
+      name: tmp
+      mountPath: /tmp
+      sizeGB: 1
+    autoDeploy: true
