@@ -1,6 +1,6 @@
 # === PERSONNALISATION ===
-DEVELOPER_NAME = "MYBSOW"  # ← VOTRE NOM ICI
-DEVELOPER_EMAIL = "banousow@gmail.com"  # ← VOTRE EMAIL
+DEVELOPER_NAME = "MYBSOW"
+DEVELOPER_EMAIL = "banousow@gmail.com"
 APP_VERSION = "3.0.0"
 # ========================
 
@@ -26,6 +26,46 @@ import PyPDF2
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4, letter, A3, legal, landscape
 from reportlab.lib.units import inch
+
+# ============================================
+# GESTION DES PUBLICITÉS ADSENSE
+# ============================================
+
+# Pour le développement, utilisez l'ID de test Google
+# Pour la production, remplacez par votre vrai ID Adsense
+ADSENSE_CLIENT_ID = os.environ.get('ADSENSE_CLIENT_ID', 'ca-pub-8967416460526921')
+
+def get_ad_units(page_type='home'):
+    """Retourne les unités publicitaires selon la page"""
+    
+    ad_units = {
+        'home': [
+            {
+                'id': 'home_leaderboard',
+                'slot': '6355418833',  # Slot de test Google
+                'format': 'leaderboard',
+                'responsive': True
+            }
+        ],
+        'merge': [
+            {
+                'id': 'merge_sidebar',
+                'slot': '6355418833',  # Slot de test Google
+                'format': 'rectangle',
+                'responsive': True
+            }
+        ],
+        'tools': [
+            {
+                'id': 'tools_banner',
+                'slot': '6355418833',  # Slot de test Google
+                'format': 'banner',
+                'responsive': True
+            }
+        ]
+    }
+    
+    return ad_units.get(page_type, [])
 
 # ============================================
 # CONFIGURATION RENDER.COM
@@ -264,7 +304,52 @@ class PDFProcessor:
 @app.route('/')
 def home():
     """Page d'accueil avec interface web"""
-    return render_template_string(HTML_TEMPLATE)
+    # Obtenir les publicités pour la page d'accueil
+    ads = get_ad_units('home')
+    
+    return render_template_string(HTML_TEMPLATE, 
+                                 adsense_client_id=ADSENSE_CLIENT_ID,
+                                 ad_units=ads,
+                                 page_type='home',
+                                 developer_name=DEVELOPER_NAME,
+                                 developer_email=DEVELOPER_EMAIL,
+                                 app_version=APP_VERSION)
+
+@app.route('/merge')
+def merge_page():
+    """Page de fusion PDF avec publicités spécifiques"""
+    ads = get_ad_units('merge')
+    return render_template_string(HTML_TEMPLATE,
+                                 adsense_client_id=ADSENSE_CLIENT_ID,
+                                 ad_units=ads,
+                                 page_type='merge',
+                                 developer_name=DEVELOPER_NAME,
+                                 developer_email=DEVELOPER_EMAIL,
+                                 app_version=APP_VERSION)
+
+@app.route('/tools')
+def tools_page():
+    """Page outils avec publicités spécifiques"""
+    ads = get_ad_units('tools')
+    return render_template_string(HTML_TEMPLATE,
+                                 adsense_client_id=ADSENSE_CLIENT_ID,
+                                 ad_units=ads,
+                                 page_type='tools',
+                                 developer_name=DEVELOPER_NAME,
+                                 developer_email=DEVELOPER_EMAIL,
+                                 app_version=APP_VERSION)
+
+@app.route('/about')
+def about_page():
+    """Page à propos"""
+    ads = get_ad_units('home')  # Utiliser les mêmes publicités que la home
+    return render_template_string(HTML_TEMPLATE,
+                                 adsense_client_id=ADSENSE_CLIENT_ID,
+                                 ad_units=ads,
+                                 page_type='about',
+                                 developer_name=DEVELOPER_NAME,
+                                 developer_email=DEVELOPER_EMAIL,
+                                 app_version=APP_VERSION)
 
 @app.route('/health')
 def health_check():
@@ -476,7 +561,7 @@ def rotate_pdf():
         return jsonify({'error': str(e)}), 500
 
 # ============================================
-# TEMPLATE HTML CORRIGÉ
+# TEMPLATE HTML CORRIGÉ AVEC ADSENSE
 # ============================================
 
 HTML_TEMPLATE = '''
@@ -494,6 +579,13 @@ HTML_TEMPLATE = '''
     
     <!-- PDF.js pour la prévisualisation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <!-- Script Adsense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8967416460526921"
+     crossorigin="anonymous"></script>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
     
     <style>
         :root {
@@ -623,6 +715,36 @@ HTML_TEMPLATE = '''
             max-width: 500px;
         }
         
+        /* Styles pour les publicités */
+        .ad-container {
+            margin: 20px 0;
+            text-align: center;
+            overflow: hidden;
+        }
+        
+        .ad-responsive {
+            width: 100%;
+            height: auto;
+        }
+        
+        .ad-leaderboard {
+            width: 728px;
+            height: 90px;
+            margin: 0 auto;
+        }
+        
+        .ad-rectangle {
+            width: 300px;
+            height: 250px;
+            margin: 0 auto;
+        }
+        
+        .ad-banner {
+            width: 468px;
+            height: 60px;
+            margin: 0 auto;
+        }
+        
         @media (max-width: 768px) {
             .drop-area {
                 padding: 2rem 1rem;
@@ -632,6 +754,16 @@ HTML_TEMPLATE = '''
             .watermark-preview {
                 height: 100px;
                 font-size: 1.5rem;
+            }
+            
+            .ad-leaderboard {
+                width: 320px;
+                height: 50px;
+            }
+            
+            .ad-banner {
+                width: 320px;
+                height: 50px;
             }
         }
     </style>
@@ -667,8 +799,27 @@ HTML_TEMPLATE = '''
 
     <!-- Contenu principal -->
     <div class="container py-5">
+        <!-- Publicité pour la page d'accueil -->
+        {% if page_type == 'home' and ad_units %}
+            {% for ad in ad_units %}
+                {% if ad.format == 'leaderboard' %}
+                    <div class="ad-container mb-4">
+                        <ins class="adsbygoogle ad-leaderboard"
+                             style="display:block"
+                             data-ad-client="{{ adsense_client_id }}"
+                             data-ad-slot="{{ ad.slot }}"
+                             data-ad-format="auto"
+                             data-full-width-responsive="{{ 'true' if ad.responsive else 'false' }}"></ins>
+                        <script>
+                            (adsbygoogle = window.adsbygoogle || []).push({});
+                        </script>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
         <!-- Page d'accueil -->
-        <div id="homePage" style="display: block;">
+        <div id="homePage" style="display: {{ 'block' if page_type == 'home' else 'none' }};">
             <div class="row mb-5">
                 <div class="col-12 text-center">
                     <h1 class="display-4 fw-bold mb-3">Fusionnez vos PDFs gratuitement</h1>
@@ -735,7 +886,7 @@ HTML_TEMPLATE = '''
         </div>
 
         <!-- Page de fusion -->
-        <div id="mergePage" style="display: none;">
+        <div id="mergePage" style="display: {{ 'block' if page_type == 'merge' else 'none' }};">
             <div class="row mb-4">
                 <div class="col-12">
                     <h2 class="mb-3"><i class="fas fa-merge me-2"></i>Fusionner des PDFs</h2>
@@ -842,8 +993,27 @@ HTML_TEMPLATE = '''
                     </button>
                 </div>
                 
-                <!-- Statistiques -->
+                <!-- Colonne droite avec publicité et statistiques -->
                 <div class="col-lg-4">
+                    <!-- Publicité rectangle -->
+                    {% if page_type == 'merge' and ad_units %}
+                        {% for ad in ad_units %}
+                            {% if ad.format == 'rectangle' %}
+                                <div class="ad-container mb-4">
+                                    <ins class="adsbygoogle ad-rectangle"
+                                         style="display:block"
+                                         data-ad-client="{{ adsense_client_id }}"
+                                         data-ad-slot="{{ ad.slot }}"
+                                         data-ad-format="auto"
+                                         data-full-width-responsive="{{ 'true' if ad.responsive else 'false' }}"></ins>
+                                    <script>
+                                        (adsbygoogle = window.adsbygoogle || []).push({});
+                                    </script>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    
                     <div class="card sticky-top" style="top: 20px;">
                         <div class="card-header">
                             <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques</h5>
@@ -896,7 +1066,26 @@ HTML_TEMPLATE = '''
         </div>
 
         <!-- Page outils -->
-        <div id="toolsPage" style="display: none;">
+        <div id="toolsPage" style="display: {{ 'block' if page_type == 'tools' else 'none' }};">
+            <!-- Publicité banner -->
+            {% if page_type == 'tools' and ad_units %}
+                {% for ad in ad_units %}
+                    {% if ad.format == 'banner' %}
+                        <div class="ad-container mb-4">
+                            <ins class="adsbygoogle ad-banner"
+                                 style="display:block"
+                                 data-ad-client="{{ adsense_client_id }}"
+                                 data-ad-slot="{{ ad.slot }}"
+                                 data-ad-format="auto"
+                                 data-full-width-responsive="{{ 'true' if ad.responsive else 'false' }}"></ins>
+                            <script>
+                                (adsbygoogle = window.adsbygoogle || []).push({});
+                            </script>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            
             <div class="row mb-4">
                 <div class="col-12">
                     <h2 class="mb-3"><i class="fas fa-tools me-2"></i>Outils PDF</h2>
@@ -965,7 +1154,7 @@ HTML_TEMPLATE = '''
         </div>
 
         <!-- Page à propos -->
-        <div id="aboutPage" style="display: none;">
+        <div id="aboutPage" style="display: {{ 'block' if page_type == 'about' else 'none' }};">
             <div class="row">
                 <div class="col-lg-8 mx-auto">
                     <div class="card">
@@ -995,9 +1184,9 @@ HTML_TEMPLATE = '''
                             
                             <div class="mb-4">
                                 <h4>Contact</h4>
-                                <p>Développé avec ❤️ par <strong>''' + DEVELOPER_NAME + '''</strong></p>
-                                <p>Email : ''' + DEVELOPER_EMAIL + '''</p>
-                                <p>Version : ''' + APP_VERSION + '''</p>
+                                <p>Développé avec ❤️ par <strong>{{ developer_name }}</strong></p>
+                                <p>Email : {{ developer_email }}</p>
+                                <p>Version : {{ app_version }}</p>
                             </div>
                             
                             <div class="alert alert-primary">
@@ -1035,11 +1224,11 @@ HTML_TEMPLATE = '''
     <script>
         // Variables globales
         let files = [];
-        let currentPage = 'home';
+        let currentPage = '{{ page_type }}';
         
         // Initialisation avec vérification des éléments
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM chargé - vérification des éléments...');
+            console.log('DOM chargé - page: {{ page_type }}');
             
             // Vérifier tous les éléments critiques
             const elementsToCheck = [
@@ -1063,8 +1252,8 @@ HTML_TEMPLATE = '''
                 }
             });
             
-            // Initialiser les composants
-            if (document.getElementById('dropZone')) {
+            // Initialiser les composants seulement si on est sur la bonne page
+            if (currentPage === 'merge' && document.getElementById('dropZone')) {
                 setupDragAndDrop();
             }
             
@@ -1074,28 +1263,26 @@ HTML_TEMPLATE = '''
             }
             
             simulateStats();
+            
+            // Afficher la page correcte au chargement
+            showPage(currentPage + 'Page');
         });
         
         // Navigation
         function showHome() {
-            showPage('homePage');
-            currentPage = 'home';
+            window.location.href = '/';
         }
         
         function showMerge() {
-            showPage('mergePage');
-            currentPage = 'merge';
-            updateStatsDisplay();
+            window.location.href = '/merge';
         }
         
         function showTools() {
-            showPage('toolsPage');
-            currentPage = 'tools';
+            window.location.href = '/tools';
         }
         
         function showAbout() {
-            showPage('aboutPage');
-            currentPage = 'about';
+            window.location.href = '/about';
         }
         
         function showPage(pageId) {
