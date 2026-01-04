@@ -90,62 +90,172 @@ class PDFProcessor:
         packet.seek(0)
         return PyPDF2.PdfReader(packet)
     
-    def merge_pdfs(self, pdf_files, options=None):
-        """Fusionner plusieurs PDFs"""
-        if options is None:
-            options = {}
+    def rotate_pages(self, pdf_data, angle=90, pages_range=None):
+        """
+        Tourner les pages d'un PDF
         
-        writer = PyPDF2.PdfWriter()
-        watermark = options.get('watermark', {})
-        metadata = options.get('metadata', {})
+        Args:
+            pdf_data: Données PDF brutes
+            angle: Angle de rotation (90, 180, 270)
+            pages_range: Liste de pages à tourner (ex: [1,3,5] ou "1-5,7,9-12")
+        """
+        # Créer un fichier temporaire
+        temp_path = os.path.join(self.temp_dir, f"rotate_temp_{uuid.uuid4().hex}.pdf")
+        with open(temp_path, 'wb') as f:
+            f.write(pdf_data)
+        self.temp_files.append(temp_path)
         
-        # Créer le filigrane si demandé
-        watermark_pdf = None
-        if watermark.get('enabled') and watermark.get('text'):
-            watermark_pdf = self.create_watermark(
-                watermark['text'],
-                watermark.get('position', 'center'),
-                watermark.get('opacity', 0.3),
-                watermark.get('font_size', 48)
-            )
+        # Lire le PDF
+        pdf_reader = PyPDF2.PdfReader(temp_path)
+        pdf_writer = PyPDF2.PdfWriter()
         
-        # Fusionner tous les PDFs
-        for pdf_data in pdf_files:
-            # Créer un fichier temporaire
-            temp_path = os.path.join(self.temp_dir, f"temp_{uuid.uuid4().hex}.pdf")
-            with open(temp_path, 'wb') as f:
-                f.write(pdf_data)
-            self.temp_files.append(temp_path)
+        # Convertir pages_range en liste de pages
+        pages_to_rotate = []
+        if pages_range:
+            if isinstance(pages_range, str):
+                pages_to_rotate = self.parse_pages_range(pages_range, len(pdf_reader.pages))
+            elif isinstance(pages_range, list):
+                pages_to_rotate = pages_range
+        
+        # Traiter chaque page
+        for page_num in range(len(pdf_reader.pages)):
+            page = pdf_reader.pages[page_num]
             
-            # Traiter le PDF
-            with open(temp_path, 'rb') as f:
-                pdf_reader = PyPDF2.PdfReader(f)
-                
-                for page in pdf_reader.pages:
-                    if watermark_pdf:
-                        page.merge_page(watermark_pdf.pages[0])
-                    writer.add_page(page)
-        
-        # Ajouter les métadonnées
-        if metadata:
-            meta_dict = {}
-            if metadata.get('title'):
-                meta_dict['/Title'] = metadata['title']
-            if metadata.get('author'):
-                meta_dict['/Author'] = metadata['author']
-            if metadata.get('subject'):
-                meta_dict['/Subject'] = metadata['subject']
-            if metadata.get('keywords'):
-                meta_dict['/Keywords'] = metadata['keywords']
-            if metadata.get('auto_date', True):
-                meta_dict['/CreationDate'] = datetime.now().strftime("D:%Y%m%d%H%M%S")
+            # Vérifier si cette page doit être tournée
+            if not pages_range or (page_num in pages_to_rotate):
+                # Appliquer la rotation
+                if angle in [90, 180, 270]:
+                    page.rotate(angle)
             
-            writer.add_metadata(meta_dict)
+            pdf_writer.add_page(page)
         
-        # Générer le PDF final
+        # Générer le PDF tourné
         output = io.BytesIO()
-        writer.write(output)
+        pdf_writer.write(output)
         return output.getvalue()
+    
+    def parse_pages_range(self, pages_str, total_pages):
+        """
+        Convertir une chaîne de pages en liste
+        
+        Exemples:
+            "1,3,5" -> [0, 2, 4]
+            "1-5" -> [0, 1, 2, 3, 4]
+            "1-3,5,7-9" -> [0, 1, 2, 4, 6, 7, 8]
+        """
+        pages = []
+        if not pages_str:
+            return pages
+        
+        # Nettoyer la chaîne
+        pages_str = pages_str.replace(" ", "")
+        
+        # Séparer par les virgules
+        parts = pages_str.split(",")
+        
+        for part in parts:
+            if "-" in part:
+                # C'est une plage (ex: "1-5")
+                try:
+                    start, end = part.split("-")
+                    start = int(start) - 1  # Convertir en index 0-based
+                    end = int(end) - 1
+                    
+                    # Ajuster les limites
+                    start = max(0, start)
+                    end = min(total_pages - 1, end)
+                    
+                    # Ajouter toutes les pages de la plage
+                    pages.extend(range(start, end + 1))
+                except ValueError:
+                    continue
+            else:
+                # C'est une page unique
+                try:
+                    page_num = int(part) - 1  # Convertir en index 0-based
+                    if 0 <= page_num < total_pages:
+                        pages.append(page_num)
+                except ValueError:
+                    continue
+        
+        # Retirer les doublons et trier
+        return sorted(set(pages))
+    
+    def merge_pdfs(self, pdf_files, options=None):
+    """Fusionner plusieurs PDFs avec options"""
+    if options is None:
+        options = {}
+    
+    writer = PyPDF2.PdfWriter()
+    watermark = options.get('watermark', {})
+    metadata = options.get('metadata', {})
+    rotation = options.get('rotation', {})  # ← Nouveau: option rotation
+    
+    # Créer le filigrane si demandé
+    watermark_pdf = None
+    if watermark.get('enabled') and watermark.get('text'):
+        watermark_pdf = self.create_watermark(
+            watermark['text'],
+            watermark.get('position', 'center'),
+            watermark.get('opacity', 0.3),
+            watermark.get('font_size', 48)
+        )
+    
+    # Fusionner tous les PDFs
+    for pdf_data in pdf_files:
+        # Créer un fichier temporaire
+        temp_path = os.path.join(self.temp_dir, f"temp_{uuid.uuid4().hex}.pdf")
+        with open(temp_path, 'wb') as f:
+            f.write(pdf_data)
+        self.temp_files.append(temp_path)
+        
+        # Traiter le PDF
+        with open(temp_path, 'rb') as f:
+            pdf_reader = PyPDF2.PdfReader(f)
+            
+            for page_num, page in enumerate(pdf_reader.pages):
+                # Appliquer la rotation si spécifiée
+                if rotation.get('enabled'):
+                    angle = rotation.get('angle', 0)
+                    pages_range = rotation.get('pages', 'all')
+                    
+                    # Vérifier si cette page doit être tournée
+                    should_rotate = False
+                    if pages_range == 'all':
+                        should_rotate = True
+                    else:
+                        pages_to_rotate = self.parse_pages_range(pages_range, len(pdf_reader.pages))
+                        should_rotate = page_num in pages_to_rotate
+                    
+                    if should_rotate and angle in [90, 180, 270]:
+                        page.rotate(angle)
+                
+                # Appliquer le filigrane
+                if watermark_pdf:
+                    page.merge_page(watermark_pdf.pages[0])
+                
+                writer.add_page(page)
+    
+    # Ajouter les métadonnées
+    if metadata:
+        meta_dict = {}
+        if metadata.get('title'):
+            meta_dict['/Title'] = metadata['title']
+        if metadata.get('author'):
+            meta_dict['/Author'] = metadata['author']
+        if metadata.get('subject'):
+            meta_dict['/Subject'] = metadata['subject']
+        if metadata.get('keywords'):
+            meta_dict['/Keywords'] = metadata['keywords']
+        if metadata.get('auto_date', True):
+            meta_dict['/CreationDate'] = datetime.now().strftime("D:%Y%m%d%H%M%S")
+        
+        writer.add_metadata(meta_dict)
+    
+    # Générer le PDF final
+    output = io.BytesIO()
+    writer.write(output)
+    return output.getvalue()
 
 # ============================================
 # ROUTES API
@@ -313,6 +423,55 @@ def get_pdf_info():
         
         return jsonify(info)
         
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/rotate', methods=['POST'])
+def rotate_pdf():
+    """Tourner les pages d'un PDF"""
+    try:
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type doit être application/json'}), 400
+        
+        data = request.get_json()
+        
+        if not data or 'file' not in data:
+            return jsonify({'error': 'Aucun fichier fourni'}), 400
+        
+        # Décoder le fichier base64
+        try:
+            pdf_data = base64.b64decode(data['file']['data'])
+        except:
+            return jsonify({'error': 'Données PDF invalides'}), 400
+        
+        # Récupérer les paramètres de rotation
+        angle = data.get('angle', 90)
+        pages = data.get('pages', 'all')  # 'all' ou chaîne comme "1,3,5" ou "1-5"
+        
+        # Valider l'angle
+        if angle not in [90, 180, 270]:
+            return jsonify({'error': 'Angle invalide. Utilisez 90, 180 ou 270.'}), 400
+        
+        # Traiter le PDF
+        processor = PDFProcessor()
+        try:
+            rotated_pdf = processor.rotate_pages(
+                pdf_data, 
+                angle=angle, 
+                pages_range=None if pages == 'all' else pages
+            )
+            
+            return jsonify({
+                'success': True,
+                'filename': f'rotated_{angle}deg.pdf',
+                'data': base64.b64encode(rotated_pdf).decode('utf-8'),
+                'size': len(rotated_pdf),
+                'angle': angle,
+                'pages': pages
+            })
+        finally:
+            processor.cleanup()
+            
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -506,6 +665,28 @@ HTML_TEMPLATE = '''
         .pulse {
             animation: pulse 1.5s infinite;
         }
+
+        .rotation-interface .btn-group .btn {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+    .rotation-preview {
+        width: 100px;
+        height: 100px;
+        border: 2px dashed #ffc107;
+        border-radius: 10px;
+        margin: 10px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease;
+}
+
+    .rotation-icon {
+        font-size: 24px;
+        color: #ffc107;
+}
         
         /* Responsive */
         @media (max-width: 768px) {
@@ -675,6 +856,34 @@ HTML_TEMPLATE = '''
                         </div>
                     </div>
                 </div>
+
+        <!-- Dans la carte "Options de fusion", après la section métadonnées -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h6><i class="fas fa-sync-alt me-2"></i>Rotation des pages</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="enableRotation">
+                                <label class="form-check-label" for="enableRotation">
+                                    Activer la rotation
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="rotationAngleSelect">
+                                <option value="90">90° (quart de tour)</option>
+                                <option value="180">180° (demi-tour)</option>
+                                <option value="270">270° (trois quarts)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="rotationPages" 
+                                   placeholder="Pages (ex: 1,3,5)" title="Laissez vide pour toutes les pages">
+                        </div>
+                    </div>
+                </div>
+            </div>
                 
                 <div class="col-lg-4">
                     <!-- Statistiques -->
@@ -752,6 +961,57 @@ HTML_TEMPLATE = '''
                         </div>
                     </div>
                 </div>
+
+                <!-- Dans la page outils, après les deux cartes existantes -->
+<div class="col-md-6 mb-4">
+    <div class="card bg-dark h-100">
+        <div class="card-body text-center p-4">
+            <div class="feature-icon mb-3">
+                <i class="fas fa-sync-alt"></i>
+            </div>
+            <h4>Rotation PDF</h4>
+            <p class="text-muted mb-4">Tournez les pages de vos PDFs</p>
+            
+            <!-- Interface de rotation -->
+            <div class="rotation-interface">
+                <!-- Sélection de l'angle -->
+                <div class="mb-3">
+                    <label class="form-label">Angle de rotation:</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="rotationAngle" id="rotate90" value="90" checked>
+                        <label class="btn btn-outline-primary" for="rotate90">90°</label>
+                        
+                        <input type="radio" class="btn-check" name="rotationAngle" id="rotate180" value="180">
+                        <label class="btn btn-outline-primary" for="rotate180">180°</label>
+                        
+                        <input type="radio" class="btn-check" name="rotationAngle" id="rotate270" value="270">
+                        <label class="btn btn-outline-primary" for="rotate270">270°</label>
+                    </div>
+                </div>
+                
+                <!-- Pages spécifiques -->
+                <div class="mb-3">
+                    <label class="form-label">Pages à tourner:</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="pagesToRotate" 
+                               placeholder="Toutes les pages (ou ex: 1,3,5 ou 2-5)">
+                        <span class="input-group-text">
+                            <i class="fas fa-info-circle" 
+                               title="Exemples: '1,3,5' pour les pages 1,3,5 - '2-5' pour les pages 2 à 5"></i>
+                        </span>
+                    </div>
+                    <small class="text-muted">Laissez vide pour toutes les pages</small>
+                </div>
+                
+                <!-- Bouton d'action -->
+                <input type="file" id="rotateInput" class="d-none" accept=".pdf">
+                <button class="btn btn-warning btn-lg w-100" onclick="rotatePDF()">
+                    <i class="fas fa-redo-alt me-2"></i>Tourner le PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
                 
                 <div class="col-md-6 mb-4">
                     <div class="card bg-dark h-100">
@@ -1220,17 +1480,23 @@ function showPrivacy() {
             
             try {
                 // Récupérer les options
-                const options = {
-                    watermark: {
-                        enabled: document.getElementById('addWatermark').checked,
-                        text: document.getElementById('watermarkText').value || 'PDF Fusion Pro'
-                    },
-                    metadata: {
-                        title: document.getElementById('docTitle').value || '',
-                        author: document.getElementById('docAuthor').value || '',
-                        auto_date: true
-                    }
-                };
+                // Dans la fonction mergePDFs(), modifiez la préparation des options :
+            const options = {
+                watermark: {
+                    enabled: document.getElementById('addWatermark').checked,
+                    text: document.getElementById('watermarkText').value || 'PDF Fusion Pro'
+                },
+                metadata: {
+                    title: document.getElementById('docTitle').value || '',
+                    author: document.getElementById('docAuthor').value || '',
+                    auto_date: true
+                },
+                rotation: {  // ← Nouveau: option rotation
+                    enabled: document.getElementById('enableRotation').checked,
+                    angle: parseInt(document.getElementById('rotationAngleSelect').value),
+                    pages: document.getElementById('rotationPages').value.trim() || 'all'
+                }
+            };
                 
                 document.getElementById('progressBar').style.width = '30%';
                 document.getElementById('progressMessage').textContent = 'Envoi au serveur...';
@@ -1433,6 +1699,102 @@ function showPrivacy() {
                 toast.remove();
             }, duration);
         }
+
+        // Rotation d'un PDF
+async function rotatePDF() {
+    const input = document.getElementById('rotateInput');
+    input.click();
+    
+    input.onchange = async function() {
+        if (!input.files.length) return;
+        
+        const file = input.files[0];
+        
+        // Vérifier la taille
+        if (file.size > 50 * 1024 * 1024) {
+            showToast('Fichier trop grand (max 50MB)', 'error');
+            return;
+        }
+        
+        // Récupérer les paramètres
+        const angle = document.querySelector('input[name="rotationAngle"]:checked').value;
+        const pages = document.getElementById('pagesToRotate').value.trim();
+        
+        const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+        document.getElementById('progressTitle').textContent = 'Rotation en cours...';
+        document.getElementById('progressBar').style.width = '30%';
+        progressModal.show();
+        
+        try {
+            // Lire le fichier
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const fileData = {
+                    name: file.name,
+                    size: file.size,
+                    data: e.target.result.split(',')[1]
+                };
+                
+                // Préparer les données
+                const requestData = {
+                    file: fileData,
+                    angle: parseInt(angle),
+                    pages: pages || 'all'
+                };
+                
+                document.getElementById('progressBar').style.width = '50%';
+                document.getElementById('progressMessage').textContent = 'Envoi au serveur...';
+                
+                // Envoyer au serveur
+                const response = await fetch('/api/rotate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                document.getElementById('progressBar').style.width = '70%';
+                document.getElementById('progressMessage').textContent = 'Traitement en cours...';
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Télécharger le fichier tourné
+                    const pdfData = base64ToArrayBuffer(result.data);
+                    const blob = new Blob([pdfData], { type: 'application/pdf' });
+                    const url = window.URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = result.filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    document.getElementById('progressBar').style.width = '100%';
+                    document.getElementById('progressMessage').textContent = 
+                        `Rotation ${angle}° effectuée !`;
+                    
+                    setTimeout(() => {
+                        progressModal.hide();
+                        showToast(`PDF tourné de ${angle}° téléchargé`, 'success');
+                    }, 1500);
+                } else {
+                    progressModal.hide();
+                    showToast('Erreur: ' + result.error, 'error');
+                }
+            };
+            
+            reader.readAsDataURL(file);
+            
+        } catch (error) {
+            progressModal.hide();
+            showToast('Erreur: ' + error.message, 'error');
+        }
+    };
+}
         
         // Simuler des statistiques
         function simulateStats() {
@@ -1477,5 +1839,6 @@ if __name__ == '__main__':
         serve(app, host='0.0.0.0', port=port)
     else:
         app.run(host='0.0.0.0', port=port, debug=True)
+
 
 
