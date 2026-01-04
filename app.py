@@ -5,6 +5,7 @@ APP_VERSION = "3.0.0"
 # ========================
 
 import os
+port = int(os.environ.get("PORT", 10000))
 import sys
 import tempfile
 import shutil
@@ -1139,3 +1140,4 @@ if __name__ == '__main__':
         serve(app, host='0.0.0.0', port=port)
     else:
         app.run(host='0.0.0.0', port=port, debug=True)
+
