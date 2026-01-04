@@ -177,29 +177,26 @@ class PDFProcessor:
                         pages.append(page_num)
                 except ValueError:
                     continue
+                    
+        def merge_pdfs(self, pdf_files, options=None):
+        """Fusionner plusieurs PDFs avec options"""
+        if options is None:
+            options = {}
         
-        # Retirer les doublons et trier
-        return sorted(set(pages))
-    
-    def merge_pdfs(self, pdf_files, options=None):
-    """Fusionner plusieurs PDFs avec options"""
-    if options is None:
-        options = {}
-    
-    writer = PyPDF2.PdfWriter()
-    watermark = options.get('watermark', {})
-    metadata = options.get('metadata', {})
-    rotation = options.get('rotation', {})  # ← Nouveau: option rotation
-    
-    # Créer le filigrane si demandé
-    watermark_pdf = None
-    if watermark.get('enabled') and watermark.get('text'):
-        watermark_pdf = self.create_watermark(
-            watermark['text'],
-            watermark.get('position', 'center'),
-            watermark.get('opacity', 0.3),
-            watermark.get('font_size', 48)
-        )
+        writer = PyPDF2.PdfWriter()
+        watermark = options.get('watermark', {})
+        metadata = options.get('metadata', {})
+        rotation = options.get('rotation', {})  # ← Nouveau: option rotation
+        
+        # Créer le filigrane si demandé
+        watermark_pdf = None
+        if watermark.get('enabled') and watermark.get('text'):
+            watermark_pdf = self.create_watermark(
+                watermark['text'],
+                watermark.get('position', 'center'),
+                watermark.get('opacity', 0.3),
+                watermark.get('font_size', 48)
+            )
     
     # Fusionner tous les PDFs
     for pdf_data in pdf_files:
@@ -1839,6 +1836,7 @@ if __name__ == '__main__':
         serve(app, host='0.0.0.0', port=port)
     else:
         app.run(host='0.0.0.0', port=port, debug=True)
+
 
 
 
