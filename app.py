@@ -182,7 +182,7 @@ class PDFProcessor:
         return sorted(set(pages))
     
     def merge_pdfs(self, pdf_files, options=None):
-"""Fusionner plusieurs PDFs avec options"""
+    """Fusionner plusieurs PDFs avec options"""
     if options is None:
         options = {}
     
@@ -1839,6 +1839,7 @@ if __name__ == '__main__':
         serve(app, host='0.0.0.0', port=port)
     else:
         app.run(host='0.0.0.0', port=port, debug=True)
+
 
 
 
