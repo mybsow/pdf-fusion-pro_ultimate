@@ -179,8 +179,8 @@ class PDFProcessor:
                 except ValueError:
                     continue
         
-        return pages  # <-- CORRECTION: Ajout du return
-                    
+        return pages
+    
     def merge_pdfs(self, pdf_files, options=None):
         """Fusionner plusieurs PDFs avec options"""
         if options is None:
@@ -189,7 +189,7 @@ class PDFProcessor:
         writer = PyPDF2.PdfWriter()
         watermark = options.get('watermark', {})
         metadata = options.get('metadata', {})
-        rotation = options.get('rotation', {})  # ← Nouveau: option rotation
+        rotation = options.get('rotation', {})
         
         # Créer le filigrane si demandé
         watermark_pdf = None
@@ -201,7 +201,6 @@ class PDFProcessor:
                 watermark.get('font_size', 48)
             )
         
-        # CORRECTION: Indentation corrigée ici
         # Fusionner tous les PDFs
         for pdf_data in pdf_files:
             # Créer un fichier temporaire
@@ -382,8 +381,7 @@ def compress_pdf():
         # Lire le fichier
         original_data = file.read()
         
-        # Simple compression (dans la vraie vie, vous utiliseriez une vraie compression)
-        # Ici on retourne le même fichier
+        # Simple compression
         return jsonify({
             'success': True,
             'original_size': len(original_data),
@@ -448,7 +446,7 @@ def rotate_pdf():
         
         # Récupérer les paramètres de rotation
         angle = data.get('angle', 90)
-        pages = data.get('pages', 'all')  # 'all' ou chaîne comme "1,3,5" ou "1-5"
+        pages = data.get('pages', 'all')
         
         # Valider l'angle
         if angle not in [90, 180, 270]:
@@ -478,11 +476,8 @@ def rotate_pdf():
         return jsonify({'error': str(e)}), 500
 
 # ============================================
-# TEMPLATE HTML (corrigé)
+# TEMPLATE HTML CORRIGÉ
 # ============================================
-
-# Le template HTML est trop long pour être affiché en entier ici
-# Mais voici les corrections principales dans le JavaScript :
 
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
@@ -501,25 +496,584 @@ HTML_TEMPLATE = '''
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     
     <style>
-        /* ... (le CSS reste inchangé) ... */
+        :root {
+            --primary-color: #0d6efd;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --dark-bg: #212529;
+            --darker-bg: #1a1d20;
+            --light-text: #f8f9fa;
+            --muted-text: #6c757d;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+            min-height: 100vh;
+            color: var(--light-text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .card {
+            background: rgba(33, 37, 41, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .drop-area {
+            border: 3px dashed var(--primary-color);
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            background: rgba(13, 110, 253, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .drop-area.dragover {
+            background: rgba(13, 110, 253, 0.2);
+            border-color: var(--success-color);
+            transform: scale(1.02);
+        }
+        
+        .file-item {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .progress-ring {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        .watermark-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .watermark-preview::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 3rem;
+            opacity: 0.2;
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #6610f2 100%);
+            color: white;
+            border: none;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            max-width: 500px;
+        }
+        
+        @media (max-width: 768px) {
+            .drop-area {
+                padding: 2rem 1rem;
+                min-height: 200px;
+            }
+            
+            .watermark-preview {
+                height: 100px;
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- ... (le HTML reste inchangé jusqu'au JavaScript) ... -->
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#" onclick="showHome()">
+                <i class="fas fa-file-pdf me-2"></i>PDF Fusion Pro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showHome()">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showMerge()">Fusion PDF</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showTools()">Outils</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showAbout()">À propos</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <div class="container py-5">
+        <!-- Page d'accueil -->
+        <div id="homePage" style="display: block;">
+            <div class="row mb-5">
+                <div class="col-12 text-center">
+                    <h1 class="display-4 fw-bold mb-3">Fusionnez vos PDFs gratuitement</h1>
+                    <p class="lead mb-4">Outils PDF en ligne 100% gratuit • Aucune inscription requise • Traitement sécurisé</p>
+                    
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-3">
+                            <div class="card h-100 text-center p-3">
+                                <div class="feature-icon">
+                                    <i class="fas fa-merge"></i>
+                                </div>
+                                <h4>Fusion PDF</h4>
+                                <p>Combinez plusieurs fichiers PDF en un seul document</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100 text-center p-3">
+                                <div class="feature-icon" style="background: var(--success-color);">
+                                    <i class="fas fa-compress"></i>
+                                </div>
+                                <h4>Compression</h4>
+                                <p>Réduisez la taille de vos PDFs sans perte de qualité</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100 text-center p-3">
+                                <div class="feature-icon" style="background: var(--warning-color);">
+                                    <i class="fas fa-rotate"></i>
+                                </div>
+                                <h4>Rotation</h4>
+                                <p>Tournez les pages de vos PDFs (90°, 180°, 270°)</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100 text-center p-3">
+                                <div class="feature-icon" style="background: var(--danger-color);">
+                                    <i class="fas fa-water"></i>
+                                </div>
+                                <h4>Filigrane</h4>
+                                <p>Ajoutez un filigrane personnalisé à vos documents</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-lg px-5 py-3" onclick="showMerge()">
+                        <i class="fas fa-play me-2"></i>Commencer maintenant
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <div class="card stats-card">
+                        <div class="card-body text-center">
+                            <h3 class="mb-3">
+                                <i class="fas fa-chart-line me-2"></i>
+                                <span id="statsCount">12,345</span> PDFs traités
+                            </h3>
+                            <p class="mb-0">Rejoignez nos utilisateurs satisfaits !</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page de fusion -->
+        <div id="mergePage" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="mb-3"><i class="fas fa-merge me-2"></i>Fusionner des PDFs</h2>
+                    <p class="text-muted">Sélectionnez vos fichiers PDF à fusionner</p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8 mb-4">
+                    <!-- Zone de dépôt -->
+                    <div id="dropZone" class="drop-area mb-4">
+                        <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                        <h4>Glissez-déposez vos PDFs ici</h4>
+                        <p class="text-muted">ou</p>
+                        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Parcourir les fichiers
+                        </button>
+                        <input type="file" id="fileInput" accept=".pdf" multiple style="display: none;">
+                    </div>
+                    
+                    <!-- Liste des fichiers -->
+                    <div id="fileList" class="mb-4">
+                        <div class="alert alert-secondary text-center">
+                            Aucun fichier sélectionné
+                        </div>
+                    </div>
+                    
+                    <!-- Options de fusion -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Options de fusion</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Filigrane -->
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="addWatermark">
+                                        <label class="form-check-label" for="addWatermark">
+                                            <strong>Ajouter un filigrane</strong>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="watermarkText" class="form-label">Texte du filigrane</label>
+                                        <input type="text" class="form-control" id="watermarkText" 
+                                               value="CONFIDENTIEL" placeholder="Entrez votre texte">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Aperçu du filigrane</label>
+                                        <div id="watermarkPreview" class="watermark-preview" data-text="CONFIDENTIEL">
+                                            CONFIDENTIEL
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Rotation -->
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="enableRotation">
+                                        <label class="form-check-label" for="enableRotation">
+                                            <strong>Rotation des pages</strong>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="rotationAngleSelect" class="form-label">Angle de rotation</label>
+                                        <select class="form-select" id="rotationAngleSelect">
+                                            <option value="90">90° (quart de tour)</option>
+                                            <option value="180">180° (demi-tour)</option>
+                                            <option value="270">270° (trois quarts)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="rotationPages" class="form-label">
+                                            Pages à tourner (ex: "1,3,5" ou "1-5")
+                                        </label>
+                                        <input type="text" class="form-control" id="rotationPages" 
+                                               placeholder="Laissez vide pour toutes les pages">
+                                        <small class="text-muted">Numéros séparés par des virgules ou plages avec "-"</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Métadonnées -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="docTitle" class="form-label">Titre du document</label>
+                                    <input type="text" class="form-control" id="docTitle" placeholder="Titre optionnel">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="docAuthor" class="form-label">Auteur</label>
+                                    <input type="text" class="form-control" id="docAuthor" placeholder="Auteur optionnel">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bouton de fusion -->
+                    <button id="mergeBtn" class="btn btn-success btn-lg w-100 py-3" onclick="mergePDFs()" disabled>
+                        <i class="fas fa-merge me-2"></i>Fusionner les PDFs
+                    </button>
+                </div>
+                
+                <!-- Statistiques -->
+                <div class="col-lg-4">
+                    <div class="card sticky-top" style="top: 20px;">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="d-flex justify-content-center mb-4">
+                                <svg class="progress-ring" viewBox="0 0 100 100">
+                                    <circle class="progress-ring-background" cx="50" cy="50" r="36" stroke="#e9ecef" stroke-width="8" fill="transparent"/>
+                                    <circle class="progress-ring-circle" cx="50" cy="50" r="36" stroke="#0d6efd" stroke-width="8" fill="transparent" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            
+                            <div class="row text-center">
+                                <div class="col-6 mb-3">
+                                    <div class="display-6 fw-bold" id="totalPages">0</div>
+                                    <small class="text-muted">Pages totales</small>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="display-6 fw-bold" id="fileCount">0</div>
+                                    <small class="text-muted">Fichiers</small>
+                                </div>
+                                <div class="col-12">
+                                    <div class="display-6 fw-bold" id="totalSize">0.00</div>
+                                    <small class="text-muted">MB totaux</small>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Limites :</strong><br>
+                                • Max 20 fichiers par fusion<br>
+                                • Max 50 MB par fichier<br>
+                                • Max 500 pages totales
+                            </div>
+                            
+                            <div class="alert alert-warning">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                <strong>Vos données sont privées</strong><br>
+                                Les fichiers sont supprimés automatiquement après traitement.
+                                <button class="btn btn-sm btn-outline-warning mt-2" onclick="showPrivacy()">
+                                    En savoir plus
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page outils -->
+        <div id="toolsPage" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="mb-3"><i class="fas fa-tools me-2"></i>Outils PDF</h2>
+                    <p class="text-muted">Autres outils pour vos documents PDF</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 text-center p-4">
+                        <div class="feature-icon" style="background: var(--success-color);">
+                            <i class="fas fa-compress"></i>
+                        </div>
+                        <h4 class="mb-3">Compresser PDF</h4>
+                        <p class="mb-4">Réduisez la taille de vos fichiers PDF pour les partager plus facilement.</p>
+                        <button class="btn btn-success w-100" onclick="compressPDF()">
+                            <i class="fas fa-play me-2"></i>Compresser un PDF
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 text-center p-4">
+                        <div class="feature-icon" style="background: var(--warning-color);">
+                            <i class="fas fa-rotate"></i>
+                        </div>
+                        <h4 class="mb-3">Rotation PDF</h4>
+                        <p class="mb-4">Tournez les pages de vos documents PDF (90°, 180°, 270°).</p>
+                        <div class="mb-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="rotationAngle" id="rotate90" value="90" checked>
+                                <label class="form-check-label" for="rotate90">90°</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="rotationAngle" id="rotate180" value="180">
+                                <label class="form-check-label" for="rotate180">180°</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="rotationAngle" id="rotate270" value="270">
+                                <label class="form-check-label" for="rotate270">270°</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="pagesToRotate" placeholder="Pages (ex: 1,3,5 ou 1-5)">
+                            <small class="text-muted">Laissez vide pour toutes les pages</small>
+                        </div>
+                        <button class="btn btn-warning w-100" onclick="rotatePDF()">
+                            <i class="fas fa-sync me-2"></i>Tourner un PDF
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 text-center p-4">
+                        <div class="feature-icon" style="background: var(--danger-color);">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <h4 class="mb-3">Informations PDF</h4>
+                        <p class="mb-4">Obtenez des informations détaillées sur vos fichiers PDF (pages, taille, métadonnées).</p>
+                        <button class="btn btn-info w-100" onclick="getPDFInfo()">
+                            <i class="fas fa-chart-bar me-2"></i>Analyser un PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page à propos -->
+        <div id="aboutPage" style="display: none;">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="mb-4"><i class="fas fa-info-circle me-2"></i>À propos de PDF Fusion Pro</h2>
+                            
+                            <div class="mb-4">
+                                <h4>Notre mission</h4>
+                                <p>PDF Fusion Pro est un outil en ligne gratuit qui permet à tous de manipuler facilement des documents PDF. Nous croyons que les outils professionnels devraient être accessibles à tous, gratuitement.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h4>Fonctionnalités principales</h4>
+                                <ul>
+                                    <li><strong>Fusion PDF :</strong> Combinez plusieurs fichiers PDF en un seul document</li>
+                                    <li><strong>Compression :</strong> Réduisez la taille de vos PDFs</li>
+                                    <li><strong>Rotation :</strong> Tournez les pages selon vos besoins</li>
+                                    <li><strong>Filigrane :</strong> Ajoutez des filigranes personnalisés</li>
+                                    <li><strong>Métadonnées :</strong> Modifiez les informations du document</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h4>Sécurité et confidentialité</h4>
+                                <p>Vos fichiers sont traités de manière sécurisée sur nos serveurs et sont automatiquement supprimés après traitement. Nous ne conservons aucune copie de vos documents.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h4>Contact</h4>
+                                <p>Développé avec ❤️ par <strong>''' + DEVELOPER_NAME + '''</strong></p>
+                                <p>Email : ''' + DEVELOPER_EMAIL + '''</p>
+                                <p>Version : ''' + APP_VERSION + '''</p>
+                            </div>
+                            
+                            <div class="alert alert-primary">
+                                <i class="fas fa-star me-2"></i>
+                                <strong>Cet outil est 100% gratuit !</strong> Aucune inscription, aucune limitation cachée.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de progression -->
+    <div class="modal fade" id="progressModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="progressTitle">Traitement en cours</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                             style="width: 0%;"></div>
+                    </div>
+                    <p id="progressMessage" class="text-center mb-0">Veuillez patienter...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
         // Variables globales
         let files = [];
         let currentPage = 'home';
         
-        // Initialisation
+        // Initialisation avec vérification des éléments
         document.addEventListener('DOMContentLoaded', function() {
-            setupDragAndDrop();
-            updateWatermarkPreview();
-            simulateStats();
+            console.log('DOM chargé - vérification des éléments...');
             
-            // Mettre à jour l'aperçu quand le texte change
-            document.getElementById('watermarkText').addEventListener('input', updateWatermarkPreview);
+            // Vérifier tous les éléments critiques
+            const elementsToCheck = [
+                'dropZone',
+                'fileInput', 
+                'watermarkText',
+                'addWatermark',
+                'watermarkPreview',
+                'mergeBtn',
+                'fileList',
+                'totalPages',
+                'fileCount',
+                'totalSize',
+                'progressModal'
+            ];
+            
+            elementsToCheck.forEach(id => {
+                const element = document.getElementById(id);
+                if (!element) {
+                    console.warn(`⚠️ Élément #${id} non trouvé dans le DOM`);
+                }
+            });
+            
+            // Initialiser les composants
+            if (document.getElementById('dropZone')) {
+                setupDragAndDrop();
+            }
+            
+            if (document.getElementById('watermarkText')) {
+                updateWatermarkPreview();
+                document.getElementById('watermarkText').addEventListener('input', updateWatermarkPreview);
+            }
+            
+            simulateStats();
         });
         
         // Navigation
@@ -547,54 +1101,78 @@ HTML_TEMPLATE = '''
         function showPage(pageId) {
             // Cacher toutes les pages
             ['homePage', 'mergePage', 'toolsPage', 'aboutPage'].forEach(id => {
-                document.getElementById(id).style.display = 'none';
+                const element = document.getElementById(id);
+                if (element) {
+                    element.style.display = 'none';
+                }
             });
             
             // Afficher la page demandée
-            document.getElementById(pageId).style.display = 'block';
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.style.display = 'block';
+            }
         }
         
-        // Configuration drag & drop
+        // Configuration drag & drop avec vérifications
         function setupDragAndDrop() {
             const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
             
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
+            if (!dropZone) {
+                console.error('❌ setupDragAndDrop: dropZone non trouvé');
+                return;
             }
             
+            if (!fileInput) {
+                console.error('❌ setupDragAndDrop: fileInput non trouvé');
+                return;
+            }
+            
+            // Prévenir les comportements par défaut
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+            
+            // Ajouter classe dragover
             ['dragenter', 'dragover'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => {
+                dropZone.addEventListener(eventName, function() {
                     dropZone.classList.add('dragover');
-                });
+                }, false);
             });
             
+            // Retirer classe dragover
             ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => {
+                dropZone.addEventListener(eventName, function() {
                     dropZone.classList.remove('dragover');
-                });
+                }, false);
             });
             
-            dropZone.addEventListener('drop', handleDrop, false);
-            
-            function handleDrop(e) {
+            // Gérer le drop
+            dropZone.addEventListener('drop', function(e) {
                 const dt = e.dataTransfer;
                 const fileList = dt.files;
                 handleFiles(fileList);
-            }
+            }, false);
             
-            // Gestion du file input
-            document.getElementById('fileInput').addEventListener('change', function(e) {
+            // Gérer le file input
+            fileInput.addEventListener('change', function(e) {
                 handleFiles(e.target.files);
             });
+            
+            console.log('✅ Drag and drop configuré');
         }
         
         // Gérer les fichiers
         async function handleFiles(fileList) {
+            if (!fileList || fileList.length === 0) {
+                showToast('Veuillez sélectionner des fichiers', 'warning');
+                return;
+            }
+            
             const pdfFiles = Array.from(fileList).filter(file => 
                 file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
             );
@@ -628,7 +1206,7 @@ HTML_TEMPLATE = '''
                     const fileData = {
                         name: file.name,
                         size: file.size,
-                        data: e.target.result.split(',')[1],  // Base64 sans le préfixe
+                        data: e.target.result.split(',')[1],
                         pages: await getPageCount(file)
                     };
                     
@@ -658,6 +1236,7 @@ HTML_TEMPLATE = '''
                             resolve(1);
                         }
                     } catch (error) {
+                        console.warn('Erreur comptage pages:', error);
                         resolve(1);
                     }
                 };
@@ -668,6 +1247,7 @@ HTML_TEMPLATE = '''
         // Mettre à jour la liste des fichiers
         function updateFileList() {
             const fileList = document.getElementById('fileList');
+            if (!fileList) return;
             
             if (files.length === 0) {
                 fileList.innerHTML = '<div class="alert alert-secondary text-center">Aucun fichier sélectionné</div>';
@@ -701,10 +1281,12 @@ HTML_TEMPLATE = '''
         
         // Supprimer un fichier
         function removeFile(index) {
-            files.splice(index, 1);
-            updateFileList();
-            updateStatsDisplay();
-            updateMergeButton();
+            if (index >= 0 && index < files.length) {
+                files.splice(index, 1);
+                updateFileList();
+                updateStatsDisplay();
+                updateMergeButton();
+            }
         }
         
         // Mettre à jour les statistiques
@@ -713,9 +1295,13 @@ HTML_TEMPLATE = '''
             const totalSize = files.reduce((sum, file) => sum + (file.size || 0), 0);
             const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
             
-            document.getElementById('totalPages').textContent = totalPages;
-            document.getElementById('fileCount').textContent = files.length;
-            document.getElementById('totalSize').textContent = totalSizeMB;
+            const totalPagesEl = document.getElementById('totalPages');
+            const fileCountEl = document.getElementById('fileCount');
+            const totalSizeEl = document.getElementById('totalSize');
+            
+            if (totalPagesEl) totalPagesEl.textContent = totalPages;
+            if (fileCountEl) fileCountEl.textContent = files.length;
+            if (totalSizeEl) totalSizeEl.textContent = totalSizeMB;
             
             // Mettre à jour la jauge
             const progressCircle = document.querySelector('#mergePage .progress-ring-circle');
@@ -740,11 +1326,14 @@ HTML_TEMPLATE = '''
         
         // Mettre à jour l'aperçu du filigrane
         function updateWatermarkPreview() {
-            const text = document.getElementById('watermarkText').value || 'EXEMPLE';
+            const textInput = document.getElementById('watermarkText');
             const preview = document.getElementById('watermarkPreview');
-            if (preview) {
-                preview.textContent = text;
-            }
+            
+            if (!textInput || !preview) return;
+            
+            const text = textInput.value || 'EXEMPLE';
+            preview.textContent = text;
+            preview.setAttribute('data-text', text);
         }
         
         // Fusionner les PDFs
@@ -764,18 +1353,25 @@ HTML_TEMPLATE = '''
                 // Récupérer les options
                 const options = {
                     watermark: {
-                        enabled: document.getElementById('addWatermark').checked,
-                        text: document.getElementById('watermarkText').value || 'PDF Fusion Pro'
+                        enabled: document.getElementById('addWatermark') ? 
+                                document.getElementById('addWatermark').checked : false,
+                        text: document.getElementById('watermarkText') ? 
+                              document.getElementById('watermarkText').value || 'PDF Fusion Pro' : 'PDF Fusion Pro'
                     },
                     metadata: {
-                        title: document.getElementById('docTitle').value || '',
-                        author: document.getElementById('docAuthor').value || '',
+                        title: document.getElementById('docTitle') ? 
+                              document.getElementById('docTitle').value : '',
+                        author: document.getElementById('docAuthor') ? 
+                               document.getElementById('docAuthor').value : '',
                         auto_date: true
                     },
                     rotation: {
-                        enabled: document.getElementById('enableRotation') ? document.getElementById('enableRotation').checked : false,
-                        angle: parseInt(document.getElementById('rotationAngleSelect') ? document.getElementById('rotationAngleSelect').value : 90),
-                        pages: document.getElementById('rotationPages') ? document.getElementById('rotationPages').value.trim() || 'all' : 'all'
+                        enabled: document.getElementById('enableRotation') ? 
+                               document.getElementById('enableRotation').checked : false,
+                        angle: document.getElementById('rotationAngleSelect') ? 
+                              parseInt(document.getElementById('rotationAngleSelect').value) : 90,
+                        pages: document.getElementById('rotationPages') ? 
+                              document.getElementById('rotationPages').value.trim() || 'all' : 'all'
                     }
                 };
                 
@@ -849,7 +1445,6 @@ HTML_TEMPLATE = '''
                 
                 const file = input.files[0];
                 
-                // Vérifier la taille
                 if (file.size > 50 * 1024 * 1024) {
                     showToast('Fichier trop grand (max 50MB)', 'error');
                     return;
@@ -965,7 +1560,6 @@ HTML_TEMPLATE = '''
                 
                 const file = input.files[0];
                 
-                // Vérifier la taille
                 if (file.size > 50 * 1024 * 1024) {
                     showToast('Fichier trop grand (max 50MB)', 'error');
                     return;
@@ -984,7 +1578,6 @@ HTML_TEMPLATE = '''
                 progressModal.show();
                 
                 try {
-                    // Lire le fichier
                     const reader = new FileReader();
                     reader.onload = async function(e) {
                         const fileData = {
@@ -993,7 +1586,6 @@ HTML_TEMPLATE = '''
                             data: e.target.result.split(',')[1]
                         };
                         
-                        // Préparer les données
                         const requestData = {
                             file: fileData,
                             angle: parseInt(angle),
@@ -1003,7 +1595,6 @@ HTML_TEMPLATE = '''
                         document.getElementById('progressBar').style.width = '50%';
                         document.getElementById('progressMessage').textContent = 'Envoi au serveur...';
                         
-                        // Envoyer au serveur
                         const response = await fetch('/api/rotate', {
                             method: 'POST',
                             headers: {
@@ -1018,7 +1609,6 @@ HTML_TEMPLATE = '''
                         const result = await response.json();
                         
                         if (result.success) {
-                            // Télécharger le fichier tourné
                             const pdfData = base64ToArrayBuffer(result.data);
                             const blob = new Blob([pdfData], { type: 'application/pdf' });
                             const url = window.URL.createObjectURL(blob);
@@ -1133,11 +1723,10 @@ if __name__ == '__main__':
     # Démarrer le serveur
     port = int(os.environ.get('PORT', 5000))
     
-    # Utiliser waitress pour la production (meilleur que gunicorn sur Windows)
+    # Utiliser waitress pour la production
     if os.environ.get('RENDER'):
         from waitress import serve
         print(f"Démarrage du serveur sur le port {port}...")
         serve(app, host='0.0.0.0', port=port)
     else:
         app.run(host='0.0.0.0', port=port, debug=True)
-
