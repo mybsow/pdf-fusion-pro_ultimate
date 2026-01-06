@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 
 # Configuration Flask
-from flask import Flask, render_template_string, request, jsonify, send_file, Response
+from flask import Flask, render_template_string, request, jsonify, send_file, Response, send_from_directory
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 
