@@ -1,3 +1,9 @@
+# === PERSONNALISATION ===
+DEVELOPER_NAME = "MBSOW"  # ← VOTRE NOM ICI
+DEVELOPER_EMAIL = "banousow@gmail.com"  # ← VOTRE EMAIL
+APP_VERSION = "3.0.0"
+# ========================
+
 import os
 import sys
 import tempfile
@@ -84,6 +90,97 @@ class PDFProcessor:
         packet.seek(0)
         return PyPDF2.PdfReader(packet)
     
+    def rotate_pages(self, pdf_data, angle=90, pages_range=None):
+        """
+        Tourner les pages d'un PDF
+        
+        Args:
+            pdf_data: Données PDF brutes
+            angle: Angle de rotation (90, 180, 270)
+            pages_range: Liste de pages à tourner (ex: [1,3,5] ou "1-5,7,9-12")
+        """
+        # Créer un fichier temporaire
+        temp_path = os.path.join(self.temp_dir, f"rotate_temp_{uuid.uuid4().hex}.pdf")
+        with open(temp_path, 'wb') as f:
+            f.write(pdf_data)
+        self.temp_files.append(temp_path)
+        
+        # Lire le PDF
+        pdf_reader = PyPDF2.PdfReader(temp_path)
+        pdf_writer = PyPDF2.PdfWriter()
+        
+        # Convertir pages_range en liste de pages
+        pages_to_rotate = []
+        if pages_range:
+            if isinstance(pages_range, str):
+                pages_to_rotate = self.parse_pages_range(pages_range, len(pdf_reader.pages))
+            elif isinstance(pages_range, list):
+                pages_to_rotate = pages_range
+        
+        # Traiter chaque page
+        for page_num in range(len(pdf_reader.pages)):
+            page = pdf_reader.pages[page_num]
+            
+            # Vérifier si cette page doit être tournée
+            if not pages_range or (page_num in pages_to_rotate):
+                # Appliquer la rotation
+                if angle in [90, 180, 270]:
+                    page.rotate(angle)
+            
+            pdf_writer.add_page(page)
+        
+        # Générer le PDF tourné
+        output = io.BytesIO()
+        pdf_writer.write(output)
+        return output.getvalue()
+    
+    def parse_pages_range(self, pages_str, total_pages):
+        """
+        Convertir une chaîne de pages en liste
+        
+        Exemples:
+            "1,3,5" -> [0, 2, 4]
+            "1-5" -> [0, 1, 2, 3, 4]
+            "1-3,5,7-9" -> [0, 1, 2, 4, 6, 7, 8]
+        """
+        pages = []
+        if not pages_str:
+            return pages
+        
+        # Nettoyer la chaîne
+        pages_str = pages_str.replace(" ", "")
+        
+        # Séparer par les virgules
+        parts = pages_str.split(",")
+        
+        for part in parts:
+            if "-" in part:
+                # C'est une plage (ex: "1-5")
+                try:
+                    start, end = part.split("-")
+                    start = int(start) - 1  # Convertir en index 0-based
+                    end = int(end) - 1
+                    
+                    # Ajuster les limites
+                    start = max(0, start)
+                    end = min(total_pages - 1, end)
+                    
+                    # Ajouter toutes les pages de la plage
+                    pages.extend(range(start, end + 1))
+                except ValueError:
+                    continue
+            else:
+                # C'est une page unique
+                try:
+                    page_num = int(part) - 1  # Convertir en index 0-based
+                    if 0 <= page_num < total_pages:
+                        pages.append(page_num)
+                except ValueError:
+                    continue
+        
+        # Retirer les doublons et trier
+        return sorted(set(pages))
+    
     def merge_pdfs(self, pdf_files, options=None):
         """Fusionner plusieurs PDFs"""
         if options is None:
@@ -149,7 +246,7 @@ class PDFProcessor:
 @app.route('/google6f0d847067bbd18a.html')
 def google_verification():
     """Route de vérification Google Search Console"""
-    return send_from_directory('static', 'google6f0d847067bbd18a.html')
+    return render_template_string('google-site-verification: google6f0d847067bbd18a.html')
 
 @app.route('/')
 def home():
@@ -162,7 +259,9 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'service': 'PDF Fusion Pro',
-        'version': '2.0.0',
+        'version': APP_VERSION,
+        'developer': DEVELOPER_NAME,
+        'email': DEVELOPER_EMAIL,
         'timestamp': datetime.now().isoformat(),
         'environment': os.environ.get('RENDER', 'development')
     })
@@ -208,7 +307,8 @@ def upload_files():
         return jsonify({
             'success': True,
             'files': uploaded_files,
-            'count': len(uploaded_files)
+            'count': len(uploaded_files),
+            'developer': DEVELOPER_NAME
         })
         
     except Exception as e:
@@ -250,7 +350,9 @@ def merge_pdfs():
                 'success': True,
                 'filename': 'document-fusionne.pdf',
                 'data': base64.b64encode(merged_pdf).decode('utf-8'),
-                'size': len(merged_pdf)
+                'size': len(merged_pdf),
+                'developer': DEVELOPER_NAME,
+                'version': APP_VERSION
             })
         finally:
             processor.cleanup()
@@ -277,7 +379,8 @@ def compress_pdf():
             'original_size': len(original_data),
             'compressed_size': len(original_data),
             'reduction': '0%',
-            'data': base64.b64encode(original_data).decode('utf-8')
+            'data': base64.b64encode(original_data).decode('utf-8'),
+            'developer': DEVELOPER_NAME
         })
         
     except Exception as e:
@@ -300,7 +403,8 @@ def get_pdf_info():
             'size': len(file_data),
             'pages': len(pdf_reader.pages),
             'encrypted': pdf_reader.is_encrypted,
-            'metadata': {}
+            'metadata': {},
+            'analyzed_by': DEVELOPER_NAME
         }
         
         if pdf_reader.metadata:
@@ -316,6 +420,56 @@ def get_pdf_info():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/rotate', methods=['POST'])
+def rotate_pdf():
+    """Tourner les pages d'un PDF"""
+    try:
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type doit être application/json'}), 400
+        
+        data = request.get_json()
+        
+        if not data or 'file' not in data:
+            return jsonify({'error': 'Aucun fichier fourni'}), 400
+        
+        # Décoder le fichier base64
+        try:
+            pdf_data = base64.b64decode(data['file']['data'])
+        except:
+            return jsonify({'error': 'Données PDF invalides'}), 400
+        
+        # Récupérer les paramètres de rotation
+        angle = data.get('angle', 90)
+        pages = data.get('pages', 'all')  # 'all' ou chaîne comme "1,3,5" ou "1-5"
+        
+        # Valider l'angle
+        if angle not in [90, 180, 270]:
+            return jsonify({'error': 'Angle invalide. Utilisez 90, 180 ou 270.'}), 400
+        
+        # Traiter le PDF
+        processor = PDFProcessor()
+        try:
+            rotated_pdf = processor.rotate_pages(
+                pdf_data, 
+                angle=angle, 
+                pages_range=None if pages == 'all' else pages
+            )
+            
+            return jsonify({
+                'success': True,
+                'filename': f'rotated_{angle}deg.pdf',
+                'data': base64.b64encode(rotated_pdf).decode('utf-8'),
+                'size': len(rotated_pdf),
+                'angle': angle,
+                'pages': pages,
+                'developer': DEVELOPER_NAME
+            })
+        finally:
+            processor.cleanup()
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # ============================================
 # TEMPLATE HTML
 # ============================================
@@ -328,6 +482,7 @@ HTML_TEMPLATE = '''
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Fusion Pro - Fusionnez vos PDFs gratuitement</title>
     <meta name="description" content="Fusionnez, compressez et modifiez vos PDFs en ligne gratuitement. Outil PDF 100% gratuit et sécurisé.">
+    <meta name="google-site-verification" content="google6f0d847067bbd18a" />
     
     <!-- Bootstrap 5.3 Dark Theme -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -437,7 +592,7 @@ HTML_TEMPLATE = '''
             height: 70px;
             background: linear-gradient(135deg, var(--primary), #0b5ed7);
             border-radius: 50%;
-            display: flex;
+            display flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 20px;
@@ -505,6 +660,30 @@ HTML_TEMPLATE = '''
         
         .pulse {
             animation: pulse 1.5s infinite;
+        }
+        
+        /* Footer personnalisé */
+        .footer-custom {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .developer-badge {
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 8px 20px;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+        
+        .developer-badge a:hover {
+            color: #4cc9f0 !important;
+            text-decoration: underline !important;
+        }
+        
+        .footer-info a:hover {
+            color: #fff !important;
         }
         
         /* Responsive */
@@ -752,6 +931,57 @@ HTML_TEMPLATE = '''
                         </div>
                     </div>
                 </div>
+
+                <!-- Rotation PDF -->
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-dark h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-sync-alt"></i>
+                            </div>
+                            <h4>Rotation PDF</h4>
+                            <p class="text-muted mb-4">Tournez les pages de vos PDFs</p>
+                            
+                            <!-- Interface de rotation -->
+                            <div class="rotation-interface">
+                                <!-- Sélection de l'angle -->
+                                <div class="mb-3">
+                                    <label class="form-label">Angle de rotation:</label>
+                                    <div class="btn-group w-100" role="group">
+                                        <input type="radio" class="btn-check" name="rotationAngle" id="rotate90" value="90" checked>
+                                        <label class="btn btn-outline-primary" for="rotate90">90°</label>
+                                        
+                                        <input type="radio" class="btn-check" name="rotationAngle" id="rotate180" value="180">
+                                        <label class="btn btn-outline-primary" for="rotate180">180°</label>
+                                        
+                                        <input type="radio" class="btn-check" name="rotationAngle" id="rotate270" value="270">
+                                        <label class="btn btn-outline-primary" for="rotate270">270°</label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Pages spécifiques -->
+                                <div class="mb-3">
+                                    <label class="form-label">Pages à tourner:</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="pagesToRotate" 
+                                               placeholder="Toutes les pages (ou ex: 1,3,5 ou 2-5)">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-info-circle" 
+                                               title="Exemples: '1,3,5' pour les pages 1,3,5 - '2-5' pour les pages 2 à 5"></i>
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">Laissez vide pour toutes les pages</small>
+                                </div>
+                                
+                                <!-- Bouton d'action -->
+                                <input type="file" id="rotateInput" class="d-none" accept=".pdf">
+                                <button class="btn btn-warning btn-lg w-100" onclick="rotatePDF()">
+                                    <i class="fas fa-redo-alt me-2"></i>Tourner le PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="col-md-6 mb-4">
                     <div class="card bg-dark h-100">
@@ -837,10 +1067,10 @@ HTML_TEMPLATE = '''
                         <div class="card-body">
                             <p>PDF Fusion Pro est un service 100% gratuit.</p>
                             <p>Pour signaler un problème ou suggérer une amélioration :</p>
-                            <button class="btn btn-outline-light w-100 mb-2">
+                            <button class="btn btn-outline-light w-100 mb-2" onclick="showContactModal()">
                                 <i class="fas fa-bug me-2"></i>Signaler un bug
                             </button>
-                            <button class="btn btn-outline-light w-100">
+                            <button class="btn btn-outline-light w-100" onclick="showContactModal()">
                                 <i class="fas fa-lightbulb me-2"></i>Suggérer une fonction
                             </button>
                         </div>
@@ -850,22 +1080,39 @@ HTML_TEMPLATE = '''
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-center py-4 mt-5">
-        <div class="container">
-            <p class="mb-2">
-                <i class="fas fa-code text-info me-1"></i>
-                Développé avec passion par PDF Fusion Pro
+<!-- Footer personnalisé -->
+<footer class="footer-custom text-center py-4 mt-5">
+    <div class="container">
+        <!-- Développeur avec badge -->
+        <div class="developer-badge mb-3">
+            <i class="fas fa-user-tie me-2"></i>
+            <span class="fw-bold">MBSOW</span>
+            <span class="mx-2">|</span>
+            <i class="fas fa-envelope me-1"></i>
+            <a href="mailto:banousow@gmail.com" class="text-light">banousow@gmail.com</a>
+        </div>
+        
+        <!-- Informations -->
+        <div class="footer-info">
+            <p class="mb-2 small">
+                <i class="fas fa-code me-1"></i>
+                Développé avec passion • 
+                <i class="fas fa-heart text-danger mx-1"></i>
+                • PDF Fusion Pro Ultimate
             </p>
+            
             <p class="text-muted small mb-0">
-                © 2024 PDF Fusion Pro - Service gratuit
-                <span class="mx-2">•</span>
-                <a href="#" class="text-muted text-decoration-none" onclick="showPrivacy()">Politique de confidentialité</a>
-                <span class="mx-2">•</span>
-                Hébergé sur <span class="text-info">Render.com</span>
+                © 2025 
+                <span class="mx-1">•</span>
+                <a href="#" class="text-muted" onclick="showPrivacy()">Confidentialité</a>
+                <span class="mx-1">•</span>
+                <span class="text-info">Render.com</span>
+                <span class="mx-1">•</span>
+                <span class="badge bg-success">Version 3.0</span>
             </p>
         </div>
-    </footer>
+    </div>
+</footer>
 
     <!-- Modal de progression -->
     <div class="modal fade" id="progressModal" tabindex="-1" data-bs-backdrop="static">
@@ -1299,7 +1546,9 @@ HTML_TEMPLATE = '''
                             <br>
                             <strong>Métadonnées:</strong><br>
                             Titre: ${result.metadata.title || 'Non spécifié'}<br>
-                            Auteur: ${result.metadata.author || 'Non spécifié'}
+                            Auteur: ${result.metadata.author || 'Non spécifié'}<br>
+                            <br>
+                            <small class="text-muted">Analysé par MBSOW</small>
                         `;
                         
                         showToast(info, 'info', 10000);
@@ -1311,6 +1560,111 @@ HTML_TEMPLATE = '''
                     showToast('Erreur: ' + error.message, 'error');
                 }
             };
+        }
+        
+        // Tourner un PDF
+        async function rotatePDF() {
+            const input = document.getElementById('rotateInput');
+            input.click();
+            
+            input.onchange = async function() {
+                if (!input.files.length) return;
+                
+                const file = input.files[0];
+                
+                // Vérifier la taille
+                if (file.size > 50 * 1024 * 1024) {
+                    showToast('Fichier trop grand (max 50MB)', 'error');
+                    return;
+                }
+                
+                // Récupérer les paramètres
+                const angle = document.querySelector('input[name="rotationAngle"]:checked').value;
+                const pages = document.getElementById('pagesToRotate').value || 'all';
+                
+                const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+                document.getElementById('progressTitle').textContent = 'Rotation en cours...';
+                document.getElementById('progressBar').style.width = '30%';
+                progressModal.show();
+                
+                try {
+                    // Lire le fichier
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const fileData = {
+                            name: file.name,
+                            size: file.size,
+                            data: e.target.result.split(',')[1]
+                        };
+                        
+                        // Envoyer au serveur
+                        processRotation(fileData, angle, pages, progressModal);
+                    };
+                    reader.readAsDataURL(file);
+                    
+                } catch (error) {
+                    progressModal.hide();
+                    showToast('Erreur: ' + error.message, 'error');
+                }
+            };
+        }
+        
+        // Traiter la rotation côté serveur
+        async function processRotation(fileData, angle, pages, progressModal) {
+            try {
+                document.getElementById('progressBar').style.width = '60%';
+                document.getElementById('progressMessage').textContent = 'Envoi au serveur...';
+                
+                const requestData = {
+                    file: fileData,
+                    angle: parseInt(angle),
+                    pages: pages
+                };
+                
+                const response = await fetch('/api/rotate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                document.getElementById('progressBar').style.width = '80%';
+                document.getElementById('progressMessage').textContent = 'Traitement en cours...';
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Télécharger le fichier tourné
+                    const pdfData = base64ToArrayBuffer(result.data);
+                    const blob = new Blob([pdfData], { type: 'application/pdf' });
+                    const url = window.URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = result.filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    document.getElementById('progressBar').style.width = '100%';
+                    document.getElementById('progressMessage').textContent = 'Terminé !';
+                    
+                    setTimeout(() => {
+                        progressModal.hide();
+                        showToast(`Rotation réussie ! Fichier tourné de ${angle}°`, 'success');
+                    }, 1000);
+                    
+                } else {
+                    progressModal.hide();
+                    showToast('Erreur: ' + result.error, 'error');
+                }
+                
+            } catch (error) {
+                progressModal.hide();
+                showToast('Erreur: ' + error.message, 'error');
+            }
         }
         
         // Fonctions utilitaires
@@ -1358,7 +1712,82 @@ HTML_TEMPLATE = '''
         }
         
         function showPrivacy() {
-            showToast('Vos fichiers sont traités sur nos serveurs et supprimés automatiquement après traitement.', 'info', 10000);
+            const privacyModal = `
+            <div class="modal fade" id="privacyModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content bg-dark">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                Politique de confidentialité
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <h6>Développeur:</h6>
+                            <p><strong>MBSOW</strong> - banousow@gmail.com</p>
+                            
+                            <h6>Notre engagement:</h6>
+                            <ul>
+                                <li>✅ Vos fichiers sont traités localement</li>
+                                <li>✅ Aucune donnée personnelle collectée</li>
+                                <li>✅ Aucun stockage sur nos serveurs</li>
+                                <li>✅ Service 100% gratuit</li>
+                                <li>✅ Connexion HTTPS sécurisée</li>
+                            </ul>
+                            
+                            <p class="mt-3 small text-muted">
+                                Application développée avec Flask, PyPDF2 et ReportLab<br>
+                                Version 3.0.0 • MBSOW
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            
+            // Créer et afficher le modal
+            document.body.insertAdjacentHTML('beforeend', privacyModal);
+            const modal = new bootstrap.Modal(document.getElementById('privacyModal'));
+            modal.show();
+            
+            // Nettoyer après fermeture
+            document.getElementById('privacyModal').addEventListener('hidden.bs.modal', function () {
+                this.remove();
+            });
+        }
+        
+        function showContactModal() {
+            const contactModal = `
+            <div class="modal fade" id="contactModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content bg-dark">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-envelope me-2"></i>
+                                Contacter le développeur
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>MBSOW</strong></p>
+                            <p><i class="fas fa-envelope me-2"></i>Email: <a href="mailto:banousow@gmail.com">banousow@gmail.com</a></p>
+                            <p><i class="fas fa-code me-2"></i>PDF Fusion Pro Ultimate v3.0.0</p>
+                            <hr>
+                            <p class="small text-muted">
+                                Merci d'utiliser notre service gratuit. Pour toute question, suggestion ou rapport de bug, contactez directement le développeur.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            
+            document.body.insertAdjacentHTML('beforeend', contactModal);
+            const modal = new bootstrap.Modal(document.getElementById('contactModal'));
+            modal.show();
+            
+            document.getElementById('contactModal').addEventListener('hidden.bs.modal', function () {
+                this.remove();
+            });
         }
     </script>
 </body>
@@ -1389,6 +1818,3 @@ if __name__ == '__main__':
         serve(app, host='0.0.0.0', port=port)
     else:
         app.run(host='0.0.0.0', port=port, debug=True)
-
-
-
