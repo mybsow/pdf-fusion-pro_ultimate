@@ -59,8 +59,8 @@ class PDFProcessor:
         try:
             if os.path.exists(self.temp_dir):
                 shutil.rmtree(self.temp_dir, ignore_errors=True)
-        except:
-            pass
+        except Exception as e:
+            print(f"Erreur lors du nettoyage: {e}")
     
     def create_watermark(self, text="CONFIDENTIEL", position="center", 
                         opacity=0.3, font_size=48, page_size=A4):
@@ -1835,11 +1835,6 @@ HTML_TEMPLATE = '''
 </html>
 '''
 
-# Variables pour le template
-HTML_TEMPLATE = HTML_TEMPLATE.replace('{{ DEVELOPER_NAME }}', DEVELOPER_NAME)\
-                             .replace('{{ DEVELOPER_EMAIL }}', DEVELOPER_EMAIL)\
-                             .replace('{{ APP_VERSION }}', APP_VERSION)
-
 # ============================================
 # POINT D'ENTRÉE
 # ============================================
@@ -1852,8 +1847,8 @@ if __name__ == '__main__':
         try:
             if os.path.exists(app.config['TEMP_FOLDER']):
                 shutil.rmtree(app.config['TEMP_FOLDER'], ignore_errors=True)
-        except:
-        pass
+        except Exception as e:
+            print(f"Erreur lors du nettoyage: {e}")
     
     # Démarrer le serveur
     port = int(os.environ.get('PORT', 5000))
