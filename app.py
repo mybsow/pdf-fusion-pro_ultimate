@@ -144,24 +144,12 @@ class PDFProcessor:
 # ============================================
 # ROUTES API
 # ============================================
+
+# ⭐⭐ ROUTE DE VÉRIFICATION GOOGLE ⭐⭐
 @app.route('/google6f0d847067bbd18a.html')
 def google_verification():
     """Route de vérification Google Search Console"""
     return send_from_directory('static', 'google6f0d847067bbd18a.html')
-
-# ⭐⭐ AJOUTEZ CETTE ROUTE POUR DEBUG ⭐⭐
-@app.route('/debug')
-def debug():
-    import os
-    import sys
-    return {
-        'app_loaded': True,
-        'python_version': sys.version,
-        'current_dir': os.listdir('.'),
-        'static_exists': os.path.exists('static'),
-        'files_in_static': os.listdir('static') if os.path.exists('static') else [],
-        'all_routes': [str(rule) for rule in app.url_map.iter_rules()]
-    }
 
 @app.route('/')
 def home():
@@ -1401,4 +1389,6 @@ if __name__ == '__main__':
         serve(app, host='0.0.0.0', port=port)
     else:
         app.run(host='0.0.0.0', port=port, debug=True)
+
+
 
