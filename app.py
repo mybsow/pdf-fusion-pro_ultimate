@@ -1896,6 +1896,21 @@ HTML_TEMPLATE = '''
 # POINT D'ENTRÉE
 # ============================================
 
+from flask import Flask, send_from_directory
+import os
+import shutil  # ⬅️ AJOUTEZ CE IMPORT SI VOUS UTILISEZ shutil
+
+app = Flask(__name__)
+
+# ... vos routes existantes ...
+
+# 🔽 AJOUTEZ CETTE ROUTE POUR GOOGLE (IMPORTANT !)
+@app.route('/google6f0d847067bbd18a.html')
+def google_verification():
+    return send_from_directory('static', 'google6f0d847067bbd18a.html')
+
+# ... autres routes ...
+
 if __name__ == '__main__':
     # Nettoyage à la fermeture
     import atexit
@@ -1917,3 +1932,4 @@ if __name__ == '__main__':
         serve(app, host='0.0.0.0', port=port)
     else:
         app.run(host='0.0.0.0', port=port, debug=True)
+
