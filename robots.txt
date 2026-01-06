@@ -1,6 +1,6 @@
 @app.route('/robots.txt')
 def robots():
-    robots_content = '''User-agent: *
+    return "User-agent: *\nAllow: /\nSitemap: https://pdf-fusion-pro-ultimate.onrender.com/sitemap.xml"
 Allow: /
 Sitemap: https://pdf-fusion-pro-ultimate.onrender.com/sitemap.xml'''
     return Response(robots_content, mimetype='text/plain')
