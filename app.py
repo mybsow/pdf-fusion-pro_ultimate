@@ -248,6 +248,25 @@ def google_verification():
     """Route de vérification Google Search Console"""
     return render_template_string('google-site-verification: google6f0d847067bbd18a.html')
 
+# ⭐⭐ ROUTE SITEMAP (AJOUTEZ-MOI) ⭐⭐
+@app.route('/sitemap.xml')
+def sitemap():
+    sitemap_content = '''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://pdf-fusion-pro-ultimate.onrender.com/</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://pdf-fusion-pro-ultimate.onrender.com/google6f0d847067bbd18a.html</loc>
+    <lastmod>2024-01-15</lastmod>
+    <priority>0.8</priority>
+  </url>
+</urlset>'''
+    return Response(sitemap_content, mimetype='application/xml')
+
 @app.route('/')
 def home():
     """Page d'accueil avec interface web"""
