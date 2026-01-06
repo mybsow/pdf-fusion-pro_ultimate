@@ -1896,40 +1896,44 @@ HTML_TEMPLATE = '''
 # POINT D'ENTRÉE
 # ============================================
 
+# ============================================
+# POINT D'ENTRÉE
+# ============================================
+
 from flask import Flask, send_from_directory
 import os
-import shutil  # ⬅️ AJOUTEZ CE IMPORT SI VOUS UTILISEZ shutil
+import shutil
 
 app = Flask(__name__)
 
 # ... vos routes existantes ...
 
-# 🔽 AJOUTEZ CETTE ROUTE POUR GOOGLE (IMPORTANT !)
+# ✅ ROUTE POUR GOOGLE (IMPORTANT POUR SEO)
 @app.route('/google6f0d847067bbd18a.html')
 def google_verification():
     return send_from_directory('static', 'google6f0d847067bbd18a.html')
 
-# ... autres routes ...
+# ============================================
+# CONFIGURATION POUR RENDER (GUNICORN)
+# ============================================
 
+# Render utilisera gunicorn directement via startCommand
+# Ce code ne s'exécute qu'en développement local
 if __name__ == '__main__':
-    # Nettoyage à la fermeture
+    # Configuration pour le nettoyage
     import atexit
+    
     @atexit.register
     def cleanup_on_exit():
         try:
-            if os.path.exists(app.config['TEMP_FOLDER']):
-                shutil.rmtree(app.config['TEMP_FOLDER'], ignore_errors=True)
+            temp_folder = app.config.get('TEMP_FOLDER', '')
+            if temp_folder and os.path.exists(temp_folder):
+                shutil.rmtree(temp_folder, ignore_errors=True)
         except:
             pass
     
-    # Démarrer le serveur
+    # Développement local seulement
     port = int(os.environ.get('PORT', 5000))
-    
-    # Utiliser waitress pour la production
-    if os.environ.get('RENDER'):
-        from waitress import serve
-        print(f"Démarrage du serveur sur le port {port}...")
-        serve(app, host='0.0.0.0', port=port)
-    else:
-        app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=True)
+
 
