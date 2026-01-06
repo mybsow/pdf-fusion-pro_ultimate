@@ -270,7 +270,10 @@ def sitemap():
 @app.route('/')
 def home():
     """Page d'accueil avec interface web"""
-    return render_template_string(HTML_TEMPLATE)
+    template = HTML_TEMPLATE.replace('{{ DEVELOPER_NAME }}', DEVELOPER_NAME)\
+                           .replace('{{ DEVELOPER_EMAIL }}', DEVELOPER_EMAIL)\
+                           .replace('{{ APP_VERSION }}', APP_VERSION)
+    return render_template_string(template)
 
 @app.route('/health')
 def health_check():
@@ -430,7 +433,7 @@ def rotate_pdf():
         return jsonify({'error': str(e)}), 500
 
 # ============================================
-# TEMPLATE HTML AMÉLIORÉ
+# TEMPLATE HTML COMPLET AVEC CORRECTIONS
 # ============================================
 
 HTML_TEMPLATE = '''
@@ -440,7 +443,7 @@ HTML_TEMPLATE = '''
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Fusion Pro - Outil PDF 100% Gratuit</title>
-    <meta name="description" content="Fusionnez, tournez, compressez et modifiez vos PDFs en ligne gratuitement. Outil PDF professionnel et sécurisé.">
+    <meta name="description" content="Fusionnez, tournez, compressez et modifiez vos fichiers PDF en ligne gratuitement. Outil PDF professionnel et sécurisé.">
     <meta name="google-site-verification" content="google6f0d847067bbd18a" />
     
     <!-- Bootstrap 5.3 Dark Theme -->
@@ -596,6 +599,21 @@ HTML_TEMPLATE = '''
             background: rgba(67, 97, 238, 0.1);
             border-color: var(--accent);
             transform: translateY(-5px);
+        }
+        
+        .drop-zone-sm {
+            border: 2px dashed var(--primary);
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            background: rgba(67, 97, 238, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .drop-zone-sm:hover {
+            background: rgba(67, 97, 238, 0.1);
+            border-color: var(--accent);
         }
         
         /* File Items */
@@ -838,10 +856,10 @@ HTML_TEMPLATE = '''
                 </span>
             </a>
             <div class="d-flex align-items-center">
-                <button class="btn btn-outline-light btn-sm me-3" onclick="showAbout()">
+                <button class="btn btn-outline-light btn-sm me-3" onclick="showAboutModal()">
                     <i class="fas fa-question-circle me-1"></i>Aide
                 </button>
-                <button class="btn btn-accent" onclick="showMerge()">
+                <button class="btn btn-accent" onclick="showTab('merge')">
                     <i class="fas fa-play me-2"></i>Commencer
                 </button>
             </div>
@@ -866,10 +884,10 @@ HTML_TEMPLATE = '''
                     </p>
                     
                     <div class="d-flex gap-3 flex-wrap">
-                        <button class="btn btn-accent" onclick="showMerge()">
+                        <button class="btn btn-accent" onclick="showTab('merge')">
                             <i class="fas fa-layer-group me-2"></i>Fusionner PDF
                         </button>
-                        <button class="btn btn-outline-light" onclick="showTools()">
+                        <button class="btn btn-outline-light" onclick="showTab('tools')">
                             <i class="fas fa-tools me-2"></i>Voir tous les outils
                         </button>
                     </div>
@@ -892,7 +910,7 @@ HTML_TEMPLATE = '''
             </div>
             
             <div class="col-md-6 col-lg-4 mb-4">
-                <div class="feature-card" onclick="showMerge()">
+                <div class="feature-card" onclick="showTab('merge')">
                     <div class="feature-icon">
                         <i class="fas fa-layer-group"></i>
                     </div>
@@ -907,7 +925,7 @@ HTML_TEMPLATE = '''
             </div>
             
             <div class="col-md-6 col-lg-4 mb-4">
-                <div class="feature-card" onclick="showMerge()">
+                <div class="feature-card" onclick="showTab('rotate')">
                     <div class="feature-icon">
                         <i class="fas fa-sync-alt"></i>
                     </div>
@@ -922,7 +940,7 @@ HTML_TEMPLATE = '''
             </div>
             
             <div class="col-md-6 col-lg-4 mb-4">
-                <div class="feature-card" onclick="showTools()">
+                <div class="feature-card" onclick="showTab('tools')">
                     <div class="feature-icon">
                         <i class="fas fa-compress-alt"></i>
                     </div>
@@ -937,7 +955,7 @@ HTML_TEMPLATE = '''
             </div>
             
             <div class="col-md-6 col-lg-4 mb-4">
-                <div class="feature-card" onclick="showTools()">
+                <div class="feature-card" onclick="showTab('merge')">
                     <div class="feature-icon">
                         <i class="fas fa-water"></i>
                     </div>
@@ -952,7 +970,7 @@ HTML_TEMPLATE = '''
             </div>
             
             <div class="col-md-6 col-lg-4 mb-4">
-                <div class="feature-card" onclick="showTools()">
+                <div class="feature-card" onclick="showTab('tools')">
                     <div class="feature-icon">
                         <i class="fas fa-info-circle"></i>
                     </div>
@@ -967,7 +985,7 @@ HTML_TEMPLATE = '''
             </div>
             
             <div class="col-md-6 col-lg-4 mb-4">
-                <div class="feature-card" onclick="showAbout()">
+                <div class="feature-card" onclick="showAboutModal()">
                     <div class="feature-icon">
                         <i class="fas fa-shield-alt"></i>
                     </div>
@@ -983,24 +1001,24 @@ HTML_TEMPLATE = '''
         </div>
 
         <!-- Interface principale de traitement -->
-        <div id="mainInterface" class="main-content p-4 p-md-5">
+        <div id="mainInterface" class="main-content p-4 p-md-5" style="display: none;">
             <!-- Onglets -->
             <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="merge-tab" data-bs-toggle="tab" 
-                            data-bs-target="#merge" type="button" role="tab">
+                    <button class="nav-link active" id="merge-tab-btn" data-bs-toggle="tab" 
+                            data-bs-target="#merge-content" type="button" role="tab">
                         <i class="fas fa-layer-group me-2"></i>Fusion
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="rotate-tab" data-bs-toggle="tab" 
-                            data-bs-target="#rotate" type="button" role="tab">
+                    <button class="nav-link" id="rotate-tab-btn" data-bs-toggle="tab" 
+                            data-bs-target="#rotate-content" type="button" role="tab">
                         <i class="fas fa-sync-alt me-2"></i>Rotation
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="tools-tab" data-bs-toggle="tab" 
-                            data-bs-target="#tools" type="button" role="tab">
+                    <button class="nav-link" id="tools-tab-btn" data-bs-toggle="tab" 
+                            data-bs-target="#tools-content" type="button" role="tab">
                         <i class="fas fa-tools me-2"></i>Outils
                     </button>
                 </li>
@@ -1009,7 +1027,7 @@ HTML_TEMPLATE = '''
             <!-- Contenu des onglets -->
             <div class="tab-content">
                 <!-- Onglet Fusion -->
-                <div class="tab-pane fade show active" id="merge" role="tabpanel">
+                <div class="tab-pane fade show active" id="merge-content" role="tabpanel">
                     <div class="row">
                         <div class="col-lg-8">
                             <div class="drop-zone mb-4" id="dropZone" onclick="document.getElementById('fileInput').click()">
@@ -1096,7 +1114,7 @@ HTML_TEMPLATE = '''
                 </div>
 
                 <!-- Onglet Rotation -->
-                <div class="tab-pane fade" id="rotate" role="tabpanel">
+                <div class="tab-pane fade" id="rotate-content" role="tabpanel">
                     <div class="row align-items-center">
                         <div class="col-lg-6">
                             <h4 class="mb-4"><i class="fas fa-sync-alt me-2"></i>Rotation de PDF</h4>
@@ -1168,7 +1186,7 @@ HTML_TEMPLATE = '''
                 </div>
 
                 <!-- Onglet Outils -->
-                <div class="tab-pane fade" id="tools" role="tabpanel">
+                <div class="tab-pane fade" id="tools-content" role="tabpanel">
                     <h4 class="mb-4"><i class="fas fa-tools me-2"></i>Outils PDF avancés</h4>
                     
                     <div class="row">
@@ -1269,35 +1287,124 @@ HTML_TEMPLATE = '''
             setupDragAndDrop();
             updateWatermarkPreview();
             updateRotationDemo();
-            
-            // Événements
-            document.getElementById('watermarkText').addEventListener('input', updateWatermarkPreview);
-            document.querySelectorAll('input[name="rotationAngle"]').forEach(radio => {
-                radio.addEventListener('change', updateRotationDemo);
-            });
-            
-            // Simuler les statistiques
             simulateStats();
+            
+            // Cacher l'interface principale au début
+            document.getElementById('mainInterface').style.display = 'none';
+            
+            // Écouter les changements d'onglets
+            document.querySelectorAll('#mainTabs button').forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function (event) {
+                    // Mettre à jour les fonctions spécifiques à l'onglet
+                    if (event.target.id === 'merge-tab-btn') {
+                        updateMergeButton();
+                    }
+                });
+            });
         });
         
-        // Navigation simplifiée
-        function showMerge() {
-            document.getElementById('merge-tab').click();
+        // Fonctions de navigation
+        function showTab(tabId) {
+            // Afficher l'interface principale
+            const mainInterface = document.getElementById('mainInterface');
+            mainInterface.style.display = 'block';
+            
+            // Faire défiler jusqu'à l'interface
+            mainInterface.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+            
+            // Activer l'onglet approprié
+            let tabBtn;
+            
+            if (tabId === 'merge') {
+                tabBtn = document.getElementById('merge-tab-btn');
+            } else if (tabId === 'rotate') {
+                tabBtn = document.getElementById('rotate-tab-btn');
+            } else if (tabId === 'tools') {
+                tabBtn = document.getElementById('tools-tab-btn');
+            }
+            
+            if (tabBtn) {
+                // Utiliser Bootstrap pour activer l'onglet
+                const tab = new bootstrap.Tab(tabBtn);
+                tab.show();
+            }
         }
         
-        function showTools() {
-            document.getElementById('tools-tab').click();
-        }
-        
-        function showAbout() {
-            showToast('<h6>À propos de PDF Fusion Pro</h6><p>Service PDF 100% gratuit développé par ' + 
-                     DEVELOPER_NAME + '.</p><p>Email: <a href="mailto:' + DEVELOPER_EMAIL + '">' + 
-                     DEVELOPER_EMAIL + '</a></p>', 'info', 10000);
+        function showAboutModal() {
+            const aboutModal = `
+                <div class="modal fade" id="aboutModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content" style="background: rgba(26, 27, 46, 0.95); backdrop-filter: blur(10px);">
+                            <div class="modal-header border-secondary">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    À propos de PDF Fusion Pro
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="text-center mb-4">
+                                    <div class="feature-icon" style="margin: 0 auto 20px;">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </div>
+                                    <h4>PDF Fusion Pro Ultimate</h4>
+                                    <p class="text-muted">Version 3.1.0</p>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h6><i class="fas fa-user-tie me-2"></i>Développeur</h6>
+                                    <p class="mb-1"><strong>{{ DEVELOPER_NAME }}</strong></p>
+                                    <p class="text-muted mb-0">
+                                        <i class="fas fa-envelope me-1"></i>
+                                        <a href="mailto:{{ DEVELOPER_EMAIL }}" class="text-light">{{ DEVELOPER_EMAIL }}</a>
+                                    </p>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h6><i class="fas fa-shield-alt me-2"></i>Sécurité</h6>
+                                    <ul class="list-unstyled text-muted">
+                                        <li><i class="fas fa-check text-success me-2"></i>Fichiers supprimés après traitement</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Connexion HTTPS sécurisée</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Aucune donnée conservée</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Service 100% gratuit</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="alert alert-info">
+                                    <i class="fas fa-heart me-2"></i>
+                                    <small>Service développé avec passion pour la communauté</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            
+            // Supprimer le modal existant s'il y en a un
+            const existingModal = document.getElementById('aboutModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Ajouter le nouveau modal
+            document.body.insertAdjacentHTML('beforeend', aboutModal);
+            
+            // Afficher le modal
+            const modal = new bootstrap.Modal(document.getElementById('aboutModal'));
+            modal.show();
+            
+            // Nettoyer après fermeture
+            document.getElementById('aboutModal').addEventListener('hidden.bs.modal', function() {
+                this.remove();
+            });
         }
         
         // Configuration drag & drop
         function setupDragAndDrop() {
             const dropZone = document.getElementById('dropZone');
+            if (!dropZone) return;
             
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropZone.addEventListener(eventName, preventDefaults, false);
@@ -1329,9 +1436,12 @@ HTML_TEMPLATE = '''
             }
             
             // Gestion du file input
-            document.getElementById('fileInput').addEventListener('change', function(e) {
-                handleFiles(e.target.files);
-            });
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    handleFiles(e.target.files);
+                });
+            }
         }
         
         // Gérer les fichiers
@@ -1455,21 +1565,28 @@ HTML_TEMPLATE = '''
         
         // Mettre à jour le bouton de fusion
         function updateMergeButton() {
-            document.getElementById('mergeBtn').disabled = files.length === 0;
+            const mergeBtn = document.getElementById('mergeBtn');
+            if (mergeBtn) {
+                mergeBtn.disabled = files.length === 0;
+            }
         }
         
         // Mettre à jour l'aperçu du filigrane
         function updateWatermarkPreview() {
             const text = document.getElementById('watermarkText').value || 'EXEMPLE';
             const preview = document.getElementById('watermarkPreview');
-            preview.textContent = text;
+            if (preview) {
+                preview.textContent = text;
+            }
         }
         
         // Mettre à jour la démo de rotation
         function updateRotationDemo() {
             const angle = document.querySelector('input[name="rotationAngle"]:checked').value;
             const demo = document.getElementById('rotationDemo');
-            demo.style.transform = `rotate(${angle}deg)`;
+            if (demo) {
+                demo.style.transform = `rotate(${angle}deg)`;
+            }
         }
         
         // Fusionner les PDFs
@@ -1554,7 +1671,7 @@ HTML_TEMPLATE = '''
         async function rotatePDF() {
             const input = document.getElementById('rotateInput');
             
-            if (input.files.length === 0) {
+            if (!input || input.files.length === 0) {
                 showToast('Veuillez sélectionner un fichier PDF', 'warning');
                 return;
             }
@@ -1640,6 +1757,15 @@ HTML_TEMPLATE = '''
             }
         }
         
+        // Fonctions pour compression et info (simplifiées pour l'exemple)
+        function compressPDF() {
+            showToast('Fonctionnalité de compression en développement', 'info');
+        }
+        
+        function getPDFInfo() {
+            showToast('Fonctionnalité d\'analyse en développement', 'info');
+        }
+        
         // Fonctions utilitaires
         function base64ToArrayBuffer(base64) {
             const binaryString = atob(base64);
@@ -1655,15 +1781,27 @@ HTML_TEMPLATE = '''
                              type === 'success' ? 'alert-success' : 
                              type === 'warning' ? 'alert-warning' : 'alert-info';
             
+            const icon = type === 'error' ? '❌' : 
+                        type === 'success' ? '✅' : 
+                        type === 'warning' ? '⚠️' : 'ℹ️';
+            
             const toast = document.createElement('div');
             toast.className = `toast alert ${alertClass} alert-dismissible fade show`;
-            toast.innerHTML = message + 
-                '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>';
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <div class="me-3" style="font-size: 1.5rem;">${icon}</div>
+                    <div>${message}</div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            `;
             
             document.body.appendChild(toast);
             
+            // Auto-dismiss
             setTimeout(() => {
-                toast.remove();
+                if (toast.parentNode) {
+                    toast.remove();
+                }
             }, duration);
         }
         
@@ -1674,14 +1812,24 @@ HTML_TEMPLATE = '''
             
             setInterval(() => {
                 count += Math.floor(Math.random() * 10) + 1;
-                statsElement.textContent = count.toLocaleString();
+                if (statsElement) {
+                    statsElement.textContent = count.toLocaleString();
+                }
             }, 30000);
         }
         
-        // Variables globales côté client
-        const DEVELOPER_NAME = "{{ DEVELOPER_NAME }}";
-        const DEVELOPER_EMAIL = "{{ DEVELOPER_EMAIL }}";
-        const APP_VERSION = "{{ APP_VERSION }}";
+        // Écouteurs d'événements pour la démo de rotation
+        document.addEventListener('DOMContentLoaded', function() {
+            const rotationRadios = document.querySelectorAll('input[name="rotationAngle"]');
+            rotationRadios.forEach(radio => {
+                radio.addEventListener('change', updateRotationDemo);
+            });
+            
+            const watermarkText = document.getElementById('watermarkText');
+            if (watermarkText) {
+                watermarkText.addEventListener('input', updateWatermarkPreview);
+            }
+        });
     </script>
 </body>
 </html>
@@ -1705,7 +1853,7 @@ if __name__ == '__main__':
             if os.path.exists(app.config['TEMP_FOLDER']):
                 shutil.rmtree(app.config['TEMP_FOLDER'], ignore_errors=True)
         except:
-            pass
+        pass
     
     # Démarrer le serveur
     port = int(os.environ.get('PORT', 5000))
