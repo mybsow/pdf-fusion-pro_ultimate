@@ -137,10 +137,10 @@ from flask import Flask, Response
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
 from config import AppConfig
-from blueprints.pdf import bp as pdf_bp
-from blueprints.api import bp as api_bp
-from blueprints.legal import bp as legal_bp
-from blueprints.stats import bp as stats_bp
+from blueprints.pdf import pdf_bp
+from blueprints.api import api_bp
+from blueprints.legal import legal_bp
+from blueprints.stats import stats_bp
 from utils.middleware import setup_middleware
 from utils.stats_manager import stats_manager
 
