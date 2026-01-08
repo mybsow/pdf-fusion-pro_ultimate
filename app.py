@@ -1,3 +1,23 @@
+#!/usr/bin/env python3
+"""
+PDF Fusion Pro Ultimate - Application principale
+"""
+
+# ============================================================
+# IMPORTATIONS (doivent être en haut du fichier)
+# ============================================================
+from flask import Flask, Response
+from werkzeug.middleware.proxy_fix import ProxyFix
+from datetime import datetime
+from config import AppConfig
+from blueprints.pdf import pdf_bp
+from blueprints.api import api_bp
+from blueprints.legal import legal_bp
+from blueprints.stats import stats_bp
+from utils.middleware import setup_middleware
+from utils.stats_manager import stats_manager
+
+
 def create_app():
     """Factory pour créer l'application Flask"""
     # Initialiser la configuration
@@ -77,19 +97,6 @@ def create_app():
         ads_content = "google.com, pub-8967416460526921, DIRECT, f08c47fec0942fa0"
         return Response(ads_content, mimetype='text/plain')
     
-# Route racine qui redirige vers le blueprint PDF
-    @app.route('/')
-    def root():
-        from flask import redirect
-        return redirect('/pdf/')  # Redirige vers le blueprint PDF
-
-    # OU directement affiche la même page
-    @app.route('/')
-    def index():
-        # Importez et utilisez la même fonction que le blueprint
-        from blueprints.pdf.routes import home
-        return home()
-
     @app.route('/robots.txt')
     def robots():
         """Fichier robots.txt"""
@@ -141,21 +148,8 @@ def create_app():
     def internal_error(error):
         return "<h1>500 - Erreur interne</h1><p>Une erreur s'est produite sur le serveur.</p>", 500
     
-    return app  # ⬅️ ⬅️ ⬅️ **RETOUR ICI, À LA FIN !**
+    return app
 
-    # ============================================================
-# IMPORTATIONS (doivent être en haut du fichier)
-# ============================================================
-from flask import Flask, Response
-from werkzeug.middleware.proxy_fix import ProxyFix
-from datetime import datetime
-from config import AppConfig
-from blueprints.pdf import pdf_bp
-from blueprints.api import api_bp
-from blueprints.legal import legal_bp
-from blueprints.stats import stats_bp
-from utils.middleware import setup_middleware
-from utils.stats_manager import stats_manager
 
 # ============================================================
 # DÉMARRAGE DE L'APPLICATION
