@@ -1,20 +1,17 @@
-"""
-Middleware pour l'application Flask
-"""
-
+from flask import g, request
+from datetime import datetime
 import uuid
-from flask import g, request, Response
 
-def setup_middleware(app, stats_manager_instance):  # Renommez le paramètre
-    """Configure le middleware de l'application"""
+def setup_middleware(app, stats_manager):
+    """Configure le middleware pour l'application"""
     
     @app.before_request
     def before_request():
         """Exécuté avant chaque requête"""
         if not request.cookies.get("session_id"):
-            stats_manager_instance.new_session()  # Utilisez l'instance passée en paramètre
+            stats_manager.new_session()
             g._create_session_cookie = True
-    
+
     @app.after_request
     def add_security_headers(response):
         """Ajoute les en-têtes de sécurité HTTP"""
@@ -23,7 +20,6 @@ def setup_middleware(app, stats_manager_instance):  # Renommez le paramètre
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        response.headers["Permissions-Policy"] = "fullscreen=(self)"
         
         # Cache
         if request.path.startswith("/static"):
@@ -39,7 +35,7 @@ def setup_middleware(app, stats_manager_instance):  # Renommez le paramètre
                 httponly=True,
                 secure=request.is_secure,
                 samesite="Lax",
-                max_age=60 * 60 * 24 * 30,  # 30 jours
+                max_age=60 * 60 * 24 * 30,
             )
         
         return response

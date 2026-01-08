@@ -3,9 +3,6 @@
 PDF Fusion Pro Ultimate - Application principale
 """
 
-# ============================================================
-# IMPORTATIONS (doivent être en haut du fichier)
-# ============================================================
 from flask import Flask, Response
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
@@ -16,7 +13,6 @@ from blueprints.legal import legal_bp
 from blueprints.stats import stats_bp
 from utils.middleware import setup_middleware
 from utils.stats_manager import stats_manager
-
 
 def create_app():
     """Factory pour créer l'application Flask"""
@@ -32,7 +28,7 @@ def create_app():
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
     
     # Configurer le middleware avec l'instance stats_manager
-    setup_middleware(app, stats_manager)  # Passez l'instance ici
+    setup_middleware(app, stats_manager)
 
     # Handler pour les erreurs 500 avec traceback
     @app.errorhandler(500)
@@ -129,14 +125,8 @@ def create_app():
             xml += f'    <loc>{base_url}{path}</loc>\n'
             xml += f'    <lastmod>{lastmod}</lastmod>\n'
             xml += f'    <changefreq>{changefreq}</changefreq>\n'
-    # Route racine
-    @app.route('/')
-    def root():
-        '''Page d'accueil - utilise le blueprint PDF'''
-        from blueprints.pdf.routes import home
-        return home()
-        xml += f'    <priority>{priority}</priority>\n'
-        xml += f'  </url>\n'
+            xml += f'    <priority>{priority}</priority>\n'
+            xml += f'  </url>\n'
         
         xml += '</urlset>'
         
@@ -155,7 +145,6 @@ def create_app():
         return "<h1>500 - Erreur interne</h1><p>Une erreur s'est produite sur le serveur.</p>", 500
     
     return app
-
 
 # ============================================================
 # DÉMARRAGE DE L'APPLICATION
@@ -177,9 +166,6 @@ if __name__ == '__main__':
         debug=True,
         use_reloader=True
     )
-# Variable pour gunicorn
-app = create_app()
 
-if __name__ == '__main__':
-    print("🚀 Démarrage de PDF Fusion Pro Ultimate...")
-    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=True)
+# Variable pour gunicorn (pour le déploiement)
+app = create_app()
