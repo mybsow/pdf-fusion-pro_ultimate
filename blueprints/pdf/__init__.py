@@ -4,14 +4,8 @@ Blueprint principal pour les outils PDF
 
 from flask import Blueprint
 
-# Créer le blueprint - C'EST CE QUE app.py ESSAIE D'IMPORTER
-pdf_bp = Blueprint(
-    'pdf',
-    __name__,
-    template_folder='../../templates',
-    static_folder='../../static'
-)
+# Version minimaliste et sûre
+pdf_bp = Blueprint('pdf', __name__)
 
-# Importer les routes APRÈS avoir créé le blueprint
-# pour éviter les imports circulaires
-from blueprints.pdf import routes
+# Ne pas importer routes ici pour éviter les imports circulaires
+# L'import sera fait par app.py
