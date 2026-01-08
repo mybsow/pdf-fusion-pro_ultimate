@@ -1,6 +1,8 @@
 Flask==2.3.3
-PyPDF2==3.0.1
+PyMuPDF==1.23.8  # Beaucoup plus rapide et puissant que PyPDF2
+PyPDF2==3.0.1    # Gardez pour compatibilité
 Werkzeug==2.3.7
 gunicorn==20.1.0
 reportlab==4.0.4
 waitress==2.1.2
+Pillow==10.0.0   # Pour le traitement d'images si nécessaire

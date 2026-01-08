@@ -129,8 +129,14 @@ def create_app():
             xml += f'    <loc>{base_url}{path}</loc>\n'
             xml += f'    <lastmod>{lastmod}</lastmod>\n'
             xml += f'    <changefreq>{changefreq}</changefreq>\n'
-            xml += f'    <priority>{priority}</priority>\n'
-            xml += f'  </url>\n'
+    # Route racine
+    @app.route('/')
+    def root():
+        '''Page d'accueil - utilise le blueprint PDF'''
+        from blueprints.pdf.routes import home
+        return home()
+        xml += f'    <priority>{priority}</priority>\n'
+        xml += f'  </url>\n'
         
         xml += '</urlset>'
         
