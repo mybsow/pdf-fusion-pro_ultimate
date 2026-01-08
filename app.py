@@ -1,28 +1,3 @@
-# ============================================================
-# PDF Fusion Pro – Application Web Complète
-# Version 6.1 – 2026 avec Architecture Blueprint
-# Développé par MYBSOW
-# ============================================================
-
-import os
-from flask import Flask, Response
-from werkzeug.middleware.proxy_fix import ProxyFix
-from datetime import datetime
-
-from config import AppConfig
-from utils.middleware import setup_middleware
-from utils.stats_manager import stats_manager  # Importez l'instance
-
-# Importer les blueprints
-from blueprints.pdf import pdf_bp
-from blueprints.api import api_bp
-from blueprints.legal import legal_bp
-from blueprints.stats import stats_bp
-
-# ============================================================
-# FACTORY D'APPLICATION
-# ============================================================
-
 def create_app():
     """Factory pour créer l'application Flask"""
     # Initialiser la configuration
@@ -38,7 +13,38 @@ def create_app():
     
     # Configurer le middleware avec l'instance stats_manager
     setup_middleware(app, stats_manager)  # Passez l'instance ici
-    
+
+    # Handler pour les erreurs 500 avec traceback
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        import traceback
+        error_traceback = traceback.format_exc()
+        
+        # Affiche dans les logs
+        print("\n" + "="*80)
+        print("TRACEBACK DE L'ERREUR 500:")
+        print("="*80)
+        print(error_traceback)
+        print("="*80 + "\n")
+        
+        # Retourne une page d'erreur
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head><title>500 - Erreur Interne</title></head>
+        <body style="font-family: monospace; padding: 20px;">
+            <h1 style="color: red;">500 - Erreur Interne du Serveur</h1>
+            <h2>Détails de l'erreur:</h2>
+            <pre style="background: #f0f0f0; padding: 15px; border: 1px solid #ccc; overflow: auto;">
+            {str(e)}
+            
+            {error_traceback}
+            </pre>
+            <p><a href="/">Retour à l'accueil</a></p>
+        </body>
+        </html>
+        """, 500
+
     # ============================================================
     # ENREGISTREMENT DES BLUEPRINTS
     # ============================================================
@@ -122,21 +128,4 @@ def create_app():
     def internal_error(error):
         return "<h1>500 - Erreur interne</h1><p>Une erreur s'est produite sur le serveur.</p>", 500
     
-    return app
-
-# ============================================================
-# POINT D'ENTRÉE PRINCIPAL
-# ============================================================
-
-if __name__ == "__main__":
-    app = create_app()
-    
-    port = int(os.environ.get("PORT", 5000))
-    debug = os.environ.get("FLASK_DEBUG", "true").lower() == "true"  # Changez à "true"
-    
-    app.run(
-        host="0.0.0.0",
-        port=port,
-        debug=debug,  # Active le mode debug
-        threaded=True
-    )
+    return app  # ⬅️ ⬅️ ⬅️ **RETOUR ICI, À LA FIN !**
