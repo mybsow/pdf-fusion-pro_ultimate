@@ -129,3 +129,38 @@ def create_app():
         return "<h1>500 - Erreur interne</h1><p>Une erreur s'est produite sur le serveur.</p>", 500
     
     return app  # ⬅️ ⬅️ ⬅️ **RETOUR ICI, À LA FIN !**
+
+    # ============================================================
+# IMPORTATIONS (doivent être en haut du fichier)
+# ============================================================
+from flask import Flask, Response
+from werkzeug.middleware.proxy_fix import ProxyFix
+from datetime import datetime
+from config import AppConfig
+from blueprints.pdf import bp as pdf_bp
+from blueprints.api import bp as api_bp
+from blueprints.legal import bp as legal_bp
+from blueprints.stats import bp as stats_bp
+from utils.middleware import setup_middleware
+from utils.stats_manager import stats_manager
+
+# ============================================================
+# DÉMARRAGE DE L'APPLICATION
+# ============================================================
+
+if __name__ == '__main__':
+    print("🚀 Démarrage de PDF Fusion Pro Ultimate...")
+    print(f"📊 Version: {AppConfig.VERSION}")
+    print(f"🌐 Domaine: {AppConfig.DOMAIN}")
+    print("=" * 50)
+    
+    # Créer l'application
+    app = create_app()
+    
+    # Démarrer le serveur
+    app.run(
+        host='0.0.0.0',
+        port=5000,
+        debug=True,
+        use_reloader=True
+    )
