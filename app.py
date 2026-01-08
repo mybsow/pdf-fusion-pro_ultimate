@@ -77,6 +77,19 @@ def create_app():
         ads_content = "google.com, pub-8967416460526921, DIRECT, f08c47fec0942fa0"
         return Response(ads_content, mimetype='text/plain')
     
+# Route racine qui redirige vers le blueprint PDF
+    @app.route('/')
+    def root():
+        from flask import redirect
+        return redirect('/pdf/')  # Redirige vers le blueprint PDF
+
+    # OU directement affiche la même page
+    @app.route('/')
+    def index():
+        # Importez et utilisez la même fonction que le blueprint
+        from blueprints.pdf.routes import home
+        return home()
+
     @app.route('/robots.txt')
     def robots():
         """Fichier robots.txt"""
