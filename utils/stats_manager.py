@@ -77,3 +77,6 @@ class StatisticsManager:
         """Enregistre une nouvelle session utilisateur"""
         self.stats["user_sessions"] += 1
         self.save()
+
+# Créer une instance globale
+stats_manager = StatisticsManager()
