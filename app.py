@@ -177,3 +177,9 @@ if __name__ == '__main__':
         debug=True,
         use_reloader=True
     )
+# Variable pour gunicorn
+app = create_app()
+
+if __name__ == '__main__':
+    print("🚀 Démarrage de PDF Fusion Pro Ultimate...")
+    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=True)
