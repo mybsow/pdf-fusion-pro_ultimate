@@ -13,25 +13,24 @@ from blueprints.legal import legal_bp
 from blueprints.stats import stats_bp
 from utils.middleware import setup_middleware
 from utils.stats_manager import stats_manager
-# Dans app.py, après create_app() ou dans une fonction d'init
 import os
 from pathlib import Path
 
 def init_app_dirs():
     """Crée les répertoires nécessaires"""
-    directories = ['data/contacts', 'uploads', 'temp']
+    directories = ['data/contacts', 'uploads', 'temp', 'logs']
     
     for directory in directories:
         Path(directory).mkdir(parents=True, exist_ok=True)
         print(f"📁 Dossier créé/vérifié: {directory}")
 
-# Appelez cette fonction au démarrage
-init_app_dirs()
-
 def create_app():
     """Factory pour créer l'application Flask"""
     # Initialiser la configuration
     AppConfig.initialize()
+    
+    # Créer les répertoires nécessaires
+    init_app_dirs()
     
     # Créer l'application Flask
     app = Flask(__name__)
@@ -43,37 +42,6 @@ def create_app():
     
     # Configurer le middleware avec l'instance stats_manager
     setup_middleware(app, stats_manager)
-
-    # Handler pour les erreurs 500 avec traceback
-    @app.errorhandler(500)
-    def internal_server_error(e):
-        import traceback
-        error_traceback = traceback.format_exc()
-        
-        # Affiche dans les logs
-        print("\n" + "="*80)
-        print("TRACEBACK DE L'ERREUR 500:")
-        print("="*80)
-        print(error_traceback)
-        print("="*80 + "\n")
-        
-        # Retourne une page d'erreur
-        return f"""
-        <!DOCTYPE html>
-        <html>
-        <head><title>500 - Erreur Interne</title></head>
-        <body style="font-family: monospace; padding: 20px;">
-            <h1 style="color: red;">500 - Erreur Interne du Serveur</h1>
-            <h2>Détails de l'erreur:</h2>
-            <pre style="background: #f0f0f0; padding: 15px; border: 1px solid #ccc; overflow: auto;">
-            {str(e)}
-            
-            {error_traceback}
-            </pre>
-            <p><a href="/">Retour à l'accueil</a></p>
-        </body>
-        </html>
-        """, 500
 
     # ============================================================
     # ENREGISTREMENT DES BLUEPRINTS
@@ -152,11 +120,74 @@ def create_app():
     
     @app.errorhandler(404)
     def not_found_error(error):
-        return "<h1>404 - Page non trouvée</h1><p>La page que vous recherchez n'existe pas.</p>", 404
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>404 - Page non trouvée</title>
+            <style>
+                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+                h1 { color: #e74c3c; }
+                .container { max-width: 600px; margin: 0 auto; }
+                .btn { display: inline-block; padding: 10px 20px; background: #3498db; color: white; 
+                       text-decoration: none; border-radius: 5px; margin-top: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>404 - Page non trouvée</h1>
+                <p>La page que vous recherchez n'existe pas.</p>
+                <a href="/" class="btn">Retour à l'accueil</a>
+            </div>
+        </body>
+        </html>
+        """, 404
     
     @app.errorhandler(500)
     def internal_error(error):
-        return "<h1>500 - Erreur interne</h1><p>Une erreur s'est produite sur le serveur.</p>", 500
+        import traceback
+        
+        # Log l'erreur
+        error_traceback = traceback.format_exc()
+        print("\n" + "="*80)
+        print("TRACEBACK DE L'ERREUR 500:")
+        print("="*80)
+        print(error_traceback)
+        print("="*80 + "\n")
+        
+        # Page d'erreur pour l'utilisateur
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>500 - Erreur Interne</title>
+            <style>
+                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+                h1 { color: #e74c3c; }
+                .container { max-width: 600px; margin: 0 auto; }
+                .btn { display: inline-block; padding: 10px 20px; background: #3498db; color: white; 
+                       text-decoration: none; border-radius: 5px; margin-top: 20px; }
+                .error-details { background: #f8f9fa; padding: 15px; border-radius: 5px; 
+                                margin-top: 20px; text-align: left; font-family: monospace; 
+                                font-size: 12px; overflow: auto; max-height: 200px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>500 - Erreur Interne du Serveur</h1>
+                <p>Une erreur s'est produite sur le serveur. L'équipe technique a été notifiée.</p>
+                
+                <div class="error-details">
+                    <strong>Détails :</strong><br>
+                    <pre style="margin: 0;">""" + str(error)[:500] + """</pre>
+                </div>
+                
+                <a href="/" class="btn">Retour à l'accueil</a>
+                <a href="/contact" class="btn" style="background: #2ecc71; margin-left: 10px;">Signaler ce problème</a>
+            </div>
+        </body>
+        </html>
+        """, 500
     
     return app
 
@@ -176,8 +207,8 @@ if __name__ == '__main__':
     # Démarrer le serveur
     app.run(
         host='0.0.0.0',
-        port=5000,
-        debug=True,
+        port=int(os.environ.get('PORT', 5000)),
+        debug=os.environ.get('FLASK_DEBUG', 'True').lower() == 'true',
         use_reloader=True
     )
 
