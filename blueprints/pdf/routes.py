@@ -1261,7 +1261,7 @@ HTML_TEMPLATE = """
                 
                 <div class="footer-info">
                     <div>© {{ current_year }} {{ config.NAME }} • Version {{ config.VERSION }}</div>
-                    <div class="mt-1">Développé par <strong>{{ config.DEVELOPER_NAME }}</strong> • {{ config.DEVELOPER_EMAIL }}</div>
+                    <div class="mt-1">Développé par <strong>{{ config.DEVELOPER_NAME }}</strong></div>
                     <div class="mt-1">Hébergé sur <strong>{{ config.HOSTING }}</strong> • {{ config.DOMAIN }}</div>
                 </div>
                 
