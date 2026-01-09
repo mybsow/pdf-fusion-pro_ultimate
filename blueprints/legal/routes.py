@@ -2,12 +2,19 @@
 Routes pour les pages légales
 """
 
-from flask import render_template_string
+from flask import render_template_string, request, jsonify, flash, redirect, url_for
 from datetime import datetime
 from . import legal_bp
 from config import AppConfig
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
 
-# Template pour les pages légales (copié de votre code)
+# ============================================================
+# TEMPLATE HTML POUR LES PAGES LÉGALES
+# ============================================================
+
 LEGAL_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="fr" data-bs-theme="light">
@@ -53,7 +60,7 @@ LEGAL_TEMPLATE = """
         }
         
         .legal-container {
-            max-width: 900px;
+            max-width: 1000px;
             background: white;
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
@@ -89,16 +96,18 @@ LEGAL_TEMPLATE = """
             color: var(--secondary-color);
             font-weight: 700;
             margin-top: 2rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid var(--light-color);
+            font-size: 1.8rem;
         }
         
         .legal-content h3 {
             color: var(--primary-color);
             font-weight: 600;
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
         }
         
         .legal-footer {
@@ -140,7 +149,7 @@ LEGAL_TEMPLATE = """
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin: 1rem 0;
+            margin: 1.5rem 0;
         }
         
         .contact-icon {
@@ -155,6 +164,128 @@ LEGAL_TEMPLATE = """
             font-size: 1.25rem;
         }
         
+        /* Styles spécifiques au formulaire de contact */
+        .contact-form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin: 2rem 0;
+        }
+        
+        [data-bs-theme="dark"] .contact-form-container {
+            background: #2d2d44;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        [data-bs-theme="dark"] .form-label {
+            color: var(--light-color);
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        [data-bs-theme="dark"] .form-control,
+        [data-bs-theme="dark"] .form-select {
+            background: #3a3a52;
+            border-color: #4a4a6a;
+            color: var(--light-color);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+        
+        .form-text {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        
+        .btn-send {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-send:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-color: var(--success-color);
+            color: #155724;
+        }
+        
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-color: var(--danger-color);
+            color: #721c24;
+        }
+        
+        .character-count {
+            font-size: 0.8rem;
+            color: #6c757d;
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+        
+        .character-count.warning {
+            color: var(--warning-color);
+        }
+        
+        .character-count.danger {
+            color: var(--danger-color);
+        }
+        
+        .contact-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .contact-type-card {
+            background: var(--light-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+        
+        .contact-type-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .contact-type-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
         @media (max-width: 768px) {
             .legal-container {
                 margin: 1rem;
@@ -162,6 +293,14 @@ LEGAL_TEMPLATE = """
             }
             
             .legal-header, .legal-content {
+                padding: 1.5rem;
+            }
+            
+            .contact-types-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-form-container {
                 padding: 1.5rem;
             }
         }
@@ -222,10 +361,289 @@ LEGAL_TEMPLATE = """
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.setAttribute('data-bs-theme', 'dark');
         }
+        
+        // Gestion du compteur de caractères
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageTextarea = document.getElementById('message');
+            const charCount = document.getElementById('charCount');
+            
+            if (messageTextarea && charCount) {
+                function updateCharCount() {
+                    const length = messageTextarea.value.length;
+                    charCount.textContent = `${length} / 2000 caractères`;
+                    
+                    charCount.classList.remove('warning', 'danger');
+                    if (length > 1500) {
+                        charCount.classList.add('warning');
+                    }
+                    if (length > 1900) {
+                        charCount.classList.add('danger');
+                    }
+                }
+                
+                messageTextarea.addEventListener('input', updateCharCount);
+                updateCharCount(); // Initial call
+            }
+        });
     </script>
 </body>
 </html>
 """
+
+# ============================================================
+# FONCTION D'ENVOI D'EMAIL (optionnelle - à configurer)
+# ============================================================
+
+def send_contact_email(form_data):
+    """
+    Envoie un email avec les données du formulaire
+    Note: À configurer avec vos propres informations SMTP
+    """
+    try:
+        # Configuration SMTP (exemple avec Gmail)
+        smtp_server = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
+        smtp_port = int(os.environ.get('SMTP_PORT', 587))
+        smtp_username = os.environ.get('SMTP_USERNAME', '')
+        smtp_password = os.environ.get('SMTP_PASSWORD', '')
+        
+        if not all([smtp_username, smtp_password]):
+            # Retourne True pour simuler l'envoi si non configuré
+            return True
+            
+        # Création du message
+        subject = f"[PDF Fusion Pro] Contact - {form_data['subject']}"
+        
+        message_body = f"""
+        Nouveau message de contact depuis PDF Fusion Pro:
+        
+        Nom: {form_data['last_name']}
+        Prénom: {form_data['first_name']}
+        Email: {form_data['email']}
+        Téléphone: {form_data.get('phone', 'Non renseigné')}
+        Sujet: {form_data['subject']}
+        
+        Message:
+        {form_data['message']}
+        
+        ---
+        Envoyé depuis {AppConfig.DOMAIN}
+        """
+        
+        # Préparation de l'email
+        msg = MIMEMultipart()
+        msg['From'] = smtp_username
+        msg['To'] = AppConfig.DEVELOPER_EMAIL
+        msg['Subject'] = subject
+        msg.attach(MIMEText(message_body, 'plain'))
+        
+        # Envoi
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_username, smtp_password)
+            server.send_message(msg)
+            
+        return True
+        
+    except Exception as e:
+        print(f"Erreur d'envoi d'email: {e}")
+        return False
+
+# ============================================================
+# ROUTES
+# ============================================================
+
+@legal_bp.route('/contact', methods=['GET', 'POST'])
+def contact():
+    """Page de contact avec formulaire"""
+    
+    success = False
+    error = None
+    
+    if request.method == 'POST':
+        # Récupération des données du formulaire
+        form_data = {
+            'first_name': request.form.get('first_name', '').strip(),
+            'last_name': request.form.get('last_name', '').strip(),
+            'email': request.form.get('email', '').strip(),
+            'phone': request.form.get('phone', '').strip(),
+            'subject': request.form.get('subject', '').strip(),
+            'message': request.form.get('message', '').strip()
+        }
+        
+        # Validation
+        if not all([form_data['first_name'], form_data['last_name'], form_data['email'], form_data['subject'], form_data['message']]):
+            error = "Veuillez remplir tous les champs obligatoires."
+        elif len(form_data['message']) > 2000:
+            error = "Le message ne doit pas dépasser 2000 caractères."
+        elif '@' not in form_data['email'] or '.' not in form_data['email']:
+            error = "Veuillez saisir une adresse email valide."
+        else:
+            # Tentative d'envoi d'email
+            if send_contact_email(form_data):
+                success = True
+            else:
+                error = "Une erreur est survenue lors de l'envoi du message. Veuillez réessayer plus tard."
+    
+    # Contenu HTML du formulaire
+    contact_form = """
+    <div class="info-box">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Formulaire de contact :</strong> Utilisez ce formulaire pour nous contacter directement.
+        Nous vous répondrons dans les meilleurs délais.
+    </div>
+    
+    <h2>Formulaire de Contact</h2>
+    <p>Remplissez ce formulaire pour nous contacter. Tous les champs marqués d'un astérisque (*) sont obligatoires.</p>
+    
+    """
+    
+    # Message de succès ou d'erreur
+    if success:
+        contact_form += """
+        <div class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong>Message envoyé avec succès !</strong><br>
+            Nous avons bien reçu votre message et nous vous répondrons dans les plus brefs délais.
+        </div>
+        """
+    elif error:
+        contact_form += f"""
+        <div class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <strong>Erreur :</strong> {error}
+        </div>
+        """
+    
+    # Le formulaire lui-même
+    contact_form += f"""
+    <div class="contact-form-container">
+        <form method="POST" action="/contact">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="first_name" class="form-label">Prénom *</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" 
+                           placeholder="Votre prénom" required
+                           value="{request.form.get('first_name', '')}">
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="last_name" class="form-label">Nom *</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" 
+                           placeholder="Votre nom" required
+                           value="{request.form.get('last_name', '')}">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="email" class="form-label">Adresse email *</label>
+                    <input type="email" class="form-control" id="email" name="email" 
+                           placeholder="votre@email.com" required
+                           value="{request.form.get('email', '')}">
+                    <div class="form-text">Nous ne partagerons jamais votre email avec des tiers.</div>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="phone" class="form-label">Numéro de téléphone (optionnel)</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" 
+                           placeholder="06 12 34 56 78"
+                           value="{request.form.get('phone', '')}">
+                    <div class="form-text">Pour un contact plus rapide si nécessaire.</div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="subject" class="form-label">Sujet de votre message *</label>
+                <select class="form-select" id="subject" name="subject" required>
+                    <option value="" disabled selected>Sélectionnez un sujet</option>
+                    <option value="bug" {"selected" if request.form.get('subject') == 'bug' else ""}>🚨 Signaler un bug ou un problème technique</option>
+                    <option value="improvement" {"selected" if request.form.get('subject') == 'improvement' else ""}>💡 Proposer une amélioration fonctionnelle</option>
+                    <option value="partnership" {"selected" if request.form.get('subject') == 'partnership' else ""}>🤝 Demande de partenariat</option>
+                    <option value="other" {"selected" if request.form.get('subject') == 'other' else ""}>❓ Autre demande</option>
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label for="message" class="form-label">Votre message *</label>
+                <textarea class="form-control" id="message" name="message" rows="6" 
+                          placeholder="Décrivez votre demande en détail..." required
+                          maxlength="2000">{request.form.get('message', '')}</textarea>
+                <div class="character-count" id="charCount">0 / 2000 caractères</div>
+                <div class="form-text">Maximum 2000 caractères. Soyez aussi précis que possible.</div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" class="btn btn-send">
+                    <i class="fas fa-paper-plane me-1"></i> Envoyer le message
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <h3 class="mt-5">Types de demandes</h3>
+    <p>Voici les différents types de demandes que vous pouvez nous soumettre :</p>
+    
+    <div class="contact-types-grid">
+        <div class="contact-type-card">
+            <div class="contact-type-icon">
+                <i class="fas fa-bug"></i>
+            </div>
+            <h4>Support technique</h4>
+            <p>Pour signaler un bug, un problème technique ou une difficulté d'utilisation du service.</p>
+        </div>
+        
+        <div class="contact-type-card">
+            <div class="contact-type-icon">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <h4>Améliorations</h4>
+            <p>Pour proposer une nouvelle fonctionnalité ou suggérer une amélioration du service.</p>
+        </div>
+        
+        <div class="contact-type-card">
+            <div class="contact-type-card">
+                <div class="contact-type-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <h4>Partenariats</h4>
+                <p>Pour discuter d'opportunités de collaboration, d'intégration ou de partenariat.</p>
+            </div>
+        </div>
+        
+        <div class="contact-type-card">
+            <div class="contact-type-icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h4>Autres demandes</h4>
+            <p>Pour toute autre question concernant le service, la confidentialité ou les conditions d'utilisation.</p>
+        </div>
+    </div>
+    
+    <div class="info-box mt-4">
+        <i class="fas fa-clock me-2"></i>
+        <strong>Temps de réponse :</strong> Nous nous efforçons de répondre à tous les messages dans un délai de 48 heures.
+        Pour les urgences techniques, précisez-le dans votre message.
+    </div>
+    
+    <div class="alert alert-warning mt-4">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <strong>Note importante :</strong> Pour des raisons de sécurité et de confidentialité, 
+        nous ne traitons pas les demandes concernant des fichiers PDF spécifiques via ce formulaire.
+        Tous les traitements de fichiers doivent être effectués directement via l'interface web.
+    </div>
+    """
+    
+    return render_template_string(
+        LEGAL_TEMPLATE,
+        title="Contact",
+        badge="Formulaire de contact",
+        subtitle="Contactez-nous via notre formulaire",
+        content=contact_form,
+        current_year=datetime.now().year,
+        config=AppConfig
+    )
+
+# ... gardez vos autres routes (mentions-legales, politique-confidentialite, etc.) ...
 
 @legal_bp.route('/mentions-legales')
 def legal_notices():
