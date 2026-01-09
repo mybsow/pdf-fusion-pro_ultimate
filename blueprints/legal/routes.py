@@ -529,6 +529,10 @@ def send_discord_notification(form_data):
 
 
 def send_email_fallback(form_data):
+    print(f"🔧 DEBUG SMTP Config:")
+    print(f"   SMTP_USERNAME: {os.environ.get('SMTP_USERNAME', 'NON CONFIGURÉ')}")
+    print(f"   SMTP_PASSWORD: {'CONFIGURÉ' if os.environ.get('SMTP_PASSWORD') else 'NON CONFIGURÉ'}")
+    print(f"   DEVELOPER_EMAIL: {os.environ.get('DEVELOPER_EMAIL', 'NON CONFIGURÉ')}")
     """
     Envoie un email via SendGrid (ou autre SMTP)
     """
