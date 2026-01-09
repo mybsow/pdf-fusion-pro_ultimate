@@ -814,66 +814,6 @@ def terms_of_service():
         config=AppConfig
     )
 
-@legal_bp.route('/contact')
-def contact():
-    content = f"""
-    <h2>Nous contacter</h2>
-    <p>Pour toute question, suggestion ou demande concernant le service, n'hésitez pas à nous écrire.</p>
-    
-    <div class="contact-info">
-        <div class="contact-icon">
-            <i class="fas fa-envelope"></i>
-        </div>
-        <div>
-            <h3 class="h5 mb-1">Adresse email</h3>
-            <a href="mailto:{AppConfig.DEVELOPER_EMAIL}" class="fs-5">{AppConfig.DEVELOPER_EMAIL}</a>
-        </div>
-    </div>
-    
-    <div class="info-box mt-4">
-        <i class="fas fa-clock me-2"></i>
-        <strong>Temps de réponse :</strong> Nous nous efforçons de répondre à tous les messages dans un délai de 48 heures.
-    </div>
-    
-    <h2 class="mt-4">Types de demandes</h2>
-    
-    <h3><i class="fas fa-wrench me-2"></i> Support technique</h3>
-    <p>Pour signaler un bug, un problème technique ou proposer une amélioration fonctionnelle.</p>
-    
-    <h3><i class="fas fa-shield-alt me-2"></i> Confidentialité / RGPD</h3>
-    <p>Pour exercer vos droits relatifs à la protection des données personnelles.</p>
-    
-    <h3><i class="fas fa-ad me-2"></i> Publicité</h3>
-    <p>Pour toute question concernant Google AdSense ou la publicité affichée.</p>
-    
-    <h3><i class="fas fa-handshake me-2"></i> Partenariats</h3>
-    <p>Pour discuter d'opportunités de collaboration ou d'intégration.</p>
-    
-    <h2>Informations importantes</h2>
-    <p>Lors de votre demande, merci de préciser :</p>
-    <ul>
-        <li>L'objet précis de votre demande</li>
-        <li>Votre nom ou pseudonyme</li>
-        <li>Toute information contextuelle utile</li>
-    </ul>
-    
-    <div class="alert alert-warning mt-4">
-        <i class="fas fa-exclamation-circle me-2"></i>
-        <strong>Note :</strong> Pour des raisons de sécurité, nous ne traitons pas les demandes concernant des fichiers PDF spécifiques via email.
-        Tous les traitements de fichiers doivent être effectués directement via l'interface web.
-    </div>
-    """
-    
-    return render_template_string(
-        LEGAL_TEMPLATE,
-        title="Contact",
-        badge="Support",
-        subtitle="Comment nous contacter pour toute question ou demande",
-        content=content,
-        current_year=datetime.now().year,
-        config=AppConfig
-    )
-
 @legal_bp.route('/a-propos')
 def about():
     content = f"""
