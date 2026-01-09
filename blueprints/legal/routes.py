@@ -530,6 +530,235 @@ def send_discord_notification(form_data):
 
 def send_email_fallback(form_data):
     """
+    Envoie un email via SendGrid (ou autre SMTP)
+    """
+    smtp_username = os.environ.get('SMTP_USERNAME', '')
+    smtp_password = os.environ.get('SMTP_PASSWORD', '')
+    developer_email = os.environ.get('DEVELOPER_EMAIL', AppConfig.DEVELOPER_EMAIL)
+    
+    # Vérifier si SendGrid est configuré
+    is_sendgrid = (smtp_username == 'apikey' and smtp_password)
+    
+    if not smtp_password:
+        # Aucun SMTP configuré
+        print("⚠️ SMTP non configuré - email non envoyé")
+        return True  # Ne pas bloquer le formulaire
+    
+    try:
+        if is_sendgrid:
+            # ============================================
+            # ENVOI AVEC SENDGRID (MÉTHODE OPTIMISÉE)
+            # ============================================
+            
+            # Préparer le sujet
+            subject_display_map = {
+                'bug': '🚨 Bug',
+                'improvement': '💡 Suggestion',
+                'partnership': '🤝 Partenariat',
+                'other': '❓ Demande'
+            }
+            
+            subject_type = subject_display_map.get(form_data['subject'], 'Demande')
+            email_subject = f"[PDF Fusion Pro] {subject_type} - {form_data['first_name']} {form_data['last_name']}"
+            
+            # Créer le contenu HTML
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                    .header {{ background: linear-gradient(135deg, #4361ee, #3a0ca3); 
+                              color: white; padding: 20px; border-radius: 10px 10px 0 0; }}
+                    .content {{ background: #f8f9fa; padding: 20px; border-radius: 0 0 10px 10px; }}
+                    .info-box {{ background: white; border-left: 4px solid #4361ee; 
+                               padding: 15px; margin: 15px 0; border-radius: 5px; }}
+                    .footer {{ margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; 
+                             font-size: 12px; color: #666; }}
+                    .badge {{ display: inline-block; padding: 3px 8px; border-radius: 3px; 
+                            font-size: 12px; font-weight: bold; margin-left: 10px; }}
+                    .bug {{ background: #e74c3c; color: white; }}
+                    .improvement {{ background: #f39c12; color: white; }}
+                    .partnership {{ background: #3498db; color: white; }}
+                    .other {{ background: #9b59b6; color: white; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h2>📧 Nouveau message de contact</h2>
+                        <p>PDF Fusion Pro • {datetime.now().strftime('%d/%m/%Y à %H:%M')}</p>
+                    </div>
+                    
+                    <div class="content">
+                        <div class="info-box">
+                            <h3>👤 Informations contact</h3>
+                            <p><strong>Nom :</strong> {form_data['first_name']} {form_data['last_name']}</p>
+                            <p><strong>Email :</strong> {form_data['email']}</p>
+                            <p><strong>Téléphone :</strong> {form_data.get('phone', 'Non renseigné')}</p>
+                            <p><strong>Type de demande :</strong> 
+                                <span class="badge {form_data['subject']}">
+                                    {subject_type}
+                                </span>
+                            </p>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>💬 Message</h3>
+                            <p>{form_data['message'].replace(chr(10), '<br>')}</p>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>📊 Métadonnées</h3>
+                            <p><strong>Reçu le :</strong> {datetime.now().strftime('%d/%m/%Y à %H:%M:%S')}</p>
+                            <p><strong>IP :</strong> {request.remote_addr if hasattr(request, 'remote_addr') else 'N/A'}</p>
+                            <p><strong>Application :</strong> {AppConfig.NAME} v{AppConfig.VERSION}</p>
+                            <p><strong>Domaine :</strong> {AppConfig.DOMAIN}</p>
+                        </div>
+                        
+                        <div class="footer">
+                            <p>📨 Ce message a été envoyé automatiquement depuis le formulaire de contact de PDF Fusion Pro.</p>
+                            <p>⚡ <strong>Actions rapides :</strong></p>
+                            <ul>
+                                <li><a href="mailto:{form_data['email']}?subject=Re: {email_subject}">Répondre à {form_data['first_name']}</a></li>
+                                <li><a href="https://{AppConfig.DOMAIN}/admin/messages?password=YOUR_PASSWORD">Voir dans l'interface admin</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            
+            # Contenu texte brut (fallback)
+            text_content = f"""
+            NOUVEAU MESSAGE DE CONTACT - PDF FUSION PRO
+            ===========================================
+            
+            👤 INFORMATIONS CONTACT
+            -----------------------
+            Nom: {form_data['last_name']}
+            Prénom: {form_data['first_name']}
+            Email: {form_data['email']}
+            Téléphone: {form_data.get('phone', 'Non renseigné')}
+            Type: {subject_type}
+            
+            💬 MESSAGE
+            ----------
+            {form_data['message']}
+            
+            📊 MÉTADONNÉES
+            --------------
+            Reçu le: {datetime.now().strftime('%d/%m/%Y à %H:%M:%S')}
+            IP: {request.remote_addr if hasattr(request, 'remote_addr') else 'N/A'}
+            Application: {AppConfig.NAME} v{AppConfig.VERSION}
+            Domaine: {AppConfig.DOMAIN}
+            
+            ---
+            📨 Envoyé automatiquement depuis le formulaire de contact.
+            ⚡ Pour répondre: {form_data['email']}
+            """
+            
+            # Essayer d'abord l'API SendGrid (plus fiable)
+            try:
+                # Vérifier si sendgrid est installé
+                try:
+                    from sendgrid import SendGridAPIClient
+                    from sendgrid.helpers.mail import Mail, Content, To
+                    
+                    # Créer le message SendGrid
+                    from_email = developer_email  # Doit être vérifié dans SendGrid
+                    to_email = developer_email
+                    
+                    message = Mail(
+                        from_email=from_email,
+                        to_emails=to_email,
+                        subject=email_subject,
+                        html_content=html_content,
+                        plain_text_content=text_content
+                    )
+                    
+                    # Ajouter des headers personnalisés
+                    message.add_header("X-Application", "PDF Fusion Pro")
+                    message.add_header("X-Contact-Type", form_data['subject'])
+                    
+                    # Envoyer via l'API
+                    sg = SendGridAPIClient(smtp_password)  # API Key comme paramètre
+                    response = sg.send(message)
+                    
+                    if response.status_code == 202:
+                        print(f"✅ Email envoyé via SendGrid API (status: {response.status_code})")
+                        return True
+                    else:
+                        print(f"⚠️ SendGrid API a répondu avec: {response.status_code}")
+                        # Fallback sur SMTP
+                        
+                except ImportError:
+                    print("📦 Module sendgrid non installé, utilisation SMTP...")
+                    
+            except Exception as api_error:
+                print(f"⚠️ Erreur API SendGrid: {api_error}")
+                # Continuer avec SMTP
+            
+            # ============================================
+            # FALLBACK: ENVOI SMTP CLASSIQUE
+            # ============================================
+            smtp_server = "smtp.sendgrid.net"
+            smtp_port = 587
+            
+            # Préparer l'email MIME
+            msg = MIMEMultipart('alternative')
+            msg['From'] = developer_email
+            msg['To'] = developer_email
+            msg['Subject'] = email_subject
+            msg['Reply-To'] = form_data['email']
+            
+            # Ajouter les deux versions (texte + HTML)
+            part1 = MIMEText(text_content, 'plain', 'utf-8')
+            part2 = MIMEText(html_content, 'html', 'utf-8')
+            
+            msg.attach(part1)
+            msg.attach(part2)
+            
+            # Connexion et envoi
+            with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
+                server.starttls()
+                server.login(smtp_username, smtp_password)
+                server.send_message(msg)
+            
+            print("✅ Email envoyé via SMTP SendGrid")
+            return True
+            
+        else:
+            # ============================================
+            # AUTRE SERVEUR SMTP (Gmail, etc.)
+            # ============================================
+            smtp_server = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
+            smtp_port = int(os.environ.get('SMTP_PORT', 587))
+            
+            # ... (votre code SMTP existant) ...
+            
+    except Exception as e:
+        error_msg = str(e)
+        print(f"❌ Erreur envoi email: {error_msg}")
+        
+        # Log détaillé pour le débogage
+        if "Authentication failed" in error_msg:
+            print("🔍 Problème d'authentification SendGrid:")
+            print("   - Vérifiez que SMTP_USERNAME='apikey'")
+            print("   - Vérifiez que l'API Key a les permissions 'Mail Send'")
+            print("   - L'API Key est-elle toujours valide ?")
+        elif "Connection refused" in error_msg:
+            print("🔍 Problème de connexion:")
+            print("   - Essayez le port 465 avec SMTP_SSL")
+            print("   - Vérifiez les pare-feux")
+        
+        return False
+
+
+def send_email_fallback(form_data):
+    """
     Tentative d'envoi d'email via SMTP (fallback optionnel)
     Ne bloque pas si échec
     """
