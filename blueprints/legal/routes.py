@@ -333,7 +333,7 @@ LEGAL_TEMPLATE = """
         <div class="legal-content">
             {{ content|safe }}
         </div>
-        
+ 
         <div class="legal-footer">
             <div class="row align-items-center">
                 <div class="col-md-8">
@@ -343,7 +343,10 @@ LEGAL_TEMPLATE = """
                         • Version {{ config.VERSION }}
                     </p>
                     <p class="mb-0 text-muted small mt-1">
-                        <i class="fas fa-envelope me-1"></i> {{ config.DEVELOPER_EMAIL }}
+                        <i class="fas fa-envelope me-1"></i> 
+                        <a href="/contact" class="text-muted text-decoration-none">
+                            Contactez-nous via notre formulaire
+                        </a>
                         • Hébergé sur <strong>{{ config.HOSTING }}</strong> • {{ config.DOMAIN }}
                     </p>
                 </div>
@@ -354,7 +357,6 @@ LEGAL_TEMPLATE = """
                 </div>
             </div>
         </div>
-    </div>
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -849,15 +851,18 @@ def legal_notices():
     </div>
     
     <h2>Éditeur du service</h2>
-    <p>Le service <strong>{AppConfig.NAME}</strong> est développé et maintenu par :</p>
+    <p>Le service <strong>{AppConfig.NAME}</strong> est développé et maintenu par <strong>{AppConfig.DEVELOPER_NAME}</strong>.</p>
     
     <div class="contact-info">
         <div class="contact-icon">
             <i class="fas fa-user-tie"></i>
         </div>
         <div>
-            <strong>{AppConfig.DEVELOPER_NAME}</strong><br>
-            <a href="mailto:{AppConfig.DEVELOPER_EMAIL}">{AppConfig.DEVELOPER_EMAIL}</a>
+            <h4 class="h5 mb-2">Pour nous contacter :</h4>
+            <p>Utilisez notre <a href="/contact" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-envelope me-1"></i> Formulaire de contact
+            </a></p>
+            <p class="small text-muted">Nous répondons généralement dans les 48 heures.</p>
         </div>
     </div>
     
@@ -874,7 +879,7 @@ def legal_notices():
     <p>Il s'engage à ne pas utiliser le service pour des contenus illicites ou protégés par des droits d'auteur sans autorisation.</p>
     
     <h2>Disponibilité du service</h2>
-    <p>Nous nous efforçons d'assurer une disponibilité continu du service, mais ne pouvons garantir un fonctionnement ininterrompu.</p>
+    <p>Nous nous efforçons d'assurer une disponibilité continue du service, mais ne pouvons garantir un fonctionnement ininterrompu.</p>
     <p>Des périodes de maintenance technique peuvent être nécessaires pour améliorer le service.</p>
     """
     
@@ -933,7 +938,9 @@ def privacy_policy():
         <li>Droit à la portabilité des données</li>
     </ul>
     
-    <p>Pour exercer ces droits, contactez-nous à : <a href="mailto:{AppConfig.DEVELOPER_EMAIL}">{AppConfig.DEVELOPER_EMAIL}</a></p>
+    <p>Pour exercer ces droits, utilisez notre <a href="/contact" class="btn btn-outline-primary btn-sm">
+        <i class="fas fa-envelope me-1"></i> Formulaire de contact
+    </a> en précisant "Exercice de droits RGPD" dans le sujet.</p>
     
     <h2>Sécurité des données</h2>
     <p>Nous mettons en œuvre des mesures de sécurité techniques et organisationnelles appropriées pour protéger vos données contre tout accès non autorisé, altération ou destruction.</p>
@@ -998,6 +1005,16 @@ def terms_of_service():
     <h2>Propriété intellectuelle</h2>
     <p>Le service, son code source, son design et son contenu sont la propriété exclusive de <strong>{AppConfig.DEVELOPER_NAME}</strong>.</p>
     <p>Toute reproduction, même partielle, est interdite sans autorisation préalable écrite.</p>
+    
+    <div class="alert alert-info mt-4">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Pour toute question concernant ces conditions :</strong>
+        <div class="mt-2">
+            <a href="/contact" class="btn btn-outline-primary">
+                <i class="fas fa-envelope me-1"></i> Nous contacter via le formulaire
+            </a>
+        </div>
+    </div>
     """
     
     return render_template_string(
@@ -1098,6 +1115,19 @@ def about():
     <div class="info-box mt-4">
         <i class="fas fa-code me-2"></i>
         <strong>Technologies utilisées :</strong> Python, Flask, PyPDF2, Bootstrap 5, JavaScript moderne.
+    </div>
+    
+    <div class="card border-primary mt-4">
+        <div class="card-body">
+            <h4 class="card-title">
+                <i class="fas fa-comments text-primary me-2"></i>
+                Une question ou suggestion ?
+            </h4>
+            <p class="card-text">Nous sommes à votre écoute pour améliorer le service.</p>
+            <a href="/contact" class="btn btn-primary">
+                <i class="fas fa-paper-plane me-1"></i> Utiliser le formulaire de contact
+            </a>
+        </div>
     </div>
     """
     
