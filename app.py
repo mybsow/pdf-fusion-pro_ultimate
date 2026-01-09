@@ -13,6 +13,20 @@ from blueprints.legal import legal_bp
 from blueprints.stats import stats_bp
 from utils.middleware import setup_middleware
 from utils.stats_manager import stats_manager
+# Dans app.py, après create_app() ou dans une fonction d'init
+import os
+from pathlib import Path
+
+def init_app_dirs():
+    """Crée les répertoires nécessaires"""
+    directories = ['data/contacts', 'uploads', 'temp']
+    
+    for directory in directories:
+        Path(directory).mkdir(parents=True, exist_ok=True)
+        print(f"📁 Dossier créé/vérifié: {directory}")
+
+# Appelez cette fonction au démarrage
+init_app_dirs()
 
 def create_app():
     """Factory pour créer l'application Flask"""

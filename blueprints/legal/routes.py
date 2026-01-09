@@ -10,6 +10,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
+import json
+import requests
+from pathlib import Path
 
 # ============================================================
 # TEMPLATE HTML POUR LES PAGES LÉGALES
@@ -391,62 +394,211 @@ LEGAL_TEMPLATE = """
 """
 
 # ============================================================
-# FONCTION D'ENVOI D'EMAIL (optionnelle - à configurer)
+# FONCTIONS D'ENVOI FIABLES
 # ============================================================
 
-def send_contact_email(form_data):
+def save_contact_to_json(form_data, flask_request):
     """
-    Envoie un email avec les données du formulaire
-    Note: À configurer avec vos propres informations SMTP
+    Sauvegarde le contact dans un fichier JSON (solution fiable)
+    Retourne toujours True sauf en cas d'erreur critique
     """
     try:
-        # Configuration SMTP (exemple avec Gmail)
+        # Créer le dossier data/contacts si nécessaire
+        contacts_dir = Path("data/contacts")
+        contacts_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Créer un nom de fichier unique et sécurisé
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        # Nettoyer l'email pour le nom de fichier
+        safe_email = form_data['email'].split('@')[0][:20].replace('.', '_').replace('+', '_')
+        filename = f"contact_{timestamp}_{safe_email}.json"
+        filepath = contacts_dir / filename
+        
+        # Préparer les données avec métadonnées
+        contact_data = {
+            **form_data,
+            "received_at": datetime.now().isoformat(),
+            "timestamp": timestamp,
+            "ip_address": flask_request.remote_addr if hasattr(flask_request, 'remote_addr') else None,
+            "user_agent": flask_request.user_agent.string if hasattr(flask_request, 'user_agent') else None,
+            "status": "pending",
+            "app_name": AppConfig.NAME,
+            "domain": AppConfig.DOMAIN
+        }
+        
+        # Sauvegarder en JSON avec encoding UTF-8
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(contact_data, f, ensure_ascii=False, indent=2)
+        
+        print(f"📁 Contact sauvegardé dans: {filepath}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Erreur critique sauvegarde JSON: {e}")
+        return False
+
+
+def send_discord_notification(form_data):
+    """
+    Envoie une notification Discord (optionnel)
+    Ne bloque jamais le processus principal
+    """
+    webhook_url = os.environ.get('DISCORD_WEBHOOK_URL')
+    
+    if not webhook_url:
+        # Pas de webhook configuré = on ignore silencieusement
+        return True
+    
+    try:
+        # Mapper les sujets pour l'affichage
+        subject_display_map = {
+            'bug': '🚨 Bug/Problème technique',
+            'improvement': '💡 Amélioration/Suggestion',
+            'partnership': '🤝 Partenariat',
+            'other': '❓ Autre demande'
+        }
+        
+        subject_display = subject_display_map.get(
+            form_data['subject'], 
+            form_data['subject'].capitalize()
+        )
+        
+        # Tronquer le message si trop long pour Discord
+        message_preview = form_data['message']
+        if len(message_preview) > 1000:
+            message_preview = message_preview[:997] + "..."
+        
+        # Créer l'embed Discord
+        embed = {
+            "title": "📧 Nouveau message de contact",
+            "color": 0x4361ee,  # Couleur bleue
+            "fields": [
+                {
+                    "name": "👤 Nom complet",
+                    "value": f"{form_data['first_name']} {form_data['last_name']}",
+                    "inline": True
+                },
+                {
+                    "name": "📧 Email",
+                    "value": form_data['email'],
+                    "inline": True
+                },
+                {
+                    "name": "📱 Téléphone",
+                    "value": form_data.get('phone', 'Non renseigné'),
+                    "inline": True
+                },
+                {
+                    "name": "🎯 Type de demande",
+                    "value": subject_display,
+                    "inline": False
+                },
+                {
+                    "name": "💬 Message",
+                    "value": message_preview,
+                    "inline": False
+                }
+            ],
+            "footer": {
+                "text": f"{AppConfig.NAME} • {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+            }
+        }
+        
+        # Envoyer avec un timeout très court
+        response = requests.post(
+            webhook_url,
+            json={"embeds": [embed]},
+            timeout=3  # Timeout court pour ne pas bloquer
+        )
+        
+        if response.status_code in [200, 204]:
+            print("🔔 Notification Discord envoyée")
+            return True
+        else:
+            print(f"⚠️ Discord a répondu avec code: {response.status_code}")
+            return True  # On continue même si Discord échoue
+            
+    except requests.exceptions.Timeout:
+        print("⚠️ Timeout Discord (ignoré)")
+        return True
+    except Exception as e:
+        print(f"⚠️ Erreur Discord (ignorée): {str(e)[:100]}")
+        return True  # Ne JAMAIS bloquer le formulaire
+
+
+def send_email_fallback(form_data):
+    """
+    Tentative d'envoi d'email via SMTP (fallback optionnel)
+    Ne bloque pas si échec
+    """
+    smtp_username = os.environ.get('SMTP_USERNAME')
+    smtp_password = os.environ.get('SMTP_PASSWORD')
+    
+    if not (smtp_username and smtp_password):
+        # SMTP non configuré = on ignore
+        return True
+    
+    try:
+        # Configuration SMTP
         smtp_server = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
         smtp_port = int(os.environ.get('SMTP_PORT', 587))
-        smtp_username = os.environ.get('SMTP_USERNAME', '')
-        smtp_password = os.environ.get('SMTP_PASSWORD', '')
         
-        if not all([smtp_username, smtp_password]):
-            # Retourne True pour simuler l'envoi si non configuré
-            return True
-            
         # Création du message
-        subject = f"[PDF Fusion Pro] Contact - {form_data['subject']}"
+        subject_display_map = {
+            'bug': '🚨 Bug',
+            'improvement': '💡 Suggestion',
+            'partnership': '🤝 Partenariat',
+            'other': '❓ Demande'
+        }
+        
+        subject_type = subject_display_map.get(form_data['subject'], 'Demande')
+        email_subject = f"[{AppConfig.NAME}] {subject_type} - {form_data['first_name']} {form_data['last_name']}"
         
         message_body = f"""
-        Nouveau message de contact depuis PDF Fusion Pro:
+        NOUVEAU MESSAGE DE CONTACT
+        ===========================
         
+        🕐 Reçu le: {datetime.now().strftime('%d/%m/%Y à %H:%M')}
+        📍 Depuis: {AppConfig.DOMAIN}
+        
+        👤 CONTACT
+        ----------
         Nom: {form_data['last_name']}
         Prénom: {form_data['first_name']}
         Email: {form_data['email']}
         Téléphone: {form_data.get('phone', 'Non renseigné')}
-        Sujet: {form_data['subject']}
+        Type: {form_data['subject']}
         
-        Message:
+        💬 MESSAGE
+        ----------
         {form_data['message']}
         
-        ---
-        Envoyé depuis {AppConfig.DOMAIN}
+        📊 INFOS TECHNIQUES
+        -------------------
+        Application: {AppConfig.NAME} v{AppConfig.VERSION}
+        IP: {request.remote_addr if hasattr(request, 'remote_addr') else 'N/A'}
         """
         
         # Préparation de l'email
         msg = MIMEMultipart()
         msg['From'] = smtp_username
         msg['To'] = AppConfig.DEVELOPER_EMAIL
-        msg['Subject'] = subject
-        msg.attach(MIMEText(message_body, 'plain'))
+        msg['Subject'] = email_subject
+        msg.attach(MIMEText(message_body, 'plain', 'utf-8'))
         
-        # Envoi
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
+        # Envoi avec timeout
+        with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
             server.starttls()
             server.login(smtp_username, smtp_password)
             server.send_message(msg)
             
+        print("📧 Email envoyé via SMTP")
         return True
         
     except Exception as e:
-        print(f"Erreur d'envoi d'email: {e}")
-        return False
+        print(f"⚠️ Erreur SMTP (ignorée): {str(e)[:100]}")
+        return True  # Ne pas bloquer le formulaire
+
 
 # ============================================================
 # ROUTES
@@ -454,35 +606,52 @@ def send_contact_email(form_data):
 
 @legal_bp.route('/contact', methods=['GET', 'POST'])
 def contact():
-    """Page de contact avec formulaire"""
+    """Page de contact avec formulaire fiable"""
     
     success = False
     error = None
     
     if request.method == 'POST':
-        # Récupération des données du formulaire
+        # Récupération et nettoyage des données
         form_data = {
             'first_name': request.form.get('first_name', '').strip(),
             'last_name': request.form.get('last_name', '').strip(),
-            'email': request.form.get('email', '').strip(),
+            'email': request.form.get('email', '').strip().lower(),
             'phone': request.form.get('phone', '').strip(),
             'subject': request.form.get('subject', '').strip(),
             'message': request.form.get('message', '').strip()
         }
         
-        # Validation
+        # Validation robuste
         if not all([form_data['first_name'], form_data['last_name'], form_data['email'], form_data['subject'], form_data['message']]):
-            error = "Veuillez remplir tous les champs obligatoires."
+            error = "Veuillez remplir tous les champs obligatoires (*)."
         elif len(form_data['message']) > 2000:
             error = "Le message ne doit pas dépasser 2000 caractères."
-        elif '@' not in form_data['email'] or '.' not in form_data['email']:
+        elif '@' not in form_data['email'] or '.' not in form_data['email'][form_data['email'].find('@'):]:
             error = "Veuillez saisir une adresse email valide."
+        elif len(form_data['first_name']) < 2 or len(form_data['last_name']) < 2:
+            error = "Le nom et prénom doivent contenir au moins 2 caractères."
         else:
-            # Tentative d'envoi d'email
-            if send_contact_email(form_data):
+            # ============================================
+            # NOUVELLE LOGIQUE D'ENVOI FIABLE
+            # ============================================
+            
+            # 1. Sauvegarde en JSON (GARANTIE de fonctionnement)
+            json_saved = save_contact_to_json(form_data, request)
+            
+            # 2. Notification Discord (optionnel, non-bloquant)
+            discord_sent = send_discord_notification(form_data)
+            
+            # 3. Email SMTP (optionnel, non-bloquant)
+            email_sent = send_email_fallback(form_data)
+            
+            # 4. Déterminer le succès
+            if json_saved:
                 success = True
+                current_time = datetime.now().strftime('%H:%M')
+                print(f"✅ Formulaire traité avec succès à {current_time} pour: {form_data['email']}")
             else:
-                error = "Une erreur est survenue lors de l'envoi du message. Veuillez réessayer plus tard."
+                error = "Une erreur technique est survenue. Veuillez réessayer dans quelques instants."
     
     # Contenu HTML du formulaire
     contact_form = """
@@ -499,22 +668,48 @@ def contact():
     
     # Message de succès ou d'erreur
     if success:
-        contact_form += """
+        current_time = datetime.now().strftime('%H:%M')
+        contact_form += f"""
         <div class="alert alert-success" role="alert">
             <i class="fas fa-check-circle me-2"></i>
-            <strong>Message envoyé avec succès !</strong><br>
-            Nous avons bien reçu votre message et nous vous répondrons dans les plus brefs délais.
+            <strong>Message enregistré avec succès !</strong><br>
+            <small>Référence: {current_time} • Merci pour votre message.</small><br>
+            Nous avons bien reçu votre demande et nous vous répondrons dans les plus brefs délais.
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-primary me-2">
+                <i class="fas fa-home me-1"></i> Retour à l'accueil
+            </a>
+            <a href="/contact" class="btn btn-outline-primary">
+                <i class="fas fa-envelope me-1"></i> Envoyer un autre message
+            </a>
         </div>
         """
+        
+        # Ne pas afficher le formulaire après succès
+        contact_form += """
+        </div></div>"""
+        
+        return render_template_string(
+            LEGAL_TEMPLATE,
+            title="Contact - Message envoyé",
+            badge="Succès",
+            subtitle="Votre message a été enregistré avec succès",
+            content=contact_form,
+            current_year=datetime.now().year,
+            config=AppConfig
+        )
+    
     elif error:
         contact_form += f"""
         <div class="alert alert-danger" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i>
-            <strong>Erreur :</strong> {error}
+            <strong>Attention :</strong> {error}
         </div>
         """
     
-    # Le formulaire lui-même
+    # Le formulaire lui-même (uniquement si pas de succès)
     contact_form += f"""
     <div class="contact-form-container">
         <form method="POST" action="/contact">
@@ -523,14 +718,16 @@ def contact():
                     <label for="first_name" class="form-label">Prénom *</label>
                     <input type="text" class="form-control" id="first_name" name="first_name" 
                            placeholder="Votre prénom" required
-                           value="{request.form.get('first_name', '')}">
+                           value="{request.form.get('first_name', '')}"
+                           minlength="2" maxlength="50">
                 </div>
                 
                 <div class="col-md-6 mb-3">
                     <label for="last_name" class="form-label">Nom *</label>
                     <input type="text" class="form-control" id="last_name" name="last_name" 
                            placeholder="Votre nom" required
-                           value="{request.form.get('last_name', '')}">
+                           value="{request.form.get('last_name', '')}"
+                           minlength="2" maxlength="50">
                 </div>
             </div>
             
@@ -601,13 +798,11 @@ def contact():
         </div>
         
         <div class="contact-type-card">
-            <div class="contact-type-card">
-                <div class="contact-type-icon">
-                    <i class="fas fa-handshake"></i>
-                </div>
-                <h4>Partenariats</h4>
-                <p>Pour discuter d'opportunités de collaboration, d'intégration ou de partenariat.</p>
+            <div class="contact-type-icon">
+                <i class="fas fa-handshake"></i>
             </div>
+            <h4>Partenariats</h4>
+            <p>Pour discuter d'opportunités de collaboration, d'intégration ou de partenariat.</p>
         </div>
         
         <div class="contact-type-card">
@@ -643,7 +838,6 @@ def contact():
         config=AppConfig
     )
 
-# ... gardez vos autres routes (mentions-legales, politique-confidentialite, etc.) ...
 
 @legal_bp.route('/mentions-legales')
 def legal_notices():
@@ -680,7 +874,7 @@ def legal_notices():
     <p>Il s'engage à ne pas utiliser le service pour des contenus illicites ou protégés par des droits d'auteur sans autorisation.</p>
     
     <h2>Disponibilité du service</h2>
-    <p>Nous nous efforçons d'assurer une disponibilité continue du service, mais ne pouvons garantir un fonctionnement ininterrompu.</p>
+    <p>Nous nous efforçons d'assurer une disponibilité continu du service, mais ne pouvons garantir un fonctionnement ininterrompu.</p>
     <p>Des périodes de maintenance technique peuvent être nécessaires pour améliorer le service.</p>
     """
     
@@ -693,6 +887,7 @@ def legal_notices():
         current_year=datetime.now().year,
         config=AppConfig
     )
+
 
 @legal_bp.route('/politique-confidentialite')
 def privacy_policy():
@@ -754,6 +949,7 @@ def privacy_policy():
         config=AppConfig
     )
 
+
 @legal_bp.route('/conditions-utilisation')
 def terms_of_service():
     content = f"""
@@ -813,6 +1009,7 @@ def terms_of_service():
         current_year=datetime.now().year,
         config=AppConfig
     )
+
 
 @legal_bp.route('/a-propos')
 def about():
