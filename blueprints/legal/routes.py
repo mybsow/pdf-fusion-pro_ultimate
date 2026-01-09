@@ -357,7 +357,6 @@ LEGAL_TEMPLATE = """
                 </div>
             </div>
         </div>
-    </div>
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -548,14 +547,23 @@ def send_email_fallback(form_data):
     if smtp_configured:
         print("   ⚠️ SMTP est configuré mais désactivé pour stabilité")
         print(f"   📧 Destinataire: {os.environ.get('DEVELOPER_EMAIL')}")
-        print(f"   🔑 Utilisateur SMTP: {os.environ.get('SMTP_USERNAME')[:10]}...")
     else:
         print("   ⚠️ SMTP non configuré dans les variables d'environnement")
-        print("   ℹ️ Pour configurer SMTP, ajoutez dans Render:")
-        print("      SMTP_USERNAME, SMTP_PASSWORD, DEVELOPER_EMAIL")
     
     # Toujours retourner True pour ne pas bloquer le formulaire
     return True
+    
+    # ============================================
+    # ANCIEN CODE SMTP (COMMENTÉ TEMPORAIREMENT)
+    # ============================================
+    '''
+    # NE PAS EXÉCUTER CE CODE POUR LE MOMENT
+    smtp_username = os.environ.get('SMTP_USERNAME', '')
+    smtp_password = os.environ.get('SMTP_PASSWORD', '')
+    developer_email = os.environ.get('DEVELOPER_EMAIL', AppConfig.DEVELOPER_EMAIL)
+    
+    # ... reste de l'ancien code SMTP ...
+    '''
 
 
 # ============================================================
@@ -604,7 +612,7 @@ def contact():
             print("📧 Tentative d'envoi d'email...")
             email_sent = send_email_fallback(form_data)  # Retourne toujours True maintenant
             
-            # 4. Déterminer le succès
+            # 4. Message informatif dans les logs
             if json_saved:
                 success = True
                 current_time = datetime.now().strftime('%H:%M')
@@ -902,318 +910,671 @@ def admin_messages():
                 </form>
                 
                 <div class="alert alert-warning mt-4">
-                    <i class="fas fa-exclamation-triangle me-1"></i>
-                    <strong>Accès restreint :</strong> Cette page est réservée à l'administrateur de l'application.
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Sécurité :</strong> Configurez la variable d'environnement 
+                    <code>ADMIN_PASSWORD</code> sur Render pour un mot de passe sécurisé.
                 </div>
             </div>
         </body>
         </html>
-        """
+        """, 401
     
-    # Lire tous les messages
+    # ============================================
+    # DÉBUT DE L'INTERFACE ADMIN
+    # ============================================
+    
     contacts_dir = Path("data/contacts")
-    messages = []
+    contacts = []
     
     if contacts_dir.exists():
-        for file_path in contacts_dir.glob("contact_*.json"):
+        # Lire tous les fichiers JSON
+        for filepath in sorted(contacts_dir.glob("*.json"), 
+                              key=lambda x: x.stat().st_mtime, reverse=True):
             try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    message_data = json.load(f)
-                message_data["filename"] = file_path.name
-                messages.append(message_data)
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    contact_data = json.load(f)
+                    contact_data['filename'] = filepath.name
+                    contact_data['file_size'] = f"{filepath.stat().st_size:,} octets"
+                    contact_data['modified'] = datetime.fromtimestamp(
+                        filepath.stat().st_mtime
+                    ).strftime('%d/%m/%Y %H:%M')
+                    contacts.append(contact_data)
             except Exception as e:
-                print(f"Erreur lecture {file_path}: {e}")
+                contacts.append({
+                    'filename': filepath.name,
+                    'error': str(e),
+                    'modified': datetime.fromtimestamp(
+                        filepath.stat().st_mtime
+                    ).strftime('%d/%m/%Y %H:%M')
+                })
     
-    # Trier par date (plus récent d'abord)
-    messages.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+    # Gérer les actions (suppression, marquer comme traité)
+    action = request.args.get('action')
+    filename = request.args.get('file')
     
-    # Générer l'HTML
-    html = """
+    if action and filename:
+        filepath = contacts_dir / filename
+        if filepath.exists():
+            if action == 'delete':
+                try:
+                    filepath.unlink()
+                    return redirect(f'/admin/messages?password={admin_password}&deleted={filename}')
+                except:
+                    pass
+            elif action == 'toggle_processed':
+                try:
+                    with open(filepath, 'r+', encoding='utf-8') as f:
+                        data = json.load(f)
+                        data['processed'] = not data.get('processed', False)
+                        data['processed_at'] = datetime.now().isoformat() if data['processed'] else None
+                        f.seek(0)
+                        json.dump(data, f, indent=2, ensure_ascii=False)
+                        f.truncate()
+                    return redirect(f'/admin/messages?password={admin_password}')
+                except:
+                    pass
+    
+    # Calculer les statistiques
+    stats = {
+        'total': len(contacts),
+        'processed': sum(1 for c in contacts if c.get('processed')),
+        'bug': sum(1 for c in contacts if c.get('subject') == 'bug'),
+        'improvement': sum(1 for c in contacts if c.get('subject') == 'improvement'),
+        'partnership': sum(1 for c in contacts if c.get('subject') == 'partnership'),
+        'other': sum(1 for c in contacts if c.get('subject') == 'other'),
+        'today': sum(1 for c in contacts if c.get('received_at', '').startswith(
+            datetime.now().strftime('%Y-%m-%d')
+        ))
+    }
+    
+    # Sujets traduits
+    subject_translation = {
+        'bug': '🚨 Bug/Problème',
+        'improvement': '💡 Suggestion',
+        'partnership': '🤝 Partenariat',
+        'other': '❓ Autre'
+    }
+    
+    # Générer l'HTML de l'interface admin
+    html = f"""
     <!DOCTYPE html>
     <html lang="fr">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Admin Messages - PDF Fusion Pro</title>
+        <title>Messages de Contact - Admin</title>
+        
+        <!-- Bootstrap 5.3 -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+        
         <style>
-            body {
-                background: #f8f9fa;
-                padding: 20px;
+            :root {{
+                --primary-color: #4361ee;
+                --secondary-color: #3a0ca3;
+                --success-color: #2ecc71;
+                --warning-color: #f39c12;
+                --danger-color: #e74c3c;
+            }}
+            
+            body {{
+                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                min-height: 100vh;
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            }
-            .header {
-                background: linear-gradient(135deg, #4361ee, #3a0ca3);
-                color: white;
-                padding: 1.5rem;
-                border-radius: 10px;
-                margin-bottom: 2rem;
-            }
-            .message-card {
+            }}
+            
+            .admin-container {{
+                max-width: 1400px;
+                margin: 2rem auto;
                 background: white;
-                border-radius: 10px;
+                border-radius: 20px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+                overflow: hidden;
+            }}
+            
+            .admin-header {{
+                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+                color: white;
+                padding: 2rem;
+            }}
+            
+            .admin-badge {{
+                display: inline-block;
+                background: rgba(255, 255, 255, 0.2);
+                padding: 0.5rem 1.5rem;
+                border-radius: 50px;
+                font-weight: 600;
+                margin-bottom: 1rem;
+            }}
+            
+            .admin-content {{
+                padding: 2rem;
+            }}
+            
+            .stats-card {{
+                background: white;
+                border-radius: 15px;
+                padding: 1.5rem;
+                border-left: 4px solid var(--primary-color);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+                transition: transform 0.3s;
+                height: 100%;
+            }}
+            
+            .stats-card:hover {{
+                transform: translateY(-5px);
+            }}
+            
+            .stats-icon {{
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }}
+            
+            .message-card {{
+                background: white;
+                border-radius: 15px;
                 padding: 1.5rem;
                 margin-bottom: 1.5rem;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-                border-left: 4px solid #4361ee;
-            }
-            .badge-new {
-                background: linear-gradient(135deg, #2ecc71, #27ae60);
-                color: white;
-            }
-            .badge-read {
-                background: #6c757d;
-                color: white;
-            }
-            .message-subject {
-                font-weight: 600;
-                color: #4361ee;
-            }
-            .message-meta {
-                font-size: 0.85rem;
-                color: #6c757d;
-            }
-            .no-messages {
-                text-align: center;
-                padding: 3rem;
-                color: #6c757d;
-                background: white;
+                border: 2px solid #e9ecef;
+                transition: all 0.3s;
+            }}
+            
+            .message-card:hover {{
+                border-color: var(--primary-color);
+                box-shadow: 0 5px 20px rgba(67, 97, 238, 0.1);
+            }}
+            
+            .message-card.processed {{
+                border-color: var(--success-color);
+                background: linear-gradient(135deg, #f8fff9, #e8f7ec);
+            }}
+            
+            .message-header {{
+                background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+                padding: 1rem;
                 border-radius: 10px;
-            }
-            .status-badge {
-                font-size: 0.8rem;
-                padding: 0.25rem 0.75rem;
-                border-radius: 20px;
-            }
+                margin-bottom: 1rem;
+            }}
+            
+            .message-content {{
+                background: #f8f9fa;
+                padding: 1rem;
+                border-radius: 10px;
+                max-height: 200px;
+                overflow-y: auto;
+                font-family: monospace;
+                white-space: pre-wrap;
+            }}
+            
+            .badge-subject {{
+                font-size: 0.8em;
+                padding: 0.4em 0.8em;
+            }}
+            
+            .btn-action {{
+                padding: 0.3rem 0.8rem;
+                font-size: 0.85rem;
+                margin: 0 0.2rem;
+            }}
+            
+            @media (max-width: 768px) {{
+                .admin-container {{
+                    margin: 1rem;
+                    border-radius: 15px;
+                }}
+                
+                .admin-header, .admin-content {{
+                    padding: 1.5rem;
+                }}
+            }}
         </style>
     </head>
     <body>
-        <div class="container">
-            <div class="header">
-                <div class="d-flex justify-content-between align-items-center">
+        <div class="admin-container">
+            <div class="admin-header">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h1><i class="fas fa-envelope-open-text me-2"></i> Messages de contact</h1>
-                        <p class="mb-0 opacity-75">
-                            <i class="fas fa-file-pdf me-1"></i> PDF Fusion Pro • Interface d'administration
-                        </p>
-                    </div>
-                    <div>
-                        <a href="/contact" class="btn btn-light me-2">
-                            <i class="fas fa-envelope me-1"></i> Formulaire
-                        </a>
-                        <a href="/" class="btn btn-outline-light">
-                            <i class="fas fa-home me-1"></i> Accueil
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <span class="badge bg-primary">Total: {total_messages}</span>
-                    <span class="badge bg-success ms-2">Non lus: {unread_count}</span>
-                </div>
-                <div>
-                    <span class="text-muted">
-                        <i class="fas fa-sync-alt me-1"></i> Dernière mise à jour: {current_time}
-                    </span>
-                </div>
-            </div>
-    """
-    
-    if not messages:
-        html += """
-        <div class="no-messages">
-            <i class="fas fa-inbox fa-3x mb-3" style="color: #dee2e6;"></i>
-            <h3>Aucun message pour le moment</h3>
-            <p class="text-muted">Les messages de contact apparaîtront ici lorsqu'ils seront envoyés via le formulaire.</p>
-        </div>
-        """
-    else:
-        for msg in messages:
-            # Déterminer le statut et les couleurs
-            status = msg.get("status", "pending")
-            status_badge_class = "badge-new" if status == "pending" else "badge-read"
-            status_text = "Nouveau" if status == "pending" else "Lu"
-            
-            # Formater la date
-            received_at = msg.get("received_at", "")
-            if received_at:
-                try:
-                    dt = datetime.fromisoformat(received_at.replace('Z', '+00:00'))
-                    date_str = dt.strftime('%d/%m/%Y à %H:%M')
-                except:
-                    date_str = received_at
-            else:
-                date_str = "Date inconnue"
-            
-            # Tronquer le message pour l'aperçu
-            message_preview = msg.get("message", "")[:150]
-            if len(msg.get("message", "")) > 150:
-                message_preview += "..."
-            
-            html += f"""
-            <div class="message-card">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div>
-                        <h5 class="message-subject mb-1">
-                            <i class="fas fa-user-circle me-1"></i>
-                            {msg.get('first_name', 'N/A')} {msg.get('last_name', 'N/A')}
-                        </h5>
-                        <p class="message-meta mb-0">
-                            <i class="fas fa-envelope me-1"></i> {msg.get('email', 'N/A')}
-                            <span class="ms-3"><i class="fas fa-phone me-1"></i> {msg.get('phone', 'Non renseigné')}</span>
+                        <div class="admin-badge">
+                            <i class="fas fa-user-shield me-2"></i> Administration
+                        </div>
+                        <h1 class="display-6 fw-bold mb-2">Messages de Contact</h1>
+                        <p class="opacity-90 mb-0">
+                            <i class="fas fa-file-pdf me-1"></i> PDF Fusion Pro
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-folder me-1"></i> data/contacts/
                         </p>
                     </div>
                     <div class="text-end">
-                        <span class="badge {status_badge_class} status-badge">{status_text}</span>
-                        <div class="message-meta mt-1">{date_str}</div>
+                        <a href="/" class="btn btn-outline-light btn-sm me-2">
+                            <i class="fas fa-home me-1"></i> Accueil
+                        </a>
+                        <a href="/contact" class="btn btn-light btn-sm">
+                            <i class="fas fa-envelope me-1"></i> Formulaire
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="admin-content">
+    """
+    
+    # Messages d'alerte
+    if request.args.get('deleted'):
+        html += f"""
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Message supprimé :</strong> {request.args.get('deleted')}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+        """
+    
+    if not contacts:
+        html += """
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-inbox fa-4x text-muted"></i>
+                    </div>
+                    <h3 class="text-muted mb-3">Aucun message pour le moment</h3>
+                    <p class="text-muted">Les messages soumis via le formulaire de contact apparaîtront ici.</p>
+                    <a href="/contact" class="btn btn-primary">
+                        <i class="fas fa-eye me-1"></i> Voir le formulaire
+                    </a>
+                </div>
+        """
+    else:
+        # Statistiques
+        html += f"""
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="stats-card">
+                            <div class="stats-icon" style="background: linear-gradient(135deg, #4361ee, #3a0ca3); color: white;">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <h3 class="fw-bold">{stats['total']}</h3>
+                            <p class="text-muted mb-0">Messages totaux</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-3">
+                        <div class="stats-card">
+                            <div class="stats-icon" style="background: linear-gradient(135deg, #2ecc71, #27ae60); color: white;">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h3 class="fw-bold">{stats['processed']}</h3>
+                            <p class="text-muted mb-0">Messages traités</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-3">
+                        <div class="stats-card">
+                            <div class="stats-icon" style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white;">
+                                <i class="fas fa-bug"></i>
+                            </div>
+                            <h3 class="fw-bold">{stats['bug']}</h3>
+                            <p class="text-muted mb-0">Rapports de bugs</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-3">
+                        <div class="stats-card">
+                            <div class="stats-icon" style="background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white;">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <h3 class="fw-bold">{stats['improvement']}</h3>
+                            <p class="text-muted mb-0">Suggestions</p>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="mb-3">
-                    <span class="badge bg-info">{msg.get('subject', 'Non spécifié')}</span>
-                </div>
-                
-                <div class="mb-3">
-                    <p class="mb-1"><strong>Message :</strong></p>
-                    <div style="
-                        background: #f8f9fa; 
-                        padding: 1rem; 
-                        border-radius: 5px; 
-                        border-left: 3px solid #4361ee;
-                        max-height: 200px;
-                        overflow-y: auto;
-                    ">
-                        {msg.get('message', 'Aucun message')}
-                    </div>
-                </div>
-                
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <div class="message-meta">
-                        <small>
-                            <i class="fas fa-file me-1"></i> {msg.get('filename', 'N/A')}
-                            <span class="ms-3"><i class="fas fa-globe me-1"></i> {msg.get('ip_address', 'N/A')}</span>
-                        </small>
-                    </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>
+                        <i class="fas fa-list me-2"></i>
+                        Messages reçus ({stats['total']})
+                    </h3>
                     <div>
-                        <button class="btn btn-sm btn-outline-primary" onclick="markAsRead('{msg.get('filename')}')">
-                            <i class="fas fa-check me-1"></i> Marquer comme lu
+                        <a href="/admin/messages?password={admin_password}&export=json" class="btn btn-success btn-sm">
+                            <i class="fas fa-download me-1"></i> Exporter JSON
+                        </a>
+                        <button class="btn btn-warning btn-sm ms-2" onclick="toggleAllMessages()">
+                            <i class="fas fa-eye me-1"></i> Tout afficher/masquer
                         </button>
+                    </div>
+                </div>
+        """
+        
+        # Liste des messages
+        for i, contact in enumerate(contacts, 1):
+            # Gestion des erreurs de lecture
+            if 'error' in contact:
+                html += f"""
+                <div class="message-card">
+                    <div class="message-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-danger badge-subject">
+                                    <i class="fas fa-exclamation-triangle me-1"></i> ERREUR
+                                </span>
+                            </div>
+                            <small class="text-muted">{contact.get('modified', 'Date inconnue')}</small>
+                        </div>
+                    </div>
+                    <p class="text-danger">
+                        <i class="fas fa-times-circle me-1"></i>
+                        Erreur de lecture : {contact.get('error', 'Inconnue')}
+                    </p>
+                    <p class="mb-2"><strong>Fichier :</strong> {contact.get('filename')}</p>
+                    <div class="text-end">
+                        <a href="/admin/messages?password={admin_password}&action=delete&file={contact.get('filename')}" 
+                           class="btn btn-danger btn-sm btn-action"
+                           onclick="return confirm('Supprimer ce fichier corrompu ?')">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </a>
+                    </div>
+                </div>
+                """
+                continue
+            
+            # Message normal
+            subject_display = subject_translation.get(
+                contact.get('subject', 'other'),
+                contact.get('subject', 'Autre')
+            )
+            
+            # Couleur du badge selon le sujet
+            badge_color = {
+                'bug': 'danger',
+                'improvement': 'warning',
+                'partnership': 'info',
+                'other': 'secondary'
+            }.get(contact.get('subject', 'other'), 'secondary')
+            
+            processed = contact.get('processed', False)
+            processed_class = 'processed' if processed else ''
+            
+            # Date formatée
+            received_at = contact.get('received_at', '')
+            if 'T' in received_at:
+                date_part, time_part = received_at.split('T')
+                time_part = time_part.split('.')[0]
+                display_date = f"{date_part} {time_part}"
+            else:
+                display_date = received_at
+            
+            html += f"""
+            <div class="message-card {processed_class}" id="message-{i}">
+                <div class="message-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-{badge_color} badge-subject">
+                                {subject_display}
+                            </span>
+                            <span class="badge {'bg-success' if processed else 'bg-secondary'} badge-subject ms-2">
+                                <i class="fas fa-{'check' if processed else 'clock'} me-1"></i>
+                                {'Traité' if processed else 'En attente'}
+                            </span>
+                        </div>
+                        <div>
+                            <small class="text-muted me-3">
+                                <i class="fas fa-calendar me-1"></i> {display_date}
+                            </small>
+                            <small class="text-muted">
+                                <i class="fas fa-hashtag me-1"></i> #{i}
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-2">
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong><i class="fas fa-user me-1"></i> Nom :</strong></p>
+                            <p class="mb-0">{contact.get('first_name', 'N/A')} {contact.get('last_name', 'N/A')}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong><i class="fas fa-envelope me-1"></i> Email :</strong></p>
+                            <p class="mb-0">
+                                <a href="mailto:{contact.get('email', '')}" class="text-decoration-none">
+                                    {contact.get('email', 'N/A')}
+                                </a>
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong><i class="fas fa-phone me-1"></i> Téléphone :</strong></p>
+                            <p class="mb-0">{contact.get('phone', 'Non renseigné')}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <p class="mb-1"><strong><i class="fas fa-comment me-1"></i> Message :</strong></p>
+                    <div class="message-content" id="content-{i}">
+                        {contact.get('message', 'Aucun message')}
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted small">
+                        <i class="fas fa-file me-1"></i> {contact.get('filename')}
+                        <span class="mx-2">•</span>
+                        <i class="fas fa-hdd me-1"></i> {contact.get('file_size', 'N/A')}
+                        <span class="mx-2">•</span>
+                        <i class="fas fa-globe me-1"></i> {contact.get('ip_address', 'N/A')}
+                    </div>
+                    
+                    <div>
+                        <button class="btn btn-outline-primary btn-sm btn-action" 
+                                onclick="copyToClipboard('{contact.get('email', '')}')"
+                                title="Copier l'email">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        
+                        <a href="mailto:{contact.get('email', '')}" 
+                           class="btn btn-outline-success btn-sm btn-action"
+                           title="Répondre">
+                            <i class="fas fa-reply"></i>
+                        </a>
+                        
+                        <a href="/admin/messages?password={admin_password}&action=toggle_processed&file={contact.get('filename')}" 
+                           class="btn {'btn-success' if not processed else 'btn-secondary'} btn-sm btn-action"
+                           title="{'Marquer comme traité' if not processed else 'Marquer non traité'}">
+                            <i class="fas fa-{'check' if not processed else 'undo'}"></i>
+                        </a>
+                        
+                        <a href="/admin/messages?password={admin_password}&action=delete&file={contact.get('filename')}" 
+                           class="btn btn-outline-danger btn-sm btn-action"
+                           onclick="return confirm('Supprimer définitivement ce message ?')"
+                           title="Supprimer">
+                            <i class="fas fa-trash"></i>
+                        </a>
                     </div>
                 </div>
             </div>
             """
     
-    html += """
+    # Footer et scripts
+    html += f"""
+            </div>
+            
+            <div class="admin-content border-top">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-info-circle me-2"></i> Informations</h5>
+                            <ul class="mb-0">
+                                <li>Messages sauvegardés dans <code>data/contacts/</code></li>
+                                <li>Chaque message est un fichier JSON indépendant</li>
+                                <li>Statistiques mises à jour en temps réel</li>
+                                <li>Session admin protégée par mot de passe</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="alert alert-warning">
+                            <h5><i class="fas fa-exclamation-triangle me-2"></i> Sécurité</h5>
+                            <p class="mb-2">Pour plus de sécurité :</p>
+                            <ol class="mb-0">
+                                <li>Configurez <code>ADMIN_PASSWORD</code> sur Render</li>
+                                <li>Changez régulièrement le mot de passe</li>
+                                <li>Limitez l'accès à cette page</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="/admin/messages?password={admin_password}&export=json" class="btn btn-success me-2">
+                        <i class="fas fa-download me-1"></i> Exporter tous les messages (JSON)
+                    </a>
+                    <a href="/admin/messages?password={admin_password}&cleanup=true" class="btn btn-warning me-2"
+                       onclick="return confirm('Supprimer les messages de plus de 30 jours ?')">
+                        <i class="fas fa-broom me-1"></i> Nettoyer les anciens
+                    </a>
+                    <a href="/" class="btn btn-outline-primary">
+                        <i class="fas fa-home me-1"></i> Retour à l'accueil
+                    </a>
+                </div>
+            </div>
         </div>
         
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        
         <script>
-            function markAsRead(filename) {
-                if (confirm('Marquer ce message comme lu ?')) {
-                    // Ici vous pourriez ajouter une requête AJAX pour mettre à jour le statut
-                    alert('Fonctionnalité à implémenter : Marquer comme lu pour ' + filename);
-                    // Pour l'instant, recharger la page
-                    location.reload();
-                }
-            }
+            // Copier l'email dans le presse-papier
+            function copyToClipboard(email) {{
+                navigator.clipboard.writeText(email).then(function() {{
+                    alert('Email copié : ' + email);
+                }}, function(err) {{
+                    alert('Erreur de copie : ' + err);
+                }});
+            }}
             
-            // Rafraîchir automatiquement toutes les 30 secondes
-            setTimeout(function() {
-                location.reload();
-            }, 30000);
+            // Afficher/masquer tous les messages
+            function toggleAllMessages() {{
+                const messageContents = document.querySelectorAll('[id^="content-"]');
+                const allHidden = Array.from(messageContents).every(content => 
+                    content.style.display === 'none' || content.style.maxHeight === '0px'
+                );
+                
+                messageContents.forEach(content => {{
+                    if (allHidden) {{
+                        content.style.display = 'block';
+                        content.style.maxHeight = 'none';
+                    }} else {{
+                        content.style.display = 'none';
+                        content.style.maxHeight = '0px';
+                    }}
+                }});
+                
+                const btn = document.querySelector('button[onclick="toggleAllMessages()"]');
+                btn.innerHTML = allHidden ? 
+                    '<i class="fas fa-eye-slash me-1"></i> Tout masquer' : 
+                    '<i class="fas fa-eye me-1"></i> Tout afficher';
+            }}
+            
+            // Initialiser : masquer les longs messages
+            document.addEventListener('DOMContentLoaded', function() {{
+                const messageContents = document.querySelectorAll('[id^="content-"]');
+                messageContents.forEach(content => {{
+                    if (content.scrollHeight > 200) {{
+                        content.style.maxHeight = '200px';
+                        content.style.overflowY = 'auto';
+                    }}
+                }});
+                
+                // Message de confirmation pour suppression
+                const deleteLinks = document.querySelectorAll('a[href*="action=delete"]');
+                deleteLinks.forEach(link => {{
+                    link.addEventListener('click', function(e) {{
+                        if (!confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {{
+                            e.preventDefault();
+                        }}
+                    }});
+                }});
+            }});
         </script>
     </body>
     </html>
     """
     
-    current_time = datetime.now().strftime('%H:%M:%S')
-    unread_count = sum(1 for msg in messages if msg.get("status") == "pending")
+    # Gérer l'export JSON
+    if request.args.get('export') == 'json':
+        clean_contacts = []
+        for contact in contacts:
+            if 'error' not in contact:
+                clean_contacts.append({
+                    k: v for k, v in contact.items() 
+                    if k not in ['filename', 'file_size', 'modified']
+                })
+        return jsonify(clean_contacts)
     
-    return html.format(
-        total_messages=len(messages),
-        unread_count=unread_count,
-        current_time=current_time
-    )
+    # Gérer le nettoyage
+    if request.args.get('cleanup') == 'true':
+        cutoff_time = datetime.now().timestamp() - (30 * 24 * 60 * 60)
+        deleted = 0
+        for filepath in contacts_dir.glob("*.json"):
+            if filepath.stat().st_mtime < cutoff_time:
+                try:
+                    filepath.unlink()
+                    deleted += 1
+                except:
+                    pass
+        return redirect(f'/admin/messages?password={admin_password}&cleaned={deleted}')
+    
+    return html
 
-
-# ============================================================
-# PAGES LÉGALES FIXES
-# ============================================================
 
 @legal_bp.route('/mentions-legales')
-def legal_notice():
-    """Page des mentions légales"""
-    
-    content = """
-    <h2>Mentions Légales</h2>
-    
+def legal_notices():
+    content = f"""
     <div class="info-box">
-        <i class="fas fa-balance-scale me-2"></i>
-        <strong>Conformité RGPD et CNIL :</strong> Cette application respecte scrupuleusement 
-        le Règlement Général sur la Protection des Données (RGPD) et les directives 
-        de la Commission Nationale de l'Informatique et des Libertés (CNIL).
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Information importante :</strong> Cette application traite vos fichiers PDF uniquement en mémoire.
+        Aucun fichier n'est stocké de manière permanente sur nos serveurs.
     </div>
     
-    <h3>Éditeur de l'application</h3>
+    <h2>Éditeur du service</h2>
+    <p>Le service <strong>{AppConfig.NAME}</strong> est développé et maintenu par <strong>{AppConfig.DEVELOPER_NAME}</strong>.</p>
+    
     <div class="contact-info">
         <div class="contact-icon">
-            <i class="fas fa-building"></i>
+            <i class="fas fa-user-tie"></i>
         </div>
         <div>
-            <p><strong>{{ config.NAME }}</strong><br>
-            Application web hébergée sur {{ config.HOSTING }}<br>
-            <i class="fas fa-globe me-1"></i> {{ config.DOMAIN }}</p>
+            <h4 class="h5 mb-2">Pour nous contacter :</h4>
+            <p>Utilisez notre <a href="/contact" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-envelope me-1"></i> Formulaire de contact
+            </a></p>
+            <p class="small text-muted">Nous répondons généralement dans les 48 heures.</p>
         </div>
     </div>
     
-    <h3>Directeur de la publication</h3>
-    <p><strong>{{ config.DEVELOPER_NAME }}</strong><br>
-    Développeur et responsable technique de l'application</p>
+    <h2>Hébergement</h2>
+    <p>Ce service est hébergé sur la plateforme <strong>{AppConfig.HOSTING}</strong> (<a href="https://{AppConfig.DOMAIN}" target="_blank">{AppConfig.DOMAIN}</a>).</p>
+    <p>Les serveurs sont localisés dans des centres de données sécurisés et conformes aux normes européennes de protection des données.</p>
     
-    <h3>Hébergement</h3>
-    <p><strong>{{ config.HOSTING }}</strong><br>
-    Hébergement infogéré avec haute disponibilité</p>
+    <h2>Propriété intellectuelle</h2>
+    <p>L'ensemble des contenus présents sur ce site (design, code source, interfaces, textes, graphismes) est protégé par les lois relatives à la propriété intellectuelle.</p>
+    <p>Toute reproduction, modification, distribution ou exploitation non autorisée est strictement interdite.</p>
     
-    <h3>Propriété intellectuelle</h3>
-    <p>L'ensemble des éléments constituant le site (textes, graphismes, logiciels, etc.) 
-    est la propriété exclusive de {{ config.NAME }} ou de ses partenaires. 
-    Toute reproduction, représentation, modification, publication, transmission, 
-    dénaturation, totale ou partielle du site ou de son contenu, par quelque procédé que ce soit, 
-    et sur quelque support que ce soit, est interdite sans autorisation préalable.</p>
+    <h2>Responsabilité</h2>
+    <p>L'utilisateur reste l'unique responsable des fichiers PDF qu'il téléverse et traite via ce service.</p>
+    <p>Il s'engage à ne pas utiliser le service pour des contenus illicites ou protégés par des droits d'auteur sans autorisation.</p>
     
-    <h3>Protection des données personnelles</h3>
-    <p>Conformément à la loi "Informatique et Libertés" du 6 janvier 1978 modifiée 
-    et au Règlement Général sur la Protection des Données (RGPD), vous disposez 
-    d'un droit d'accès, de rectification, de suppression et d'opposition aux données vous concernant.</p>
-    
-    <p>Pour exercer ces droits ou pour toute question sur le traitement de vos données, 
-    vous pouvez nous contacter via notre formulaire de contact.</p>
-    
-    <h3>Responsabilité</h3>
-    <p>{{ config.NAME }} s'efforce d'assurer au mieux de ses possibilités l'exactitude 
-    et la mise à jour des informations diffusées sur son application. Cependant, 
-    nous ne pouvons garantir l'exactitude, la précision ou l'exhaustivité 
-    des informations mises à disposition sur cette application.</p>
-    
-    <h3>Cookies</h3>
-    <p>Notre application utilise des cookies strictement nécessaires au fonctionnement 
-    de l'application (session utilisateur, préférences). Aucun cookie de tracking 
-    ou publicitaire n'est utilisé.</p>
-    
-    <div class="alert alert-warning mt-4">
-        <i class="fas fa-exclamation-circle me-2"></i>
-        <strong>Important :</strong> Ces mentions légales peuvent être modifiées à tout moment 
-        sans préavis. Nous vous invitons à les consulter régulièrement.
-    </div>
+    <h2>Disponibilité du service</h2>
+    <p>Nous nous efforçons d'assurer une disponibilité continue du service, mais ne pouvons garantir un fonctionnement ininterrompu.</p>
+    <p>Des périodes de maintenance technique peuvent être nécessaires pour améliorer le service.</p>
     """
     
     return render_template_string(
         LEGAL_TEMPLATE,
         title="Mentions Légales",
-        badge="Informations légales",
-        subtitle="Conformité RGPD et mentions légales",
+        badge="Information légale",
+        subtitle="Informations légales concernant l'utilisation du service PDF Fusion Pro",
         content=content,
         current_year=datetime.now().year,
         config=AppConfig
@@ -1222,96 +1583,61 @@ def legal_notice():
 
 @legal_bp.route('/politique-confidentialite')
 def privacy_policy():
-    """Politique de confidentialité"""
-    
-    content = """
-    <h2>Politique de Confidentialité</h2>
+    content = f"""
+    <h2>Respect de votre vie privée</h2>
+    <p>Votre confidentialité est notre priorité. Cette politique explique comment nous collectons, utilisons et protégeons vos informations.</p>
     
     <div class="info-box">
         <i class="fas fa-shield-alt me-2"></i>
-        <strong>Engagement de confidentialité :</strong> Nous nous engageons à protéger 
-        vos données personnelles et votre vie privée. Cette politique explique comment 
-        nous collectons, utilisons et protégeons vos informations.
+        <strong>Engagement de confidentialité :</strong> Nous ne stockons jamais le contenu de vos fichiers PDF.
+        Tous les traitements sont effectués en mémoire vive et les fichiers sont supprimés immédiatement après traitement.
     </div>
     
-    <h3>Collecte des données</h3>
-    <p>Nous collectons uniquement les données strictement nécessaires au bon fonctionnement 
-    de l'application :</p>
+    <h2>Données collectées</h2>
+    <h3>Données techniques</h3>
+    <p>Nous collectons des données techniques anonymes pour améliorer le service :</p>
     <ul>
-        <li><strong>Données de session :</strong> Informations techniques nécessaires 
-        au traitement des fichiers PDF (identifiants de session temporaires)</li>
-        <li><strong>Données de contact :</strong> Lorsque vous utilisez notre formulaire 
-        de contact (nom, email, message)</li>
-        <li><strong>Fichiers PDF :</strong> Les fichiers que vous uploadez sont traités 
-        uniquement en mémoire et ne sont jamais stockés sur nos serveurs</li>
+        <li>Type d'opération effectuée (fusion, division, rotation, compression)</li>
+        <li>Nombre de pages traitées</li>
+        <li>Heure et date des opérations (anonymisées)</li>
+        <li>Informations sur le navigateur et l'appareil (type, version)</li>
     </ul>
     
-    <h3>Utilisation des données</h3>
-    <p>Vos données sont utilisées exclusivement pour :</p>
+    <h3>Cookies</h3>
+    <p>Nous utilisons uniquement des cookies techniques essentiels :</p>
     <ul>
-        <li>Fournir le service de fusion de PDFs</li>
-        <li>Répondre à vos demandes via le formulaire de contact</li>
-        <li>Améliorer le service et résoudre les problèmes techniques</li>
+        <li><strong>Session cookie :</strong> Pour maintenir votre session de travail</li>
+        <li><strong>Préférences :</strong> Pour mémoriser vos paramètres d'interface</li>
     </ul>
     
-    <h3>Protection des données</h3>
-    <p>Nous mettons en œuvre des mesures techniques et organisationnelles appropriées 
-    pour protéger vos données contre tout accès non autorisé, modification, 
-    divulgation ou destruction :</p>
+    <h2>Publicité — Google AdSense</h2>
+    <p>Ce site utilise <strong>Google AdSense</strong> (ID: {AppConfig.ADSENSE_CLIENT_ID}) pour afficher des publicités pertinentes.</p>
+    <p>Google utilise des cookies pour personnaliser les annonces en fonction de votre navigation sur ce site et d'autres sites web.</p>
+    <p>Vous pouvez désactiver la personnalisation des annonces via les <a href="https://adssettings.google.com" target="_blank">paramètres des annonces Google</a>.</p>
+    
+    <h2>Vos droits (RGPD)</h2>
+    <p>Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez des droits suivants :</p>
     <ul>
-        <li>Chiffrement HTTPS pour toutes les communications</li>
-        <li>Traitement des fichiers uniquement en mémoire (pas de stockage persistant)</li>
-        <li>Suppression automatique des fichiers après traitement</li>
-        <li>Sécurité des serveurs et surveillance continue</li>
+        <li>Droit d'accès à vos données</li>
+        <li>Droit de rectification</li>
+        <li>Droit à l'effacement</li>
+        <li>Droit à la limitation du traitement</li>
+        <li>Droit à la portabilité des données</li>
     </ul>
     
-    <h3>Durée de conservation</h3>
-    <p><strong>Fichiers PDF :</strong> Supprimés immédiatement après le traitement<br>
-    <strong>Données de session :</strong> Supprimées à la fermeture du navigateur<br>
-    <strong>Messages de contact :</strong> Conservés 12 mois maximum</p>
+    <p>Pour exercer ces droits, utilisez notre <a href="/contact" class="btn btn-outline-primary btn-sm">
+        <i class="fas fa-envelope me-1"></i> Formulaire de contact
+    </a> en précisant "Exercice de droits RGPD" dans le sujet.</p>
     
-    <h3>Partage des données</h3>
-    <p>Nous ne vendons, n'échangeons ni ne transférons vos données personnelles 
-    à des tiers. Les seules exceptions sont :</p>
-    <ul>
-        <li>Si la loi l'exige (obligation légale)</li>
-        <li>Pour protéger nos droits ou la sécurité de l'application</li>
-    </ul>
-    
-    <h3>Vos droits</h3>
-    <p>Conformément au RGPD, vous disposez des droits suivants :</p>
-    <ul>
-        <li><strong>Droit d'accès :</strong> Demander quelles données nous détenons</li>
-        <li><strong>Droit de rectification :</strong> Corriger des données inexactes</li>
-        <li><strong>Droit à l'effacement :</strong> Demander la suppression de vos données</li>
-        <li><strong>Droit d'opposition :</strong> Vous opposer au traitement</li>
-        <li><strong>Droit à la portabilité :</strong> Recevoir vos données dans un format structuré</li>
-    </ul>
-    
-    <h3>Contact DPO</h3>
-    <div class="contact-info">
-        <div class="contact-icon">
-            <i class="fas fa-user-shield"></i>
-        </div>
-        <div>
-            <p>Pour toute question concernant la protection de vos données, 
-            vous pouvez contacter notre responsable de la protection des données :<br>
-            <a href="/contact">Via notre formulaire de contact</a></p>
-        </div>
-    </div>
-    
-    <div class="alert alert-info mt-4">
-        <i class="fas fa-info-circle me-2"></i>
-        <strong>Transparence :</strong> Cette politique de confidentialité est révisée 
-        régulièrement pour s'assurer de sa conformité avec les réglementations en vigueur.
-    </div>
+    <h2>Sécurité des données</h2>
+    <p>Nous mettons en œuvre des mesures de sécurité techniques et organisationnelles appropriées pour protéger vos données contre tout accès non autorisé, altération ou destruction.</p>
     """
     
     return render_template_string(
         LEGAL_TEMPLATE,
         title="Politique de Confidentialité",
         badge="Protection des données",
-        subtitle="Comment nous protégeons vos données personnelles",
+        subtitle="Comment nous protégeons et utilisons vos données",
         content=content,
         current_year=datetime.now().year,
         config=AppConfig
@@ -1320,86 +1646,69 @@ def privacy_policy():
 
 @legal_bp.route('/conditions-utilisation')
 def terms_of_service():
-    """Conditions d'utilisation"""
-    
-    content = """
-    <h2>Conditions d'Utilisation</h2>
+    content = f"""
+    <h2>Acceptation des conditions</h2>
+    <p>En utilisant le service <strong>{AppConfig.NAME}</strong>, vous acceptez pleinement et sans réserve les présentes conditions d'utilisation.</p>
     
     <div class="info-box">
-        <i class="fas fa-file-contract me-2"></i>
-        <strong>Acceptation des conditions :</strong> En utilisant {{ config.NAME }}, 
-        vous acceptez les présentes conditions d'utilisation. Si vous n'acceptez pas 
-        ces conditions, veuillez ne pas utiliser notre service.
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Avertissement important :</strong> Ce service est fourni "tel quel". 
+        Nous déclinons toute responsabilité concernant les fichiers traités par l'utilisateur.
     </div>
     
-    <h3>Description du service</h3>
-    <p>{{ config.NAME }} est une application web gratuite permettant la fusion de 
-    fichiers PDF. Le service est fourni "tel quel" et est accessible gratuitement 
-    à toute personne disposant d'une connexion Internet.</p>
+    <h2>Usage autorisé</h2>
+    <p>Vous vous engagez à utiliser le service de manière responsable et légale :</p>
     
-    <h3>Utilisation autorisée</h3>
-    <p>Vous vous engagez à utiliser le service :</p>
+    <h3>Interdictions</h3>
     <ul>
-        <li>De manière légale et conforme à ces conditions</li>
-        <li>Sans tenter de contourner les mesures de sécurité</li>
-        <li>Sans uploader de contenu illégal ou protégé par des droits d'auteur sans autorisation</li>
-        <li>Sans perturber le fonctionnement normal du service</li>
+        <li>Téléverser des fichiers contenant des données illicites ou protégés par des droits d'auteur sans autorisation</li>
+        <li>Utiliser le service pour des activités frauduleuses ou malveillantes</li>
+        <li>Tenter de contourner les mesures de sécurité du service</li>
+        <li>Surcharger délibérément le service (attaques DoS/DDoS)</li>
+        <li>Réutiliser le contenu du service à des fins commerciales sans autorisation</li>
     </ul>
     
-    <h3>Fichiers PDF</h3>
-    <p><strong>Important :</strong></p>
+    <h3>Obligations</h3>
     <ul>
-        <li>Vous ne devez uploader que des fichiers PDF dont vous êtes propriétaire 
-        ou pour lesquels vous avez obtenu l'autorisation</li>
-        <li>Les fichiers sont traités uniquement en mémoire et ne sont jamais stockés 
-        sur nos serveurs</li>
-        <li>Nous ne sommes pas responsables du contenu des fichiers traités</li>
-        <li>Le service est limité à {{ config.MAX_FILES }} fichiers et {{ config.MAX_FILE_SIZE_MB }} Mo par fichier</li>
+        <li>Respecter les droits de propriété intellectuelle des documents traités</li>
+        <li>Assurer la confidentialité de vos propres fichiers</li>
+        <li>Utiliser le service conformément à sa destination première</li>
     </ul>
     
-    <h3>Limitation de responsabilité</h3>
-    <p>{{ config.NAME }} ne peut être tenu responsable :</p>
+    <h2>Limitation de responsabilité</h2>
+    <p>Le service est fourni sans aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande, d'adéquation à un usage particulier et de non-contrefaçon.</p>
+    
+    <p>En aucun cas, <strong>{AppConfig.DEVELOPER_NAME}</strong> ne pourra être tenu responsable :</p>
     <ul>
-        <li>Des dommages directs ou indirects résultant de l'utilisation du service</li>
-        <li>De la perte ou de l'altération de vos fichiers PDF</li>
-        <li>De l'indisponibilité temporaire ou définitive du service</li>
-        <li>De l'utilisation frauduleuse de vos fichiers par des tiers</li>
+        <li>Des dommages directs ou indirects résultant de l'utilisation ou de l'impossibilité d'utiliser le service</li>
+        <li>De la perte ou de l'altération des fichiers PDF traités</li>
+        <li>Des conséquences de l'utilisation des fichiers générés par le service</li>
     </ul>
     
-    <h3>Disponibilité du service</h3>
-    <p>Nous nous efforçons d'assurer un service disponible 24h/24 et 7j/7, 
-    mais nous ne pouvons garantir une disponibilité ininterrompue. Des périodes 
-    de maintenance ou des problèmes techniques peuvent rendre le service temporairement 
-    inaccessible.</p>
+    <h2>Modifications des conditions</h2>
+    <p>Nous nous réservons le droit de modifier ces conditions d'utilisation à tout moment.</p>
+    <p>Les utilisateurs seront informés des changements significatifs via une notification sur le site.</p>
     
-    <h3>Modification des conditions</h3>
-    <p>Nous nous réservons le droit de modifier ces conditions d'utilisation à tout moment. 
-    Les modifications prendront effet dès leur publication sur cette page. 
-    Il est de votre responsabilité de consulter régulièrement ces conditions.</p>
+    <h2>Propriété intellectuelle</h2>
+    <p>Le service, son code source, son design et son contenu sont la propriété exclusive de <strong>{AppConfig.DEVELOPER_NAME}</strong>.</p>
+    <p>Toute reproduction, même partielle, est interdite sans autorisation préalable écrite.</p>
     
-    <h3>Propriété intellectuelle</h3>
-    <p>L'application, son code source, son interface utilisateur, son design 
-    et tous les éléments associés sont la propriété de {{ config.DEVELOPER_NAME }} 
-    ou de ses concédants et sont protégés par les lois sur la propriété intellectuelle.</p>
-    
-    <h3>Loi applicable</h3>
-    <p>Les présentes conditions sont régies et interprétées conformément au droit français. 
-    Tout litige relatif à l'exécution ou à l'interprétation des présentes sera 
-    de la compétence exclusive des tribunaux français.</p>
-    
-    <div class="alert alert-warning mt-4">
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        <strong>Utilisation responsable :</strong> Nous nous réservons le droit de suspendre 
-        ou de résilier votre accès au service en cas de violation de ces conditions 
-        d'utilisation.
+    <div class="alert alert-info mt-4">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Pour toute question concernant ces conditions :</strong>
+        <div class="mt-2">
+            <a href="/contact" class="btn btn-outline-primary">
+                <i class="fas fa-envelope me-1"></i> Nous contacter via le formulaire
+            </a>
+        </div>
     </div>
     """
     
     return render_template_string(
         LEGAL_TEMPLATE,
         title="Conditions d'Utilisation",
-        badge="Conditions générales",
-        subtitle="Règles d'utilisation du service",
+        badge="Règles d'usage",
+        subtitle="Règles et conditions d'utilisation du service PDF Fusion Pro",
         content=content,
         current_year=datetime.now().year,
         config=AppConfig
