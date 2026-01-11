@@ -88,7 +88,7 @@ def create_app():
     
     @app.route('/sitemap.xml')
     def sitemap():
-    """Génère un sitemap XML amélioré"""
+        """Génère un sitemap XML amélioré"""
     base_url = "https://pdf-fusion-pro-ultimate.onrender.com"
     
     # Pages principales avec priorité et fréquence
