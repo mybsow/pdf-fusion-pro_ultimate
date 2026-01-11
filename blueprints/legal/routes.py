@@ -26,24 +26,24 @@ LEGAL_TEMPLATE = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }} | {{ config.NAME }}</title>
     
-    <!-- 3. Balises meta robots -->
+    <!-- META ROBOTS -->
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     
-    <!-- 5. URL canonique dynamique -->
+    <!-- URL CANONIQUE -->
     <link rel="canonical" href="https://pdf-fusion-pro-ultimate.onrender.com{{ request.path }}" />
     
-    <!-- 4. Données structurées pour pages légales -->
+    <!-- DONNÉES STRUCTURÉES JSON-LD -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        "name": "{{ title }} | {{ config.NAME }}",
+        "name": "{{ title }} | PDF Fusion Pro",
         "description": "{{ subtitle }}",
         "url": "https://pdf-fusion-pro-ultimate.onrender.com{{ request.path }}",
         "datePublished": "2024-01-15",
-        "dateModified": "{% now 'local', '%Y-%m-%d' %}",
+        "dateModified": "{{ datetime.now().strftime('%Y-%m-%d') }}",  <!-- CORRECTION ICI -->
         "inLanguage": "fr",
         "isPartOf": {
             "@type": "WebSite",
@@ -58,7 +58,7 @@ LEGAL_TEMPLATE = """
     }
     </script>
     
-    <!-- Bootstrap 5.3 -->
+    <!-- Bootstrap 5.3 et le reste de votre CSS... -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Bootstrap 5.3 -->
@@ -711,6 +711,7 @@ def contact():
             content=contact_form,
             current_year=datetime.now().year,
             config=AppConfig
+            datetime=datetime  # AJOUTEZ CETTE LIGNE
         )
     
     elif error:
@@ -848,6 +849,7 @@ def contact():
         content=contact_form,
         current_year=datetime.now().year,
         config=AppConfig
+        datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
 
 
@@ -1613,6 +1615,7 @@ def legal_notices():
         content=content,
         current_year=datetime.now().year,
         config=AppConfig
+        datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
 
 
@@ -1676,6 +1679,7 @@ def privacy_policy():
         content=content,
         current_year=datetime.now().year,
         config=AppConfig
+        datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
 
 
@@ -1747,6 +1751,7 @@ def terms_of_service():
         content=content,
         current_year=datetime.now().year,
         config=AppConfig
+        datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
 
 
@@ -1861,4 +1866,5 @@ def about():
         content=content,
         current_year=datetime.now().year,
         config=AppConfig
+        datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
