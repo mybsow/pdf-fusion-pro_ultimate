@@ -2356,11 +2356,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('hasRated', 'true');
                 hideRatingPopup();
                 ratingTrigger.style.display = 'none';
+            } else {
+                showToast('error', 'Erreur', data.error || 'Erreur lors de l\\'enregistrement');
             }
         })
         .catch(error => {
             console.error('Erreur:', error);
-            showToast('error', 'Erreur', 'Impossible d\'enregistrer votre évaluation.');
+            showToast('error', 'Erreur', "Impossible d'enregistrer votre évaluation.");
         });
     });
     

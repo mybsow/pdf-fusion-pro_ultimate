@@ -1,11 +1,9 @@
-<!-- ============================================
-     SYSTÈME D'ÉVALUATION SIMPLIFIÉ
-     ============================================ -->
+<!-- Évaluation d'expérience -->
 <div id="ratingPopup" class="rating-popup" style="display: none;">
     <div class="rating-content">
         <button id="closeRating" class="rating-close">&times;</button>
         <h4><i class="fas fa-star me-2"></i>Évaluez votre expérience</h4>
-        <p class="text-muted mb-3">Comment avez-vous trouvé PDF Fusion Pro Ultimate ?</p>
+        <p class="text-muted mb-3">Comment avez-vous trouvé PDF Fusion Pro ?</p>
         
         <div class="stars mb-3">
             <i class="fas fa-star star" data-value="1"></i>
@@ -17,7 +15,7 @@
         
         <div class="rating-feedback" style="display: none;">
             <textarea id="feedbackText" class="form-control mb-2" 
-                      placeholder="Vos suggestions (optionnel)..." rows="2"></textarea>
+                      placeholder="Vos suggestions (optionnel)" rows="2"></textarea>
             <button id="submitRating" class="btn btn-primary btn-sm">Envoyer</button>
         </div>
         
@@ -28,7 +26,6 @@
 </div>
 
 <style>
-/* Styles de base */
 .rating-popup {
     position: fixed;
     bottom: 20px;
@@ -40,6 +37,11 @@
     width: 320px;
     max-width: 90%;
     border: 1px solid #e9ecef;
+}
+
+[data-bs-theme="dark"] .rating-popup {
+    background: #1a1d20;
+    border-color: #444;
 }
 
 .rating-content {
@@ -56,6 +58,11 @@
     font-size: 1.5rem;
     color: #6c757d;
     cursor: pointer;
+    line-height: 1;
+}
+
+.rating-close:hover {
+    color: #dc3545;
 }
 
 .stars {
@@ -64,142 +71,182 @@
     cursor: pointer;
 }
 
+.star {
+    margin-right: 5px;
+    transition: all 0.2s ease;
+}
+
 .star:hover,
 .star.active {
     color: #ffc107;
+    transform: scale(1.2);
 }
 
 .rating-trigger {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background: #3498db;
+    background: #4361ee;
     color: white;
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
     z-index: 9998;
-    border: none;
-    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.rating-trigger:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
 }
 </style>
 
 <script>
-// Version simplifiée et fiable
+// Gestion de l'évaluation
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ Système d\'évaluation chargé');
+    const ratingPopup = document.getElementById('ratingPopup');
+    const ratingTrigger = document.createElement('div');
+    const stars = document.querySelectorAll('.star');
+    const feedbackDiv = document.querySelector('.rating-feedback');
+    const feedbackText = document.getElementById('feedbackText');
+    const submitBtn = document.getElementById('submitRating');
+    const closeBtn = document.getElementById('closeRating');
     
-    // Vérifier si déjà évalué
-    const hasRated = localStorage.getItem('pdfFusionRated') === 'true';
+    // Vérifier si l'utilisateur a déjà évalué
+    let hasRated = localStorage.getItem('hasRated');
     
+    // Créer le bouton déclencheur (seulement si pas encore évalué)
     if (!hasRated) {
-        // Créer le bouton déclencheur
-        const trigger = document.createElement('button');
-        trigger.className = 'rating-trigger';
-        trigger.innerHTML = '<i class="fas fa-star"></i>';
-        trigger.title = 'Évaluer PDF Fusion Pro';
-        document.body.appendChild(trigger);
+        ratingTrigger.className = 'rating-trigger';
+        ratingTrigger.innerHTML = '<i class="fas fa-star"></i>';
+        document.body.appendChild(ratingTrigger);
         
-        // Éléments
-        const popup = document.getElementById('ratingPopup');
-        const closeBtn = document.getElementById('closeRating');
-        const stars = document.querySelectorAll('.star');
-        const feedbackDiv = document.querySelector('.rating-feedback');
-        const feedbackText = document.getElementById('feedbackText');
-        const submitBtn = document.getElementById('submitRating');
-        
-        let selectedRating = 0;
-        
-        // Ouvrir popup
-        trigger.addEventListener('click', function() {
-            popup.style.display = 'block';
-            trigger.style.display = 'none';
-        });
-        
-        // Fermer popup
-        closeBtn.addEventListener('click', function() {
-            popup.style.display = 'none';
-            trigger.style.display = 'flex';
-            resetStars();
-        });
-        
-        // Gestion des étoiles
-        stars.forEach(star => {
-            star.addEventListener('click', function() {
-                selectedRating = parseInt(this.dataset.value);
-                
-                stars.forEach((s, index) => {
-                    s.classList.toggle('active', index < selectedRating);
-                    s.style.color = index < selectedRating ? '#ffc107' : '#dee2e6';
-                });
-                
-                if (feedbackDiv) {
-                    feedbackDiv.style.display = 'block';
-                }
-            });
-        });
-        
-        // Soumission
-        if (submitBtn) {
-            submitBtn.addEventListener('click', function() {
-                if (selectedRating === 0) {
-                    alert('Veuillez sélectionner une note');
-                    return;
-                }
-                
-                const feedback = feedbackText ? feedbackText.value.trim() : '';
-                
-                // Envoyer au serveur
-                fetch('/api/rating', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        rating: selectedRating,
-                        feedback: feedback,
-                        page: window.location.pathname
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Merci pour votre évaluation !');
-                        localStorage.setItem('pdfFusionRated', 'true');
-                        popup.style.display = 'none';
-                        trigger.style.display = 'none';
-                        resetStars();
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur:', error);
-                    alert('Erreur lors de l\'envoi');
-                });
-            });
-        }
-        
-        function resetStars() {
-            selectedRating = 0;
-            stars.forEach(star => {
-                star.classList.remove('active');
-                star.style.color = '#dee2e6';
-            });
-            if (feedbackDiv) feedbackDiv.style.display = 'none';
-            if (feedbackText) feedbackText.value = '';
-        }
-        
-        // Afficher après 30 secondes
+        // Afficher le popup après 30 secondes
         setTimeout(() => {
             if (!hasRated) {
-                popup.style.display = 'block';
-                trigger.style.display = 'none';
+                showRatingPopup();
             }
         }, 30000);
+    }
+    
+    // Ouvrir popup au clic sur le bouton
+    ratingTrigger.addEventListener('click', showRatingPopup);
+    
+    // Fermer popup
+    closeBtn.addEventListener('click', hideRatingPopup);
+    
+    // Fermer en cliquant en dehors
+    document.addEventListener('click', function(event) {
+        if (ratingPopup.style.display === 'block' && 
+            !ratingPopup.contains(event.target) && 
+            event.target !== ratingTrigger) {
+            hideRatingPopup();
+        }
+    });
+    
+    // Gestion des étoiles
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const value = parseInt(this.dataset.value);
+            selectedRating = value;
+            
+            // Mettre à jour l'affichage des étoiles
+            stars.forEach((s, index) => {
+                if (index < value) {
+                    s.classList.add('active');
+                    s.style.color = '#ffc107';
+                } else {
+                    s.classList.remove('active');
+                    s.style.color = '#dee2e6';
+                }
+            });
+            
+            // Afficher le champ de feedback
+            feedbackDiv.style.display = 'block';
+            submitBtn.disabled = false;
+        });
+        
+        star.addEventListener('mouseover', function() {
+            const value = parseInt(this.dataset.value);
+            stars.forEach((s, index) => {
+                s.style.color = index < value ? '#ffd700' : '#dee2e6';
+            });
+        });
+        
+        star.addEventListener('mouseout', function() {
+            stars.forEach((s, index) => {
+                s.style.color = index < (selectedRating || 0) ? '#ffc107' : '#dee2e6';
+            });
+        });
+    });
+    
+    // Soumission
+    submitBtn.addEventListener('click', function() {
+        const feedback = feedbackText.value.trim();
+        
+        // Désactiver le bouton pendant l'envoi
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Envoi...';
+        
+        // Envoyer au serveur
+        fetch('/api/rating', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                rating: selectedRating,
+                feedback: feedback,
+                page: window.location.pathname,
+                user_agent: navigator.userAgent
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('success', 'Merci !', 'Votre évaluation a été enregistrée.');
+                localStorage.setItem('hasRated', 'true');
+                hideRatingPopup();
+                if (ratingTrigger) {
+                    ratingTrigger.style.display = 'none';
+                }
+            } else {
+                showToast('error', 'Erreur', data.error || 'Une erreur est survenue.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Envoyer';
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showToast('error', 'Erreur', "Impossible d'enregistrer votre évaluation.");
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Envoyer';
+        });
+    });
+    
+    let selectedRating = 0;
+    
+    function showRatingPopup() {
+        if (ratingPopup && !hasRated) {
+            ratingPopup.style.display = 'block';
+            if (ratingTrigger) {
+                ratingTrigger.style.display = 'none';
+            }
+        }
+    }
+    
+    function hideRatingPopup() {
+        if (ratingPopup) {
+            ratingPopup.style.display = 'none';
+            if (ratingTrigger && !hasRated) {
+                ratingTrigger.style.display = 'flex';
+            }
+        }
     }
 });
 </script>

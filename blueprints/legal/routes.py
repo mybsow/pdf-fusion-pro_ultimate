@@ -896,7 +896,6 @@ def admin_messages():
     """Interface web pour voir les messages de contact"""
     import json
     from pathlib import Path
-    
     load_dotenv()  # Charge .env en local
     # Protection basique par mot de passe
     admin_password = os.environ.get('ADMIN_PASSWORD', '')
