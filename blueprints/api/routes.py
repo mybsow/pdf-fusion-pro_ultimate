@@ -3,9 +3,9 @@ Routes API pour les opérations PDF
 """
 
 from flask import request, jsonify
-from datetime import datetime
 import json
 import os
+from datetime import datetime
 import base64
 from . import api_bp
 from blueprints.pdf.engine import PDFEngine
@@ -242,7 +242,7 @@ def api_preview():
         traceback.print_exc()
         return jsonify({"error": "Erreur interne du serveur"}), 500
 
-@api_bp.route('/rating', methods=['POST'])
+# @api_bp.route('/rating', methods=['POST'])
 def submit_rating():
     """API pour enregistrer les évaluations"""
     try:

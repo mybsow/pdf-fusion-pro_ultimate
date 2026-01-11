@@ -1,0 +1,664 @@
+<!-- ============================================
+     SYSTÈME D'ÉVALUATION - PDF FUSION PRO ULTIMATE
+     ============================================ -->
+<div id="ratingPopup" class="rating-popup" style="display: none;">
+    <div class="rating-content">
+        <button id="closeRating" class="rating-close" aria-label="Fermer">&times;</button>
+        <h4 class="rating-title">
+            <i class="fas fa-star me-2 text-warning"></i>Évaluez votre expérience
+        </h4>
+        <p class="text-muted mb-3">Comment avez-vous trouvé PDF Fusion Pro Ultimate ?</p>
+        
+        <div class="stars mb-3" role="group" aria-label="Noter de 1 à 5 étoiles">
+            <i class="fas fa-star star" data-value="1" role="button" tabindex="0" aria-label="1 étoile"></i>
+            <i class="fas fa-star star" data-value="2" role="button" tabindex="0" aria-label="2 étoiles"></i>
+            <i class="fas fa-star star" data-value="3" role="button" tabindex="0" aria-label="3 étoiles"></i>
+            <i class="fas fa-star star" data-value="4" role="button" tabindex="0" aria-label="4 étoiles"></i>
+            <i class="fas fa-star star" data-value="5" role="button" tabindex="0" aria-label="5 étoiles"></i>
+        </div>
+        
+        <div class="rating-feedback" style="display: none;">
+            <textarea id="feedbackText" class="form-control mb-2" 
+                      placeholder="Vos suggestions pour améliorer PDF Fusion Pro (optionnel)..." 
+                      rows="3" aria-label="Commentaires" maxlength="500"></textarea>
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted"><span id="charCount">0</span>/500 caractères</small>
+                <button id="submitRating" class="btn btn-primary" disabled>
+                    <i class="fas fa-paper-plane me-1"></i>Envoyer
+                </button>
+            </div>
+        </div>
+        
+        <div class="rating-privacy mt-3 pt-3 border-top">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-lock text-muted me-2"></i>
+                <small class="text-muted">Vos retours sont anonymes et sécurisés</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Popup d'évaluation */
+.rating-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+    z-index: 9999;
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    border: 1px solid rgba(0,0,0,0.1);
+    animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* Mode sombre */
+[data-bs-theme="dark"] .rating-popup {
+    background: #1e2124;
+    border-color: #444;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+}
+
+.rating-content {
+    padding: 1.75rem;
+    position: relative;
+}
+
+.rating-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+[data-bs-theme="dark"] .rating-title {
+    color: #ecf0f1;
+}
+
+.rating-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0,0,0,0.05);
+    border: none;
+    font-size: 1.5rem;
+    color: #7f8c8d;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.rating-close:hover {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    transform: rotate(90deg);
+}
+
+/* Étoiles */
+.stars {
+    font-size: 2.5rem;
+    color: #ecf0f1;
+    cursor: pointer;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+.star {
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.star:hover {
+    color: #f1c40f;
+    transform: scale(1.3) rotate(5deg);
+}
+
+.star.active {
+    color: #f39c12;
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 10px rgba(243, 156, 18, 0.3));
+}
+
+/* Bouton flottant */
+.rating-trigger {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+    z-index: 9998;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border: none;
+    font-size: 1.75rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(52, 152, 219, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0); }
+}
+
+.rating-trigger:hover {
+    transform: scale(1.15) rotate(15deg);
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    animation: none;
+}
+
+/* Feedback textarea */
+#feedbackText {
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 12px;
+    transition: all 0.3s ease;
+    resize: vertical;
+    max-height: 150px;
+}
+
+#feedbackText:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Toast notifications */
+.rating-toast {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    padding: 1.25rem 1.75rem;
+    border-radius: 12px;
+    color: white;
+    z-index: 10000;
+    animation: slideInDown 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    max-width: 400px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.rating-toast.success {
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.95), rgba(39, 174, 96, 0.95));
+}
+
+.rating-toast.error {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.95), rgba(192, 57, 43, 0.95));
+}
+
+.rating-toast.warning {
+    background: linear-gradient(135deg, rgba(241, 196, 15, 0.95), rgba(243, 156, 18, 0.95));
+}
+
+.rating-toast.info {
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.95), rgba(41, 128, 185, 0.95));
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .rating-popup {
+        width: calc(100% - 30px);
+        right: 15px;
+        left: 15px;
+        bottom: 15px;
+        max-width: none;
+    }
+    
+    .rating-trigger {
+        bottom: 20px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+    }
+    
+    .stars {
+        font-size: 2.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .rating-content {
+        padding: 1.25rem;
+    }
+    
+    .stars {
+        font-size: 2rem;
+        gap: 6px;
+    }
+}
+</style>
+
+<script>
+// Système d'évaluation amélioré
+(function() {
+    'use strict';
+    
+    // Configuration
+    const CONFIG = {
+        showDelay: 45000, // 45 secondes
+        autoCloseDelay: 35000, // 35 secondes
+        localStorageKey: 'pdfFusionProUltimateRating',
+        minCharsForFeedback: 5,
+        maxCharsForFeedback: 500
+    };
+    
+    // Éléments du DOM
+    let elements = {};
+    let selectedRating = 0;
+    let hasRated = false;
+    let activityTimer = null;
+    
+    // Initialisation
+    function init() {
+        // Vérifier si déjà évalué
+        hasRated = localStorage.getItem(CONFIG.localStorageKey) === 'true';
+        
+        // Récupérer les éléments
+        elements = {
+            popup: document.getElementById('ratingPopup'),
+            stars: document.querySelectorAll('.star'),
+            feedbackDiv: document.querySelector('.rating-feedback'),
+            feedbackText: document.getElementById('feedbackText'),
+            submitBtn: document.getElementById('submitRating'),
+            closeBtn: document.getElementById('closeRating'),
+            charCount: document.getElementById('charCount')
+        };
+        
+        // Vérifier que les éléments existent
+        if (!elements.popup) {
+            console.warn('Élément ratingPopup non trouvé');
+            return;
+        }
+        
+        // Créer le bouton déclencheur si pas encore évalué
+        if (!hasRated) {
+            createTrigger();
+            setupActivityTimer();
+        }
+        
+        // Configurer les événements
+        setupEventListeners();
+        
+        console.log('✅ Système d\'évaluation PDF Fusion Pro Ultimate initialisé');
+    }
+    
+    // Créer le bouton flottant
+    function createTrigger() {
+        elements.trigger = document.createElement('button');
+        elements.trigger.className = 'rating-trigger';
+        elements.trigger.innerHTML = '<i class="fas fa-star"></i>';
+        elements.trigger.title = 'Donnez votre avis sur PDF Fusion Pro Ultimate';
+        elements.trigger.setAttribute('aria-label', 'Évaluer l\'application');
+        elements.trigger.setAttribute('role', 'button');
+        
+        document.body.appendChild(elements.trigger);
+        
+        // Événement pour ouvrir le popup
+        elements.trigger.addEventListener('click', showPopup);
+        elements.trigger.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                showPopup();
+            }
+        });
+    }
+    
+    // Timer d'inactivité
+    function setupActivityTimer() {
+        function resetTimer() {
+            if (activityTimer) clearTimeout(activityTimer);
+            if (!hasRated && !isPopupVisible()) {
+                activityTimer = setTimeout(showPopup, CONFIG.showDelay);
+            }
+        }
+        
+        // Détecter l'activité
+        ['click', 'mousemove', 'keydown', 'touchstart', 'scroll'].forEach(event => {
+            document.addEventListener(event, resetTimer, { passive: true });
+        });
+        
+        resetTimer();
+    }
+    
+    // Vérifier si le popup est visible
+    function isPopupVisible() {
+        return elements.popup.style.display === 'block';
+    }
+    
+    // Configurer tous les événements
+    function setupEventListeners() {
+        // Fermer le popup
+        if (elements.closeBtn) {
+            elements.closeBtn.addEventListener('click', hidePopup);
+        }
+        
+        // Fermer en cliquant à l'extérieur
+        document.addEventListener('click', function(event) {
+            if (isPopupVisible() && 
+                !elements.popup.contains(event.target) && 
+                (!elements.trigger || event.target !== elements.trigger)) {
+                hidePopup();
+            }
+        });
+        
+        // Fermer avec Échap
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && isPopupVisible()) {
+                hidePopup();
+            }
+        });
+        
+        // Gestion des étoiles
+        if (elements.stars.length > 0) {
+            elements.stars.forEach(star => {
+                star.addEventListener('click', handleStarClick);
+                star.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleStarClick.call(this);
+                    }
+                });
+                star.addEventListener('mouseover', handleStarHover);
+                star.addEventListener('mouseout', handleStarOut);
+            });
+        }
+        
+        // Soumission
+        if (elements.submitBtn) {
+            elements.submitBtn.addEventListener('click', submitRating);
+        }
+        
+        // Limite de caractères pour le feedback
+        if (elements.feedbackText && elements.charCount) {
+            elements.feedbackText.addEventListener('input', function() {
+                const length = this.value.length;
+                elements.charCount.textContent = length;
+                
+                if (length > CONFIG.maxCharsForFeedback) {
+                    this.value = this.value.substring(0, CONFIG.maxCharsForFeedback);
+                    showToast('warning', 'Limite atteinte', `Maximum ${CONFIG.maxCharsForFeedback} caractères`);
+                }
+                
+                // Valider le feedback si nécessaire
+                if (length > 0 && length < CONFIG.minCharsForFeedback) {
+                    elements.submitBtn.disabled = true;
+                } else if (selectedRating > 0) {
+                    elements.submitBtn.disabled = false;
+                }
+            });
+            
+            // Soumission avec Ctrl+Enter
+            elements.feedbackText.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+                    submitRating();
+                }
+            });
+        }
+    }
+    
+    // Gestion des étoiles
+    function handleStarClick() {
+        selectedRating = parseInt(this.dataset.value);
+        
+        // Mettre à jour l'affichage
+        elements.stars.forEach((star, index) => {
+            const isActive = index < selectedRating;
+            star.classList.toggle('active', isActive);
+            star.style.color = isActive ? '#f39c12' : '#ecf0f1';
+            star.setAttribute('aria-checked', isActive);
+        });
+        
+        // Afficher le champ de feedback
+        if (elements.feedbackDiv) {
+            elements.feedbackDiv.style.display = 'block';
+            if (elements.feedbackText) {
+                setTimeout(() => elements.feedbackText.focus(), 100);
+            }
+        }
+        
+        if (elements.submitBtn) {
+            // Activer le bouton si le feedback est valide ou vide
+            const feedbackLength = elements.feedbackText ? elements.feedbackText.value.length : 0;
+            const isValidFeedback = feedbackLength === 0 || feedbackLength >= CONFIG.minCharsForFeedback;
+            elements.submitBtn.disabled = !isValidFeedback;
+        }
+    }
+    
+    function handleStarHover() {
+        const hoverValue = parseInt(this.dataset.value);
+        elements.stars.forEach((star, index) => {
+            star.style.color = index < hoverValue ? '#f1c40f' : '#ecf0f1';
+        });
+    }
+    
+    function handleStarOut() {
+        elements.stars.forEach((star, index) => {
+            star.style.color = index < selectedRating ? '#f39c12' : '#ecf0f1';
+        });
+    }
+    
+    // Afficher le popup
+    function showPopup() {
+        if (hasRated) return;
+        
+        elements.popup.style.display = 'block';
+        if (elements.trigger) {
+            elements.trigger.style.display = 'none';
+        }
+        
+        // Fermer automatiquement après un certain temps
+        setTimeout(() => {
+            if (isPopupVisible() && selectedRating === 0) {
+                hidePopup();
+                showToast('info', 'Trop tard ?', 'Vous pouvez toujours évaluer plus tard !');
+            }
+        }, CONFIG.autoCloseDelay);
+    }
+    
+    // Cacher le popup
+    function hidePopup() {
+        elements.popup.style.display = 'none';
+        if (elements.trigger && !hasRated) {
+            elements.trigger.style.display = 'flex';
+        }
+        
+        // Réinitialiser
+        resetForm();
+    }
+    
+    // Réinitialiser le formulaire
+    function resetForm() {
+        selectedRating = 0;
+        
+        if (elements.feedbackDiv) {
+            elements.feedbackDiv.style.display = 'none';
+        }
+        
+        if (elements.feedbackText) {
+            elements.feedbackText.value = '';
+        }
+        
+        if (elements.charCount) {
+            elements.charCount.textContent = '0';
+        }
+        
+        if (elements.stars.length > 0) {
+            elements.stars.forEach(star => {
+                star.classList.remove('active');
+                star.style.color = '#ecf0f1';
+                star.setAttribute('aria-checked', 'false');
+            });
+        }
+        
+        if (elements.submitBtn) {
+            elements.submitBtn.disabled = true;
+            elements.submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Envoyer';
+        }
+    }
+    
+    // Soumettre l'évaluation
+    async function submitRating() {
+        if (selectedRating === 0) {
+            showToast('error', 'Attention', 'Veuillez sélectionner une note');
+            return;
+        }
+        
+        const feedback = elements.feedbackText ? elements.feedbackText.value.trim() : '';
+        
+        // Validation du feedback
+        if (feedback.length > 0 && feedback.length < CONFIG.minCharsForFeedback) {
+            showToast('warning', 'Feedback trop court', 
+                `Veuillez écrire au moins ${CONFIG.minCharsForFeedback} caractères ou laisser vide`);
+            return;
+        }
+        
+        // Mettre à jour l'UI pendant l'envoi
+        if (elements.submitBtn) {
+            elements.submitBtn.disabled = true;
+            elements.submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Envoi en cours...';
+        }
+        
+        try {
+            const response = await fetch('/api/rating', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    rating: selectedRating,
+                    feedback: feedback,
+                    page: window.location.pathname,
+                    user_agent: navigator.userAgent,
+                    timestamp: new Date().toISOString()
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Succès
+                showToast('success', 'Merci beaucoup !', 
+                    'Votre évaluation nous aide à améliorer PDF Fusion Pro Ultimate.');
+                
+                // Sauvegarder en localStorage
+                localStorage.setItem(CONFIG.localStorageKey, 'true');
+                localStorage.setItem(`${CONFIG.localStorageKey}_date`, new Date().toISOString());
+                localStorage.setItem(`${CONFIG.localStorageKey}_value`, selectedRating);
+                
+                hasRated = true;
+                hidePopup();
+                
+                // Cacher définitivement le bouton
+                if (elements.trigger) {
+                    elements.trigger.style.display = 'none';
+                    elements.trigger.removeEventListener('click', showPopup);
+                }
+                
+                // Réinitialiser après succès
+                setTimeout(resetForm, 1000);
+                
+            } else {
+                // Erreur du serveur
+                showToast('error', 'Erreur', data.error || 'Impossible d\'enregistrer votre évaluation');
+                if (elements.submitBtn) {
+                    elements.submitBtn.disabled = false;
+                    elements.submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Envoyer';
+                }
+            }
+            
+        } catch (error) {
+            // Erreur réseau
+            console.error('Erreur réseau:', error);
+            showToast('error', 'Erreur réseau', 
+                'Vérifiez votre connexion internet et réessayez');
+            
+            if (elements.submitBtn) {
+                elements.submitBtn.disabled = false;
+                elements.submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Envoyer';
+            }
+        }
+    }
+    
+    // Afficher une notification
+    function showToast(type, title, message) {
+        // Supprimer les anciens toasts
+        document.querySelectorAll('.rating-toast').forEach(toast => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        });
+        
+        // Icônes selon le type
+        const icons = {
+            success: 'check-circle',
+            error: 'exclamation-circle',
+            warning: 'exclamation-triangle',
+            info: 'info-circle'
+        };
+        
+        const toast = document.createElement('div');
+        toast.className = `rating-toast ${type}`;
+        toast.innerHTML = `
+            <div class="d-flex align-items-start">
+                <i class="fas fa-${icons[type] || 'info-circle'} fa-2x me-3 mt-1"></i>
+                <div>
+                    <strong class="d-block fs-6 mb-1">${title}</strong>
+                    <div class="small">${message}</div>
+                </div>
+                <button class="btn-close btn-close-white ms-3" aria-label="Fermer"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Fermer au clic
+        toast.querySelector('.btn-close').addEventListener('click', () => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        });
+        
+        // Fermer automatiquement
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 5000);
+    }
+    
+    // Initialiser quand le DOM est prêt
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>

@@ -6,6 +6,8 @@ PDF Fusion Pro Ultimate - Application principale
 from flask import Flask, render_template, jsonify, request, Response
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
+import json
+import os
 from config import AppConfig
 from blueprints.pdf import pdf_bp
 from blueprints.api import api_bp
@@ -13,7 +15,6 @@ from blueprints.legal import legal_bp
 from blueprints.stats import stats_bp
 from utils.middleware import setup_middleware
 from utils.stats_manager import stats_manager
-import os
 from pathlib import Path
 
 def init_app_dirs():
@@ -51,18 +52,95 @@ def create_app():
     app.register_blueprint(pdf_bp)
     
     # Blueprint API
-    app.register_blueprint(api_bp)
+    app.register_blueprint(api_bp, url_prefix='/api')
     
     # Blueprint pages légales
     app.register_blueprint(legal_bp)
     
     # Blueprint statistiques
     app.register_blueprint(stats_bp)
+
+    # ============================================================
+    # ROUTE D'ÉVALUATION
+    # ============================================================
+    
+    @app.route('/api/rating', methods=['POST'])
+    def submit_rating():
+        """API pour enregistrer les évaluations"""
+        try:
+            data = request.get_json()
+            
+            # Validation
+            if not data or 'rating' not in data:
+                return jsonify({"error": "Données manquantes"}), 400
+            
+            rating = int(data.get('rating', 0))
+            if rating < 1 or rating > 5:
+                return jsonify({"error": "Évaluation invalide"}), 400
+            
+            # Enregistrer dans un fichier JSON
+            rating_data = {
+                'rating': rating,
+                'feedback': data.get('feedback', ''),
+                'page': data.get('page', '/'),
+                'user_agent': data.get('user_agent', ''),
+                'timestamp': datetime.now().isoformat(),
+                'ip': request.remote_addr
+            }
+            
+            # Sauvegarder
+            ratings_file = 'data/ratings.json'
+            os.makedirs('data', exist_ok=True)
+            
+            # Lire les évaluations existantes
+            ratings = []
+            if os.path.exists(ratings_file):
+                with open(ratings_file, 'r', encoding='utf-8') as f:
+                    try:
+                        ratings = json.load(f)
+                    except:
+                        ratings = []
+            
+            # Ajouter la nouvelle
+            ratings.append(rating_data)
+            
+            # Sauvegarder (limiter à 1000 entrées)
+            if len(ratings) > 1000:
+                ratings = ratings[-1000:]
+            
+            with open(ratings_file, 'w', encoding='utf-8') as f:
+                json.dump(ratings, f, indent=2, ensure_ascii=False)
+            
+            return jsonify({
+                "success": True,
+                "message": "Évaluation enregistrée",
+                "average": calculate_average_rating(ratings)
+            })
+        
+        except Exception as e:
+            print(f"Erreur lors de l'enregistrement: {e}")
+            return jsonify({"error": "Erreur interne"}), 500
+
+    def calculate_average_rating(ratings):
+        """Calcule la note moyenne"""
+        if not ratings:
+            return 0
+        total = sum(r['rating'] for r in ratings)
+        return round(total / len(ratings), 1)    
     
     # ============================================================
     # ROUTES SPÉCIALES (fichiers statiques)
     # ============================================================
     
+    @app.route('/admin/ratings')
+    def view_ratings():
+        # Ajoutez une vérification de sécurité ici
+        with open('data/ratings.json', 'r') as f:
+            ratings = json.load(f)
+        
+        # Calculez les statistiques
+        return render_template('admin/ratings.html', ratings=ratings)
+
     @app.route('/google6f0d847067bbd18a.html')
     def google_verification():
         """Page de vérification Google Search Console"""
@@ -144,7 +222,6 @@ def create_app():
     # ============================================================
     # GESTION DES ERREURS
     # ============================================================
-    
     @app.errorhandler(404)
     def not_found_error(error):
         return """
