@@ -87,7 +87,7 @@ def create_app():
         return Response(content, mimetype="text/plain")
     
     @app.route('/sitemap.xml')
-def sitemap():
+    def sitemap():
     """Génère un sitemap XML amélioré"""
     base_url = "https://pdf-fusion-pro-ultimate.onrender.com"
     
