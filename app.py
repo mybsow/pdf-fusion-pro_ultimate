@@ -60,6 +60,38 @@ def create_app():
     # Blueprint statistiques
     app.register_blueprint(stats_bp)
 
+@app.route('/admin/debug')
+def admin_debug():
+    """Page de debug pour vérifier la configuration"""
+    import os
+    import json
+    
+    info = {
+        'service': 'PDF Fusion Pro Ultimate',
+        'timestamp': datetime.now().isoformat(),
+        'environment': {
+            'ADMIN_PASSWORD_set': bool(os.environ.get('ADMIN_PASSWORD')),
+            'ADMIN_PASSWORD_length': len(os.environ.get('ADMIN_PASSWORD', '')) if os.environ.get('ADMIN_PASSWORD') else 0,
+            'RENDER': bool(os.environ.get('RENDER')),
+            'RENDER_EXTERNAL_URL': os.environ.get('RENDER_EXTERNAL_URL', 'Non défini'),
+            'RENDER_SERVICE_ID': os.environ.get('RENDER_SERVICE_ID', 'Non défini'),
+            'all_env_vars': dict(os.environ)  # Attention: montre toutes les variables
+        },
+        'routes': [
+            '/admin/messages',
+            '/admin/ratings',
+            '/api/rating',
+            '/contact',
+            '/mentions-legales'
+        ]
+    }
+    
+    # Cacher les valeurs sensibles
+    if info['environment']['ADMIN_PASSWORD_set']:
+        info['environment']['ADMIN_PASSWORD_preview'] = os.environ.get('ADMIN_PASSWORD', '')[0] + '***' + os.environ.get('ADMIN_PASSWORD', '')[-1] if len(os.environ.get('ADMIN_PASSWORD', '')) > 2 else '***'
+    
+    return jsonify(info)    
+
     # ============================================================
     # ROUTE D'ÉVALUATION
     # ============================================================
