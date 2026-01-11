@@ -1712,15 +1712,27 @@ def admin_messages():
                 </div>
                 
                 <div class="text-center mt-4">
-                    <a href="/admin/messages?password={admin_password}&export=json" class="btn btn-success me-2">
-                        <i class="fas fa-download me-1"></i> Exporter tous les messages (JSON)
-                    </a>
-                    <a href="/admin/messages?password={admin_password}&cleanup=true" class="btn btn-warning me-2"
-                       onclick="return confirm('Supprimer les messages de plus de 30 jours ?')">
-                        <i class="fas fa-broom me-1"></i> Nettoyer les anciens
-                    </a>
-                    <a href="/" class="btn btn-outline-primary">
-                        <i class="fas fa-home me-1"></i> Retour à l'accueil
+                    <div class="btn-group" role="group">
+                        <a href="/admin/messages?password={admin_password}&export=json" class="btn btn-success">
+                            <i class="fas fa-download me-1"></i> Exporter JSON
+                        </a>
+                        <a href="/admin/messages?password={admin_password}&cleanup=true" class="btn btn-warning"
+                           onclick="return confirm('Supprimer les messages de plus de 30 jours ?')">
+                            <i class="fas fa-broom me-1"></i> Nettoyer
+                        </a>
+                    </div>
+                    
+                    <div class="btn-group ms-2" role="group">
+                        <a href="/admin/messages?password={admin_password}" class="btn btn-primary">
+                            <i class="fas fa-envelope me-1"></i> Messages
+                        </a>
+                        <a href="/admin/ratings?password={admin_password}" class="btn btn-warning">
+                            <i class="fas fa-star me-1"></i> Évaluations
+                        </a>
+                    </div>
+                    
+                    <a href="/" class="btn btn-outline-secondary ms-2">
+                        <i class="fas fa-home me-1"></i> Accueil
                     </a>
                 </div>
             </div>
