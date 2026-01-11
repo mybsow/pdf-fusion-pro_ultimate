@@ -10,6 +10,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
+from dotenv import load_dotenv
 import json
 import requests
 from pathlib import Path
@@ -896,6 +897,7 @@ def admin_messages():
     import json
     from pathlib import Path
     
+    load_dotenv()  # Charge .env en local
     # Protection basique par mot de passe
     admin_password = os.environ.get('ADMIN_PASSWORD', '')
     
