@@ -59,41 +59,52 @@ def create_app():
     
     # Blueprint statistiques
     app.register_blueprint(stats_bp)
-
-@app.route('/admin/debug')
-def admin_debug():
-    """Page de debug pour vérifier la configuration"""
-    import os
-    import json
     
-    info = {
-        'service': 'PDF Fusion Pro Ultimate',
-        'timestamp': datetime.now().isoformat(),
-        'environment': {
-            'ADMIN_PASSWORD_set': bool(os.environ.get('ADMIN_PASSWORD')),
-            'ADMIN_PASSWORD_length': len(os.environ.get('ADMIN_PASSWORD', '')) if os.environ.get('ADMIN_PASSWORD') else 0,
-            'RENDER': bool(os.environ.get('RENDER')),
-            'RENDER_EXTERNAL_URL': os.environ.get('RENDER_EXTERNAL_URL', 'Non défini'),
-            'RENDER_SERVICE_ID': os.environ.get('RENDER_SERVICE_ID', 'Non défini'),
-            'all_env_vars': dict(os.environ)  # Attention: montre toutes les variables
-        },
-        'routes': [
-            '/admin/messages',
-            '/admin/ratings',
-            '/api/rating',
-            '/contact',
-            '/mentions-legales'
-        ]
-    }
-    
-    # Cacher les valeurs sensibles
-    if info['environment']['ADMIN_PASSWORD_set']:
-        info['environment']['ADMIN_PASSWORD_preview'] = os.environ.get('ADMIN_PASSWORD', '')[0] + '***' + os.environ.get('ADMIN_PASSWORD', '')[-1] if len(os.environ.get('ADMIN_PASSWORD', '')) > 2 else '***'
-    
-    return jsonify(info)    
-
     # ============================================================
-    # ROUTE D'ÉVALUATION
+    # ROUTES PRINCIPALES (AJOUTEZ CES LIGNES ICI)
+    # ============================================================
+    
+    @app.route('/admin/debug')
+    def admin_debug():
+        """Page de debug pour vérifier la configuration"""
+        import os
+        
+        info = {
+            'service': 'PDF Fusion Pro Ultimate',
+            'timestamp': datetime.now().isoformat(),
+            'environment': {
+                'ADMIN_PASSWORD_set': bool(os.environ.get('ADMIN_PASSWORD')),
+                'ADMIN_PASSWORD_length': len(os.environ.get('ADMIN_PASSWORD', '')) if os.environ.get('ADMIN_PASSWORD') else 0,
+                'RENDER': bool(os.environ.get('RENDER')),
+                'RENDER_EXTERNAL_URL': os.environ.get('RENDER_EXTERNAL_URL', 'Non défini'),
+                'RENDER_SERVICE_ID': os.environ.get('RENDER_SERVICE_ID', 'Non défini'),
+            },
+            'routes': [
+                '/admin/messages',
+                '/admin/ratings',
+                '/api/rating',
+                '/contact',
+                '/mentions-legales'
+            ]
+        }
+        
+        # Cacher les valeurs sensibles
+        if info['environment']['ADMIN_PASSWORD_set']:
+            password = os.environ.get('ADMIN_PASSWORD', '')
+            if len(password) > 2:
+                info['environment']['ADMIN_PASSWORD_preview'] = password[0] + '***' + password[-1]
+            else:
+                info['environment']['ADMIN_PASSWORD_preview'] = '***'
+        
+        return jsonify(info)
+    
+    @app.route('/')
+    def index():
+        """Route racine - redirige vers la page principale"""
+        return render_template('index.html')
+    
+    # ============================================================
+    # ROUTE D'ÉVALUATION (DÉCOMMENTEZ ET AJUSTEZ)
     # ============================================================
     
     @app.route('/api/rating', methods=['POST'])
@@ -112,50 +123,13 @@ def admin_debug():
             
             feedback = data.get('feedback', '')
             
-            # ============================================
-            # EN PRODUCTION SUR RENDER :
-            # ============================================
-            
-            # Option 1 : Envoyer un email (recommandé pour Render)
-            send_rating_email(rating, feedback, data)
-            
-            # Option 2 : Logger dans la console (visible dans les logs Render)
+            # Logger dans la console
             print(f"📊 Évaluation reçue : {rating} étoiles - Feedback: {feedback[:100]}")
-            
-            # Option 3 : Sauvegarder temporairement (sera perdu au redéploiement)
-            try:
-                rating_data = {
-                    'rating': rating,
-                    'feedback': feedback,
-                    'page': data.get('page', '/'),
-                    'user_agent': data.get('user_agent', ''),
-                    'timestamp': datetime.now().isoformat(),
-                    'ip': request.remote_addr
-                }
-                
-                ratings_file = 'data/ratings.json'
-                os.makedirs('data', exist_ok=True)
-                
-                ratings = []
-                if os.path.exists(ratings_file):
-                    with open(ratings_file, 'r', encoding='utf-8') as f:
-                        try:
-                            ratings = json.load(f)
-                        except:
-                            ratings = []
-                
-                ratings.append(rating_data)
-                
-                with open(ratings_file, 'w', encoding='utf-8') as f:
-                    json.dump(ratings, f, indent=2, ensure_ascii=False)
-                    
-            except Exception as file_error:
-                print(f"⚠️ Impossible de sauvegarder le fichier: {file_error}")
             
             return jsonify({
                 "success": True,
                 "message": "Évaluation enregistrée",
-                "average": 0  # Temporaire, car pas de données persistantes
+                "average": 0
             })
         
         except Exception as e:
@@ -166,15 +140,6 @@ def admin_debug():
     # ROUTES SPÉCIALES (fichiers statiques)
     # ============================================================
     
-    @app.route('/admin/ratings')
-    def view_ratings():
-        # Ajoutez une vérification de sécurité ici
-        with open('data/ratings.json', 'r') as f:
-            ratings = json.load(f)
-        
-        # Calculez les statistiques
-        return render_template('admin/ratings.html', ratings=ratings)
-
     @app.route('/google6f0d847067bbd18a.html')
     def google_verification():
         """Page de vérification Google Search Console"""
