@@ -26,6 +26,41 @@ LEGAL_TEMPLATE = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }} | {{ config.NAME }}</title>
     
+    <!-- 3. Balises meta robots -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- 5. URL canonique dynamique -->
+    <link rel="canonical" href="https://pdf-fusion-pro-ultimate.onrender.com{{ request.path }}" />
+    
+    <!-- 4. Données structurées pour pages légales -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "{{ title }} | {{ config.NAME }}",
+        "description": "{{ subtitle }}",
+        "url": "https://pdf-fusion-pro-ultimate.onrender.com{{ request.path }}",
+        "datePublished": "2024-01-15",
+        "dateModified": "{% now 'local', '%Y-%m-%d' %}",
+        "inLanguage": "fr",
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "PDF Fusion Pro",
+            "url": "https://pdf-fusion-pro-ultimate.onrender.com"
+        },
+        "publisher": {
+            "@type": "Person",
+            "name": "{{ config.DEVELOPER_NAME }}",
+            "email": "{{ config.DEVELOPER_EMAIL }}"
+        }
+    }
+    </script>
+    
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">

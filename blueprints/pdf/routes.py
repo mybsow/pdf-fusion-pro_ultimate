@@ -24,7 +24,96 @@ HTML_TEMPLATE = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
+    
+    <!-- SEO Meta Description -->
     <meta name="description" content="{{ description }}">
+    
+    <!-- META ROBOTS (SEO OPTIMIZED) -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- OPEN GRAPH / SOCIAL MEDIA -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ title }}">
+    <meta property="og:description" content="{{ description }}">
+    <meta property="og:url" content="https://pdf-fusion-pro-ultimate.onrender.com{{ request.path }}">
+    <meta property="og:site_name" content="PDF Fusion Pro">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:image" content="https://pdf-fusion-pro-ultimate.onrender.com/static/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PDF Fusion Pro - Outils PDF gratuits">
+    
+    <!-- TWITTER CARD -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ title }}">
+    <meta name="twitter:description" content="{{ description }}">
+    <meta name="twitter:image" content="https://pdf-fusion-pro-ultimate.onrender.com/static/twitter-card.jpg">
+    
+    <!-- URL CANONIQUE -->
+    <link rel="canonical" href="https://pdf-fusion-pro-ultimate.onrender.com{{ request.path if request.path != '/' else '' }}" />
+    
+    <!-- DONNÉES STRUCTURÉES JSON-LD POUR APPLICATION WEB -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "PDF Fusion Pro",
+        "description": "{{ description }}",
+        "url": "https://pdf-fusion-pro-ultimate.onrender.com",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "creator": {
+            "@type": "Person",
+            "name": "{{ config.DEVELOPER_NAME }}",
+            "email": "{{ config.DEVELOPER_EMAIL }}"
+        },
+        "datePublished": "2024-01-01",
+        "dateModified": "{{ datetime.now().strftime('%Y-%m-%d') }}",
+        "inLanguage": "fr",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://pdf-fusion-pro-ultimate.onrender.com/search?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+        },
+        "featureList": [
+            "Fusionner des PDFs",
+            "Diviser des PDFs",
+            "Tourner des pages PDF",
+            "Compresser des PDFs"
+        ]
+    }
+    </script>
+    
+    <!-- DONNÉES STRUCTURÉES ADDITIONNELLES POUR SITE WEB -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PDF Fusion Pro",
+        "url": "https://pdf-fusion-pro-ultimate.onrender.com",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://pdf-fusion-pro-ultimate.onrender.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        },
+        "description": "{{ description }}",
+        "publisher": {
+            "@type": "Person",
+            "name": "{{ config.DEVELOPER_NAME }}"
+        }
+    }
+    </script>
     
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ config.ADSENSE_PUBLISHER_ID }}" crossorigin="anonymous"></script>
@@ -46,8 +135,9 @@ HTML_TEMPLATE = """
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Reste du CSS inchangé -->
     <style>
-        :root {
+    :root {
             --primary-color: #4361ee;
             --primary-dark: #3a0ca3;
             --secondary-color: #4cc9f0;
@@ -2077,8 +2167,8 @@ def home():
     """Page d'accueil principale"""
     return render_template_string(
         HTML_TEMPLATE,
-        title="PDF Fusion Pro – Outil PDF Moderne & Professionnel",
-        description="Fusionnez, divisez, tournez et compressez vos fichiers PDF gratuitement. Interface moderne, rapide et sécurisée.",
+        title="PDF Fusion Pro – Fusionner, Diviser, Tourner, Compresser PDF Gratuit",
+        description="Outil PDF en ligne 100% gratuit. Fusionnez plusieurs PDFs en un seul, divisez des PDFs par pages, tournez des pages PDF et compressez des fichiers PDF sans perte de qualité. Aucune inscription requise, traitement sécurisé dans votre navigateur.",
         config=AppConfig,
         current_year=datetime.now().year
     )

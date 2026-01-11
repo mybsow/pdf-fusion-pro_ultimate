@@ -87,32 +87,44 @@ def create_app():
         return Response(content, mimetype="text/plain")
     
     @app.route('/sitemap.xml')
-    def sitemap():
-        """Génère un sitemap XML"""
-        base_url = f"https://{AppConfig.DOMAIN}"
-        pages = [
-            ("/", datetime.now().strftime('%Y-%m-%d'), "daily", 1.0),
-            ("/mentions-legales", "2024-01-15", "monthly", 0.8),
-            ("/politique-confidentialite", "2024-01-15", "monthly", 0.8),
-            ("/conditions-utilisation", "2024-01-15", "monthly", 0.8),
-            ("/contact", "2024-01-15", "monthly", 0.7),
-            ("/a-propos", "2024-01-15", "monthly", 0.7),
-        ]
-        
-        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
-        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        
-        for path, lastmod, changefreq, priority in pages:
-            xml += f'  <url>\n'
-            xml += f'    <loc>{base_url}{path}</loc>\n'
-            xml += f'    <lastmod>{lastmod}</lastmod>\n'
-            xml += f'    <changefreq>{changefreq}</changefreq>\n'
-            xml += f'    <priority>{priority}</priority>\n'
-            xml += f'  </url>\n'
-        
-        xml += '</urlset>'
-        
-        return Response(xml, mimetype="application/xml")
+def sitemap():
+    """Génère un sitemap XML amélioré"""
+    base_url = "https://pdf-fusion-pro-ultimate.onrender.com"
+    
+    # Pages principales avec priorité et fréquence
+    pages = [
+        # (chemin, dernière_modification, fréquence, priorité)
+        ("/", datetime.now().strftime('%Y-%m-%d'), "daily", 1.0),
+        ("/fusion-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
+        ("/division-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
+        ("/rotation-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
+        ("/compression-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
+        ("/mentions-legales", "2024-01-15", "monthly", 0.3),
+        ("/politique-confidentialite", "2024-01-15", "monthly", 0.3),
+        ("/conditions-utilisation", "2024-01-15", "monthly", 0.3),
+        ("/contact", datetime.now().strftime('%Y-%m-%d'), "weekly", 0.5),
+        ("/a-propos", datetime.now().strftime('%Y-%m-%d'), "monthly", 0.4),
+    ]
+    
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
+    xml += '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
+    xml += '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9\n'
+    xml += '        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">\n'
+    
+    for path, lastmod, changefreq, priority in pages:
+        xml += '  <url>\n'
+        xml += f'    <loc>{base_url}{path}</loc>\n'
+        xml += f'    <lastmod>{lastmod}</lastmod>\n'
+        xml += f'    <changefreq>{changefreq}</changefreq>\n'
+        xml += f'    <priority>{priority:.1f}</priority>\n'
+        xml += '  </url>\n'
+    
+    xml += '</urlset>'
+    
+    return Response(xml, mimetype="application/xml", headers={
+        'Cache-Control': 'public, max-age=86400'
+    })
     
     # ============================================================
     # GESTION DES ERREURS
