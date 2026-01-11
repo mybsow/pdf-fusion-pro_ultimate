@@ -2737,4 +2737,3 @@ def get_rating_html():
     });
     </script>
     '''
-  return html
