@@ -2173,6 +2173,50 @@ def home():
         current_year=datetime.now().year
     )
 
+@pdf_bp.route('/fusion-pdf')
+def fusion_pdf():
+    """Page dédiée à la fusion PDF"""
+    return render_template_string(
+        HTML_TEMPLATE,
+        title="Fusionner PDF - Outil gratuit pour combiner des fichiers PDF",
+        description="Fusionnez gratuitement plusieurs fichiers PDF en un seul document organisé. Interface intuitive, rapide et sécurisée. Aucune inscription requise.",
+        config=AppConfig,
+        current_year=datetime.now().year
+    )
+
+@pdf_bp.route('/division-pdf')
+def division_pdf():
+    """Page dédiée à la division PDF"""
+    return render_template_string(
+        HTML_TEMPLATE,
+        title="Diviser PDF - Extraire des pages de fichiers PDF",
+        description="Divisez vos fichiers PDF par pages ou plages spécifiques. Téléchargez les pages séparément ou en archive ZIP. Simple et efficace.",
+        config=AppConfig,
+        current_year=datetime.now().year
+    )
+
+@pdf_bp.route('/rotation-pdf')
+def rotation_pdf():
+    """Page dédiée à la rotation PDF"""
+    return render_template_string(
+        HTML_TEMPLATE,
+        title="Tourner PDF - Corriger l'orientation des pages PDF",
+        description="Tournez les pages de vos PDFs à 90°, 180° ou 270°. Corrigez l'orientation de documents scannés facilement.",
+        config=AppConfig,
+        current_year=datetime.now().year
+    )
+
+@pdf_bp.route('/compression-pdf')
+def compression_pdf():
+    """Page dédiée à la compression PDF"""
+    return render_template_string(
+        HTML_TEMPLATE,
+        title="Compresser PDF - Réduire la taille des fichiers PDF",
+        description="Compressez vos fichiers PDF pour réduire leur taille sans perte de qualité notable. Optimisez l'espace de stockage et le partage.",
+        config=AppConfig,
+        current_year=datetime.now().year
+    )
+
 # ============================================================
 # API ENDPOINTS
 # ============================================================
