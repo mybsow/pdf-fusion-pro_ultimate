@@ -11,6 +11,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
 from dotenv import load_dotenv
+from pathlib import Path
 import json
 import requests
 from pathlib import Path
@@ -894,18 +895,264 @@ def contact():
 @legal_bp.route('/admin/messages', methods=['GET'])
 def admin_messages():
     """Interface web pour voir les messages de contact"""
-    import json
-    from pathlib import Path
-    load_dotenv()  # Charge .env en local
-    # Protection basique par mot de passe
+    
+    # Gestion compatible local/Render
     admin_password = os.environ.get('ADMIN_PASSWORD', '')
     
-    # Si pas de mot de passe configuré, on utilise un mot de passe par défaut (à changer)
+    # Si pas de mot de passe dans les variables d'environnement
+    # et qu'on est en local avec un fichier .env
+    if not admin_password and os.path.exists('.env'):
+        try:
+            # Chargement manuel simple pour le développement local
+            with open('.env', 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and 'ADMIN_PASSWORD=' in line:
+                        admin_password = line.split('=', 1)[1].strip()
+                        break
+        except Exception as e:
+            print(f"⚠️ Erreur lecture .env: {e}")
+            pass
+    
+    # Vérification spéciale pour Render
+    if not admin_password and os.environ.get('RENDER'):
+        # Sur Render sans mot de passe configuré
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Configuration requise - PDF Fusion Pro</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+            <style>
+                body {
+                    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    padding: 1rem;
+                }
+                .config-box {
+                    background: white;
+                    border-radius: 20px;
+                    padding: 2.5rem;
+                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+                    width: 100%;
+                    max-width: 600px;
+                }
+                .config-icon {
+                    width: 80px;
+                    height: 80px;
+                    background: linear-gradient(135deg, #e74c3c, #c0392b);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-size: 2rem;
+                    margin: 0 auto 1.5rem;
+                }
+                .steps {
+                    counter-reset: step-counter;
+                    margin: 2rem 0;
+                }
+                .step {
+                    display: flex;
+                    align-items: flex-start;
+                    margin-bottom: 1.5rem;
+                    padding-left: 3rem;
+                    position: relative;
+                }
+                .step::before {
+                    counter-increment: step-counter;
+                    content: counter(step-counter);
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 2rem;
+                    height: 2rem;
+                    background: #4361ee;
+                    color: white;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                }
+                .step-content {
+                    flex: 1;
+                }
+                .step-title {
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                    color: #2c3e50;
+                }
+                .code-block {
+                    background: #f8f9fa;
+                    border-radius: 8px;
+                    padding: 1rem;
+                    font-family: 'Courier New', monospace;
+                    margin: 0.5rem 0;
+                    border-left: 4px solid #4361ee;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="config-box">
+                <div class="config-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+                
+                <h2 class="text-center mb-3">Configuration requise</h2>
+                <p class="text-center text-muted mb-4">
+                    <i class="fas fa-file-pdf me-1"></i> PDF Fusion Pro - Panneau d'administration
+                </p>
+                
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>Variable d'environnement manquante :</strong> 
+                    <code>ADMIN_PASSWORD</code> n'est pas configuré sur Render.
+                </div>
+                
+                <h5 class="mt-4 mb-3"><i class="fas fa-list-ol me-2"></i> Étapes de configuration :</h5>
+                
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-content">
+                            <div class="step-title">1. Connectez-vous à Render</div>
+                            <p>Allez sur <a href="https://dashboard.render.com" target="_blank">dashboard.render.com</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-content">
+                            <div class="step-title">2. Sélectionnez votre service</div>
+                            <p>Cherchez "pdf-fusion-pro-ultimate" dans vos services</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-content">
+                            <div class="step-title">3. Accédez aux variables d'environnement</div>
+                            <p>Cliquez sur "Environment" dans le menu de gauche</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-content">
+                            <div class="step-title">4. Ajoutez la variable</div>
+                            <p>Cliquez sur "Add Environment Variable" :</p>
+                            <div class="code-block">
+                                Key: <strong>ADMIN_PASSWORD</strong><br>
+                                Value: <strong>VotreMotDePasseSecurise</strong>
+                            </div>
+                            <small class="text-muted">Exemple : Kindia@2805* (changer pour votre propre mot de passe)</small>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-content">
+                            <div class="step-title">5. Redéployez</div>
+                            <p>Cliquez sur "Manual Deploy" → "Deploy latest commit"</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Note :</strong> Après configuration, accédez à 
+                    <code>/admin/messages?password=VotreMotDePasseSecurise</code>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="https://dashboard.render.com" target="_blank" class="btn btn-primary me-2">
+                        <i class="fas fa-external-link-alt me-1"></i> Aller sur Render
+                    </a>
+                    <a href="/" class="btn btn-outline-secondary">
+                        <i class="fas fa-home me-1"></i> Retour à l'accueil
+                    </a>
+                </div>
+            </div>
+        </body>
+        </html>
+        """, 500
+    
+    # Si toujours pas de mot de passe, utiliser un défaut (développement local)
     if not admin_password:
-        admin_password = 'admin123'  # ⚠️ CHANGEZ CE MOT DE PASSE !
+        admin_password = 'admin123'  # ⚠️ CHANGEZ CE MOT DE PASSE EN PRODUCTION !
+    
+    # Limiter les tentatives de connexion (protection basique)
+    try:
+        session_key = f'admin_login_attempts_{request.remote_addr}'
+        attempts = session.get(session_key, 0)
+        
+        # Bloquer après 5 tentatives échouées
+        if attempts >= 5:
+            return """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Trop de tentatives - PDF Fusion Pro</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                <style>
+                    body {
+                        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                        min-height: 100vh;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    }
+                    .alert-box {
+                        background: white;
+                        border-radius: 20px;
+                        padding: 2.5rem;
+                        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+                        max-width: 500px;
+                        text-align: center;
+                    }
+                    .alert-icon {
+                        font-size: 4rem;
+                        color: #e74c3c;
+                        margin-bottom: 1rem;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="alert-box">
+                    <div class="alert-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <h2 class="text-danger">Accès temporairement bloqué</h2>
+                    <p class="mt-3">
+                        Trop de tentatives de connexion infructueuses.
+                    </p>
+                    <p class="text-muted">
+                        Veuillez réessayer dans <strong>15 minutes</strong>.
+                    </p>
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-outline-primary">
+                            <i class="fas fa-home me-1"></i> Retour à l'accueil
+                        </a>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """, 429
+    except:
+        # Si session n'est pas disponible, continuer sans limitation
+        pass
     
     # Vérifier l'authentification
     if request.args.get('password') != admin_password:
+        # Incrémenter le compteur de tentatives
+        try:
+            session[session_key] = attempts + 1
+        except:
+            pass
+            
         return """
         <!DOCTYPE html>
         <html>
@@ -946,6 +1193,11 @@ def admin_messages():
                     background: linear-gradient(135deg, #fff3cd, #ffeaa7);
                     border-color: #ffc107;
                 }
+                .attempts-warning {
+                    font-size: 0.85rem;
+                    color: #e74c3c;
+                    margin-top: 0.5rem;
+                }
             </style>
         </head>
         <body>
@@ -973,6 +1225,12 @@ def admin_messages():
                             <i class="fas fa-info-circle me-1"></i>
                             Accès réservé à l'administrateur
                         </div>
+                        """ + (f"""
+                        <div class="attempts-warning">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            Tentative {attempts + 1}/5
+                        </div>
+                        """ if attempts > 0 else "") + """
                     </div>
                     
                     <button type="submit" class="btn btn-primary w-100">
@@ -984,6 +1242,12 @@ def admin_messages():
                     <i class="fas fa-exclamation-triangle me-2"></i>
                     <strong>Sécurité :</strong> Configurez la variable d'environnement 
                     <code>ADMIN_PASSWORD</code> sur Render pour un mot de passe sécurisé.
+                </div>
+                
+                <!-- Indicateur d'environnement -->
+                <div class="text-center mt-3 small text-muted">
+                    <i class="fas fa-server me-1"></i>
+                    """ + ("🟢 Connecté à Render" if os.environ.get('RENDER') else "🟡 Développement local") + """
                 </div>
             </div>
         </body>
