@@ -2170,7 +2170,7 @@ def home():
         title="PDF Fusion Pro – Fusionner, Diviser, Tourner, Compresser PDF Gratuit",
         description="Outil PDF en ligne 100% gratuit. Fusionnez plusieurs PDFs en un seul, divisez des PDFs par pages, tournez des pages PDF et compressez des fichiers PDF sans perte de qualité. Aucune inscription requise, traitement sécurisé dans votre navigateur.",
         config=AppConfig,
-        current_year=datetime.now().year
+        current_year=datetime.now().year,
         datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
 
@@ -2182,7 +2182,7 @@ def fusion_pdf():
         title="Fusionner PDF - Outil gratuit pour combiner des fichiers PDF",
         description="Fusionnez gratuitement plusieurs fichiers PDF en un seul document organisé. Interface intuitive, rapide et sécurisée. Aucune inscription requise.",
         config=AppConfig,
-        current_year=datetime.now().year
+        current_year=datetime.now().year,
         datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
 
@@ -2194,7 +2194,7 @@ def division_pdf():
         title="Diviser PDF - Extraire des pages de fichiers PDF",
         description="Divisez vos fichiers PDF par pages ou plages spécifiques. Téléchargez les pages séparément ou en archive ZIP. Simple et efficace.",
         config=AppConfig,
-        current_year=datetime.now().year
+        current_year=datetime.now().year,
         datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
 
@@ -2206,7 +2206,7 @@ def rotation_pdf():
         title="Tourner PDF - Corriger l'orientation des pages PDF",
         description="Tournez les pages de vos PDFs à 90°, 180° ou 270°. Corrigez l'orientation de documents scannés facilement.",
         config=AppConfig,
-        current_year=datetime.now().year
+        current_year=datetime.now().year,
         datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
 
@@ -2218,7 +2218,7 @@ def compression_pdf():
         title="Compresser PDF - Réduire la taille des fichiers PDF",
         description="Compressez vos fichiers PDF pour réduire leur taille sans perte de qualité notable. Optimisez l'espace de stockage et le partage.",
         config=AppConfig,
-        current_year=datetime.now().year
+        current_year=datetime.now().year,
         datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
 

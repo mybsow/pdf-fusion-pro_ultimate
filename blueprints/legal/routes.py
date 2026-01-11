@@ -710,7 +710,7 @@ def contact():
             subtitle="Votre message a été enregistré avec succès",
             content=contact_form,
             current_year=datetime.now().year,
-            config=AppConfig
+            config=AppConfig,
             datetime=datetime  # AJOUTEZ CETTE LIGNE
         )
     
@@ -848,7 +848,7 @@ def contact():
         subtitle="Contactez-nous via notre formulaire",
         content=contact_form,
         current_year=datetime.now().year,
-        config=AppConfig
+        config=AppConfig,
         datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
 
@@ -1614,7 +1614,7 @@ def legal_notices():
         subtitle="Informations légales concernant l'utilisation du service PDF Fusion Pro",
         content=content,
         current_year=datetime.now().year,
-        config=AppConfig
+        config=AppConfig,
         datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
 
@@ -1678,7 +1678,7 @@ def privacy_policy():
         subtitle="Comment nous protégeons et utilisons vos données",
         content=content,
         current_year=datetime.now().year,
-        config=AppConfig
+        config=AppConfig,
         datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
 
@@ -1750,7 +1750,7 @@ def terms_of_service():
         subtitle="Règles et conditions d'utilisation du service PDF Fusion Pro",
         content=content,
         current_year=datetime.now().year,
-        config=AppConfig
+        config=AppConfig,
         datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
 
@@ -1865,6 +1865,6 @@ def about():
         subtitle="Découvrez PDF Fusion Pro, notre mission et nos valeurs",
         content=content,
         current_year=datetime.now().year,
-        config=AppConfig
+        config=AppConfig,
         datetime=datetime  # AJOUTEZ CETTE LIGNE
     )
