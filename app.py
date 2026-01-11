@@ -78,55 +78,57 @@ def create_app():
             if rating < 1 or rating > 5:
                 return jsonify({"error": "Évaluation invalide"}), 400
             
-            # Enregistrer dans un fichier JSON
-            rating_data = {
-                'rating': rating,
-                'feedback': data.get('feedback', ''),
-                'page': data.get('page', '/'),
-                'user_agent': data.get('user_agent', ''),
-                'timestamp': datetime.now().isoformat(),
-                'ip': request.remote_addr
-            }
+            feedback = data.get('feedback', '')
             
-            # Sauvegarder
-            ratings_file = 'data/ratings.json'
-            os.makedirs('data', exist_ok=True)
+            # ============================================
+            # EN PRODUCTION SUR RENDER :
+            # ============================================
             
-            # Lire les évaluations existantes
-            ratings = []
-            if os.path.exists(ratings_file):
-                with open(ratings_file, 'r', encoding='utf-8') as f:
-                    try:
-                        ratings = json.load(f)
-                    except:
-                        ratings = []
+            # Option 1 : Envoyer un email (recommandé pour Render)
+            send_rating_email(rating, feedback, data)
             
-            # Ajouter la nouvelle
-            ratings.append(rating_data)
+            # Option 2 : Logger dans la console (visible dans les logs Render)
+            print(f"📊 Évaluation reçue : {rating} étoiles - Feedback: {feedback[:100]}")
             
-            # Sauvegarder (limiter à 1000 entrées)
-            if len(ratings) > 1000:
-                ratings = ratings[-1000:]
-            
-            with open(ratings_file, 'w', encoding='utf-8') as f:
-                json.dump(ratings, f, indent=2, ensure_ascii=False)
+            # Option 3 : Sauvegarder temporairement (sera perdu au redéploiement)
+            try:
+                rating_data = {
+                    'rating': rating,
+                    'feedback': feedback,
+                    'page': data.get('page', '/'),
+                    'user_agent': data.get('user_agent', ''),
+                    'timestamp': datetime.now().isoformat(),
+                    'ip': request.remote_addr
+                }
+                
+                ratings_file = 'data/ratings.json'
+                os.makedirs('data', exist_ok=True)
+                
+                ratings = []
+                if os.path.exists(ratings_file):
+                    with open(ratings_file, 'r', encoding='utf-8') as f:
+                        try:
+                            ratings = json.load(f)
+                        except:
+                            ratings = []
+                
+                ratings.append(rating_data)
+                
+                with open(ratings_file, 'w', encoding='utf-8') as f:
+                    json.dump(ratings, f, indent=2, ensure_ascii=False)
+                    
+            except Exception as file_error:
+                print(f"⚠️ Impossible de sauvegarder le fichier: {file_error}")
             
             return jsonify({
                 "success": True,
                 "message": "Évaluation enregistrée",
-                "average": calculate_average_rating(ratings)
+                "average": 0  # Temporaire, car pas de données persistantes
             })
         
         except Exception as e:
-            print(f"Erreur lors de l'enregistrement: {e}")
+            print(f"❌ Erreur enregistrement évaluation: {e}")
             return jsonify({"error": "Erreur interne"}), 500
-
-    def calculate_average_rating(ratings):
-        """Calcule la note moyenne"""
-        if not ratings:
-            return 0
-        total = sum(r['rating'] for r in ratings)
-        return round(total / len(ratings), 1)    
     
     # ============================================================
     # ROUTES SPÉCIALES (fichiers statiques)
