@@ -2002,7 +2002,8 @@ def home():
         description="Outil PDF en ligne 100% gratuit. Fusionnez plusieurs PDFs en un seul, divisez des PDFs par pages, tournez des pages PDF et compressez des fichiers PDF sans perte de qualité. Aucune inscription requise, traitement sécurisé dans votre navigateur.",
         config=AppConfig,
         current_year=datetime.now().year,
-        datetime=datetime
+        datetime=datetime,
+         rating_html=get_rating_html()  # AJOUTEZ CETTE LIGNE
     )
 
 @pdf_bp.route('/fusion-pdf')
@@ -2014,7 +2015,8 @@ def fusion_pdf():
         description="Fusionnez gratuitement plusieurs fichiers PDF en un seul document organisé. Interface intuitive, rapide et sécurisée. Aucune inscription requise.",
         config=AppConfig,
         current_year=datetime.now().year,
-        datetime=datetime
+        datetime=datetime,
+         rating_html=get_rating_html()  # AJOUTEZ CETTE LIGNE
     )
 
 @pdf_bp.route('/division-pdf')
@@ -2026,7 +2028,8 @@ def division_pdf():
         description="Divisez vos fichiers PDF par pages ou plages spécifiques. Téléchargez les pages séparément ou en archive ZIP. Simple et efficace.",
         config=AppConfig,
         current_year=datetime.now().year,
-        datetime=datetime
+        datetime=datetime,
+         rating_html=get_rating_html()  # AJOUTEZ CETTE LIGNE
     )
 
 @pdf_bp.route('/rotation-pdf')
@@ -2038,7 +2041,8 @@ def rotation_pdf():
         description="Tournez les pages de vos PDFs à 90°, 180° ou 270°. Corrigez l'orientation de documents scannés facilement.",
         config=AppConfig,
         current_year=datetime.now().year,
-        datetime=datetime
+        datetime=datetime,
+         rating_html=get_rating_html()  # AJOUTEZ CETTE LIGNE
     )
 
 @pdf_bp.route('/compression-pdf')
@@ -2050,7 +2054,8 @@ def compression_pdf():
         description="Compressez vos fichiers PDF pour réduire leur taille sans perte de qualité notable. Optimisez l'espace de stockage et le partage.",
         config=AppConfig,
         current_year=datetime.now().year,
-        datetime=datetime
+        datetime=datetime,
+         rating_html=get_rating_html()  # AJOUTEZ CETTE LIGNE
     )
 
 # ============================================================
