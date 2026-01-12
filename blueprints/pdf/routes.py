@@ -1985,6 +1985,10 @@ HTML_TEMPLATE = """
 
         console.log('All functions initialized');
     </script>
+
+        <!-- Rating System -->
+    {{ rating_html|safe }}
+
 </body>
 </html>
 """
