@@ -2301,6 +2301,34 @@ def health_check():
         "user_sessions": stats.get("user_sessions", 0)
     })
 
+@pdf_bp.route('/api/rating', methods=["POST"])
+def api_rating():
+    """API pour enregistrer les évaluations"""
+    try:
+        data = request.get_json(force=True, silent=True)
+        if not data:
+            return jsonify({"error": "Données manquantes"}), 400
+        
+        rating = data.get("rating", 0)
+        feedback = data.get("feedback", "")
+        
+        # Ici, vous pouvez enregistrer l'évaluation dans une base de données
+        # Pour l'instant, on simule juste un enregistrement réussi
+        print(f"Évaluation reçue: {rating} étoiles - Feedback: {feedback}")
+        
+        # Enregistrer dans les statistiques
+        stats_manager.increment("ratings")
+        
+        return jsonify({
+            "success": True,
+            "message": "Évaluation enregistrée",
+            "rating": rating
+        })
+    
+    except Exception as e:
+        print(f"Erreur lors de l'enregistrement de l'évaluation: {e}")
+        return jsonify({"error": "Erreur interne du serveur"}), 500
+
 def get_rating_html():
     """Génère le HTML pour le système d'évaluation"""
     return '''
