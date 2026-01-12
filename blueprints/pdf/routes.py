@@ -22,7 +22,7 @@ HTML_TEMPLATE = """
 <html lang="fr" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>{{ title }}</title>
     
     <!-- SEO Meta Description -->
@@ -167,19 +167,25 @@ HTML_TEMPLATE = """
             box-sizing: border-box;
         }
         
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+        }
+        
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             color: var(--dark-color);
             min-height: 100vh;
             transition: var(--transition);
+            overflow-x: hidden;
         }
         
         [data-bs-theme="dark"] body {
             background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
         }
         
-        /* Header */
+        /* Header - CORRIGÉ POUR MOBILE */
         .main-header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -194,6 +200,7 @@ HTML_TEMPLATE = """
             display: flex;
             align-items: center;
             min-height: 60px;
+            padding: 0 1rem;
         }
         
         [data-bs-theme="dark"] .main-header {
@@ -207,16 +214,13 @@ HTML_TEMPLATE = """
             font-size: 1.3rem;
             color: var(--primary-color);
             text-decoration: none;
-            margin-left: var(--sidebar-width);
-            padding-left: 1rem;
             height: 60px;
             display: flex;
             align-items: center;
+            flex: 1;
         }
         
         .header-actions {
-            margin-left: auto;
-            padding-right: 1rem;
             display: flex;
             align-items: center;
             gap: 1rem;
@@ -227,22 +231,24 @@ HTML_TEMPLATE = """
         .app-container {
             display: flex;
             min-height: calc(100vh - 60px);
+            margin-top: 60px;
         }
         
-        /* Sidebar */
+        /* Sidebar - AMÉLIORÉ POUR MOBILE */
         .sidebar {
             width: var(--sidebar-width);
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-right: 1px solid rgba(0, 0, 0, 0.05);
             position: fixed;
-            top: 0;
+            top: 60px;
             left: 0;
-            height: 100vh;
+            height: calc(100vh - 60px);
             z-index: 100;
-            transition: var(--transition);
-            padding-top: 60px;
+            transition: transform 0.3s ease;
+            padding-top: 1rem;
             box-shadow: var(--shadow);
+            overflow-y: auto;
         }
         
         [data-bs-theme="dark"] .sidebar {
@@ -299,7 +305,7 @@ HTML_TEMPLATE = """
             white-space: nowrap;
         }
         
-        /* Sidebar de publicité gauche - CORRIGÉ */
+        /* Sidebar de publicité gauche - CACHÉ SUR MOBILE */
         .ads-left-sidebar {
             width: 280px;
             background: rgba(255, 255, 255, 0.95);
@@ -323,7 +329,7 @@ HTML_TEMPLATE = """
             border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
         
-        /* Main Content - CORRIGÉ POUR RESPONSIVE */
+        /* Main Content - OPTIMISÉ POUR MOBILE */
         .main-content {
             flex: 1;
             margin-left: calc(var(--sidebar-width) + 280px);
@@ -332,7 +338,8 @@ HTML_TEMPLATE = """
             transition: var(--transition);
         }
         
-        /* Responsive design pour sidebar gauche - CORRIGÉ */
+        /* Responsive design - RECOMPLÈTEMENT REVISÉ */
+        /* Desktop (> 1400px) */
         @media (max-width: 1400px) {
             .ads-left-sidebar {
                 width: 200px;
@@ -344,6 +351,7 @@ HTML_TEMPLATE = """
             }
         }
         
+        /* Large Tablette (1200px - 1400px) */
         @media (max-width: 1200px) {
             .ads-left-sidebar {
                 width: 150px;
@@ -355,6 +363,7 @@ HTML_TEMPLATE = """
             }
         }
         
+        /* Tablette (992px - 1200px) */
         @media (max-width: 992px) {
             .ads-left-sidebar {
                 display: none;
@@ -362,30 +371,174 @@ HTML_TEMPLATE = """
             
             .main-content {
                 margin-left: var(--sidebar-width);
-                max-width: calc(100% - var(--sidebar-width));
+                max-width: calc(100% - var(--sidebar-width) - 250px);
+                padding: 1rem 1.5rem;
+            }
+            
+            .ads-sidebar {
+                width: 250px;
             }
         }
         
+        /* Petit Tablette / Grand Mobile (768px - 992px) */
         @media (max-width: 768px) {
+            .logo {
+                font-size: 1.1rem;
+                margin-left: 0;
+                flex: 1;
+            }
+            
             .sidebar {
+                width: 100%;
+                max-width: 320px;
                 transform: translateX(-100%);
+                z-index: 1001;
             }
             
             .sidebar.open {
                 transform: translateX(0);
             }
             
-            .logo {
-                margin-left: 0;
-            }
-            
             .main-content {
-                margin-left: 0;
-                max-width: 100%;
+                margin-left: 0 !important;
+                max-width: 100% !important;
+                padding: 1rem;
+                margin-top: 0;
             }
             
             .ads-left-sidebar {
                 display: none;
+            }
+            
+            .ads-sidebar {
+                display: none;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 44px;
+                height: 44px;
+                margin-right: 0.5rem;
+            }
+            
+            .header-actions .nav-links {
+                display: none;
+            }
+            
+            .footer-content {
+                margin-left: 0 !important;
+                padding: 0 1rem;
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            
+            .hero-title {
+                font-size: 1.8rem;
+                line-height: 1.3;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+                line-height: 1.5;
+            }
+        }
+        
+        /* Mobile (< 576px) */
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .hero-section {
+                padding: 1rem 0;
+            }
+            
+            .hero-title {
+                font-size: 1.6rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 0.95rem;
+            }
+            
+            .tool-header {
+                padding: 1.5rem 1.5rem 1rem;
+            }
+            
+            .tool-content {
+                padding: 1.5rem;
+            }
+            
+            .upload-zone {
+                padding: 2rem 1rem;
+            }
+            
+            .upload-icon {
+                font-size: 2.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .action-buttons .btn {
+                width: 100%;
+            }
+            
+            .file-item {
+                padding: 0.75rem;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .file-info {
+                width: 100%;
+            }
+            
+            .file-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .form-control, .form-select {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.95rem;
+            }
+            
+            .footer-info {
+                font-size: 0.85rem;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+        }
+        
+        /* Très petit mobile (< 375px) */
+        @media (max-width: 375px) {
+            .logo {
+                font-size: 1rem;
+            }
+            
+            .hero-title {
+                font-size: 1.4rem;
+            }
+            
+            .tool-header h3 {
+                font-size: 1.2rem;
+            }
+            
+            .upload-text h4 {
+                font-size: 1.1rem;
+            }
+            
+            .upload-text p {
+                font-size: 0.9rem;
             }
         }
         
@@ -402,6 +555,8 @@ HTML_TEMPLATE = """
             font-weight: 500;
             transition: var(--transition);
             position: relative;
+            font-size: 0.95rem;
+            white-space: nowrap;
         }
         
         .nav-links a:hover {
@@ -439,6 +594,7 @@ HTML_TEMPLATE = """
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 1rem;
+            line-height: 1.2;
         }
         
         .hero-subtitle {
@@ -458,6 +614,7 @@ HTML_TEMPLATE = """
             opacity: 0;
             transform: translateY(20px);
             transition: opacity 0.5s ease, transform 0.5s ease;
+            margin-bottom: 1.5rem;
         }
         
         [data-bs-theme="dark"] .tool-container {
@@ -484,6 +641,7 @@ HTML_TEMPLATE = """
             font-weight: 600;
             margin: 0;
             color: var(--primary-color);
+            font-size: 1.5rem;
         }
         
         .tool-content {
@@ -527,11 +685,13 @@ HTML_TEMPLATE = """
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: var(--dark-color);
+            font-size: 1.25rem;
         }
         
         .upload-text p {
             color: var(--gray-color);
             margin-bottom: 0;
+            font-size: 0.95rem;
         }
         
         /* File List */
@@ -560,25 +720,38 @@ HTML_TEMPLATE = """
             align-items: center;
             gap: 1rem;
             flex: 1;
+            min-width: 0;
         }
         
         .file-icon {
             color: var(--danger-color);
             font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .file-details {
+            min-width: 0;
+            flex: 1;
         }
         
         .file-details h6 {
             margin: 0;
             font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 1rem;
         }
         
         .file-details small {
             color: var(--gray-color);
+            font-size: 0.85rem;
         }
         
         .file-actions {
             display: flex;
             gap: 0.5rem;
+            flex-shrink: 0;
         }
         
         /* Form Controls */
@@ -590,6 +763,7 @@ HTML_TEMPLATE = """
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: var(--dark-color);
+            font-size: 0.95rem;
         }
         
         .form-control, .form-select {
@@ -597,6 +771,8 @@ HTML_TEMPLATE = """
             border-radius: 8px;
             padding: 0.75rem 1rem;
             transition: var(--transition);
+            font-size: 1rem;
+            width: 100%;
         }
         
         [data-bs-theme="dark"] .form-control,
@@ -619,6 +795,12 @@ HTML_TEMPLATE = """
             transition: var(--transition);
             border: none;
             cursor: pointer;
+            font-size: 1rem;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
         
         .btn-primary {
@@ -681,8 +863,15 @@ HTML_TEMPLATE = """
         
         .preview-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 1rem;
+        }
+        
+        @media (max-width: 576px) {
+            .preview-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 0.75rem;
+            }
         }
         
         .preview-item {
@@ -694,8 +883,14 @@ HTML_TEMPLATE = """
         
         .preview-frame {
             width: 100%;
-            height: 200px;
+            height: 180px;
             border: none;
+        }
+        
+        @media (max-width: 576px) {
+            .preview-frame {
+                height: 150px;
+            }
         }
         
         .preview-label {
@@ -731,20 +926,6 @@ HTML_TEMPLATE = """
             padding: 0 1rem;
         }
         
-        @media (max-width: 1400px) {
-            .footer-content {
-                margin-left: var(--sidebar-width);
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .footer-content {
-                margin-left: 0;
-                flex-direction: column;
-                text-align: center;
-            }
-        }
-        
         .footer-logo {
             font-family: 'Poppins', sans-serif;
             font-weight: 700;
@@ -773,13 +954,14 @@ HTML_TEMPLATE = """
             color: var(--gray-color);
             text-decoration: none;
             transition: var(--transition);
+            font-size: 0.9rem;
         }
         
         .footer-links a:hover {
             color: var(--primary-color);
         }
         
-        /* Ads Sidebar (Right) - MODIFIÉ */
+        /* Ads Sidebar (Right) */
         .ads-sidebar {
             width: 280px;
             background: rgba(255, 255, 255, 0.95);
@@ -799,44 +981,6 @@ HTML_TEMPLATE = """
         [data-bs-theme="dark"] .ads-sidebar {
             background: rgba(26, 29, 32, 0.95);
             border-left: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        /* Ajustements responsive pour sidebar droite */
-        @media (max-width: 1400px) {
-            .ads-sidebar {
-                width: 250px;
-            }
-            
-            .main-content {
-                max-width: calc(100% - var(--sidebar-width) - 200px - 250px);
-            }
-        }
-
-        @media (max-width: 1200px) {
-            .ads-sidebar {
-                width: 200px;
-            }
-            
-            .main-content {
-                max-width: calc(100% - var(--sidebar-width) - 150px - 200px);
-            }
-        }
-
-        @media (max-width: 992px) {
-            .ads-sidebar {
-                display: none;
-            }
-            
-            .main-content {
-                max-width: calc(100% - var(--sidebar-width));
-                margin-right: 0;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .ads-sidebar {
-                display: none;
-            }
         }
         
         .ad-sidebar-item {
@@ -868,6 +1012,7 @@ HTML_TEMPLATE = """
             text-align: center;
             box-shadow: var(--shadow);
             min-width: 300px;
+            max-width: 90%;
         }
         
         .spinner {
@@ -892,6 +1037,17 @@ HTML_TEMPLATE = """
             right: 20px;
             z-index: 1000;
             max-width: 350px;
+            width: calc(100% - 40px);
+        }
+        
+        @media (max-width: 768px) {
+            .toast-container {
+                top: 70px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+                width: auto;
+            }
         }
         
         .toast {
@@ -905,6 +1061,7 @@ HTML_TEMPLATE = """
             gap: 1rem;
             transform: translateX(400px);
             transition: transform 0.3s ease;
+            max-width: 100%;
         }
         
         .toast.show {
@@ -913,6 +1070,7 @@ HTML_TEMPLATE = """
         
         .toast-icon {
             font-size: 1.25rem;
+            flex-shrink: 0;
         }
         
         .toast-success .toast-icon {
@@ -929,16 +1087,19 @@ HTML_TEMPLATE = """
         
         .toast-content {
             flex: 1;
+            min-width: 0;
         }
         
         .toast-title {
             font-weight: 600;
             margin-bottom: 0.25rem;
+            font-size: 1rem;
         }
         
         .toast-message {
             color: var(--gray-color);
             font-size: 0.9rem;
+            word-break: break-word;
         }
         
         .toast-close {
@@ -947,30 +1108,10 @@ HTML_TEMPLATE = """
             color: var(--gray-color);
             cursor: pointer;
             padding: 0;
+            flex-shrink: 0;
         }
         
-        /* Responsive général */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1rem;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-            }
-            
-            .nav-links {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 1rem;
-            }
-        }
-        
-        /* Theme Toggle */
+        /* Theme Toggle - CORRIGÉ */
         .theme-toggle {
             background: none;
             border: none;
@@ -980,11 +1121,20 @@ HTML_TEMPLATE = """
             padding: 0.5rem;
             border-radius: 50%;
             transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
         }
         
         .theme-toggle:hover {
-            background: var(--light-color);
+            background: rgba(0, 0, 0, 0.05);
             color: var(--primary-color);
+        }
+        
+        [data-bs-theme="dark"] .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
         
         /* Mobile Menu Toggle */
@@ -995,13 +1145,20 @@ HTML_TEMPLATE = """
             color: var(--gray-color);
             font-size: 1.5rem;
             cursor: pointer;
-            margin-left: 1rem;
+            width: 44px;
+            height: 44px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: var(--transition);
         }
         
-        @media (max-width: 768px) {
-            .mobile-menu-toggle {
-                display: block;
-            }
+        .mobile-menu-toggle:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        [data-bs-theme="dark"] .mobile-menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
         
         .ad-label {
@@ -1017,6 +1174,7 @@ HTML_TEMPLATE = """
         .stats-widget h6 {
             color: var(--primary-color);
             margin-bottom: 1rem;
+            font-size: 1rem;
         }
         
         .stats-widget .stat-item {
@@ -1037,6 +1195,87 @@ HTML_TEMPLATE = """
         
         .stats-widget .stat-value {
             font-weight: 600;
+        }
+        
+        /* Overlay pour mobile menu */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            backdrop-filter: blur(3px);
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        /* Row columns responsive */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: -0.75rem;
+            margin-left: -0.75rem;
+        }
+        
+        .col-md-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            padding-right: 0.75rem;
+            padding-left: 0.75rem;
+        }
+        
+        @media (min-width: 768px) {
+            .col-md-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+        
+        /* Alert responsive */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        /* Dropdown menu mobile */
+        .dropdown-menu {
+            min-width: 200px;
+        }
+        
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            font-size: 0.95rem;
+        }
+        
+        /* Touch-friendly elements */
+        button, 
+        input[type="file"],
+        .sidebar-item,
+        .file-item {
+            touch-action: manipulation;
+        }
+        
+        button:active,
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        /* iOS specific fixes */
+        @supports (-webkit-touch-callout: none) {
+            .upload-zone {
+                cursor: pointer;
+            }
+            
+            input, textarea, select {
+                font-size: 16px !important;
+            }
         }
     </style>
 </head>
@@ -1060,24 +1299,31 @@ HTML_TEMPLATE = """
                 <a href="/a-propos">À propos</a>
             </div>
             
-            <button class="theme-toggle" id="themeToggle">
+            <button class="theme-toggle" id="themeToggle" aria-label="Changer le thème">
                 <i class="fas fa-moon"></i>
             </button>
             
             <div class="dropdown d-md-none">
-                <button class="btn btn-outline dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-bars"></i>
+                <button class="btn btn-outline dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-ellipsis-v"></i>
                 </button>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="/mentions-legales">Mentions légales</a></li>
                     <li><a class="dropdown-item" href="/politique-confidentialite">Confidentialité</a></li>
                     <li><a class="dropdown-item" href="/conditions-utilisation">Conditions</a></li>
                     <li><a class="dropdown-item" href="/contact">Contact</a></li>
                     <li><a class="dropdown-item" href="/a-propos">À propos</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#" onclick="toggleTheme()">
+                        <i class="fas fa-moon me-2"></i>Mode sombre
+                    </a></li>
                 </ul>
             </div>
         </div>
     </header>
+
+    <!-- Sidebar Overlay pour mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
@@ -1337,7 +1583,7 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
-    <!-- Ads Sidebar (Right) - AMÉLIORÉ -->
+    <!-- Ads Sidebar (Right) -->
     <div class="ads-sidebar">
         <div class="ad-sidebar-item">
             <div class="ad-label">Publicité</div>
@@ -1467,6 +1713,7 @@ HTML_TEMPLATE = """
             themeToggle: document.getElementById('themeToggle'),
             mobileMenuToggle: document.getElementById('mobileMenuToggle'),
             sidebar: document.getElementById('sidebar'),
+            sidebarOverlay: document.getElementById('sidebarOverlay'),
             loaderOverlay: document.getElementById('loaderOverlay'),
             loaderMessage: document.getElementById('loaderMessage'),
             toastContainer: document.getElementById('toastContainer'),
@@ -1487,15 +1734,21 @@ HTML_TEMPLATE = """
             initStats();
             loadStats();
             optimizeAds();
+            initMobileGestures();
         });
 
-        // Theme Management
+        // Theme Management - CORRIGÉ
         function initTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-bs-theme', savedTheme);
             updateThemeIcon(savedTheme);
             
-            elements.themeToggle.addEventListener('click', toggleTheme);
+            // Écouteur d'événement corrigé
+            elements.themeToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleTheme();
+            });
         }
 
         function toggleTheme() {
@@ -1505,15 +1758,22 @@ HTML_TEMPLATE = """
             document.documentElement.setAttribute('data-bs-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateThemeIcon(newTheme);
+            
+            // Forcer le recalcul des styles
+            document.body.offsetHeight;
         }
 
         function updateThemeIcon(theme) {
-            elements.themeToggle.innerHTML = theme === 'light' 
-                ? '<i class="fas fa-moon"></i>' 
-                : '<i class="fas fa-sun"></i>';
+            const icon = elements.themeToggle.querySelector('i');
+            if (icon) {
+                icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            }
         }
 
-        // Sidebar Management
+        // Rendre toggleTheme accessible globalement
+        window.toggleTheme = toggleTheme;
+
+        // Sidebar Management amélioré
         function initSidebar() {
             elements.sidebarItems.forEach(item => {
                 item.addEventListener('click', (e) => {
@@ -1522,25 +1782,47 @@ HTML_TEMPLATE = """
                     switchTool(tool);
                     
                     // Close mobile menu if open
-                    if (window.innerWidth <= 768) {
-                        elements.sidebar.classList.remove('open');
-                    }
+                    closeMobileMenu();
                 });
             });
 
             // Mobile menu toggle
-            elements.mobileMenuToggle.addEventListener('click', () => {
-                elements.sidebar.classList.toggle('open');
+            elements.mobileMenuToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleMobileMenu();
             });
+
+            // Sidebar overlay pour fermer le menu
+            elements.sidebarOverlay.addEventListener('click', closeMobileMenu);
 
             // Close sidebar when clicking outside on mobile
             document.addEventListener('click', (e) => {
                 if (window.innerWidth <= 768 && 
                     !elements.sidebar.contains(e.target) && 
                     !elements.mobileMenuToggle.contains(e.target)) {
-                    elements.sidebar.classList.remove('open');
+                    closeMobileMenu();
                 }
             });
+
+            // Close on escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeMobileMenu();
+                }
+            });
+        }
+
+        function toggleMobileMenu() {
+            elements.sidebar.classList.toggle('open');
+            elements.sidebarOverlay.classList.toggle('active');
+            document.body.style.overflow = elements.sidebar.classList.contains('open') ? 'hidden' : '';
+        }
+
+        function closeMobileMenu() {
+            elements.sidebar.classList.remove('open');
+            elements.sidebarOverlay.classList.remove('active');
+            document.body.style.overflow = '';
         }
 
         function switchTool(tool) {
@@ -1555,6 +1837,11 @@ HTML_TEMPLATE = """
             });
 
             state.activeTool = tool;
+            
+            // Scroll to top on mobile
+            if (window.innerWidth <= 768) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
 
         // File Upload Management
@@ -1674,7 +1961,7 @@ HTML_TEMPLATE = """
                         </div>
                     </div>
                     <div class="file-actions">
-                        <button class="btn btn-sm btn-outline" onclick="removeFile('${tool}', ${index})">
+                        <button class="btn btn-sm btn-outline" onclick="removeFile('${tool}', ${index})" aria-label="Supprimer">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -1702,7 +1989,7 @@ HTML_TEMPLATE = """
                         </div>
                     </div>
                     <div class="file-actions">
-                        <button class="btn btn-sm btn-outline" onclick="clearFile('${tool}')">
+                        <button class="btn btn-sm btn-outline" onclick="clearFile('${tool}')" aria-label="Supprimer">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -1792,7 +2079,7 @@ HTML_TEMPLATE = """
             }
         }
 
-        // Stats Management - AMÉLIORÉ
+        // Stats Management
         function initStats() {
             // Load initial stats
             loadStats();
@@ -1820,7 +2107,7 @@ HTML_TEMPLATE = """
                     elements.stats.rotateCount.textContent = data.rotations || '0';
                 }
                 
-                // AJOUTEZ CE COMPTEUR IMPORTANT :
+                // Compteur de compressions
                 if (elements.stats.compressCount) {
                     elements.stats.compressCount.textContent = data.compressions || '0';
                 }
@@ -1876,13 +2163,17 @@ HTML_TEMPLATE = """
             grid.innerHTML = previews.map((preview, index) => `
                 <div class="preview-item">
                     <iframe class="preview-frame" 
-                            src="data:application/pdf;base64,${preview}">
+                            src="data:application/pdf;base64,${preview}"
+                            title="Aperçu page ${index + 1}">
                     </iframe>
                     <div class="preview-label">Page ${index + 1} / ${totalPages}</div>
                 </div>
             `).join('');
 
             container.style.display = 'block';
+            
+            // Scroll to preview
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function hideSplitPreview() {
@@ -2115,6 +2406,7 @@ HTML_TEMPLATE = """
             const link = document.createElement('a');
             link.href = `data:${mimeType};base64,${base64}`;
             link.download = filename;
+            link.style.display = 'none';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -2138,10 +2430,14 @@ HTML_TEMPLATE = """
         function showLoader(message = 'Traitement en cours...') {
             elements.loaderMessage.textContent = message;
             elements.loaderOverlay.style.display = 'flex';
+            // Empêcher le défilement
+            document.body.style.overflow = 'hidden';
         }
 
         function hideLoader() {
             elements.loaderOverlay.style.display = 'none';
+            // Restaurer le défilement
+            document.body.style.overflow = '';
         }
 
         function showToast(type, title, message) {
@@ -2163,7 +2459,7 @@ HTML_TEMPLATE = """
                     <div class="toast-title">${escapeHtml(title)}</div>
                     <div class="toast-message">${escapeHtml(message)}</div>
                 </div>
-                <button class="toast-close" onclick="this.parentElement.remove()">
+                <button class="toast-close" onclick="this.parentElement.remove()" aria-label="Fermer">
                     <i class="fas fa-times"></i>
                 </button>
             `;
@@ -2205,6 +2501,36 @@ HTML_TEMPLATE = """
             }
         }
 
+        // Mobile gestures support
+        function initMobileGestures() {
+            let startX = 0;
+            let startY = 0;
+            
+            document.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            document.addEventListener('touchend', (e) => {
+                if (window.innerWidth > 768) return;
+                
+                const endX = e.changedTouches[0].clientX;
+                const endY = e.changedTouches[0].clientY;
+                const diffX = startX - endX;
+                const diffY = startY - endY;
+                
+                // Swipe right to open menu from left edge
+                if (startX < 50 && diffX < -100 && Math.abs(diffY) < 50) {
+                    toggleMobileMenu();
+                }
+                
+                // Swipe left to close menu
+                if (elements.sidebar.classList.contains('open') && diffX > 100 && Math.abs(diffY) < 50) {
+                    closeMobileMenu();
+                }
+            }, { passive: true });
+        }
+
         // Global functions for onclick handlers
         window.processMerge = processMerge;
         window.processSplit = processSplit;
@@ -2216,7 +2542,8 @@ HTML_TEMPLATE = """
         window.generatePreview = generatePreview;
         window.removeFile = removeFile;
         window.clearFile = clearFile;
-        window.loadStats = loadStats; // Rendre accessible globalement
+        window.loadStats = loadStats;
+        window.toggleTheme = toggleTheme;
 
     </script>
 {{ rating_html|safe }}
@@ -2540,25 +2867,25 @@ def get_rating_html():
     """Génère le HTML pour le système d'évaluation"""
     return '''
     <!-- Système d'évaluation simplifié -->
-    <div id="ratingPopup" style="display:none;position:fixed;bottom:20px;right:20px;background:white;border-radius:12px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.15);z-index:9999;width:300px;">
+    <div id="ratingPopup" style="display:none;position:fixed;bottom:20px;right:20px;background:white;border-radius:12px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.15);z-index:9999;width:300px;max-width:90%;">
         <div style="position:relative">
-            <button onclick="document.getElementById('ratingPopup').style.display='none'" style="position:absolute;top:5px;right:5px;background:none;border:none;font-size:20px;cursor:pointer">&times;</button>
-            <h5 style="margin-bottom:10px">Évaluez votre expérience</h5>
+            <button onclick="document.getElementById('ratingPopup').style.display='none'" style="position:absolute;top:5px;right:5px;background:none;border:none;font-size:20px;cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;" aria-label="Fermer">&times;</button>
+            <h5 style="margin-bottom:10px;font-size:1.1rem;">Évaluez votre expérience</h5>
             <div style="font-size:24px;margin-bottom:15px">
-                <span style="cursor:pointer" onmouseover="highlightStars(1)" onclick="rate(1)">☆</span>
-                <span style="cursor:pointer" onmouseover="highlightStars(2)" onclick="rate(2)">☆</span>
-                <span style="cursor:pointer" onmouseover="highlightStars(3)" onclick="rate(3)">☆</span>
-                <span style="cursor:pointer" onmouseover="highlightStars(4)" onclick="rate(4)">☆</span>
-                <span style="cursor:pointer" onmouseover="highlightStars(5)" onclick="rate(5)">☆</span>
+                <span style="cursor:pointer" onmouseover="highlightStars(1)" onclick="rate(1)" aria-label="1 étoile">☆</span>
+                <span style="cursor:pointer" onmouseover="highlightStars(2)" onclick="rate(2)" aria-label="2 étoiles">☆</span>
+                <span style="cursor:pointer" onmouseover="highlightStars(3)" onclick="rate(3)" aria-label="3 étoiles">☆</span>
+                <span style="cursor:pointer" onmouseover="highlightStars(4)" onclick="rate(4)" aria-label="4 étoiles">☆</span>
+                <span style="cursor:pointer" onmouseover="highlightStars(5)" onclick="rate(5)" aria-label="5 étoiles">☆</span>
             </div>
             <div id="feedbackSection" style="display:none">
-                <textarea id="feedback" placeholder="Commentaires (optionnel)" style="width:100%;margin-bottom:10px;padding:8px" rows="2"></textarea>
-                <button onclick="submitRating()" style="background:#4361ee;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer">Envoyer</button>
+                <textarea id="feedback" placeholder="Commentaires (optionnel)" style="width:100%;margin-bottom:10px;padding:8px;border-radius:6px;border:1px solid #ddd;font-size:14px;min-height:60px;" rows="2"></textarea>
+                <button onclick="submitRating()" style="background:#4361ee;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;width:100%;font-size:14px;">Envoyer</button>
             </div>
         </div>
     </div>
     
-    <div id="ratingTrigger" style="position:fixed;bottom:20px;right:20px;background:#4361ee;color:white;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998" onclick="showRating()">★</div>
+    <div id="ratingTrigger" style="position:fixed;bottom:20px;right:20px;background:#4361ee;color:white;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(67,97,238,0.3);" onclick="showRating()" aria-label="Évaluer l'application">★</div>
     
     <script>
     let selectedRating = 0;
