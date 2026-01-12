@@ -299,7 +299,7 @@ HTML_TEMPLATE = """
             white-space: nowrap;
         }
         
-        /* Sidebar de publicité gauche */
+        /* Sidebar de publicité gauche - CORRIGÉ */
         .ads-left-sidebar {
             width: 280px;
             background: rgba(255, 255, 255, 0.95);
@@ -323,67 +323,69 @@ HTML_TEMPLATE = """
             border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
         
-        /* Main Content */
+        /* Main Content - CORRIGÉ POUR RESPONSIVE */
         .main-content {
             flex: 1;
             margin-left: calc(var(--sidebar-width) + 280px);
             padding: 1rem;
             max-width: calc(100% - var(--sidebar-width) - 280px - 300px);
+            transition: var(--transition);
         }
         
+        /* Responsive design pour sidebar gauche - CORRIGÉ */
         @media (max-width: 1400px) {
+            .ads-left-sidebar {
+                width: 200px;
+            }
+            
+            .main-content {
+                margin-left: calc(var(--sidebar-width) + 200px);
+                max-width: calc(100% - var(--sidebar-width) - 200px - 300px);
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .ads-left-sidebar {
+                width: 150px;
+            }
+            
+            .main-content {
+                margin-left: calc(var(--sidebar-width) + 150px);
+                max-width: calc(100% - var(--sidebar-width) - 150px - 200px);
+            }
+        }
+        
+        @media (max-width: 992px) {
             .ads-left-sidebar {
                 display: none;
             }
             
             .main-content {
                 margin-left: var(--sidebar-width);
-                max-width: calc(100% - var(--sidebar-width) - 300px);
-            }
-        }
-        
-        @media (max-width: 1200px) {
-            .main-content {
                 max-width: calc(100% - var(--sidebar-width));
-                margin-right: 0;
-            }
-            
-            .ads-sidebar {
-                display: none;
             }
         }
         
         @media (max-width: 768px) {
             .sidebar {
-                width: var(--sidebar-collapsed);
-                padding-top: 60px;
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
             }
             
             .logo {
-                margin-left: var(--sidebar-collapsed);
-                font-size: 1.2rem;
+                margin-left: 0;
             }
             
             .main-content {
-                margin-left: var(--sidebar-collapsed);
-                max-width: calc(100% - var(--sidebar-collapsed));
+                margin-left: 0;
+                max-width: 100%;
             }
             
             .ads-left-sidebar {
                 display: none;
-            }
-            
-            .sidebar-item {
-                justify-content: center;
-                padding: 1rem 0.5rem;
-            }
-            
-            .sidebar-item .label {
-                display: none;
-            }
-            
-            .sidebar-item .icon {
-                margin: 0;
             }
         }
         
@@ -737,7 +739,9 @@ HTML_TEMPLATE = """
         
         @media (max-width: 768px) {
             .footer-content {
-                margin-left: var(--sidebar-collapsed);
+                margin-left: 0;
+                flex-direction: column;
+                text-align: center;
             }
         }
         
@@ -775,9 +779,9 @@ HTML_TEMPLATE = """
             color: var(--primary-color);
         }
         
-        /* Ads Sidebar (Right) */
+        /* Ads Sidebar (Right) - MODIFIÉ */
         .ads-sidebar {
-            width: 300px;
+            width: 280px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-left: 1px solid rgba(0, 0, 0, 0.05);
@@ -789,11 +793,50 @@ HTML_TEMPLATE = """
             overflow-y: auto;
             box-shadow: var(--shadow);
             z-index: 99;
+            transition: var(--transition);
         }
-        
+
         [data-bs-theme="dark"] .ads-sidebar {
             background: rgba(26, 29, 32, 0.95);
             border-left: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Ajustements responsive pour sidebar droite */
+        @media (max-width: 1400px) {
+            .ads-sidebar {
+                width: 250px;
+            }
+            
+            .main-content {
+                max-width: calc(100% - var(--sidebar-width) - 200px - 250px);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .ads-sidebar {
+                width: 200px;
+            }
+            
+            .main-content {
+                max-width: calc(100% - var(--sidebar-width) - 150px - 200px);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .ads-sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                max-width: calc(100% - var(--sidebar-width));
+                margin-right: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .ads-sidebar {
+                display: none;
+            }
         }
         
         .ad-sidebar-item {
@@ -906,7 +949,7 @@ HTML_TEMPLATE = """
             padding: 0;
         }
         
-        /* Responsive */
+        /* Responsive général */
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 2rem;
@@ -918,11 +961,6 @@ HTML_TEMPLATE = """
             
             .action-buttons {
                 flex-direction: column;
-            }
-            
-            .footer-content {
-                flex-direction: column;
-                text-align: center;
             }
             
             .nav-links {
@@ -964,31 +1002,41 @@ HTML_TEMPLATE = """
             .mobile-menu-toggle {
                 display: block;
             }
-            
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-                max-width: 100%;
-            }
-            
-            .logo {
-                margin-left: 0;
-            }
-            
-            .footer-content {
-                margin-left: 0;
-            }
-            
-            .ads-sidebar {
-                display: none;
-            }
+        }
+        
+        .ad-label {
+            font-size: 0.75rem;
+            color: var(--gray-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        /* Widget de statistiques amélioré */
+        .stats-widget h6 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .stats-widget .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        [data-bs-theme="dark"] .stats-widget .stat-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .stats-widget .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stats-widget .stat-value {
+            font-weight: 600;
         }
     </style>
 </head>
@@ -1058,7 +1106,7 @@ HTML_TEMPLATE = """
 
     <!-- Sidebar de publicité gauche -->
     <div class="ads-left-sidebar" id="adsLeftSidebar">
-        <!-- Publicité gauche sous les outils -->
+        <!-- Publicité gauche -->
         <div class="ad-sidebar-item">
             <div class="ad-label">Publicité</div>
             <ins class="adsbygoogle"
@@ -1289,7 +1337,7 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
-    <!-- Ads Sidebar (Right) -->
+    <!-- Ads Sidebar (Right) - AMÉLIORÉ -->
     <div class="ads-sidebar">
         <div class="ad-sidebar-item">
             <div class="ad-label">Publicité</div>
@@ -1317,26 +1365,35 @@ HTML_TEMPLATE = """
             </script>
         </div>
         
-        <!-- Stats Widget -->
-        <div class="ad-sidebar-item">
-            <h6 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Statistiques</h6>
+        <!-- Stats Widget amélioré avec compteur de compressions -->
+        <div class="ad-sidebar-item stats-widget">
+            <h6 class="mb-3"><i class="fas fa-chart-line me-2"></i>Statistiques en direct</h6>
             <div class="small">
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Opérations totales:</span>
-                    <span id="totalOps">0</span>
+                <div class="stat-item">
+                    <span><i class="fas fa-file-pdf me-1"></i>Opérations totales:</span>
+                    <span id="totalOps" class="stat-value text-primary">0</span>
                 </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Fusions:</span>
-                    <span id="mergeCount">0</span>
+                <div class="stat-item">
+                    <span><i class="fas fa-object-group me-1"></i>Fusions:</span>
+                    <span id="mergeCount" class="stat-value">0</span>
                 </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Divisions:</span>
-                    <span id="splitCount">0</span>
+                <div class="stat-item">
+                    <span><i class="fas fa-cut me-1"></i>Divisions:</span>
+                    <span id="splitCount" class="stat-value text-success">0</span>
                 </div>
-                <div class="d-flex justify-content-between">
-                    <span>Rotations:</span>
-                    <span id="rotateCount">0</span>
+                <div class="stat-item">
+                    <span><i class="fas fa-sync-alt me-1"></i>Rotations:</span>
+                    <span id="rotateCount" class="stat-value text-warning">0</span>
                 </div>
+                <div class="stat-item">
+                    <span><i class="fas fa-compress-alt me-1"></i>Compressions:</span>
+                    <span id="compressCount" class="stat-value text-info">0</span>
+                </div>
+            </div>
+            <div class="mt-3 pt-2 border-top">
+                <button class="btn btn-sm btn-outline-primary w-100" onclick="loadStats()">
+                    <i class="fas fa-redo me-1"></i>Actualiser
+                </button>
             </div>
         </div>
     </div>
@@ -1417,7 +1474,8 @@ HTML_TEMPLATE = """
                 totalOps: document.getElementById('totalOps'),
                 mergeCount: document.getElementById('mergeCount'),
                 splitCount: document.getElementById('splitCount'),
-                rotateCount: document.getElementById('rotateCount')
+                rotateCount: document.getElementById('rotateCount'),
+                compressCount: document.getElementById('compressCount')
             }
         };
 
@@ -1734,7 +1792,7 @@ HTML_TEMPLATE = """
             }
         }
 
-        // Stats Management
+        // Stats Management - AMÉLIORÉ
         function initStats() {
             // Load initial stats
             loadStats();
@@ -1761,6 +1819,12 @@ HTML_TEMPLATE = """
                 if (elements.stats.rotateCount) {
                     elements.stats.rotateCount.textContent = data.rotations || '0';
                 }
+                
+                // AJOUTEZ CE COMPTEUR IMPORTANT :
+                if (elements.stats.compressCount) {
+                    elements.stats.compressCount.textContent = data.compressions || '0';
+                }
+                
             } catch (error) {
                 console.error('Failed to load stats:', error);
             }
@@ -1773,7 +1837,7 @@ HTML_TEMPLATE = """
                 return;
             }
 
-            showLoader('Génération de l\\'aperçu...');
+            showLoader('Génération de l\'aperçu...');
 
             try {
                 const base64 = await fileToBase64(state.files.split);
@@ -1790,10 +1854,10 @@ HTML_TEMPLATE = """
                 if (result.success) {
                     displayPreview(result.previews, result.total_pages);
                 } else {
-                    showToast('error', 'Erreur', result.error || 'Erreur lors de la génération de l\\'aperçu');
+                    showToast('error', 'Erreur', result.error || 'Erreur lors de la génération de l\'aperçu');
                 }
             } catch (error) {
-                showToast('error', 'Erreur', 'Impossible de générer l\\'aperçu');
+                showToast('error', 'Erreur', 'Impossible de générer l\'aperçu');
                 console.error('Preview error:', error);
             } finally {
                 hideLoader();
@@ -1918,7 +1982,7 @@ HTML_TEMPLATE = """
                 return;
             }
 
-            showLoader('Création de l\\'archive ZIP...');
+            showLoader('Création de l\'archive ZIP...');
 
             try {
                 const base64 = await fileToBase64(state.files.split);
@@ -1945,7 +2009,7 @@ HTML_TEMPLATE = """
                     showToast('error', 'Erreur', result.error || 'Erreur lors de la création du ZIP');
                 }
             } catch (error) {
-                showToast('error', 'Erreur', 'Impossible de créer l\\'archive ZIP');
+                showToast('error', 'Erreur', 'Impossible de créer l\'archive ZIP');
                 console.error('Split ZIP error:', error);
             } finally {
                 hideLoader();
@@ -1961,7 +2025,7 @@ HTML_TEMPLATE = """
             const pages = document.getElementById('rotatePages').value.trim() || 'all';
             const angle = document.getElementById('rotateAngle').value;
 
-            if (pages !== 'all' && !/^[\\d,\\-\\s]+$/.test(pages)) {
+            if (pages !== 'all' && !/^[\d,\-\s]+$/.test(pages)) {
                 showToast('error', 'Format invalide', 'Format des pages invalide. Utilisez: all, 1,3-5, ou 1,4,8');
                 return;
             }
@@ -2122,24 +2186,23 @@ HTML_TEMPLATE = """
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', initAds);
             } else {
-                initAds();
+                // Délai pour améliorer les performances
+                setTimeout(initAds, 1000);
             }
         }
 
         function initAds() {
-            // Charger les pubs avec un léger délai pour améliorer les performances
-            setTimeout(() => {
+            try {
                 const ads = document.querySelectorAll('.adsbygoogle');
                 ads.forEach(ad => {
-                    try {
-                        if (!ad.getAttribute('data-adsbygoogle-status')) {
-                            (adsbygoogle = window.adsbygoogle || []).push({});
-                        }
-                    } catch (e) {
-                        console.log('Erreur de chargement pub:', e);
+                    // Vérifier si l'annonce n'est pas déjà chargée
+                    if (!ad.getAttribute('data-adsbygoogle-status')) {
+                        (adsbygoogle = window.adsbygoogle || []).push({});
                     }
                 });
-            }, 1000);
+            } catch (e) {
+                console.log('Erreur de chargement pub:', e);
+            }
         }
 
         // Global functions for onclick handlers
@@ -2153,231 +2216,10 @@ HTML_TEMPLATE = """
         window.generatePreview = generatePreview;
         window.removeFile = removeFile;
         window.clearFile = clearFile;
+        window.loadStats = loadStats; // Rendre accessible globalement
 
     </script>
-
-<!-- Évaluation d'expérience -->
-<div id="ratingPopup" class="rating-popup" style="display: none;">
-    <div class="rating-content">
-        <button id="closeRating" class="rating-close">&times;</button>
-        <h4><i class="fas fa-star me-2"></i>Évaluez votre expérience</h4>
-        <p class="text-muted mb-3">Comment avez-vous trouvé PDF Fusion Pro ?</p>
-        
-        <div class="stars mb-3">
-            <i class="fas fa-star star" data-value="1"></i>
-            <i class="fas fa-star star" data-value="2"></i>
-            <i class="fas fa-star star" data-value="3"></i>
-            <i class="fas fa-star star" data-value="4"></i>
-            <i class="fas fa-star star" data-value="5"></i>
-        </div>
-        
-        <div class="rating-feedback" style="display: none;">
-            <textarea id="feedbackText" class="form-control mb-2" 
-                      placeholder="Vos suggestions (optionnel)" rows="2"></textarea>
-            <button id="submitRating" class="btn btn-primary btn-sm">Envoyer</button>
-        </div>
-        
-        <div class="text-muted small mt-2">
-            <i class="fas fa-lock me-1"></i> Vos retours sont anonymes
-        </div>
-    </div>
-</div>
-
-<style>
-.rating-popup {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-    z-index: 9999;
-    width: 320px;
-    max-width: 90%;
-    border: 1px solid #e9ecef;
-}
-
-[data-bs-theme="dark"] .rating-popup {
-    background: #1a1d20;
-    border-color: #444;
-}
-
-.rating-content {
-    padding: 1.5rem;
-    position: relative;
-}
-
-.rating-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #6c757d;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.rating-close:hover {
-    color: #dc3545;
-}
-
-.stars {
-    font-size: 2rem;
-    color: #dee2e6;
-    cursor: pointer;
-}
-
-.star {
-    margin-right: 5px;
-    transition: all 0.2s ease;
-}
-
-.star:hover,
-.star.active {
-    color: #ffc107;
-    transform: scale(1.2);
-}
-
-.rating-trigger {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: var(--primary-color);
-    color: white;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
-    z-index: 9998;
-    transition: all 0.3s ease;
-}
-
-.rating-trigger:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
-}
-</style>
-
-<script>
-// Gestion de l'évaluation
-document.addEventListener('DOMContentLoaded', function() {
-    const ratingPopup = document.getElementById('ratingPopup');
-    const ratingTrigger = document.createElement('div');
-    const stars = document.querySelectorAll('.star');
-    const feedbackDiv = document.querySelector('.rating-feedback');
-    const feedbackText = document.getElementById('feedbackText');
-    const submitBtn = document.getElementById('submitRating');
-    const closeBtn = document.getElementById('closeRating');
-    
-    // Créer le bouton déclencheur
-    ratingTrigger.className = 'rating-trigger';
-    ratingTrigger.innerHTML = '<i class="fas fa-star"></i>';
-    document.body.appendChild(ratingTrigger);
-    
-    let selectedRating = 0;
-    let hasRated = localStorage.getItem('hasRated');
-    
-    // Afficher le popup après 30 secondes (si pas déjà évalué)
-    if (!hasRated) {
-        setTimeout(() => {
-            showRatingPopup();
-        }, 30000);
-    }
-    
-    // Ouvrir popup au clic sur le bouton
-    ratingTrigger.addEventListener('click', showRatingPopup);
-    
-    // Fermer popup
-    closeBtn.addEventListener('click', hideRatingPopup);
-    
-    // Gestion des étoiles
-    stars.forEach(star => {
-        star.addEventListener('click', function() {
-            const value = parseInt(this.dataset.value);
-            selectedRating = value;
-            
-            // Mettre à jour l'affichage des étoiles
-            stars.forEach((s, index) => {
-                if (index < value) {
-                    s.classList.add('active');
-                    s.style.color = '#ffc107';
-                } else {
-                    s.classList.remove('active');
-                    s.style.color = '#dee2e6';
-                }
-            });
-            
-            // Afficher le champ de feedback
-            feedbackDiv.style.display = 'block';
-            submitBtn.disabled = false;
-        });
-        
-        star.addEventListener('mouseover', function() {
-            const value = parseInt(this.dataset.value);
-            stars.forEach((s, index) => {
-                s.style.color = index < value ? '#ffd700' : '#dee2e6';
-            });
-        });
-        
-        star.addEventListener('mouseout', function() {
-            stars.forEach((s, index) => {
-                s.style.color = index < selectedRating ? '#ffc107' : '#dee2e6';
-            });
-        });
-    });
-    
-    // Soumission
-    submitBtn.addEventListener('click', function() {
-        const feedback = feedbackText.value.trim();
-        
-        // Envoyer au serveur
-        fetch('/api/rating', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                rating: selectedRating,
-                feedback: feedback,
-                page: window.location.pathname,
-                user_agent: navigator.userAgent
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showToast('success', 'Merci !', 'Votre évaluation a été enregistrée.');
-                localStorage.setItem('hasRated', 'true');
-                hideRatingPopup();
-                ratingTrigger.style.display = 'none';
-            } else {
-                showToast('error', 'Erreur', data.error || 'Erreur lors de l\\'enregistrement');
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            showToast('error', 'Erreur', "Impossible d'enregistrer votre évaluation.");
-        });
-    });
-    
-    function showRatingPopup() {
-        ratingPopup.style.display = 'block';
-        ratingTrigger.style.display = 'none';
-    }
-    
-    function hideRatingPopup() {
-        ratingPopup.style.display = 'none';
-        ratingTrigger.style.display = 'flex';
-    }
-});
-</script>
-
+{{ rating_html|safe }}
 </body>
 </html>
 """
@@ -2395,8 +2237,8 @@ def home():
         description="Outil PDF en ligne 100% gratuit. Fusionnez plusieurs PDFs en un seul, divisez des PDFs par pages, tournez des pages PDF et compressez des fichiers PDF sans perte de qualité. Aucune inscription requise, traitement sécurisé dans votre navigateur.",
         config=AppConfig,
         current_year=datetime.now().year,
-        datetime=datetime,  # AJOUTEZ CETTE LIGNE
-        rating_html=get_rating_html()  # AJOUTEZ CETTE LIGNE
+        datetime=datetime,
+        rating_html=get_rating_html()
     )
 
 @pdf_bp.route('/fusion-pdf')
@@ -2408,8 +2250,8 @@ def fusion_pdf():
         description="Fusionnez gratuitement plusieurs fichiers PDF en un seul document organisé. Interface intuitive, rapide et sécurisée. Aucune inscription requise.",
         config=AppConfig,
         current_year=datetime.now().year,
-        datetime=datetime,  # AJOUTEZ CETTE LIGNE
-        rating_html=get_rating_html()  # AJOUTEZ CETTE LIGNE
+        datetime=datetime,
+        rating_html=get_rating_html()
     )
 
 @pdf_bp.route('/division-pdf')
@@ -2421,8 +2263,8 @@ def division_pdf():
         description="Divisez vos fichiers PDF par pages ou plages spécifiques. Téléchargez les pages séparément ou en archive ZIP. Simple et efficace.",
         config=AppConfig,
         current_year=datetime.now().year,
-        datetime=datetime,  # AJOUTEZ CETTE LIGNE
-        rating_html=get_rating_html()  # AJOUTEZ CETTE LIGNE
+        datetime=datetime,
+        rating_html=get_rating_html()
     )
 
 @pdf_bp.route('/rotation-pdf')
@@ -2434,8 +2276,8 @@ def rotation_pdf():
         description="Tournez les pages de vos PDFs à 90°, 180° ou 270°. Corrigez l'orientation de documents scannés facilement.",
         config=AppConfig,
         current_year=datetime.now().year,
-        datetime=datetime,  # AJOUTEZ CETTE LIGNE
-        rating_html=get_rating_html()  # AJOUTEZ CETTE LIGNE
+        datetime=datetime,
+        rating_html=get_rating_html()
     )
 
 @pdf_bp.route('/compression-pdf')
@@ -2447,8 +2289,8 @@ def compression_pdf():
         description="Compressez vos fichiers PDF pour réduire leur taille sans perte de qualité notable. Optimisez l'espace de stockage et le partage.",
         config=AppConfig,
         current_year=datetime.now().year,
-        datetime=datetime,  # AJOUTEZ CETTE LIGNE
-        rating_html=get_rating_html()  # AJOUTEZ CETTE LIGNE
+        datetime=datetime,
+        rating_html=get_rating_html()
     )
 
 # ============================================================
@@ -2690,15 +2532,17 @@ def health_check():
         "splits": stats.get("splits", 0),
         "rotations": stats.get("rotations", 0),
         "compressions": stats.get("compressions", 0),
+        "previews": stats.get("previews", 0),
         "user_sessions": stats.get("user_sessions", 0)
     })
+
 def get_rating_html():
-    """Version simplifiée qui fonctionne à coup sûr"""
+    """Génère le HTML pour le système d'évaluation"""
     return '''
     <!-- Système d'évaluation simplifié -->
     <div id="ratingPopup" style="display:none;position:fixed;bottom:20px;right:20px;background:white;border-radius:12px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.15);z-index:9999;width:300px;">
         <div style="position:relative">
-            <button onclick="document.getElementById(\\'ratingPopup\\').style.display=\\'none\\'" style="position:absolute;top:5px;right:5px;background:none;border:none;font-size:20px;cursor:pointer">&times;</button>
+            <button onclick="document.getElementById('ratingPopup').style.display='none'" style="position:absolute;top:5px;right:5px;background:none;border:none;font-size:20px;cursor:pointer">&times;</button>
             <h5 style="margin-bottom:10px">Évaluez votre expérience</h5>
             <div style="font-size:24px;margin-bottom:15px">
                 <span style="cursor:pointer" onmouseover="highlightStars(1)" onclick="rate(1)">☆</span>
@@ -2748,7 +2592,7 @@ def get_rating_html():
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                document.getElementById("ratingPopup").innerHTML = "<div style=\\"text-align:center;padding:20px\\"><div style=\\"color:green;font-size:40px\\">✓</div><h5>Merci !</h5><p>Votre évaluation a été enregistrée.</p></div>";
+                document.getElementById("ratingPopup").innerHTML = '<div style="text-align:center;padding:20px"><div style="color:green;font-size:40px">✓</div><h5>Merci !</h5><p>Votre évaluation a été enregistrée.</p></div>';
                 localStorage.setItem("hasRated", "true");
                 setTimeout(() => {
                     document.getElementById("ratingTrigger").style.display = "none";
