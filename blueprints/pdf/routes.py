@@ -2339,7 +2339,7 @@ def get_rating_html():
     <!-- Système d'évaluation simplifié -->
     <div id="ratingPopup" style="display:none;position:fixed;bottom:20px;right:20px;background:white;border-radius:12px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.15);z-index:9999;width:300px;max-width:90%;">
         <div style="position:relative">
-            <button onclick="document.getElementById('ratingPopup').style.display='none'" style="position:absolute;top:5px;right:5px;background:none;border:none;font-size:20px;cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;" aria-label="Fermer">&times;</button>
+            <button onclick="closeRatingPopup()" style="position:absolute;top:5px;right:5px;background:none;border:none;font-size:20px;cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;" aria-label="Fermer">&times;</button>
             <h5 style="margin-bottom:10px;font-size:1.1rem;">Évaluez votre expérience</h5>
             <div style="font-size:24px;margin-bottom:15px">
                 <span style="cursor:pointer" onmouseover="highlightStars(1)" onclick="rate(1)" aria-label="1 étoile">☆</span>
@@ -2355,7 +2355,7 @@ def get_rating_html():
         </div>
     </div>
     
-    <div id="ratingTrigger" style="position:fixed;bottom:20px;right:20px;background:#4361ee;color:white;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(67,97,238,0.3);" onclick="showRating()" aria-label="Évaluer l'application">★</div>
+    <div id="ratingTrigger" style="position:fixed;bottom:20px;right:20px;background:#4361ee;color:white;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(67,97,238,0.3);" onclick="showRating()" aria-label="Évaluer l\\'application">★</div>
     
     <script>
     let selectedRating = 0;
@@ -2363,6 +2363,11 @@ def get_rating_html():
     function showRating() {
         document.getElementById("ratingPopup").style.display = "block";
         document.getElementById("ratingTrigger").style.display = "none";
+    }
+    
+    function closeRatingPopup() {
+        document.getElementById("ratingPopup").style.display = "none";
+        document.getElementById("ratingTrigger").style.display = "flex";
     }
     
     function highlightStars(num) {
@@ -2404,5 +2409,12 @@ def get_rating_html():
             showRating();
         }
     }, 30000);
+    
+    // Rendre les fonctions globales
+    window.showRating = showRating;
+    window.closeRatingPopup = closeRatingPopup;
+    window.highlightStars = highlightStars;
+    window.rate = rate;
+    window.submitRating = submitRating;
     </script>
     '''
