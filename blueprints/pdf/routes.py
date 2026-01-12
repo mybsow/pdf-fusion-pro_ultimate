@@ -14,7 +14,7 @@ from .engine import PDFEngine
 from utils.stats_manager import stats_manager
 
 # ============================================================
-# TEMPLATE HTML COMPLET - VERSION FONCTIONNELLE
+# TEMPLATE HTML COMPLET - VERSION CORRIGÉE
 # ============================================================
 
 HTML_TEMPLATE = """
@@ -1608,7 +1608,7 @@ HTML_TEMPLATE = """
                 return;
             }
 
-            showLoader('Génération de l\'aperçu...');
+            showLoader('Génération de l\\'aperçu...'); // CORRIGÉ: apostrophe échappée
 
             try {
                 const base64 = await fileToBase64(state.files.split);
@@ -1625,10 +1625,10 @@ HTML_TEMPLATE = """
                 if (result.success) {
                     displayPreview(result.previews, result.total_pages);
                 } else {
-                    showToast('error', 'Erreur', result.error || 'Erreur lors de la génération de l\'aperçu');
+                    showToast('error', 'Erreur', result.error || 'Erreur lors de la génération de l\\'aperçu'); // CORRIGÉ
                 }
             } catch (error) {
-                showToast('error', 'Erreur', 'Impossible de générer l\'aperçu');
+                showToast('error', 'Erreur', 'Impossible de générer l\\'aperçu'); // CORRIGÉ
                 console.error('Preview error:', error);
             } finally {
                 hideLoader();
@@ -1687,7 +1687,7 @@ HTML_TEMPLATE = """
 
                 if (result.success) {
                     downloadFile(result.data, result.filename, 'application/pdf');
-                    showToast('success', 'Succès', `${result.pages} pages fusionnées avec succès`);
+                    showToast('success', 'Succès', result.pages + ' pages fusionnées avec succès');
                     loadStats();
                 } else {
                     showToast('error', 'Erreur', result.error || 'Erreur lors de la fusion');
@@ -1732,7 +1732,7 @@ HTML_TEMPLATE = """
                         result.files.forEach(file => {
                             downloadFile(file.data, file.filename, 'application/pdf');
                         });
-                        showToast('success', 'Succès', `${result.count} fichiers générés avec succès`);
+                        showToast('success', 'Succès', result.count + ' fichiers générés avec succès');
                         loadStats();
                     }
                 } else {
@@ -1752,7 +1752,7 @@ HTML_TEMPLATE = """
                 return;
             }
 
-            showLoader('Création de l\'archive ZIP...');
+            showLoader('Création de l\\'archive ZIP...'); // CORRIGÉ
 
             try {
                 const base64 = await fileToBase64(state.files.split);
@@ -1773,13 +1773,13 @@ HTML_TEMPLATE = """
 
                 if (result.success) {
                     downloadFile(result.data, result.filename, 'application/zip');
-                    showToast('success', 'Succès', `Archive ZIP avec ${result.count} fichiers créée`);
+                    showToast('success', 'Succès', 'Archive ZIP avec ' + result.count + ' fichiers créée');
                     loadStats();
                 } else {
                     showToast('error', 'Erreur', result.error || 'Erreur lors de la création du ZIP');
                 }
             } catch (error) {
-                showToast('error', 'Erreur', 'Impossible de créer l\'archive ZIP');
+                showToast('error', 'Erreur', 'Impossible de créer l\\'archive ZIP'); // CORRIGÉ
                 console.error('Split ZIP error:', error);
             } finally {
                 hideLoader();
@@ -1795,7 +1795,7 @@ HTML_TEMPLATE = """
             const pages = document.getElementById('rotatePages').value.trim() || 'all';
             const angle = document.getElementById('rotateAngle').value;
 
-            if (pages !== 'all' && !/^[\d,\-\s]+$/.test(pages)) {
+            if (pages !== 'all' && !/^[\\d,\\-\\s]+$/.test(pages)) {
                 showToast('error', 'Format invalide', 'Format des pages invalide. Utilisez: all, 1,3-5, ou 1,4,8');
                 return;
             }
@@ -1819,7 +1819,7 @@ HTML_TEMPLATE = """
 
                 if (result.success) {
                     downloadFile(result.data, result.filename, 'application/pdf');
-                    showToast('success', 'Succès', `${result.rotated} pages tournées sur ${result.pages} totales`);
+                    showToast('success', 'Succès', result.rotated + ' pages tournées sur ' + result.pages + ' totales');
                     loadStats();
                 } else {
                     showToast('error', 'Erreur', result.error || 'Erreur lors de la rotation');
@@ -1855,7 +1855,7 @@ HTML_TEMPLATE = """
 
                 if (result.success) {
                     downloadFile(result.data, result.filename, 'application/pdf');
-                    showToast('success', 'Succès', `Fichier compressé avec ${result.pages} pages`);
+                    showToast('success', 'Succès', 'Fichier compressé avec ' + result.pages + ' pages');
                     loadStats();
                 } else {
                     showToast('error', 'Erreur', result.error || 'Erreur lors de la compression');
@@ -1969,7 +1969,7 @@ HTML_TEMPLATE = """
             }, 1000);
         }
 
-        // Make functions available globally
+        // Make ALL functions available globally - CORRIGÉ
         window.removeFile = removeFile;
         window.clearFile = clearFile;
         window.clearMergeFiles = clearMergeFiles;
@@ -1990,7 +1990,7 @@ HTML_TEMPLATE = """
 """
 
 # ============================================================
-# ROUTES
+# ROUTES (inchangées)
 # ============================================================
 
 @pdf_bp.route('/')
@@ -2054,7 +2054,7 @@ def compression_pdf():
     )
 
 # ============================================================
-# API ENDPOINTS (inchangés - ils fonctionnaient déjà)
+# API ENDPOINTS (inchangés)
 # ============================================================
 
 @pdf_bp.route('/api/merge', methods=["POST"])
