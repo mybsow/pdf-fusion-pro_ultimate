@@ -2336,26 +2336,54 @@ def api_rating():
 def get_rating_html():
     """Génère le HTML pour le système d'évaluation"""
     return '''
-    <!-- Système d'évaluation simplifié -->
+    <!-- Système d'évaluation avec message d'invitation -->
     <div id="ratingPopup" style="display:none;position:fixed;bottom:20px;right:20px;background:white;border-radius:12px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.15);z-index:9999;width:300px;max-width:90%;">
         <div style="position:relative">
             <button onclick="closeRatingPopup()" style="position:absolute;top:5px;right:5px;background:none;border:none;font-size:20px;cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;" aria-label="Fermer">&times;</button>
-            <h5 style="margin-bottom:10px;font-size:1.1rem;">Évaluez votre expérience</h5>
-            <div style="font-size:24px;margin-bottom:15px">
+            
+            <!-- Message d'invitation -->
+            <div id="ratingInvitation" style="text-align:center;">
+                <div style="font-size:32px;margin-bottom:10px;">★</div>
+                <h5 style="margin-bottom:8px;font-size:1.1rem;">Votre avis compte !</h5>
+                <p style="font-size:0.9rem;color:#666;margin-bottom:15px;line-height:1.4;">
+                    Comment évaluez-vous votre expérience avec notre outil PDF ?
+                </p>
+            </div>
+            
+            <!-- Étoiles -->
+            <div style="font-size:24px;margin-bottom:15px;text-align:center;" id="starsContainer">
                 <span style="cursor:pointer" onmouseover="highlightStars(1)" onclick="rate(1)" aria-label="1 étoile">☆</span>
                 <span style="cursor:pointer" onmouseover="highlightStars(2)" onclick="rate(2)" aria-label="2 étoiles">☆</span>
                 <span style="cursor:pointer" onmouseover="highlightStars(3)" onclick="rate(3)" aria-label="3 étoiles">☆</span>
                 <span style="cursor:pointer" onmouseover="highlightStars(4)" onclick="rate(4)" aria-label="4 étoiles">☆</span>
                 <span style="cursor:pointer" onmouseover="highlightStars(5)" onclick="rate(5)" aria-label="5 étoiles">☆</span>
             </div>
+            
+            <!-- Section feedback (cachée au début) -->
             <div id="feedbackSection" style="display:none">
-                <textarea id="feedback" placeholder="Commentaires (optionnel)" style="width:100%;margin-bottom:10px;padding:8px;border-radius:6px;border:1px solid #ddd;font-size:14px;min-height:60px;" rows="2"></textarea>
-                <button onclick="submitRating()" style="background:#4361ee;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;width:100%;font-size:14px;">Envoyer</button>
+                <p style="font-size:0.9rem;color:#666;margin-bottom:10px;">
+                    Merci ! Avez-vous des suggestions d'amélioration ?
+                </p>
+                <textarea id="feedback" placeholder="Vos commentaires (optionnel)" style="width:100%;margin-bottom:10px;padding:8px;border-radius:6px;border:1px solid #ddd;font-size:14px;min-height:60px;" rows="2"></textarea>
+                <button onclick="submitRating()" style="background:#4361ee;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;width:100%;font-size:14px;">Envoyer mon évaluation</button>
+            </div>
+            
+            <!-- Bouton pour refuser poliment -->
+            <div id="skipSection" style="text-align:center;margin-top:10px;">
+                <button onclick="skipRating()" style="background:none;border:none;color:#888;font-size:0.85rem;cursor:pointer;text-decoration:underline;">
+                    Peut-être plus tard
+                </button>
             </div>
         </div>
     </div>
     
-    <div id="ratingTrigger" style="position:fixed;bottom:20px;right:20px;background:#4361ee;color:white;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(67,97,238,0.3);" onclick="showRating()" aria-label="Évaluer l\\'application">★</div>
+    <!-- Bouton déclencheur -->
+    <div id="ratingTrigger" style="position:fixed;bottom:20px;right:20px;background:#4361ee;color:white;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(67,97,238,0.3);" onclick="showRating()" aria-label="Évaluer l\\'application" title="Donnez votre avis">
+        ★
+        <div style="position:absolute;top:-5px;right:-5px;background:#ff4757;color:white;font-size:0.7rem;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+            !
+        </div>
+    </div>
     
     <script>
     let selectedRating = 0;
@@ -2363,6 +2391,30 @@ def get_rating_html():
     function showRating() {
         document.getElementById("ratingPopup").style.display = "block";
         document.getElementById("ratingTrigger").style.display = "none";
+        // Réinitialiser l'affichage
+        resetRatingPopup();
+    }
+    
+    function resetRatingPopup() {
+        // Réinitialiser les étoiles
+        const stars = document.querySelectorAll("#starsContainer span");
+        stars.forEach(star => {
+            star.textContent = "☆";
+            star.style.color = "#ccc";
+        });
+        
+        // Afficher le message d'invitation
+        document.getElementById("ratingInvitation").style.display = "block";
+        
+        // Cacher le feedback
+        document.getElementById("feedbackSection").style.display = "none";
+        
+        // Afficher le bouton "plus tard"
+        document.getElementById("skipSection").style.display = "block";
+        
+        // Réinitialiser le texte
+        document.getElementById("feedback").value = "";
+        selectedRating = 0;
     }
     
     function closeRatingPopup() {
@@ -2371,7 +2423,7 @@ def get_rating_html():
     }
     
     function highlightStars(num) {
-        const stars = document.querySelectorAll("#ratingPopup span");
+        const stars = document.querySelectorAll("#starsContainer span");
         stars.forEach((star, index) => {
             star.textContent = index < num ? "★" : "☆";
             star.style.color = index < num ? "#ffc107" : "#ccc";
@@ -2381,11 +2433,33 @@ def get_rating_html():
     function rate(num) {
         selectedRating = num;
         highlightStars(num);
+        
+        // Cacher le message d'invitation
+        document.getElementById("ratingInvitation").style.display = "none";
+        
+        // Afficher le feedback
         document.getElementById("feedbackSection").style.display = "block";
+        
+        // Masquer le bouton "plus tard"
+        document.getElementById("skipSection").style.display = "none";
+        
+        // Focus sur le textarea
+        setTimeout(() => {
+            document.getElementById("feedback").focus();
+        }, 100);
+    }
+    
+    function skipRating() {
+        closeRatingPopup();
+        // Ne pas redemander pendant 7 jours
+        const date = new Date();
+        date.setDate(date.getDate() + 7);
+        localStorage.setItem("ratingSkippedUntil", date.toISOString());
     }
     
     function submitRating() {
         const feedback = document.getElementById("feedback").value;
+        
         fetch("/api/rating", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
@@ -2394,18 +2468,54 @@ def get_rating_html():
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                document.getElementById("ratingPopup").innerHTML = '<div style="text-align:center;padding:20px"><div style="color:green;font-size:40px">✓</div><h5>Merci !</h5><p>Votre évaluation a été enregistrée.</p></div>';
+                // Afficher le message de remerciement
+                document.getElementById("ratingPopup").innerHTML = '''
+                    <div style="text-align:center;padding:20px">
+                        <div style="color:#4CAF50;font-size:40px;margin-bottom:15px;">✓</div>
+                        <h5 style="margin-bottom:10px;">Merci pour votre retour !</h5>
+                        <p style="color:#666;font-size:0.9rem;">
+                            Votre évaluation nous aide à améliorer notre service.
+                        </p>
+                    </div>
+                ''';
+                
+                // Marquer comme évalué
                 localStorage.setItem("hasRated", "true");
+                
+                // Fermer après 3 secondes
                 setTimeout(() => {
-                    document.getElementById("ratingTrigger").style.display = "none";
+                    closeRatingPopup();
                 }, 3000);
             }
+        })
+        .catch(error => {
+            console.error("Erreur:", error);
+            alert("Une erreur est survenue. Veuillez réessayer.");
         });
     }
     
-    // Afficher après 30s
+    // Vérifier si on peut afficher le rating
+    function shouldShowRating() {
+        // Ne pas montrer si déjà évalué
+        if (localStorage.getItem("hasRated")) {
+            return false;
+        }
+        
+        // Vérifier si l'utilisateur a récemment refusé
+        const skippedUntil = localStorage.getItem("ratingSkippedUntil");
+        if (skippedUntil) {
+            const skipDate = new Date(skippedUntil);
+            if (new Date() < skipDate) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    // Afficher après 30 secondes si conditions remplies
     setTimeout(() => {
-        if (!localStorage.getItem("hasRated")) {
+        if (shouldShowRating()) {
             showRating();
         }
     }, 30000);
@@ -2416,5 +2526,6 @@ def get_rating_html():
     window.highlightStars = highlightStars;
     window.rate = rate;
     window.submitRating = submitRating;
+    window.skipRating = skipRating;
     </script>
     '''
