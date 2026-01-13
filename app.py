@@ -497,131 +497,6 @@ def create_app():
                 return redirect(f'/admin/ratings?password={admin_password}&deleted=true')
         
         return html
-    
-    @app.route('/api/rating', methods=['POST'])
-    def submit_rating():
-        """API pour enregistrer les évaluations"""
-        try:
-            data = request.get_json()
-            
-            # Validation
-            if not data or 'rating' not in data:
-                return jsonify({"error": "Données manquantes"}), 400
-            
-            rating = int(data.get('rating', 0))
-            if rating < 1 or rating > 5:
-                return jsonify({"error": "Évaluation invalide"}), 400
-            
-            feedback = data.get('feedback', '')
-            
-            # Données à sauvegarder
-            rating_data = {
-                'rating': rating,
-                'feedback': feedback,
-                'page': data.get('page', request.referrer or '/'),
-                'user_agent': request.user_agent.string,
-                'ip_address': request.remote_addr,
-                'browser': request.user_agent.browser,
-                'platform': request.user_agent.platform
-            }
-            
-            # Sauvegarder via RatingsManager
-            saved = ratings_manager.save_rating(rating_data)
-            
-            if saved:
-                stats = ratings_manager.get_stats()
-                return jsonify({
-                    "success": True,
-                    "message": "Évaluation enregistrée",
-                    "stats": {
-                        "total": stats['total'],
-                        "average": stats['average']
-                    }
-                })
-            else:
-                return jsonify({"error": "Erreur d'enregistrement"}), 500
-            
-        except Exception as e:
-            print(f"❌ Erreur enregistrement évaluation: {e}")
-            return jsonify({"error": "Erreur interne"}), 500
-    
-    @app.route('/google6f0d847067bbd18a.html')
-    def google_verification():
-        """Page de vérification Google Search Console"""
-        verification_content = "google-site-verification: google6f0d847067bbd18a.html"
-        return Response(verification_content, mimetype='text/html')
-    
-    @app.route('/ads.txt')
-    def ads_txt():
-        """Fichier ads.txt pour AdSense"""
-        ads_content = "google.com, pub-8967416460526921, DIRECT, f08c47fec0942fa0"
-        return Response(ads_content, mimetype='text/plain')
-    
-    @app.route('/robots.txt')
-    def robots():
-        """Fichier robots.txt"""
-        content = "User-agent: *\n"
-        content += "Allow: /\n"
-        content += f"Sitemap: https://{AppConfig.DOMAIN}/sitemap.xml\n"
-        content += "\n"
-        content += f"# {AppConfig.NAME} - Développé par {AppConfig.DEVELOPER_NAME}\n"
-        
-        return Response(content, mimetype="text/plain")
-    
-    @app.route('/sitemap.xml')
-    def sitemap():
-        """Génère un sitemap XML amélioré"""
-        base_url = "https://pdf-fusion-pro-ultimate.onrender.com"
-        
-        # Pages principales AVEC PRIORITÉ ADAPTÉE
-        pages = [
-            # (chemin, dernière_modification, fréquence, priorité)
-            ("/", datetime.now().strftime('%Y-%m-%d'), "daily", 1.0),  # Page d'accueil
-            ("/fusion-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
-            ("/division-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
-            ("/rotation-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
-            ("/compression-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
-            ("/contact", datetime.now().strftime('%Y-%m-%d'), "weekly", 0.7),  # Contact important
-            ("/a-propos", datetime.now().strftime('%Y-%m-%d'), "monthly", 0.6),  # À propos
-            ("/mentions-legales", "2024-01-15", "monthly", 0.3),
-            ("/politique-confidentialite", "2024-01-15", "monthly", 0.3),
-            ("/conditions-utilisation", "2024-01-15", "monthly", 0.3),
-        ]
-        
-        # AJOUTER LES ROUTES API (optionnel mais recommandé pour le SEO technique)
-        api_pages = [
-            ("/health", datetime.now().strftime('%Y-%m-%d'), "daily", 0.1),  # Endpoint santé
-        ]
-        
-        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
-        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
-        xml += '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
-        xml += '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9\n'
-        xml += '        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">\n'
-        
-        # Ajouter toutes les pages principales
-        for path, lastmod, changefreq, priority in pages:
-            xml += '  <url>\n'
-            xml += f'    <loc>{base_url}{path}</loc>\n'
-            xml += f'    <lastmod>{lastmod}</lastmod>\n'
-            xml += f'    <changefreq>{changefreq}</changefreq>\n'
-            xml += f'    <priority>{priority:.1f}</priority>\n'
-            xml += '  </url>\n'
-        
-        # Ajouter les pages API (priorité plus basse)
-        for path, lastmod, changefreq, priority in api_pages:
-            xml += '  <url>\n'
-            xml += f'    <loc>{base_url}{path}</loc>\n'
-            xml += f'    <lastmod>{lastmod}</lastmod>\n'
-            xml += f'    <changefreq>{changefreq}</changefreq>\n'
-            xml += f'    <priority>{priority:.1f}</priority>\n'
-            xml += '  </url>\n'
-        
-        xml += '</urlset>'
-        
-        return Response(xml, mimetype="application/xml", headers={
-            'Cache-Control': 'public, max-age=86400'
-        })
 
 # ============================================================
 # ROUTES ADMIN
@@ -780,6 +655,136 @@ def admin():
     </body>
     </html>
     '''
+    @app.route('/')
+    def index():
+        """Route racine - redirige vers le blueprint"""
+        # Supprimez cette ligne si vous avez une route / dans pdf_bp
+        #return redirect('/')
+    
+    @app.route('/api/rating', methods=['POST'])
+    def submit_rating():
+        """API pour enregistrer les évaluations"""
+        try:
+            data = request.get_json()
+            
+            # Validation
+            if not data or 'rating' not in data:
+                return jsonify({"error": "Données manquantes"}), 400
+            
+            rating = int(data.get('rating', 0))
+            if rating < 1 or rating > 5:
+                return jsonify({"error": "Évaluation invalide"}), 400
+            
+            feedback = data.get('feedback', '')
+            
+            # Données à sauvegarder
+            rating_data = {
+                'rating': rating,
+                'feedback': feedback,
+                'page': data.get('page', request.referrer or '/'),
+                'user_agent': request.user_agent.string,
+                'ip_address': request.remote_addr,
+                'browser': request.user_agent.browser,
+                'platform': request.user_agent.platform
+            }
+            
+            # Sauvegarder via RatingsManager
+            saved = ratings_manager.save_rating(rating_data)
+            
+            if saved:
+                stats = ratings_manager.get_stats()
+                return jsonify({
+                    "success": True,
+                    "message": "Évaluation enregistrée",
+                    "stats": {
+                        "total": stats['total'],
+                        "average": stats['average']
+                    }
+                })
+            else:
+                return jsonify({"error": "Erreur d'enregistrement"}), 500
+            
+        except Exception as e:
+            print(f"❌ Erreur enregistrement évaluation: {e}")
+            return jsonify({"error": "Erreur interne"}), 500
+    
+    @app.route('/google6f0d847067bbd18a.html')
+    def google_verification():
+        """Page de vérification Google Search Console"""
+        verification_content = "google-site-verification: google6f0d847067bbd18a.html"
+        return Response(verification_content, mimetype='text/html')
+    
+    @app.route('/ads.txt')
+    def ads_txt():
+        """Fichier ads.txt pour AdSense"""
+        ads_content = "google.com, pub-8967416460526921, DIRECT, f08c47fec0942fa0"
+        return Response(ads_content, mimetype='text/plain')
+    
+    @app.route('/robots.txt')
+    def robots():
+        """Fichier robots.txt"""
+        content = "User-agent: *\n"
+        content += "Allow: /\n"
+        content += f"Sitemap: https://{AppConfig.DOMAIN}/sitemap.xml\n"
+        content += "\n"
+        content += f"# {AppConfig.NAME} - Développé par {AppConfig.DEVELOPER_NAME}\n"
+        
+        return Response(content, mimetype="text/plain")
+    
+    @app.route('/sitemap.xml')
+    def sitemap():
+        """Génère un sitemap XML amélioré"""
+        base_url = "https://pdf-fusion-pro-ultimate.onrender.com"
+        
+        # Pages principales AVEC PRIORITÉ ADAPTÉE
+        pages = [
+            # (chemin, dernière_modification, fréquence, priorité)
+            ("/", datetime.now().strftime('%Y-%m-%d'), "daily", 1.0),  # Page d'accueil
+            ("/fusion-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
+            ("/division-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
+            ("/rotation-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
+            ("/compression-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
+            ("/contact", datetime.now().strftime('%Y-%m-%d'), "weekly", 0.7),  # Contact important
+            ("/a-propos", datetime.now().strftime('%Y-%m-%d'), "monthly", 0.6),  # À propos
+            ("/mentions-legales", "2024-01-15", "monthly", 0.3),
+            ("/politique-confidentialite", "2024-01-15", "monthly", 0.3),
+            ("/conditions-utilisation", "2024-01-15", "monthly", 0.3),
+        ]
+        
+        # AJOUTER LES ROUTES API (optionnel mais recommandé pour le SEO technique)
+        api_pages = [
+            ("/health", datetime.now().strftime('%Y-%m-%d'), "daily", 0.1),  # Endpoint santé
+        ]
+        
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
+        xml += '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
+        xml += '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9\n'
+        xml += '        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">\n'
+        
+        # Ajouter toutes les pages principales
+        for path, lastmod, changefreq, priority in pages:
+            xml += '  <url>\n'
+            xml += f'    <loc>{base_url}{path}</loc>\n'
+            xml += f'    <lastmod>{lastmod}</lastmod>\n'
+            xml += f'    <changefreq>{changefreq}</changefreq>\n'
+            xml += f'    <priority>{priority:.1f}</priority>\n'
+            xml += '  </url>\n'
+        
+        # Ajouter les pages API (priorité plus basse)
+        for path, lastmod, changefreq, priority in api_pages:
+            xml += '  <url>\n'
+            xml += f'    <loc>{base_url}{path}</loc>\n'
+            xml += f'    <lastmod>{lastmod}</lastmod>\n'
+            xml += f'    <changefreq>{changefreq}</changefreq>\n'
+            xml += f'    <priority>{priority:.1f}</priority>\n'
+            xml += '  </url>\n'
+        
+        xml += '</urlset>'
+        
+        return Response(xml, mimetype="application/xml", headers={
+            'Cache-Control': 'public, max-age=86400'
+        })
     
     # ============================================================
     # GESTION DES ERREURS
