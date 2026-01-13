@@ -2469,15 +2469,7 @@ def get_rating_html():
         .then(data => {
             if (data.success) {
                 // Afficher le message de remerciement
-                document.getElementById("ratingPopup").innerHTML = '''
-                    <div style="text-align:center;padding:20px">
-                        <div style="color:#4CAF50;font-size:40px;margin-bottom:15px;">✓</div>
-                        <h5 style="margin-bottom:10px;">Merci pour votre retour !</h5>
-                        <p style="color:#666;font-size:0.9rem;">
-                            Votre évaluation nous aide à améliorer notre service.
-                        </p>
-                    </div>
-                ''';
+                document.getElementById("ratingPopup").innerHTML = '<div style="text-align:center;padding:20px"><div style="color:#4CAF50;font-size:40px;margin-bottom:15px;">✓</div><h5 style="margin-bottom:10px;">Merci pour votre retour !</h5><p style="color:#666;font-size:0.9rem;">Votre évaluation nous aide à améliorer notre service.</p></div>';
                 
                 // Marquer comme évalué
                 localStorage.setItem("hasRated", "true");
