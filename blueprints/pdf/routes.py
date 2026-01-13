@@ -5,9 +5,10 @@ Routes principales pour les outils PDF
 import io
 import base64
 import zipfile
+import os
 import json
 from datetime import datetime
-from flask import render_template_string, jsonify, request, Response
+from flask import render_template_string, jsonify, request, Response,session, redirect
 from . import pdf_bp
 from config import AppConfig
 from .engine import PDFEngine

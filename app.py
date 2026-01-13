@@ -498,11 +498,6 @@ def create_app():
         
         return html
     
-    @app.route('/')
-    def index():
-        """Route racine"""
-        return render_template('index.html')
-    
     @app.route('/api/rating', methods=['POST'])
     def submit_rating():
         """API pour enregistrer les évaluations"""
@@ -627,6 +622,164 @@ def create_app():
         return Response(xml, mimetype="application/xml", headers={
             'Cache-Control': 'public, max-age=86400'
         })
+
+# ============================================================
+# ROUTES ADMIN
+# ============================================================
+
+# AJOUTEZ CE CODE APRÈS LA ROUTE /sitemap.xml ET AVANT LES GESTIONNAIRES D'ERREURS
+
+@app.route('/admin')
+def admin():
+    """Route admin principale"""
+    # Vérifier le mot de passe
+    admin_password = os.environ.get('ADMIN_PASSWORD', 'admin123')
+    
+    if request.args.get('password') != admin_password:
+        return '''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Admin - Connexion</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                }
+                .login-box {
+                    background: white;
+                    padding: 40px;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                    width: 300px;
+                }
+                input {
+                    width: 100%;
+                    padding: 10px;
+                    margin: 10px 0;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                }
+                button {
+                    width: 100%;
+                    padding: 10px;
+                    background: #4361ee;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+                button:hover {
+                    background: #3a56d4;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="login-box">
+                <h2 style="text-align:center;color:#333;">Connexion Admin</h2>
+                <form method="GET">
+                    <input type="password" name="password" placeholder="Mot de passe admin" required>
+                    <button type="submit">Se connecter</button>
+                </form>
+                <p style="font-size:12px;color:#888;text-align:center;margin-top:20px;">
+                    Accès réservé aux administrateurs
+                </p>
+            </div>
+        </body>
+        </html>
+        ''', 401
+    
+    # Si le mot de passe est correct, afficher le panel admin
+    return '''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Admin Panel</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                background: #f5f5f5;
+            }
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            }
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                margin: 30px 0;
+            }
+            .stat-card {
+                background: linear-gradient(135deg, #4361ee 0%, #3a56d4 100%);
+                color: white;
+                padding: 20px;
+                border-radius: 8px;
+            }
+            .stat-value {
+                font-size: 2.5em;
+                font-weight: bold;
+            }
+            .menu {
+                display: flex;
+                gap: 10px;
+                margin-top: 30px;
+            }
+            .btn {
+                padding: 10px 20px;
+                background: #4361ee;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+            .btn:hover {
+                background: #3a56d4;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>📊 Panel d'Administration</h1>
+            <p>Bienvenue dans l'interface d'administration de PDF Fusion Pro.</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Fusions PDF</h3>
+                    <div class="stat-value">''' + str(stats_manager.get('pdf_merge', 0)) + '''</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Divisions PDF</h3>
+                    <div class="stat-value">''' + str(stats_manager.get('pdf_split', 0)) + '''</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Rotations PDF</h3>
+                    <div class="stat-value">''' + str(stats_manager.get('pdf_rotate', 0)) + '''</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Compressions PDF</h3>
+                    <div class="stat-value">''' + str(stats_manager.get('pdf_compress', 0)) + '''</div>
+                </div>
+            </div>
+            
+            <div class="menu">
+                <a href="/admin/messages?password=''' + admin_password + '''" class="btn">📨 Messages</a>
+                <a href="/admin/ratings?password=''' + admin_password + '''" class="btn">⭐ Évaluations</a>
+                <a href="/" class="btn">🏠 Accueil</a>
+                <a href="/admin?logout=1" class="btn" style="background:#e74c3c;">🚪 Déconnexion</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    '''
     
     # ============================================================
     # GESTION DES ERREURS
