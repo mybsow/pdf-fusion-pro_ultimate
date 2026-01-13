@@ -498,12 +498,7 @@ def create_app():
         
         return html
 
-# ============================================================
-# ROUTES ADMIN
-# ============================================================
-
-# AJOUTEZ CE CODE APRÈS LA ROUTE /sitemap.xml ET AVANT LES GESTIONNAIRES D'ERREURS
-
+    # AJOUTEZ LA ROUTE /admin ICI (à l'intérieur de la fonction create_app)
     @app.route('/admin')
     def admin():
         """Route admin principale"""
@@ -569,56 +564,64 @@ def create_app():
             ''', 401
         
         # Si le mot de passe est correct, afficher le panel admin
-        return '''
+        return f'''
         <!DOCTYPE html>
         <html>
         <head>
             <title>Admin Panel</title>
             <style>
-                body {
+                body {{
                     font-family: Arial, sans-serif;
                     padding: 20px;
                     background: #f5f5f5;
-                }
-                .container {
+                }}
+                .container {{
                     max-width: 1200px;
                     margin: 0 auto;
                     background: white;
                     padding: 30px;
                     border-radius: 10px;
                     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-                }
-                .stats-grid {
+                }}
+                .stats-grid {{
                     display: grid;
                     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
                     gap: 20px;
                     margin: 30px 0;
-                }
-                .stat-card {
+                }}
+                .stat-card {{
                     background: linear-gradient(135deg, #4361ee 0%, #3a56d4 100%);
                     color: white;
                     padding: 20px;
                     border-radius: 8px;
-                }
-                .stat-value {
+                }}
+                .stat-value {{
                     font-size: 2.5em;
                     font-weight: bold;
-                }
-                .menu {
+                }}
+                .menu {{
                     display: flex;
                     gap: 10px;
                     margin-top: 30px;
-                }
-                .btn {
+                    flex-wrap: wrap;
+                }}
+                .btn {{
                     padding: 10px 20px;
                     background: #4361ee;
                     color: white;
                     text-decoration: none;
                     border-radius: 5px;
-                }
-                .btn:hover {
+                    display: inline-block;
+                }}
+                .btn:hover {{
                     background: #3a56d4;
-                }
+                }}
+                .btn-danger {{
+                    background: #e74c3c;
+                }}
+                .btn-success {{
+                    background: #2ecc71;
+                }}
             </style>
         </head>
         <body>
@@ -629,37 +632,88 @@ def create_app():
                 <div class="stats-grid">
                     <div class="stat-card">
                         <h3>Fusions PDF</h3>
-                        <div class="stat-value">''' + str(stats_manager.get('pdf_merge', 0)) + '''</div>
+                        <div class="stat-value">{stats_manager.get('pdf_merge', 0)}</div>
+                        <small>Total des fusions</small>
                     </div>
                     <div class="stat-card">
                         <h3>Divisions PDF</h3>
-                        <div class="stat-value">''' + str(stats_manager.get('pdf_split', 0)) + '''</div>
+                        <div class="stat-value">{stats_manager.get('pdf_split', 0)}</div>
+                        <small>Total des divisions</small>
                     </div>
                     <div class="stat-card">
                         <h3>Rotations PDF</h3>
-                        <div class="stat-value">''' + str(stats_manager.get('pdf_rotate', 0)) + '''</div>
+                        <div class="stat-value">{stats_manager.get('pdf_rotate', 0)}</div>
+                        <small>Total des rotations</small>
                     </div>
                     <div class="stat-card">
                         <h3>Compressions PDF</h3>
-                        <div class="stat-value">''' + str(stats_manager.get('pdf_compress', 0)) + '''</div>
+                        <div class="stat-value">{stats_manager.get('pdf_compress', 0)}</div>
+                        <small>Total des compressions</small>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Évaluations</h3>
+                        <div class="stat-value">{stats_manager.get('ratings', 0)}</div>
+                        <small>Total des évaluations</small>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Sessions</h3>
+                        <div class="stat-value">{stats_manager.get('total_sessions', 0)}</div>
+                        <small>Total des sessions</small>
                     </div>
                 </div>
                 
                 <div class="menu">
-                    <a href="/admin/messages?password=''' + admin_password + '''" class="btn">📨 Messages</a>
-                    <a href="/admin/ratings?password=''' + admin_password + '''" class="btn">⭐ Évaluations</a>
-                    <a href="/" class="btn">🏠 Accueil</a>
-                    <a href="/admin?logout=1" class="btn" style="background:#e74c3c;">🚪 Déconnexion</a>
+                    <a href="/admin/messages?password={admin_password}" class="btn">
+                        📨 Messages
+                    </a>
+                    <a href="/admin/ratings?password={admin_password}" class="btn btn-success">
+                        ⭐ Évaluations
+                    </a>
+                    <a href="/admin/debug" class="btn">
+                        🐛 Debug
+                    </a>
+                    <a href="/" class="btn">
+                        🏠 Accueil
+                    </a>
+                    <a href="/admin?logout=1" class="btn btn-danger">
+                        🚪 Déconnexion
+                    </a>
+                </div>
+                
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <h3>Actions rapides</h3>
+                    <div class="menu" style="margin-top: 15px;">
+                        <a href="/admin/ratings?password={admin_password}&export=json" class="btn">
+                            📥 Exporter évaluations
+                        </a>
+                        <a href="/health" class="btn">
+                            ❤️ Vérifier santé
+                        </a>
+                        <a href="/sitemap.xml" class="btn">
+                            🗺️ Sitemap
+                        </a>
+                        <a href="/robots.txt" class="btn">
+                            🤖 Robots.txt
+                        </a>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                    <h4>Information système</h4>
+                    <p><strong>URL :</strong> https://pdf-fusion-pro-ultimate.onrender.com</p>
+                    <p><strong>Date :</strong> {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}</p>
+                    <p><strong>Version :</strong> {AppConfig.VERSION}</p>
                 </div>
             </div>
         </body>
         </html>
         '''
+    
     @app.route('/')
     def index():
         """Route racine - redirige vers le blueprint"""
         # Supprimez cette ligne si vous avez une route / dans pdf_bp
-        #return redirect('/')
+        return redirect('/')
     
     @app.route('/api/rating', methods=['POST'])
     def submit_rating():
