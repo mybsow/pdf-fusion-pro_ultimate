@@ -498,12 +498,12 @@ def create_app():
         
         return html
 
-    # AJOUTEZ LA ROUTE /admin ICI (à l'intérieur de la fonction create_app)
     @app.route('/admin')
     def admin():
         """Route admin principale"""
         # Vérifier le mot de passe
         admin_password = os.environ.get('ADMIN_PASSWORD', 'admin123')
+        
         if request.args.get('password') != admin_password:
             return '''
             <!DOCTYPE html>
@@ -563,11 +563,21 @@ def create_app():
             ''', 401
         
         # Si le mot de passe est correct, afficher le panel admin
+        # Récupérer les statistiques
+        stats = {
+            'pdf_merge': stats_manager.get('pdf_merge', 0),
+            'pdf_split': stats_manager.get('pdf_split', 0),
+            'pdf_rotate': stats_manager.get('pdf_rotate', 0),
+            'pdf_compress': stats_manager.get('pdf_compress', 0),
+            'ratings': stats_manager.get('ratings', 0),
+            'total_sessions': stats_manager.get('total_sessions', 0)
+        }
+        
         return f'''
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Admin Panel</title>
+            <title>Admin Panel - PDF Fusion Pro</title>
             <style>
                 body {{
                     font-family: Arial, sans-serif;
@@ -593,10 +603,15 @@ def create_app():
                     color: white;
                     padding: 20px;
                     border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
                 }}
                 .stat-value {{
                     font-size: 2.5em;
                     font-weight: bold;
+                    margin: 10px 0;
+                }}
+                .stat-card small {{
+                    opacity: 0.9;
                 }}
                 .menu {{
                     display: flex;
@@ -611,6 +626,9 @@ def create_app():
                     text-decoration: none;
                     border-radius: 5px;
                     display: inline-block;
+                    border: none;
+                    cursor: pointer;
+                    font-size: 14px;
                 }}
                 .btn:hover {{
                     background: #3a56d4;
@@ -618,64 +636,81 @@ def create_app():
                 .btn-danger {{
                     background: #e74c3c;
                 }}
+                .btn-danger:hover {{
+                    background: #c0392b;
+                }}
                 .btn-success {{
                     background: #2ecc71;
+                }}
+                .btn-success:hover {{
+                    background: #27ae60;
+                }}
+                .info-box {{
+                    margin-top: 40px;
+                    padding: 20px;
+                    background: #f8f9fa;
+                    border-radius: 8px;
+                    border-left: 4px solid #4361ee;
+                }}
+                h1 {{
+                    color: #333;
+                    margin-bottom: 20px;
                 }}
             </style>
         </head>
         <body>
             <div class="container">
-                <h1>📊 Panel d'Administration</h1>
-                <p>Bienvenue dans l'interface d'administration de PDF Fusion Pro.</p>
+                <h1>📊 Panel d'Administration - PDF Fusion Pro</h1>
+                <p>Bienvenue dans l'interface d'administration.</p>
                 
                 <div class="stats-grid">
                     <div class="stat-card">
                         <h3>Fusions PDF</h3>
-                        <div class="stat-value">{stats_manager.get('pdf_merge', 0)}</div>
+                        <div class="stat-value">{stats['pdf_merge']}</div>
                         <small>Total des fusions</small>
                     </div>
                     <div class="stat-card">
                         <h3>Divisions PDF</h3>
-                        <div class="stat-value">{stats_manager.get('pdf_split', 0)}</div>
+                        <div class="stat-value">{stats['pdf_split']}</div>
                         <small>Total des divisions</small>
                     </div>
                     <div class="stat-card">
                         <h3>Rotations PDF</h3>
-                        <div class="stat-value">{stats_manager.get('pdf_rotate', 0)}</div>
+                        <div class="stat-value">{stats['pdf_rotate']}</div>
                         <small>Total des rotations</small>
                     </div>
                     <div class="stat-card">
                         <h3>Compressions PDF</h3>
-                        <div class="stat-value">{stats_manager.get('pdf_compress', 0)}</div>
+                        <div class="stat-value">{stats['pdf_compress']}</div>
                         <small>Total des compressions</small>
                     </div>
                     <div class="stat-card">
                         <h3>Évaluations</h3>
-                        <div class="stat-value">{stats_manager.get('ratings', 0)}</div>
+                        <div class="stat-value">{stats['ratings']}</div>
                         <small>Total des évaluations</small>
                     </div>
                     <div class="stat-card">
                         <h3>Sessions</h3>
-                        <div class="stat-value">{stats_manager.get('total_sessions', 0)}</div>
+                        <div class="stat-value">{stats['total_sessions']}</div>
                         <small>Total des sessions</small>
                     </div>
                 </div>
                 
                 <div class="menu">
                     <a href="/admin/messages?password={admin_password}" class="btn">
-                        📨 Messages
+                        <span style="font-size: 1.2em;">📨</span> Messages
                     </a>
                     <a href="/admin/ratings?password={admin_password}" class="btn btn-success">
-                        ⭐ Évaluations
+                        <span style="font-size: 1.2em;">⭐</span> Évaluations
                     </a>
                     <a href="/admin/debug" class="btn">
-                        🐛 Debug
+                        <span style="font-size: 1.2em;">🐛</span> Debug
                     </a>
                     <a href="/" class="btn">
-                        🏠 Accueil
+                        <span style="font-size: 1.2em;">🏠</span> Accueil
                     </a>
                     <a href="/admin?logout=1" class="btn btn-danger">
-                        🚪 Déconnexion
+                        <span style="font-size: 1.2em;">🚪</span> Déconnexion
                     </a>
                 </div>
                 
@@ -683,27 +718,42 @@ def create_app():
                     <h3>Actions rapides</h3>
                     <div class="menu" style="margin-top: 15px;">
                         <a href="/admin/ratings?password={admin_password}&export=json" class="btn">
-                            📥 Exporter évaluations
+                            <span style="font-size: 1.2em;">📥</span> Exporter évaluations
                         </a>
                         <a href="/health" class="btn">
-                            ❤️ Vérifier santé
+                            <span style="font-size: 1.2em;">❤️</span> Vérifier santé
                         </a>
                         <a href="/sitemap.xml" class="btn">
-                            🗺️ Sitemap
+                            <span style="font-size: 1.2em;">🗺️</span> Sitemap
                         </a>
                         <a href="/robots.txt" class="btn">
-                            🤖 Robots.txt
+                            <span style="font-size: 1.2em;">🤖</span> Robots.txt
                         </a>
                     </div>
                 </div>
                 
-                <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                <div class="info-box">
                     <h4>Information système</h4>
                     <p><strong>URL :</strong> https://pdf-fusion-pro-ultimate.onrender.com</p>
                     <p><strong>Date :</strong> {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}</p>
                     <p><strong>Version :</strong> {AppConfig.VERSION}</p>
+                    <p><strong>Environnement :</strong> {os.environ.get('RENDER', 'Développement')}</p>
                 </div>
             </div>
+            
+            <script>
+                // Ajouter un effet de confirmation pour la déconnexion
+                document.addEventListener('DOMContentLoaded', function() {{
+                    const logoutBtn = document.querySelector('a[href*="logout"]');
+                    if (logoutBtn) {{
+                        logoutBtn.addEventListener('click', function(e) {{
+                            if (!confirm('Voulez-vous vraiment vous déconnecter ?')) {{
+                                e.preventDefault();
+                            }}
+                        }});
+                    }}
+                }});
+            </script>
         </body>
         </html>
         '''
