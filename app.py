@@ -504,7 +504,6 @@ def create_app():
         """Route admin principale"""
         # Vérifier le mot de passe
         admin_password = os.environ.get('ADMIN_PASSWORD', 'admin123')
-        
         if request.args.get('password') != admin_password:
             return '''
             <!DOCTYPE html>
