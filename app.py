@@ -3,7 +3,7 @@
 PDF Fusion Pro Ultimate - Application principale
 """
 
-from flask import Flask, render_template, jsonify, request, Response, redirect, session
+from flask import Flask, redirect, Response
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
 import os
@@ -14,50 +14,52 @@ from blueprints.pdf import pdf_bp
 from blueprints.api import api_bp
 from blueprints.legal import legal_bp
 from blueprints.stats import stats_bp
+from blueprints.admin import admin_bp
+
 from utils.middleware import setup_middleware
 from utils.stats_manager import stats_manager
 
-from rating_manager import ratings_manager  # ✅ Version finale
-from blueprints.admin import admin_bp
+app = Flask(__name__)
+app.secret_key = "FLASK_SECRET_KEY",
+                "dev-secret-key-change-me"  # nécessaire pour session
+
+# Enregistrer le blueprint
 app.register_blueprint(admin_bp)
 
+# Démarrage en local
+if __name__ == "__main__":
+    app.run(debug=True)
 
 # ============================================================
 # Initialisation des dossiers nécessaires
 # ============================================================
 
 def init_app_dirs():
-    """Crée les répertoires nécessaires"""
-    directories = ['data/contacts', 'uploads', 'temp', 'logs']
-    
-    for directory in directories:
-        Path(directory).mkdir(parents=True, exist_ok=True)
-        print(f"📁 Dossier créé/vérifié: {directory}")
+    for d in ['data/contacts', 'uploads', 'temp', 'logs']:
+        Path(d).mkdir(parents=True, exist_ok=True)
 
 # ============================================================
 # Factory Flask
 # ============================================================
 
 def create_app():
-    """Factory pour créer l'application Flask"""
-    # Initialiser la configuration
     AppConfig.initialize()
-    
-    # Créer les répertoires nécessaires
     init_app_dirs()
-    
-    # Créer l'application Flask
+
     app = Flask(__name__)
 
-    # Créer l'application Flask
-    app.secret_key = AppConfig.SECRET_KEY
+    # 🔐 Sécurité session
+    app.secret_key = os.environ.get(
+        "FLASK_SECRET_KEY",
+        AppConfig.SECRET_KEY
+    )
+
     app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
-    app.secret_key = os.environ.get("FLASK_SECRET_KEY", "change-me")
-    
-    # Middleware Proxy
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
-    
-    # Configurer le middleware avec l'instance stats_manager
+
+    # Proxy
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
+
+    # Middleware stats
     setup_middleware(app, stats_manager)
 
     # ============================================================
@@ -75,6 +77,8 @@ def create_app():
     
     # Blueprint statistiques
     app.register_blueprint(stats_bp)
+
+    app.register_blueprint(admin_bp)        # /admin/*
     
     # ============================================================
     # Routes principales
@@ -84,56 +88,6 @@ def create_app():
         """Route racine - redirige vers le blueprint"""
         # Supprimez cette ligne si vous avez une route / dans pdf_bp
         return redirect('/')
-        
-    # -------------------------
-    # API pour soumettre une évaluation
-    # -------------------------
-    @app.route('/api/rating', methods=['POST'])
-    def submit_rating():
-        """API pour enregistrer les évaluations"""
-        try:
-            data = request.get_json()
-            
-            # Validation
-            if not data or 'rating' not in data:
-                return jsonify({"error": "Données manquantes"}), 400
-            
-            rating = int(data.get('rating', 0))
-            if rating < 1 or rating > 5:
-                return jsonify({"error": "Évaluation invalide"}), 400
-            
-            feedback = data.get('feedback', '')
-            
-            # Données à sauvegarder
-            rating_data = {
-                'rating': rating,
-                'feedback': feedback,
-                'page': data.get('page', request.referrer or '/'),
-                'user_agent': request.user_agent.string,
-                'ip_address': request.remote_addr,
-                'browser': request.user_agent.browser,
-                'platform': request.user_agent.platform
-            }
-            
-            # Sauvegarder via RatingsManager
-            saved = ratings_manager.save_rating(rating_data)
-            
-            if saved:
-                stats = ratings_manager.get_stats()
-                return jsonify({
-                    "success": True,
-                    "message": "Évaluation enregistrée",
-                    "stats": {
-                        "total": stats['total'],
-                        "average": stats['average']
-                    }
-                })
-            else:
-                return jsonify({"error": "Erreur d'enregistrement"}), 500
-            
-        except Exception as e:
-            print(f"❌ Erreur enregistrement évaluation: {e}")
-            return jsonify({"error": "Erreur interne"}), 500
 
     # -------------------------
     # Google / Ads / Robots / Sitemap
