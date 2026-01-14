@@ -1,72 +1,82 @@
-from flask import session, request, redirect, url_for, abort, render_template_string
 import os
+from functools import wraps
+from flask import (
+    session,
+    request,
+    redirect,
+    url_for,
+    render_template,
+    abort
+)
+from . import legal_bp
+from rating_manager import ratings_manager
 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 
+
+# =========================
+# Décorateur de sécurité
+# =========================
+def admin_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not session.get("admin_logged"):
+            return redirect(url_for("legal.admin_login"))
+        return view(*args, **kwargs)
+    return wrapped
+
+
+# =========================
+# Login admin
+# =========================
 @legal_bp.route("/admin", methods=["GET", "POST"])
 def admin_login():
     if request.method == "POST":
         if request.form.get("password") == ADMIN_PASSWORD:
             session["admin_logged"] = True
-            return redirect("/admin/dashboard")
-        return "Accès refusé", 401
+            return redirect(url_for("legal.admin_dashboard"))
+        abort(403)
 
-    return '''
-    <form method="POST">
-        <input type="password" name="password" placeholder="Mot de passe admin">
-        <button>Connexion</button>
-    </form>
-    '''
-from rating_manager import ratings_manager
+    return render_template("legal/admin/login.html")
 
+
+# =========================
+# Dashboard admin
+# =========================
 @legal_bp.route("/admin/dashboard")
+@admin_required
 def admin_dashboard():
-    if not session.get("admin_logged"):
-        return redirect("/admin")
-
-    stats = ratings_manager.get_stats()
-
-    badge = (
-        f"<span style='color:red;font-weight:bold;'>({stats['recent_count']} nouveau)</span>"
-        if stats["recent_count"] > 0 else ""
-    )
-
-    return render_template_string(f"""
-    <h1>Admin – Dashboard</h1>
-
-    <ul>
-        <li>⭐ Évaluations totales : {stats['total']}</li>
-        <li>📊 Note moyenne : {stats['average']}</li>
-        <li>🔔 Nouvelles (24h) : {stats['recent_count']}</li>
-    </ul>
-
-    <a href="/admin/ratings">Voir évaluations {badge}</a><br><br>
-    <a href="/admin/logout">Déconnexion</a>
-    """)
-@legal_bp.route("/admin/logout")
-def admin_logout():
-    session.clear()
-    return redirect("/")
-
-
-from flask import render_template, session, redirect, url_for
-from blueprints.legal import legal_bp
-from utils.ratings_manager import ratings_manager
-
-@legal_bp.route("/admin/ratings")
-def admin_ratings():
-    if not session.get("admin_logged_in"):
-        return redirect(url_for("legal.admin_login"))
-
-    ratings = ratings_manager.get_all_ratings()
     stats = ratings_manager.get_stats()
 
     return render_template(
-        "admin/ratings.html",
-        ratings=ratings,
-        stats=stats,
-        has_new=ratings_manager.has_new_ratings(24)
+        "legal/admin/dashboard.html",
+        stats=stats
     )
-    
-    except FileNotFoundError:
-        return "Aucune évaluation pour le moment", 404
+
+
+# =========================
+# Page évaluations
+# =========================
+@legal_bp.route("/admin/ratings")
+@admin_required
+def admin_ratings():
+    ratings = ratings_manager.get_all_ratings()
+    stats = ratings_manager.get_stats()
+
+    # Marquer comme vues
+    ratings_manager.mark_all_seen()
+
+    return render_template(
+        "legal/admin/ratings.html",
+        ratings=ratings,
+        stats=stats
+    )
+
+
+# =========================
+# Logout
+# =========================
+@legal_bp.route("/admin/logout")
+def admin_logout():
+    session.clear()
+    return redirect(url_for("legal.admin_login"))
