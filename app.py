@@ -38,6 +38,8 @@ def create_app():
     app = Flask(__name__)
     app.secret_key = AppConfig.SECRET_KEY
     app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
+
+    app.secret_key = os.environ.get("FLASK_SECRET_KEY", "change-me")
     
     # Middleware Proxy
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
