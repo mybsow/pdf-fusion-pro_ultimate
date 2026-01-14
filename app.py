@@ -20,15 +20,10 @@ from utils.middleware import setup_middleware
 from utils.stats_manager import stats_manager
 
 app = Flask(__name__)
-app.secret_key = "FLASK_SECRET_KEY",
-                "dev-secret-key-change-me"  # nécessaire pour session
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key-change-me")  # nécessaire pour session
 
 # Enregistrer le blueprint
 app.register_blueprint(admin_bp)
-
-# Démarrage en local
-if __name__ == "__main__":
-    app.run(debug=True)
 
 # ============================================================
 # Initialisation des dossiers nécessaires
