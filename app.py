@@ -6,8 +6,9 @@ PDF Fusion Pro Ultimate - Application principale
 from flask import Flask, render_template, jsonify, request, Response, redirect, session
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
-import json
 import os
+from pathlib import Path
+
 from config import AppConfig
 from blueprints.pdf import pdf_bp
 from blueprints.api import api_bp
@@ -15,11 +16,12 @@ from blueprints.legal import legal_bp
 from blueprints.stats import stats_bp
 from utils.middleware import setup_middleware
 from utils.stats_manager import stats_manager
-from utils.ratings_manager import ratings_manager
-from pathlib import Path
-from rating_manager import ratings_manager
-ratings = ratings_manager.get_all_ratings()
 
+from rating_manager import ratings_manager  # ✅ Version finale
+
+# ============================================================
+# Initialisation des dossiers nécessaires
+# ============================================================
 
 def init_app_dirs():
     """Crée les répertoires nécessaires"""
@@ -28,6 +30,10 @@ def init_app_dirs():
     for directory in directories:
         Path(directory).mkdir(parents=True, exist_ok=True)
         print(f"📁 Dossier créé/vérifié: {directory}")
+
+# ============================================================
+# Factory Flask
+# ============================================================
 
 def create_app():
     """Factory pour créer l'application Flask"""
@@ -39,9 +45,10 @@ def create_app():
     
     # Créer l'application Flask
     app = Flask(__name__)
+
+    # Créer l'application Flask
     app.secret_key = AppConfig.SECRET_KEY
     app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
-
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", "change-me")
     
     # Middleware Proxy
@@ -762,13 +769,18 @@ def create_app():
         </body>
         </html>
         '''
-    
+    # ============================================================
+    # Routes principales
+    # ============================================================
     @app.route('/')
     def index():
         """Route racine - redirige vers le blueprint"""
         # Supprimez cette ligne si vous avez une route / dans pdf_bp
         return redirect('/')
-    
+        
+    # -------------------------
+    # API pour soumettre une évaluation
+    # -------------------------
     @app.route('/api/rating', methods=['POST'])
     def submit_rating():
         """API pour enregistrer les évaluations"""
@@ -815,7 +827,10 @@ def create_app():
         except Exception as e:
             print(f"❌ Erreur enregistrement évaluation: {e}")
             return jsonify({"error": "Erreur interne"}), 500
-    
+
+    # -------------------------
+    # Google / Ads / Robots / Sitemap
+    # -------------------------
     @app.route('/google6f0d847067bbd18a.html')
     def google_verification():
         """Page de vérification Google Search Console"""
