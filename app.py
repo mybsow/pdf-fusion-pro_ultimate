@@ -18,6 +18,9 @@ from utils.middleware import setup_middleware
 from utils.stats_manager import stats_manager
 
 from rating_manager import ratings_manager  # ✅ Version finale
+from blueprints.admin import admin_bp
+app.register_blueprint(admin_bp)
+
 
 # ============================================================
 # Initialisation des dossiers nécessaires
