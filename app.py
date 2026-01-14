@@ -565,12 +565,12 @@ def create_app():
         # Si le mot de passe est correct, afficher le panel admin
         # Récupérer les statistiques
         stats = {
-            'pdf_merge': stats_manager.get('pdf_merge', 0),
-            'pdf_split': stats_manager.get('pdf_split', 0),
-            'pdf_rotate': stats_manager.get('pdf_rotate', 0),
-            'pdf_compress': stats_manager.get('pdf_compress', 0),
-            'ratings': stats_manager.get('ratings', 0),
-            'total_sessions': stats_manager.get('total_sessions', 0)
+            'pdf_merge': stats_manager.get_stat('merge', 0),
+            'pdf_split': stats_manager.get_stat('pdf_split', 0),
+            'pdf_rotate': stats_manager.get_stat('pdf_rotate', 0),
+            'pdf_compress': stats_manager.get_stat('pdf_compress', 0),
+            'ratings': stats_manager.get_stat('ratings', 0),
+            'total_sessions': stats_manager.get_stat('total_sessions', 0)
         }
         
         return f'''

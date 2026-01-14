@@ -75,5 +75,10 @@ class StatisticsManager:
         
         self.save()
 
+    def get_stat(self, key: str, default=0):
+        """Récupère une statistique de manière sécurisée"""
+        return self.stats.get(key, default)
+
+
 # Instance globale
 stats_manager = StatisticsManager()

@@ -2287,7 +2287,6 @@ def api_preview():
 @pdf_bp.route('/health')
 def health_check():
     """Endpoint de santé de l'application"""
-    stats = stats_manager.stats
     return jsonify({
         "status": "healthy",
         "app": AppConfig.NAME,
@@ -2297,13 +2296,13 @@ def health_check():
         "hosting": AppConfig.HOSTING,
         "domain": AppConfig.DOMAIN,
         "timestamp": datetime.now().isoformat(),
-        "total_operations": stats.get("total_operations", 0),
-        "merges": stats.get("merges", 0),
-        "splits": stats.get("splits", 0),
-        "rotations": stats.get("rotations", 0),
-        "compressions": stats.get("compressions", 0),
-        "previews": stats.get("previews", 0),
-        "user_sessions": stats.get("user_sessions", 0)
+        "total_operations": stats_manager.get_stat("total_operations", 0),
+        "merges": stats_manager.get_stat("merges", 0),
+        "splits": stats_manager.get_stat("splits", 0),
+        "rotations": stats_manager.get_stat("rotations", 0),
+        "compressions": stats_manager.get_stat("compressions", 0),
+        "previews": stats_manager.get_stat("previews", 0),
+        "user_sessions": stats_manager.get_stat("user_sessions", 0)
     })
 
 @pdf_bp.route('/api/rating', methods=["POST"])
