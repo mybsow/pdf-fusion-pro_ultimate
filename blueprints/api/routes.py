@@ -11,6 +11,9 @@ from . import api_bp
 from blueprints.pdf.engine import PDFEngine
 from utils.stats_manager import stats_manager  # Importez l'instance
 from config import AppConfig
+from blueprints.api import api_bp
+from rating_manager import ratings_manager
+from stats_manager import stats_manager
 
 @api_bp.route('/merge', methods=["POST"])
 def api_merge():
@@ -242,68 +245,22 @@ def api_preview():
         traceback.print_exc()
         return jsonify({"error": "Erreur interne du serveur"}), 500
 
-# @api_bp.route('/rating', methods=['POST'])
+@api_bp.route("/api/rating", methods=["POST"])
 def submit_rating():
-    """API pour enregistrer les évaluations"""
-    try:
-        data = request.get_json()
-        
-        # Validation
-        if not data or 'rating' not in data:
-            return jsonify({"error": "Données manquantes"}), 400
-        
-        rating = int(data.get('rating', 0))
-        if rating < 1 or rating > 5:
-            return jsonify({"error": "Évaluation invalide"}), 400
-        
-        # Enregistrer dans un fichier JSON
-        rating_data = {
-            'rating': rating,
-            'feedback': data.get('feedback', ''),
-            'page': data.get('page', '/'),
-            'user_agent': data.get('user_agent', ''),
-            'timestamp': datetime.now().isoformat(),
-            'ip': request.remote_addr
-        }
-        
-        # Sauvegarder
-        ratings_file = 'data/ratings.json'
-        os.makedirs('data', exist_ok=True)
-        
-        # Lire les évaluations existantes
-        ratings = []
-        if os.path.exists(ratings_file):
-            with open(ratings_file, 'r', encoding='utf-8') as f:
-                try:
-                    ratings = json.load(f)
-                except:
-                    ratings = []
-        
-        # Ajouter la nouvelle
-        ratings.append(rating_data)
-        
-        # Sauvegarder (limiter à 1000 entrées)
-        if len(ratings) > 1000:
-            ratings = ratings[-1000:]
-        
-        with open(ratings_file, 'w', encoding='utf-8') as f:
-            json.dump(ratings, f, indent=2, ensure_ascii=False)
-        
-        # Mettre à jour les stats
-        stats_manager.increment("ratings")
-        
-        return jsonify({
-            "success": True,
-            "message": "Évaluation enregistrée",
-            "average": calculate_average_rating(ratings)
-        })
-    
-    except Exception as e:
-        return jsonify({"error": "Erreur interne"}), 500
+    data = request.get_json(silent=True) or {}
 
-def calculate_average_rating(ratings):
-    """Calcule la note moyenne"""
-    if not ratings:
-        return 0
-    total = sum(r['rating'] for r in ratings)
-    return round(total / len(ratings), 1)
+    rating = int(data.get("rating", 0))
+    if rating < 1 or rating > 5:
+        return jsonify({"error": "Invalid rating"}), 400
+
+    ratings_manager.save_rating({
+        "rating": rating,
+        "feedback": data.get("feedback", ""),
+        "page": data.get("page", "/"),
+        "user_agent": request.headers.get("User-Agent"),
+        "ip": request.remote_addr
+    })
+
+    stats_manager.increment("ratings")
+
+    return jsonify({"success": True})
