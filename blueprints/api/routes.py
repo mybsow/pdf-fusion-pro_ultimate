@@ -247,21 +247,21 @@ def api_preview():
 def submit_rating():
     data = request.get_json(silent=True) or {}
 
+    # Validation stricte
     try:
         rating = int(data.get("rating", 0))
         if rating < 1 or rating > 5:
             raise ValueError
-    except ValueError:
+    except (TypeError, ValueError):
         return jsonify({"error": "Invalid rating"}), 400
 
     ratings_manager.save_rating({
         "rating": rating,
-        "feedback": data.get("feedback", ""),
+        "feedback": data.get("feedback", "").strip(),
         "page": data.get("page", "/"),
-        "user_agent": request.headers.get("User-Agent"),
+        "user_agent": request.headers.get("User-Agent", ""),
         "ip": request.remote_addr
     })
 
-    stats_manager.increment("ratings")
-
-    return jsonify({"success": True})
+    # Réponse API simple (pas de stats ici)
+    return jsonify({"success": True}), 201
