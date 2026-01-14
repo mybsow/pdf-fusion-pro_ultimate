@@ -17,6 +17,9 @@ from utils.middleware import setup_middleware
 from utils.stats_manager import stats_manager
 from utils.ratings_manager import ratings_manager
 from pathlib import Path
+from rating_manager import ratings_manager
+ratings = ratings_manager.get_all_ratings()
+
 
 def init_app_dirs():
     """Crée les répertoires nécessaires"""
