@@ -1,0 +1,23 @@
+<h1>Admin – Dashboard</h1>
+
+<ul>
+  <li>⭐ Total évaluations : {{ stats.total }}</li>
+  <li>📊 Moyenne : {{ stats.average }}</li>
+  <li>
+    🔔 Nouvelles :
+    {% if stats.unseen %}
+      <strong style="color:red">{{ stats.unseen }}</strong>
+    {% else %}
+      0
+    {% endif %}
+  </li>
+</ul>
+
+<a href="{{ url_for('legal.admin_ratings') }}">
+  Voir évaluations
+  {% if stats.unseen %}
+    <span style="color:red">({{ stats.unseen }} nouvelles)</span>
+  {% endif %}
+</a>
+<br><br>
+<a href="{{ url_for('legal.admin_logout') }}">Déconnexion</a>
