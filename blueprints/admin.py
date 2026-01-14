@@ -1,15 +1,18 @@
+# blueprints/admin.py (fusionné)
 import os
 from functools import wraps
 from datetime import datetime
-from flask import Blueprint, request, session, redirect, url_for, render_template, jsonify
+from flask import Blueprint, session, request, redirect, url_for, render_template, jsonify
 from rating_manager import ratings_manager
 from utils.stats_manager import stats_manager
-from config import AppConfig
 
+# =====================================
+# Blueprint
+# =====================================
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 # =====================================
-# Config
+# Configuration
 # =====================================
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 
@@ -54,7 +57,8 @@ def time_ago(date_obj):
 @admin_bp.route("/", methods=["GET", "POST"])
 def admin_login():
     if request.method == "POST":
-        if request.form.get("password") == ADMIN_PASSWORD:
+        password = request.form.get("password", "")
+        if password == ADMIN_PASSWORD:
             session["admin_logged"] = True
             return redirect(url_for("admin.admin_dashboard"))
         error = "Mot de passe incorrect"
