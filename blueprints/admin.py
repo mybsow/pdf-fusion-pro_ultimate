@@ -1,22 +1,32 @@
-from flask import Blueprint, request, jsonify, redirect, render_template, session, url_for
-from datetime import datetime
 import os
+from functools import wraps
+from datetime import datetime
+from flask import Blueprint, request, session, redirect, url_for, render_template, jsonify
 from rating_manager import ratings_manager
 from utils.stats_manager import stats_manager
 from config import AppConfig
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-# ===============================
+# =====================================
+# Config
+# =====================================
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+
+# =====================================
+# Décorateur de sécurité
+# =====================================
+def admin_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not session.get("admin_logged"):
+            return redirect(url_for("admin.admin_login"))
+        return view(*args, **kwargs)
+    return wrapped
+
+# =====================================
 # Helper
-# ===============================
-def is_admin_authenticated():
-    return session.get('admin_authenticated', False)
-
-def check_admin_password(password):
-    admin_password = os.environ.get('ADMIN_PASSWORD', 'admin123')
-    return password == admin_password
-
+# =====================================
 def time_ago(date_obj):
     """Retourne une chaîne 'il y a X temps' """
     now = datetime.now()
@@ -38,37 +48,33 @@ def time_ago(date_obj):
     else:
         return "à l'instant"
 
-# ===============================
-# Routes
-# ===============================
-
-@admin_bp.route('/login', methods=['GET', 'POST'])
+# =====================================
+# Login
+# =====================================
+@admin_bp.route("/", methods=["GET", "POST"])
 def admin_login():
-    """Page de login admin"""
-    if request.method == 'POST':
-        password = request.form.get('password', '')
-        if check_admin_password(password):
-            session['admin_authenticated'] = True
-            return redirect(url_for('admin.admin_dashboard'))
-        else:
-            error = "Mot de passe incorrect"
-            return render_template("admin/login.html", error=error)
-    return render_template("admin/login.html")
+    if request.method == "POST":
+        if request.form.get("password") == ADMIN_PASSWORD:
+            session["admin_logged"] = True
+            return redirect(url_for("admin.admin_dashboard"))
+        error = "Mot de passe incorrect"
+        return render_template("legal/admin/login.html", error=error)
+    return render_template("legal/admin/login.html")
 
-
-@admin_bp.route('/logout')
+# =====================================
+# Logout
+# =====================================
+@admin_bp.route("/logout")
 def admin_logout():
-    """Déconnexion admin"""
-    session.pop('admin_authenticated', None)
-    return redirect(url_for('admin.admin_login'))
+    session.clear()
+    return redirect(url_for("admin.admin_login"))
 
-
-@admin_bp.route('/')
+# =====================================
+# Dashboard
+# =====================================
+@admin_bp.route("/dashboard")
+@admin_required
 def admin_dashboard():
-    """Dashboard admin principal"""
-    if not is_admin_authenticated():
-        return redirect(url_for('admin.admin_login'))
-
     stats = {
         'pdf_merge': stats_manager.get_stat('merge', 0),
         'pdf_split': stats_manager.get_stat('pdf_split', 0),
@@ -77,16 +83,50 @@ def admin_dashboard():
         'ratings': stats_manager.get_stat('ratings', 0),
         'total_sessions': stats_manager.get_stat('total_sessions', 0)
     }
+    return render_template("legal/admin/dashboard.html", stats=stats)
 
-    return render_template("admin/dashboard.html", stats=stats)
+# =====================================
+# Page évaluations
+# =====================================
+@admin_bp.route("/ratings")
+@admin_required
+def admin_ratings():
+    # Suppression
+    rating_id = request.args.get("delete")
+    if rating_id:
+        ratings_manager.delete_rating(rating_id)
+        return redirect(url_for("admin.admin_ratings"))
 
+    # Export JSON
+    if request.args.get("export") == "json":
+        ratings = ratings_manager.get_all_ratings()
+        return jsonify(ratings)
 
-@admin_bp.route('/debug')
+    # Récupérer évaluations
+    ratings = ratings_manager.get_all_ratings()
+    stats = ratings_manager.get_stats()
+    ratings_manager.mark_all_seen()  # Marquer comme vues
+
+    # Trier et formater
+    sorted_ratings = sorted(ratings, key=lambda x: x.get("timestamp", ""), reverse=True)
+    for r in sorted_ratings:
+        ts = r.get("timestamp")
+        try:
+            dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+            r["display_date"] = dt.strftime("%d/%m/%Y %H:%M")
+            r["time_ago"] = time_ago(dt)
+        except:
+            r["display_date"] = ts
+            r["time_ago"] = ""
+
+    return render_template("legal/admin/ratings.html", ratings=sorted_ratings, stats=stats)
+
+# =====================================
+# Page debug JSON
+# =====================================
+@admin_bp.route("/debug")
+@admin_required
 def admin_debug():
-    """Page debug admin"""
-    if not is_admin_authenticated():
-        return redirect(url_for('admin.admin_login'))
-
     info = {
         'service': 'PDF Fusion Pro Ultimate',
         'timestamp': datetime.now().isoformat(),
@@ -98,63 +138,17 @@ def admin_debug():
             'RENDER_SERVICE_ID': os.environ.get('RENDER_SERVICE_ID', 'Non défini'),
         },
         'routes': [
-            '/admin/messages',
+            '/admin/dashboard',
             '/admin/ratings',
-            '/api/rating',
+            '/admin/debug',
             '/contact',
             '/mentions-legales'
         ]
     }
 
-    # Cacher valeur sensible
+    # Masquer mot de passe partiellement
     if info['environment']['ADMIN_PASSWORD_set']:
-        password = os.environ.get('ADMIN_PASSWORD', '')
-        if len(password) > 2:
-            info['environment']['ADMIN_PASSWORD_preview'] = password[0] + '***' + password[-1]
-        else:
-            info['environment']['ADMIN_PASSWORD_preview'] = '***'
+        pwd = os.environ.get("ADMIN_PASSWORD", "")
+        info['environment']['ADMIN_PASSWORD_preview'] = pwd[0] + "***" + pwd[-1] if len(pwd) > 2 else "***"
 
     return jsonify(info)
-
-
-@admin_bp.route('/ratings', methods=['GET', 'POST'])
-def admin_ratings():
-    """Page gestion des évaluations"""
-    if not is_admin_authenticated():
-        return redirect(url_for('admin.admin_login'))
-
-    # Gestion suppression
-    rating_id_to_delete = request.args.get('delete')
-    if rating_id_to_delete:
-        deleted = ratings_manager.delete_rating(rating_id_to_delete)
-        return redirect(url_for('admin.admin_ratings'))
-
-    # Gestion export JSON
-    if request.args.get('export') == 'json':
-        ratings = ratings_manager.get_all_ratings()
-        return jsonify(ratings)
-
-    # Récupérer les évaluations
-    ratings = ratings_manager.get_all_ratings()
-    stats = ratings_manager.get_stats()
-
-    # Trier les plus récentes
-    sorted_ratings = sorted(ratings, key=lambda x: x.get('timestamp', ''), reverse=True)
-
-    # Formater les dates
-    for r in sorted_ratings:
-        timestamp = r.get('timestamp')
-        try:
-            date_obj = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-            r['display_date'] = date_obj.strftime('%d/%m/%Y %H:%M')
-            r['time_ago'] = time_ago(date_obj)
-        except:
-            r['display_date'] = timestamp
-            r['time_ago'] = ''
-
-    return render_template("admin/ratings.html", ratings=sorted_ratings, stats=stats)
-
-
-# ===============================
-# Fin du blueprint
-# ===============================
