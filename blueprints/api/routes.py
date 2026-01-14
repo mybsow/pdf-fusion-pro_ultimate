@@ -245,12 +245,15 @@ def api_preview():
         traceback.print_exc()
         return jsonify({"error": "Erreur interne du serveur"}), 500
 
-@api_bp.route("/api/rating", methods=["POST"])
+@api_bp.route("/rating", methods=["POST"])
 def submit_rating():
     data = request.get_json(silent=True) or {}
 
-    rating = int(data.get("rating", 0))
-    if rating < 1 or rating > 5:
+    try:
+        rating = int(data.get("rating", 0))
+        if rating < 1 or rating > 5:
+            raise ValueError
+    except ValueError:
         return jsonify({"error": "Invalid rating"}), 400
 
     ratings_manager.save_rating({
