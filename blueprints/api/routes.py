@@ -11,7 +11,6 @@ from . import api_bp
 from blueprints.pdf.engine import PDFEngine
 from utils.stats_manager import stats_manager  # Importez l'instance
 from config import AppConfig
-from blueprints.api import api_bp
 from rating_manager import ratings_manager
 
 @api_bp.route('/merge', methods=["POST"])
