@@ -11,6 +11,7 @@ from flask import (
 
 from rating_manager import ratings_manager
 from utils.stats_manager import stats_manager
+from managers.rating_manager import rating_manager
 
 # Dossier contacts
 CONTACTS_DIR = Path("data/contacts")
