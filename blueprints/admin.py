@@ -4,7 +4,7 @@ from datetime import datetime
 from flask import Blueprint, session, request, redirect, url_for, render_template, jsonify
 
 from utils.stats_manager import stats_manager
-from utils.rating_manager import ratings_manager
+from managers.rating_manager import ratings_manager
 from managers.contact_manager import contact_manager
 
 # ==========================================================
