@@ -1,5 +1,6 @@
 # blueprints/admin.py
 import os
+import json
 from functools import wraps
 from datetime import datetime
 from pathlib import Path
@@ -106,10 +107,13 @@ def admin_messages():
     messages = []
     if CONTACTS_DIR.exists():
         for file in CONTACTS_DIR.glob("*.json"):
-            with open(file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                data["_file"] = file.name
-                messages.append(data)
+            try:
+                with open(file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    data["_file"] = file.name
+                    messages.append(data)
+            except Exception:
+                continue
     # Trier par date décroissante
     messages.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
     return render_template("admin/messages.html", messages=messages, total=len(messages))
