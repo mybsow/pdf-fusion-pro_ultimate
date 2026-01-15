@@ -2,17 +2,14 @@
 Routes pour les pages légales
 """
 
-from flask import render_template_string, request, jsonify, flash, redirect, url_for
+from flask import render_template_string, request
 from datetime import datetime
+from pathlib import Path
+import os
+import requests
+
 from . import legal_bp
 from config import AppConfig
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import os
-import json
-import requests
-from pathlib import Path
 from managers.contact_manager import contact_manager
 
 # ============================================================
@@ -432,223 +429,91 @@ LEGAL_TEMPLATE = """
 # FONCTIONS D'ENVOI FIABLES
 # ============================================================
 
-def save_contact_to_json(form_data, flask_request):
-    """
-    Sauvegarde le contact dans un fichier JSON (solution fiable)
-    Retourne toujours True sauf en cas d'erreur critique
-    """
-    try:
-        # Créer le dossier data/contacts si nécessaire
-        contacts_dir = Path("data/contacts")
-        contacts_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Créer un nom de fichier unique et sécurisé
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        # Nettoyer l'email pour le nom de fichier
-        safe_email = form_data['email'].split('@')[0][:20].replace('.', '_').replace('+', '_')
-        filename = f"contact_{timestamp}_{safe_email}.json"
-        filepath = contacts_dir / filename
-        
-        # Préparer les données avec métadonnées
-        contact_data = {
-            **form_data,
-            "received_at": datetime.now().isoformat(),
-            "timestamp": timestamp,
-            "ip_address": flask_request.remote_addr if hasattr(flask_request, 'remote_addr') else None,
-            "user_agent": flask_request.user_agent.string if hasattr(flask_request, 'user_agent') else None,
-            "status": "pending",
-            "app_name": AppConfig.NAME,
-            "domain": AppConfig.DOMAIN
-        }
-        
-        # Sauvegarder en JSON avec encoding UTF-8
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(contact_data, f, ensure_ascii=False, indent=2)
-        
-        print(f"📁 Contact sauvegardé dans: {filepath}")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Erreur critique sauvegarde JSON: {e}")
-        return False
-
 
 def send_discord_notification(form_data):
-    """
-    Envoie une notification Discord (optionnel)
-    Ne bloque jamais le processus principal
-    """
-    webhook_url = os.environ.get('DISCORD_WEBHOOK_URL')
-    
+    webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
     if not webhook_url:
-        # Pas de webhook configuré = on ignore silencieusement
         return True
-    
+
     try:
-        # Mapper les sujets pour l'affichage
-        subject_display_map = {
-            'bug': '🚨 Bug/Problème technique',
-            'improvement': '💡 Amélioration/Suggestion',
-            'partnership': '🤝 Partenariat',
-            'other': '❓ Autre demande'
+        subject_map = {
+            "bug": "🚨 Bug",
+            "improvement": "💡 Amélioration",
+            "partnership": "🤝 Partenariat",
+            "other": "❓ Autre"
         }
-        
-        subject_display = subject_display_map.get(
-            form_data['subject'], 
-            form_data['subject'].capitalize()
-        )
-        
-        # Tronquer le message si trop long pour Discord
-        message_preview = form_data['message']
-        if len(message_preview) > 1000:
-            message_preview = message_preview[:997] + "..."
-        
-        # Créer l'embed Discord
+
         embed = {
-            "title": "📧 Nouveau message de contact",
-            "color": 0x4361ee,  # Couleur bleue
+            "title": "📨 Nouveau message de contact",
+            "color": 0x4361EE,
             "fields": [
-                {
-                    "name": "👤 Nom complet",
-                    "value": f"{form_data['first_name']} {form_data['last_name']}",
-                    "inline": True
-                },
-                {
-                    "name": "📧 Email",
-                    "value": form_data['email'],
-                    "inline": True
-                },
-                {
-                    "name": "📱 Téléphone",
-                    "value": form_data.get('phone', 'Non renseigné'),
-                    "inline": True
-                },
-                {
-                    "name": "🎯 Type de demande",
-                    "value": subject_display,
-                    "inline": False
-                },
-                {
-                    "name": "💬 Message",
-                    "value": message_preview,
-                    "inline": False
-                }
+                {"name": "Nom", "value": f"{form_data['first_name']} {form_data['last_name']}", "inline": True},
+                {"name": "Email", "value": form_data["email"], "inline": True},
+                {"name": "Sujet", "value": subject_map.get(form_data["subject"], form_data["subject"]), "inline": False},
+                {"name": "Message", "value": form_data["message"][:1000], "inline": False},
             ],
             "footer": {
                 "text": f"{AppConfig.NAME} • {datetime.now().strftime('%d/%m/%Y %H:%M')}"
             }
         }
-        
-        # Envoyer avec un timeout très court
-        response = requests.post(
+
+        requests.post(
             webhook_url,
             json={"embeds": [embed]},
-            timeout=3  # Timeout court pour ne pas bloquer
+            timeout=3
         )
-        
-        if response.status_code in [200, 204]:
-            print("🔔 Notification Discord envoyée")
-            return True
-        else:
-            print(f"⚠️ Discord a répondu avec code: {response.status_code}")
-            return True  # On continue même si Discord échoue
-            
-    except requests.exceptions.Timeout:
-        print("⚠️ Timeout Discord (ignoré)")
         return True
-    except Exception as e:
-        print(f"⚠️ Erreur Discord (ignorée): {str(e)[:100]}")
-        return True  # Ne JAMAIS bloquer le formulaire
 
+    except Exception:
+        # Discord ne doit JAMAIS bloquer le formulaire
+        return True
 
-def send_email_fallback(form_data):
-    """
-    Envoie un email - DÉSACTIVÉ TEMPORAIREMENT pour éviter les timeouts
-    Les messages sont sauvegardés en JSON, l'email sera implémenté plus tard
-    """
-    print("📨 Email désactivé temporairement (éviter timeout Render)")
-    print("   Les messages sont sauvegardés dans data/contacts/")
-    print(f"   Message de: {form_data.get('email', 'N/A')}")
-    
-    # DEBUG: Afficher la configuration (sans essayer d'envoyer)
-    smtp_configured = all([
-        os.environ.get('SMTP_USERNAME'),
-        os.environ.get('SMTP_PASSWORD'),
-        os.environ.get('DEVELOPER_EMAIL')
-    ])
-    
-    if smtp_configured:
-        print("   ⚠️ SMTP est configuré mais désactivé pour stabilité")
-        print(f"   📧 Destinataire: {os.environ.get('DEVELOPER_EMAIL')}")
-    else:
-        print("   ⚠️ SMTP non configuré dans les variables d'environnement")
-    
-    # Toujours retourner True pour ne pas bloquer le formulaire
-    return True
 
 # ============================================================
-# ROUTES
+# ROUTE CONTACT
 # ============================================================
 
-@legal_bp.route('/contact', methods=['GET', 'POST'])
+@legal_bp.route("/contact", methods=["GET", "POST"])
 def contact():
-    """Page de contact avec formulaire fiable"""
-    
     success = False
     error = None
-    
-    if request.method == 'POST':
-        # Récupération et nettoyage des données
+
+    if request.method == "POST":
         form_data = {
-            'first_name': request.form.get('first_name', '').strip(),
-            'last_name': request.form.get('last_name', '').strip(),
-            'email': request.form.get('email', '').strip().lower(),
-            'phone': request.form.get('phone', '').strip(),
-            'subject': request.form.get('subject', '').strip(),
-            'message': request.form.get('message', '').strip()
+            "first_name": request.form.get("first_name", "").strip(),
+            "last_name": request.form.get("last_name", "").strip(),
+            "email": request.form.get("email", "").strip().lower(),
+            "phone": request.form.get("phone", "").strip(),
+            "subject": request.form.get("subject", "").strip(),
+            "message": request.form.get("message", "").strip(),
         }
-        
-        # Validation robuste
-        if not all([form_data['first_name'], form_data['last_name'], form_data['email'], form_data['subject'], form_data['message']]):
-            error = "Veuillez remplir tous les champs obligatoires (*)."
-        elif len(form_data['message']) > 2000:
+
+        # =====================
+        # VALIDATION
+        # =====================
+        if not all([
+            form_data["first_name"],
+            form_data["last_name"],
+            form_data["email"],
+            form_data["subject"],
+            form_data["message"],
+        ]):
+            error = "Veuillez remplir tous les champs obligatoires."
+        elif len(form_data["message"]) > 2000:
             error = "Le message ne doit pas dépasser 2000 caractères."
-        elif '@' not in form_data['email'] or '.' not in form_data['email'][form_data['email'].find('@'):]:
-            error = "Veuillez saisir une adresse email valide."
-        elif len(form_data['first_name']) < 2 or len(form_data['last_name']) < 2:
-            error = "Le nom et prénom doivent contenir au moins 2 caractères."
+        elif "@" not in form_data["email"]:
+            error = "Adresse email invalide."
         else:
-            # ============================================
-            # NOUVELLE LOGIQUE D'ENVOI FIABLE
-            # ============================================
-            
-            # 1. Sauvegarde en JSON (GARANTIE de fonctionnement)
-            json_saved = contact_manager.save_contact_to_json(form_data)
-            
-            # 2. Notification Discord (optionnel, non-bloquant)
-            discord_sent = send_discord_notification(form_data)
-            
-            # 3. Email SMTP (DÉSACTIVÉ temporairement)
-            print("📧 Tentative d'envoi d'email...")
-            email_sent = send_email_fallback(form_data)  # Retourne toujours True maintenant
-            
-            # 4. Message informatif dans les logs
-            if json_saved:
+            # =====================
+            # TRAITEMENT FIABLE
+            # =====================
+            saved = contact_manager.save_contact_to_json(form_data, request)
+            send_discord_notification(form_data)
+
+            if saved:
                 success = True
-                current_time = datetime.now().strftime('%H:%M')
-                email_status = "📨 (sauvegardé uniquement - email désactivé)"
-                print(f"✅ Formulaire traité avec succès à {current_time} pour: {form_data['email']} {email_status}")
-                
-                # Si SMTP est configuré, on pourrait l'activer plus tard
-                smtp_configured = all([
-                    os.environ.get('SMTP_USERNAME'),
-                    os.environ.get('SMTP_PASSWORD'),
-                    os.environ.get('DEVELOPER_EMAIL')
-                ])
-                if smtp_configured:
-                    print(f"   ℹ️ SMTP configuré pour: {os.environ.get('DEVELOPER_EMAIL')}")
             else:
-                error = "Une erreur technique est survenue lors de la sauvegarde. Veuillez réessayer."
+                error = "Une erreur technique est survenue. Veuillez réessayer."
     
     # Contenu HTML du formulaire
     contact_form = """
