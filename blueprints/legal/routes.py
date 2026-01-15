@@ -13,6 +13,7 @@ import os
 import json
 import requests
 from pathlib import Path
+from utils.contact_manager import save_contact_to_json
 
 # ============================================================
 # TEMPLATE HTML POUR LES PAGES LÉGALES
