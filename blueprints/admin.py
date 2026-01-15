@@ -6,6 +6,7 @@ from flask import Blueprint, session, request, redirect, url_for, render_templat
 from utils.stats_manager import stats_manager
 from managers.rating_manager import ratings_manager
 from managers.contact_manager import contact_manager
+from utils.contact_manager import contact_manager
 
 # ==========================================================
 # Blueprint
