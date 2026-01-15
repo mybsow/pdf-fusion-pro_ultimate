@@ -3,9 +3,11 @@ from functools import wraps
 from datetime import datetime
 from flask import Blueprint, session, request, redirect, url_for, render_template, jsonify
 
-from utils.stats_manager import stats_manager
-from managers.rating_manager import ratings_manager
+from utils.cache import SimpleCache
 from managers.contact_manager import contact_manager
+from managers.rating_manager import rating_manager
+
+cache = SimpleCache(ttl=15)
 
 # ==========================================================
 # Blueprint
@@ -70,28 +72,21 @@ def admin_logout():
 @admin_bp.route("/dashboard")
 @admin_required
 def admin_dashboard():
-    # 📊 Stats évaluations
-    ratings_stats = ratings_manager.get_stats()  # total + unseen
-    ratings_total = ratings_stats.get("total", 0)
-    unseen_ratings = ratings_stats.get("unseen", 0)
 
-    # 📨 Stats messages
-    messages = contact_manager.get_all()
-    total_messages = len(messages)
-    unseen_messages = contact_manager.get_unseen_count()
+    stats = cache.get("dashboard_stats")
 
-    # Stats PDF / sessions existants
-    stats = {
-        "ratings": ratings_total,
-        "unseen_ratings": unseen_ratings,
-        "total_messages": total_messages,
-        "unseen_messages": unseen_messages,
-        "pdf_merge": stats_manager.get_stat('merge', 0),
-        "pdf_split": stats_manager.get_stat('pdf_split', 0),
-        "pdf_rotate": stats_manager.get_stat('pdf_rotate', 0),
-        "pdf_compress": stats_manager.get_stat('pdf_compress', 0),
-        "total_sessions": stats_manager.get_stat('total_sessions', 0)
-    }
+    if not stats:
+        rating_stats = rating_manager.get_stats()
+
+        stats = {
+            "total_messages": len(contact_manager.get_all()),
+            "unseen_messages": contact_manager.get_unseen_count(),
+            "total_ratings": rating_stats["total"],
+            "avg_rating": rating_stats["avg"],
+            "total_comments": rating_stats["comments"],
+        }
+
+        cache.set("dashboard_stats", stats)
 
     return render_template("admin/dashboard.html", stats=stats)
 
