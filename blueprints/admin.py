@@ -66,9 +66,14 @@ def time_ago(date_obj):
 # ==========================================================
 @admin_bp.app_context_processor
 def inject_unread_count():
-    return {
-        "unread_count": contact_manager.get_unseen_count_cached()
-    }
+    try:
+        return {
+            "unread_count": contact_manager.get_unseen_count()
+        }
+    except Exception:
+        return {
+            "unread_count": 0
+        }
 
 # ==========================================================
 # Login / Logout
