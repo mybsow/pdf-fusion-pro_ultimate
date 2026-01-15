@@ -104,26 +104,15 @@ def admin_dashboard():
 @admin_required
 def admin_messages():
     messages = []
-
     if CONTACTS_DIR.exists():
         for file in CONTACTS_DIR.glob("*.json"):
-            try:
-                with open(file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    data["_file"] = file.name
-                    data["_date"] = data.get("timestamp", "")
-                    messages.append(data)
-            except Exception:
-                continue
-
+            with open(file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                data["_file"] = file.name
+                messages.append(data)
     # Trier par date décroissante
-    messages.sort(key=lambda x: x.get("_date", ""), reverse=True)
-
-    return render_template(
-        "admin/messages.html",
-        messages=messages,
-        total=len(messages)
-    )
+    messages.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+    return render_template("admin/messages.html", messages=messages, total=len(messages))
 
 
 # ==========================================================
