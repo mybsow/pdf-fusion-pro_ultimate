@@ -84,12 +84,13 @@ def admin_logout():
 @admin_required
 def admin_dashboard():
     stats = {
-        "pdf_merge": stats_manager.get_stat("merge", 0),
-        "pdf_split": stats_manager.get_stat("pdf_split", 0),
-        "pdf_rotate": stats_manager.get_stat("pdf_rotate", 0),
-        "pdf_compress": stats_manager.get_stat("pdf_compress", 0),
-        "ratings": stats_manager.get_stat("ratings", 0),
-        "total_sessions": stats_manager.get_stat("total_sessions", 0),
+        'pdf_merge': stats_manager.get_stat('merge', 0),
+        'pdf_split': stats_manager.get_stat('pdf_split', 0),
+        'pdf_rotate': stats_manager.get_stat('pdf_rotate', 0),
+        'pdf_compress': stats_manager.get_stat('pdf_compress', 0),
+        'ratings': ratings_manager.get_stats()['total'],  # total évaluations
+        'unseen_ratings': ratings_manager.get_stats().get('unseen', 0),  # nouvelles évaluations
+        'total_sessions': stats_manager.get_stat('total_sessions', 0)
     }
     return render_template("admin/dashboard.html", stats=stats)
 
