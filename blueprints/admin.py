@@ -1,17 +1,11 @@
-# blueprints/admin.py
-import os
+import os, json
 from functools import wraps
 from datetime import datetime
-from flask import (
-    Blueprint, session, request,
-    redirect, url_for, render_template, jsonify
-)
+from flask import Blueprint, session, request, redirect, url_for, render_template, jsonify
 
-from rating_manager import ratings_manager
 from utils.stats_manager import stats_manager
+from utils.rating_manager import ratings_manager
 from utils.contact_manager import contact_manager
-from managers.rating_manager import rating_manager
-from managers.contact_manager import contact_manager
 
 # ==========================================================
 # Blueprint
@@ -19,7 +13,7 @@ from managers.contact_manager import contact_manager
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 # ==========================================================
-# Configuration
+# Admin password
 # ==========================================================
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 
@@ -40,7 +34,6 @@ def admin_required(view):
 def time_ago(date_obj):
     now = datetime.now()
     diff = now - date_obj
-
     if diff.days > 365:
         y = diff.days // 365
         return f"il y a {y} an{'s' if y > 1 else ''}"
@@ -55,7 +48,7 @@ def time_ago(date_obj):
     return "à l'instant"
 
 # ==========================================================
-# Login
+# Login / Logout
 # ==========================================================
 @admin_bp.route("/", methods=["GET", "POST"])
 def admin_login():
@@ -64,12 +57,8 @@ def admin_login():
             session["admin_logged"] = True
             return redirect(url_for("admin.admin_dashboard"))
         return render_template("admin/login.html", error="Mot de passe incorrect")
-
     return render_template("admin/login.html")
 
-# ==========================================================
-# Logout
-# ==========================================================
 @admin_bp.route("/logout")
 def admin_logout():
     session.clear()
@@ -81,102 +70,20 @@ def admin_logout():
 @admin_bp.route("/dashboard")
 @admin_required
 def admin_dashboard():
-
-    # ===============================
-    # Évaluations
-    # ===============================
     ratings_stats = ratings_manager.get_stats()
-
-    # ===============================
-    # Messages (via ContactManager)
-    # ===============================
     messages = contact_manager.get_all()
-    unseen_messages = contact_manager.get_unseen_count()
-
-    # ===============================
-    # Stats globales
-    # ===============================
     stats = {
         "ratings": ratings_stats.get("total", 0),
         "unseen_ratings": ratings_stats.get("unseen", 0),
-
         "total_messages": len(messages),
-        "unseen_messages": unseen_messages,
-
-        "pdf_merge": stats_manager.get_stat("merge", 0),
-        "pdf_split": stats_manager.get_stat("pdf_split", 0),
-        "pdf_rotate": stats_manager.get_stat("pdf_rotate", 0),
-        "pdf_compress": stats_manager.get_stat("pdf_compress", 0),
-        "total_sessions": stats_manager.get_stat("total_sessions", 0),
+        "unseen_messages": contact_manager.get_unseen_count(),
+        "pdf_merge": stats_manager.get_stat('merge', 0),
+        "pdf_split": stats_manager.get_stat('pdf_split', 0),
+        "pdf_rotate": stats_manager.get_stat('pdf_rotate', 0),
+        "pdf_compress": stats_manager.get_stat('pdf_compress', 0),
+        "total_sessions": stats_manager.get_stat('total_sessions', 0)
     }
-
-    return render_template(
-        "admin/dashboard.html",
-        stats=stats,
-        messages=messages[:5],      # aperçu
-        ratings=ratings_manager.get_all_ratings()[:5]
-    )
-
-# =====================================
-# Messages de contact
-# =====================================
-@admin_bp.route("/messages")
-@admin_required
-def admin_messages():
-    messages = contact_manager.get_all()
-    contact_manager.mark_all_seen()
-
-    return render_template(
-        "admin/messages.html",
-        messages=messages,
-        archived=False
-    )
-
-# =====================================
-# Messages archivés
-# =====================================
-@admin_bp.route("/messages/archived")
-@admin_required
-def admin_messages_archived():
-    messages = contact_manager.get_archived()
-
-    return render_template(
-        "admin/messages.html",
-        messages=messages,
-        archived=True
-    )
-
-# =====================================
-# Archiver un message
-# =====================================
-@admin_bp.route("/messages/archive/<message_id>")
-@admin_required
-def admin_message_archive(message_id):
-    contact_manager.archive(message_id)
-    return redirect(url_for("admin.admin_messages"))
-
-# =====================================
-# Actions sur les messages
-# =====================================
-@admin_bp.route("/messages/seen/<message_id>")
-@admin_required
-def mark_message_seen(message_id):
-    contact_manager.mark_all_seen()  # ou contact_manager.mark_seen(message_id) si tu veux le faire individuellement
-    return redirect(url_for("admin.admin_messages"))
-
-@admin_bp.route("/messages/archive/<message_id>")
-@admin_required
-def archive_message(message_id):
-    contact_manager.archive(message_id)
-    return redirect(url_for("admin.admin_messages"))
-
-@admin_bp.route("/messages/delete/<message_id>")
-@admin_required
-def delete_message(message_id):
-    contact_manager.delete(message_id)
-    return redirect(url_for("admin.admin_messages"))
-
-
+    return render_template("admin/dashboard.html", stats=stats)
 
 # ==========================================================
 # Ratings
@@ -205,10 +112,52 @@ def admin_ratings():
         except Exception:
             r["display_date"] = ts
             r["time_ago"] = ""
-
     ratings.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
-
     return render_template("admin/ratings.html", ratings=ratings, stats=stats)
+
+# ==========================================================
+# Messages
+# ==========================================================
+@admin_bp.route("/messages")
+@admin_required
+def admin_messages():
+    messages = contact_manager.get_all()
+    contact_manager.mark_all_seen()
+    return render_template("admin/messages.html", messages=messages)
+
+@admin_bp.route("/messages/archive/<message_id>")
+@admin_required
+def archive_message(message_id):
+    contact_manager.archive(message_id)
+    return redirect(url_for("admin.admin_messages"))
+
+@admin_bp.route("/messages/delete/<message_id>")
+@admin_required
+def delete_message(message_id):
+    contact_manager.delete(message_id)
+    return redirect(url_for("admin.admin_messages"))
+
+
+# =====================================
+# Actions sur les messages
+# =====================================
+@admin_bp.route("/messages/seen/<message_id>")
+@admin_required
+def mark_message_seen(message_id):
+    contact_manager.mark_all_seen()  # ou contact_manager.mark_seen(message_id) si tu veux le faire individuellement
+    return redirect(url_for("admin.admin_messages"))
+
+@admin_bp.route("/messages/archive/<message_id>")
+@admin_required
+def archive_message(message_id):
+    contact_manager.archive(message_id)
+    return redirect(url_for("admin.admin_messages"))
+
+@admin_bp.route("/messages/delete/<message_id>")
+@admin_required
+def delete_message(message_id):
+    contact_manager.delete(message_id)
+    return redirect(url_for("admin.admin_messages"))
 
 # ==========================================================
 # Debug
