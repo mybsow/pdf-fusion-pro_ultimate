@@ -2,55 +2,70 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin – Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="container mt-4">
 
-<h1>Admin – Dashboard</h1>
+  <h1>Admin – Dashboard</h1>
 
-<div class="row mt-4">
-  <div class="col-md-3 mb-3">
-    <div class="card p-3">
-      <h5>⭐ Total évaluations</h5>
-      <p class="display-6">{{ stats.ratings }}</p>
+  <div class="row mt-4">
+    <!-- Évaluations -->
+    <div class="col-md-4 mb-3">
+      <div class="card p-3">
+        <h5>⭐ Total évaluations</h5>
+        <p class="display-6">{{ stats.ratings }}</p>
+      </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+      <div class="card p-3">
+        <h5>🔔 Nouvelles évaluations</h5>
+        <p class="display-6 text-danger">{{ stats.unseen_ratings or 0 }}</p>
+      </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+      <div class="card p-3">
+        <h5>📊 Moyenne évaluations</h5>
+        <p class="display-6">{{ stats.average or "N/A" }}</p>
+      </div>
+    </div>
+    
+    <!-- Messages -->
+    <div class="col-md-4 mb-3">
+      <div class="card p-3">
+        <h5>📩 Messages reçus</h5>
+        <p class="display-6">{{ stats.total_messages }}</p>
+      </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+      <div class="card p-3">
+        <h5>🔔 Nouveaux messages</h5>
+        <p class="display-6 text-danger">{{ stats.unseen_messages or 0 }}</p>
+      </div>
     </div>
   </div>
-  <div class="col-md-3 mb-3">
-    <div class="card p-3">
-      <h5>🔔 Nouvelles évaluations</h5>
-      <p class="display-6 text-danger">{{ stats.unseen_ratings or 0 }}</p>
-    </div>
-  </div>
-  <div class="col-md-3 mb-3">
-    <div class="card p-3">
-      <h5>✉️ Nouveaux messages</h5>
-      <p class="display-6 text-danger">{{ stats.new_messages or 0 }}</p>
-    </div>
-  </div>
-  <div class="col-md-3 mb-3">
-    <div class="card p-3">
-      <h5>📊 Moyenne évaluations</h5>
-      <p class="display-6">{{ stats.average or "N/A" }}</p>
-    </div>
-  </div>
-</div>
 
-<div class="mt-4">
-  <a href="{{ url_for('admin.admin_ratings') }}" class="btn btn-success me-2">
-    Voir toutes les évaluations
-    {% if stats.unseen_ratings %}
-      <span class="badge bg-danger">{{ stats.unseen_ratings }} nouvelles</span>
-    {% endif %}
-  </a>
-  <a href="{{ url_for('admin.admin_messages') }}" class="btn btn-info me-2">
-    Voir les messages
-    {% if stats.new_messages %}
-      <span class="badge bg-danger">{{ stats.new_messages }} nouveaux</span>
-    {% endif %}
-  </a>
-  <a href="{{ url_for('admin.admin_logout') }}" class="btn btn-outline-secondary">Déconnexion</a>
-</div>
+  <div class="mt-4">
+    <a href="{{ url_for('admin.admin_ratings') }}" class="btn btn-success me-2">
+      Voir toutes les évaluations 
+      {% if stats.unseen_ratings %} 
+        <span class="badge bg-danger">{{ stats.unseen_ratings }} nouvelles</span> 
+      {% endif %}
+    </a>
+    
+    <a href="{{ url_for('admin.admin_messages') }}" class="btn btn-primary me-2">
+      Voir tous les messages 
+      {% if stats.unseen_messages %} 
+        <span class="badge bg-danger">{{ stats.unseen_messages }} nouveaux</span> 
+      {% endif %}
+    </a>
+    
+    <a href="{{ url_for('admin.admin_logout') }}" class="btn btn-outline-secondary">Déconnexion</a>
+  </div>
 
 </body>
 </html>
