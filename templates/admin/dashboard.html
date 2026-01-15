@@ -9,34 +9,21 @@
 
 <h1>Admin – Dashboard</h1>
 
-<!-- ====== Grille de statistiques ====== -->
 <div class="row mt-4">
+
   <!-- Total évaluations -->
-  <div class="col-md-3 mb-3">
+  <div class="col-md-4 mb-3">
     <div class="card p-3">
-      <h5>⭐ Total évaluations</h5>
+      <h5>⭐ Évaluations</h5>
       <p class="display-6">{{ stats.ratings }}</p>
+      {% if stats.unseen_ratings %}
+        <span class="badge bg-danger">{{ stats.unseen_ratings }} nouvelles</span>
+      {% endif %}
     </div>
   </div>
 
-  <!-- Moyenne évaluations -->
-  <div class="col-md-3 mb-3">
-    <div class="card p-3">
-      <h5>📊 Moyenne</h5>
-      <p class="display-6">{{ stats.average }}</p>
-    </div>
-  </div>
-
-  <!-- Nouvelles évaluations -->
-  <div class="col-md-3 mb-3">
-    <div class="card p-3">
-      <h5>🔔 Nouvelles évaluations</h5>
-      <p class="display-6 text-danger">{{ stats.unseen_ratings or 0 }}</p>
-    </div>
-  </div>
-
-  <!-- Messages -->
-  <div class="col-md-3 mb-3">
+  <!-- Total messages -->
+  <div class="col-md-4 mb-3">
     <div class="card p-3">
       <h5>📨 Messages</h5>
       <p class="display-6">{{ stats.total_messages }}</p>
@@ -45,19 +32,30 @@
       {% endif %}
     </div>
   </div>
+
+  <!-- PDF / Sessions -->
+  <div class="col-md-4 mb-3">
+    <div class="card p-3">
+      <h5>📊 Sessions PDF</h5>
+      <p>Merge: {{ stats.pdf_merge }}</p>
+      <p>Split: {{ stats.pdf_split }}</p>
+      <p>Rotate: {{ stats.pdf_rotate }}</p>
+      <p>Compress: {{ stats.pdf_compress }}</p>
+      <p>Total sessions: {{ stats.total_sessions }}</p>
+    </div>
+  </div>
+
 </div>
 
-<!-- ====== Boutons d’accès ====== -->
 <div class="mt-4">
-  <!-- Bouton évaluations -->
+  <!-- Accès rapide -->
   <a href="{{ url_for('admin.admin_ratings') }}" class="btn btn-success me-2">
-    Voir toutes les évaluations
+    Voir évaluations
     {% if stats.unseen_ratings %}
-      <span class="badge bg-danger">{{ stats.unseen_ratings }} nouvelles</span>
+      <span class="badge bg-danger">{{ stats.unseen_ratings }}</span>
     {% endif %}
   </a>
 
-  <!-- Bouton messages -->
   <a href="{{ url_for('admin.admin_messages') }}" class="btn btn-primary me-2">
     Messages
     {% if stats.unseen_messages %}
@@ -65,27 +63,7 @@
     {% endif %}
   </a>
 
-  <!-- Bouton déconnexion -->
   <a href="{{ url_for('admin.admin_logout') }}" class="btn btn-outline-secondary">Déconnexion</a>
-</div>
-
-<!-- ====== Stats PDF & sessions ====== -->
-<div class="row mt-5">
-  <div class="col-md-3 mb-3">
-    <div class="card p-3">
-      <h5>📝 PDF Fusion</h5>
-      <p class="mb-1">Merge : {{ stats.pdf_merge }}</p>
-      <p class="mb-1">Split : {{ stats.pdf_split }}</p>
-      <p class="mb-1">Rotate : {{ stats.pdf_rotate }}</p>
-      <p class="mb-0">Compress : {{ stats.pdf_compress }}</p>
-    </div>
-  </div>
-  <div class="col-md-3 mb-3">
-    <div class="card p-3">
-      <h5>💻 Sessions totales</h5>
-      <p class="display-6">{{ stats.total_sessions }}</p>
-    </div>
-  </div>
 </div>
 
 </body>
