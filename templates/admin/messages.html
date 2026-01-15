@@ -2,83 +2,58 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Admin – Messages de contact</title>
+  <title>Admin – Messages</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .message-preview {
-      max-width: 420px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .unseen {
-      background-color: #fff6f6;
-    }
-  </style>
 </head>
 <body class="container mt-4">
 
-<h1 class="mb-3">📩 Messages de contact</h1>
+<h1>
+  {% if archived %}📦 Messages archivés{% else %}📨 Messages de contact{% endif %}
+</h1>
 
-<p class="text-muted">
-  Total : <strong>{{ total }}</strong>
-</p>
+<div class="mb-3">
+  {% if archived %}
+    <a href="{{ url_for('admin.admin_messages') }}" class="btn btn-outline-primary">Messages actifs</a>
+  {% else %}
+    <a href="{{ url_for('admin.admin_messages_archived') }}" class="btn btn-outline-secondary">Voir archivés</a>
+  {% endif %}
+</div>
 
-{% if messages %}
-<table class="table table-hover align-middle">
-  <thead class="table-light">
+<table class="table table-striped align-middle">
+  <thead>
     <tr>
-      <th>Statut</th>
       <th>Nom</th>
       <th>Email</th>
       <th>Sujet</th>
       <th>Message</th>
       <th>Date</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
-    {% for msg in messages %}
-    <tr class="{% if not msg.seen %}unseen{% endif %}">
+  {% for msg in messages %}
+    <tr>
+      <td>{{ msg.first_name }} {{ msg.last_name }}</td>
+      <td>{{ msg.email }}</td>
+      <td>{{ msg.subject }}</td>
+      <td style="max-width:400px">{{ msg.message }}</td>
+      <td>{{ msg.timestamp[:19] }}</td>
       <td>
-        {% if not msg.seen %}
-          <span class="badge bg-danger">Nouveau</span>
-        {% else %}
-          <span class="badge bg-secondary">Lu</span>
+        {% if not archived %}
+          <a href="{{ url_for('admin.admin_message_archive', message_id=msg.id) }}" class="btn btn-sm btn-warning">Archiver</a>
         {% endif %}
-      </td>
-      <td>
-        {{ msg.first_name }} {{ msg.last_name }}
-      </td>
-      <td>
-        <a href="mailto:{{ msg.email }}">{{ msg.email }}</a>
-      </td>
-      <td>
-        {{ msg.subject }}
-      </td>
-      <td class="message-preview" title="{{ msg.message }}">
-        {{ msg.message }}
-      </td>
-      <td>
-        {{ msg.timestamp[:19].replace('T', ' ') }}
+        <a href="{{ url_for('admin.admin_message_delete', message_id=msg.id) }}"
+           class="btn btn-sm btn-danger"
+           onclick="return confirm('Supprimer définitivement ce message ?')">
+           Supprimer
+        </a>
       </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
   </tbody>
 </table>
-{% else %}
-<div class="alert alert-info">
-  Aucun message pour le moment.
-</div>
-{% endif %}
 
-<div class="mt-4">
-  <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline-primary me-2">
-    ← Retour au dashboard
-  </a>
-  <a href="{{ url_for('admin.admin_logout') }}" class="btn btn-outline-danger">
-    Déconnexion
-  </a>
-</div>
+<a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline-secondary">Retour dashboard</a>
 
 </body>
 </html>
