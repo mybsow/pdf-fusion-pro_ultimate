@@ -9,6 +9,7 @@ from flask import (
 
 from rating_manager import ratings_manager
 from utils.stats_manager import stats_manager
+from utils.contact_manager import contact_manager
 from managers.rating_manager import rating_manager
 from managers.contact_manager import contact_manager
 
@@ -77,9 +78,6 @@ def admin_logout():
 # ==========================================================
 # Dashboard
 # ==========================================================
-# ==========================================================
-# Dashboard
-# ==========================================================
 @admin_bp.route("/dashboard")
 @admin_required
 def admin_dashboard():
@@ -131,8 +129,32 @@ def admin_messages():
     return render_template(
         "admin/messages.html",
         messages=messages,
-        total=len(messages)
+        archived=False
     )
+
+# =====================================
+# Messages archivés
+# =====================================
+@admin_bp.route("/messages/archived")
+@admin_required
+def admin_messages_archived():
+    messages = contact_manager.get_archived()
+
+    return render_template(
+        "admin/messages.html",
+        messages=messages,
+        archived=True
+    )
+
+# =====================================
+# Archiver un message
+# =====================================
+@admin_bp.route("/messages/archive/<message_id>")
+@admin_required
+def admin_message_archive(message_id):
+    contact_manager.archive(message_id)
+    return redirect(url_for("admin.admin_messages"))
+
 
 
 # ==========================================================
