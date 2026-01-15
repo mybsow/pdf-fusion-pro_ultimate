@@ -9,14 +9,44 @@ from utils.contact_manager import contact_manager
 #from managers.contact_manager import contact_manager
 
 
+from pathlib import Path
+from datetime import datetime
+import json
+
 class ContactManager:
     def __init__(self):
-        self.lock = Lock()
         self.contacts_dir = Path("data/contacts")
         self.archive_dir = self.contacts_dir / "archived"
         self.contacts_dir.mkdir(parents=True, exist_ok=True)
         self.archive_dir.mkdir(parents=True, exist_ok=True)
-        self._cache = None  # cache en mémoire
+        self._cache = None
+
+    def save_contact_to_json(self, form_data, flask_request=None):
+        try:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            safe_email = form_data['email'].split('@')[0][:20] \
+                .replace('.', '_').replace('+', '_')
+
+            filename = f"contact_{timestamp}_{safe_email}.json"
+            filepath = self.contacts_dir / filename
+
+            contact_data = {
+                **form_data,
+                "received_at": datetime.now().isoformat(),
+                "ip_address": flask_request.remote_addr if flask_request else None,
+                "user_agent": flask_request.user_agent.string if flask_request else None,
+                "status": "pending"
+            }
+
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(contact_data, f, ensure_ascii=False, indent=2)
+
+            self._cache = None  # invalider cache
+            return True
+
+        except Exception as e:
+            print(f"❌ Erreur sauvegarde contact: {e}")
+            return False
 
     # ================================
     # Lecture messages
