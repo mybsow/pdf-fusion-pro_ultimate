@@ -5,7 +5,23 @@ from flask import Blueprint, session, request, redirect, url_for, render_templat
 
 from utils.stats_manager import stats_manager
 from utils.rating_manager import ratings_manager
-from utils.contact_manager import contact_manager
+from managers.contact_manager import contact_manager
+
+# Afficher tous les messages
+messages = contact_manager.get_all()
+
+# Compter les messages non lus
+unseen_messages = contact_manager.get_unseen_count()
+
+# Marquer tous les messages comme vus
+contact_manager.mark_all_seen()
+
+# Supprimer un message
+contact_manager.delete(message_id)
+
+# Archiver un message
+contact_manager.archive(message_id)
+
 
 # ==========================================================
 # Blueprint
@@ -70,20 +86,61 @@ def admin_logout():
 @admin_bp.route("/dashboard")
 @admin_required
 def admin_dashboard():
-    ratings_stats = ratings_manager.get_stats()
+    # 📊 Stats évaluations
+    ratings_stats = rating_manager.get_stats()  # total + unseen
+    ratings_total = ratings_stats.get("total", 0)
+    unseen_ratings = ratings_stats.get("unseen", 0)
+
+    # 📨 Stats messages
     messages = contact_manager.get_all()
+    total_messages = len(messages)
+    unseen_messages = contact_manager.get_unseen_count()
+
+    # Stats PDF / sessions existants
     stats = {
-        "ratings": ratings_stats.get("total", 0),
-        "unseen_ratings": ratings_stats.get("unseen", 0),
-        "total_messages": len(messages),
-        "unseen_messages": contact_manager.get_unseen_count(),
+        "ratings": ratings_total,
+        "unseen_ratings": unseen_ratings,
+        "total_messages": total_messages,
+        "unseen_messages": unseen_messages,
         "pdf_merge": stats_manager.get_stat('merge', 0),
         "pdf_split": stats_manager.get_stat('pdf_split', 0),
         "pdf_rotate": stats_manager.get_stat('pdf_rotate', 0),
         "pdf_compress": stats_manager.get_stat('pdf_compress', 0),
         "total_sessions": stats_manager.get_stat('total_sessions', 0)
     }
+
     return render_template("admin/dashboard.html", stats=stats)
+
+
+# ==========================================================
+# Messages de contact
+# ==========================================================
+@admin_bp.route("/messages")
+@admin_required
+def admin_messages():
+    messages = contact_manager.get_all()
+    return render_template("admin/messages.html", messages=messages)
+
+
+# ==========================================================
+# Supprimer un message
+# ==========================================================
+@admin_bp.route("/messages/delete/<message_id>", methods=["POST"])
+@admin_required
+def admin_delete_message(message_id):
+    contact_manager.delete(message_id)
+    return redirect(url_for("admin.admin_messages"))
+
+
+# ==========================================================
+# Archiver un message
+# ==========================================================
+@admin_bp.route("/messages/archive/<message_id>", methods=["POST"])
+@admin_required
+def admin_archive_message(message_id):
+    contact_manager.archive(message_id)
+    return redirect(url_for("admin.admin_messages"))
+
 
 # ==========================================================
 # Ratings
