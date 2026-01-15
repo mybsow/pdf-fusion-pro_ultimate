@@ -93,6 +93,13 @@ def admin_dashboard():
 # ==========================================================
 # Messages
 # ==========================================================
+@admin_bp.app_context_processor
+def inject_unread_count():
+    from managers.contact_manager import contact_manager
+    return {
+        "unread_count": contact_manager.get_unseen_count_cached()
+    }
+
 @admin_bp.route("/messages")
 @admin_required
 def admin_messages():
