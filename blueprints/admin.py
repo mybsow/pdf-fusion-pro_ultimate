@@ -83,14 +83,16 @@ def admin_logout():
 @admin_bp.route("/dashboard")
 @admin_required
 def admin_dashboard():
+    rating_stats = ratings_manager.get_stats()
     stats = {
         'pdf_merge': stats_manager.get_stat('merge', 0),
         'pdf_split': stats_manager.get_stat('pdf_split', 0),
         'pdf_rotate': stats_manager.get_stat('pdf_rotate', 0),
         'pdf_compress': stats_manager.get_stat('pdf_compress', 0),
-        'ratings': ratings_manager.get_stats()['total'],  # total évaluations
-        'unseen_ratings': ratings_manager.get_stats().get('unseen', 0),  # nouvelles évaluations
-        'total_sessions': stats_manager.get_stat('total_sessions', 0)
+        'ratings': rating_stats.get('total', 0),
+        'unseen_ratings': rating_stats.get('unseen', 0),
+        'total_sessions': stats_manager.get_stat('total_sessions', 0),
+        'new_messages': len(list(CONTACTS_DIR.glob("*.json")))
     }
     return render_template("admin/dashboard.html", stats=stats)
 
