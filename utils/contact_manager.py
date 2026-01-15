@@ -7,13 +7,15 @@ class ContactManager:
         self.lock = Lock()
         self.contacts_dir = Path("data/contacts")
         self.archive_dir = self.contacts_dir / "archived"
-
         self.contacts_dir.mkdir(parents=True, exist_ok=True)
         self.archive_dir.mkdir(parents=True, exist_ok=True)
 
-    def _read_dir(self, directory):
+    # ================================
+    # Lecture
+    # ================================
+    def get_all(self):
         messages = []
-        for file in sorted(directory.glob("msg_*.json"), reverse=True):
+        for file in sorted(self.contacts_dir.glob("msg_*.json"), reverse=True):
             try:
                 with open(file, "r", encoding="utf-8") as f:
                     data = json.load(f)
@@ -24,15 +26,12 @@ class ContactManager:
                 continue
         return messages
 
-    def get_all(self):
-        return self._read_dir(self.contacts_dir)
-
-    def get_archived(self):
-        return self._read_dir(self.archive_dir)
-
     def get_unseen_count(self):
         return sum(1 for m in self.get_all() if not m.get("seen"))
 
+    # ================================
+    # Mise à jour
+    # ================================
     def mark_all_seen(self):
         for file in self.contacts_dir.glob("msg_*.json"):
             try:
@@ -48,12 +47,13 @@ class ContactManager:
     def archive(self, message_id):
         src = self.contacts_dir / message_id
         if src.exists():
-            src.rename(self.archive_dir / message_id)
+            dst = self.archive_dir / message_id
+            src.rename(dst)
 
     def delete(self, message_id):
-        for folder in (self.contacts_dir, self.archive_dir):
-            file = folder / message_id
-            if file.exists():
-                file.unlink()
+        file = self.contacts_dir / message_id
+        if file.exists():
+            file.unlink()
 
+# Instance globale
 contact_manager = ContactManager()
