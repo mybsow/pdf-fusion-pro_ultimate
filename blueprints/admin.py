@@ -155,6 +155,27 @@ def admin_message_archive(message_id):
     contact_manager.archive(message_id)
     return redirect(url_for("admin.admin_messages"))
 
+# =====================================
+# Actions sur les messages
+# =====================================
+@admin_bp.route("/messages/seen/<message_id>")
+@admin_required
+def mark_message_seen(message_id):
+    contact_manager.mark_all_seen()  # ou contact_manager.mark_seen(message_id) si tu veux le faire individuellement
+    return redirect(url_for("admin.admin_messages"))
+
+@admin_bp.route("/messages/archive/<message_id>")
+@admin_required
+def archive_message(message_id):
+    contact_manager.archive(message_id)
+    return redirect(url_for("admin.admin_messages"))
+
+@admin_bp.route("/messages/delete/<message_id>")
+@admin_required
+def delete_message(message_id):
+    contact_manager.delete(message_id)
+    return redirect(url_for("admin.admin_messages"))
+
 
 
 # ==========================================================
