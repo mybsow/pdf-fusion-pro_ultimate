@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Admin{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+        header {
+            background: #1f2937;
+            color: #fff;
+            padding: 12px 20px;
+        }
+        nav a {
+            color: #fff;
+            margin-right: 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .badge {
+            background: red;
+            color: white;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 12px;
+            vertical-align: top;
+        }
+        main {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/messages">
+            Messages
+            {% if unread_count and unread_count > 0 %}
+                <span class="badge">{{ unread_count }}</span>
+            {% endif %}
+        </a>
+        <a href="/admin/ratings">Ratings</a>
+    </nav>
+</header>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>
