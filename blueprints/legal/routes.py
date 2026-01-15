@@ -570,134 +570,134 @@ def contact():
     # Inclure le formulaire seulement si pas de succès
     if not success:
     # Le formulaire lui-même (uniquement si pas de succès)
-    contact_form += f"""
-    <div class="contact-form-container">
-        <form method="POST" action="/contact">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="first_name" class="form-label">Prénom *</label>
-                    <input type="text" class="form-control" id="first_name" name="first_name" 
-                           placeholder="Votre prénom" required
-                           value="{request.form.get('first_name', '')}"
-                           minlength="2" maxlength="50">
+        contact_form += f"""
+        <div class="contact-form-container">
+            <form method="POST" action="/contact">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="first_name" class="form-label">Prénom *</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" 
+                               placeholder="Votre prénom" required
+                               value="{request.form.get('first_name', '')}"
+                               minlength="2" maxlength="50">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="last_name" class="form-label">Nom *</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" 
+                               placeholder="Votre nom" required
+                               value="{request.form.get('last_name', '')}"
+                               minlength="2" maxlength="50">
+                    </div>
                 </div>
                 
-                <div class="col-md-6 mb-3">
-                    <label for="last_name" class="form-label">Nom *</label>
-                    <input type="text" class="form-control" id="last_name" name="last_name" 
-                           placeholder="Votre nom" required
-                           value="{request.form.get('last_name', '')}"
-                           minlength="2" maxlength="50">
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="email" class="form-label">Adresse email *</label>
-                    <input type="email" class="form-control" id="email" name="email" 
-                           placeholder="votre@email.com" required
-                           value="{request.form.get('email', '')}">
-                    <div class="form-text">Nous ne partagerons jamais votre email avec des tiers.</div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Adresse email *</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               placeholder="votre@email.com" required
+                               value="{request.form.get('email', '')}">
+                        <div class="form-text">Nous ne partagerons jamais votre email avec des tiers.</div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="phone" class="form-label">Numéro de téléphone (optionnel)</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" 
+                               placeholder="06 12 34 56 78"
+                               value="{request.form.get('phone', '')}">
+                        <div class="form-text">Pour un contact plus rapide si nécessaire.</div>
+                    </div>
                 </div>
                 
-                <div class="col-md-6 mb-3">
-                    <label for="phone" class="form-label">Numéro de téléphone (optionnel)</label>
-                    <input type="tel" class="form-control" id="phone" name="phone" 
-                           placeholder="06 12 34 56 78"
-                           value="{request.form.get('phone', '')}">
-                    <div class="form-text">Pour un contact plus rapide si nécessaire.</div>
+                <div class="mb-3">
+                    <label for="subject" class="form-label">Sujet de votre message *</label>
+                    <select class="form-select" id="subject" name="subject" required>
+                        <option value="" disabled selected>Sélectionnez un sujet</option>
+                        <option value="bug" {"selected" if request.form.get('subject') == 'bug' else ""}>🚨 Signaler un bug ou un problème technique</option>
+                        <option value="improvement" {"selected" if request.form.get('subject') == 'improvement' else ""}>💡 Proposer une amélioration fonctionnelle</option>
+                        <option value="partnership" {"selected" if request.form.get('subject') == 'partnership' else ""}>🤝 Demande de partenariat</option>
+                        <option value="other" {"selected" if request.form.get('subject') == 'other' else ""}>❓ Autre demande</option>
+                    </select>
                 </div>
-            </div>
-            
-            <div class="mb-3">
-                <label for="subject" class="form-label">Sujet de votre message *</label>
-                <select class="form-select" id="subject" name="subject" required>
-                    <option value="" disabled selected>Sélectionnez un sujet</option>
-                    <option value="bug" {"selected" if request.form.get('subject') == 'bug' else ""}>🚨 Signaler un bug ou un problème technique</option>
-                    <option value="improvement" {"selected" if request.form.get('subject') == 'improvement' else ""}>💡 Proposer une amélioration fonctionnelle</option>
-                    <option value="partnership" {"selected" if request.form.get('subject') == 'partnership' else ""}>🤝 Demande de partenariat</option>
-                    <option value="other" {"selected" if request.form.get('subject') == 'other' else ""}>❓ Autre demande</option>
-                </select>
-            </div>
-            
-            <div class="mb-3">
-                <label for="message" class="form-label">Votre message *</label>
-                <textarea class="form-control" id="message" name="message" rows="6" 
-                          placeholder="Décrivez votre demande en détail..." required
-                          maxlength="2000">{request.form.get('message', '')}</textarea>
-                <div class="character-count" id="charCount">0 / 2000 caractères</div>
-                <div class="form-text">Maximum 2000 caractères. Soyez aussi précis que possible.</div>
-            </div>
-            
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button type="submit" class="btn btn-send">
-                    <i class="fas fa-paper-plane me-1"></i> Envoyer le message
-                </button>
-            </div>
-        </form>
-    </div>
-    
-    <h3 class="mt-5">Types de demandes</h3>
-    <p>Voici les différents types de demandes que vous pouvez nous soumettre :</p>
-    
-    <div class="contact-types-grid">
-        <div class="contact-type-card">
-            <div class="contact-type-icon">
-                <i class="fas fa-bug"></i>
-            </div>
-            <h4>Support technique</h4>
-            <p>Pour signaler un bug, un problème technique ou une difficulté d'utilisation du service.</p>
+                
+                <div class="mb-3">
+                    <label for="message" class="form-label">Votre message *</label>
+                    <textarea class="form-control" id="message" name="message" rows="6" 
+                              placeholder="Décrivez votre demande en détail..." required
+                              maxlength="2000">{request.form.get('message', '')}</textarea>
+                    <div class="character-count" id="charCount">0 / 2000 caractères</div>
+                    <div class="form-text">Maximum 2000 caractères. Soyez aussi précis que possible.</div>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-send">
+                        <i class="fas fa-paper-plane me-1"></i> Envoyer le message
+                    </button>
+                </div>
+            </form>
         </div>
         
-        <div class="contact-type-card">
-            <div class="contact-type-icon">
-                <i class="fas fa-lightbulb"></i>
+        <h3 class="mt-5">Types de demandes</h3>
+        <p>Voici les différents types de demandes que vous pouvez nous soumettre :</p>
+        
+        <div class="contact-types-grid">
+            <div class="contact-type-card">
+                <div class="contact-type-icon">
+                    <i class="fas fa-bug"></i>
+                </div>
+                <h4>Support technique</h4>
+                <p>Pour signaler un bug, un problème technique ou une difficulté d'utilisation du service.</p>
             </div>
-            <h4>Améliorations</h4>
-            <p>Pour proposer une nouvelle fonctionnalité ou suggérer une amélioration du service.</p>
+            
+            <div class="contact-type-card">
+                <div class="contact-type-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h4>Améliorations</h4>
+                <p>Pour proposer une nouvelle fonctionnalité ou suggérer une amélioration du service.</p>
+            </div>
+            
+            <div class="contact-type-card">
+                <div class="contact-type-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <h4>Partenariats</h4>
+                <p>Pour discuter d'opportunités de collaboration, d'intégration ou de partenariat.</p>
+            </div>
+            
+            <div class="contact-type-card">
+                <div class="contact-type-icon">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <h4>Autres demandes</h4>
+                <p>Pour toute autre question concernant le service, la confidentialité ou les conditions d'utilisation.</p>
+            </div>
         </div>
         
-        <div class="contact-type-card">
-            <div class="contact-type-icon">
-                <i class="fas fa-handshake"></i>
-            </div>
-            <h4>Partenariats</h4>
-            <p>Pour discuter d'opportunités de collaboration, d'intégration ou de partenariat.</p>
+        <div class="info-box mt-4">
+            <i class="fas fa-clock me-2"></i>
+            <strong>Temps de réponse :</strong> Nous nous efforçons de répondre à tous les messages dans un délai de 48 heures.
+            Pour les urgences techniques, précisez-le dans votre message.
         </div>
         
-        <div class="contact-type-card">
-            <div class="contact-type-icon">
-                <i class="fas fa-question-circle"></i>
-            </div>
-            <h4>Autres demandes</h4>
-            <p>Pour toute autre question concernant le service, la confidentialité ou les conditions d'utilisation.</p>
+        <div class="alert alert-warning mt-4">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <strong>Note importante :</strong> Pour des raisons de sécurité et de confidentialité, 
+            nous ne traitons pas les demandes concernant des fichiers PDF spécifiques via ce formulaire.
+            Tous les traitements de fichiers doivent être effectués directement via l'interface web.
         </div>
-    </div>
-    
-    <div class="info-box mt-4">
-        <i class="fas fa-clock me-2"></i>
-        <strong>Temps de réponse :</strong> Nous nous efforçons de répondre à tous les messages dans un délai de 48 heures.
-        Pour les urgences techniques, précisez-le dans votre message.
-    </div>
-    
-    <div class="alert alert-warning mt-4">
-        <i class="fas fa-exclamation-circle me-2"></i>
-        <strong>Note importante :</strong> Pour des raisons de sécurité et de confidentialité, 
-        nous ne traitons pas les demandes concernant des fichiers PDF spécifiques via ce formulaire.
-        Tous les traitements de fichiers doivent être effectués directement via l'interface web.
-    </div>
-    """
-    
-    return render_template_string(
-        LEGAL_TEMPLATE,
-        title="Contact",
-        badge="Formulaire de contact",
-        subtitle="Contactez-nous via notre formulaire",
-        content=contact_form,
-        current_year=datetime.now().year,
-        config=AppConfig,
-        datetime=datetime
-    )
+        """
+        
+        return render_template_string(
+            LEGAL_TEMPLATE,
+            title="Contact",
+            badge="Formulaire de contact",
+            subtitle="Contactez-nous via notre formulaire",
+            content=contact_form,
+            current_year=datetime.now().year,
+            config=AppConfig,
+            datetime=datetime
+        )
 
 
 @legal_bp.route('/mentions-legales')
