@@ -9,67 +9,86 @@ from utils.contact_manager import contact_manager
 #from managers.contact_manager import contact_manager
 
 
-from pathlib import Path
-from datetime import datetime
-import json
+
+import uuid
+
 
 class ContactManager:
     def __init__(self):
-        self.contacts_dir = Path("data/contacts")
-        self.archive_dir = self.contacts_dir / "archived"
-        self.contacts_dir.mkdir(parents=True, exist_ok=True)
+        self.lock = Lock()
+
+        self.base_dir = Path("data/contacts")
+        self.archive_dir = self.base_dir / "archived"
+
+        self.base_dir.mkdir(parents=True, exist_ok=True)
         self.archive_dir.mkdir(parents=True, exist_ok=True)
-        self._cache = None
 
-    def save_contact_to_json(self, form_data, flask_request=None):
+    # =====================================================
+    # SAUVEGARDE
+    # =====================================================
+    def save_contact_to_json(self, form_data: dict, request=None) -> bool:
+        """
+        Sauvegarde un message de contact dans un fichier JSON.
+        """
         try:
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            safe_email = form_data['email'].split('@')[0][:20] \
-                .replace('.', '_').replace('+', '_')
+            message_id = f"msg_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}.json"
+            filepath = self.base_dir / message_id
 
-            filename = f"contact_{timestamp}_{safe_email}.json"
-            filepath = self.contacts_dir / filename
-
-            contact_data = {
-                **form_data,
-                "received_at": datetime.now().isoformat(),
-                "ip_address": flask_request.remote_addr if flask_request else None,
-                "user_agent": flask_request.user_agent.string if flask_request else None,
-                "status": "pending"
+            payload = {
+                "id": message_id,
+                "first_name": form_data.get("first_name"),
+                "last_name": form_data.get("last_name"),
+                "email": form_data.get("email"),
+                "phone": form_data.get("phone"),
+                "subject": form_data.get("subject"),
+                "message": form_data.get("message"),
+                "seen": False,
+                "archived": False,
+                "created_at": datetime.utcnow().isoformat(),
+                "meta": {
+                    "ip": request.remote_addr if request else None,
+                    "user_agent": request.user_agent.string if request else None,
+                },
             }
 
-            with open(filepath, "w", encoding="utf-8") as f:
-                json.dump(contact_data, f, ensure_ascii=False, indent=2)
+            with self.lock:
+                with open(filepath, "w", encoding="utf-8") as f:
+                    json.dump(payload, f, ensure_ascii=False, indent=2)
 
-            self._cache = None  # invalider cache
             return True
 
-        except Exception as e:
-            print(f"❌ Erreur sauvegarde contact: {e}")
+        except Exception:
             return False
 
-    # ================================
-    # Lecture messages
-    # ================================
-    def get_all(self, limit=None):
-        """Retourne tous les messages triés par date (latest first). limit=int pour pagination"""
+    # =====================================================
+    # LECTURE
+    # =====================================================
+    def get_all(self, include_archived: bool = False) -> list:
+        """
+        Retourne tous les messages (non archivés par défaut).
+        """
         messages = []
-        files = sorted(self.contacts_dir.glob("msg_*.json"), reverse=True)
-        if limit:
-            files = files[:limit]
-        for file in files:
+
+        directory = self.base_dir if not include_archived else None
+        files = self.base_dir.glob("msg_*.json")
+
+        for file in sorted(files, reverse=True):
             try:
                 with open(file, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    data["id"] = file.name
-                    data.setdefault("seen", False)
+                    if not include_archived and data.get("archived"):
+                        continue
                     messages.append(data)
             except Exception:
                 continue
+
         return messages
 
-    def get_unseen_count(self):
-        return sum(1 for m in self.get_all() if not m.get("seen"))
+    def get_unseen_count(self) -> int:
+        """
+        Retourne le nombre de messages non lus.
+        """
+        return sum(1 for m in self.get_all() if not m.get("seen", False))
 
     # ================================
     # Ajout / sauvegarde
