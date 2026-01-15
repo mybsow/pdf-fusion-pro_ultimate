@@ -1,146 +1,122 @@
+# managers/contact_manager.py
+
 import json
-from pathlib import Path
+import os
+import time
 from threading import Lock
-from datetime import datetime
-# Avant (si utils)
-from utils.contact_manager import contact_manager
+from typing import List, Dict, Optional
 
-# Après (correct si tu utilises la version manager)
-#from managers.contact_manager import contact_manager
-
-
-
-import uuid
-
+CONTACT_DATA_FILE = "data/contacts.json"
+CACHE_TTL_SECONDS = 30  # cache mémoire léger
 
 class ContactManager:
     def __init__(self):
-        self.lock = Lock()
+        self._lock = Lock()
+        self._cache = {}
+        self._cache_ts = {}
 
-        self.base_dir = Path("data/contacts")
-        self.archive_dir = self.base_dir / "archived"
+        os.makedirs(os.path.dirname(CONTACT_DATA_FILE), exist_ok=True)
+        if not os.path.exists(CONTACT_DATA_FILE):
+            with open(CONTACT_DATA_FILE, "w", encoding="utf-8") as f:
+                json.dump([], f)
 
-        self.base_dir.mkdir(parents=True, exist_ok=True)
-        self.archive_dir.mkdir(parents=True, exist_ok=True)
+    # =========================
+    # Utils internes
+    # =========================
 
-    # =====================================================
-    # SAUVEGARDE
-    # =====================================================
-    def save_contact_to_json(self, form_data: dict, request=None) -> bool:
-        """
-        Sauvegarde un message de contact dans un fichier JSON.
-        """
-        try:
-            message_id = f"msg_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}.json"
-            filepath = self.base_dir / message_id
+    def _load_all(self) -> List[Dict]:
+        with self._lock:
+            with open(CONTACT_DATA_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
 
-            payload = {
-                "id": message_id,
-                "first_name": form_data.get("first_name"),
-                "last_name": form_data.get("last_name"),
-                "email": form_data.get("email"),
-                "phone": form_data.get("phone"),
-                "subject": form_data.get("subject"),
-                "message": form_data.get("message"),
-                "seen": False,
-                "archived": False,
-                "created_at": datetime.utcnow().isoformat(),
-                "meta": {
-                    "ip": request.remote_addr if request else None,
-                    "user_agent": request.user_agent.string if request else None,
-                },
-            }
+    def _save_all(self, messages: List[Dict]) -> None:
+        with self._lock:
+            with open(CONTACT_DATA_FILE, "w", encoding="utf-8") as f:
+                json.dump(messages, f, indent=2, ensure_ascii=False)
+        self._invalidate_cache()
 
-            with self.lock:
-                with open(filepath, "w", encoding="utf-8") as f:
-                    json.dump(payload, f, ensure_ascii=False, indent=2)
+    def _invalidate_cache(self):
+        self._cache.clear()
+        self._cache_ts.clear()
 
-            return True
+    def _get_cached(self, key: str, compute_fn):
+        now = time.time()
+        if key in self._cache and now - self._cache_ts[key] < CACHE_TTL_SECONDS:
+            return self._cache[key]
 
-        except Exception:
+        value = compute_fn()
+        self._cache[key] = value
+        self._cache_ts[key] = now
+        return value
+
+    # =========================
+    # CRUD Messages
+    # =========================
+
+    def save_message(self, name: str, email: str, message: str) -> None:
+        messages = self._load_all()
+        messages.append({
+            "id": int(time.time() * 1000),
+            "name": name,
+            "email": email,
+            "message": message,
+            "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "seen": False,
+            "archived": False
+        })
+        self._save_all(messages)
+
+    def get_all(self, include_archived: bool = False) -> List[Dict]:
+        messages = self._load_all()
+        if not include_archived:
+            messages = [m for m in messages if not m.get("archived")]
+        return sorted(messages, key=lambda x: x["created_at"], reverse=True)
+
+    def delete(self, message_id: int) -> bool:
+        messages = self._load_all()
+        new_messages = [m for m in messages if m["id"] != message_id]
+        if len(new_messages) == len(messages):
             return False
+        self._save_all(new_messages)
+        return True
 
-    # =====================================================
-    # LECTURE
-    # =====================================================
-    def get_all(self, include_archived: bool = False) -> list:
-        """
-        Retourne tous les messages (non archivés par défaut).
-        """
-        messages = []
+    def archive(self, message_id: int) -> bool:
+        messages = self._load_all()
+        for m in messages:
+            if m["id"] == message_id:
+                m["archived"] = True
+                self._save_all(messages)
+                return True
+        return False
 
-        directory = self.base_dir if not include_archived else None
-        files = self.base_dir.glob("msg_*.json")
+    def mark_all_seen(self) -> None:
+        messages = self._load_all()
+        for m in messages:
+            m["seen"] = True
+        self._save_all(messages)
 
-        for file in sorted(files, reverse=True):
-            try:
-                with open(file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    if not include_archived and data.get("archived"):
-                        continue
-                    messages.append(data)
-            except Exception:
-                continue
+    # =========================
+    # Compteurs (ADMIN)
+    # =========================
 
-        return messages
+    def count_all(self) -> int:
+        return self._get_cached(
+            "count_all",
+            lambda: len(self._load_all())
+        )
 
     def get_unseen_count(self) -> int:
+        return self._get_cached(
+            "unseen_count",
+            lambda: sum(1 for m in self._load_all() if not m.get("seen", False))
+        )
+
+    def get_unseen_count_cached(self) -> int:
         """
-        Retourne le nombre de messages non lus.
+        Alias explicite pour admin.py (lisibilité + sécurité)
         """
-        return sum(1 for m in self.get_all() if not m.get("seen", False))
+        return self.get_unseen_count()
 
-    # ================================
-    # Ajout / sauvegarde
-    # ================================
-    def save_message(self, message):
-        """Enregistre un nouveau message"""
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")
-        filename = self.contacts_dir / f"msg_{timestamp}.json"
-        with self.lock:
-            with open(filename, "w", encoding="utf-8") as f:
-                json.dump(message, f, ensure_ascii=False, indent=2)
 
-    # ================================
-    # Mise à jour
-    # ================================
-    def mark_all_seen(self):
-        """Marque tous les messages comme lus"""
-        for file in self.contacts_dir.glob("msg_*.json"):
-            try:
-                with self.lock, open(file, "r+", encoding="utf-8") as f:
-                    data = json.load(f)
-                    data["seen"] = True
-                    f.seek(0)
-                    json.dump(data, f, ensure_ascii=False, indent=2)
-                    f.truncate()
-            except Exception:
-                pass
-
-    def mark_seen(self, message_id):
-        """Marque un message spécifique comme lu"""
-        file = self.contacts_dir / message_id
-        if file.exists():
-            with self.lock, open(file, "r+", encoding="utf-8") as f:
-                data = json.load(f)
-                data["seen"] = True
-                f.seek(0)
-                json.dump(data, f, ensure_ascii=False, indent=2)
-                f.truncate()
-
-    # ================================
-    # Suppression / Archivage
-    # ================================
-    def delete(self, message_id):
-        file = self.contacts_dir / message_id
-        if file.exists():
-            file.unlink()
-
-    def archive(self, message_id):
-        src = self.contacts_dir / message_id
-        if src.exists():
-            dst = self.archive_dir / message_id
-            src.rename(dst)
-
-# Instance globale
+# Singleton
 contact_manager = ContactManager()
