@@ -2,6 +2,12 @@ import json
 from pathlib import Path
 from threading import Lock
 from datetime import datetime
+# Avant (si utils)
+# from utils.contact_manager import contact_manager
+
+# Après (correct si tu utilises la version manager)
+from managers.contact_manager import contact_manager
+
 
 class ContactManager:
     def __init__(self):
