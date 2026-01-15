@@ -13,7 +13,7 @@ import os
 import json
 import requests
 from pathlib import Path
-from utils.contact_manager import save_contact_to_json
+from managers.contact_manager import contact_manager
 
 # ============================================================
 # TEMPLATE HTML POUR LES PAGES LÉGALES
@@ -623,7 +623,7 @@ def contact():
             # ============================================
             
             # 1. Sauvegarde en JSON (GARANTIE de fonctionnement)
-            json_saved = save_contact_to_json(form_data, request)
+            json_saved = contact_manager.save_contact_to_json(form_data)
             
             # 2. Notification Discord (optionnel, non-bloquant)
             discord_sent = send_discord_notification(form_data)
