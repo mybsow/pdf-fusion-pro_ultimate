@@ -2,6 +2,7 @@
 import os
 from functools import wraps
 from datetime import datetime
+from pathlib import Path
 from flask import (
     Blueprint, session, request,
     redirect, url_for, render_template, jsonify
@@ -10,11 +11,14 @@ from flask import (
 from rating_manager import ratings_manager
 from utils.stats_manager import stats_manager
 
+# Dossier contacts
+CONTACTS_DIR = Path("data/contacts")
+CONTACTS_DIR.mkdir(parents=True, exist_ok=True)
+
 # ==========================================================
 # Blueprint
 # ==========================================================
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
-CONTACTS_DIR = Path("data/contacts")
 
 # ==========================================================
 # Configuration
