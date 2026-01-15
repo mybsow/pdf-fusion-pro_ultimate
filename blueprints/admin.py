@@ -1,9 +1,7 @@
 # blueprints/admin.py
 import os
-import json
 from functools import wraps
 from datetime import datetime
-from pathlib import Path
 from flask import (
     Blueprint, session, request,
     redirect, url_for, render_template, jsonify
@@ -12,10 +10,7 @@ from flask import (
 from rating_manager import ratings_manager
 from utils.stats_manager import stats_manager
 from managers.rating_manager import rating_manager
-
-# Dossier contacts
-CONTACTS_DIR = Path("data/contacts")
-CONTACTS_DIR.mkdir(parents=True, exist_ok=True)
+from managers.contact_manager import contact_manager
 
 # ==========================================================
 # Blueprint
@@ -82,73 +77,56 @@ def admin_logout():
 # ==========================================================
 # Dashboard
 # ==========================================================
+# ==========================================================
+# Dashboard
+# ==========================================================
 @admin_bp.route("/dashboard")
 @admin_required
 def admin_dashboard():
-    # Stats évaluations
-    ratings_stats = ratings_manager.get_stats()
-    
-    # Stats messages
-    messages = []
-    unseen_messages = 0
-    if CONTACTS_DIR.exists():
-        for file in CONTACTS_DIR.glob("*.json"):
-            try:
-                with open(file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    messages.append(data)
-                    if not data.get("seen", False):
-                        unseen_messages += 1
-            except Exception:
-                continue
 
+    # ===============================
+    # Évaluations
+    # ===============================
+    ratings_stats = ratings_manager.get_stats()
+
+    # ===============================
+    # Messages (via ContactManager)
+    # ===============================
+    messages = contact_manager.get_all()
+    unseen_messages = contact_manager.get_unseen_count()
+
+    # ===============================
+    # Stats globales
+    # ===============================
     stats = {
         "ratings": ratings_stats.get("total", 0),
         "unseen_ratings": ratings_stats.get("unseen", 0),
+
         "total_messages": len(messages),
         "unseen_messages": unseen_messages,
-        "pdf_merge": stats_manager.get_stat('merge', 0),
-        "pdf_split": stats_manager.get_stat('pdf_split', 0),
-        "pdf_rotate": stats_manager.get_stat('pdf_rotate', 0),
-        "pdf_compress": stats_manager.get_stat('pdf_compress', 0),
-        "total_sessions": stats_manager.get_stat('total_sessions', 0)
+
+        "pdf_merge": stats_manager.get_stat("merge", 0),
+        "pdf_split": stats_manager.get_stat("pdf_split", 0),
+        "pdf_rotate": stats_manager.get_stat("pdf_rotate", 0),
+        "pdf_compress": stats_manager.get_stat("pdf_compress", 0),
+        "total_sessions": stats_manager.get_stat("total_sessions", 0),
     }
 
-    return render_template("admin/dashboard.html", stats=stats)
-
+    return render_template(
+        "admin/dashboard.html",
+        stats=stats,
+        messages=messages[:5],      # aperçu
+        ratings=ratings_manager.get_all_ratings()[:5]
+    )
 
 # =====================================
-# Messages de contact (NOUVEAU)
+# Messages de contact
 # =====================================
 @admin_bp.route("/messages")
 @admin_required
 def admin_messages():
-    messages = []
-
-    if CONTACTS_DIR.exists():
-        for file in CONTACTS_DIR.glob("*.json"):
-            try:
-                with open(file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    data["_file"] = file.name
-                    data["_date"] = data.get("timestamp", "")
-                    messages.append(data)
-            except Exception:
-                continue
-
-    # Trier par date décroissante
-    messages.sort(key=lambda x: x.get("_date", ""), reverse=True)
-
-    # Marquer comme vus automatiquement
-    for msg in messages:
-        if not msg.get("seen", False):
-            msg["seen"] = True
-            filepath = CONTACTS_DIR / msg["_file"]
-            try:
-                with open(filepath, "w", encoding="utf-8") as f:
-                    json.dump(msg, f, ensure_ascii=False, indent=2)
-            except Exception:
-                continue
+    messages = contact_manager.get_all()
+    contact_manager.mark_all_seen()
 
     return render_template(
         "admin/messages.html",
