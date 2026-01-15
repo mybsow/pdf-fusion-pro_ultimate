@@ -7,22 +7,6 @@ from utils.stats_manager import stats_manager
 from utils.rating_manager import ratings_manager
 from managers.contact_manager import contact_manager
 
-# Afficher tous les messages
-messages = contact_manager.get_all()
-
-# Compter les messages non lus
-unseen_messages = contact_manager.get_unseen_count()
-
-# Marquer tous les messages comme vus
-contact_manager.mark_all_seen()
-
-# Supprimer un message
-contact_manager.delete(message_id)
-
-# Archiver un message
-contact_manager.archive(message_id)
-
-
 # ==========================================================
 # Blueprint
 # ==========================================================
@@ -86,17 +70,14 @@ def admin_logout():
 @admin_bp.route("/dashboard")
 @admin_required
 def admin_dashboard():
-    # 📊 Stats évaluations
-    ratings_stats = rating_manager.get_stats()  # total + unseen
+    ratings_stats = ratings_manager.get_stats()
     ratings_total = ratings_stats.get("total", 0)
     unseen_ratings = ratings_stats.get("unseen", 0)
 
-    # 📨 Stats messages
     messages = contact_manager.get_all()
     total_messages = len(messages)
     unseen_messages = contact_manager.get_unseen_count()
 
-    # Stats PDF / sessions existants
     stats = {
         "ratings": ratings_total,
         "unseen_ratings": unseen_ratings,
@@ -111,9 +92,8 @@ def admin_dashboard():
 
     return render_template("admin/dashboard.html", stats=stats)
 
-
 # ==========================================================
-# Messages de contact
+# Messages
 # ==========================================================
 @admin_bp.route("/messages")
 @admin_required
@@ -121,26 +101,23 @@ def admin_messages():
     messages = contact_manager.get_all()
     return render_template("admin/messages.html", messages=messages)
 
-
-# ==========================================================
-# Supprimer un message
-# ==========================================================
 @admin_bp.route("/messages/delete/<message_id>", methods=["POST"])
 @admin_required
 def admin_delete_message(message_id):
     contact_manager.delete(message_id)
     return redirect(url_for("admin.admin_messages"))
 
-
-# ==========================================================
-# Archiver un message
-# ==========================================================
 @admin_bp.route("/messages/archive/<message_id>", methods=["POST"])
 @admin_required
 def admin_archive_message(message_id):
     contact_manager.archive(message_id)
     return redirect(url_for("admin.admin_messages"))
 
+@admin_bp.route("/messages/seen/<message_id>", methods=["POST"])
+@admin_required
+def mark_message_seen(message_id):
+    contact_manager.mark_seen(message_id)  # si tu implémente mark_seen
+    return redirect(url_for("admin.admin_messages"))
 
 # ==========================================================
 # Ratings
@@ -173,50 +150,6 @@ def admin_ratings():
     return render_template("admin/ratings.html", ratings=ratings, stats=stats)
 
 # ==========================================================
-# Messages
-# ==========================================================
-@admin_bp.route("/messages")
-@admin_required
-def admin_messages():
-    messages = contact_manager.get_all()
-    contact_manager.mark_all_seen()
-    return render_template("admin/messages.html", messages=messages)
-
-@admin_bp.route("/messages/archive/<message_id>")
-@admin_required
-def archive_message(message_id):
-    contact_manager.archive(message_id)
-    return redirect(url_for("admin.admin_messages"))
-
-@admin_bp.route("/messages/delete/<message_id>")
-@admin_required
-def delete_message(message_id):
-    contact_manager.delete(message_id)
-    return redirect(url_for("admin.admin_messages"))
-
-
-# =====================================
-# Actions sur les messages
-# =====================================
-@admin_bp.route("/messages/seen/<message_id>")
-@admin_required
-def mark_message_seen(message_id):
-    contact_manager.mark_all_seen()  # ou contact_manager.mark_seen(message_id) si tu veux le faire individuellement
-    return redirect(url_for("admin.admin_messages"))
-
-@admin_bp.route("/messages/archive/<message_id>")
-@admin_required
-def archive_message(message_id):
-    contact_manager.archive(message_id)
-    return redirect(url_for("admin.admin_messages"))
-
-@admin_bp.route("/messages/delete/<message_id>")
-@admin_required
-def delete_message(message_id):
-    contact_manager.delete(message_id)
-    return redirect(url_for("admin.admin_messages"))
-
-# ==========================================================
 # Debug
 # ==========================================================
 @admin_bp.route("/debug")
@@ -237,5 +170,3 @@ def admin_debug():
             "/mentions-legales",
         ]
     })
-
-
