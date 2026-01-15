@@ -146,7 +146,7 @@ def admin_debug():
 # ADMIN - INTERFACE WEB POUR VOIR LES MESSAGES
 # ============================================================
 
-@admin_bp.route('/admin/messages', methods=['GET'])
+@admin_bp.route('/messages', methods=['GET'])
 def admin_messages():
     """Interface web pour voir les messages de contact"""
     
