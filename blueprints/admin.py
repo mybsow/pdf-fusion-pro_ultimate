@@ -6,7 +6,6 @@ from flask import Blueprint, session, request, redirect, url_for, render_templat
 from utils.stats_manager import stats_manager
 from managers.rating_manager import ratings_manager
 from managers.contact_manager import contact_manager
-from utils.contact_manager import contact_manager
 
 # ==========================================================
 # Blueprint
@@ -30,7 +29,7 @@ def admin_required(view):
     return wrapped
 
 # ==========================================================
-# Helpers
+# Helper time ago
 # ==========================================================
 def time_ago(date_obj):
     now = datetime.now()
@@ -71,14 +70,17 @@ def admin_logout():
 @admin_bp.route("/dashboard")
 @admin_required
 def admin_dashboard():
-    ratings_stats = ratings_manager.get_stats()
+    # 📊 Stats évaluations
+    ratings_stats = ratings_manager.get_stats()  # total + unseen
     ratings_total = ratings_stats.get("total", 0)
     unseen_ratings = ratings_stats.get("unseen", 0)
 
+    # 📨 Stats messages
     messages = contact_manager.get_all()
     total_messages = len(messages)
     unseen_messages = contact_manager.get_unseen_count()
 
+    # Stats PDF / sessions existants
     stats = {
         "ratings": ratings_total,
         "unseen_ratings": unseen_ratings,
@@ -102,22 +104,22 @@ def admin_messages():
     messages = contact_manager.get_all()
     return render_template("admin/messages.html", messages=messages)
 
-@admin_bp.route("/messages/delete/<message_id>", methods=["POST"])
+@admin_bp.route("/messages/seen/<message_id>")
 @admin_required
-def admin_delete_message(message_id):
-    contact_manager.delete(message_id)
+def mark_message_seen(message_id):
+    contact_manager.mark_all_seen()  # ou mark_seen(message_id) pour individuellement
     return redirect(url_for("admin.admin_messages"))
 
 @admin_bp.route("/messages/archive/<message_id>", methods=["POST"])
 @admin_required
-def admin_archive_message(message_id):
+def archive_message(message_id):
     contact_manager.archive(message_id)
     return redirect(url_for("admin.admin_messages"))
 
-@admin_bp.route("/messages/seen/<message_id>", methods=["POST"])
+@admin_bp.route("/messages/delete/<message_id>", methods=["POST"])
 @admin_required
-def mark_message_seen(message_id):
-    contact_manager.mark_seen(message_id)  # si tu implémente mark_seen
+def delete_message(message_id):
+    contact_manager.delete(message_id)
     return redirect(url_for("admin.admin_messages"))
 
 # ==========================================================
