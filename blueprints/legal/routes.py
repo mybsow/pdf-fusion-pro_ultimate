@@ -426,10 +426,8 @@ LEGAL_TEMPLATE = """
 """
 
 # ============================================================
-# FONCTIONS D'ENVOI FIABLES
+# NOTIFICATIONS
 # ============================================================
-
-
 def send_discord_notification(form_data):
     webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
     if not webhook_url:
@@ -507,7 +505,15 @@ def contact():
             # =====================
             # TRAITEMENT FIABLE
             # =====================
-            saved = contact_manager.save_contact_to_json(form_data, request)
+            saved = contact_manager.save_message(
+                first_name=form_data["first_name"],
+                last_name=form_data["last_name"],
+                email=form_data["email"],
+                phone=form_data["phone"],
+                subject=form_data["subject"],
+                message=form_data["message"]
+            )
+
             send_discord_notification(form_data)
 
             if saved:
@@ -552,18 +558,7 @@ def contact():
         # Ne pas afficher le formulaire après succès
         contact_form += """
         </div></div>"""
-        
-        return render_template_string(
-            LEGAL_TEMPLATE,
-            title="Contact - Message envoyé",
-            badge="Succès",
-            subtitle="Votre message a été enregistré avec succès",
-            content=contact_form,
-            current_year=datetime.now().year,
-            config=AppConfig,
-            datetime=datetime
-        )
-    
+
     elif error:
         contact_form += f"""
         <div class="alert alert-danger" role="alert">
@@ -571,7 +566,9 @@ def contact():
             <strong>Attention :</strong> {error}
         </div>
         """
-    
+        
+    # Inclure le formulaire seulement si pas de succès
+    if not success:
     # Le formulaire lui-même (uniquement si pas de succès)
     contact_form += f"""
     <div class="contact-form-container">
@@ -755,6 +752,7 @@ def legal_notices():
         config=AppConfig,
         datetime=datetime
     )
+    
 
 
 @legal_bp.route('/politique-confidentialite')
