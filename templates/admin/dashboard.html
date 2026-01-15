@@ -1,86 +1,92 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Admin – Dashboard</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Admin – Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+<body class="container mt-4">
 
-<body class="container-fluid p-4">
+<h1>Admin – Dashboard</h1>
 
-<h1 class="mb-4">📊 Dashboard Administrateur</h1>
-
-<div class="row mb-4">
-
-  <!-- MESSAGES -->
-  <div class="col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <strong>📩 Messages</strong>
-        {% if unseen_messages > 0 %}
-          <span class="badge bg-danger">{{ unseen_messages }} non lus</span>
-        {% endif %}
-      </div>
-
-      <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Nom</th>
-              <th>Sujet</th>
-              <th>Date</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-          {% for msg in messages %}
-            <tr class="{% if not msg.seen %}table-warning{% endif %}">
-              <td>{{ msg.first_name }} {{ msg.last_name }}</td>
-              <td>{{ msg.subject }}</td>
-              <td>{{ msg.timestamp[:10] }}</td>
-              <td class="text-end">
-                <a href="{{ url_for('admin.archive_message', message_id=msg.id) }}" class="btn btn-sm btn-outline-secondary">Archiver</a>
-                <a href="{{ url_for('admin.delete_message', message_id=msg.id) }}" class="btn btn-sm btn-outline-danger">Supprimer</a>
-              </td>
-            </tr>
-          {% else %}
-            <tr><td colspan="4" class="text-center text-muted">Aucun message</td></tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      </div>
+<!-- ====== Grille de statistiques ====== -->
+<div class="row mt-4">
+  <!-- Total évaluations -->
+  <div class="col-md-3 mb-3">
+    <div class="card p-3">
+      <h5>⭐ Total évaluations</h5>
+      <p class="display-6">{{ stats.ratings }}</p>
     </div>
   </div>
 
-  <!-- RATINGS -->
-  <div class="col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-header">
-        ⭐ Évaluations
-      </div>
-      <div class="card-body">
-        <p>
-          <strong>Total :</strong> {{ rating_stats.total }} <br>
-          <strong>Moyenne :</strong> {{ rating_stats.average }}/5 <br>
-          <strong>Nouvelles :</strong> {{ rating_stats.unseen }}
-        </p>
-
-        <ul class="list-group">
-          {% for r in ratings %}
-            <li class="list-group-item">
-              <strong>{{ r.rating }}/5</strong> — {{ r.comment|truncate(80) }}
-            </li>
-          {% else %}
-            <li class="list-group-item text-muted">Aucune évaluation</li>
-          {% endfor %}
-        </ul>
-      </div>
+  <!-- Moyenne évaluations -->
+  <div class="col-md-3 mb-3">
+    <div class="card p-3">
+      <h5>📊 Moyenne</h5>
+      <p class="display-6">{{ stats.average }}</p>
     </div>
   </div>
 
+  <!-- Nouvelles évaluations -->
+  <div class="col-md-3 mb-3">
+    <div class="card p-3">
+      <h5>🔔 Nouvelles évaluations</h5>
+      <p class="display-6 text-danger">{{ stats.unseen_ratings or 0 }}</p>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="col-md-3 mb-3">
+    <div class="card p-3">
+      <h5>📨 Messages</h5>
+      <p class="display-6">{{ stats.total_messages }}</p>
+      {% if stats.unseen_messages %}
+        <span class="badge bg-danger">{{ stats.unseen_messages }} non lus</span>
+      {% endif %}
+    </div>
+  </div>
 </div>
 
-<a href="{{ url_for('admin.admin_logout') }}" class="btn btn-outline-danger">Déconnexion</a>
+<!-- ====== Boutons d’accès ====== -->
+<div class="mt-4">
+  <!-- Bouton évaluations -->
+  <a href="{{ url_for('admin.admin_ratings') }}" class="btn btn-success me-2">
+    Voir toutes les évaluations
+    {% if stats.unseen_ratings %}
+      <span class="badge bg-danger">{{ stats.unseen_ratings }} nouvelles</span>
+    {% endif %}
+  </a>
+
+  <!-- Bouton messages -->
+  <a href="{{ url_for('admin.admin_messages') }}" class="btn btn-primary me-2">
+    Messages
+    {% if stats.unseen_messages %}
+      <span class="badge bg-danger">{{ stats.unseen_messages }}</span>
+    {% endif %}
+  </a>
+
+  <!-- Bouton déconnexion -->
+  <a href="{{ url_for('admin.admin_logout') }}" class="btn btn-outline-secondary">Déconnexion</a>
+</div>
+
+<!-- ====== Stats PDF & sessions ====== -->
+<div class="row mt-5">
+  <div class="col-md-3 mb-3">
+    <div class="card p-3">
+      <h5>📝 PDF Fusion</h5>
+      <p class="mb-1">Merge : {{ stats.pdf_merge }}</p>
+      <p class="mb-1">Split : {{ stats.pdf_split }}</p>
+      <p class="mb-1">Rotate : {{ stats.pdf_rotate }}</p>
+      <p class="mb-0">Compress : {{ stats.pdf_compress }}</p>
+    </div>
+  </div>
+  <div class="col-md-3 mb-3">
+    <div class="card p-3">
+      <h5>💻 Sessions totales</h5>
+      <p class="display-6">{{ stats.total_sessions }}</p>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
