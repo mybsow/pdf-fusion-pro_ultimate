@@ -17,7 +17,11 @@ from blueprints.stats import stats_bp
 from blueprints.admin import admin_bp
 
 from utils.middleware import setup_middleware
-from utils.stats_manager import stats_manager
+
+from managers.contact_manager import contact_manager
+from managers.rating_manager import rating_manager
+from managers.stats_manager import stats_manager  # Importez l'instance
+
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key-change-me")  # nécessaire pour session
