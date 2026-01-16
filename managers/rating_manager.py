@@ -43,6 +43,30 @@ class RatingManager:
             except Exception:
                 continue
         self._cache = None
+        
+    def save_rating(self, data: dict):
+        with self.lock:
+            payload = {
+                "timestamp": datetime.utcnow().isoformat(),
+                "rating": int(data.get("rating", 0)),
+                "feedback": data.get("feedback"),
+                "page": data.get("page"),
+                "user_agent": data.get("user_agent"),
+                "ip": data.get("ip"),
+                "seen": False
+            }
+    
+            filename = f"rating_{int(datetime.utcnow().timestamp() * 1000)}.json"
+            path = self.ratings_dir / filename
+    
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(payload, f, ensure_ascii=False, indent=2)
+    
+            # Invalider le cache
+            self._cache = None
+    
+            return path
+
 
     def delete_rating(self, rating_id):
         file = self.ratings_dir / rating_id
@@ -88,5 +112,6 @@ class RatingManager:
 # Instance globale
 # ================================
 rating_manager = RatingManager()
+
 
 
