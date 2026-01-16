@@ -476,6 +476,14 @@ def contact():
     success = False
     error = None
 
+
+    contact_form = """
+    <div class="info-box">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Formulaire de contact :</strong> Utilisez ce formulaire pour nous contacter directement.
+    </div>
+    """
+
     if request.method == "POST":
         form_data = {
             "first_name": request.form.get("first_name", "").strip(),
@@ -503,23 +511,19 @@ def contact():
         elif "@" not in form_data["email"]:
             error = "Adresse email invalide."
         else:
+            try:
             # =====================
             # TRAITEMENT FIABLE
             # =====================
-            saved = contact_manager.save_message(
-                first_name=form_data["first_name"],
-                last_name=form_data["last_name"],
-                email=form_data["email"],
-                phone=form_data["phone"],
-                subject=form_data["subject"],
-                message=form_data["message"]
-            )
-
-            send_discord_notification(form_data)
-
-            if saved:
-                success = True
-            else:
+                saved = contact_manager.save_message(**form_data)
+    
+                send_discord_notification(form_data)
+    
+                if saved:
+                    success = True
+                else:
+                    error = "Une erreur technique est survenue. Veuillez réessayer."
+            except Exception:
                 error = "Une erreur technique est survenue. Veuillez réessayer."
     
     # Contenu HTML du formulaire
@@ -689,16 +693,17 @@ def contact():
         </div>
         """
         
-        return render_template_string(
-            LEGAL_TEMPLATE,
-            title="Contact",
-            badge="Formulaire de contact",
-            subtitle="Contactez-nous via notre formulaire",
-            content=contact_form,
-            current_year=datetime.now().year,
-            config=AppConfig,
-            datetime=datetime
-        )
+
+    return render_template_string(
+        LEGAL_TEMPLATE,
+        title="Contact",
+        badge="Formulaire de contact",
+        subtitle="Contactez-nous via notre formulaire",
+        content=contact_form,
+        current_year=datetime.now().year,
+        config=AppConfig,
+        datetime=datetime
+    )
 
 
 @legal_bp.route('/mentions-legales')
