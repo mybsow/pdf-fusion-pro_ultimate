@@ -99,13 +99,13 @@ def mark_message_seen(message_id):
 @admin_bp.route("/messages/archive/<message_id>", methods=["POST"])
 @admin_required
 def archive_message(message_id):
-    contact_manager.archive_message(message_id)
+    contact_manager.archive_message(int(message_id))
     return redirect(url_for("admin.admin_messages"))
 
 @admin_bp.route("/messages/delete/<message_id>", methods=["POST"])
 @admin_required
 def delete_message(message_id):
-    contact_manager.delete(message_id)
+    contact_manager.delete(int(message_id))
     return redirect(url_for("admin.admin_messages"))
 
 # -----------------------
