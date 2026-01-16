@@ -2,7 +2,6 @@ import json
 import os
 from threading import Lock
 from datetime import datetime
-from utils.contact_manager import contact_manager
 
 class ContactManager:
     """
