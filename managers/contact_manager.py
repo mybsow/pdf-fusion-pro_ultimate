@@ -19,6 +19,12 @@ class ContactManager:
     # ================================
     # Chargement avec cache
     # ================================
+    def get_all_sorted(self, reverse=True):
+        """
+        Retourne tous les messages triés par date (timestamp) descendante par défaut.
+        """
+        return sorted(self.get_all(), key=lambda m: m.get("timestamp", ""), reverse=reverse)
+    
     def _load_cache(self):
         messages = []
 
