@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime
 from threading import Lock
+from utils.rating_manager import rating_manager
 
 class RatingManager:
     """
@@ -60,3 +61,4 @@ class RatingManager:
 
 # Singleton
 rating_manager = RatingManager()
+
