@@ -1,5 +1,6 @@
 from flask import g, request
 from datetime import datetime
+from utils.middleware import setup_middleware
 import uuid
 
 def setup_middleware(app, stats_manager):
