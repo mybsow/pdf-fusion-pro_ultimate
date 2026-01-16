@@ -2337,7 +2337,6 @@ def api_rating():
         print(f"Erreur lors de l'enregistrement de l'évaluation: {e}")
         return jsonify({"error": "Erreur interne du serveur"}), 500
 
-voici def get-ratin_html de pdf/routes.py actuellement:
 
 
 def get_rating_html():
