@@ -61,21 +61,43 @@ def admin_logout():
 @admin_bp.route("/dashboard")
 @admin_required
 def admin_dashboard():
+    # Essai récupération cache
     stats = cache.get("dashboard_stats")
     if not stats:
+        # ------------------------
+        # Messages
+        # ------------------------
+        all_messages = contact_manager.get_all_sorted()
+        # Filtrer les messages archivés si tu veux
+        # Ici, si tu n'as pas de flag "archived" dans contact_manager, les messages archivés sont déplacés
+        recent_messages = all_messages[:5]
+
+        # ------------------------
+        # Évaluations
+        # ------------------------
         rating_stats = rating_manager.get_stats()
-        messages = contact_manager.get_all_sorted()   # messages triés, non archivés
-        ratings = rating_manager.get_all_ratings()   # liste complète des évaluations
+        all_ratings = rating_manager.get_all_ratings()
+        recent_ratings = all_ratings[:5] if all_ratings else []
+
+        # ------------------------
+        # Statistiques complètes
+        # ------------------------
         stats = {
-            "total_messages": len(messages),
+            # Messages
+            "total_messages": len(all_messages),
             "unseen_messages": contact_manager.get_unseen_count(),
+            "messages": recent_messages,  # pour affichage dans dashboard
+
+            # Ratings
             "total_ratings": rating_stats.get("total", 0),
             "avg_rating": rating_stats.get("average", 0),
             "total_comments": rating_stats.get("comments", 0),
-            "messages": messages,     # ⚠️ ajouté
-            "ratings": ratings        # ⚠️ ajouté
+            "ratings": recent_ratings,    # pour affichage dans dashboard
         }
-        cache.set("dashboard_stats", stats)
+
+        # Mise en cache pour éviter recalcul fréquent
+        cache.set("dashboard_stats", stats, timeout=60)  # cache 1 minute par exemple
+
     return render_template("admin/dashboard.html", stats=stats)
 
 # -----------------------
