@@ -265,5 +265,11 @@ def submit_rating():
         "ip": request.remote_addr
     })
 
+    print("RATING API HIT")
+    print("CWD =", os.getcwd())
+    print("RATINGS DIR =", rating_manager.ratings_dir)
+    print("WRITABLE =", os.access(rating_manager.ratings_dir, os.W_OK))
+
+
     return jsonify({"success": True}), 201
 
