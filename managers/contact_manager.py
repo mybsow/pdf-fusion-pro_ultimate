@@ -109,6 +109,7 @@ class ContactManager:
 
         self._safe_write(remaining)
 
+
     def get_stats(self):
         messages = self.get_all()
         total = len(messages)
@@ -118,6 +119,14 @@ class ContactManager:
             "total": total,
             "unseen": unseen,
         }
+
+    def get_archived(self, archive_file="data/contacts_archive.json"):
+        archive_path = Path(archive_file)
+        try:
+            data = json.loads(archive_path.read_text(encoding="utf-8"))
+            return sorted(data, key=lambda m: m.get("timestamp",""), reverse=True)
+        except Exception:
+            return []
 
 
 
