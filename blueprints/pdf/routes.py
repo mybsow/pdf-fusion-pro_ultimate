@@ -12,7 +12,11 @@ from flask import render_template_string, jsonify, request, Response,session, re
 from . import pdf_bp
 from config import AppConfig
 from .engine import PDFEngine
-from utils.stats_manager import stats_manager
+from managers.contact_manager import contact_manager
+from managers.rating_manager import rating_manager
+from managers.stats_manager import stats_manager
+from utils.middleware import setup_middleware
+
 
 # ============================================================
 # TEMPLATE HTML COMPLET - VERSION CORRIGÉE
