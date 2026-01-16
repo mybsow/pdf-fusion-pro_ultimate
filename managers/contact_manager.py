@@ -37,7 +37,7 @@ class ContactManager:
     # ========================
     def save_message(self, first_name, last_name, email, phone, subject, message):
         """Enregistre un message de contact"""
-        all_messages = self._read()
+        all_messages = self._safe_read()
     
         new_msg = {
             "id": len(all_messages) + 1,
@@ -52,8 +52,9 @@ class ContactManager:
         }
     
         all_messages.append(new_msg)
-        self._write(all_messages)
+        self._safe_write(all_messages)
         return new_msg
+
 
 
     def get_all(self):
