@@ -64,12 +64,16 @@ def admin_dashboard():
     stats = cache.get("dashboard_stats")
     if not stats:
         rating_stats = rating_manager.get_stats()
+        messages = contact_manager.get_all_sorted()   # messages triés, non archivés
+        ratings = rating_manager.get_all_ratings()   # liste complète des évaluations
         stats = {
-            "total_messages": len(contact_manager.get_all()),
+            "total_messages": len(messages),
             "unseen_messages": contact_manager.get_unseen_count(),
             "total_ratings": rating_stats.get("total", 0),
             "avg_rating": rating_stats.get("average", 0),
             "total_comments": rating_stats.get("comments", 0),
+            "messages": messages,     # ⚠️ ajouté
+            "ratings": ratings        # ⚠️ ajouté
         }
         cache.set("dashboard_stats", stats)
     return render_template("admin/dashboard.html", stats=stats)
