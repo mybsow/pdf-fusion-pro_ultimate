@@ -493,6 +493,7 @@ def contact():
             form_data["first_name"],
             form_data["last_name"],
             form_data["email"],
+            form_data["phone"],
             form_data["subject"],
             form_data["message"],
         ]):
