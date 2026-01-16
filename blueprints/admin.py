@@ -9,6 +9,12 @@ from managers.contact_manager import contact_manager
 from managers.rating_manager import rating_manager
 from managers.stats_manager import stats_manager  # Importez l'instance
 
+#from flask_caching import Cache
+
+#cache = Cache(config={"CACHE_TYPE": "SimpleCache"})
+#cache.init_app(app)
+
+
 cache = SimpleCache(ttl=15)
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -96,7 +102,7 @@ def admin_dashboard():
         }
 
         # Mise en cache pour éviter recalcul fréquent
-        cache.set("dashboard_stats", stats, timeout=60)  # cache 1 minute par exemple
+        #cache.set("dashboard_stats", stats, timeout=60)  # cache 1 minute par exemple
 
     return render_template("admin/dashboard.html", stats=stats)
 
