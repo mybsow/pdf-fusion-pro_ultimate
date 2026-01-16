@@ -1,48 +1,41 @@
 import json
-import os
-from threading import Lock
 from datetime import datetime
-
-"""
-Gestionnaire centralisé des messages de contact
-"""
+from pathlib import Path
+from threading import Lock
 
 
 class ContactManager:
     def __init__(self):
-        self._lock = Lock()
+        self.lock = Lock()
+
         self.contacts_dir = Path("data/contacts")
         self.archive_dir = self.contacts_dir / "archived"
 
         self.contacts_dir.mkdir(parents=True, exist_ok=True)
         self.archive_dir.mkdir(parents=True, exist_ok=True)
 
-        self._cache = None  # lazy cache
+        self._cache = None  # cache interne des messages
 
     # ================================
-    # Cache interne
+    # Chargement avec cache
     # ================================
     def _load_cache(self):
         messages = []
 
         for file in sorted(self.contacts_dir.glob("msg_*.json"), reverse=True):
             try:
-                with open(file, "r", encoding="utf-8") as f:
+                with file.open("r", encoding="utf-8") as f:
                     data = json.load(f)
-                    data["id"] = file.name
-                    data.setdefault("seen", False)
-                    messages.append(data)
+
+                data["id"] = file.name
+                data.setdefault("seen", False)
+                messages.append(data)
+
             except Exception:
                 continue
 
         self._cache = messages
 
-    def _invalidate_cache(self):
-        self._cache = None
-
-    # ================================
-    # Lecture
-    # ================================
     def get_all(self):
         if self._cache is None:
             self._load_cache()
@@ -54,13 +47,13 @@ class ContactManager:
         return sum(1 for m in self._cache if not m.get("seen", False))
 
     # ================================
-    # Écriture
+    # Actions
     # ================================
     def mark_all_seen(self):
-        with self._lock:
+        with self.lock:
             for file in self.contacts_dir.glob("msg_*.json"):
                 try:
-                    with open(file, "r+", encoding="utf-8") as f:
+                    with file.open("r+", encoding="utf-8") as f:
                         data = json.load(f)
                         data["seen"] = True
                         f.seek(0)
@@ -69,25 +62,23 @@ class ContactManager:
                 except Exception:
                     continue
 
-            self._invalidate_cache()
+            self._cache = None
 
     def delete(self, message_id: str):
-        with self._lock:
-            file = self.contacts_dir / message_id
-            if file.exists():
-                file.unlink()
-            self._invalidate_cache()
+        file = self.contacts_dir / message_id
+        if file.exists():
+            file.unlink()
+        self._cache = None
 
     def archive(self, message_id: str):
-        with self._lock:
-            src = self.contacts_dir / message_id
-            if src.exists():
-                dst = self.archive_dir / message_id
-                src.rename(dst)
-            self._invalidate_cache()
+        src = self.contacts_dir / message_id
+        if src.exists():
+            dst = self.archive_dir / message_id
+            src.rename(dst)
+        self._cache = None
 
 
 # ================================
-# Singleton applicatif
+# Instance globale
 # ================================
 contact_manager = ContactManager()
