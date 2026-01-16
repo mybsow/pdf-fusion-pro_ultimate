@@ -76,3 +76,8 @@ class ContactManager:
             old_data.extend(archived)
             archive_path.write_text(json.dumps(old_data, indent=2, ensure_ascii=False))
         self._write(remaining)
+
+# =========================
+# INSTANCE GLOBALE EXPORTÉE
+# =========================
+contact_manager = ContactManager()
