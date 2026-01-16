@@ -20,13 +20,29 @@ class RatingManager:
                 try:
                     with open(file, "r", encoding="utf-8") as f:
                         data = json.load(f)
+    
+                        # Champs par défaut
                         data.setdefault("seen", False)
                         data.setdefault("rating", 0)
+    
+                        # ➕ ID fichier (utile admin)
+                        data["id"] = file.name
+    
+                        # ➕ Date lisible pour dashboard
+                        try:
+                            dt = datetime.fromisoformat(data.get("timestamp"))
+                            data["display_date"] = dt.strftime("%d/%m/%Y %H:%M")
+                        except Exception:
+                            data["display_date"] = "-"
+    
                         ratings.append(data)
                 except Exception:
                     continue
+    
             self._cache = ratings
+    
         return self._cache
+
 
     def get_all_ratings(self):
         return self._load()
@@ -46,26 +62,25 @@ class RatingManager:
         
     def save_rating(self, data: dict):
         with self.lock:
-            ts = datetime.utcnow().isoformat()
+            timestamp = datetime.utcnow().isoformat()
+            filename = f"rating_{timestamp.replace(':', '').replace('.', '')}.json"
+            filepath = self.ratings_dir / filename
     
             payload = {
-                "rating": int(data.get("rating", 0)),
-                "feedback": data.get("feedback", ""),
-                "page": data.get("page", "/"),
-                "timestamp": ts,
-                "seen": False,
-                "user_agent": data.get("user_agent", ""),
-                "ip": data.get("ip", "")
+                "timestamp": timestamp,
+                "rating": data.get("rating"),
+                "feedback": data.get("feedback"),
+                "page": data.get("page"),
+                "user_agent": data.get("user_agent"),
+                "ip": data.get("ip"),
+                "seen": False
             }
     
-            filename = f"rating_{ts.replace(':', '').replace('.', '')}.json"
-            file_path = self.ratings_dir / filename
-    
-            with open(file_path, "w", encoding="utf-8") as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(payload, f, ensure_ascii=False, indent=2)
     
-            # Invalider le cache
             self._cache = None
+
 
 
 
@@ -113,6 +128,7 @@ class RatingManager:
 # Instance globale
 # ================================
 rating_manager = RatingManager()
+
 
 
 
