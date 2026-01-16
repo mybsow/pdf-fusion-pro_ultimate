@@ -3,13 +3,13 @@ from functools import wraps
 from datetime import datetime
 from flask import Blueprint, session, request, redirect, url_for, render_template, jsonify
 
-from utils.stats_manager import stats_manager  # Importez l'instance
 from utils.contact_manager import rating_manager
 from utils.stats_manager import stats_manager
 from utils.cache import SimpleCache
 
 from managers.contact_manager import contact_manager
 from managers.rating_manager import rating_manager
+from managers.stats_manager import stats_manager  # Importez l'instance
 
 cache = SimpleCache(ttl=15)
 
