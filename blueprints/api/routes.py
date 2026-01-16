@@ -257,13 +257,12 @@ def submit_rating():
     except (TypeError, ValueError):
         return jsonify({"error": "Invalid rating"}), 400
 
-    ratings_manager.save_rating({
+    rating_manager.save_rating({
         "rating": rating,
-        "feedback": data.get("feedback", "").strip(),
+        "feedback": data.get("feedback", "").strip() or None,
         "page": data.get("page", "/"),
         "user_agent": request.headers.get("User-Agent", ""),
         "ip": request.remote_addr
     })
 
-    # Réponse API simple (pas de stats ici)
     return jsonify({"success": True}), 201
