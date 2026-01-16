@@ -15,39 +15,33 @@ from blueprints.api import api_bp
 from blueprints.legal import legal_bp
 from blueprints.stats import stats_bp
 from blueprints.admin import admin_bp
-
 from utils.middleware import setup_middleware
 
-from managers.contact_manager import contact_manager
-from managers.rating_manager import rating_manager
-from managers.stats_manager import stats_manager  # Importez l'instance
-
-
-app = Flask(__name__)
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key-change-me")  # nécessaire pour session
-
-# Enregistrer le blueprint
-app.register_blueprint(admin_bp)
 
 # ============================================================
 # Initialisation des dossiers nécessaires
 # ============================================================
 
 def init_app_dirs():
+    """Crée les répertoires nécessaires au fonctionnement de l'application."""
     for d in ['data/contacts', 'uploads', 'temp', 'logs']:
         Path(d).mkdir(parents=True, exist_ok=True)
 
+
 # ============================================================
-# Factory Flask
+# Factory Flask (UNIQUE)
 # ============================================================
 
 def create_app():
+    """Factory d'application Flask."""
     AppConfig.initialize()
     init_app_dirs()
 
     app = Flask(__name__)
 
-    # 🔐 Sécurité session
+    # ----------------------------
+    # Configuration Flask
+    # ----------------------------
     app.secret_key = os.environ.get(
         "FLASK_SECRET_KEY",
         AppConfig.SECRET_KEY
@@ -55,120 +49,104 @@ def create_app():
 
     app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
 
-    # Proxy
+    # Proxy (Render / reverse proxy)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
-    # Middleware stats
+    # ----------------------------
+    # Initialisation des managers
+    # ----------------------------
+    from managers.contact_manager import contact_manager
+    from managers.rating_manager import rating_manager
+    from managers.stats_manager import stats_manager
+
+    # Middleware statistiques
     setup_middleware(app, stats_manager)
 
-    # ============================================================
-    # ENREGISTREMENT DES BLUEPRINTS
-    # ============================================================
-    
-    # Blueprint principal (PDF tools)
-    app.register_blueprint(pdf_bp)
-    
-    # Blueprint API
-    app.register_blueprint(api_bp, url_prefix='/api')
-    
-    # Blueprint pages légales
-    app.register_blueprint(legal_bp)
-    
-    # Blueprint statistiques
-    app.register_blueprint(stats_bp)
+    # Warm-up cache léger (safe)
+    with app.app_context():
+        contact_manager.get_unseen_count()
 
-    app.register_blueprint(admin_bp)        # /admin/*
-    
-    # ============================================================
-    # Routes principales
-    # ============================================================
+    # ----------------------------
+    # Enregistrement des blueprints
+    # ----------------------------
+    app.register_blueprint(pdf_bp)
+    app.register_blueprint(api_bp, url_prefix="/api")
+    app.register_blueprint(legal_bp)
+    app.register_blueprint(stats_bp)
+    app.register_blueprint(admin_bp)   # /admin/*
+
+    # ----------------------------
+    # Routes système
+    # ----------------------------
     @app.route('/')
     def index():
-        """Route racine - redirige vers le blueprint"""
-        # Supprimez cette ligne si vous avez une route / dans pdf_bp
-        return redirect('/')
+        return redirect('/pdf')
 
-    # -------------------------
-    # Google / Ads / Robots / Sitemap
-    # -------------------------
     @app.route('/google6f0d847067bbd18a.html')
     def google_verification():
-        """Page de vérification Google Search Console"""
-        verification_content = "google-site-verification: google6f0d847067bbd18a.html"
-        return Response(verification_content, mimetype='text/html')
-    
+        return Response(
+            "google-site-verification: google6f0d847067bbd18a.html",
+            mimetype="text/html"
+        )
+
     @app.route('/ads.txt')
     def ads_txt():
-        """Fichier ads.txt pour AdSense"""
-        ads_content = "google.com, pub-8967416460526921, DIRECT, f08c47fec0942fa0"
-        return Response(ads_content, mimetype='text/plain')
-    
+        return Response(
+            "google.com, pub-8967416460526921, DIRECT, f08c47fec0942fa0",
+            mimetype="text/plain"
+        )
+
     @app.route('/robots.txt')
     def robots():
-        """Fichier robots.txt"""
-        content = "User-agent: *\n"
-        content += "Allow: /\n"
-        content += f"Sitemap: https://{AppConfig.DOMAIN}/sitemap.xml\n"
-        content += "\n"
-        content += f"# {AppConfig.NAME} - Développé par {AppConfig.DEVELOPER_NAME}\n"
-        
+        content = (
+            "User-agent: *\n"
+            "Allow: /\n"
+            f"Sitemap: https://{AppConfig.DOMAIN}/sitemap.xml\n"
+        )
         return Response(content, mimetype="text/plain")
-    
+
     @app.route('/sitemap.xml')
     def sitemap():
-        """Génère un sitemap XML amélioré"""
-        base_url = "https://pdf-fusion-pro-ultimate.onrender.com"
-        
-        # Pages principales AVEC PRIORITÉ ADAPTÉE
+        base_url = f"https://{AppConfig.DOMAIN}"
+        today = datetime.now().strftime('%Y-%m-%d')
+
         pages = [
-            # (chemin, dernière_modification, fréquence, priorité)
-            ("/", datetime.now().strftime('%Y-%m-%d'), "daily", 1.0),  # Page d'accueil
-            ("/fusion-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
-            ("/division-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
-            ("/rotation-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
-            ("/compression-pdf", datetime.now().strftime('%Y-%m-%d'), "daily", 0.9),
-            ("/contact", datetime.now().strftime('%Y-%m-%d'), "weekly", 0.7),  # Contact important
-            ("/a-propos", datetime.now().strftime('%Y-%m-%d'), "monthly", 0.6),  # À propos
+            ("/", today, "daily", 1.0),
+            ("/fusion-pdf", today, "daily", 0.9),
+            ("/division-pdf", today, "daily", 0.9),
+            ("/rotation-pdf", today, "daily", 0.9),
+            ("/compression-pdf", today, "daily", 0.9),
+            ("/contact", today, "weekly", 0.7),
+            ("/a-propos", today, "monthly", 0.6),
             ("/mentions-legales", "2024-01-15", "monthly", 0.3),
             ("/politique-confidentialite", "2024-01-15", "monthly", 0.3),
             ("/conditions-utilisation", "2024-01-15", "monthly", 0.3),
         ]
-        
+
         # AJOUTER LES ROUTES API (optionnel mais recommandé pour le SEO technique)
         api_pages = [
-            ("/health", datetime.now().strftime('%Y-%m-%d'), "daily", 0.1),  # Endpoint santé
-        ]
-        
+            ("/health", datetime.now().strftime('%Y-%m-%d'), "daily", 0.1),
+        ]        
+            
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
         xml += '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
         xml += '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9\n'
         xml += '        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">\n'
-        
-        # Ajouter toutes les pages principales
-        for path, lastmod, changefreq, priority in pages:
-            xml += '  <url>\n'
-            xml += f'    <loc>{base_url}{path}</loc>\n'
-            xml += f'    <lastmod>{lastmod}</lastmod>\n'
-            xml += f'    <changefreq>{changefreq}</changefreq>\n'
-            xml += f'    <priority>{priority:.1f}</priority>\n'
-            xml += '  </url>\n'
-        
-        # Ajouter les pages API (priorité plus basse)
-        for path, lastmod, changefreq, priority in api_pages:
-            xml += '  <url>\n'
-            xml += f'    <loc>{base_url}{path}</loc>\n'
-            xml += f'    <lastmod>{lastmod}</lastmod>\n'
-            xml += f'    <changefreq>{changefreq}</changefreq>\n'
-            xml += f'    <priority>{priority:.1f}</priority>\n'
-            xml += '  </url>\n'
-        
+
+        for path, lastmod, freq, prio in pages:
+            xml += (
+                "  <url>\n"
+                f"    <loc>{base_url}{path}</loc>\n"
+                f"    <lastmod>{lastmod}</lastmod>\n"
+                f"    <changefreq>{freq}</changefreq>\n"
+                f"    <priority>{prio}</priority>\n"
+                "  </url>\n"
+            )
+
         xml += '</urlset>'
-        
-        return Response(xml, mimetype="application/xml", headers={
-            'Cache-Control': 'public, max-age=86400'
-        })
-    
+        return Response(xml, mimetype="application/xml")
+
     # ============================================================
     # GESTION DES ERREURS
     # ============================================================
@@ -183,8 +161,8 @@ def create_app():
                 body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
                 h1 { color: #e74c3c; }
                 .container { max-width: 600px; margin: 0 auto; }
-                .btn { display: inline-block; padding: 10px 20px; background: #3498db; color: white; 
-                       text-decoration: none; border-radius: 5px; margin-top: 20px; }
+                .btn { display: inline-block; padding: 10px 20px; background: #3498db; 
+                       color: white; text-decoration: none; border-radius: 5px; margin-top: 20px; }
             </style>
         </head>
         <body>
@@ -219,8 +197,8 @@ def create_app():
                 body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
                 h1 { color: #e74c3c; }
                 .container { max-width: 600px; margin: 0 auto; }
-                .btn { display: inline-block; padding: 10px 20px; background: #3498db; color: white; 
-                       text-decoration: none; border-radius: 5px; margin-top: 20px; }
+                .btn { display: inline-block; padding: 10px 20px; background: #3498db; 
+                       color: white; text-decoration: none; border-radius: 5px; margin-top: 20px; }
                 .error-details { background: #f8f9fa; padding: 15px; border-radius: 5px; 
                                 margin-top: 20px; text-align: left; font-family: monospace; 
                                 font-size: 12px; overflow: auto; max-height: 200px; }
@@ -237,34 +215,31 @@ def create_app():
                 </div>
                 
                 <a href="/" class="btn">Retour à l'accueil</a>
-                <a href="/contact" class="btn" style="background: #2ecc71; margin-left: 10px;">Signaler ce problème</a>
+                <a href="/contact" class="btn" style="background: #2ecc71; margin-left: 10px;">
+                    Signaler ce problème
+                </a>
             </div>
         </body>
         </html>
         """, 500
-    
+
     return app
 
+
 # ============================================================
-# DÉMARRAGE DE L'APPLICATION
+# Point d'entrée Gunicorn / Render
 # ============================================================
 
-if __name__ == '__main__':
-    print("🚀 Démarrage de PDF Fusion Pro Ultimate...")
-    print(f"📊 Version: {AppConfig.VERSION}")
-    print(f"🌐 Domaine: {AppConfig.DOMAIN}")
-    print("=" * 50)
-    
-    # Créer l'application
-    app = create_app()
-    
-    # Démarrer le serveur
-    app.run(
-        host='0.0.0.0',
-        port=int(os.environ.get('PORT', 5000)),
-        debug=os.environ.get('FLASK_DEBUG', 'True').lower() == 'true',
-        use_reloader=True
-    )
-
-# Variable pour gunicorn (pour le déploiement)
 app = create_app()
+
+
+# ============================================================
+# Lancement local uniquement
+# ============================================================
+
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        debug=os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    )
