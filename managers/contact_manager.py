@@ -35,33 +35,25 @@ class ContactManager:
     # ========================
     # CRUD
     # ========================
-    def save_message(
-        self,
-        first_name,
-        last_name,
-        email,
-        phone,
-        subject,
-        message
-    ):
-        messages = self._safe_read()
-    
-        new_msg = {
-            "id": str(uuid.uuid4()),
-            "first_name": first_name,
-            "last_name": last_name,
-            "name": f"{first_name} {last_name}".strip(),
-            "email": email,
-            "phone": phone,
-            "subject": subject,
-            "message": message,
-            "timestamp": datetime.utcnow().isoformat(),
-            "seen": False,
-        }
-    
-        messages.append(new_msg)
-        self._safe_write(messages)
-        return new_msg
+def save_message(self, first_name, last_name, email, phone, subject, message):
+    """Enregistre un message de contact"""
+    all_messages = self._read()
+
+    new_msg = {
+        "id": len(all_messages) + 1,
+        "first_name": first_name,
+        "last_name": last_name,
+        "email": email,
+        "phone": phone,
+        "subject": subject,
+        "message": message,
+        "timestamp": datetime.utcnow().isoformat(),
+        "seen": False,
+    }
+
+    all_messages.append(new_msg)
+    self._write(all_messages)
+    return new_msg
 
 
     def get_all(self):
