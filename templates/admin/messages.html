@@ -31,10 +31,10 @@
       <td>{{ msg.timestamp[:19] }}</td>
       <td>
         <form action="{{ url_for('admin.delete_message', message_id=msg.id) }}" method="post" style="display:inline-block;">
-          <button class="btn btn-sm btn-danger">Supprimer</button>
+          <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
         </form>
         <form action="{{ url_for('admin.archive_message', message_id=msg.id) }}" method="post" style="display:inline-block;">
-          <button class="btn btn-sm btn-secondary">Archiver</button>
+          <button type="submit" class="btn btn-sm btn-secondary">Archiver</button>
         </form>
       </td>
     </tr>
@@ -42,6 +42,11 @@
   </tbody>
 </table>
 
+<!-- Badge messages non lus -->
+<span class="badge bg-danger">
+  {{ messages | selectattr('seen', 'equalto', False) | list | length }}
+</span>
+  
 <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline-secondary">Retour au dashboard</a>
 <a href="{{ url_for('admin.admin_logout') }}" class="btn btn-outline-danger">Déconnexion</a>
 
