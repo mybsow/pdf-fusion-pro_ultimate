@@ -17,9 +17,7 @@
         <p class="display-6">{{ stats.total_messages }}</p>
 
         {% if stats.unseen_messages > 0 %}
-          <span class="badge bg-danger">
-            {{ stats.unseen_messages }} non lus
-          </span>
+          <span class="badge bg-danger">{{ stats.unseen_messages }} non lus</span>
         {% else %}
           <span class="badge bg-success">Tous lus</span>
         {% endif %}
@@ -31,10 +29,7 @@
       <div class="card shadow-sm p-3">
         <h5>Évaluations</h5>
         <p class="display-6">{{ stats.total_ratings }}</p>
-
-        <span class="badge bg-primary">
-          Moyenne : {{ stats.avg_rating }}/5
-        </span>
+        <span class="badge bg-primary">Moyenne : {{ stats.avg_rating }}/5</span>
       </div>
     </div>
 
@@ -49,9 +44,9 @@
   </div>
 
   <!-- ===================== -->
-  <!-- ACTIONS -->
+  <!-- ACTIONS RAPIDES -->
   <!-- ===================== -->
-  <div class="mt-4">
+  <div class="mt-4 mb-4">
     <a href="{{ url_for('admin.admin_messages') }}" class="btn btn-primary me-2">
       Messages
       {% if stats.unseen_messages > 0 %}
@@ -62,6 +57,59 @@
     <a href="{{ url_for('admin.admin_ratings') }}" class="btn btn-secondary">
       Évaluations
     </a>
+  </div>
+
+  <!-- ===================== -->
+  <!-- MESSAGES RÉCENTS -->
+  <!-- ===================== -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm p-3">
+        <h5>Messages récents</h5>
+        {% if stats.messages %}
+          <ul class="list-group list-group-flush">
+            {% for msg in stats.messages[:5] %}
+              <li class="list-group-item">
+                <strong>{{ msg.first_name }} {{ msg.last_name }}</strong><br>
+                <em>{{ msg.subject }}</em><br>
+                {{ msg.message[:50] }}{% if msg.message|length > 50 %}...{% endif %}<br>
+                <small>{{ msg.timestamp[:19] }}</small>
+                {% if not msg.seen %}
+                  <span class="badge bg-danger ms-1">Non lu</span>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>Aucun message récent.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ===================== -->
+    <!-- ÉVALUATIONS RÉCENTES -->
+    <!-- ===================== -->
+    <div class="col-md-6">
+      <div class="card shadow-sm p-3">
+        <h5>Évaluations récentes</h5>
+        {% if stats.ratings %}
+          <ul class="list-group list-group-flush">
+            {% for r in stats.ratings[:5] %}
+              <li class="list-group-item">
+                <strong>{{ r.rating }}/5</strong> 
+                {% if r.feedback %}- {{ r.feedback[:50] }}{% if r.feedback|length > 50 %}...{% endif %}{% endif %}<br>
+                <small>{{ r.timestamp[:19] }}</small>
+                {% if not r.seen %}
+                  <span class="badge bg-danger ms-1">Non vu</span>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>Aucune évaluation récente.</p>
+        {% endif %}
+      </div>
+    </div>
   </div>
 
 </div>
