@@ -2469,7 +2469,7 @@ def get_rating_html():
         fetch("/api/rating", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({rating: selectedRating, feedback: feedback})
+            body: JSON.stringify({rating: selectedRating, feedback: feedback, page: window.location.pathname})
         })
         .then(r => r.json())
         .then(data => {
