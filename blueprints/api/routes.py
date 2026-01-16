@@ -247,6 +247,12 @@ def api_preview():
 
 @api_bp.route("/rating", methods=["POST"])
 def submit_rating():
+    body: JSON.stringify({
+        rating: selectedRating,
+        feedback: feedback,
+        page: window.location.pathname
+    })
+
     data = request.get_json(silent=True) or {}
 
     # Validation stricte
@@ -264,5 +270,6 @@ def submit_rating():
         "user_agent": request.headers.get("User-Agent", ""),
         "ip": request.remote_addr
     })
+
 
     return jsonify({"success": True}), 201
