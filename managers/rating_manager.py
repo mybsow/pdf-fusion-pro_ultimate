@@ -6,7 +6,8 @@ from threading import Lock
 class RatingManager:
     def __init__(self):
         self.lock = Lock()
-        self.ratings_dir = Path("data/ratings")
+        BASE_DIR = Path(__file__).resolve().parent.parent
+        self.ratings_dir = BASE_DIR / "data" / "ratings"
         self.ratings_dir.mkdir(parents=True, exist_ok=True)
         self._cache = None  # Cache interne
 
@@ -128,6 +129,7 @@ class RatingManager:
 # Instance globale
 # ================================
 rating_manager = RatingManager()
+
 
 
 
