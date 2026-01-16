@@ -5,7 +5,10 @@ Routes pour les statistiques et santé
 from flask import jsonify, Response
 from datetime import datetime
 from . import stats_bp
-from utils.stats_manager import stats_manager  # Importez l'instance
+from managers.rating_manager import rating_manager
+from managers.contact_manager import contact_manager
+from managers.stats_manager import stats_manager
+
 from config import AppConfig
 
 @stats_bp.route('/health')
