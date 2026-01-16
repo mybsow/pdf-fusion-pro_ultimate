@@ -10,11 +10,10 @@ import base64
 from . import api_bp
 from blueprints.pdf.engine import PDFEngine
 from utils.stats_manager import stats_manager  # Importez l'instance
-from utils.rating_manager import rating_manager
 from utils.contact_manager import rating_manager
 from config import AppConfig
-from rating_manager import ratings_manager
 from managers.rating_manager import rating_manager
+from managers.contact_manager import rating_manager
 
 @api_bp.route('/merge', methods=["POST"])
 def api_merge():
