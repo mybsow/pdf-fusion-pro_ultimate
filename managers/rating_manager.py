@@ -63,12 +63,11 @@ class RatingManager:
         
     def save_rating(self, data: dict):
         with self.lock:
-            timestamp = datetime.utcnow().isoformat()
-            filename = f"rating_{timestamp.replace(':', '').replace('.', '')}.json"
-            filepath = self.ratings_dir / filename
+            ratings = self._load()
     
             payload = {
-                "timestamp": timestamp,
+                "id": f"rating_{datetime.utcnow().timestamp()}",
+                "timestamp": datetime.utcnow().isoformat(),
                 "rating": data.get("rating"),
                 "feedback": data.get("feedback"),
                 "page": data.get("page"),
@@ -77,13 +76,8 @@ class RatingManager:
                 "seen": False
             }
     
-            with open(filepath, "w", encoding="utf-8") as f:
-                json.dump(payload, f, ensure_ascii=False, indent=2)
-    
-            self._cache = None
-
-
-
+            ratings.insert(0, payload)
+            self._cache = ratings
 
     def delete_rating(self, rating_id):
         file = self.ratings_dir / rating_id
@@ -129,6 +123,7 @@ class RatingManager:
 # Instance globale
 # ================================
 rating_manager = RatingManager()
+
 
 
 
