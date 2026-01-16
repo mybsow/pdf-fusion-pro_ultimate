@@ -79,7 +79,7 @@ def admin_dashboard():
 # -----------------------
 @admin_bp.app_context_processor
 def inject_unread_count():
-    return {"unread_count": contact_manager.get_unseen_count_cached()}
+    return {"unread_count": contact_manager.get_unseen_count()}
 
 # -----------------------
 # Messages
