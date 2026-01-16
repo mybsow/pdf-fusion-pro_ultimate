@@ -15,7 +15,6 @@ from blueprints.api import api_bp
 from blueprints.legal import legal_bp
 from blueprints.stats import stats_bp
 from blueprints.admin import admin_bp
-from utils.middleware import setup_middleware
 
 
 # ============================================================
@@ -58,6 +57,7 @@ def create_app():
     from managers.contact_manager import contact_manager
     from managers.rating_manager import rating_manager
     from managers.stats_manager import stats_manager
+    from utils.middleware import setup_middleware
 
     # Middleware statistiques
     setup_middleware(app, stats_manager)
