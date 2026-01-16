@@ -11,7 +11,6 @@ from . import api_bp
 from blueprints.pdf.engine import PDFEngine
 from config import AppConfig
 from managers.stats_manager import stats_manager  # Importez l'instance
-from managers.contact_manager import rating_manager
 from managers.rating_manager import rating_manager
 from managers.contact_manager import rating_manager
 
