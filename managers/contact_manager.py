@@ -35,22 +35,32 @@ class ContactManager:
     # ========================
     # CRUD
     # ========================
-    def save_message(self, name, email, subject, message):
+    def save_message(
+        self,
+        first_name,
+        last_name,
+        email,
+        subject,
+        message
+    ):
         messages = self._safe_read()
-
+    
         new_msg = {
             "id": str(uuid.uuid4()),
-            "name": name,
+            "first_name": first_name,
+            "last_name": last_name,
+            "name": f"{first_name} {last_name}".strip(),
             "email": email,
             "subject": subject,
             "message": message,
             "timestamp": datetime.utcnow().isoformat(),
             "seen": False,
         }
-
+    
         messages.append(new_msg)
         self._safe_write(messages)
         return new_msg
+
 
     def get_all(self):
         return self._safe_read()
