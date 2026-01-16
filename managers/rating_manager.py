@@ -64,31 +64,39 @@ class RatingManager:
     # -----------------------
     # Stats
     # -----------------------
-    def get_stats(self):
-        ratings = self._load()
-        total = len(ratings)
+def get_stats(self):
+    ratings = self._load()
+    total = len(ratings)
 
-        distribution = {i: 0 for i in range(1, 6)}
-        for r in ratings:
-            distribution[r["rating"]] += 1
+    # Distribution 1 à 5
+    distribution = {i: 0 for i in range(1, 6)}
+    for r in ratings:
+        rating_value = r.get("rating", 0)
+        if 1 <= rating_value <= 5:
+            distribution[rating_value] += 1
 
-        avg = round(sum(r["rating"] for r in ratings) / total, 1) if total else 0
-        unseen = sum(1 for r in ratings if not r["seen"])
+    # Moyenne
+    avg = round(sum(r.get("rating",0) for r in ratings) / total, 1) if total else 0
 
-        recent_cutoff = datetime.utcnow() - timedelta(days=7)
-        recent = sum(
-            1 for r in ratings
-            if datetime.fromisoformat(r["timestamp"]) > recent_cutoff
-        )
+    # Non vus
+    unseen = sum(1 for r in ratings if not r.get("seen", False))
 
-        return {
-            "total": total,
-            "average": avg,
-            "distribution": distribution,
-            "unseen": unseen,
-            "recent_count": recent,
-            "recent_percentage": round((recent / total * 100), 1) if total else 0
-        }
+    # Récents (7 derniers jours)
+    recent_cutoff = datetime.utcnow() - timedelta(days=7)
+    recent = sum(
+        1 for r in ratings
+        if datetime.fromisoformat(r.get("timestamp","1970-01-01T00:00:00")) > recent_cutoff
+    )
+
+    return {
+        "total": total,
+        "average": avg,
+        "distribution": distribution,
+        "unseen": unseen,
+        "recent_count": recent,
+        "recent_percentage": round((recent / total * 100), 1) if total else 0
+    }
 
 # Singleton unique
 rating_manager = RatingManager()
+
