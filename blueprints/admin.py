@@ -152,26 +152,21 @@ def delete_message(message_id):
 @admin_bp.route("/ratings")
 @admin_required
 def admin_ratings():
-    rating_id = request.args.get("delete")
-    if rating_id:
-        rating_manager.delete_rating(rating_id)
-        return redirect(url_for("admin.admin_ratings"))
+    ratings_list = rating_manager.get_all_ratings()
 
-    if request.args.get("export")=="json":
-        return jsonify(rating_manager.get_all_ratings())
-
-    ratings = rating_manager.get_all_ratings()
-    stats = rating_manager.get_stats()
-    rating_manager.mark_all_seen()
-
-    for r in ratings:
+    # Ajout d'attributs pour le template
+    ratings = []
+    for r, file in zip(ratings_list, rating_manager.ratings_dir.glob("rating_*.json")):
+        r_copy = r.copy()
+        r_copy["id"] = file.name
         ts = r.get("timestamp")
-        try:
-            dt = datetime.fromisoformat(ts.replace("Z","+00:00"))
-            r["display_date"] = dt.strftime("%d/%m/%Y %H:%M")
-            r["time_ago"] = time_ago(dt)
-        except Exception:
-            r["display_date"] = ts
-            r["time_ago"] = ""
-    ratings.sort(key=lambda x: x.get("timestamp",""), reverse=True)
+        if ts:
+            r_copy["display_date"] = datetime.fromisoformat(ts).strftime("%d/%m/%Y %H:%M")
+        else:
+            r_copy["display_date"] = "-"
+        r_copy["page"] = r.get("page", "-")
+        ratings.append(r_copy)
+
+    stats = rating_manager.get_stats()
     return render_template("admin/ratings.html", ratings=ratings, stats=stats)
+
