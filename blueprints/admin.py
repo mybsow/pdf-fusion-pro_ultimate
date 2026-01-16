@@ -74,7 +74,7 @@ def admin_dashboard():
         # Messages
         # =========================
         all_messages = contact_manager.get_all_sorted()
-        recent_messages = all_messages[:5]  # 5 messages récents pour le dashboard
+        recent_messages = all_messages[:5]  # 5 messages récents pour affichage
 
         # =========================
         # Évaluations (ratings)
@@ -82,21 +82,26 @@ def admin_dashboard():
         rating_stats = rating_manager.get_stats()
         all_ratings = rating_manager.get_all_ratings()
 
-        # Préparer les 5 ratings récents avec attributs pour le template
-        recent_ratings = []
-        for r, file in zip(all_ratings[:5], rating_manager.ratings_dir.glob("rating_*.json")):
-            r_copy = r.copy()
-            r_copy["id"] = file.name
-            ts = r.get("timestamp")
-            if ts:
-                try:
-                    r_copy["display_date"] = datetime.fromisoformat(ts).strftime("%d/%m/%Y %H:%M")
-                except Exception:
-                    r_copy["display_date"] = ts
-            else:
-                r_copy["display_date"] = "-"
-            r_copy["page"] = r.get("page", "-")
-            recent_ratings.append(r_copy)
+        # Préparer tous les ratings pour le dashboard
+        formatted_ratings = []
+        for file in sorted(rating_manager.ratings_dir.glob("rating_*.json"), reverse=True):
+            try:
+                with open(file, "r", encoding="utf-8") as f:
+                    r = json.load(f)
+                    r_copy = r.copy()
+                    r_copy["id"] = file.name
+                    ts = r.get("timestamp")
+                    if ts:
+                        try:
+                            r_copy["display_date"] = datetime.fromisoformat(ts).strftime("%d/%m/%Y %H:%M")
+                        except Exception:
+                            r_copy["display_date"] = ts
+                    else:
+                        r_copy["display_date"] = "-"
+                    r_copy["page"] = r.get("page", "-")
+                    formatted_ratings.append(r_copy)
+            except Exception:
+                continue
 
         # =========================
         # Stats complètes
@@ -111,11 +116,11 @@ def admin_dashboard():
             "total_ratings": rating_stats.get("total", 0),
             "avg_rating": rating_stats.get("average", 0),
             "total_comments": rating_stats.get("comments", 0),
-            "ratings": recent_ratings,    # pour affichage dans dashboard
+            "ratings": formatted_ratings,  # tous les ratings pour affichage
         }
 
         # =========================
-        # Mise en cache (SimpleCache ne supporte pas 'timeout')
+        # Mise en cache
         # =========================
         cache.set("dashboard_stats", stats)
 
