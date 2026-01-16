@@ -102,6 +102,12 @@ def archive_message(message_id):
     contact_manager.archive_message(int(message_id))
     return redirect(url_for("admin.admin_messages"))
 
+@admin_bp.route("/messages/archived")
+@admin_required
+def admin_messages_archived():
+    messages = contact_manager.get_all_sorted(archive=True)  # ou une méthode get_archived()
+    return render_template("admin/messages_archived.html", messages=messages)
+
 @admin_bp.route("/messages/delete/<message_id>", methods=["POST"])
 @admin_required
 def delete_message(message_id):
