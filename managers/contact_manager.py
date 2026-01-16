@@ -40,7 +40,7 @@ class ContactManager:
         first_name,
         last_name,
         email,
-        Phone,
+        phone,
         subject,
         message
     ):
@@ -52,7 +52,7 @@ class ContactManager:
             "last_name": last_name,
             "name": f"{first_name} {last_name}".strip(),
             "email": email,
-            "Phone": Phone,
+            "phone": phone,
             "subject": subject,
             "message": message,
             "timestamp": datetime.utcnow().isoformat(),
