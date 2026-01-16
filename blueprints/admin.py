@@ -67,9 +67,9 @@ def admin_dashboard():
         stats = {
             "total_messages": len(contact_manager.get_all()),
             "unseen_messages": contact_manager.get_unseen_count(),
-            "total_ratings": rating_stats["total"],
-            "avg_rating": rating_stats["avg"],
-            "total_comments": rating_stats["comments"],
+            "total_ratings": rating_stats.get("total", 0),
+            "avg_rating": rating_stats.get("average", 0),
+            "total_comments": rating_stats.get("comments", 0),
         }
         cache.set("dashboard_stats", stats)
     return render_template("admin/dashboard.html", stats=stats)
