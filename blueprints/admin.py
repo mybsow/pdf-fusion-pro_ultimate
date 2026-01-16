@@ -67,27 +67,40 @@ def admin_logout():
 @admin_bp.route("/dashboard")
 @admin_required
 def admin_dashboard():
-    # Essai récupération cache
+    # Récupération du cache
     stats = cache.get("dashboard_stats")
     if not stats:
-        # ------------------------
+        # =========================
         # Messages
-        # ------------------------
+        # =========================
         all_messages = contact_manager.get_all_sorted()
-        # Filtrer les messages archivés si tu veux
-        # Ici, si tu n'as pas de flag "archived" dans contact_manager, les messages archivés sont déplacés
-        recent_messages = all_messages[:5]
+        recent_messages = all_messages[:5]  # 5 messages récents pour le dashboard
 
-        # ------------------------
-        # Évaluations
-        # ------------------------
+        # =========================
+        # Évaluations (ratings)
+        # =========================
         rating_stats = rating_manager.get_stats()
         all_ratings = rating_manager.get_all_ratings()
-        recent_ratings = all_ratings[:5] if all_ratings else []
 
-        # ------------------------
-        # Statistiques complètes
-        # ------------------------
+        # Préparer les 5 ratings récents avec attributs pour le template
+        recent_ratings = []
+        for r, file in zip(all_ratings[:5], rating_manager.ratings_dir.glob("rating_*.json")):
+            r_copy = r.copy()
+            r_copy["id"] = file.name
+            ts = r.get("timestamp")
+            if ts:
+                try:
+                    r_copy["display_date"] = datetime.fromisoformat(ts).strftime("%d/%m/%Y %H:%M")
+                except Exception:
+                    r_copy["display_date"] = ts
+            else:
+                r_copy["display_date"] = "-"
+            r_copy["page"] = r.get("page", "-")
+            recent_ratings.append(r_copy)
+
+        # =========================
+        # Stats complètes
+        # =========================
         stats = {
             # Messages
             "total_messages": len(all_messages),
@@ -101,8 +114,10 @@ def admin_dashboard():
             "ratings": recent_ratings,    # pour affichage dans dashboard
         }
 
-        # Mise en cache pour éviter recalcul fréquent
-        #cache.set("dashboard_stats", stats, timeout=60)  # cache 1 minute par exemple
+        # =========================
+        # Mise en cache (SimpleCache ne supporte pas 'timeout')
+        # =========================
+        cache.set("dashboard_stats", stats)
 
     return render_template("admin/dashboard.html", stats=stats)
 
