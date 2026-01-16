@@ -1,78 +1,62 @@
 import json
-from pathlib import Path
+import os
 from datetime import datetime
 from threading import Lock
-import uuid
-
 
 class RatingManager:
-    def __init__(self):
-        self.lock = Lock()
+    """
+    Gestion des notes / évaluations
+    """
+    def __init__(self, storage_file="data/ratings.json"):
+        self.storage_file = storage_file
+        self._lock = Lock()
+        os.makedirs(os.path.dirname(self.storage_file), exist_ok=True)
+        if not os.path.exists(self.storage_file):
+            with open(self.storage_file, "w") as f:
+                json.dump([], f)
 
-        self.base_dir = Path("data/ratings")
-        self.base_dir.mkdir(parents=True, exist_ok=True)
+    def _read_all(self):
+        with open(self.storage_file, "r") as f:
+            return json.load(f)
 
-    # =========================================
-    # SAUVEGARDE
-    # =========================================
-    def save_rating(self, rating: int, comment: str = None) -> bool:
-        try:
-            rating_id = f"rating_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}.json"
-            filepath = self.base_dir / rating_id
+    def _write_all(self, data):
+        with open(self.storage_file, "w") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
 
-            payload = {
-                "id": rating_id,
-                "rating": int(rating),
+    def add_rating(self, user, score, comment=""):
+        with self._lock:
+            ratings = self._read_all()
+            ratings.append({
+                "id": len(ratings)+1,
+                "user": user,
+                "score": score,
                 "comment": comment,
-                "created_at": datetime.utcnow().isoformat()
-            }
+                "seen": False,
+                "timestamp": datetime.utcnow().isoformat() + "Z"
+            })
+            self._write_all(ratings)
 
-            with self.lock:
-                with open(filepath, "w", encoding="utf-8") as f:
-                    json.dump(payload, f, ensure_ascii=False, indent=2)
+    def get_all_ratings(self):
+        return self._read_all()
 
-            return True
-
-        except Exception:
-            return False
-
-    # =========================================
-    # LECTURE
-    # =========================================
-    def get_all(self) -> list:
-        ratings = []
-
-        for file in self.base_dir.glob("rating_*.json"):
-            try:
-                with open(file, "r", encoding="utf-8") as f:
-                    ratings.append(json.load(f))
-            except Exception:
-                continue
-
-        return ratings
-
-    # =========================================
-    # STATS
-    # =========================================
-    def get_stats(self) -> dict:
-        ratings = self.get_all()
-
-        if not ratings:
-            return {
-                "total": 0,
-                "avg": 0,
-                "comments": 0
-            }
-
+    def get_stats(self):
+        ratings = self.get_all_ratings()
         total = len(ratings)
-        avg = round(sum(r["rating"] for r in ratings) / total, 2)
+        avg = round(sum(r["score"] for r in ratings)/total,2) if total else 0
         comments = sum(1 for r in ratings if r.get("comment"))
+        return {"total": total, "avg": avg, "comments": comments}
 
-        return {
-            "total": total,
-            "avg": avg,
-            "comments": comments
-        }
+    def mark_all_seen(self):
+        with self._lock:
+            ratings = self.get_all_ratings()
+            for r in ratings:
+                r["seen"] = True
+            self._write_all(ratings)
 
+    def delete_rating(self, rating_id):
+        with self._lock:
+            ratings = [r for r in self.get_all_ratings() if str(r["id"]) != str(rating_id)]
+            self._write_all(ratings)
 
+# Singleton
 rating_manager = RatingManager()
