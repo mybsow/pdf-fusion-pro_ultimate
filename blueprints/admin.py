@@ -138,6 +138,8 @@ def admin_dashboard():
                 # Date formatée
                 r_copy["formatted_date"] = format_timestamp(rating.get("timestamp"))
                 r_copy["time_ago"] = time_ago(rating.get("timestamp"))
+                # Compatibilité avec le template
+                r_copy["display_date"] = r_copy["formatted_date"]  # ← AJOUT IMPORTANT
                 # Page simplifiée
                 page = rating.get("page", "/")
                 if page == "/":
@@ -221,10 +223,14 @@ def admin_dashboard():
                 "total_comments": 0,
                 "recent_messages": [],
                 "recent_ratings": [],
+                "ratings_distribution": {1:0, 2:0, 3:0, 4:0, 5:0},
                 "error": str(e)
             }
     
-    return render_template("admin/dashboard.html", stats=cached_stats)
+    # Ajouter l'année courante pour le footer
+    return render_template("admin/dashboard.html", 
+                         stats=cached_stats, 
+                         current_year=datetime.now().year)
 
 @admin_bp.route("/dashboard/refresh")
 @admin_required
