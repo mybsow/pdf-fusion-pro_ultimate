@@ -129,7 +129,11 @@ def admin_dashboard():
             # Évaluations (ratings)
             # =========================
             # Force le rafraîchissement si demandé
-            all_ratings = rating_manager.get_all_ratings(force_refresh=force_refresh)
+            # Par (pour plus de debug) :
+            all_ratings = rating_manager.get_all_ratings(force_refresh=True)
+            print(f"📊 Ratings chargés: {len(all_ratings)}")
+            if all_ratings:
+                print(f"📊 Exemple rating: {all_ratings[0]}")
             
             # Formater les ratings pour l'affichage
             formatted_ratings = []
