@@ -3,559 +3,350 @@
 {% block title %}Dashboard Admin - PDF Fusion Pro{% endblock %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Dashboard Admin{% endblock %}</title>
-    
-    <!-- Bootstrap 5.3 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Chart.js pour les graphiques -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3a0ca3;
-            --success-color: #2ecc71;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --info-color: #3498db;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-        }
-        
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: #f5f7fb;
-            color: var(--dark-color);
-        }
-        
-        .dashboard-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-            border-radius: 0 0 20px 20px;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            height: 100%;
-            border: none;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        }
-        
-        .stat-card-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .stat-card.messages .stat-card-icon { background: rgba(67, 97, 238, 0.1); color: var(--primary-color); }
-        .stat-card.ratings .stat-card-icon { background: rgba(243, 156, 18, 0.1); color: var(--warning-color); }
-        .stat-card.comments .stat-card-icon { background: rgba(46, 204, 113, 0.1); color: var(--success-color); }
-        .stat-card.sessions .stat-card-icon { background: rgba(155, 89, 182, 0.1); color: #9b59b6; }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 0.5rem 0;
-        }
-        
-        .stat-title {
-            font-size: 0.9rem;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .badge-new {
-            background: var(--danger-color);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        .card-modern {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            margin-bottom: 1.5rem;
-        }
-        
-        .card-header-modern {
-            background: white;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 1.25rem 1.5rem;
-            border-radius: 15px 15px 0 0 !important;
-        }
-        
-        .table-modern {
-            margin: 0;
-        }
-        
-        .table-modern th {
-            border-top: none;
-            font-weight: 600;
-            color: var(--dark-color);
-            padding: 1rem 1.5rem;
-            background: rgba(248, 249, 250, 0.5);
-        }
-        
-        .table-modern td {
-            padding: 1rem 1.5rem;
-            vertical-align: middle;
-            border-color: rgba(0, 0, 0, 0.05);
-        }
-        
-        .table-modern tbody tr:hover {
-            background-color: rgba(67, 97, 238, 0.03);
-        }
-        
-        .message-preview {
-            max-width: 300px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .rating-stars {
-            color: #ffc107;
-            font-size: 1.1rem;
-        }
-        
-        .btn-refresh {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.5rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-refresh:hover {
-            background: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-        
-        .chart-container {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            height: 100%;
-        }
-        
-        .quick-actions {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .action-btn {
-            flex: 1;
-            min-width: 200px;
-            background: white;
-            border: none;
-            border-radius: 12px;
-            padding: 1.25rem;
-            text-align: center;
-            color: var(--dark-color);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
-        }
-        
-        .action-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-            color: var(--primary-color);
-        }
-        
-        .action-btn i {
-            font-size: 2rem;
-            margin-bottom: 0.75rem;
-            display: block;
-        }
-        
-        @media (max-width: 768px) {
-            .stat-number {
-                font-size: 2rem;
-            }
-            
-            .quick-actions {
-                flex-direction: column;
-            }
-            
-            .action-btn {
-                min-width: 100%;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <div class="dashboard-header">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h2 mb-2"><i class="fas fa-tachometer-alt me-2"></i>Dashboard Administrateur</h1>
-                    <p class="mb-0 opacity-75">Gestion complète de PDF Fusion Pro</p>
-                </div>
-                <div>
-                    <button onclick="refreshDashboard()" class="btn-refresh">
-                        <i class="fas fa-redo me-1"></i> Actualiser
-                    </button>
-                    <a href="/admin/logout" class="btn btn-outline-light ms-2">
-                        <i class="fas fa-sign-out-alt me-1"></i> Déconnexion
-                    </a>
-                </div>
+<div class="container-fluid mt-4">
+  <!-- Header avec bouton d'actualisation -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h2 mb-2"><i class="fas fa-tachometer-alt me-2"></i>Dashboard Administrateur</h1>
+      <p class="text-muted mb-0">Gestion complète de PDF Fusion Pro</p>
+    </div>
+    <div>
+      <a href="{{ url_for('admin.refresh_dashboard') }}" class="btn btn-primary">
+        <i class="fas fa-redo me-1"></i> Actualiser
+      </a>
+      <a href="{{ url_for('admin.admin_logout') }}" class="btn btn-outline-secondary ms-2">
+        <i class="fas fa-sign-out-alt me-1"></i> Déconnexion
+      </a>
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- STATS PRINCIPALES -->
+  <!-- ===================== -->
+  <div class="row mb-4">
+    <!-- Messages -->
+    <div class="col-md-3 col-sm-6 mb-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
+              <i class="fas fa-envelope text-primary fs-4"></i>
             </div>
+            <div>
+              <h5 class="mb-0">Messages</h5>
+              <p class="text-muted mb-0">Contacts reçus</p>
+            </div>
+          </div>
+          <h2 class="display-6 fw-bold">{{ stats.total_messages }}</h2>
+          {% if stats.unseen_messages > 0 %}
+          <span class="badge bg-danger">
+            <i class="fas fa-bell me-1"></i> {{ stats.unseen_messages }} nouveau{% if stats.unseen_messages > 1 %}x{% endif %}
+          </span>
+          {% else %}
+          <span class="badge bg-success">
+            <i class="fas fa-check me-1"></i> Tous lus
+          </span>
+          {% endif %}
         </div>
+      </div>
     </div>
 
-    <div class="container">
-        <!-- Stats Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-4">
-                <div class="stat-card messages">
-                    <div class="stat-card-icon">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <div class="stat-number">{{ stats.total_messages }}</div>
-                    <div class="stat-title">Messages</div>
-                    {% if stats.unseen_messages > 0 %}
-                    <div class="mt-2">
-                        <span class="badge-new">
-                            <i class="fas fa-bell me-1"></i> {{ stats.unseen_messages }} nouveau{% if stats.unseen_messages > 1 %}x{% endif %}
-                        </span>
-                    </div>
-                    {% endif %}
-                </div>
+    <!-- Ratings -->
+    <div class="col-md-3 col-sm-6 mb-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="bg-warning bg-opacity-10 p-3 rounded me-3">
+              <i class="fas fa-star text-warning fs-4"></i>
             </div>
-            
-            <div class="col-md-3 col-sm-6 mb-4">
-                <div class="stat-card ratings">
-                    <div class="stat-card-icon">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="stat-number">{{ stats.total_ratings }}</div>
-                    <div class="stat-title">Évaluations</div>
-                    <div class="mt-2">
-                        <span class="rating-stars">
-                            {% for i in range(5) %}
-                                {% if i < stats.avg_rating %}
-                                    <i class="fas fa-star"></i>
-                                {% else %}
-                                    <i class="far fa-star"></i>
-                                {% endif %}
-                            {% endfor %}
-                        </span>
-                        <small class="text-muted ms-2">{{ stats.avg_rating }}/5</small>
-                    </div>
-                </div>
+            <div>
+              <h5 class="mb-0">Évaluations</h5>
+              <p class="text-muted mb-0">Notes reçues</p>
             </div>
-            
-            <div class="col-md-3 col-sm-6 mb-4">
-                <div class="stat-card comments">
-                    <div class="stat-card-icon">
-                        <i class="fas fa-comment-dots"></i>
-                    </div>
-                    <div class="stat-number">{{ stats.total_comments }}</div>
-                    <div class="stat-title">Commentaires</div>
-                    <div class="mt-2 small text-muted">
-                        {{ ((stats.total_comments / stats.total_ratings) * 100)|round(1) if stats.total_ratings > 0 else 0 }}% avec feedback
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-3 col-sm-6 mb-4">
-                <div class="stat-card sessions">
-                    <div class="stat-card-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-number">{{ stats.sessions|default(0) }}</div>
-                    <div class="stat-title">Sessions</div>
-                    <div class="mt-2 small text-muted">
-                        Aujourd'hui
-                    </div>
-                </div>
-            </div>
+          </div>
+          <h2 class="display-6 fw-bold">{{ stats.total_ratings }}</h2>
+          <div class="mt-2">
+            <span class="text-warning">
+              {% for i in range(5) %}
+                {% if i < stats.avg_rating|int %}
+                  <i class="fas fa-star"></i>
+                {% else %}
+                  <i class="far fa-star"></i>
+                {% endif %}
+              {% endfor %}
+            </span>
+            <small class="text-muted ms-2">{{ stats.avg_rating }}/5</small>
+          </div>
         </div>
-
-        <!-- Quick Actions -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="quick-actions">
-                    <a href="/admin/messages" class="action-btn">
-                        <i class="fas fa-inbox text-primary"></i>
-                        <strong>Gérer les Messages</strong>
-                        <small class="text-muted d-block mt-1">
-                            {{ stats.unseen_messages }} non lu{% if stats.unseen_messages > 1 %}s{% endif %}
-                        </small>
-                    </a>
-                    
-                    <a href="/admin/ratings" class="action-btn">
-                        <i class="fas fa-star text-warning"></i>
-                        <strong>Voir les Évaluations</strong>
-                        <small class="text-muted d-block mt-1">
-                            {{ stats.total_ratings }} au total
-                        </small>
-                    </a>
-                    
-                    <a href="/admin/messages?seen=mark" class="action-btn" onclick="markAllAsSeen()">
-                        <i class="fas fa-check-circle text-success"></i>
-                        <strong>Tout marquer comme lu</strong>
-                        <small class="text-muted d-block mt-1">
-                            Effacer les notifications
-                        </small>
-                    </a>
-                    
-                    <a href="/stats" class="action-btn" target="_blank">
-                        <i class="fas fa-chart-line text-info"></i>
-                        <strong>Statistiques complètes</strong>
-                        <small class="text-muted d-block mt-1">
-                            Voir les graphiques détaillés
-                        </small>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Derniers Messages et Évaluations -->
-        <div class="row">
-            <!-- Derniers Messages -->
-            <div class="col-lg-6 mb-4">
-                <div class="card card-modern">
-                    <div class="card-header card-header-modern d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>Derniers Messages</h5>
-                        <a href="/admin/messages" class="btn btn-sm btn-outline-primary">
-                            Voir tout <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                    <div class="card-body p-0">
-                        {% if stats.messages and stats.messages|length > 0 %}
-                        <div class="table-responsive">
-                            <table class="table table-modern table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Nom</th>
-                                        <th>Sujet</th>
-                                        <th>Date</th>
-                                        <th>Statut</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for msg in stats.messages[:5] %}
-                                    <tr>
-                                        <td>
-                                            <strong>{{ msg.first_name }} {{ msg.last_name }}</strong>
-                                            <div class="small text-muted">{{ msg.email }}</div>
-                                        </td>
-                                        <td>
-                                            <div class="message-preview" title="{{ msg.subject }}">
-                                                {{ msg.subject }}
-                                            </div>
-                                        </td>
-                                        <td class="small text-muted">
-                                            {{ msg.timestamp[:16]|replace('T', ' ') }}
-                                        </td>
-                                        <td>
-                                            {% if not msg.seen %}
-                                            <span class="badge bg-danger">Nouveau</span>
-                                            {% else %}
-                                            <span class="badge bg-success">Lu</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        {% else %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">Aucun message pour le moment</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dernières Évaluations -->
-            <div class="col-lg-6 mb-4">
-                <div class="card card-modern">
-                    <div class="card-header card-header-modern d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-star me-2"></i>Dernières Évaluations</h5>
-                        <a href="/admin/ratings" class="btn btn-sm btn-outline-warning">
-                            Voir tout <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                    <div class="card-body p-0">
-                        {% if stats.ratings and stats.ratings|length > 0 %}
-                        <div class="table-responsive">
-                            <table class="table table-modern table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Note</th>
-                                        <th>Commentaire</th>
-                                        <th>Date</th>
-                                        <th>Statut</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for r in stats.ratings[:5] %}
-                                    <tr>
-                                        <td>
-                                            <div class="rating-stars">
-                                                {% for i in range(5) %}
-                                                    {% if i < r.rating %}
-                                                        <i class="fas fa-star"></i>
-                                                    {% else %}
-                                                        <i class="far fa-star"></i>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="message-preview" title="{{ r.feedback or 'Pas de commentaire' }}">
-                                                {{ r.feedback[:50] }}{% if r.feedback and r.feedback|length > 50 %}...{% endif %}
-                                            </div>
-                                        </td>
-                                        <td class="small text-muted">
-                                            {{ r.display_date }}
-                                        </td>
-                                        <td>
-                                            {% if not r.seen %}
-                                            <span class="badge bg-danger">Nouveau</span>
-                                            {% else %}
-                                            <span class="badge bg-success">Vu</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        {% else %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-star fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">Aucune évaluation pour le moment</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Graphique de distribution des notes -->
-        <div class="row">
-            <div class="col-12">
-                <div class="chart-container">
-                    <h5 class="mb-4"><i class="fas fa-chart-bar me-2"></i>Distribution des Notes</h5>
-                    <canvas id="ratingsChart" height="100"></canvas>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        // Graphique des évaluations
-        const ctx = document.getElementById('ratingsChart').getContext('2d');
-        
-        // Données de distribution (à remplacer par vos vraies données)
-        const distribution = {{ stats.ratings_distribution|tojson|safe if stats.ratings_distribution else '{1:0,2:0,3:0,4:0,5:0}' }};
-        
-        const ratingsChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['⭐', '⭐⭐', '⭐⭐⭐', '⭐⭐⭐⭐', '⭐⭐⭐⭐⭐'],
-                datasets: [{
-                    label: 'Nombre d\'évaluations',
-                    data: [
-                        distribution[1] || 0,
-                        distribution[2] || 0,
-                        distribution[3] || 0,
-                        distribution[4] || 0,
-                        distribution[5] || 0
-                    ],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',
-                        'rgba(255, 159, 64, 0.7)',
-                        'rgba(255, 205, 86, 0.7)',
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(54, 162, 235, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgb(255, 99, 132)',
-                        'rgb(255, 159, 64)',
-                        'rgb(255, 205, 86)',
-                        'rgb(75, 192, 192)',
-                        'rgb(54, 162, 235)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
+    <!-- Commentaires -->
+    <div class="col-md-3 col-sm-6 mb-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="bg-success bg-opacity-10 p-3 rounded me-3">
+              <i class="fas fa-comment-dots text-success fs-4"></i>
+            </div>
+            <div>
+              <h5 class="mb-0">Commentaires</h5>
+              <p class="text-muted mb-0">Avis détaillés</p>
+            </div>
+          </div>
+          <h2 class="display-6 fw-bold">{{ stats.total_comments }}</h2>
+          <div class="mt-2 small text-muted">
+            {% if stats.total_ratings > 0 %}
+            {{ ((stats.total_comments / stats.total_ratings) * 100)|round(1) }}% avec feedback
+            {% else %}
+            0% avec feedback
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
 
-        // Fonctions utilitaires
-        function refreshDashboard() {
-            window.location.reload();
+    <!-- Sessions -->
+    <div class="col-md-3 col-sm-6 mb-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="bg-info bg-opacity-10 p-3 rounded me-3">
+              <i class="fas fa-users text-info fs-4"></i>
+            </div>
+            <div>
+              <h5 class="mb-0">Sessions</h5>
+              <p class="text-muted mb-0">Aujourd'hui</p>
+            </div>
+          </div>
+          <h2 class="display-6 fw-bold">{{ stats.sessions_today|default(0) }}</h2>
+          <div class="mt-2 small text-muted">
+            {{ stats.total_operations|default(0) }} opérations totales
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- ACTIONS RAPIDES -->
+  <!-- ===================== -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title mb-3"><i class="fas fa-bolt me-2"></i>Actions Rapides</h5>
+          <div class="row">
+            <div class="col-md-3 col-sm-6 mb-2">
+              <a href="{{ url_for('admin.admin_messages') }}" class="btn btn-outline-primary w-100">
+                <i class="fas fa-inbox me-2"></i>Messages
+                {% if stats.unseen_messages > 0 %}
+                <span class="badge bg-danger ms-1">{{ stats.unseen_messages }}</span>
+                {% endif %}
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-2">
+              <a href="{{ url_for('admin.admin_ratings') }}" class="btn btn-outline-warning w-100">
+                <i class="fas fa-star me-2"></i>Évaluations
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-2">
+              <a href="{{ url_for('admin.mark_all_messages_seen') }}" class="btn btn-outline-success w-100">
+                <i class="fas fa-check-circle me-2"></i>Tout marquer lu
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-2">
+              <a href="/stats" target="_blank" class="btn btn-outline-info w-100">
+                <i class="fas fa-chart-line me-2"></i>Statistiques
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- DERNIERS MESSAGES -->
+  <!-- ===================== -->
+  <div class="row mb-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-white border-0">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>Derniers Messages</h5>
+            <a href="{{ url_for('admin.admin_messages') }}" class="btn btn-sm btn-outline-primary">
+              Voir tout <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          {% if stats.messages and stats.messages|length > 0 %}
+          <div class="list-group list-group-flush">
+            {% for msg in stats.messages[:5] %}
+            <div class="list-group-item border-0 px-0 py-2">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="mb-1">{{ msg.first_name }} {{ msg.last_name }}</h6>
+                  <p class="mb-1 text-muted small">
+                    <i class="fas fa-envelope me-1"></i>{{ msg.email }}
+                    <span class="ms-2">
+                      <i class="far fa-clock me-1"></i>{{ msg.timestamp|datetime if msg.timestamp else 'Date inconnue' }}
+                    </span>
+                  </p>
+                  <p class="mb-0">{{ msg.subject }}</p>
+                </div>
+                <div>
+                  {% if not msg.seen %}
+                  <span class="badge bg-danger">Nouveau</span>
+                  {% else %}
+                  <span class="badge bg-success">Lu</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <p class="text-muted">Aucun message pour le moment</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== -->
+    <!-- DERNIÈRES ÉVALUATIONS -->
+    <!-- ===================== -->
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-white border-0">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-star me-2"></i>Dernières Évaluations</h5>
+            <a href="{{ url_for('admin.admin_ratings') }}" class="btn btn-sm btn-outline-warning">
+              Voir tout <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          {% if stats.ratings and stats.ratings|length > 0 %}
+          <div class="list-group list-group-flush">
+            {% for r in stats.ratings[:5] %}
+            <div class="list-group-item border-0 px-0 py-2">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <div class="mb-1">
+                    <span class="text-warning">
+                      {% for i in range(5) %}
+                        {% if i < r.rating %}
+                          <i class="fas fa-star"></i>
+                        {% else %}
+                          <i class="far fa-star"></i>
+                        {% endif %}
+                      {% endfor %}
+                    </span>
+                    <small class="text-muted ms-2">{{ r.rating }}/5</small>
+                  </div>
+                  {% if r.feedback %}
+                  <p class="mb-1 small">{{ r.feedback[:80] }}{% if r.feedback|length > 80 %}...{% endif %}</p>
+                  {% else %}
+                  <p class="mb-1 small text-muted">Pas de commentaire</p>
+                  {% endif %}
+                  <p class="mb-0 text-muted small">
+                    <i class="fas fa-globe me-1"></i>{{ r.page_name|default(r.page|default('/')) }}
+                    <span class="ms-2">
+                      <i class="far fa-clock me-1"></i>{{ r.display_date|default('Date inconnue') }}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  {% if not r.seen %}
+                  <span class="badge bg-danger">Nouveau</span>
+                  {% else %}
+                  <span class="badge bg-success">Vu</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <i class="fas fa-star fa-3x text-muted mb-3"></i>
+            <p class="text-muted">Aucune évaluation pour le moment</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- DISTRIBUTION DES NOTES -->
+  <!-- ===================== -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-0">
+          <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Distribution des Notes</h5>
+        </div>
+        <div class="card-body">
+          {% if stats.ratings_distribution %}
+          <div class="row">
+            {% for rating in range(1, 6) %}
+            <div class="col-md-2 col-4 mb-3">
+              <div class="text-center">
+                <div class="display-6 fw-bold">{{ stats.ratings_distribution.get(rating, 0) }}</div>
+                <div class="text-warning mb-2">
+                  {% for i in range(rating) %}
+                  <i class="fas fa-star"></i>
+                  {% endfor %}
+                </div>
+                <div class="progress" style="height: 8px;">
+                  {% set total = stats.total_ratings if stats.total_ratings > 0 else 1 %}
+                  {% set percentage = (stats.ratings_distribution.get(rating, 0) / total * 100)|round %}
+                  <div class="progress-bar bg-warning" role="progressbar" 
+                       style="width: {{ percentage }}%;" 
+                       aria-valuenow="{{ percentage }}" 
+                       aria-valuemin="0" 
+                       aria-valuemax="100"></div>
+                </div>
+                <small class="text-muted">{{ percentage }}%</small>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-3">
+            <p class="text-muted">Pas assez de données pour afficher la distribution</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS et FontAwesome -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+// Auto-refresh toutes les 30 secondes
+setTimeout(function() {
+    window.location.reload();
+}, 30000);
+
+// Confirmation pour marquer tout comme lu
+document.querySelectorAll('a[href*="mark_all_messages_seen"]').forEach(link => {
+    link.addEventListener('click', function(e) {
+        if (!confirm('Marquer tous les messages comme lus ?')) {
+            e.preventDefault();
         }
+    });
+});
+</script>
 
-        function markAllAsSeen() {
-            fetch('/admin/messages/seen/all')
-                .then(response => {
-                    if (response.ok) {
-                        refreshDashboard();
-                    }
-                });
-        }
-
-        // Actualisation automatique toutes les 30 secondes
-        setInterval(refreshDashboard, 30000);
-    </script>
-</body>
-</html>
 {% endblock %}
