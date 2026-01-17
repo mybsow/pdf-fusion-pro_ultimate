@@ -19,10 +19,26 @@ class ContactManager:
         try:
             if not self.storage_file.exists() or self.storage_file.stat().st_size == 0:
                 return []
-
+    
             with self.storage_file.open("r", encoding="utf-8") as f:
-                data = json.load(f)
-                return data if isinstance(data, list) else []
+                content = f.read().strip()
+                if not content:
+                    return []
+                
+                try:
+                    data = json.loads(content)
+                    return data if isinstance(data, list) else []
+                except json.JSONDecodeError as e:
+                    print(f"❌ Fichier contacts.json invalide. Réinitialisation. Erreur: {e}")
+                    # Sauvegarder une copie du fichier corrompu
+                    backup_path = self.storage_file.with_suffix('.json.bak')
+                    if backup_path.exists():
+                        backup_path.unlink()
+                    self.storage_file.rename(backup_path)
+                    # Créer un nouveau fichier vide
+                    self._safe_write([])
+                    return []
+                    
         except Exception as e:
             print(f"Erreur lecture contacts: {e}")
             return []
