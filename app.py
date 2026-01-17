@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """
 PDF Fusion Pro Ultimate - Application principale
+Version compatible Render
 """
 
 from flask import Flask, redirect, Response
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
 import os
+import sys
 from pathlib import Path
+
+# Ajout du chemin racine au PYTHONPATH
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from config import AppConfig
 from blueprints.pdf import pdf_bp
@@ -22,9 +27,23 @@ from blueprints.admin import admin_bp
 
 def init_app_dirs():
     """Crée les répertoires nécessaires au fonctionnement de l'application."""
+    # Dossier racine du projet
+    base_dir = Path(__file__).parent
+    
     for d in ['data/contacts', 'data/ratings', 'uploads', 'temp', 'logs']:
-        Path(d).mkdir(parents=True, exist_ok=True)
+        dir_path = base_dir / d
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"📁 Dossier créé/vérifié: {dir_path}")
 
+    # Créer le fichier contacts.json vide s'il n'existe pas
+    contacts_file = base_dir / 'data' / 'contacts.json'
+    if not contacts_file.exists():
+        try:
+            with open(contacts_file, 'w', encoding='utf-8') as f:
+                f.write('[]')
+            print(f"✅ Fichier contacts.json créé: {contacts_file}")
+        except Exception as e:
+            print(f"⚠️  Erreur création contacts.json: {e}")
 
 # ============================================================
 # Factory Flask (UNIQUE)
@@ -32,261 +51,399 @@ def init_app_dirs():
 
 def create_app():
     """Factory d'application Flask."""
-    AppConfig.initialize()
-    init_app_dirs()
-
-    app = Flask(__name__)
-
-    # ----------------------------
-    # Configuration Flask
-    # ----------------------------
-    app.secret_key = os.environ.get(
-        "FLASK_SECRET_KEY",
-        AppConfig.SECRET_KEY
-    )
-
-    app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
-
-    # Proxy (Render / reverse proxy)
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
-
-    # ----------------------------
-    # Initialisation des managers
-    # ----------------------------
-    from managers.contact_manager import contact_manager
-    from managers.rating_manager import rating_manager
-    from managers.stats_manager import stats_manager
-    from utils.middleware import setup_middleware
-
-    # Middleware statistiques
-    setup_middleware(app, stats_manager)
-
-    # Warm-up cache léger (safe)
-    with app.app_context():
-        contact_manager.get_unseen_count()
-
-    # ----------------------------
-    # Enregistrement des blueprints
-    # ----------------------------
-    app.register_blueprint(pdf_bp)
-    app.register_blueprint(api_bp, url_prefix="/api")
-    app.register_blueprint(legal_bp)
-    app.register_blueprint(stats_bp)
-    app.register_blueprint(admin_bp)   # /admin/*
+    print("🚀 Initialisation de l'application Flask...")
     
-    # Blueprint debug (optionnel - seulement si disponible)
     try:
-        from blueprints.debug import debug_bp
-        app.register_blueprint(debug_bp)
-        print("✅ Blueprint debug chargé avec succès")
-    except ImportError as e:
-        print(f"⚠️  Blueprint debug non disponible: {e}")
-    except Exception as e:
-        print(f"⚠️  Erreur lors du chargement du blueprint debug: {e}")
-
-    # ----------------------------
-    # Routes système
-    # ----------------------------
-    @app.route('/')
-    def index():
-        return redirect('/pdf')
-
-    @app.route('/google6f0d847067bbd18a.html')
-    def google_verification():
-        return Response(
-            "google-site-verification: google6f0d847067bbd18a.html",
-            mimetype="text/html"
-        )
-
-    @app.route('/ads.txt')
-    def ads_txt():
-        return Response(
-            "google.com, pub-8967416460526921, DIRECT, f08c47fec0942fa0",
-            mimetype="text/plain"
-        )
-
-    @app.route('/robots.txt')
-    def robots():
-        content = (
-            "User-agent: *\n"
-            "Allow: /\n"
-            f"Sitemap: https://{AppConfig.DOMAIN}/sitemap.xml\n"
-        )
-        return Response(content, mimetype="text/plain")
-
-    @app.route('/sitemap.xml')
-    def sitemap():
-        base_url = f"https://{AppConfig.DOMAIN}"
-        today = datetime.now().strftime('%Y-%m-%d')
-
-        pages = [
-            ("/", today, "daily", 1.0),
-            ("/fusion-pdf", today, "daily", 0.9),
-            ("/division-pdf", today, "daily", 0.9),
-            ("/rotation-pdf", today, "daily", 0.9),
-            ("/compression-pdf", today, "daily", 0.9),
-            ("/contact", today, "weekly", 0.7),
-            ("/a-propos", today, "monthly", 0.6),
-            ("/mentions-legales", "2024-01-15", "monthly", 0.3),
-            ("/politique-confidentialite", "2024-01-15", "monthly", 0.3),
-            ("/conditions-utilisation", "2024-01-15", "monthly", 0.3),
-        ]
+        # Initialisation de la configuration
+        AppConfig.initialize()
+        print(f"✅ Configuration chargée: {AppConfig.NAME} v{AppConfig.VERSION}")
         
-        # AJOUTER LES ROUTES API (optionnel mais recommandé pour le SEO technique)
-        api_pages = [
-            ("/health", datetime.now().strftime('%Y-%m-%d'), "daily", 0.1),
-        ]
+        # Création des dossiers
+        init_app_dirs()
         
-        # Ajouter les routes API si nécessaire
-        all_pages = pages + api_pages
+        # Création de l'application Flask
+        app = Flask(__name__)
+        
+        # ----------------------------
+        # Configuration Flask
+        # ----------------------------
+        app.secret_key = os.environ.get(
+            "FLASK_SECRET_KEY",
+            AppConfig.SECRET_KEY
+        )
+        
+        app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
+        
+        # Configuration pour Render
+        app.config['PREFERRED_URL_SCHEME'] = 'https'
+        app.config['SERVER_NAME'] = AppConfig.DOMAIN if AppConfig.DOMAIN else None
+        
+        # Proxy (Render / reverse proxy)
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+        
+        print(f"🔧 Config Flask initialisée - Secret: {'Oui' if app.secret_key else 'Non'}")
+        
+        # ----------------------------
+        # Initialisation des managers
+        # ----------------------------
+        try:
+            from managers.contact_manager import contact_manager
+            from managers.rating_manager import rating_manager
+            from managers.stats_manager import stats_manager
+            from utils.middleware import setup_middleware
             
-        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
-        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
-        xml += '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
-        xml += '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9\n'
-        xml += '        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">\n'
-
-        for path, lastmod, freq, prio in all_pages:
-            xml += (
-                "  <url>\n"
-                f"    <loc>{base_url}{path}</loc>\n"
-                f"    <lastmod>{lastmod}</lastmod>\n"
-                f"    <changefreq>{freq}</changefreq>\n"
-                f"    <priority>{prio}</priority>\n"
-                "  </url>\n"
+            print("✅ Managers importés avec succès")
+            
+            # Middleware statistiques
+            setup_middleware(app, stats_manager)
+            
+            # Warm-up cache léger (safe)
+            with app.app_context():
+                unseen_count = contact_manager.get_unseen_count()
+                print(f"📨 Messages non lus: {unseen_count}")
+                
+        except ImportError as e:
+            print(f"⚠️  Erreur import managers: {e}")
+        except Exception as e:
+            print(f"⚠️  Erreur initialisation managers: {e}")
+        
+        # ----------------------------
+        # Enregistrement des blueprints
+        # ----------------------------
+        blueprints = [
+            (pdf_bp, None, "PDF"),
+            (api_bp, "/api", "API"),
+            (legal_bp, None, "Legal"),
+            (stats_bp, None, "Stats"),
+            (admin_bp, None, "Admin")
+        ]
+        
+        for bp, prefix, name in blueprints:
+            try:
+                if prefix:
+                    app.register_blueprint(bp, url_prefix=prefix)
+                else:
+                    app.register_blueprint(bp)
+                print(f"✅ Blueprint '{name}' enregistré" + (f" avec préfixe '{prefix}'" if prefix else ""))
+            except Exception as e:
+                print(f"❌ Erreur enregistrement blueprint '{name}': {e}")
+        
+        # Blueprint debug (optionnel)
+        try:
+            from blueprints.debug import debug_bp
+            app.register_blueprint(debug_bp, url_prefix="/debug")
+            print("✅ Blueprint debug enregistré")
+        except ImportError:
+            print("⚠️  Blueprint debug non disponible")
+        except Exception as e:
+            print(f"⚠️  Erreur blueprint debug: {e}")
+        
+        # ----------------------------
+        # Routes système
+        # ----------------------------
+        @app.route('/')
+        def index():
+            """Redirection vers l'interface PDF"""
+            return redirect('/pdf')
+        
+        @app.route('/google6f0d847067bbd18a.html')
+        def google_verification():
+            """Verification Google Search Console"""
+            return Response(
+                "google-site-verification: google6f0d847067bbd18a.html",
+                mimetype="text/plain"
             )
-
-        xml += '</urlset>'
-        return Response(xml, mimetype="application/xml")
-
-    # ============================================================
-    # GESTION DES ERREURS
-    # ============================================================
-    @app.errorhandler(404)
-    def not_found_error(error):
-        return """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>404 - Page non trouvée</title>
-            <style>
-                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-                h1 { color: #e74c3c; }
-                .container { max-width: 600px; margin: 0 auto; }
-                .btn { display: inline-block; padding: 10px 20px; background: #3498db; 
-                       color: white; text-decoration: none; border-radius: 5px; margin-top: 20px; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>404 - Page non trouvée</h1>
-                <p>La page que vous recherchez n'existe pas.</p>
-                <a href="/" class="btn">Retour à l'accueil</a>
-            </div>
-        </body>
-        </html>
-        """, 404
-    
-    @app.errorhandler(500)
-    def internal_error(error):
-        import traceback
         
-        # Log l'erreur
-        error_traceback = traceback.format_exc()
-        print("\n" + "="*80)
-        print("TRACEBACK DE L'ERREUR 500:")
-        print("="*80)
-        print(error_traceback)
-        print("="*80 + "\n")
+        @app.route('/ads.txt')
+        def ads_txt():
+            """Fichier ads.txt pour AdSense"""
+            return Response(
+                "google.com, pub-8967416460526921, DIRECT, f08c47fec0942fa0",
+                mimetype="text/plain"
+            )
         
-        # Page d'erreur pour l'utilisateur
-        return """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>500 - Erreur Interne</title>
-            <style>
-                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-                h1 { color: #e74c3c; }
-                .container { max-width: 600px; margin: 0 auto; }
-                .btn { display: inline-block; padding: 10px 20px; background: #3498db; 
-                       color: white; text-decoration: none; border-radius: 5px; margin-top: 20px; }
-                .error-details { background: #f8f9fa; padding: 15px; border-radius: 5px; 
-                                margin-top: 20px; text-align: left; font-family: monospace; 
-                                font-size: 12px; overflow: auto; max-height: 200px; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>500 - Erreur Interne du Serveur</h1>
-                <p>Une erreur s'est produite sur le serveur. L'équipe technique a été notifiée.</p>
+        @app.route('/robots.txt')
+        def robots():
+            """Fichier robots.txt"""
+            content = (
+                "User-agent: *\n"
+                "Allow: /\n"
+                "Disallow: /admin/\n"
+                "Disallow: /debug/\n"
+                f"Sitemap: https://{AppConfig.DOMAIN}/sitemap.xml\n"
+            )
+            return Response(content, mimetype="text/plain")
+        
+        @app.route('/sitemap.xml')
+        def sitemap():
+            """Génération dynamique du sitemap XML"""
+            base_url = f"https://{AppConfig.DOMAIN}"
+            today = datetime.now().strftime('%Y-%m-%d')
+            
+            pages = [
+                ("/", today, "daily", 1.0),
+                ("/fusion-pdf", today, "daily", 0.9),
+                ("/division-pdf", today, "daily", 0.9),
+                ("/rotation-pdf", today, "daily", 0.9),
+                ("/compression-pdf", today, "daily", 0.9),
+                ("/contact", today, "weekly", 0.7),
+                ("/a-propos", today, "monthly", 0.6),
+                ("/mentions-legales", "2024-01-15", "monthly", 0.3),
+                ("/politique-confidentialite", "2024-01-15", "monthly", 0.3),
+                ("/conditions-utilisation", "2024-01-15", "monthly", 0.3),
+            ]
+            
+            xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+            xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
+            xml += '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
+            xml += '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9\n'
+            xml += '        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">\n'
+            
+            for path, lastmod, freq, prio in pages:
+                xml += (
+                    "  <url>\n"
+                    f"    <loc>{base_url}{path}</loc>\n"
+                    f"    <lastmod>{lastmod}</lastmod>\n"
+                    f"    <changefreq>{freq}</changefreq>\n"
+                    f"    <priority>{prio}</priority>\n"
+                    "  </url>\n"
+                )
+            
+            xml += '</urlset>'
+            return Response(xml, mimetype="application/xml")
+        
+        # ============================================================
+        # ROUTES DE SANTÉ ET DIAGNOSTIC
+        # ============================================================
+        @app.route('/health')
+        def health_check():
+            """Endpoint de santé pour Render et monitoring"""
+            try:
+                from managers.stats_manager import stats_manager
                 
-                <div class="error-details">
-                    <strong>Détails :</strong><br>
-                    <pre style="margin: 0;">""" + str(error)[:500] + """</pre>
+                health_data = {
+                    "status": "healthy",
+                    "timestamp": datetime.now().isoformat(),
+                    "app": {
+                        "name": AppConfig.NAME,
+                        "version": AppConfig.VERSION,
+                        "domain": AppConfig.DOMAIN
+                    },
+                    "services": {
+                        "flask": True,
+                        "filesystem": os.access('.', os.W_OK),
+                        "memory": True
+                    },
+                    "stats": {
+                        "total_operations": stats_manager.get_stat("total_operations", 0)
+                    }
+                }
+                return health_data, 200
+                
+            except Exception as e:
+                return {
+                    "status": "degraded",
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat()
+                }, 200  # 200 pour que Render ne considère pas comme échec
+        
+        @app.route('/diagnostic')
+        def diagnostic():
+            """Page de diagnostic détaillée"""
+            import platform
+            
+            diagnostic_info = {
+                "timestamp": datetime.now().isoformat(),
+                "environment": {
+                    "python_version": platform.python_version(),
+                    "flask_version": "3.0.0",
+                    "os": platform.system(),
+                    "render": os.environ.get('RENDER', 'false').lower() == 'true',
+                    "port": os.environ.get('PORT', '5000')
+                },
+                "app": {
+                    "name": AppConfig.NAME,
+                    "version": AppConfig.VERSION,
+                    "developer": AppConfig.DEVELOPER_NAME,
+                    "domain": AppConfig.DOMAIN
+                },
+                "paths": {
+                    "current_dir": os.getcwd(),
+                    "data_dir": str(Path('data').absolute()) if Path('data').exists() else "Missing",
+                    "contacts_file": str(Path('data/contacts.json').absolute()) if Path('data/contacts.json').exists() else "Missing",
+                    "ratings_dir": str(Path('data/ratings').absolute()) if Path('data/ratings').exists() else "Missing"
+                },
+                "files": {
+                    "app.py": os.path.exists('app.py'),
+                    "requirements.txt": os.path.exists('requirements.txt'),
+                    "render.yaml": os.path.exists('render.yaml')
+                }
+            }
+            
+            return diagnostic_info
+        
+        # ============================================================
+        # GESTION DES ERREURS
+        # ============================================================
+        @app.errorhandler(404)
+        def not_found_error(error):
+            """Page 404 personnalisée"""
+            html = '''
+            <!DOCTYPE html>
+            <html lang="fr">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>404 - Page non trouvée | PDF Fusion Pro</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                <style>
+                    body { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; }
+                    .error-container { max-width: 600px; margin: 100px auto; text-align: center; }
+                    .error-code { font-size: 8rem; font-weight: bold; color: #4361ee; opacity: 0.2; }
+                </style>
+            </head>
+            <body>
+                <div class="container error-container">
+                    <div class="error-code">404</div>
+                    <h1 class="mb-4">Page non trouvée</h1>
+                    <p class="lead mb-4">La page que vous recherchez n'existe pas ou a été déplacée.</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/" class="btn btn-primary btn-lg">
+                            <i class="fas fa-home me-2"></i>Retour à l'accueil
+                        </a>
+                        <a href="/contact" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-envelope me-2"></i>Nous contacter
+                        </a>
+                    </div>
                 </div>
-                
-                <a href="/" class="btn">Retour à l'accueil</a>
-                <a href="/contact" class="btn" style="background: #2ecc71; margin-left: 10px;">
-                    Signaler ce problème
-                </a>
-            </div>
-        </body>
-        </html>
-        """, 500
-
-    # ============================================================
-    # ROUTES DE SANTÉ ET DIAGNOSTIC
-    # ============================================================
-    @app.route('/health')
-    def health_check():
-        """Endpoint de santé de l'application"""
-        import json
-        from managers.stats_manager import stats_manager
+                <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+            </body>
+            </html>
+            '''
+            return html, 404
         
-        return {
-            "status": "healthy",
-            "app": AppConfig.NAME,
-            "version": AppConfig.VERSION,
-            "timestamp": datetime.now().isoformat(),
-            "services": {
-                "contact_manager": True,
-                "rating_manager": True,
-                "stats_manager": True
-            },
-            "stats": {
-                "total_operations": stats_manager.get_stat("total_operations", 0)
-            }
-        }
-    
-    @app.route('/diagnostic')
-    def diagnostic():
-        """Page de diagnostic pour vérifier le fonctionnement"""
-        import json
-        from pathlib import Path
+        @app.errorhandler(500)
+        def internal_error(error):
+            """Page 500 personnalisée"""
+            import traceback
+            
+            # Log de l'erreur
+            error_traceback = traceback.format_exc()
+            print("\n" + "="*80)
+            print("❌ ERREUR INTERNE 500:")
+            print("="*80)
+            print(error_traceback)
+            print("="*80 + "\n")
+            
+            html = '''
+            <!DOCTYPE html>
+            <html lang="fr">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>500 - Erreur serveur | PDF Fusion Pro</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                <style>
+                    body { background: linear-gradient(135deg, #ffeaea 0%, #ffd6d6 100%); min-height: 100vh; }
+                    .error-container { max-width: 800px; margin: 50px auto; }
+                    .error-code { font-size: 6rem; font-weight: bold; color: #e74c3c; }
+                </style>
+            </head>
+            <body>
+                <div class="container error-container">
+                    <div class="card shadow-lg">
+                        <div class="card-header bg-danger text-white">
+                            <h2 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Erreur Interne du Serveur</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="error-code text-center mb-4">500</div>
+                            <h3 class="text-center mb-4">Une erreur technique est survenue</h3>
+                            <p class="lead">Notre équipe technique a été automatiquement notifiée de ce problème.</p>
+                            
+                            <div class="alert alert-info">
+                                <h5><i class="fas fa-lightbulb me-2"></i>Que faire ?</h5>
+                                <ul class="mb-0">
+                                    <li>Rafraîchissez la page dans quelques instants</li>
+                                    <li>Retournez à la page d'accueil et réessayez</li>
+                                    <li>Si le problème persiste, contactez-nous</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="d-flex justify-content-center gap-3 mt-4">
+                                <a href="/" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-home me-2"></i>Accueil
+                                </a>
+                                <a href="javascript:location.reload()" class="btn btn-outline-primary btn-lg">
+                                    <i class="fas fa-redo me-2"></i>Rafraîchir
+                                </a>
+                                <a href="/contact" class="btn btn-outline-danger btn-lg">
+                                    <i class="fas fa-bug me-2"></i>Signaler un bug
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted text-center">
+                            <small>PDF Fusion Pro • Version ''' + AppConfig.VERSION + ''' • ''' + datetime.now().strftime('%d/%m/%Y %H:%M') + '''</small>
+                        </div>
+                    </div>
+                </div>
+                <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+            </body>
+            </html>
+            '''
+            return html, 500
         
-        diagnostic_info = {
-            "timestamp": datetime.now().isoformat(),
-            "app_config": {
-                "name": AppConfig.NAME,
-                "version": AppConfig.VERSION,
-                "domain": AppConfig.DOMAIN
-            },
-            "directories": {
-                "data_exists": Path("data").exists(),
-                "contacts_exists": Path("data/contacts.json").exists(),
-                "ratings_dir_exists": Path("data/ratings").exists()
-            },
-            "python": {
-                "version": os.sys.version,
-                "flask_version": Flask.__version__
-            }
-        }
+        # ============================================================
+        # FILTRES JINJA2 UTILES
+        # ============================================================
+        @app.template_filter('datetime')
+        def format_datetime(value, format='%d/%m/%Y %H:%M'):
+            """Filtre Jinja2 pour formater les dates"""
+            if isinstance(value, str):
+                try:
+                    value = datetime.fromisoformat(value.replace('Z', '+00:00'))
+                except:
+                    return value
+            if isinstance(value, datetime):
+                return value.strftime(format)
+            return value
         
-        return diagnostic_info
-
-    return app
-
+        @app.template_filter('filesize')
+        def format_filesize(value):
+            """Formatage de taille de fichier"""
+            for unit in ['B', 'KB', 'MB', 'GB']:
+                if value < 1024.0 or unit == 'GB':
+                    return f"{value:.1f} {unit}"
+                value /= 1024.0
+        
+        print("=" * 60)
+        print(f"✅ Application Flask initialisée avec succès !")
+        print(f"📱 Nom: {AppConfig.NAME}")
+        print(f"🔖 Version: {AppConfig.VERSION}")
+        print(f"🌐 Domain: {AppConfig.DOMAIN}")
+        print(f"👨‍💻 Développeur: {AppConfig.DEVELOPER_NAME}")
+        print(f"🔗 Routes principales: /, /pdf, /admin, /health, /diagnostic")
+        print("=" * 60)
+        
+        return app
+        
+    except Exception as e:
+        print(f"❌ ERREUR CRITIQUE lors de l'initialisation: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        # Créer une application minimale en cas d'erreur
+        app = Flask(__name__)
+        app.secret_key = os.urandom(24)
+        
+        @app.route('/')
+        def fallback():
+            return "Application en maintenance. Veuillez réessayer dans quelques instants.", 503
+        
+        @app.route('/health')
+        def fallback_health():
+            return {"status": "degraded", "error": str(e)}, 200
+        
+        return app
 
 # ============================================================
 # Point d'entrée Gunicorn / Render
@@ -299,15 +456,20 @@ app = create_app()
 # ============================================================
 
 if __name__ == "__main__":
-    # Afficher des informations de démarrage
-    print("=" * 60)
-    print(f"🚀 Démarrage de {AppConfig.NAME} v{AppConfig.VERSION}")
-    print(f"📁 Dossier courant: {os.getcwd()}")
-    print(f"🌐 URL: http://localhost:{os.environ.get('PORT', 5000)}")
-    print("=" * 60)
+    port = int(os.environ.get("PORT", 5000))
+    debug = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    
+    print("\n" + "="*60)
+    print(f"🚀 DÉMARRAGE DE L'APPLICATION")
+    print("="*60)
+    print(f"📁 Répertoire: {os.getcwd()}")
+    print(f"🌍 Port: {port}")
+    print(f"🐛 Debug: {debug}")
+    print(f"🔧 Environnement: {os.environ.get('FLASK_ENV', 'production')}")
+    print("="*60)
     
     app.run(
         host="0.0.0.0",
-        port=int(os.environ.get("PORT", 5000)),
-        debug=os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+        port=port,
+        debug=debug
     )
