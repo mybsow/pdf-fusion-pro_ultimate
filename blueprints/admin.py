@@ -163,6 +163,10 @@ def admin_dashboard():
             
             # Stats de ratings
             rating_stats = rating_manager.get_stats()
+            # Dans admin_dashboard(), après avoir chargé les ratings :
+            print(f"📊 DEBUG - Nombre de ratings: {len(all_ratings)}")
+            print(f"📊 DEBUG - Répertoire ratings: {rating_manager.ratings_dir}")
+            print(f"📊 DEBUG - Fichiers dans ratings: {list(rating_manager.ratings_dir.glob('*.json'))}")
             
             # =========================
             # Statistiques d'utilisation
