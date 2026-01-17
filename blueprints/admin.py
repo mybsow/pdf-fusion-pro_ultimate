@@ -606,6 +606,48 @@ def admin_debug():
     
     return render_template("admin/debug.html", debug_info=debug_info)
 
+@admin_bp.route("/repair/contacts")
+@admin_required
+def repair_contacts():
+    """Réparer le fichier contacts.json"""
+    import json
+    from pathlib import Path
+    
+    contacts_file = Path("data/contacts.json")
+    
+    if contacts_file.exists():
+        try:
+            # Essayer de lire le fichier
+            with open(contacts_file, "r", encoding="utf-8") as f:
+                content = f.read()
+                
+            if content.strip():
+                # Essayer de parser le JSON
+                json.loads(content)
+                return "✅ Fichier contacts.json est valide", 200
+            else:
+                # Fichier vide, le réinitialiser
+                with open(contacts_file, "w", encoding="utf-8") as f:
+                    f.write("[]")
+                return "✅ Fichier contacts.json réinitialisé (était vide)", 200
+                
+        except json.JSONDecodeError:
+            # Fichier invalide, créer une sauvegarde et réinitialiser
+            backup = contacts_file.with_suffix('.json.backup')
+            contacts_file.rename(backup)
+            
+            with open(contacts_file, "w", encoding="utf-8") as f:
+                f.write("[]")
+            
+            return f"✅ Fichier contacts.json réparé. Backup créé: {backup.name}", 200
+            
+    else:
+        # Créer le fichier s'il n'existe pas
+        contacts_file.parent.mkdir(exist_ok=True)
+        with open(contacts_file, "w", encoding="utf-8") as f:
+            f.write("[]")
+        return "✅ Fichier contacts.json créé", 200
+
 @admin_bp.route("/debug/clear-cache")
 @admin_required
 def clear_cache():
