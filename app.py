@@ -16,6 +16,12 @@ from blueprints.legal import legal_bp
 from blueprints.stats import stats_bp
 from blueprints.admin import admin_bp
 
+# Ajoutez cette importation
+from blueprints.debug import debug_bp
+
+# Et dans create_app(), après les autres blueprints
+app.register_blueprint(debug_bp)
+
 
 # ============================================================
 # Initialisation des dossiers nécessaires
