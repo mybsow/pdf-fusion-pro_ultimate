@@ -16,20 +16,13 @@ from blueprints.legal import legal_bp
 from blueprints.stats import stats_bp
 from blueprints.admin import admin_bp
 
-# Ajoutez cette importation
-from blueprints.debug import debug_bp
-
-# Et dans create_app(), après les autres blueprints
-app.register_blueprint(debug_bp)
-
-
 # ============================================================
 # Initialisation des dossiers nécessaires
 # ============================================================
 
 def init_app_dirs():
     """Crée les répertoires nécessaires au fonctionnement de l'application."""
-    for d in ['data/contacts', 'uploads', 'temp', 'logs']:
+    for d in ['data/contacts', 'data/ratings', 'uploads', 'temp', 'logs']:
         Path(d).mkdir(parents=True, exist_ok=True)
 
 
@@ -80,6 +73,16 @@ def create_app():
     app.register_blueprint(legal_bp)
     app.register_blueprint(stats_bp)
     app.register_blueprint(admin_bp)   # /admin/*
+    
+    # Blueprint debug (optionnel - seulement si disponible)
+    try:
+        from blueprints.debug import debug_bp
+        app.register_blueprint(debug_bp)
+        print("✅ Blueprint debug chargé avec succès")
+    except ImportError as e:
+        print(f"⚠️  Blueprint debug non disponible: {e}")
+    except Exception as e:
+        print(f"⚠️  Erreur lors du chargement du blueprint debug: {e}")
 
     # ----------------------------
     # Routes système
@@ -128,11 +131,14 @@ def create_app():
             ("/politique-confidentialite", "2024-01-15", "monthly", 0.3),
             ("/conditions-utilisation", "2024-01-15", "monthly", 0.3),
         ]
-
+        
         # AJOUTER LES ROUTES API (optionnel mais recommandé pour le SEO technique)
         api_pages = [
             ("/health", datetime.now().strftime('%Y-%m-%d'), "daily", 0.1),
-        ]        
+        ]
+        
+        # Ajouter les routes API si nécessaire
+        all_pages = pages + api_pages
             
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
@@ -140,7 +146,7 @@ def create_app():
         xml += '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9\n'
         xml += '        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">\n'
 
-        for path, lastmod, freq, prio in pages:
+        for path, lastmod, freq, prio in all_pages:
             xml += (
                 "  <url>\n"
                 f"    <loc>{base_url}{path}</loc>\n"
@@ -229,6 +235,56 @@ def create_app():
         </html>
         """, 500
 
+    # ============================================================
+    # ROUTES DE SANTÉ ET DIAGNOSTIC
+    # ============================================================
+    @app.route('/health')
+    def health_check():
+        """Endpoint de santé de l'application"""
+        import json
+        from managers.stats_manager import stats_manager
+        
+        return {
+            "status": "healthy",
+            "app": AppConfig.NAME,
+            "version": AppConfig.VERSION,
+            "timestamp": datetime.now().isoformat(),
+            "services": {
+                "contact_manager": True,
+                "rating_manager": True,
+                "stats_manager": True
+            },
+            "stats": {
+                "total_operations": stats_manager.get_stat("total_operations", 0)
+            }
+        }
+    
+    @app.route('/diagnostic')
+    def diagnostic():
+        """Page de diagnostic pour vérifier le fonctionnement"""
+        import json
+        from pathlib import Path
+        
+        diagnostic_info = {
+            "timestamp": datetime.now().isoformat(),
+            "app_config": {
+                "name": AppConfig.NAME,
+                "version": AppConfig.VERSION,
+                "domain": AppConfig.DOMAIN
+            },
+            "directories": {
+                "data_exists": Path("data").exists(),
+                "contacts_exists": Path("data/contacts.json").exists(),
+                "ratings_dir_exists": Path("data/ratings").exists()
+            },
+            "python": {
+                "version": os.sys.version,
+                "flask_version": Flask.__version__
+            }
+        }
+        
+        return diagnostic_info
+
     return app
 
 
@@ -238,12 +294,18 @@ def create_app():
 
 app = create_app()
 
-
 # ============================================================
 # Lancement local uniquement
 # ============================================================
 
 if __name__ == "__main__":
+    # Afficher des informations de démarrage
+    print("=" * 60)
+    print(f"🚀 Démarrage de {AppConfig.NAME} v{AppConfig.VERSION}")
+    print(f"📁 Dossier courant: {os.getcwd()}")
+    print(f"🌐 URL: http://localhost:{os.environ.get('PORT', 5000)}")
+    print("=" * 60)
+    
     app.run(
         host="0.0.0.0",
         port=int(os.environ.get("PORT", 5000)),
