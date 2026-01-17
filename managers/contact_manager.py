@@ -9,8 +9,53 @@ class ContactManager:
         self.storage_file.parent.mkdir(parents=True, exist_ok=True)
         self.lock = Lock()
         
+        # S'assurer que le fichier existe et est valide
+        self._ensure_valid_file()
+
+    def _ensure_valid_file(self):
+        """S'assure que le fichier contacts.json existe et est valide"""
         if not self.storage_file.exists():
             self._safe_write([])
+            print(f"✅ Fichier contacts.json créé: {self.storage_file}")
+            return True
+        
+        # Vérifier si le fichier est valide
+        try:
+            if self.storage_file.stat().st_size == 0:
+                self._safe_write([])
+                print("✅ Fichier contacts.json réinitialisé (était vide)")
+                return True
+                
+            with self.storage_file.open("r", encoding="utf-8") as f:
+                content = f.read().strip()
+                if not content:
+                    self._safe_write([])
+                    print("✅ Fichier contacts.json réinitialisé (contenu vide)")
+                    return True
+                    
+                # Tester si le JSON est valide
+                json.loads(content)
+                print(f"✅ Fichier contacts.json valide: {len(json.loads(content))} messages")
+                return True
+                
+        except json.JSONDecodeError as e:
+            print(f"❌ Fichier contacts.json invalide. Réparation... Erreur: {e}")
+            # Créer une sauvegarde
+            backup = self.storage_file.with_suffix('.json.backup')
+            try:
+                self.storage_file.rename(backup)
+                print(f"📁 Backup créé: {backup}")
+            except:
+                pass
+            
+            # Créer un nouveau fichier
+            self._safe_write([])
+            print("✅ Nouveau fichier contacts.json créé")
+            return True
+            
+        except Exception as e:
+            print(f"⚠️  Erreur vérification fichier contacts: {e}")
+            return False
 
     # ========================
     # IO sécurisées
@@ -19,26 +64,23 @@ class ContactManager:
         try:
             if not self.storage_file.exists() or self.storage_file.stat().st_size == 0:
                 return []
-    
+
             with self.storage_file.open("r", encoding="utf-8") as f:
                 content = f.read().strip()
                 if not content:
                     return []
                 
-                try:
-                    data = json.loads(content)
-                    return data if isinstance(data, list) else []
-                except json.JSONDecodeError as e:
-                    print(f"❌ Fichier contacts.json invalide. Réinitialisation. Erreur: {e}")
-                    # Sauvegarder une copie du fichier corrompu
-                    backup_path = self.storage_file.with_suffix('.json.bak')
-                    if backup_path.exists():
-                        backup_path.unlink()
-                    self.storage_file.rename(backup_path)
-                    # Créer un nouveau fichier vide
-                    self._safe_write([])
-                    return []
-                    
+                data = json.loads(content)
+                return data if isinstance(data, list) else []
+                
+        except json.JSONDecodeError as e:
+            print(f"❌ Erreur JSON dans contacts.json. Réinitialisation. Erreur: {e}")
+            # Réinitialiser le fichier
+            try:
+                self._safe_write([])
+            except:
+                pass
+            return []
         except Exception as e:
             print(f"Erreur lecture contacts: {e}")
             return []
@@ -48,8 +90,10 @@ class ContactManager:
             try:
                 with self.storage_file.open("w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2, ensure_ascii=False, default=str)
+                return True
             except Exception as e:
                 print(f"Erreur écriture contacts: {e}")
+                return False
 
     # ========================
     # CRUD
@@ -78,8 +122,12 @@ class ContactManager:
         }
         
         messages.append(new_msg)
-        self._safe_write(messages)
-        return True
+        if self._safe_write(messages):
+            print(f"✅ Message enregistré: ID {new_id}, de {new_msg['first_name']} {new_msg['last_name']}")
+            return True
+        else:
+            print(f"❌ Erreur enregistrement message")
+            return False
 
     def get_all_sorted(self, archived=False):
         """Récupère tous les messages, triés par date"""
@@ -102,36 +150,47 @@ class ContactManager:
         messages = self._safe_read()
         for m in messages:
             m["seen"] = True
-        self._safe_write(messages)
-        return True
+        return self._safe_write(messages)
 
     def mark_seen(self, message_id):
         """Marque un message spécifique comme lu"""
         messages = self._safe_read()
+        updated = False
         for m in messages:
             if m.get("id") == message_id:
                 m["seen"] = True
+                updated = True
                 break
-        self._safe_write(messages)
-        return True
+        if updated:
+            return self._safe_write(messages)
+        return False
 
     def archive_message(self, message_id):
         """Archive un message"""
         messages = self._safe_read()
+        updated = False
         for m in messages:
             if m.get("id") == message_id:
                 m["archived"] = True
                 m["seen"] = True
+                updated = True
                 break
-        self._safe_write(messages)
-        return True
+        if updated:
+            return self._safe_write(messages)
+        return False
 
     def delete(self, message_id):
         """Supprime un message"""
         messages = self._safe_read()
+        original_count = len(messages)
         messages = [m for m in messages if m.get("id") != message_id]
-        self._safe_write(messages)
-        return True
+        
+        if len(messages) < original_count:
+            if self._safe_write(messages):
+                print(f"✅ Message {message_id} supprimé")
+                return True
+        
+        return False
 
     def get_stats(self):
         """Récupère les statistiques"""
