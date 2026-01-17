@@ -257,7 +257,7 @@
                   <p class="mb-0 text-muted small">
                     <i class="fas fa-globe me-1"></i>{{ r.page_name|default(r.page|default('/')) }}
                     <span class="ms-2">
-                      <i class="far fa-clock me-1"></i>{{ r.display_date|default('Date inconnue') }}
+                      <<i class="far fa-clock me-1"></i>{{ r.formatted_date|default(r.display_date|default('Date inconnue')) }}
                     </span>
                   </p>
                 </div>
