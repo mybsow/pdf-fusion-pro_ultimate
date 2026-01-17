@@ -1,0 +1,36 @@
+<!-- templates/admin/message_detail.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Message - {{ message.subject }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <a href="/admin/messages" class="btn btn-secondary mb-3">← Retour</a>
+    
+    <div class="card">
+        <div class="card-header">
+            <h4>{{ message.subject }}</h4>
+            <small class="text-muted">
+                De: {{ message.first_name }} {{ message.last_name }} 
+                ({{ message.email }}) • {{ message.formatted_date }}
+            </small>
+        </div>
+        <div class="card-body">
+            <p>{{ message.message }}</p>
+        </div>
+        <div class="card-footer">
+            <form action="/admin/messages/archive/{{ message.id }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-warning">Archiver</button>
+            </form>
+            <form action="/admin/messages/delete/{{ message.id }}" method="POST" style="display:inline;" 
+                  onsubmit="return confirm('Supprimer ce message définitivement ?');">
+                <button type="submit" class="btn btn-danger">Supprimer</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
