@@ -1,22 +1,26 @@
 @app.route('/robots.txt')
 def robots():
-    """Fichier robots.txt amélioré"""
-    content = """User-agent: *
-Allow: /
-Allow: /sitemap.xml
-Allow: /mentions-legales
-Allow: /politique-confidentialite
-Allow: /conditions-utilisation
-Allow: /contact
-Allow: /a-propos
+    """Fichier robots.txt SEO-friendly et dynamique"""
+    domain = AppConfig.DOMAIN.rstrip("/")
 
-Disallow: /admin/
-Disallow: /uploads/
-Disallow: /temp/
+    content = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Allow: /sitemap.xml\n"
+        "Allow: /mentions-legales\n"
+        "Allow: /politique-confidentialite\n"
+        "Allow: /conditions-utilisation\n"
+        "Allow: /contact\n"
+        "Allow: /a-propos\n"
+        "\n"
+        "Disallow: /admin/\n"
+        "Disallow: /uploads/\n"
+        "Disallow: /temp/\n"
+        "\n"
+        f"Sitemap: https://{domain}/sitemap.xml\n"
+        "\n"
+        "# PDF Fusion Pro - Développé par MYBSOW\n"
+        "# Contact: banousow@gmail.com\n"
+    )
 
-Sitemap: https://pdf-fusion-pro-ultimate.onrender.com/sitemap.xml
-
-# PDF Fusion Pro - Développé par MYBSOW
-# Contact: banousow@gmail.com
-"""
     return Response(content, mimetype="text/plain")
