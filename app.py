@@ -180,7 +180,7 @@ def create_app():
             domain = AppConfig.DOMAIN.rstrip("/")
             base_url = f"https://{domain}"
             today = datetime.now().strftime('%Y-%m-%d')
-            
+        
             pages = [
                 ("/", today, "daily", 1.0),
                 ("/fusion-pdf", today, "daily", 0.9),
@@ -189,17 +189,17 @@ def create_app():
                 ("/compression-pdf", today, "daily", 0.9),
                 ("/contact", today, "weekly", 0.7),
                 ("/a-propos", today, "monthly", 0.6),
-                ("/mentions-legales", "2024-01-15", "monthly", 0.3),
-                ("/politique-confidentialite", "2024-01-15", "monthly", 0.3),
-                ("/conditions-utilisation", "2024-01-15", "monthly", 0.3),
+                ("/mentions-legales", today, "monthly", 0.3),
+                ("/politique-confidentialite", today, "monthly", 0.3),
+                ("/conditions-utilisation", today, "monthly", 0.3),
             ]
-            
+        
             xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
             xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
             xml += '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
             xml += '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9\n'
             xml += '        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">\n'
-            
+        
             for path, lastmod, freq, prio in pages:
                 xml += (
                     "  <url>\n"
@@ -209,10 +209,13 @@ def create_app():
                     f"    <priority>{prio}</priority>\n"
                     "  </url>\n"
                 )
-            
-            xml += '</urlset>'
-            return Response(xml, mimetype="application/xml")
         
+            xml += '</urlset>'
+        
+            return Response(xml, mimetype="application/xml", headers={
+                "Cache-Control": "public, max-age=3600"
+            })
+
         # ============================================================
         # ROUTES DE SANTÉ ET DIAGNOSTIC
         # ============================================================
