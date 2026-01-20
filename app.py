@@ -170,14 +170,15 @@ def create_app():
                 "Allow: /\n"
                 "Disallow: /admin/\n"
                 "Disallow: /debug/\n"
-                f"Sitemap: https://{AppConfig.DOMAIN}/sitemap.xml\n"
+                f"Sitemap: https://{domain}/sitemap.xml\n"
             )
             return Response(content, mimetype="text/plain")
         
         @app.route('/sitemap.xml')
         def sitemap():
             """Génération dynamique du sitemap XML"""
-            base_url = f"https://{AppConfig.DOMAIN}"
+            domain = AppConfig.DOMAIN.rstrip("/")
+            base_url = f"https://{domain}"
             today = datetime.now().strftime('%Y-%m-%d')
             
             pages = [
