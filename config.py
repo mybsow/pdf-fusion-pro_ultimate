@@ -9,7 +9,9 @@ class AppConfig:
     DEVELOPER_NAME = "MYBSOW"
     DEVELOPER_EMAIL = "banousow@gmail.com"
     HOSTING = "Render Cloud Platform"
-    DOMAIN = "pdf-fusion-pro-ultimate.onrender.com"
+    DOMAIN = os.environ.get("APP_DOMAIN", "localhost:5000")
+
+   
     
     # Paramètres de sécurité
     SECRET_KEY = os.environ.get("SECRET_KEY", str(uuid.uuid4()))
