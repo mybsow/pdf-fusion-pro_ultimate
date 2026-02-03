@@ -182,7 +182,7 @@
             <div class="row">
                 <div class="col-md-6 mb-4">
                     <h5>Images source</h5>
-                    {% for ext in config.SUPPORTED_IMAGE_FORMATS.image %}
+                    {% for ext in supported_formats.image %}
                     <span class="format-badge">{{ ext }}</span>
                     {% endfor %}
                 </div>
@@ -279,4 +279,5 @@
     </script>
     {% endblock %}
 </body>
+
 </html>
