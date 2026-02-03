@@ -2,735 +2,231 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Responsive -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- SEO -->
     <title>{% block title %}PDF Fusion Pro - Outils PDF Gratuits{% endblock %}</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+    <meta name="description"
+          content="Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos fichiers en ligne. Rapide, sécurisé et sans installation.">
+
+    <!-- UX Mobile -->
+    <meta name="theme-color" content="#4361ee">
+
+    <!-- Fonts optimisation -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Bootstrap (fallback auto) -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          onerror="this.href='{{ url_for('static', filename='css/bootstrap.min.css') }}'">
+
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3a0ca3;
-            --accent-color: #7209b7;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            padding-bottom: 60px;
-        }
-        
-        .navbar-main {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 1rem 0;
-        }
-        
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: white !important;
-        }
-        
-        .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
-            font-weight: 500;
-            padding: 0.5rem 1rem !important;
-            margin: 0 0.25rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-            color: white !important;
-            transform: translateY(-2px);
-        }
-        
-        .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white !important;
-        }
-        
-        .hero-section {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            color: white;
-            padding: 4rem 0;
-            border-radius: 0 0 30px 30px;
-            margin-bottom: 3rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
-        }
-        
-        .tool-container {
-            background: white;
-            border: none;
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        }
-        
-        .tool-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            transition: all 0.3s ease;
-        }
-        
-        .tool-icon {
-            font-size: 3rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-        
-        footer {
-            background: var(--dark-color);
-            color: white;
-            padding: 2rem 0;
-            margin-top: 4rem;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
-        }
-        
-        .alert-container {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            z-index: 1000;
-            min-width: 300px;
-        }
-        
-        /* Upload zone styles */
-        .upload-zone {
-            border: 3px dashed #ddd;
-            border-radius: 12px;
-            padding: 3rem 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(248, 249, 250, 0.5);
-            margin-bottom: 2rem;
-        }
-        
-        .upload-zone:hover {
-            border-color: var(--primary-color);
-            background: rgba(67, 97, 238, 0.05);
-        }
-        
-        .upload-zone.drag-over {
-            border-color: #2ecc71;
-            background: rgba(46, 204, 113, 0.1);
-        }
-        
-        .upload-icon {
-            font-size: 3rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-        
-        /* File list styles */
-        .file-list {
-            margin: 1.5rem 0;
-        }
-        
-        .file-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem;
-            background: var(--light-color);
-            border-radius: 8px;
-            margin-bottom: 0.75rem;
-            transition: all 0.3s ease;
-        }
-        
-        .file-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .file-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex: 1;
-        }
-        
-        .file-icon {
-            color: #e74c3c;
-            font-size: 1.5rem;
-        }
-        
-        .file-details h6 {
-            margin: 0;
-            font-weight: 600;
-        }
-        
-        .file-details small {
-            color: #6c757d;
-        }
-        
-        .file-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        /* Action buttons */
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-            flex-wrap: wrap;
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
-            color: white;
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 0.75rem 2rem;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-outline:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        /* Form controls */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-control, .form-select {
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
-        }
-        
-        /* Preview container */
-        .preview-container {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background: var(--light-color);
-            border-radius: 12px;
-            border: 1px solid #dee2e6;
-        }
-        
-        .preview-title {
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-        
-        .preview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-        
-        .preview-item {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-            background: white;
-        }
-        
-        .preview-frame {
-            width: 100%;
-            height: 200px;
-            border: none;
-        }
-        
-        .preview-label {
-            padding: 0.5rem;
-            text-align: center;
-            background: var(--light-color);
-            font-size: 0.875rem;
-            color: #6c757d;
-        }
-        
-        /* Loader overlay */
-        .loader-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-        
-        .loader {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            min-width: 300px;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Toast notifications */
-        .toast-container {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 1000;
-            max-width: 350px;
-        }
-        
-        .toast {
-            background: white;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-        }
-        
-        .toast.show {
-            transform: translateX(0);
-        }
-        
-        .toast-icon {
-            font-size: 1.25rem;
-        }
-        
-        .toast-success .toast-icon {
-            color: #2ecc71;
-        }
-        
-        .toast-error .toast-icon {
-            color: #e74c3c;
-        }
-        
-        .toast-info .toast-icon {
-            color: var(--primary-color);
-        }
-        
-        .toast-content {
-            flex: 1;
-        }
-        
-        .toast-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        
-        .toast-message {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        
-        .toast-close {
-            background: none;
-            border: none;
-            color: #6c757d;
-            cursor: pointer;
-            padding: 0;
-        }
-        
-        @media (max-width: 768px) {
-            .hero-section {
-                padding: 3rem 0;
-            }
-            
-            .nav-link {
-                margin: 0.25rem 0;
-            }
-            
-            .tool-container {
-                padding: 1.5rem;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-            }
-            
-            .btn-primary, .btn-success, .btn-outline {
-                width: 100%;
-            }
-        }
-    </style>
-    
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <!-- CSS principal -->
+    <link rel="preload"
+          href="{{ url_for('static', filename='css/main.css') }}"
+          as="style">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/main.css') }}">
+
     {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <!-- Navigation Principale -->
-    <nav class="navbar navbar-expand-lg navbar-main navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('pdf.index') }}">
-                <i class="fas fa-file-pdf me-2"></i>PDF Fusion Pro
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="mainNavbar">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'pdf.index' %}active{% endif %}" 
-                           href="{{ url_for('pdf.index') }}">
-                            <i class="fas fa-home me-1"></i> Accueil
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'pdf.merge' %}active{% endif %}" 
-                           href="{{ url_for('pdf.merge') }}">
-                            <i class="fas fa-compress me-1"></i> Fusionner
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'pdf.split' %}active{% endif %}" 
-                           href="{{ url_for('pdf.split') }}">
-                            <i class="fas fa-cut me-1"></i> Diviser
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'pdf.rotate' %}active{% endif %}" 
-                           href="{{ url_for('pdf.rotate') }}">
-                            <i class="fas fa-redo me-1"></i> Tourner
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'pdf.compress' %}active{% endif %}" 
-                           href="{{ url_for('pdf.compress') }}">
-                            <i class="fas fa-compress-alt me-1"></i> Compresser
-                        </a>
-                    </li>
-                    <!-- BOUTON CONVERSION AJOUTÉ ICI -->
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint.startswith('conversion.') %}active{% endif %}" 
-                           href="{{ url_for('conversion.index') }}">
-                            <i class="fas fa-exchange-alt me-1"></i> Convertir
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'legal.contact' %}active{% endif %}" 
-                           href="{{ url_for('legal.contact') }}">
-                            <i class="fas fa-envelope me-1"></i> Contact
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'legal.about' %}active{% endif %}" 
-                           href="{{ url_for('legal.about') }}">
-                            <i class="fas fa-info-circle me-1"></i> À propos
-                        </a>
-                    </li>
-                </ul>
-                
-                {% if current_user and current_user.is_authenticated %}
-                <div class="navbar-nav">
-                    <a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}">
-                        <i class="fas fa-cogs me-1"></i> Admin
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
 
-    <!-- Container pour les messages flash -->
-    <div class="container mt-3">
-        <div class="alert-container">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
-                            {% if category == 'success' %}
-                                <i class="fas fa-check-circle me-2"></i>
-                            {% elif category == 'error' or category == 'danger' %}
-                                <i class="fas fa-exclamation-circle me-2"></i>
-                            {% elif category == 'warning' %}
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                            {% elif category == 'info' %}
-                                <i class="fas fa-info-circle me-2"></i>
-                            {% endif %}
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+<body>
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-main">
+    <div class="container">
+
+        <a class="navbar-brand" href="{{ url_for('pdf.index') }}">
+            <i class="fas fa-file-pdf me-2"></i>PDF Fusion Pro
+        </a>
+
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'pdf.index' %}active{% endif %}"
+                       href="{{ url_for('pdf.index') }}">
+                        <i class="fas fa-home me-1"></i>Accueil
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'pdf.merge' %}active{% endif %}"
+                       href="{{ url_for('pdf.merge') }}">
+                        Fusionner
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'pdf.split' %}active{% endif %}"
+                       href="{{ url_for('pdf.split') }}">
+                        Diviser
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'pdf.rotate' %}active{% endif %}"
+                       href="{{ url_for('pdf.rotate') }}">
+                        Tourner
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'pdf.compress' %}active{% endif %}"
+                       href="{{ url_for('pdf.compress') }}">
+                        Compresser
+                    </a>
+                </li>
+
+                <!-- Protection contre endpoint None -->
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('conversion.') %}active{% endif %}"
+                       href="{{ url_for('conversion.index') }}">
+                        Convertir
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'legal.contact' %}active{% endif %}"
+                       href="{{ url_for('legal.contact') }}">
+                        Contact
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'legal.about' %}active{% endif %}"
+                       href="{{ url_for('legal.about') }}">
+                        À propos
+                    </a>
+                </li>
+
+            </ul>
+
+            {% if current_user and current_user.is_authenticated %}
+            <div class="navbar-nav">
+                <a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}">
+                    Admin
+                </a>
+            </div>
+            {% endif %}
+
         </div>
     </div>
+</nav>
 
-    <!-- Contenu Principal -->
-    <main class="container py-4">
-        {% block content %}{% endblock %}
-    </main>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white mt-5">
-        <div class="container py-5">
+<!-- ================= FLASH ================= -->
+
+<div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm"
+                     role="alert">
+                    {{ message }}
+                    <button class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+
+<!-- ================= CONTENT ================= -->
+
+<main class="container py-4">
+    {% block content %}{% endblock %}
+</main>
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer class="bg-dark text-white mt-5">
+    <div class="container py-5">
+
+        <nav aria-label="Footer">
             <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5><i class="fas fa-file-pdf me-2"></i>PDF Fusion Pro</h5>
-                    <p class="text-muted">
-                        Outils PDF gratuits et professionnels. Fusionnez, divisez, tournez, compressez et convertissez vos fichiers PDF.
-                    </p>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h5>Outils</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{{ url_for('pdf.merge') }}" class="text-muted text-decoration-none">Fusionner PDF</a></li>
-                        <li><a href="{{ url_for('pdf.split') }}" class="text-muted text-decoration-none">Diviser PDF</a></li>
-                        <li><a href="{{ url_for('pdf.rotate') }}" class="text-muted text-decoration-none">Tourner PDF</a></li>
-                        <li><a href="{{ url_for('pdf.compress') }}" class="text-muted text-decoration-none">Compresser PDF</a></li>
-                        <li><a href="{{ url_for('conversion.index') }}" class="text-muted text-decoration-none">Convertir fichiers</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h5>Légal</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{{ url_for('legal.privacy_policy') }}" class="text-muted text-decoration-none">Politique de confidentialité</a></li>
-                        <li><a href="{{ url_for('legal.terms_of_service') }}" class="text-muted text-decoration-none">Conditions d'utilisation</a></li>
-                        <li><a href="{{ url_for('legal.legal_notices') }}" class="text-muted text-decoration-none">Mentions légales</a></li>
-                        <li><a href="{{ url_for('legal.contact') }}" class="text-muted text-decoration-none">Contact</a></li>
-                    </ul>
-                </div>
-            </div>
-            <hr class="bg-light">
-            <div class="row">
+
                 <div class="col-md-6">
                     <small class="text-muted">
-                        &copy; <span id="currentYear">{{ current_year if current_year else '2024' }}</span> PDF Fusion Pro. Tous droits réservés.
+                        &copy;
+                        <span id="currentYear"></span>
+                        PDF Fusion Pro.
+                        Version {{ config.VERSION if config else '6.1' }}
                     </small>
                 </div>
+
                 <div class="col-md-6 text-md-end">
                     <small class="text-muted">
-                        Version {{ config.VERSION if config else '6.1' }} • Hébergé sur Render
+                        Hébergé sur Render
                     </small>
                 </div>
+
             </div>
-        </div>
-    </footer>
+        </nav>
 
-    <!-- Loader Overlay -->
-    <div class="loader-overlay" id="loaderOverlay">
-        <div class="loader">
-            <div class="spinner"></div>
-            <h4>Traitement en cours</h4>
-            <p class="text-muted" id="loaderMessage">Veuillez patienter...</p>
-        </div>
     </div>
+</footer>
 
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        // Année courante
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentYear = new Date().getFullYear();
-            document.getElementById('currentYear').textContent = currentYear;
-            
-            // Auto-dismiss alerts after 5 seconds
-            setTimeout(() => {
-                const alerts = document.querySelectorAll('.alert');
-                alerts.forEach(alert => {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
-        });
+<!-- ================= LOADER ================= -->
 
-        // Utility Functions
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
+<div class="loader-overlay"
+     id="loaderOverlay"
+     aria-live="assertive"
+     role="alert"
+     style="display:none;">
+    <div class="loader text-center">
+        <div class="spinner-border text-light"></div>
+        <p class="mt-3">Traitement en cours...</p>
+    </div>
+</div>
 
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
 
-        function showLoader(message = 'Traitement en cours...') {
-            document.getElementById('loaderMessage').textContent = message;
-            document.getElementById('loaderOverlay').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
 
-        function hideLoader() {
-            document.getElementById('loaderOverlay').style.display = 'none';
-            document.body.style.overflow = '';
-        }
+<!-- ================= SCRIPTS ================= -->
 
-        function showToast(type, title, message) {
-            const toastContainer = document.getElementById('toastContainer');
-            if (!toastContainer) return;
-            
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            
-            const icons = {
-                success: 'fas fa-check-circle',
-                error: 'fas fa-exclamation-circle',
-                warning: 'fas fa-exclamation-triangle',
-                info: 'fas fa-info-circle'
-            };
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-            toast.innerHTML = `
-                <div class="toast-icon">
-                    <i class="${icons[type]}"></i>
-                </div>
-                <div class="toast-content">
-                    <div class="toast-title">${escapeHtml(title)}</div>
-                    <div class="toast-message">${escapeHtml(message)}</div>
-                </div>
-                <button class="toast-close" onclick="this.parentElement.remove()">
-                    <i class="fas fa-times"></i>
-                </button>
-            `;
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
-            toastContainer.appendChild(toast);
 
-            // Animate in
-            setTimeout(() => toast.classList.add('show'), 10);
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const year = document.getElementById('currentYear');
+    if(year){
+        year.textContent = new Date().getFullYear();
+    }
+});
+</script>
 
-            // Auto remove after 5 seconds
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 5000);
-        }
+{% block page_js %}{% endblock %}
 
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const base64 = reader.result.split(',')[1];
-                    resolve(base64);
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
 
-        function downloadFile(base64, filename, mimeType) {
-            const link = document.createElement('a');
-            link.href = `data:${mimeType};base64,${base64}`;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+{% if rating_html %}
+{{ rating_html|safe }}
+{% endif %}
 
-        async function loadStats() {
-            try {
-                const response = await fetch('/health');
-                const data = await response.json();
-                return data;
-            } catch (error) {
-                console.error('Failed to load stats:', error);
-                return null;
-            }
-        }
-
-        // Make functions globally available
-        window.formatFileSize = formatFileSize;
-        window.escapeHtml = escapeHtml;
-        window.showLoader = showLoader;
-        window.hideLoader = hideLoader;
-        window.showToast = showToast;
-        window.fileToBase64 = fileToBase64;
-        window.downloadFile = downloadFile;
-        window.loadStats = loadStats;
-    </script>
-    
-    {% block extra_js %}{% endblock %}
-    
-    <!-- Rating System -->
-    {% if rating_html %}
-    {{ rating_html|safe }}
-    {% endif %}
 </body>
 </html>
