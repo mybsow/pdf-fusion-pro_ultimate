@@ -1,520 +1,389 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image vers PDF - {{ config.NAME }}</title>
-    <!-- Bootstrap 5.3 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .upload-area {
-            border: 3px dashed #667eea;
-            border-radius: 15px;
-            padding: 3rem 1rem;
-            text-align: center;
-            background: #f8f9fa;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            margin-bottom: 2rem;
-        }
-        
-        .upload-area:hover, .upload-area.dragover {
-            background: #eef2ff;
-            border-color: #764ba2;
-        }
-        
-        .upload-icon {
-            font-size: 4rem;
-            color: #667eea;
-            margin-bottom: 1rem;
-        }
-        
-        .file-list {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .file-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem;
-            border-bottom: 1px solid #f1f1f1;
-        }
-        
-        .file-item:last-child {
-            border-bottom: none;
-        }
-        
-        .file-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .file-size {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        
-        .preview-thumbnail {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 5px;
-        }
-        
-        .options-card {
-            border-left: 4px solid #667eea;
-        }
-        
-        .progress-container {
-            display: none;
-            margin: 2rem 0;
-        }
-        
-        .converting-message {
-            display: none;
-            text-align: center;
-            padding: 2rem;
-        }
-        
-        .spinner {
-            width: 3rem;
-            height: 3rem;
-        }
-    </style>
-</head>
-<body>
-    {% extends "base.html" %}
-    
-    {% block content %}
-    <div class="container py-4">
-        <!-- En-tête -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <a href="{{ url_for('conversion.index') }}" class="btn btn-outline-primary mb-3">
-                    <i class="fas fa-arrow-left me-1"></i> Retour aux conversions
-                </a>
-                <h1 class="display-5"><i class="fas fa-file-pdf me-2"></i> Image vers PDF</h1>
-                <p class="lead">Convertissez vos images en un document PDF unique</p>
-            </div>
-        </div>
+{% extends "base.html" %}
 
-        <div class="row">
-            <!-- Zone principale -->
-            <div class="col-lg-8">
-                <!-- Zone de dépôt -->
-                <div class="upload-area" id="dropArea">
-                    <div class="upload-icon">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </div>
-                    <h3>Déposez vos images ici</h3>
-                    <p class="text-muted mb-3">ou cliquez pour parcourir vos fichiers</p>
-                    <p class="small text-muted">
-                        Formats supportés: 
-                        {% for ext in supported_formats.pdf %}
-                        <span class="badge bg-light text-dark">{{ ext }}</span>
-                        {% endfor %}
-                    </p>
-                    <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff,.tif,.webp" style="display: none;">
-                    <button class="btn btn-primary btn-lg mt-2" onclick="document.getElementById('fileInput').click()">
-                        <i class="fas fa-folder-open me-1"></i> Sélectionner des images
-                    </button>
-                </div>
+{% block head %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-                <!-- Liste des fichiers -->
-                <div id="fileListContainer" style="display: none;">
-                    <h4 class="mb-3">Images sélectionnées (<span id="fileCount">0</span>/{{ max_files }})</h4>
-                    <div class="file-list" id="fileList">
-                        <!-- Les fichiers apparaîtront ici -->
-                    </div>
-                    <button class="btn btn-outline-danger" onclick="clearFiles()">
-                        <i class="fas fa-trash me-1"></i> Tout effacer
-                    </button>
-                </div>
+<style>
+.upload-area{
+    border:3px dashed #667eea;
+    border-radius:15px;
+    padding:3rem 1rem;
+    text-align:center;
+    background:#f8f9fa;
+    transition:.25s;
+    cursor:pointer;
+}
 
-                <!-- Options de conversion -->
-                <div class="card options-card mt-4">
-                    <div class="card-header bg-white">
-                        <h4 class="mb-0"><i class="fas fa-cog me-2"></i> Options de conversion</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <!-- Orientation -->
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="fas fa-expand me-2"></i> Orientation</label>
-                                <div class="btn-group w-100" role="group">
-                                    <input type="radio" class="btn-check" name="orientation" id="portrait" value="portrait" checked>
-                                    <label class="btn btn-outline-primary" for="portrait">
-                                        <i class="fas fa-mobile-alt me-1"></i> Portrait
-                                    </label>
-                                    
-                                    <input type="radio" class="btn-check" name="orientation" id="landscape" value="landscape">
-                                    <label class="btn btn-outline-primary" for="landscape">
-                                        <i class="fas fa-desktop me-1"></i> Paysage
-                                    </label>
-                                </div>
-                            </div>
+.upload-area:hover,
+.upload-area.dragover{
+    background:#eef2ff;
+    border-color:#764ba2;
+}
 
-                            <!-- Qualité -->
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="fas fa-award me-2"></i> Qualité</label>
-                                <select class="form-select" id="quality">
-                                    <option value="high">Haute qualité (300 DPI)</option>
-                                    <option value="medium" selected>Moyenne qualité (200 DPI)</option>
-                                    <option value="low">Basse qualité (150 DPI)</option>
-                                </select>
-                            </div>
+.preview-thumbnail{
+    width:60px;
+    height:60px;
+    object-fit:cover;
+    border-radius:6px;
+}
 
-                            <!-- Marge -->
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="fas fa-border-all me-2"></i> Marge (px)</label>
-                                <input type="range" class="form-range" id="margin" min="0" max="50" value="10">
-                                <div class="d-flex justify-content-between">
-                                    <small>0 px</small>
-                                    <small id="marginValue">10 px</small>
-                                    <small>50 px</small>
-                                </div>
-                            </div>
+.file-list{
+    max-height:300px;
+    overflow:auto;
+    border:1px solid #dee2e6;
+    border-radius:10px;
+    padding:1rem;
+}
 
-                            <!-- Ordre des pages -->
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="fas fa-sort me-2"></i> Ordre des pages</label>
-                                <select class="form-select" id="order">
-                                    <option value="original" selected>Ordre d'upload</option>
-                                    <option value="alphabetical">Alphabétique</option>
-                                    <option value="reverse">Inverser l'ordre</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+.file-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:.6rem;
+    border-bottom:1px solid #f1f1f1;
+}
 
-                <!-- Message de conversion -->
-                <div class="converting-message" id="convertingMessage">
-                    <div class="spinner-border text-primary spinner" role="status">
-                        <span class="visually-hidden">Chargement...</span>
-                    </div>
-                    <h4 class="mt-3">Conversion en cours...</h4>
-                    <p>Veuillez patienter pendant la création de votre PDF</p>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" id="conversionProgress" style="width: 0%"></div>
-                    </div>
-                </div>
+.file-item:last-child{border-bottom:none;}
 
-                <!-- Bouton de conversion -->
-                <div class="d-grid gap-2 mt-4">
-                    <button class="btn btn-primary btn-lg py-3" id="convertBtn" onclick="convertToPDF()" disabled>
-                        <i class="fas fa-file-pdf me-2"></i> Convertir en PDF
-                    </button>
-                </div>
+.spinner{width:3rem;height:3rem;}
+</style>
+{% endblock %}
 
-                <!-- Informations -->
-                <div class="alert alert-info mt-4">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Information :</strong> 
-                    Taille max par image : {{ config.MAX_IMAGE_SIZE // (1024*1024) }} MB
-                    | Max {{ max_files }} images
-                    | Les fichiers sont supprimés après 1 heure
-                </div>
-            </div>
 
-            <!-- Sidebar -->
-            <div class="col-lg-4">
-                <div class="card sticky-top" style="top: 20px;">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i> Comment ça marche ?</h5>
-                    </div>
-                    <div class="card-body">
-                        <ol class="list-group list-group-flush list-group-numbered">
-                            <li class="list-group-item ps-0">Sélectionnez ou glissez-déposez vos images</li>
-                            <li class="list-group-item ps-0">Ajustez les options si nécessaire</li>
-                            <li class="list-group-item ps-0">Cliquez sur "Convertir en PDF"</li>
-                            <li class="list-group-item ps-0">Téléchargez votre PDF généré</li>
-                        </ol>
-                        
-                        <hr>
-                        
-                        <h6><i class="fas fa-star me-2"></i> Conseils</h6>
-                        <ul class="list-unstyled">
-                            <li class="mb-2"><i class="fas fa-check-circle text-success me-1"></i> Utilisez la même orientation pour toutes les images</li>
-                            <li class="mb-2"><i class="fas fa-check-circle text-success me-1"></i> Privilégiez les images haute résolution pour la qualité "Haute"</li>
-                            <li class="mb-2"><i class="fas fa-check-circle text-success me-1"></i> Réduisez la marge pour gagner de la place</li>
-                        </ul>
-                        
-                        <hr>
-                        
-                        <h6><i class="fas fa-exclamation-triangle me-2"></i> Limitations</h6>
-                        <ul class="list-unstyled">
-                            <li class="mb-1"><i class="fas fa-info-circle text-warning me-1"></i> Max {{ max_files }} images</li>
-                            <li class="mb-1"><i class="fas fa-info-circle text-warning me-1"></i> {{ config.MAX_IMAGE_SIZE // (1024*1024) }} MB par fichier</li>
-                            <li><i class="fas fa-info-circle text-warning me-1"></i> Formats listés seulement</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endblock %}
 
-    {% block scripts %}
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        let selectedFiles = [];
-        const maxFiles = {{ max_files }};
-        const maxSize = {{ config.MAX_IMAGE_SIZE }};
+{% block content %}
+<div class="container py-4">
 
-        // Mise à jour de l'affichage de la marge
-        document.getElementById('margin').addEventListener('input', function() {
-            document.getElementById('marginValue').textContent = this.value + ' px';
-        });
+<a href="{{ url_for('conversion.index') }}" class="btn btn-outline-primary mb-3">
+    <i class="fas fa-arrow-left me-1"></i> Retour
+</a>
 
-        // Gestion du drag & drop
-        const dropArea = document.getElementById('dropArea');
-        const fileInput = document.getElementById('fileInput');
+<h1 class="display-6 mb-2">
+    <i class="fas fa-file-pdf me-2"></i> Image vers PDF
+</h1>
 
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-        });
+<p class="text-muted mb-4">
+Convertissez plusieurs images en un seul document PDF.
+</p>
 
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
 
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, highlight, false);
-        });
+<!-- Upload -->
+<div class="upload-area mb-4" id="dropArea">
+    <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-primary"></i>
+    <h4>Déposez vos images</h4>
 
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, unhighlight, false);
-        });
+    <p class="text-muted">
+        {% for ext in supported_formats.pdf %}
+        <span class="badge bg-light text-dark">{{ ext }}</span>
+        {% endfor %}
+    </p>
 
-        function highlight() {
-            dropArea.classList.add('dragover');
-        }
+    <input id="fileInput"
+           type="file"
+           class="d-none"
+           multiple
+           accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff,.tif,.webp">
 
-        function unhighlight() {
-            dropArea.classList.remove('dragover');
-        }
+    <button class="btn btn-primary mt-2"
+            onclick="fileInput.click()">
+        <i class="fas fa-folder-open me-1"></i>
+        Sélectionner
+    </button>
+</div>
 
-        dropArea.addEventListener('drop', handleDrop, false);
-        fileInput.addEventListener('change', handleFiles, false);
 
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles({ target: { files: files } });
-        }
+<!-- Files -->
+<div id="fileListContainer" class="mb-4 d-none">
+    <h5>
+        Images sélectionnées
+        (<span id="fileCount">0</span>/{{ max_files }})
+    </h5>
 
-        function handleFiles(e) {
-            const files = Array.from(e.target.files);
-            
-            // Vérifier le nombre de fichiers
-            if (selectedFiles.length + files.length > maxFiles) {
-                alert(`Maximum ${maxFiles} images autorisées. Vous avez déjà ${selectedFiles.length} image(s).`);
-                return;
-            }
-            
-            // Vérifier chaque fichier
-            files.forEach(file => {
-                // Vérifier la taille
-                if (file.size > maxSize) {
-                    alert(`Le fichier ${file.name} dépasse la taille maximale de ${maxSize/(1024*1024)} MB.`);
-                    return;
-                }
-                
-                // Vérifier l'extension
-                const ext = '.' + file.name.split('.').pop().toLowerCase();
-                const allowedExts = {{ supported_formats.pdf|tojson }};
-                if (!allowedExts.includes(ext)) {
-                    alert(`Format non supporté: ${file.name}. Formats acceptés: ${allowedExts.join(', ')}`);
-                    return;
-                }
-                
-                selectedFiles.push(file);
-            });
-            
-            updateFileList();
-            updateConvertButton();
-        }
+    <div class="file-list" id="fileList"></div>
 
-        function updateFileList() {
-            const fileList = document.getElementById('fileList');
-            const fileListContainer = document.getElementById('fileListContainer');
-            const fileCount = document.getElementById('fileCount');
-            
-            if (selectedFiles.length === 0) {
-                fileListContainer.style.display = 'none';
-                return;
-            }
-            
-            fileListContainer.style.display = 'block';
-            fileCount.textContent = selectedFiles.length;
-            fileList.innerHTML = '';
-            
-            selectedFiles.forEach((file, index) => {
-                const div = document.createElement('div');
-                div.className = 'file-item';
-                
-                // Créer une prévisualisation si c'est une image
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.className = 'preview-thumbnail';
-                        div.querySelector('.file-info').prepend(img);
-                    };
-                    reader.readAsDataURL(file);
-                }
-                
-                div.innerHTML = `
-                    <div class="file-info">
-                        <div>
-                            <strong>${file.name}</strong><br>
-                            <span class="file-size">${formatFileSize(file.size)}</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                `;
-                
-                fileList.appendChild(div);
-            });
-        }
+    <button class="btn btn-outline-danger mt-2" id="clearBtn">
+        <i class="fas fa-trash"></i> Tout effacer
+    </button>
+</div>
 
-        function removeFile(index) {
-            selectedFiles.splice(index, 1);
-            updateFileList();
-            updateConvertButton();
-        }
 
-        function clearFiles() {
-            selectedFiles = [];
-            updateFileList();
-            updateConvertButton();
-            fileInput.value = '';
-        }
+<!-- Options -->
+<div class="card mb-4">
+<div class="card-body">
 
-        function updateConvertButton() {
-            const convertBtn = document.getElementById('convertBtn');
-            convertBtn.disabled = selectedFiles.length === 0;
-        }
+<div class="row">
 
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
+<div class="col-md-6 mb-3">
+<label class="form-label">Orientation</label>
 
-        function convertToPDF() {
-            if (selectedFiles.length === 0) return;
-            
-            // Afficher le message de conversion
-            document.getElementById('convertingMessage').style.display = 'block';
-            document.getElementById('convertBtn').disabled = true;
-            
-            // Simuler la progression
-            let progress = 0;
-            const progressBar = document.getElementById('conversionProgress');
-            const interval = setInterval(() => {
-                progress += 10;
-                progressBar.style.width = progress + '%';
-                
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    // Envoyer réellement les fichiers
-                    submitConversion();
-                }
-            }, 200);
-        }
+<div class="btn-group w-100">
+<input class="btn-check" type="radio" name="orientation" id="portrait" value="portrait" checked>
+<label class="btn btn-outline-primary" for="portrait">Portrait</label>
 
-        function submitConversion() {
-            const formData = new FormData();
-            
-            // Ajouter les fichiers
-            selectedFiles.forEach(file => {
-                formData.append('files', file);
-            });
-            
-            // Ajouter les options
-            const orientation = document.querySelector('input[name="orientation"]:checked').value;
-            const quality = document.getElementById('quality').value;
-            const margin = document.getElementById('margin').value;
-            const order = document.getElementById('order').value;
-            
-            formData.append('orientation', orientation);
-            formData.append('quality', quality);
-            formData.append('margin', margin);
-            formData.append('order', order);
-            
-            // Envoyer la requête
-            fetch("{{ url_for('conversion.image_to_pdf') }}", {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.blob();
-                }
-                throw new Error('Erreur lors de la conversion');
-            })
-            .then(blob => {
-                // Créer un lien de téléchargement
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'converted_' + new Date().toISOString().slice(0,10) + '.pdf';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                
-                // Réinitialiser
-                document.getElementById('convertingMessage').style.display = 'none';
-                document.getElementById('convertBtn').disabled = false;
-                clearFiles();
-                
-                // Afficher un message de succès
-                showToast('Conversion réussie! Votre PDF a été téléchargé.', 'success');
-            })
-            .catch(error => {
-                document.getElementById('convertingMessage').style.display = 'none';
-                document.getElementById('convertBtn').disabled = false;
-                showToast('Erreur: ' + error.message, 'error');
-            });
-        }
+<input class="btn-check" type="radio" name="orientation" id="landscape" value="landscape">
+<label class="btn btn-outline-primary" for="landscape">Paysage</label>
+</div>
+</div>
 
-        function showToast(message, type) {
-            // Implémentation simple d'un toast
-            const toast = document.createElement('div');
-            toast.className = `toast show position-fixed bottom-0 end-0 m-3 bg-${type === 'success' ? 'success' : 'danger'} text-white`;
-            toast.style.zIndex = '9999';
-            toast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">${message}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
-                </div>
-            `;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 5000);
-        }
-    </script>
-    {% endblock %}
-</body>
-</html>
+
+<div class="col-md-6 mb-3">
+<label class="form-label">Qualité</label>
+
+<select id="quality" class="form-select">
+<option value="high">Haute (300 DPI)</option>
+<option value="medium" selected>Moyenne (200 DPI)</option>
+<option value="low">Basse (150 DPI)</option>
+</select>
+</div>
+
+
+<div class="col-md-6">
+<label class="form-label">Marge</label>
+
+<input type="range" id="margin" class="form-range" min="0" max="50" value="10">
+
+<small id="marginValue">10 px</small>
+</div>
+
+</div>
+</div>
+</div>
+
+
+
+<!-- Progress -->
+<div id="convertingMessage" class="text-center d-none mb-4">
+<div class="spinner-border text-primary spinner"></div>
+
+<h5 class="mt-3">Conversion en cours...</h5>
+
+<div class="progress">
+<div id="conversionProgress"
+     class="progress-bar progress-bar-striped progress-bar-animated"
+     style="width:0%">
+</div>
+</div>
+</div>
+
+
+
+<button id="convertBtn"
+        class="btn btn-primary btn-lg w-100"
+        disabled>
+<i class="fas fa-file-pdf me-2"></i>
+Convertir en PDF
+</button>
+
+
+<div class="alert alert-info mt-4">
+Max {{ max_files }} images |
+{{ (config.MAX_IMAGE_SIZE // (1024*1024)) }} MB / image
+</div>
+
+</div>
+{% endblock %}
+
+
+
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+
+let selectedFiles=[];
+
+const maxFiles={{ max_files }};
+const maxSize={{ config.MAX_IMAGE_SIZE|tojson }};
+const allowedExts={{ supported_formats.pdf|tojson }};
+
+const dropArea=document.getElementById('dropArea');
+const fileInput=document.getElementById('fileInput');
+const fileList=document.getElementById('fileList');
+const fileListContainer=document.getElementById('fileListContainer');
+const fileCount=document.getElementById('fileCount');
+const convertBtn=document.getElementById('convertBtn');
+
+
+// margin display
+document.getElementById('margin').addEventListener('input',e=>{
+document.getElementById('marginValue').textContent=e.target.value+' px';
+});
+
+
+// drag & drop
+['dragenter','dragover','drop'].forEach(evt=>{
+dropArea.addEventListener(evt,e=>{
+e.preventDefault();
+});
+});
+
+dropArea.addEventListener('drop',e=>{
+handleFiles(e.dataTransfer.files);
+});
+
+fileInput.addEventListener('change',e=>{
+handleFiles(e.target.files);
+});
+
+
+
+function handleFiles(files){
+
+files=[...files];
+
+if(selectedFiles.length+files.length>maxFiles){
+alert(`Maximum ${maxFiles} images.`);
+return;
+}
+
+files.forEach(file=>{
+
+if(file.size>maxSize){
+alert(`${file.name} dépasse la taille autorisée.`);
+return;
+}
+
+const ext='.'+file.name.split('.').pop().toLowerCase();
+
+if(!allowedExts.includes(ext)){
+alert(`Format non supporté: ${ext}`);
+return;
+}
+
+selectedFiles.push(file);
+
+});
+
+renderFiles();
+}
+
+
+
+function renderFiles(){
+
+if(!selectedFiles.length){
+fileListContainer.classList.add('d-none');
+convertBtn.disabled=true;
+return;
+}
+
+fileListContainer.classList.remove('d-none');
+fileList.innerHTML='';
+fileCount.textContent=selectedFiles.length;
+convertBtn.disabled=false;
+
+selectedFiles.forEach((file,index)=>{
+
+const div=document.createElement('div');
+div.className='file-item';
+
+div.innerHTML=`
+<div class="d-flex align-items-center gap-2">
+<img class="preview-thumbnail" id="img${index}">
+<div>
+<strong>${file.name}</strong><br>
+<small>${(file.size/1024/1024).toFixed(2)} MB</small>
+</div>
+</div>
+
+<button class="btn btn-sm btn-outline-danger">
+<i class="fas fa-trash"></i>
+</button>
+`;
+
+div.querySelector('button').onclick=()=>{
+selectedFiles.splice(index,1);
+renderFiles();
+};
+
+fileList.appendChild(div);
+
+// preview
+const reader=new FileReader();
+reader.onload=e=>{
+document.getElementById(`img${index}`).src=e.target.result;
+};
+reader.readAsDataURL(file);
+
+});
+
+}
+
+
+
+document.getElementById('clearBtn').onclick=()=>{
+selectedFiles=[];
+fileInput.value='';
+renderFiles();
+};
+
+
+
+// conversion
+convertBtn.onclick=async()=>{
+
+document.getElementById('convertingMessage').classList.remove('d-none');
+convertBtn.disabled=true;
+
+let progress=0;
+const bar=document.getElementById('conversionProgress');
+
+const timer=setInterval(()=>{
+progress+=12;
+bar.style.width=progress+'%';
+
+if(progress>=96) clearInterval(timer);
+},200);
+
+
+// form
+const formData=new FormData();
+
+selectedFiles.forEach(f=>{
+formData.append('files',f);
+});
+
+formData.append(
+'orientation',
+document.querySelector('input[name="orientation"]:checked').value
+);
+
+formData.append('quality',document.getElementById('quality').value);
+formData.append('margin',document.getElementById('margin').value);
+
+
+// request
+const res=await fetch("{{ url_for('conversion.image_to_pdf') }}",{
+method:'POST',
+body:formData
+});
+
+const blob=await res.blob();
+
+bar.style.width='100%';
+
+const url=window.URL.createObjectURL(blob);
+const a=document.createElement('a');
+
+a.href=url;
+a.download='converted_'+Date.now()+'.pdf';
+a.click();
+
+window.URL.revokeObjectURL(url);
+
+// reset
+selectedFiles=[];
+fileInput.value='';
+renderFiles();
+
+document.getElementById('convertingMessage').classList.add('d-none');
+convertBtn.disabled=false;
+
+};
+
+});
+</script>
+{% endblock %}
