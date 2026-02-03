@@ -161,9 +161,9 @@
         <div class="row mb-4">
             <div class="col-12">
                 <a href="{{ url_for('conversion.index') }}" class="btn btn-outline-primary mb-3">
-                    <i class="material-icons">arrow_back</i> Retour aux conversions
+                    <i class="fas fa-*">fa-arrow-left</i> Retour aux conversions
                 </a>
-                <h1 class="display-5"><i class="material-icons">table_chart</i> Image vers Excel</h1>
+                <h1 class="display-5"><i class="fas fa-*">fa-table</i> Image vers Excel</h1>
                 <p class="lead">Extrayez des tableaux d'images vers Excel avec reconnaissance intelligente</p>
             </div>
         </div>
@@ -194,12 +194,12 @@
                 <!-- Étape 1 : Upload -->
                 <div class="card mb-4" id="uploadStep">
                     <div class="card-header bg-white">
-                        <h4 class="mb-0"><i class="material-icons">cloud_upload</i> Étape 1 : Téléchargez votre fichier</h4>
+                        <h4 class="mb-0"><i class="fas fa-*">fa-cloud-upload-alt</i> Étape 1 : Téléchargez votre fichier</h4>
                     </div>
                     <div class="card-body">
                         <div class="upload-area" id="dropArea">
                             <div class="upload-icon">
-                                <i class="material-icons">insert_photo</i>
+                                <i class="fas fa-*">fa-image</i>
                             </div>
                             <h3>Déposez votre fichier ici</h3>
                             <p class="text-muted mb-3">Image, PDF ou CSV contenant des tableaux</p>
@@ -210,29 +210,29 @@
                                 {% endfor %}
                             </p>
                             <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf,.csv,.xlsx,.xls,.ods" style="display: none;">
-                            <button class="btn btn-warning btn-lg mt-2" onclick="document.getElementById('fileInput').click()">
-                                <i class="material-icons">folder_open</i> Sélectionner un fichier
+                            <button class="btn btn-fa-exclamation-triangle btn-lg mt-2" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-*">fa-folder-open</i> Sélectionner un fichier
                             </button>
                         </div>
                         
                         <!-- Informations fichier -->
                         <div id="fileInfo" style="display: none;" class="mt-3">
-                            <div class="alert alert-warning">
+                            <div class="alert alert-fa-exclamation-triangle">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <i class="material-icons">check_circle</i>
+                                        <i class="fas fa-*">fa-check-circle</i>
                                         <strong id="fileName"></strong>
                                         <span id="fileSize" class="text-muted"></span>
                                         <span id="fileType" class="badge bg-info"></span>
                                     </div>
                                     <button class="btn btn-sm btn-outline-danger" onclick="clearFile()">
-                                        <i class="material-icons">delete</i> Changer
+                                        <i class="fas fa-*">fa-trash</i> Changer
                                     </button>
                                 </div>
                             </div>
                             
-                            <button class="btn btn-warning w-100 py-3" onclick="detectTables()" id="detectBtn">
-                                <i class="material-icons">search</i> Détecter les tableaux
+                            <button class="btn btn-fa-exclamation-triangle w-100 py-3" onclick="detectTables()" id="detectBtn">
+                                <i class="fas fa-*">fa-search</i> Détecter les tableaux
                             </button>
                         </div>
                     </div>
@@ -241,15 +241,15 @@
                 <!-- Étape 2 : Détection -->
                 <div class="card mb-4" id="detectionStep" style="display: none;">
                     <div class="card-header bg-white">
-                        <h4 class="mb-0"><i class="material-icons">search</i> Étape 2 : Détection des tableaux</h4>
+                        <h4 class="mb-0"><i class="fas fa-*">fa-search</i> Étape 2 : Détection des tableaux</h4>
                     </div>
                     <div class="card-body">
                         <div class="detection-results">
-                            <h5><i class="material-icons">find_in_page</i> Analyse en cours...</h5>
+                            <h5><i class="fas fa-*">find_in_page</i> Analyse en cours...</h5>
                             <p>Recherche de structures tabulaires dans votre fichier</p>
                             
                             <div class="progress mb-3">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" 
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-fa-exclamation-triangle" 
                                      id="detectionProgress" style="width: 0%"></div>
                             </div>
                             
@@ -260,7 +260,7 @@
                         
                         <!-- Prévisualisation du tableau -->
                         <div id="previewContainer" style="display: none;">
-                            <h5 class="mt-4"><i class="material-icons">preview</i> Prévisualisation détectée</h5>
+                            <h5 class="mt-4"><i class="fas fa-*">preview</i> Prévisualisation détectée</h5>
                             <div class="preview-container">
                                 <table class="table-preview" id="tablePreview">
                                     <!-- Le tableau apparaîtra ici -->
@@ -268,17 +268,17 @@
                             </div>
                             
                             <div class="alert alert-info">
-                                <i class="material-icons">info</i>
+                                <i class="fas fa-*">info</i>
                                 <small>
                                     Si la détection n'est pas satisfaisante, ajustez les paramètres ci-dessous et réessayez.
                                 </small>
                             </div>
                             
-                            <button class="btn btn-outline-warning" onclick="adjustDetection()">
-                                <i class="material-icons">tune</i> Ajuster la détection
+                            <button class="btn btn-outline-fa-exclamation-triangle" onclick="adjustDetection()">
+                                <i class="fas fa-*">tune</i> Ajuster la détection
                             </button>
-                            <button class="btn btn-warning float-end" onclick="goToOptions()">
-                                Continuer <i class="material-icons">arrow_forward</i>
+                            <button class="btn btn-fa-exclamation-triangle float-end" onclick="goToOptions()">
+                                Continuer <i class="fas fa-*">arrow_forward</i>
                             </button>
                         </div>
                     </div>
@@ -287,21 +287,21 @@
                 <!-- Étape 3 : Options -->
                 <div class="card mb-4" id="optionsStep" style="display: none;">
                     <div class="card-header bg-white">
-                        <h4 class="mb-0"><i class="material-icons">settings</i> Étape 3 : Options d'export</h4>
+                        <h4 class="mb-0"><i class="fas fa-*">settings</i> Étape 3 : Options d'export</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <!-- Format de sortie -->
                             <div class="col-md-6 mb-4">
-                                <h5><i class="material-icons">grid_on</i> Format Excel</h5>
+                                <h5><i class="fas fa-*">grid_on</i> Format Excel</h5>
                                 <div class="format-options">
                                     <div class="format-option" onclick="selectFormat('xlsx')" id="formatXlsx">
-                                        <i class="material-icons" style="font-size: 2rem;">grid_on</i>
+                                        <i class="fas fa-*" style="font-size: 2rem;">grid_on</i>
                                         <div>.xlsx</div>
                                         <small>Excel moderne</small>
                                     </div>
                                     <div class="format-option" onclick="selectFormat('csv')" id="formatCsv">
-                                        <i class="material-icons" style="font-size: 2rem;">table_rows</i>
+                                        <i class="fas fa-*" style="font-size: 2rem;">table_rows</i>
                                         <div>.csv</div>
                                         <small>Texte simple</small>
                                     </div>
@@ -310,7 +310,7 @@
                             
                             <!-- Options OCR -->
                             <div class="col-md-6 mb-4">
-                                <h5><i class="material-icons">text_fields</i> Reconnaissance de texte</h5>
+                                <h5><i class="fas fa-*">text_fields</i> Reconnaissance de texte</h5>
                                 <div class="form-check form-switch mb-3">
                                     <input class="form-check-input" type="checkbox" id="ocrEnabled" checked>
                                     <label class="form-check-label" for="ocrEnabled">
@@ -330,7 +330,7 @@
                             
                             <!-- Options de structuration -->
                             <div class="col-md-6 mb-4">
-                                <h5><i class="material-icons">account_tree</i> Structure des données</h5>
+                                <h5><i class="fas fa-*">account_tree</i> Structure des données</h5>
                                 
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="checkbox" id="detectHeaders" checked>
@@ -356,7 +356,7 @@
                             
                             <!-- Options de feuilles -->
                             <div class="col-md-6 mb-4">
-                                <h5><i class="material-icons">layers</i> Organisation</h5>
+                                <h5><i class="fas fa-*">layers</i> Organisation</h5>
                                 
                                 <div class="mb-3">
                                     <label class="form-label">Nom de la feuille</label>
@@ -375,11 +375,11 @@
                         </div>
                         
                         <div class="text-center mt-4">
-                            <button class="btn btn-outline-warning me-3" onclick="goToDetection()">
-                                <i class="material-icons">arrow_back</i> Retour
+                            <button class="btn btn-outline-fa-exclamation-triangle me-3" onclick="goToDetection()">
+                                <i class="fas fa-*">fa-arrow-left</i> Retour
                             </button>
-                            <button class="btn btn-warning btn-lg px-5" onclick="exportToExcel()">
-                                <i class="material-icons">file_download</i> Exporter vers Excel
+                            <button class="btn btn-fa-exclamation-triangle btn-lg px-5" onclick="exportToExcel()">
+                                <i class="fas fa-*">file_download</i> Exporter vers Excel
                             </button>
                         </div>
                     </div>
@@ -388,27 +388,27 @@
                 <!-- Étape 4 : Export -->
                 <div class="card" id="exportStep" style="display: none;">
                     <div class="card-body text-center">
-                        <div class="spinner-border text-warning" style="width: 5rem; height: 5rem;" role="status">
+                        <div class="spinner-border text-fa-exclamation-triangle" style="width: 5rem; height: 5rem;" role="status">
                             <span class="visually-hidden">Chargement...</span>
                         </div>
                         <h3 class="mt-4">Génération du fichier Excel...</h3>
                         <p id="exportStatus">Préparation des données</p>
                         
                         <div class="progress mt-4" style="height: 12px;">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" 
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-fa-exclamation-triangle" 
                                  id="exportProgress" style="width: 0%"></div>
                         </div>
                         
                         <div class="mt-4" id="exportResult" style="display: none;">
                             <div class="alert alert-success">
-                                <i class="material-icons">check_circle</i>
+                                <i class="fas fa-*">fa-check-circle</i>
                                 <h4>Export réussi !</h4>
                                 <p>Votre fichier Excel a été généré avec succès.</p>
                                 <button class="btn btn-success" id="downloadBtn">
-                                    <i class="material-icons">download</i> Télécharger
+                                    <i class="fas fa-*">download</i> Télécharger
                                 </button>
                                 <button class="btn btn-outline-success ms-2" onclick="startNewConversion()">
-                                    <i class="material-icons">refresh</i> Nouvelle conversion
+                                    <i class="fas fa-*">refresh</i> Nouvelle conversion
                                 </button>
                             </div>
                         </div>
@@ -417,7 +417,7 @@
 
                 <!-- Informations -->
                 <div class="alert alert-info mt-4">
-                    <i class="material-icons">info</i>
+                    <i class="fas fa-*">info</i>
                     <div class="d-flex">
                         <div>
                             <strong>Capacités de détection :</strong>
@@ -436,26 +436,26 @@
             <!-- Sidebar -->
             <div class="col-lg-4">
                 <div class="card sticky-top" style="top: 20px;">
-                    <div class="card-header bg-warning text-white">
-                        <h5 class="mb-0"><i class="material-icons">help</i> Guide d'extraction</h5>
+                    <div class="card-header bg-fa-exclamation-triangle text-white">
+                        <h5 class="mb-0"><i class="fas fa-*">fa-question-circle</i> Guide d'extraction</h5>
                     </div>
                     <div class="card-body">
                         <div class="mb-4">
-                            <h6><i class="material-icons">table_view</i> Qu'est-ce qui est détecté ?</h6>
+                            <h6><i class="fas fa-*">table_view</i> Qu'est-ce qui est détecté ?</h6>
                             <ul class="list-unstyled">
-                                <li class="mb-2"><i class="material-icons text-success" style="font-size: 1rem;">check</i> Bordures de tableau</li>
-                                <li class="mb-2"><i class="material-icons text-success" style="font-size: 1rem;">check</i> Alignements de texte</li>
-                                <li class="mb-2"><i class="material-icons text-success" style="font-size: 1rem;">check</i> Grilles régulières</li>
-                                <li><i class="material-icons text-success" style="font-size: 1rem;">check</i> En-têtes de colonnes</li>
+                                <li class="mb-2"><i class="fas fa-* text-success" style="font-size: 1rem;">check</i> Bordures de tableau</li>
+                                <li class="mb-2"><i class="fas fa-* text-success" style="font-size: 1rem;">check</i> Alignements de texte</li>
+                                <li class="mb-2"><i class="fas fa-* text-success" style="font-size: 1rem;">check</i> Grilles régulières</li>
+                                <li><i class="fas fa-* text-success" style="font-size: 1rem;">check</i> En-têtes de colonnes</li>
                             </ul>
                         </div>
                         
                         <hr>
                         
                         <div class="mb-4">
-                            <h6><i class="material-icons">warning</i> Pour de meilleurs résultats</h6>
-                            <div class="alert alert-warning small">
-                                <i class="material-icons">lightbulb</i>
+                            <h6><i class="fas fa-*">fa-exclamation-triangle</i> Pour de meilleurs résultats</h6>
+                            <div class="alert alert-fa-exclamation-triangle small">
+                                <i class="fas fa-*">lightbulb</i>
                                 Utilisez des images avec :
                                 <ul class="mb-0 mt-1">
                                     <li>Tableaux bien cadrés</li>
@@ -469,7 +469,7 @@
                         <hr>
                         
                         <div class="mb-4">
-                            <h6><i class="material-icons">speed</i> Performances</h6>
+                            <h6><i class="fas fa-*">speed</i> Performances</h6>
                             <p class="small mb-1"><strong>Complexité élevée :</strong> Images floues, bordures invisibles</p>
                             <div class="progress mb-2" style="height: 6px;">
                                 <div class="progress-bar bg-danger" style="width: 80%"></div>
@@ -477,7 +477,7 @@
                             
                             <p class="small mb-1"><strong>Complexité moyenne :</strong> PDF avec tableaux</p>
                             <div class="progress mb-2" style="height: 6px;">
-                                <div class="progress-bar bg-warning" style="width: 60%"></div>
+                                <div class="progress-bar bg-fa-exclamation-triangle" style="width: 60%"></div>
                             </div>
                             
                             <p class="small mb-1"><strong>Simple :</strong> CSV, images claires</p>
@@ -489,16 +489,16 @@
                         <hr>
                         
                         <div>
-                            <h6><i class="material-icons">format_list_bulleted</i> Formats de sortie</h6>
+                            <h6><i class="fas fa-*">format_list_bulleted</i> Formats de sortie</h6>
                             <div class="d-flex align-items-center mb-2">
-                                <i class="material-icons text-success me-2">grid_on</i>
+                                <i class="fas fa-* text-success me-2">grid_on</i>
                                 <div>
                                     <strong>.xlsx</strong>
                                     <small class="d-block">Excel moderne avec mise en forme</small>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center">
-                                <i class="material-icons text-info me-2">table_rows</i>
+                                <i class="fas fa-* text-info me-2">table_rows</i>
                                 <div>
                                     <strong>.csv</strong>
                                     <small class="d-block">Texte simple, compatible universel</small>
@@ -512,6 +512,13 @@
     </div>
     {% endblock %}
 
+    {% block scripts %}
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Votre JavaScript existant -->
+    ...
+    {% endblock %}
+    
     {% block scripts %}
     <script>
         let selectedFile = null;
@@ -665,7 +672,7 @@
                 progressBar.style.width = '0%';
                 detectionDetails.innerHTML = `
                     <div class="detected-table">
-                        <h6><i class="material-icons">hourglass_empty</i> Analyse initiale...</h6>
+                        <h6><i class="fas fa-*">hourglass_empty</i> Analyse initiale...</h6>
                         <p>Examen de la structure du document</p>
                     </div>
                 `;
@@ -685,7 +692,7 @@
                     
                     detectionDetails.innerHTML = `
                         <div class="detected-table">
-                            <h6><i class="material-icons">search</i> ${step.text}</h6>
+                            <h6><i class="fas fa-*">fa-search</i> ${step.text}</h6>
                             <p>Progression : ${step.progress}%</p>
                         </div>
                     `;
@@ -726,7 +733,7 @@
             } catch (error) {
                 detectionDetails.innerHTML = `
                     <div class="alert alert-danger">
-                        <i class="material-icons">error</i>
+                        <i class="fas fa-*">error</i>
                         Erreur lors de la détection : ${error.message}
                     </div>
                 `;
@@ -741,7 +748,7 @@
             // Afficher le résumé
             detectionDetails.innerHTML = `
                 <div class="alert alert-success">
-                    <i class="material-icons">check_circle</i>
+                    <i class="fas fa-*">fa-check-circle</i>
                     <strong>Détection réussie !</strong>
                     <p>${detectedTables.length} tableau(x) détecté(s)</p>
                 </div>
@@ -751,7 +758,7 @@
             detectedTables.forEach((table, index) => {
                 detectionDetails.innerHTML += `
                     <div class="detected-table">
-                        <h6><i class="material-icons">table_chart</i> ${table.name}</h6>
+                        <h6><i class="fas fa-*">fa-table</i> ${table.name}</h6>
                         <p>${table.rows} lignes × ${table.cols} colonnes | Confiance : ${table.confidence}%</p>
                     </div>
                 `;
@@ -888,11 +895,11 @@
             } catch (error) {
                 exportResult.innerHTML = `
                     <div class="alert alert-danger">
-                        <i class="material-icons">error</i>
+                        <i class="fas fa-*">error</i>
                         <h4>Erreur lors de l'export</h4>
                         <p>${error.message}</p>
                         <button class="btn btn-outline-danger" onclick="goToOptions()">
-                            <i class="material-icons">arrow_back</i> Retour
+                            <i class="fas fa-*">fa-arrow-left</i> Retour
                         </button>
                     </div>
                 `;
@@ -927,3 +934,4 @@
 </body>
 
 </html>
+
