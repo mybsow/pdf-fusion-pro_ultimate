@@ -1,1 +1,434 @@
+{% extends "base.html" %}
 
+{% block title %}Compresser PDF - Réduire la taille des fichiers PDF{% endblock %}
+
+{% block description %}Compressez vos fichiers PDF pour réduire leur taille sans perte de qualité notable. Optimisez l'espace de stockage et le partage.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1 class="hero-title">Compresser des fichiers PDF</h1>
+        <p class="hero-subtitle">
+            Réduisez la taille de vos PDFs sans perte de qualité notable.
+            <br>Idéal pour l'envoi par email et le stockage en ligne.
+        </p>
+    </div>
+</section>
+
+<!-- Compression Tool -->
+<div class="tool-container">
+    <div class="tool-header">
+        <h3><i class="fas fa-compress-alt me-2"></i>Compresser un fichier PDF</h3>
+        <p class="text-muted mb-0">Réduisez la taille de vos PDFs sans perte de qualité notable</p>
+    </div>
+    <div class="tool-content">
+        <div class="upload-zone" id="compressUploadZone" onclick="document.getElementById('compressFileInput').click()">
+            <div class="upload-icon">
+                <i class="fas fa-file-pdf"></i>
+            </div>
+            <div class="upload-text">
+                <h4>Sélectionnez un fichier PDF à compresser</h4>
+                <p>Glissez-déposez ou cliquez pour choisir (max 50MB)</p>
+            </div>
+            <input type="file" id="compressFileInput" accept=".pdf" style="display: none;" onchange="handleCompressFile(this.files)">
+        </div>
+        
+        <div class="file-list" id="compressFileInfo"></div>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label class="form-label">Niveau de compression</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="compressionLevel" id="levelLow" value="low">
+                        <label class="btn btn-outline-success" for="levelLow">
+                            <i class="fas fa-battery-quarter"></i> Légère
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="compressionLevel" id="levelMedium" value="medium" checked>
+                        <label class="btn btn-outline-warning" for="levelMedium">
+                            <i class="fas fa-battery-half"></i> Moyenne
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="compressionLevel" id="levelHigh" value="high">
+                        <label class="btn btn-outline-danger" for="levelHigh">
+                            <i class="fas fa-battery-full"></i> Maximale
+                        </label>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        <strong>Légère :</strong> Réduction modérée, qualité préservée
+                        <br><strong>Moyenne :</strong> Bon équilibre taille/qualité
+                        <br><strong>Maximale :</strong> Réduction maximale, légère perte possible
+                    </small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="form-label">Optimisations</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="optimizeImages" checked>
+                        <label class="form-check-label" for="optimizeImages">
+                            Optimiser les images
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="removeMetadata" checked>
+                        <label class="form-check-label" for="removeMetadata">
+                            Supprimer métadonnées
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="embedFonts">
+                        <label class="form-check-label" for="embedFonts">
+                            Incorporer polices
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Comment ça marche ?</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Optimisation des images (compression JPEG)</li>
+                        <li>Suppression des métadonnées inutiles</li>
+                        <li>Élimination des éléments cachés</li>
+                        <li>Compression des flux de données</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <strong>Résultats attendus :</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>PDF jusqu'à 90% plus léger</li>
+                        <li>Qualité visuelle préservée</li>
+                        <li>Texte toujours sélectionnable</li>
+                        <li>Compatible tous lecteurs PDF</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Compression Stats -->
+        <div class="card border-0 bg-light mb-4" id="compressionStats" style="display: none;">
+            <div class="card-body">
+                <h6 class="card-title"><i class="fas fa-chart-line me-2"></i>Statistiques de compression</h6>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="h4 text-primary mb-0" id="originalSize">0 MB</div>
+                            <small class="text-muted">Taille originale</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="h4 text-success mb-0" id="compressedSize">0 MB</div>
+                            <small class="text-muted">Taille compressée</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="h4 text-warning mb-0" id="reductionRate">0%</div>
+                            <small class="text-muted">Réduction</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="progress mt-3" style="height: 10px;">
+                    <div class="progress-bar bg-success" id="compressionProgress" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-primary btn-lg" onclick="processCompress()" id="compressButton" disabled>
+                <i class="fas fa-compress-alt me-2"></i>Compresser le PDF
+            </button>
+            <button class="btn btn-outline btn-lg" onclick="resetCompressForm()">
+                <i class="fas fa-redo me-2"></i>Réinitialiser
+            </button>
+        </div>
+        
+        <div class="mt-4 pt-3 border-top">
+            <h5><i class="fas fa-question-circle me-2"></i>Pourquoi compresser vos PDFs ?</h5>
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body text-center">
+                            <div class="text-primary mb-3">
+                                <i class="fas fa-envelope fa-2x"></i>
+                            </div>
+                            <h6>Envoi par email</h6>
+                            <p class="small text-muted">Réduisez la taille pour faciliter l'envoi</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body text-center">
+                            <div class="text-success mb-3">
+                                <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                            </div>
+                            <h6>Stockage en ligne</h6>
+                            <p class="small text-muted">Gagnez de l'espace sur vos cloud drives</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body text-center">
+                            <div class="text-warning mb-3">
+                                <i class="fas fa-share-alt fa-2x"></i>
+                            </div>
+                            <h6>Partage rapide</h6>
+                            <p class="small text-muted">Téléchargement plus rapide pour vos destinataires</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body text-center">
+                            <div class="text-danger mb-3">
+                                <i class="fas fa-mobile-alt fa-2x"></i>
+                            </div>
+                            <h6>Mobile friendly</h6>
+                            <p class="small text-muted">Chargez plus vite sur mobile avec données limitées</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// State for compress page
+let compressState = {
+    file: null,
+    originalSize: 0
+};
+
+// File Upload Handler
+function handleCompressFile(files) {
+    if (!files || files.length === 0) return;
+    
+    const file = files[0];
+    
+    if (file.type !== 'application/pdf') {
+        showToast('error', 'Format invalide', 'Veuillez sélectionner un fichier PDF.');
+        return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+        showToast('error', 'Fichier trop volumineux', 'La taille maximale est de 50MB.');
+        return;
+    }
+
+    compressState.file = file;
+    compressState.originalSize = file.size;
+    
+    updateCompressFileInfo();
+    updateCompressButton();
+    showCompressionStats();
+}
+
+// Update File Info
+function updateCompressFileInfo() {
+    const container = document.getElementById('compressFileInfo');
+    if (!container || !compressState.file) {
+        container.innerHTML = '';
+        return;
+    }
+
+    const file = compressState.file;
+    container.innerHTML = `
+        <div class="file-item">
+            <div class="file-info">
+                <div class="file-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <div class="file-details">
+                    <h6>${escapeHtml(file.name)}</h6>
+                    <small>${formatFileSize(file.size)}</small>
+                </div>
+            </div>
+            <div class="file-actions">
+                <button class="btn btn-sm btn-outline-danger" onclick="clearCompressFile()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Clear File
+function clearCompressFile() {
+    compressState.file = null;
+    compressState.originalSize = 0;
+    
+    updateCompressFileInfo();
+    updateCompressButton();
+    hideCompressionStats();
+    document.getElementById('compressFileInput').value = '';
+}
+
+function resetCompressForm() {
+    clearCompressFile();
+    document.querySelector('input[name="compressionLevel"]:checked').checked = false;
+    document.getElementById('levelMedium').checked = true;
+    document.getElementById('optimizeImages').checked = true;
+    document.getElementById('removeMetadata').checked = true;
+    document.getElementById('embedFonts').checked = false;
+}
+
+// Update Button
+function updateCompressButton() {
+    document.getElementById('compressButton').disabled = !compressState.file;
+}
+
+// Show/Hide Stats
+function showCompressionStats() {
+    const stats = document.getElementById('compressionStats');
+    if (stats && compressState.file) {
+        stats.style.display = 'block';
+        
+        // Update stats display
+        document.getElementById('originalSize').textContent = formatFileSize(compressState.originalSize);
+        
+        // Calculate estimated compression
+        const level = document.querySelector('input[name="compressionLevel"]:checked').value;
+        let reduction = 0;
+        
+        switch(level) {
+            case 'low':
+                reduction = 0.3; // 30%
+                break;
+            case 'medium':
+                reduction = 0.5; // 50%
+                break;
+            case 'high':
+                reduction = 0.7; // 70%
+                break;
+        }
+        
+        const compressedSize = compressState.originalSize * (1 - reduction);
+        const reductionRate = Math.round(reduction * 100);
+        
+        document.getElementById('compressedSize').textContent = formatFileSize(compressedSize);
+        document.getElementById('reductionRate').textContent = reductionRate + '%';
+        document.getElementById('compressionProgress').style.width = reductionRate + '%';
+    }
+}
+
+function hideCompressionStats() {
+    const stats = document.getElementById('compressionStats');
+    if (stats) {
+        stats.style.display = 'none';
+    }
+}
+
+// Update stats when compression level changes
+document.addEventListener('DOMContentLoaded', function() {
+    const compressionLevels = document.querySelectorAll('input[name="compressionLevel"]');
+    compressionLevels.forEach(level => {
+        level.addEventListener('change', function() {
+            if (compressState.file) {
+                showCompressionStats();
+            }
+        });
+    });
+});
+
+// Process Compression
+async function processCompress() {
+    if (!compressState.file) {
+        showToast('error', 'Aucun fichier', 'Veuillez sélectionner un fichier PDF.');
+        return;
+    }
+
+    const level = document.querySelector('input[name="compressionLevel"]:checked').value;
+    const optimizeImages = document.getElementById('optimizeImages').checked;
+    const removeMetadata = document.getElementById('removeMetadata').checked;
+    const embedFonts = document.getElementById('embedFonts').checked;
+
+    showLoader('Compression du fichier PDF...');
+
+    try {
+        const base64 = await fileToBase64(compressState.file);
+
+        const response = await fetch('/api/compress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                file: { data: base64 },
+                options: {
+                    level: level,
+                    optimizeImages: optimizeImages,
+                    removeMetadata: removeMetadata,
+                    embedFonts: embedFonts
+                }
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            downloadFile(result.data, result.filename, 'application/pdf');
+            
+            // Calculate actual compression
+            const compressedSize = atob(result.data).length;
+            const reduction = ((compressState.originalSize - compressedSize) / compressState.originalSize * 100).toFixed(1);
+            
+            showToast('success', 'Succès', 
+                `Fichier compressé avec ${result.pages} pages. ` +
+                `Réduction: ${reduction}%`);
+            
+            loadStats();
+        } else {
+            showToast('error', 'Erreur', result.error || 'Erreur lors de la compression');
+        }
+    } catch (error) {
+        showToast('error', 'Erreur', 'Impossible de compresser le fichier');
+        console.error('Compress error:', error);
+    } finally {
+        hideLoader();
+    }
+}
+
+// Drag & Drop Setup
+function setupDragAndDrop() {
+    const zone = document.getElementById('compressUploadZone');
+    if (!zone) return;
+
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        zone.classList.add('drag-over');
+    });
+
+    zone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+    });
+
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        handleCompressFile(e.dataTransfer.files);
+    });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    setupDragAndDrop();
+    
+    // Make functions globally available
+    window.clearCompressFile = clearCompressFile;
+    window.resetCompressForm = resetCompressForm;
+    window.processCompress = processCompress;
+});
+</script>
+{% endblock %}
