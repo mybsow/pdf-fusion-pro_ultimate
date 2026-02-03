@@ -153,7 +153,8 @@ def image_to_pdf():
     
     return render_template('conversion/image_to_pdf.html',
                           title="Image vers PDF",
-                          max_files=AppConfig.MAX_IMAGES_PER_PDF)  # Corrigé
+                          max_files=AppConfig.MAX_IMAGES_PER_PDF),  # Corrigé
+                          supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS)  # AJOUTÉ
 
 
 @conversion_bp.route('/conversion/image-vers-word', methods=['GET', 'POST'])
@@ -217,7 +218,8 @@ def image_to_word():
                               ('deu', 'Allemand'),
                               ('spa', 'Espagnol'),
                               ('ita', 'Italien')
-                          ])
+                          ],
+                          supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS)  # AJOUTÉ
 
 
 @conversion_bp.route('/conversion/image-vers-excel', methods=['GET', 'POST'])
@@ -274,7 +276,8 @@ def image_to_excel():
             return redirect(request.url)
     
     return render_template('conversion/image_to_excel.html',
-                          title="Image vers Excel")
+                          title="Image vers Excel",
+                          supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS)  # AJOUTÉ
 
 
 @conversion_bp.route('/api/conversion/supported-formats', methods=['GET'])
