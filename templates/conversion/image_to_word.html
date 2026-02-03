@@ -1,599 +1,281 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image vers Word - {{ config.NAME }}</title>
-    <!-- Après : -->
-    <!-- Bootstrap 5.3 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .upload-area {
-            border: 3px dashed #4CAF50;
-            border-radius: 15px;
-            padding: 3rem 1rem;
-            text-align: center;
-            background: #f8f9fa;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            margin-bottom: 2rem;
-        }
-        
-        .upload-area:hover, .upload-area.dragover {
-            background: #f1f8e9;
-            border-color: #388E3C;
-        }
-        
-        .upload-icon {
-            font-size: 4rem;
-            color: #4CAF50;
-            margin-bottom: 1rem;
-        }
-        
-        .file-preview {
-            max-width: 300px;
-            max-height: 300px;
-            margin: 0 auto 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            display: none;
-        }
-        
-        .ocr-options {
-            background: #e8f5e9;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-        }
-        
-        .language-flag {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            margin-right: 8px;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .converting-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.95);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        
-        .quality-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            margin: 0.25rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .quality-badge:hover {
-            transform: scale(1.05);
-        }
-        
-        .quality-badge.active {
-            background: #4CAF50;
-            color: white;
-        }
-    </style>
-</head>
-<body>
-    {% extends "base.html" %}
-    
-    {% block content %}
-    <div class="container py-4">
-        <!-- En-tête -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <a href="{{ url_for('conversion.index') }}" class="btn btn-outline-primary mb-3">
-                    <i class="fas fa-*">fa-arrow-left</i> Retour aux conversions
-                </a>
-                <h1 class="display-5"><i class="fas fa-*">description</i> Image vers Word</h1>
-                <p class="lead">Convertissez images et PDF en documents Word éditables</p>
-            </div>
-        </div>
+{% extends "base.html" %}
 
-        <div class="row">
-            <!-- Zone principale -->
-            <div class="col-lg-8">
-                <!-- Étape 1 : Sélection du fichier -->
-                <div class="card mb-4">
-                    <div class="card-header bg-white">
-                        <h4 class="mb-0"><i class="fas fa-*">fa-cloud-upload-alt</i> Étape 1 : Sélectionnez votre fichier</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="upload-area" id="dropArea">
-                            <div class="upload-icon">
-                                <i class="fas fa-*">insert_drive_file</i>
-                            </div>
-                            <h3>Déposez votre fichier ici</h3>
-                            <p class="text-muted mb-3">ou cliquez pour parcourir vos fichiers</p>
-                            <p class="small text-muted">
-                                Formats supportés: 
-                                {% for ext in supported_formats.word %}
+{% block content %}
+<div class="container py-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <a href="{{ url_for('conversion.index') }}" class="btn btn-outline-primary mb-3">
+                <i class="fas fa-arrow-left"></i> Retour aux conversions
+            </a>
+            <h1 class="display-5"><i class="fas fa-file-word me-2"></i> Image vers Word</h1>
+            <p class="lead">Convertissez images et PDF en documents Word éditables</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Zone principale -->
+        <div class="col-lg-8">
+
+            <!-- Upload -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0"><i class="fas fa-cloud-upload-alt me-2"></i> Étape 1 : Sélectionnez votre fichier</h4>
+                </div>
+                <div class="card-body">
+
+                    <div class="upload-area text-center" id="dropArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+
+                        <h3>Déposez votre fichier ici</h3>
+                        <p class="text-muted">ou cliquez pour parcourir</p>
+
+                        <p class="small text-muted">
+                            Formats supportés:
+                            {% for ext in supported_formats.word %}
                                 <span class="badge bg-light text-dark">{{ ext }}</span>
+                            {% endfor %}
+                        </p>
+
+                        <input type="file"
+                               id="fileInput"
+                               accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff,.tif,.webp,.pdf"
+                               hidden>
+
+                        <button class="btn btn-success btn-lg"
+                                onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open me-1"></i> Sélectionner un fichier
+                        </button>
+                    </div>
+
+                    <!-- Preview -->
+                    <img id="filePreview" class="file-preview" alt="Aperçu">
+
+                    <div id="fileInfo" style="display:none;">
+                        <div class="alert alert-success d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-check-circle me-1"></i>
+                                <strong id="fileName"></strong>
+                                <span id="fileSize" class="text-muted"></span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger" onclick="clearFile()">
+                                <i class="fas fa-trash"></i> Changer
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Options -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0"><i class="fas fa-cog me-2"></i> Étape 2 : Options</h4>
+                </div>
+                <div class="card-body">
+
+                    <!-- OCR -->
+                    <div class="ocr-options">
+                        <h5><i class="fas fa-font me-2"></i> OCR</h5>
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="ocrEnabled" checked>
+                            <label class="form-check-label">
+                                <strong>Activer l'OCR</strong>
+                            </label>
+                        </div>
+
+                        <div id="ocrLanguageGroup">
+                            <label class="form-label">Langue</label>
+
+                            <div class="row">
+                                {% for code, name in languages %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="language"
+                                               value="{{ code }}"
+                                               {% if code == config.OCR_DEFAULT_LANGUAGE %}checked{% endif %}>
+
+                                        <label class="form-check-label">
+                                            {{ name }}
+                                        </label>
+                                    </div>
+                                </div>
                                 {% endfor %}
-                            </p>
-                            <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff,.tif,.webp,.pdf" style="display: none;">
-                            <button class="btn btn-success btn-lg mt-2" onclick="document.getElementById('fileInput').click()">
-                                <i class="fas fa-*">fa-folder-open</i> Sélectionner un fichier
-                            </button>
-                        </div>
-                        
-                        <!-- Prévisualisation -->
-                        <img id="filePreview" class="file-preview" alt="Aperçu">
-                        
-                        <!-- Informations fichier -->
-                        <div id="fileInfo" style="display: none;">
-                            <div class="alert alert-success">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <i class="fas fa-*">fa-check-circle</i>
-                                        <strong id="fileName"></strong>
-                                        <span id="fileSize" class="text-muted"></span>
-                                    </div>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="clearFile()">
-                                        <i class="fas fa-*">fa-trash</i> Changer
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Étape 2 : Options -->
-                <div class="card mb-4">
-                    <div class="card-header bg-white">
-                        <h4 class="mb-0"><i class="fas fa-*">settings</i> Étape 2 : Options de conversion</h4>
-                    </div>
-                    <div class="card-body">
-                        <!-- Options OCR -->
-                        <div class="ocr-options">
-                            <h5><i class="fas fa-*">text_fields</i> Reconnaissance de texte (OCR)</h5>
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="ocrEnabled" checked>
-                                <label class="form-check-label" for="ocrEnabled">
-                                    <strong>Activer l'OCR</strong> - Extraire le texte des images
-                                </label>
-                                <small class="form-text text-muted d-block">
-                                    Reconnaissance optique de caractères pour rendre le document éditable
-                                </small>
-                            </div>
-                            
-                            <!-- Langue OCR -->
-                            <div id="ocrLanguageGroup">
-                                <label class="form-label mb-2"><i class="fas fa-*">language</i> Langue du texte</label>
-                                <div class="row">
-                                    {% for code, name in languages %}
-                                    <div class="col-md-4 mb-2">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="language" id="lang{{ code }}" value="{{ code }}" 
-                                                {% if code == config.OCR_DEFAULT_LANGUAGE %}checked{% endif %}>
-                                            <label class="form-check-label" for="lang{{ code }}">
-                                                <img src="https://flagcdn.com/20x15/{{ code[:2] if code != 'fra' else 'fr' }}.png" 
-                                                     class="language-flag" alt="{{ code }}">
-                                                {{ name }}
-                                            </label>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
+                    <!-- Layout -->
+                    <div class="row mt-4">
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Taille de page</label>
+                            <select class="form-select" id="pageSize">
+                                <option>A4</option>
+                                <option>Letter</option>
+                                <option>Legal</option>
+                            </select>
                         </div>
 
-                        <!-- Options de mise en page -->
-                        <div class="row mt-4">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="fas fa-*">format_size</i> Taille de page</label>
-                                <select class="form-select" id="pageSize">
-                                    <option value="A4">A4 (21 x 29.7 cm)</option>
-                                    <option value="Letter">Letter (21.6 x 27.9 cm)</option>
-                                    <option value="Legal">Legal (21.6 x 35.6 cm)</option>
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="fas fa-*">crop</i> Recadrage automatique</label>
-                                <select class="form-select" id="cropMode">
-                                    <option value="none" selected>Aucun</option>
-                                    <option value="margins">Supprimer les marges</option>
-                                    <option value="edges">Détecter les bords</option>
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="fas fa-*">contrast</i> Amélioration d'image</label>
-                                <select class="form-select" id="enhancement">
-                                    <option value="none" selected>Aucune</option>
-                                    <option value="autocontrast">Contraste auto</option>
-                                    <option value="sharpness">Netteté</option>
-                                    <option value="both">Contraste + Netteté</option>
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="fas fa-*">compress</i> Compression</label>
-                                <div class="btn-group w-100" role="group">
-                                    <input type="radio" class="btn-check" name="compression" id="compHigh" value="high" checked>
-                                    <label class="btn btn-outline-success" for="compHigh">Haute qualité</label>
-                                    
-                                    <input type="radio" class="btn-check" name="compression" id="compMedium" value="medium">
-                                    <label class="btn btn-outline-success" for="compMedium">Moyenne</label>
-                                    
-                                    <input type="radio" class="btn-check" name="compression" id="compLow" value="low">
-                                    <label class="btn btn-outline-success" for="compLow">Optimisé</label>
-                                </div>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Recadrage</label>
+                            <select class="form-select" id="cropMode">
+                                <option value="none">Aucun</option>
+                                <option value="margins">Supprimer marges</option>
+                                <option value="edges">Détecter bords</option>
+                            </select>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Étape 3 : Conversion -->
-                <div class="card">
-                    <div class="card-body text-center">
-                        <div id="convertSection">
-                            <h4 class="mb-3"><i class="fas fa-*">play_circle_filled</i> Étape 3 : Convertir</h4>
-                            <p class="text-muted mb-4">Cliquez sur le bouton pour démarrer la conversion</p>
-                            
-                            <button class="btn btn-success btn-lg px-5 py-3" id="convertBtn" onclick="convertToWord()" disabled>
-                                <i class="fas fa-*">description</i> Convertir en Word
-                            </button>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Amélioration</label>
+                            <select class="form-select" id="enhancement">
+                                <option value="none">Aucune</option>
+                                <option value="autocontrast">Contraste auto</option>
+                                <option value="sharpness">Netteté</option>
+                                <option value="both">Les deux</option>
+                            </select>
                         </div>
-                        
-                        <div id="convertingSection" style="display: none;">
-                            <div class="spinner-border text-success" style="width: 4rem; height: 4rem;" role="status">
-                                <span class="visually-hidden">Chargement...</span>
-                            </div>
-                            <h4 class="mt-3">Conversion en cours...</h4>
-                            <p id="conversionStatus">Extraction du texte...</p>
-                            <div class="progress mt-3" style="height: 10px;">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
-                                     id="conversionProgress" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Informations -->
-                <div class="alert alert-info mt-4">
-                    <i class="fas fa-*">info</i>
-                    <div class="d-flex">
-                        <div>
-                            <strong>Note importante :</strong>
-                            <ul class="mb-0">
-                                <li>L'OCR nécessite que l'image soit de bonne qualité</li>
-                                <li>Les PDF sont convertis page par page</li>
-                                <li>Les images sont insérées avec le texte reconnu</li>
-                                <li>Taille max : {{ config.MAX_IMAGE_SIZE // (1024*1024) }} MB</li>
-                            </ul>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Compression</label>
+
+                            <div class="btn-group w-100">
+                                <input type="radio" class="btn-check" name="compression" value="high" checked>
+                                <label class="btn btn-outline-success">Haute</label>
+
+                                <input type="radio" class="btn-check" name="compression" value="medium">
+                                <label class="btn btn-outline-success">Moyenne</label>
+
+                                <input type="radio" class="btn-check" name="compression" value="low">
+                                <label class="btn btn-outline-success">Optimisée</label>
+                            </div>
                         </div>
+
                     </div>
                 </div>
             </div>
 
-            <!-- Sidebar -->
-            <div class="col-lg-4">
-                <div class="card sticky-top" style="top: 20px;">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0"><i class="fas fa-*">lightbulb</i> Guide d'utilisation</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-4">
-                            <h6><i class="fas fa-*">touch_app</i> Étapes rapides</h6>
-                            <div class="list-group list-group-flush">
-                                <div class="list-group-item ps-0">
-                                    <span class="badge bg-success me-2">1</span>
-                                    Sélectionnez votre fichier
-                                </div>
-                                <div class="list-group-item ps-0">
-                                    <span class="badge bg-success me-2">2</span>
-                                    Configurez les options
-                                </div>
-                                <div class="list-group-item ps-0">
-                                    <span class="badge bg-success me-2">3</span>
-                                    Convertissez et téléchargez
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <hr>
-                        
-                        <div class="mb-4">
-                            <h6><i class="fas fa-*">tips_and_updates</i> Pour de meilleurs résultats</h6>
-                            <ul class="list-unstyled">
-                                <li class="mb-2"><i class="fas fa-* text-success" style="font-size: 1rem;">check</i> Images nettes et bien éclairées</li>
-                                <li class="mb-2"><i class="fas fa-* text-success" style="font-size: 1rem;">check</i> Texte horizontal pour l'OCR</li>
-                                <li class="mb-2"><i class="fas fa-* text-success" style="font-size: 1rem;">check</i> Résolution minimum 150 DPI</li>
-                                <li><i class="fas fa-* text-success" style="font-size: 1rem;">check</i> Contraste élevé texte/fond</li>
-                            </ul>
-                        </div>
-                        
-                        <hr>
-                        
-                        <div class="mb-4">
-                            <h6><i class="fas fa-*">fa-exclamation-triangle</i> Limitations OCR</h6>
-                            <div class="alert alert-fa-exclamation-triangle small">
-                                <i class="fas fa-*">fa-exclamation-triangle</i>
-                                L'OCR peut avoir des difficultés avec :
-                                <ul class="mb-0 mt-1">
-                                    <li>Textes manuscrits</li>
-                                    <li>Polices décoratives</li>
-                                    <li>Faible contraste</li>
-                                    <li>Textes en perspective</li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <hr>
-                        
-                        <div>
-                            <h6><i class="fas fa-*">download</i> Format de sortie</h6>
-                            <p class="mb-0">
-                                <i class="fas fa-* text-success">description</i>
-                                <strong>.docx</strong> - Format Word moderne compatible avec :
-                                <small class="d-block mt-1">
-                                    Microsoft Word, Google Docs, LibreOffice, OpenOffice
-                                </small>
-                            </p>
-                        </div>
-                    </div>
+            <!-- Convert -->
+            <div class="card text-center">
+                <div class="card-body">
+
+                    <button class="btn btn-success btn-lg px-5 py-3"
+                            id="convertBtn"
+                            onclick="convertToWord()"
+                            disabled>
+                        <i class="fas fa-play me-2"></i> Convertir en Word
+                    </button>
+
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-4">
+                <strong>Note :</strong>
+                Taille max : {{ config.MAX_IMAGE_SIZE // (1024*1024) }} MB
+            </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="top:20px;">
+                <div class="card-header bg-success text-white">
+                    Guide rapide
+                </div>
+
+                <div class="card-body">
+                    <ol>
+                        <li>Sélectionnez un fichier</li>
+                        <li>Configurez les options</li>
+                        <li>Téléchargez le Word</li>
+                    </ol>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Overlay de conversion -->
-    <div class="converting-overlay" id="convertingOverlay">
-        <div class="text-center">
-            <div class="spinner-border text-success" style="width: 5rem; height: 5rem;" role="status">
-                <span class="visually-hidden">Chargement...</span>
-            </div>
-            <h2 class="mt-4">Conversion en cours...</h2>
-            <p id="overlayStatus" class="lead">Veuillez patienter</p>
-            <div class="progress mt-4" style="height: 12px; width: 300px; margin: 0 auto;">
-                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
-                     id="overlayProgress" style="width: 0%"></div>
-            </div>
-        </div>
-    </div>
-    {% endblock %}
+</div>
+{% endblock %}
 
-    {% block scripts %}
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Votre JavaScript existant -->
-    ...
-    {% endblock %}
-    
-    {% block scripts %}
-    <script>
-        let selectedFile = null;
-        const maxSize = {{ config.MAX_IMAGE_SIZE }};
-        
-        // Gestion du drag & drop
-        const dropArea = document.getElementById('dropArea');
-        const fileInput = document.getElementById('fileInput');
-        const filePreview = document.getElementById('filePreview');
-        const fileInfo = document.getElementById('fileInfo');
-        const fileName = document.getElementById('fileName');
-        const fileSize = document.getElementById('fileSize');
-        const convertBtn = document.getElementById('convertBtn');
-        const ocrEnabled = document.getElementById('ocrEnabled');
-        const ocrLanguageGroup = document.getElementById('ocrLanguageGroup');
 
-        // Gérer le drag & drop
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-        });
+{% block scripts %}
+<script>
+let selectedFile = null;
+const maxSize = {{ config.MAX_IMAGE_SIZE }};
 
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
+const fileInput = document.getElementById('fileInput');
+const convertBtn = document.getElementById('convertBtn');
 
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, highlight, false);
-        });
+fileInput.addEventListener('change', e => {
 
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, unhighlight, false);
-        });
+    const file = e.target.files[0];
+    if (!file) return;
 
-        function highlight() {
-            dropArea.classList.add('dragover');
-        }
+    if (file.size > maxSize){
+        alert("Fichier trop volumineux");
+        return;
+    }
 
-        function unhighlight() {
-            dropArea.classList.remove('dragover');
-        }
+    selectedFile = file;
 
-        dropArea.addEventListener('drop', handleDrop, false);
-        fileInput.addEventListener('change', handleFileSelect, false);
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileSize').textContent =
+        ` (${(file.size/1024/1024).toFixed(2)} MB)`;
 
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files.length > 0) {
-                handleFileSelect({ target: { files: [files[0]] } });
-            }
-        }
+    document.getElementById('fileInfo').style.display = 'block';
+    convertBtn.disabled = false;
 
-        function handleFileSelect(e) {
-            const file = e.target.files[0];
-            
-            if (!file) return;
-            
-            // Vérifier la taille
-            if (file.size > maxSize) {
-                alert(`Le fichier dépasse la taille maximale de ${maxSize/(1024*1024)} MB.`);
-                return;
-            }
-            
-            // Vérifier l'extension
-            const ext = '.' + file.name.split('.').pop().toLowerCase();
-            const allowedExts = {{ config.SUPPORTED_IMAGE_FORMATS.word|tojson }};
-            if (!allowedExts.includes(ext)) {
-                alert(`Format non supporté. Formats acceptés: ${allowedExts.join(', ')}`);
-                return;
-            }
-            
-            selectedFile = file;
-            updateFileDisplay();
-            
-            // Afficher la prévisualisation si c'est une image
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    filePreview.src = e.target.result;
-                    filePreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                filePreview.style.display = 'none';
-            }
-        }
+    if (file.type.startsWith('image/')){
+        const reader = new FileReader();
+        reader.onload = e => {
+            const preview = document.getElementById('filePreview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
 
-        function updateFileDisplay() {
-            fileName.textContent = selectedFile.name;
-            fileSize.textContent = ` (${formatFileSize(selectedFile.size)})`;
-            fileInfo.style.display = 'block';
-            convertBtn.disabled = false;
-        }
 
-        function clearFile() {
-            selectedFile = null;
-            fileInput.value = '';
-            fileInfo.style.display = 'none';
-            filePreview.style.display = 'none';
-            convertBtn.disabled = true;
-        }
+async function convertToWord(){
 
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
+    if (!selectedFile) return;
 
-        // Toggle des options OCR
-        ocrEnabled.addEventListener('change', function() {
-            ocrLanguageGroup.style.opacity = this.checked ? '1' : '0.5';
-            ocrLanguageGroup.style.pointerEvents = this.checked ? 'all' : 'none';
-        });
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('ocr', document.getElementById('ocrEnabled').checked);
 
-        // Initialiser l'état OCR
-        ocrLanguageGroup.style.opacity = ocrEnabled.checked ? '1' : '0.5';
-        ocrLanguageGroup.style.pointerEvents = ocrEnabled.checked ? 'all' : 'none';
+    const response = await fetch("{{ url_for('conversion.image_to_word') }}",{
+        method:'POST',
+        body:formData
+    });
 
-        async function convertToWord() {
-            if (!selectedFile) return;
-            
-            // Afficher l'overlay
-            const overlay = document.getElementById('convertingOverlay');
-            const overlayProgress = document.getElementById('overlayProgress');
-            const overlayStatus = document.getElementById('overlayStatus');
-            overlay.style.display = 'flex';
-            
-            // Afficher la section conversion
-            document.getElementById('convertSection').style.display = 'none';
-            document.getElementById('convertingSection').style.display = 'block';
-            
-            try {
-                // Simuler la progression
-                const steps = ['Préparation', 'Analyse', 'OCR', 'Création du document', 'Finalisation'];
-                let progress = 0;
-                
-                for (let i = 0; i < steps.length; i++) {
-                    overlayStatus.textContent = steps[i] + '...';
-                    progress = ((i + 1) / steps.length) * 100;
-                    overlayProgress.style.width = progress + '%';
-                    
-                    // Mettre à jour aussi la barre dans la carte
-                    document.getElementById('conversionProgress').style.width = progress + '%';
-                    document.getElementById('conversionStatus').textContent = steps[i] + '...';
-                    
-                    // Attendre un peu entre chaque étape
-                    await new Promise(resolve => setTimeout(resolve, 800));
-                }
-                
-                // Préparer les données du formulaire
-                const formData = new FormData();
-                formData.append('file', selectedFile);
-                formData.append('ocr', ocrEnabled.checked ? 'true' : 'false');
-                formData.append('language', document.querySelector('input[name="language"]:checked').value);
-                formData.append('page_size', document.getElementById('pageSize').value);
-                formData.append('crop_mode', document.getElementById('cropMode').value);
-                formData.append('enhancement', document.getElementById('enhancement').value);
-                formData.append('compression', document.querySelector('input[name="compression"]:checked').value);
-                
-                // Envoyer la requête
-                const response = await fetch("{{ url_for('conversion.image_to_word') }}", {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Erreur lors de la conversion');
-                }
-                
-                // Télécharger le fichier
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'converted_' + new Date().toISOString().slice(0,10) + '.docx';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                
-                // Succès
-                showToast('Conversion réussie! Votre document Word a été téléchargé.', 'success');
-                
-            } catch (error) {
-                showToast('Erreur: ' + error.message, 'error');
-            } finally {
-                // Réinitialiser
-                overlay.style.display = 'none';
-                document.getElementById('convertSection').style.display = 'block';
-                document.getElementById('convertingSection').style.display = 'none';
-                overlayProgress.style.width = '0%';
-                document.getElementById('conversionProgress').style.width = '0%';
-            }
-        }
+    if(!response.ok){
+        alert("Erreur conversion");
+        return;
+    }
 
-        function showToast(message, type) {
-            const toast = document.createElement('div');
-            toast.className = `toast show position-fixed bottom-0 end-0 m-3 bg-${type === 'success' ? 'success' : 'danger'} text-white`;
-            toast.style.zIndex = '9999';
-            toast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">${message}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
-                </div>
-            `;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 5000);
-        }
-    </script>
-    {% endblock %}
-</body>
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
 
-</html>
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'converted.docx';
+    a.click();
 
+    window.URL.revokeObjectURL(url);
+}
+
+function clearFile(){
+    selectedFile = null;
+    fileInput.value = '';
+    document.getElementById('fileInfo').style.display='none';
+    document.getElementById('filePreview').style.display='none';
+    convertBtn.disabled = true;
+}
+</script>
+{% endblock %}
