@@ -83,7 +83,7 @@ def index():
     return render_template('conversion/index.html', 
                           title="Conversion de fichiers",
                           supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS,
-                          max_files=AppConfig.MAX_IMAGES_PER_PDF,  # Corrigé: MAX_IMAGES_PER_PDF
+                          max_files=AppConfig.MAX_IMAGES_PER_PDF,
                           max_size_mb=AppConfig.MAX_IMAGE_SIZE // (1024 * 1024),
                           max_files_per_conversion=AppConfig.MAX_FILES_PER_CONVERSION)
 
@@ -153,8 +153,8 @@ def image_to_pdf():
     
     return render_template('conversion/image_to_pdf.html',
                           title="Image vers PDF",
-                          max_files=AppConfig.MAX_IMAGES_PER_PDF),  # Corrigé
-                          supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS)  # AJOUTÉ
+                          max_files=AppConfig.MAX_IMAGES_PER_PDF,
+                          supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS)
 
 
 @conversion_bp.route('/conversion/image-vers-word', methods=['GET', 'POST'])
@@ -219,7 +219,7 @@ def image_to_word():
                               ('spa', 'Espagnol'),
                               ('ita', 'Italien')
                           ],
-                          supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS)  # AJOUTÉ
+                          supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS)
 
 
 @conversion_bp.route('/conversion/image-vers-excel', methods=['GET', 'POST'])
@@ -277,7 +277,7 @@ def image_to_excel():
     
     return render_template('conversion/image_to_excel.html',
                           title="Image vers Excel",
-                          supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS)  # AJOUTÉ
+                          supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS)
 
 
 @conversion_bp.route('/api/conversion/supported-formats', methods=['GET'])
@@ -286,7 +286,7 @@ def get_supported_formats():
     return jsonify({
         'status': 'success',
         'formats': AppConfig.SUPPORTED_IMAGE_FORMATS,
-        'max_files': AppConfig.MAX_IMAGES_PER_PDF,  # Corrigé
+        'max_files': AppConfig.MAX_IMAGES_PER_PDF,
         'max_size_mb': AppConfig.MAX_IMAGE_SIZE // (1024 * 1024),
         'available': CONVERSION_MANAGER_AVAILABLE
     })
@@ -315,6 +315,7 @@ def demo_pdf():
     return render_template('conversion/image_to_pdf.html',
                           title="Image vers PDF (Démo)",
                           max_files=AppConfig.MAX_IMAGES_PER_PDF,
+                          supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS,
                           demo_mode=True)
 
 
@@ -331,6 +332,7 @@ def demo_word():
                               ('spa', 'Espagnol'),
                               ('ita', 'Italien')
                           ],
+                          supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS,
                           demo_mode=True)
 
 
@@ -340,4 +342,5 @@ def demo_excel():
     flash('Mode démonstration activé - La conversion réelle sera disponible bientôt', 'info')
     return render_template('conversion/image_to_excel.html',
                           title="Image vers Excel (Démo)",
+                          supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS,
                           demo_mode=True)
