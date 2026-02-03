@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image vers Word - {{ config.NAME }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/material.min.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <!-- Après : -->
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         .upload-area {
             border: 3px dashed #4CAF50;
@@ -96,9 +99,9 @@
         <div class="row mb-4">
             <div class="col-12">
                 <a href="{{ url_for('conversion.index') }}" class="btn btn-outline-primary mb-3">
-                    <i class="material-icons">arrow_back</i> Retour aux conversions
+                    <i class="fas fa-*">fa-arrow-left</i> Retour aux conversions
                 </a>
-                <h1 class="display-5"><i class="material-icons">description</i> Image vers Word</h1>
+                <h1 class="display-5"><i class="fas fa-*">description</i> Image vers Word</h1>
                 <p class="lead">Convertissez images et PDF en documents Word éditables</p>
             </div>
         </div>
@@ -109,12 +112,12 @@
                 <!-- Étape 1 : Sélection du fichier -->
                 <div class="card mb-4">
                     <div class="card-header bg-white">
-                        <h4 class="mb-0"><i class="material-icons">cloud_upload</i> Étape 1 : Sélectionnez votre fichier</h4>
+                        <h4 class="mb-0"><i class="fas fa-*">fa-cloud-upload-alt</i> Étape 1 : Sélectionnez votre fichier</h4>
                     </div>
                     <div class="card-body">
                         <div class="upload-area" id="dropArea">
                             <div class="upload-icon">
-                                <i class="material-icons">insert_drive_file</i>
+                                <i class="fas fa-*">insert_drive_file</i>
                             </div>
                             <h3>Déposez votre fichier ici</h3>
                             <p class="text-muted mb-3">ou cliquez pour parcourir vos fichiers</p>
@@ -126,7 +129,7 @@
                             </p>
                             <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff,.tif,.webp,.pdf" style="display: none;">
                             <button class="btn btn-success btn-lg mt-2" onclick="document.getElementById('fileInput').click()">
-                                <i class="material-icons">folder_open</i> Sélectionner un fichier
+                                <i class="fas fa-*">fa-folder-open</i> Sélectionner un fichier
                             </button>
                         </div>
                         
@@ -138,12 +141,12 @@
                             <div class="alert alert-success">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <i class="material-icons">check_circle</i>
+                                        <i class="fas fa-*">fa-check-circle</i>
                                         <strong id="fileName"></strong>
                                         <span id="fileSize" class="text-muted"></span>
                                     </div>
                                     <button class="btn btn-sm btn-outline-danger" onclick="clearFile()">
-                                        <i class="material-icons">delete</i> Changer
+                                        <i class="fas fa-*">fa-trash</i> Changer
                                     </button>
                                 </div>
                             </div>
@@ -154,12 +157,12 @@
                 <!-- Étape 2 : Options -->
                 <div class="card mb-4">
                     <div class="card-header bg-white">
-                        <h4 class="mb-0"><i class="material-icons">settings</i> Étape 2 : Options de conversion</h4>
+                        <h4 class="mb-0"><i class="fas fa-*">settings</i> Étape 2 : Options de conversion</h4>
                     </div>
                     <div class="card-body">
                         <!-- Options OCR -->
                         <div class="ocr-options">
-                            <h5><i class="material-icons">text_fields</i> Reconnaissance de texte (OCR)</h5>
+                            <h5><i class="fas fa-*">text_fields</i> Reconnaissance de texte (OCR)</h5>
                             <div class="form-check form-switch mb-3">
                                 <input class="form-check-input" type="checkbox" id="ocrEnabled" checked>
                                 <label class="form-check-label" for="ocrEnabled">
@@ -172,7 +175,7 @@
                             
                             <!-- Langue OCR -->
                             <div id="ocrLanguageGroup">
-                                <label class="form-label mb-2"><i class="material-icons">language</i> Langue du texte</label>
+                                <label class="form-label mb-2"><i class="fas fa-*">language</i> Langue du texte</label>
                                 <div class="row">
                                     {% for code, name in languages %}
                                     <div class="col-md-4 mb-2">
@@ -194,7 +197,7 @@
                         <!-- Options de mise en page -->
                         <div class="row mt-4">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="material-icons">format_size</i> Taille de page</label>
+                                <label class="form-label"><i class="fas fa-*">format_size</i> Taille de page</label>
                                 <select class="form-select" id="pageSize">
                                     <option value="A4">A4 (21 x 29.7 cm)</option>
                                     <option value="Letter">Letter (21.6 x 27.9 cm)</option>
@@ -203,7 +206,7 @@
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="material-icons">crop</i> Recadrage automatique</label>
+                                <label class="form-label"><i class="fas fa-*">crop</i> Recadrage automatique</label>
                                 <select class="form-select" id="cropMode">
                                     <option value="none" selected>Aucun</option>
                                     <option value="margins">Supprimer les marges</option>
@@ -212,7 +215,7 @@
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="material-icons">contrast</i> Amélioration d'image</label>
+                                <label class="form-label"><i class="fas fa-*">contrast</i> Amélioration d'image</label>
                                 <select class="form-select" id="enhancement">
                                     <option value="none" selected>Aucune</option>
                                     <option value="autocontrast">Contraste auto</option>
@@ -222,7 +225,7 @@
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="material-icons">compress</i> Compression</label>
+                                <label class="form-label"><i class="fas fa-*">compress</i> Compression</label>
                                 <div class="btn-group w-100" role="group">
                                     <input type="radio" class="btn-check" name="compression" id="compHigh" value="high" checked>
                                     <label class="btn btn-outline-success" for="compHigh">Haute qualité</label>
@@ -242,11 +245,11 @@
                 <div class="card">
                     <div class="card-body text-center">
                         <div id="convertSection">
-                            <h4 class="mb-3"><i class="material-icons">play_circle_filled</i> Étape 3 : Convertir</h4>
+                            <h4 class="mb-3"><i class="fas fa-*">play_circle_filled</i> Étape 3 : Convertir</h4>
                             <p class="text-muted mb-4">Cliquez sur le bouton pour démarrer la conversion</p>
                             
                             <button class="btn btn-success btn-lg px-5 py-3" id="convertBtn" onclick="convertToWord()" disabled>
-                                <i class="material-icons">description</i> Convertir en Word
+                                <i class="fas fa-*">description</i> Convertir en Word
                             </button>
                         </div>
                         
@@ -266,7 +269,7 @@
 
                 <!-- Informations -->
                 <div class="alert alert-info mt-4">
-                    <i class="material-icons">info</i>
+                    <i class="fas fa-*">info</i>
                     <div class="d-flex">
                         <div>
                             <strong>Note importante :</strong>
@@ -285,11 +288,11 @@
             <div class="col-lg-4">
                 <div class="card sticky-top" style="top: 20px;">
                     <div class="card-header bg-success text-white">
-                        <h5 class="mb-0"><i class="material-icons">lightbulb</i> Guide d'utilisation</h5>
+                        <h5 class="mb-0"><i class="fas fa-*">lightbulb</i> Guide d'utilisation</h5>
                     </div>
                     <div class="card-body">
                         <div class="mb-4">
-                            <h6><i class="material-icons">touch_app</i> Étapes rapides</h6>
+                            <h6><i class="fas fa-*">touch_app</i> Étapes rapides</h6>
                             <div class="list-group list-group-flush">
                                 <div class="list-group-item ps-0">
                                     <span class="badge bg-success me-2">1</span>
@@ -309,21 +312,21 @@
                         <hr>
                         
                         <div class="mb-4">
-                            <h6><i class="material-icons">tips_and_updates</i> Pour de meilleurs résultats</h6>
+                            <h6><i class="fas fa-*">tips_and_updates</i> Pour de meilleurs résultats</h6>
                             <ul class="list-unstyled">
-                                <li class="mb-2"><i class="material-icons text-success" style="font-size: 1rem;">check</i> Images nettes et bien éclairées</li>
-                                <li class="mb-2"><i class="material-icons text-success" style="font-size: 1rem;">check</i> Texte horizontal pour l'OCR</li>
-                                <li class="mb-2"><i class="material-icons text-success" style="font-size: 1rem;">check</i> Résolution minimum 150 DPI</li>
-                                <li><i class="material-icons text-success" style="font-size: 1rem;">check</i> Contraste élevé texte/fond</li>
+                                <li class="mb-2"><i class="fas fa-* text-success" style="font-size: 1rem;">check</i> Images nettes et bien éclairées</li>
+                                <li class="mb-2"><i class="fas fa-* text-success" style="font-size: 1rem;">check</i> Texte horizontal pour l'OCR</li>
+                                <li class="mb-2"><i class="fas fa-* text-success" style="font-size: 1rem;">check</i> Résolution minimum 150 DPI</li>
+                                <li><i class="fas fa-* text-success" style="font-size: 1rem;">check</i> Contraste élevé texte/fond</li>
                             </ul>
                         </div>
                         
                         <hr>
                         
                         <div class="mb-4">
-                            <h6><i class="material-icons">warning</i> Limitations OCR</h6>
-                            <div class="alert alert-warning small">
-                                <i class="material-icons">warning</i>
+                            <h6><i class="fas fa-*">fa-exclamation-triangle</i> Limitations OCR</h6>
+                            <div class="alert alert-fa-exclamation-triangle small">
+                                <i class="fas fa-*">fa-exclamation-triangle</i>
                                 L'OCR peut avoir des difficultés avec :
                                 <ul class="mb-0 mt-1">
                                     <li>Textes manuscrits</li>
@@ -337,9 +340,9 @@
                         <hr>
                         
                         <div>
-                            <h6><i class="material-icons">download</i> Format de sortie</h6>
+                            <h6><i class="fas fa-*">download</i> Format de sortie</h6>
                             <p class="mb-0">
-                                <i class="material-icons text-success">description</i>
+                                <i class="fas fa-* text-success">description</i>
                                 <strong>.docx</strong> - Format Word moderne compatible avec :
                                 <small class="d-block mt-1">
                                     Microsoft Word, Google Docs, LibreOffice, OpenOffice
@@ -368,6 +371,13 @@
     </div>
     {% endblock %}
 
+    {% block scripts %}
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Votre JavaScript existant -->
+    ...
+    {% endblock %}
+    
     {% block scripts %}
     <script>
         let selectedFile = null;
@@ -586,3 +596,4 @@
 </body>
 
 </html>
+
