@@ -1,6 +1,9 @@
-from flask import render_template, request  # Changé : render_template au lieu de render_template_string
+"""
+Routes pour les pages légales
+"""
+
+from flask import render_template, request
 from datetime import datetime
-from pathlib import Path
 import os
 import requests
 
@@ -9,14 +12,49 @@ from config import AppConfig
 from managers.contact_manager import contact_manager
 
 # ============================================================
-# NOTIFICATIONS (gardez cette fonction)
+# NOTIFICATIONS
 # ============================================================
 def send_discord_notification(form_data):
-    # [Gardez votre code existant]
-    pass
+    webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
+    if not webhook_url:
+        return True
+
+    try:
+        subject_map = {
+            "bug": "🚨 Bug",
+            "improvement": "💡 Amélioration",
+            "partnership": "🤝 Partenariat",
+            "other": "❓ Autre"
+        }
+
+        embed = {
+            "title": "📨 Nouveau message de contact",
+            "color": 0x4361EE,
+            "fields": [
+                {"name": "Nom", "value": f"{form_data['first_name']} {form_data['last_name']}", "inline": True},
+                {"name": "Email", "value": form_data["email"], "inline": True},
+                {"name": "Sujet", "value": subject_map.get(form_data["subject"], form_data["subject"]), "inline": False},
+                {"name": "Message", "value": form_data["message"][:1000], "inline": False},
+            ],
+            "footer": {
+                "text": f"{AppConfig.NAME} • {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+            }
+        }
+
+        requests.post(
+            webhook_url,
+            json={"embeds": [embed]},
+            timeout=3
+        )
+        return True
+
+    except Exception:
+        # Discord ne doit JAMAIS bloquer le formulaire
+        return True
+
 
 # ============================================================
-# ROUTE CONTACT (modifiée pour utiliser un template)
+# ROUTE CONTACT
 # ============================================================
 
 @legal_bp.route("/contact", methods=["GET", "POST"])
@@ -34,7 +72,9 @@ def contact():
             "message": request.form.get("message", "").strip(),
         }
 
-        # Validation (gardez votre code existant)
+        # =====================
+        # VALIDATION
+        # =====================
         if not all([
             form_data["first_name"],
             form_data["last_name"],
@@ -49,6 +89,9 @@ def contact():
             error = "Adresse email invalide."
         else:
             try:
+                # =====================
+                # TRAITEMENT FIABLE
+                # =====================
                 saved = contact_manager.save_message(**form_data)
                 send_discord_notification(form_data)
                 
@@ -58,9 +101,9 @@ def contact():
                     error = "Une erreur technique est survenue. Veuillez réessayer."
             except Exception:
                 error = "Une erreur technique est survenue. Veuillez réessayer."
-    
+
     return render_template(
-        "legal/contact.html",  # Chemin vers le template
+        "legal/contact.html",
         title="Contact",
         badge="Formulaire de contact",
         subtitle="Contactez-nous via notre formulaire",
@@ -72,14 +115,11 @@ def contact():
         datetime=datetime
     )
 
-# ============================================================
-# AUTRES ROUTES (simplifiées)
-# ============================================================
 
 @legal_bp.route('/mentions-legales')
 def legal_notices():
     return render_template(
-        "legal/legal.html",  # Chemin vers le template
+        "legal/legal.html",
         title="Mentions Légales",
         badge="Information légale",
         subtitle="Informations légales concernant l'utilisation du service PDF Fusion Pro",
@@ -87,6 +127,7 @@ def legal_notices():
         config=AppConfig,
         datetime=datetime
     )
+
 
 @legal_bp.route('/politique-confidentialite')
 def privacy_policy():
@@ -100,6 +141,7 @@ def privacy_policy():
         datetime=datetime
     )
 
+
 @legal_bp.route('/conditions-utilisation')
 def terms_of_service():
     return render_template(
@@ -111,6 +153,7 @@ def terms_of_service():
         config=AppConfig,
         datetime=datetime
     )
+
 
 @legal_bp.route('/a-propos')
 def about():
