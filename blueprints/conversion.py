@@ -84,7 +84,8 @@ def index():
                           title="Conversion de fichiers",
                           supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS,
                           max_files=AppConfig.MAX_IMAGES_PER_PDF,  # Corrigé: MAX_IMAGES_PER_PDF
-                          max_size_mb=AppConfig.MAX_IMAGE_SIZE // (1024 * 1024))
+                          max_size_mb=AppConfig.MAX_IMAGE_SIZE // (1024 * 1024),
+                          max_files_per_conversion=AppConfig.MAX_FILES_PER_CONVERSION)
 
 
 @conversion_bp.route('/conversion/image-vers-pdf', methods=['GET', 'POST'])
