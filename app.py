@@ -20,6 +20,8 @@ from blueprints.api import api_bp
 from blueprints.legal import legal_bp
 from blueprints.stats import stats_bp
 from blueprints.admin import admin_bp
+# Ajouter l'import du blueprint de conversion
+from blueprints.conversion import conversion_bp
 
 # ============================================================
 # Initialisation des dossiers nécessaires
