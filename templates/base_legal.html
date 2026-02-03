@@ -330,10 +330,10 @@
                 </a>
                 <div class="nav-links d-none d-md-block">
                     <a href="/"><i class="fas fa-home me-1"></i> Accueil</a>
-                    <a href="/mentions-legales">Mentions</a>
-                    <a href="/politique-confidentialite">Confidentialité</a>
-                    <a href="/conditions-utilisation">Conditions</a>
-                    <a href="/contact">Contact</a>
+                    <a href="{{ url_for('legal.legal_notices') }}">Mentions</a>
+                    <a href="{{ url_for('legal.privacy_policy') }}">Confidentialité</a>
+                    <a href="{{ url_for('legal.terms_of_service') }}">Conditions</a>
+                    <a href="{{ url_for('legal.contact') }}">Contact</a>
                 </div>
             </div>
             <div class="legal-badge">{{ badge }}</div>
