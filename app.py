@@ -190,6 +190,10 @@ def create_app():
                 ("/division-pdf", today, "daily", 0.9),
                 ("/rotation-pdf", today, "daily", 0.9),
                 ("/compression-pdf", today, "daily", 0.9),
+                ("/conversion", today, "daily", 0.8),  # <-- Ajouter
+                ("/conversion/image-vers-pdf", today, "daily", 0.7),
+                ("/conversion/image-vers-word", today, "daily", 0.7),
+                ("/conversion/image-vers-excel", today, "daily", 0.7),
                 ("/contact", today, "weekly", 0.7),
                 ("/a-propos", today, "monthly", 0.6),
                 ("/mentions-legales", today, "monthly", 0.3),
