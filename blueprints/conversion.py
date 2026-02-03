@@ -13,8 +13,61 @@ from pathlib import Path
 import shutil
 
 from config import AppConfig
-from utils.file_validation import validate_file
-from managers.conversion_manager import ConversionManager
+
+# Import corrigé - utiliser la classe FileValidation
+try:
+    from utils.file_validation import FileValidation
+    FILE_VALIDATION_AVAILABLE = True
+except ImportError:
+    print("⚠️  FileValidation non disponible - création d'une version simplifiée")
+    FILE_VALIDATION_AVAILABLE = False
+    
+    class FileValidation:
+        """Version simplifiée de FileValidation si le module n'existe pas."""
+        @staticmethod
+        def validate_file(file, allowed_extensions, max_size=None):
+            """Validation simplifiée des fichiers."""
+            if not file or file.filename == '':
+                return False
+            
+            # Vérifier l'extension
+            filename = file.filename
+            if '.' not in filename:
+                return False
+            
+            ext = os.path.splitext(filename)[1].lower()
+            return ext in allowed_extensions
+
+# Import corrigé pour ConversionManager
+try:
+    from managers.conversion_manager import ConversionManager
+    CONVERSION_MANAGER_AVAILABLE = True
+except ImportError:
+    print("⚠️  ConversionManager non disponible - mode démo activé")
+    CONVERSION_MANAGER_AVAILABLE = False
+    
+    class ConversionManager:
+        """Version démo de ConversionManager."""
+        def __init__(self, temp_dir='temp/conversion'):
+            self.temp_dir = Path(temp_dir)
+            self.temp_dir.mkdir(parents=True, exist_ok=True)
+        
+        def _create_temp_file(self, extension=''):
+            """Crée un fichier temporaire avec un nom unique."""
+            filename = f"{uuid.uuid4().hex}{extension}"
+            return self.temp_dir / filename
+        
+        def images_to_pdf(self, *args, **kwargs):
+            """Méthode démo pour images vers PDF."""
+            raise NotImplementedError("Fonctionnalité en cours de développement")
+        
+        def to_word(self, *args, **kwargs):
+            """Méthode démo pour image vers Word."""
+            raise NotImplementedError("Fonctionnalité en cours de développement")
+        
+        def to_excel(self, *args, **kwargs):
+            """Méthode démo pour image vers Excel."""
+            raise NotImplementedError("Fonctionnalité en cours de développement")
 
 conversion_bp = Blueprint('conversion', __name__, 
                          template_folder='../templates/conversion',
@@ -30,7 +83,7 @@ def index():
     return render_template('conversion/index.html', 
                           title="Conversion de fichiers",
                           supported_formats=AppConfig.SUPPORTED_IMAGE_FORMATS,
-                          max_files=AppConfig.MAX_IMAGES_PER_CONVERSION,
+                          max_files=AppConfig.MAX_IMAGES_PER_PDF,  # Corrigé: MAX_IMAGES_PER_PDF
                           max_size_mb=AppConfig.MAX_IMAGE_SIZE // (1024 * 1024))
 
 
@@ -38,6 +91,11 @@ def index():
 def image_to_pdf():
     """Conversion d'images en PDF."""
     if request.method == 'POST':
+        # Vérifier si la fonctionnalité est disponible
+        if not CONVERSION_MANAGER_AVAILABLE:
+            flash('Fonctionnalité en cours de développement', 'info')
+            return redirect(request.url)
+        
         if 'files' not in request.files:
             flash('Aucun fichier sélectionné', 'error')
             return redirect(request.url)
@@ -54,7 +112,8 @@ def image_to_pdf():
         # Valider les fichiers
         valid_files = []
         for file in files:
-            if validate_file(file, AppConfig.SUPPORTED_IMAGE_FORMATS['pdf']):
+            # Utiliser FileValidation au lieu de validate_file
+            if FileValidation.validate_file(file, AppConfig.SUPPORTED_IMAGE_FORMATS['pdf']):
                 valid_files.append(file)
             else:
                 flash(f'Format non supporté: {file.filename}', 'warning')
@@ -72,9 +131,12 @@ def image_to_pdf():
                 quality=quality
             )
             
-            # Enregistrer la statistique
-            from managers.stats_manager import stats_manager
-            stats_manager.record_conversion('image_to_pdf', len(valid_files))
+            # Enregistrer la statistique si disponible
+            try:
+                from managers.stats_manager import stats_manager
+                stats_manager.record_conversion('image_to_pdf', len(valid_files))
+            except ImportError:
+                pass  # Ignorer si stats_manager n'est pas disponible
             
             # Retourner le PDF
             return send_file(
@@ -90,13 +152,18 @@ def image_to_pdf():
     
     return render_template('conversion/image_to_pdf.html',
                           title="Image vers PDF",
-                          max_files=AppConfig.MAX_IMAGES_PER_CONVERSION)
+                          max_files=AppConfig.MAX_IMAGES_PER_PDF)  # Corrigé
 
 
 @conversion_bp.route('/conversion/image-vers-word', methods=['GET', 'POST'])
 def image_to_word():
     """Conversion d'images en document Word."""
     if request.method == 'POST':
+        # Vérifier si la fonctionnalité est disponible
+        if not CONVERSION_MANAGER_AVAILABLE:
+            flash('Fonctionnalité en cours de développement', 'info')
+            return redirect(request.url)
+        
         if 'file' not in request.files:
             flash('Aucun fichier sélectionné', 'error')
             return redirect(request.url)
@@ -110,7 +177,7 @@ def image_to_word():
             return redirect(request.url)
         
         # Valider le fichier
-        if not validate_file(file, AppConfig.SUPPORTED_IMAGE_FORMATS['word']):
+        if not FileValidation.validate_file(file, AppConfig.SUPPORTED_IMAGE_FORMATS['word']):
             flash('Format de fichier non supporté', 'error')
             return redirect(request.url)
         
@@ -122,9 +189,12 @@ def image_to_word():
                 language=language
             )
             
-            # Enregistrer la statistique
-            from managers.stats_manager import stats_manager
-            stats_manager.record_conversion('image_to_word', 1)
+            # Enregistrer la statistique si disponible
+            try:
+                from managers.stats_manager import stats_manager
+                stats_manager.record_conversion('image_to_word', 1)
+            except ImportError:
+                pass  # Ignorer si stats_manager n'est pas disponible
             
             # Retourner le document Word
             return send_file(
@@ -153,6 +223,11 @@ def image_to_word():
 def image_to_excel():
     """Conversion d'images ou PDF en Excel (avec OCR pour les tableaux)."""
     if request.method == 'POST':
+        # Vérifier si la fonctionnalité est disponible
+        if not CONVERSION_MANAGER_AVAILABLE:
+            flash('Fonctionnalité en cours de développement', 'info')
+            return redirect(request.url)
+        
         if 'file' not in request.files:
             flash('Aucun fichier sélectionné', 'error')
             return redirect(request.url)
@@ -166,7 +241,7 @@ def image_to_excel():
             return redirect(request.url)
         
         # Valider le fichier
-        if not validate_file(file, AppConfig.SUPPORTED_IMAGE_FORMATS['excel']):
+        if not FileValidation.validate_file(file, AppConfig.SUPPORTED_IMAGE_FORMATS['excel']):
             flash('Format de fichier non supporté', 'error')
             return redirect(request.url)
         
@@ -178,9 +253,12 @@ def image_to_excel():
                 language=language
             )
             
-            # Enregistrer la statistique
-            from managers.stats_manager import stats_manager
-            stats_manager.record_conversion('image_to_excel', 1)
+            # Enregistrer la statistique si disponible
+            try:
+                from managers.stats_manager import stats_manager
+                stats_manager.record_conversion('image_to_excel', 1)
+            except ImportError:
+                pass  # Ignorer si stats_manager n'est pas disponible
             
             # Retourner le fichier Excel
             return send_file(
@@ -204,8 +282,9 @@ def get_supported_formats():
     return jsonify({
         'status': 'success',
         'formats': AppConfig.SUPPORTED_IMAGE_FORMATS,
-        'max_files': AppConfig.MAX_IMAGES_PER_CONVERSION,
-        'max_size_mb': AppConfig.MAX_IMAGE_SIZE // (1024 * 1024)
+        'max_files': AppConfig.MAX_IMAGES_PER_PDF,  # Corrigé
+        'max_size_mb': AppConfig.MAX_IMAGE_SIZE // (1024 * 1024),
+        'available': CONVERSION_MANAGER_AVAILABLE
     })
 
 
@@ -217,7 +296,44 @@ def api_convert():
     if not data or 'files' not in data:
         return jsonify({'status': 'error', 'message': 'Aucun fichier fourni'}), 400
     
-    # Implémenter la logique de conversion API
-    # (similaire aux routes normales mais avec réponse JSON)
-    
-    return jsonify({'status': 'success', 'message': 'Conversion API'})
+    return jsonify({
+        'status': 'info', 
+        'message': 'Fonctionnalité en cours de développement',
+        'available': CONVERSION_MANAGER_AVAILABLE
+    })
+
+
+# Routes de démonstration pour le développement
+@conversion_bp.route('/conversion/demo/pdf', methods=['GET'])
+def demo_pdf():
+    """Page de démonstration pour PDF."""
+    flash('Mode démonstration activé - La conversion réelle sera disponible bientôt', 'info')
+    return render_template('conversion/image_to_pdf.html',
+                          title="Image vers PDF (Démo)",
+                          max_files=AppConfig.MAX_IMAGES_PER_PDF,
+                          demo_mode=True)
+
+
+@conversion_bp.route('/conversion/demo/word', methods=['GET'])
+def demo_word():
+    """Page de démonstration pour Word."""
+    flash('Mode démonstration activé - La conversion réelle sera disponible bientôt', 'info')
+    return render_template('conversion/image_to_word.html',
+                          title="Image vers Word (Démo)",
+                          languages=[
+                              ('fra', 'Français'),
+                              ('eng', 'Anglais'),
+                              ('deu', 'Allemand'),
+                              ('spa', 'Espagnol'),
+                              ('ita', 'Italien')
+                          ],
+                          demo_mode=True)
+
+
+@conversion_bp.route('/conversion/demo/excel', methods=['GET'])
+def demo_excel():
+    """Page de démonstration pour Excel."""
+    flash('Mode démonstration activé - La conversion réelle sera disponible bientôt', 'info')
+    return render_template('conversion/image_to_excel.html',
+                          title="Image vers Excel (Démo)",
+                          demo_mode=True)
