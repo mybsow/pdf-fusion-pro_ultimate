@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | {{ config.NAME }}</title>
+    
+    <!-- META ROBOTS -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- URL CANONIQUE -->
+    <link rel="canonical" href="https://pdf-fusion-pro-ultimate.onrender.com{{ request.path }}" />
+    
+    <!-- DONNÉES STRUCTURÉES JSON-LD -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "{{ title }} | PDF Fusion Pro",
+        "description": "{{ subtitle }}",
+        "url": "https://pdf-fusion-pro-ultimate.onrender.com{{ request.path }}",
+        "datePublished": "2024-01-15",
+        "dateModified": "{{ datetime.now().strftime('%Y-%m-%d') }}",
+        "inLanguage": "fr",
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "PDF Fusion Pro",
+            "url": "https://pdf-fusion-pro-ultimate.onrender.com"
+        },
+        "publisher": {
+            "@type": "Person",
+            "name": "{{ config.DEVELOPER_NAME }}",
+            "email": "{{ config.DEVELOPER_EMAIL }}"
+        }
+    }
+    </script>
+    
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* [Copiez tout le CSS de votre LEGAL_TEMPLATE ici] */
+    </style>
+</head>
+<body>
+    <div class="legal-container">
+        <div class="legal-header">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <a href="/" class="text-white text-decoration-none">
+                    <i class="fas fa-file-pdf fa-lg me-2"></i>
+                    <span class="fw-bold">{{ config.NAME }}</span>
+                </a>
+                <div class="nav-links d-none d-md-block">
+                    <a href="/"><i class="fas fa-home me-1"></i> Accueil</a>
+                    <a href="/mentions-legales">Mentions</a>
+                    <a href="/politique-confidentialite">Confidentialité</a>
+                    <a href="/conditions-utilisation">Conditions</a>
+                    <a href="/contact">Contact</a>
+                </div>
+            </div>
+            <div class="legal-badge">{{ badge }}</div>
+            <h1 class="display-6 fw-bold">{{ title }}</h1>
+            <p class="opacity-90">{{ subtitle }}</p>
+        </div>
+        
+        <div class="legal-content">
+            {% block content %}{% endblock %}
+        </div>
+ 
+        <div class="legal-footer">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <p class="mb-0">
+                        <i class="fas fa-copyright me-1"></i> {{ current_year }} {{ config.NAME }} 
+                        • Développé par <strong>{{ config.DEVELOPER_NAME }}</strong> 
+                        • Version {{ config.VERSION }}
+                    </p>
+                    <p class="mb-0 text-muted small mt-1">
+                        <i class="fas fa-envelope me-1"></i> 
+                        <a href="/contact" class="text-muted text-decoration-none">
+                            Contactez-nous via notre formulaire
+                        </a>
+                        • Hébergé sur <strong>{{ config.HOSTING }}</strong> • {{ config.DOMAIN }}
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                    <a href="/" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Retour à l'accueil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>
