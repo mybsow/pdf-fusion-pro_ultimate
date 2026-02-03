@@ -117,7 +117,7 @@ def create_app():
             (api_bp, "/api", "API"),
             (legal_bp, None, "Legal"),
             (stats_bp, None, "Stats"),
-            (admin_bp, None, "Admin")
+            (admin_bp, None, "Admin"),
             (conversion_bp, None, "conversion")
         ]
         
