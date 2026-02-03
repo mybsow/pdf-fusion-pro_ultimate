@@ -117,7 +117,7 @@
                     <p class="text-muted mb-3">ou cliquez pour parcourir vos fichiers</p>
                     <p class="small text-muted">
                         Formats supportés: 
-                        {% for ext in config.SUPPORTED_IMAGE_FORMATS.pdf %}
+                        {% for ext in supported_formats.pdf %}
                         <span class="badge bg-light text-dark">{{ ext }}</span>
                         {% endfor %}
                     </p>
@@ -513,4 +513,5 @@
     </script>
     {% endblock %}
 </body>
+
 </html>
