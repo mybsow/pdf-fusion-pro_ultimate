@@ -116,6 +116,7 @@ def create_app():
             (legal_bp, None, "Legal"),
             (stats_bp, None, "Stats"),
             (admin_bp, None, "Admin")
+            (conversion_bp, None, "conversion")
         ]
         
         for bp, prefix, name in blueprints:
