@@ -98,9 +98,9 @@
         <div class="row mb-4">
             <div class="col-12">
                 <a href="{{ url_for('conversion.index') }}" class="btn btn-outline-primary mb-3">
-                    <i class="material-icons">arrow_back</i> Retour aux conversions
+                    <i class="fas fa-*">arrow_back</i> Retour aux conversions
                 </a>
-                <h1 class="display-5"><i class="material-icons">picture_as_pdf</i> Image vers PDF</h1>
+                <h1 class="display-5"><i class="fas fa-*">picture_as_pdf</i> Image vers PDF</h1>
                 <p class="lead">Convertissez vos images en un document PDF unique</p>
             </div>
         </div>
@@ -111,7 +111,7 @@
                 <!-- Zone de dépôt -->
                 <div class="upload-area" id="dropArea">
                     <div class="upload-icon">
-                        <i class="material-icons">cloud_upload</i>
+                        <i class="fas fa-*">cloud_upload</i>
                     </div>
                     <h3>Déposez vos images ici</h3>
                     <p class="text-muted mb-3">ou cliquez pour parcourir vos fichiers</p>
@@ -123,7 +123,7 @@
                     </p>
                     <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff,.tif,.webp" style="display: none;">
                     <button class="btn btn-primary btn-lg mt-2" onclick="document.getElementById('fileInput').click()">
-                        <i class="material-icons">folder_open</i> Sélectionner des images
+                        <i class="fas fa-*">folder_open</i> Sélectionner des images
                     </button>
                 </div>
 
@@ -134,36 +134,36 @@
                         <!-- Les fichiers apparaîtront ici -->
                     </div>
                     <button class="btn btn-outline-danger" onclick="clearFiles()">
-                        <i class="material-icons">delete</i> Tout effacer
+                        <i class="fas fa-*">delete</i> Tout effacer
                     </button>
                 </div>
 
                 <!-- Options de conversion -->
                 <div class="card options-card mt-4">
                     <div class="card-header bg-white">
-                        <h4 class="mb-0"><i class="material-icons">settings</i> Options de conversion</h4>
+                        <h4 class="mb-0"><i class="fas fa-*">settings</i> Options de conversion</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <!-- Orientation -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="material-icons">screen_rotation</i> Orientation</label>
+                                <label class="form-label"><i class="fas fa-*">screen_rotation</i> Orientation</label>
                                 <div class="btn-group w-100" role="group">
                                     <input type="radio" class="btn-check" name="orientation" id="portrait" value="portrait" checked>
                                     <label class="btn btn-outline-primary" for="portrait">
-                                        <i class="material-icons">stay_current_portrait</i> Portrait
+                                        <i class="fas fa-*">stay_current_portrait</i> Portrait
                                     </label>
                                     
                                     <input type="radio" class="btn-check" name="orientation" id="landscape" value="landscape">
                                     <label class="btn btn-outline-primary" for="landscape">
-                                        <i class="material-icons">stay_current_landscape</i> Paysage
+                                        <i class="fas fa-*">stay_current_landscape</i> Paysage
                                     </label>
                                 </div>
                             </div>
 
                             <!-- Qualité -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="material-icons">quality_high</i> Qualité</label>
+                                <label class="form-label"><i class="fas fa-*">quality_high</i> Qualité</label>
                                 <select class="form-select" id="quality">
                                     <option value="high">Haute qualité (300 DPI)</option>
                                     <option value="medium" selected>Moyenne qualité (200 DPI)</option>
@@ -173,7 +173,7 @@
 
                             <!-- Marge -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="material-icons">border_all</i> Marge (px)</label>
+                                <label class="form-label"><i class="fas fa-*">border_all</i> Marge (px)</label>
                                 <input type="range" class="form-range" id="margin" min="0" max="50" value="10">
                                 <div class="d-flex justify-content-between">
                                     <small>0 px</small>
@@ -184,7 +184,7 @@
 
                             <!-- Ordre des pages -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="material-icons">sort</i> Ordre des pages</label>
+                                <label class="form-label"><i class="fas fa-*">sort</i> Ordre des pages</label>
                                 <select class="form-select" id="order">
                                     <option value="original" selected>Ordre d'upload</option>
                                     <option value="alphabetical">Alphabétique</option>
@@ -210,13 +210,13 @@
                 <!-- Bouton de conversion -->
                 <div class="d-grid gap-2 mt-4">
                     <button class="btn btn-primary btn-lg py-3" id="convertBtn" onclick="convertToPDF()" disabled>
-                        <i class="material-icons">picture_as_pdf</i> Convertir en PDF
+                        <i class="fas fa-*">picture_as_pdf</i> Convertir en PDF
                     </button>
                 </div>
 
                 <!-- Informations -->
                 <div class="alert alert-info mt-4">
-                    <i class="material-icons">info</i>
+                    <i class="fas fa-*">info</i>
                     <strong>Information :</strong> 
                     Taille max par image : {{ config.MAX_IMAGE_SIZE // (1024*1024) }} MB
                     | Max {{ config.MAX_IMAGES_PER_PDF }} images
@@ -228,7 +228,7 @@
             <div class="col-lg-4">
                 <div class="card sticky-top" style="top: 20px;">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="material-icons">help</i> Comment ça marche ?</h5>
+                        <h5 class="mb-0"><i class="fas fa-*">help</i> Comment ça marche ?</h5>
                     </div>
                     <div class="card-body">
                         <ol class="list-group list-group-flush list-group-numbered">
@@ -240,20 +240,20 @@
                         
                         <hr>
                         
-                        <h6><i class="material-icons">star</i> Conseils</h6>
+                        <h6><i class="fas fa-*">star</i> Conseils</h6>
                         <ul class="list-unstyled">
-                            <li class="mb-2"><i class="material-icons text-success" style="font-size: 1rem;">check_circle</i> Utilisez la même orientation pour toutes les images</li>
-                            <li class="mb-2"><i class="material-icons text-success" style="font-size: 1rem;">check_circle</i> Privilégiez les images haute résolution pour la qualité "Haute"</li>
-                            <li class="mb-2"><i class="material-icons text-success" style="font-size: 1rem;">check_circle</i> Réduisez la marge pour gagner de la place</li>
+                            <li class="mb-2"><i class="fas fa-* text-success" style="font-size: 1rem;">check_circle</i> Utilisez la même orientation pour toutes les images</li>
+                            <li class="mb-2"><i class="fas fa-* text-success" style="font-size: 1rem;">check_circle</i> Privilégiez les images haute résolution pour la qualité "Haute"</li>
+                            <li class="mb-2"><i class="fas fa-* text-success" style="font-size: 1rem;">check_circle</i> Réduisez la marge pour gagner de la place</li>
                         </ul>
                         
                         <hr>
                         
-                        <h6><i class="material-icons">warning</i> Limitations</h6>
+                        <h6><i class="fas fa-*">warning</i> Limitations</h6>
                         <ul class="list-unstyled">
-                            <li class="mb-1"><i class="material-icons text-warning" style="font-size: 1rem;">info</i> Max {{ config.MAX_IMAGES_PER_PDF }} images</li>
-                            <li class="mb-1"><i class="material-icons text-warning" style="font-size: 1rem;">info</i> {{ config.MAX_IMAGE_SIZE // (1024*1024) }} MB par fichier</li>
-                            <li><i class="material-icons text-warning" style="font-size: 1rem;">info</i> Formats listés seulement</li>
+                            <li class="mb-1"><i class="fas fa-* text-warning" style="font-size: 1rem;">info</i> Max {{ config.MAX_IMAGES_PER_PDF }} images</li>
+                            <li class="mb-1"><i class="fas fa-* text-warning" style="font-size: 1rem;">info</i> {{ config.MAX_IMAGE_SIZE // (1024*1024) }} MB par fichier</li>
+                            <li><i class="fas fa-* text-warning" style="font-size: 1rem;">info</i> Formats listés seulement</li>
                         </ul>
                     </div>
                 </div>
@@ -382,7 +382,7 @@
                         </div>
                     </div>
                     <button class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">
-                        <i class="material-icons">delete</i>
+                        <i class="fas fa-*">delete</i>
                     </button>
                 `;
                 
@@ -515,3 +515,4 @@
 </body>
 
 </html>
+
