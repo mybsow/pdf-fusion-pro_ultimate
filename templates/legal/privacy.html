@@ -1,0 +1,51 @@
+{% extends "base_legal.html" %}
+
+{% block content %}
+<h2>Respect de votre vie privée</h2>
+<p>Votre confidentialité est notre priorité. Cette politique explique comment nous collectons, utilisons et protégeons vos informations.</p>
+
+<div class="info-box">
+    <i class="fas fa-shield-alt me-2"></i>
+    <strong>Engagement de confidentialité :</strong> Nous ne stockons jamais le contenu de vos fichiers PDF.
+    Tous les traitements sont effectués en mémoire vive et les fichiers sont supprimés immédiatement après traitement.
+</div>
+
+<h2>Données collectées</h2>
+<h3>Données techniques</h3>
+<p>Nous collectons des données techniques anonymes pour améliorer le service :</p>
+<ul>
+    <li>Type d'opération effectuée (fusion, division, rotation, compression)</li>
+    <li>Nombre de pages traitées</li>
+    <li>Heure et date des opérations (anonymisées)</li>
+    <li>Informations sur le navigateur et l'appareil (type, version)</li>
+</ul>
+
+<h3>Cookies</h3>
+<p>Nous utilisons uniquement des cookies techniques essentiels :</p>
+<ul>
+    <li><strong>Session cookie :</strong> Pour maintenir votre session de travail</li>
+    <li><strong>Préférences :</strong> Pour mémoriser vos paramètres d'interface</li>
+</ul>
+
+<h2>Publicité — Google AdSense</h2>
+<p>Ce site utilise <strong>Google AdSense</strong> (ID: {{ config.ADSENSE_CLIENT_ID }}) pour afficher des publicités pertinentes.</p>
+<p>Google utilise des cookies pour personnaliser les annonces en fonction de votre navigation sur ce site et d'autres sites web.</p>
+<p>Vous pouvez désactiver la personnalisation des annonces via les <a href="https://adssettings.google.com" target="_blank">paramètres des annonces Google</a>.</p>
+
+<h2>Vos droits (RGPD)</h2>
+<p>Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez des droits suivants :</p>
+<ul>
+    <li>Droit d'accès à vos données</li>
+    <li>Droit de rectification</li>
+    <li>Droit à l'effacement</li>
+    <li>Droit à la limitation du traitement</li>
+    <li>Droit à la portabilité des données</li>
+</ul>
+
+<p>Pour exercer ces droits, utilisez notre <a href="/contact" class="btn btn-outline-primary btn-sm">
+    <i class="fas fa-envelope me-1"></i> Formulaire de contact
+</a> en précisant "Exercice de droits RGPD" dans le sujet.</p>
+
+<h2>Sécurité des données</h2>
+<p>Nous mettons en œuvre des mesures de sécurité techniques et organisationnelles appropriées pour protéger vos données contre tout accès non autorisé, altération ou destruction.</p>
+{% endblock %}
