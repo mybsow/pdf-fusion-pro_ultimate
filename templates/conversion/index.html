@@ -97,7 +97,7 @@
                         <h3 class="card-title h4">Image vers PDF</h3>
                         <p class="card-text">Convertissez une ou plusieurs images en un seul document PDF</p>
                         <ul class="text-start mb-3" style="font-size: 0.9rem;">
-                            <li>Jusqu'à {{ config.MAX_IMAGES_PER_PDF }} images par PDF</li>
+                            <li>Jusqu'à {{ max_files }} images par PDF</li>
                             <li>Support JPG, PNG, GIF, BMP, TIFF</li>
                             <li>Ajustement qualité et orientation</li>
                         </ul>
@@ -207,8 +207,8 @@
             
             <div class="alert alert-info mt-3">
                 <i class="material-icons">info</i>
-                <strong>Limites :</strong> Taille max : {{ config.MAX_IMAGE_SIZE // (1024*1024) }} MB par fichier
-                | Jusqu'à {{ config.MAX_IMAGES_PER_PDF }} images par conversion
+                <strong>Limites :</strong> Taille max : {{ max_size_mb }} MB par fichier
+                | Jusqu'à {{ max_files }} images par conversion
             </div>
         </div>
 
@@ -237,8 +237,8 @@
                     </h2>
                     <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                         <div class="accordion-body">
-                            Vous pouvez convertir jusqu'à {{ config.MAX_IMAGES_PER_PDF }} images en une seule fois pour les PDF, 
-                            et jusqu'à {{ config.MAX_FILES_PER_CONVERSION }} fichiers pour les autres conversions.
+                            Vous pouvez convertir jusqu'à {{ max_files }} images en une seule fois pour les PDF, 
+                            et jusqu'à {{ config.MAX_FILES_PER_CONVERSION if config.MAX_FILES_PER_CONVERSION else 10 }} fichiers pour les autres conversions.
                         </div>
                     </div>
                 </div>
@@ -279,5 +279,4 @@
     </script>
     {% endblock %}
 </body>
-
 </html>
