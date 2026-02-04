@@ -4,7 +4,7 @@ PDF Fusion Pro Ultimate - Application principale
 Version production ultra-stable (Render / Gunicorn ready)
 """
 
-from flask import Flask, redirect, Response, request, render_template
+from flask import Flask, redirect, Response, request, render_template, send_from_directory
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
 import os
@@ -240,6 +240,10 @@ def create_app():
             "version": AppConfig.VERSION
         }, 200
 
+    # ========================================================
+    # DEBUG ROUTES
+    # ========================================================
+
     @app.route('/debug/static-files')
     def debug_static_files():
         """Vérifier les fichiers statiques"""
@@ -269,25 +273,31 @@ def create_app():
         
         return html
 
-    from flask import send_from_directory
+    # ========================================================
+    # STATIC FILES FIX
+    # ========================================================
 
-@app.route('/static/<path:filename>')
-def serve_static(filename):
-    """Servir les fichiers statiques avec les bons headers"""
-    response = send_from_directory('static', filename)
-    
-    # Ajouter les bons headers MIME
-    if filename.endswith('.css'):
-        response.headers['Content-Type'] = 'text/css'
-    elif filename.endswith('.js'):
-        response.headers['Content-Type'] = 'application/javascript'
-    elif filename.endswith('.html'):
-        response.headers['Content-Type'] = 'text/html'
-    
-    # Cache pour les fichiers statiques
-    response.headers['Cache-Control'] = 'public, max-age=31536000'
-    
-    return response
+    @app.route('/static/<path:filename>')
+    def serve_static(filename):
+        """Servir les fichiers statiques avec les bons headers"""
+        try:
+            response = send_from_directory('static', filename)
+            
+            # Ajouter les bons headers MIME
+            if filename.endswith('.css'):
+                response.headers['Content-Type'] = 'text/css'
+            elif filename.endswith('.js'):
+                response.headers['Content-Type'] = 'application/javascript'
+            elif filename.endswith('.html'):
+                response.headers['Content-Type'] = 'text/html'
+            
+            # Cache pour les fichiers statiques
+            response.headers['Cache-Control'] = 'public, max-age=31536000'
+            
+            return response
+        except Exception as e:
+            logger.warning(f"Fichier statique non trouvé: {filename}")
+            return "Fichier non trouvé", 404
 
     # ========================================================
     # ERREURS (templates recommandés)
