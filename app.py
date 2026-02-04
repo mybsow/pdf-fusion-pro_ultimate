@@ -75,6 +75,7 @@ def create_app():
         )
         
         app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
+        app.config.from_object(AppConfig)
         
         # Configuration pour Render
         app.config['PREFERRED_URL_SCHEME'] = 'https'
