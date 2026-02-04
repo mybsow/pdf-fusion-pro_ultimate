@@ -13,14 +13,13 @@ from pathlib import Path
 
 from config import AppConfig
 
-# Blueprints
+# Blueprints - IMPORT UNIQUE de legal_bp
 from blueprints.pdf import pdf_bp
 from blueprints.api import api_bp
-from blueprints.legal import legal_bp
 from blueprints.stats import stats_bp
 from blueprints.admin import admin_bp
 from blueprints.conversion import conversion_bp
-
+from blueprints.legal import legal_bp  # UN SEUL IMPORT
 
 # ============================================================
 # LOGGING PRODUCTION
@@ -148,10 +147,10 @@ def create_app():
     blueprints = [
         (pdf_bp, None),
         (api_bp, "/api"),
-        (legal_bp, None),
+        (legal_bp, None),          # PAS de préfixe pour les pages légales
         (stats_bp, None),
-        (admin_bp, None),
-        (conversion_bp, None)
+        (admin_bp, "/admin"),      # Préfixe pour admin
+        (conversion_bp, "/conversion")  # Préfixe pour conversion
     ]
 
     for bp, prefix in blueprints:
@@ -200,14 +199,23 @@ def create_app():
         base_url = f"https://{domain}"
         today = datetime.now().strftime('%Y-%m-%d')
 
+        # Mettez à jour ces URLs pour correspondre à vos vraies routes
         pages = [
-            "/", "/fusion-pdf", "/division-pdf",
-            "/rotation-pdf", "/compression-pdf",
-            "/conversion",
-            "/conversion/image-vers-pdf",
-            "/conversion/image-vers-word",
-            "/conversion/image-vers-excel",
-            "/contact", "/a-propos"
+            "/",                    # Accueil
+            "/pdf",                 # Accueil PDF
+            "/pdf/merge",           # Fusion PDF
+            "/pdf/split",           # Division PDF
+            "/pdf/rotate",          # Rotation PDF
+            "/pdf/compress",        # Compression PDF
+            "/conversion",          # Accueil conversion
+            "/conversion/image-vers-pdf",  # Image vers PDF
+            "/conversion/image-vers-word", # Image vers Word
+            "/conversion/image-vers-excel", # Image vers Excel
+            "/contact",             # Contact
+            "/about",               # À propos
+            "/privacy",             # Confidentialité
+            "/terms",               # Conditions
+            "/legal"                # Mentions légales
         ]
 
         xml = ['<?xml version="1.0" encoding="UTF-8"?>']
