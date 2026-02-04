@@ -13,14 +13,13 @@ from pathlib import Path
 
 from config import AppConfig
 
-# Blueprints - IMPORT CORRECT
+# Blueprints - IMPORT DEPUIS BLUEPRINTS
 from blueprints.pdf import pdf_bp
 from blueprints.api import api_bp
 from blueprints.stats import stats_bp
 from blueprints.admin import admin_bp
 from blueprints.conversion import conversion_bp
-# IMPORT UNIQUE - Vérifiez où est défini legal_bp
-from legal.routes import legal_bp  # SI legal_bp est défini dans legal/routes.py
+from blueprints.legal.routes import legal_bp  # IMPORT CORRECT !
 
 # ============================================================
 # LOGGING PRODUCTION
@@ -81,9 +80,6 @@ def create_app():
     app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
     app.config['PREFERRED_URL_SCHEME'] = 'https'
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000
-
-    # ⚠️ NE PAS définir SERVER_NAME sur Render
-    # cela casse souvent les URLs dynamiques
 
     # Proxy reverse
     app.wsgi_app = ProxyFix(
@@ -200,23 +196,15 @@ def create_app():
         base_url = f"https://{domain}"
         today = datetime.now().strftime('%Y-%m-%d')
 
-        # Mettez à jour ces URLs pour correspondre à vos vraies routes
         pages = [
             "/",                    # Accueil
             "/pdf",                 # Accueil PDF
-            "/pdf/merge",           # Fusion PDF
-            "/pdf/split",           # Division PDF
-            "/pdf/rotate",          # Rotation PDF
-            "/pdf/compress",        # Compression PDF
-            "/conversion",          # Accueil conversion
-            "/conversion/image-vers-pdf",  # Image vers PDF
-            "/conversion/image-vers-word", # Image vers Word
-            "/conversion/image-vers-excel", # Image vers Excel
             "/contact",             # Contact
             "/about",               # À propos
             "/privacy",             # Confidentialité
             "/terms",               # Conditions
-            "/legal"                # Mentions légales
+            "/legal",               # Mentions légales
+            "/conversion",          # Accueil conversion
         ]
 
         xml = ['<?xml version="1.0" encoding="UTF-8"?>']
