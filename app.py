@@ -269,6 +269,26 @@ def create_app():
         
         return html
 
+    from flask import send_from_directory
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    """Servir les fichiers statiques avec les bons headers"""
+    response = send_from_directory('static', filename)
+    
+    # Ajouter les bons headers MIME
+    if filename.endswith('.css'):
+        response.headers['Content-Type'] = 'text/css'
+    elif filename.endswith('.js'):
+        response.headers['Content-Type'] = 'application/javascript'
+    elif filename.endswith('.html'):
+        response.headers['Content-Type'] = 'text/html'
+    
+    # Cache pour les fichiers statiques
+    response.headers['Cache-Control'] = 'public, max-age=31536000'
+    
+    return response
+
     # ========================================================
     # ERREURS (templates recommandés)
     # ========================================================
