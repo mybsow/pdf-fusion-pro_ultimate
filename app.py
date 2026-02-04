@@ -80,6 +80,7 @@ def create_app():
 
     app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
     app.config['PREFERRED_URL_SCHEME'] = 'https'
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000
 
     # ⚠️ NE PAS définir SERVER_NAME sur Render
     # cela casse souvent les URLs dynamiques
