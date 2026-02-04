@@ -240,6 +240,35 @@ def create_app():
             "version": AppConfig.VERSION
         }, 200
 
+    @app.route('/debug/static-files')
+    def debug_static_files():
+        """Vérifier les fichiers statiques"""
+        import os
+        from pathlib import Path
+        
+        base_dir = Path(__file__).parent
+        static_dir = base_dir / 'static'
+        
+        files = []
+        
+        def scan_dir(path, prefix=""):
+            for item in path.iterdir():
+                if item.is_file():
+                    files.append(f"{prefix}/{item.name}" if prefix else item.name)
+                elif item.is_dir():
+                    scan_dir(item, f"{prefix}/{item.name}" if prefix else item.name)
+        
+        if static_dir.exists():
+            scan_dir(static_dir)
+        
+        html = "<h1>Fichiers statiques disponibles</h1>"
+        html += "<ul>"
+        for file in sorted(files):
+            html += f'<li><a href="/static/{file}">{file}</a></li>'
+        html += "</ul>"
+        
+        return html
+
     # ========================================================
     # ERREURS (templates recommandés)
     # ========================================================
