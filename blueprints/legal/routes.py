@@ -2,7 +2,7 @@
 Routes pour les pages légales
 """
 
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for, flash
 from datetime import datetime
 import os
 import requests
@@ -116,8 +116,8 @@ def contact():
     )
 
 
-@legal_bp.route('/mentions-legales')
-def legal_notices():
+@legal_bp.route('/legal')
+def legal():
     return render_template(
         "legal/legal.html",
         title="Mentions Légales",
@@ -129,8 +129,8 @@ def legal_notices():
     )
 
 
-@legal_bp.route('/politique-confidentialite')
-def privacy_policy():
+@legal_bp.route('/privacy')
+def privacy():
     return render_template(
         "legal/privacy.html",
         title="Politique de Confidentialité",
@@ -142,8 +142,8 @@ def privacy_policy():
     )
 
 
-@legal_bp.route('/conditions-utilisation')
-def terms_of_service():
+@legal_bp.route('/terms')
+def terms():
     return render_template(
         "legal/terms.html",
         title="Conditions d'Utilisation",
@@ -155,7 +155,7 @@ def terms_of_service():
     )
 
 
-@legal_bp.route('/a-propos')
+@legal_bp.route('/about')
 def about():
     return render_template(
         "legal/about.html",
@@ -166,3 +166,28 @@ def about():
         config=AppConfig,
         datetime=datetime
     )
+
+
+# ============================================================
+# ROUTES DE REDIRECTION (pour garder la compatibilité)
+# ============================================================
+
+@legal_bp.route('/mentions-legales')
+def redirect_legal():
+    """Redirige l'ancienne URL vers la nouvelle."""
+    return redirect(url_for('legal.legal'), code=301)
+
+@legal_bp.route('/politique-confidentialite')
+def redirect_privacy():
+    """Redirige l'ancienne URL vers la nouvelle."""
+    return redirect(url_for('legal.privacy'), code=301)
+
+@legal_bp.route('/conditions-utilisation')
+def redirect_terms():
+    """Redirige l'ancienne URL vers la nouvelle."""
+    return redirect(url_for('legal.terms'), code=301)
+
+@legal_bp.route('/a-propos')
+def redirect_about():
+    """Redirige l'ancienne URL vers la nouvelle."""
+    return redirect(url_for('legal.about'), code=301)
