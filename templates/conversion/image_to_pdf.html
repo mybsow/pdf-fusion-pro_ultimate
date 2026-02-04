@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block head %}
+{{ super() }}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
@@ -50,8 +51,6 @@
 </style>
 {% endblock %}
 
-
-
 {% block content %}
 <div class="container py-4">
 
@@ -66,7 +65,6 @@
 <p class="text-muted mb-4">
 Convertissez plusieurs images en un seul document PDF.
 </p>
-
 
 <!-- Upload -->
 <div class="upload-area mb-4" id="dropArea">
@@ -86,12 +84,11 @@ Convertissez plusieurs images en un seul document PDF.
            accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff,.tif,.webp">
 
     <button class="btn btn-primary mt-2"
-            onclick="fileInput.click()">
+            onclick="document.getElementById('fileInput').click()">
         <i class="fas fa-folder-open me-1"></i>
         Sélectionner
     </button>
 </div>
-
 
 <!-- Files -->
 <div id="fileListContainer" class="mb-4 d-none">
@@ -106,7 +103,6 @@ Convertissez plusieurs images en un seul document PDF.
         <i class="fas fa-trash"></i> Tout effacer
     </button>
 </div>
-
 
 <!-- Options -->
 <div class="card mb-4">
@@ -126,7 +122,6 @@ Convertissez plusieurs images en un seul document PDF.
 </div>
 </div>
 
-
 <div class="col-md-6 mb-3">
 <label class="form-label">Qualité</label>
 
@@ -136,7 +131,6 @@ Convertissez plusieurs images en un seul document PDF.
 <option value="low">Basse (150 DPI)</option>
 </select>
 </div>
-
 
 <div class="col-md-6">
 <label class="form-label">Marge</label>
@@ -149,8 +143,6 @@ Convertissez plusieurs images en un seul document PDF.
 </div>
 </div>
 </div>
-
-
 
 <!-- Progress -->
 <div id="convertingMessage" class="text-center d-none mb-4">
@@ -166,15 +158,12 @@ Convertissez plusieurs images en un seul document PDF.
 </div>
 </div>
 
-
-
 <button id="convertBtn"
         class="btn btn-primary btn-lg w-100"
         disabled>
 <i class="fas fa-file-pdf me-2"></i>
 Convertir en PDF
 </button>
-
 
 <div class="alert alert-info mt-4">
 Max {{ max_files }} images |
@@ -184,12 +173,7 @@ Max {{ max_files }} images |
 </div>
 {% endblock %}
 
-
-
-
-{% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
 
@@ -206,182 +190,160 @@ const fileListContainer=document.getElementById('fileListContainer');
 const fileCount=document.getElementById('fileCount');
 const convertBtn=document.getElementById('convertBtn');
 
-
 // margin display
 document.getElementById('margin').addEventListener('input',e=>{
-document.getElementById('marginValue').textContent=e.target.value+' px';
+    document.getElementById('marginValue').textContent=e.target.value+' px';
 });
-
 
 // drag & drop
 ['dragenter','dragover','drop'].forEach(evt=>{
-dropArea.addEventListener(evt,e=>{
-e.preventDefault();
-});
+    dropArea.addEventListener(evt,e=>{
+        e.preventDefault();
+    });
 });
 
 dropArea.addEventListener('drop',e=>{
-handleFiles(e.dataTransfer.files);
+    handleFiles(e.dataTransfer.files);
 });
 
 fileInput.addEventListener('change',e=>{
-handleFiles(e.target.files);
+    handleFiles(e.target.files);
 });
-
-
 
 function handleFiles(files){
+    files=[...files];
 
-files=[...files];
+    if(selectedFiles.length+files.length>maxFiles){
+        alert(`Maximum ${maxFiles} images.`);
+        return;
+    }
 
-if(selectedFiles.length+files.length>maxFiles){
-alert(`Maximum ${maxFiles} images.`);
-return;
+    files.forEach(file=>{
+        if(file.size>maxSize){
+            alert(`${file.name} dépasse la taille autorisée.`);
+            return;
+        }
+
+        const ext='.'+file.name.split('.').pop().toLowerCase();
+
+        if(!allowedExts.includes(ext)){
+            alert(`Format non supporté: ${ext}`);
+            return;
+        }
+
+        selectedFiles.push(file);
+    });
+
+    renderFiles();
 }
-
-files.forEach(file=>{
-
-if(file.size>maxSize){
-alert(`${file.name} dépasse la taille autorisée.`);
-return;
-}
-
-const ext='.'+file.name.split('.').pop().toLowerCase();
-
-if(!allowedExts.includes(ext)){
-alert(`Format non supporté: ${ext}`);
-return;
-}
-
-selectedFiles.push(file);
-
-});
-
-renderFiles();
-}
-
-
 
 function renderFiles(){
+    if(!selectedFiles.length){
+        fileListContainer.classList.add('d-none');
+        convertBtn.disabled=true;
+        return;
+    }
 
-if(!selectedFiles.length){
-fileListContainer.classList.add('d-none');
-convertBtn.disabled=true;
-return;
+    fileListContainer.classList.remove('d-none');
+    fileList.innerHTML='';
+    fileCount.textContent=selectedFiles.length;
+    convertBtn.disabled=false;
+
+    selectedFiles.forEach((file,index)=>{
+        const div=document.createElement('div');
+        div.className='file-item';
+
+        div.innerHTML=`
+        <div class="d-flex align-items-center gap-2">
+            <img class="preview-thumbnail" id="img${index}">
+            <div>
+                <strong>${file.name}</strong><br>
+                <small>${(file.size/1024/1024).toFixed(2)} MB</small>
+            </div>
+        </div>
+
+        <button class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-trash"></i>
+        </button>
+        `;
+
+        div.querySelector('button').onclick=()=>{
+            selectedFiles.splice(index,1);
+            renderFiles();
+        };
+
+        fileList.appendChild(div);
+
+        // preview
+        const reader=new FileReader();
+        reader.onload=e=>{
+            document.getElementById(`img${index}`).src=e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
 }
-
-fileListContainer.classList.remove('d-none');
-fileList.innerHTML='';
-fileCount.textContent=selectedFiles.length;
-convertBtn.disabled=false;
-
-selectedFiles.forEach((file,index)=>{
-
-const div=document.createElement('div');
-div.className='file-item';
-
-div.innerHTML=`
-<div class="d-flex align-items-center gap-2">
-<img class="preview-thumbnail" id="img${index}">
-<div>
-<strong>${file.name}</strong><br>
-<small>${(file.size/1024/1024).toFixed(2)} MB</small>
-</div>
-</div>
-
-<button class="btn btn-sm btn-outline-danger">
-<i class="fas fa-trash"></i>
-</button>
-`;
-
-div.querySelector('button').onclick=()=>{
-selectedFiles.splice(index,1);
-renderFiles();
-};
-
-fileList.appendChild(div);
-
-// preview
-const reader=new FileReader();
-reader.onload=e=>{
-document.getElementById(`img${index}`).src=e.target.result;
-};
-reader.readAsDataURL(file);
-
-});
-
-}
-
-
 
 document.getElementById('clearBtn').onclick=()=>{
-selectedFiles=[];
-fileInput.value='';
-renderFiles();
+    selectedFiles=[];
+    fileInput.value='';
+    renderFiles();
 };
-
-
 
 // conversion
 convertBtn.onclick=async()=>{
+    document.getElementById('convertingMessage').classList.remove('d-none');
+    convertBtn.disabled=true;
 
-document.getElementById('convertingMessage').classList.remove('d-none');
-convertBtn.disabled=true;
+    let progress=0;
+    const bar=document.getElementById('conversionProgress');
 
-let progress=0;
-const bar=document.getElementById('conversionProgress');
+    const timer=setInterval(()=>{
+        progress+=12;
+        bar.style.width=progress+'%';
+        if(progress>=96) clearInterval(timer);
+    },200);
 
-const timer=setInterval(()=>{
-progress+=12;
-bar.style.width=progress+'%';
+    // form
+    const formData=new FormData();
 
-if(progress>=96) clearInterval(timer);
-},200);
+    selectedFiles.forEach(f=>{
+        formData.append('files',f);
+    });
 
+    formData.append(
+        'orientation',
+        document.querySelector('input[name="orientation"]:checked').value
+    );
 
-// form
-const formData=new FormData();
+    formData.append('quality',document.getElementById('quality').value);
+    formData.append('margin',document.getElementById('margin').value);
 
-selectedFiles.forEach(f=>{
-formData.append('files',f);
-});
+    // request
+    const res=await fetch("{{ url_for('conversion.image_to_pdf') }}",{
+        method:'POST',
+        body:formData
+    });
 
-formData.append(
-'orientation',
-document.querySelector('input[name="orientation"]:checked').value
-);
+    const blob=await res.blob();
 
-formData.append('quality',document.getElementById('quality').value);
-formData.append('margin',document.getElementById('margin').value);
+    bar.style.width='100%';
 
+    const url=window.URL.createObjectURL(blob);
+    const a=document.createElement('a');
 
-// request
-const res=await fetch("{{ url_for('conversion.image_to_pdf') }}",{
-method:'POST',
-body:formData
-});
+    a.href=url;
+    a.download='converted_'+Date.now()+'.pdf';
+    a.click();
 
-const blob=await res.blob();
+    window.URL.revokeObjectURL(url);
 
-bar.style.width='100%';
+    // reset
+    selectedFiles=[];
+    fileInput.value='';
+    renderFiles();
 
-const url=window.URL.createObjectURL(blob);
-const a=document.createElement('a');
-
-a.href=url;
-a.download='converted_'+Date.now()+'.pdf';
-a.click();
-
-window.URL.revokeObjectURL(url);
-
-// reset
-selectedFiles=[];
-fileInput.value='';
-renderFiles();
-
-document.getElementById('convertingMessage').classList.add('d-none');
-convertBtn.disabled=false;
-
+    document.getElementById('convertingMessage').classList.add('d-none');
+    convertBtn.disabled=false;
 };
 
 });
