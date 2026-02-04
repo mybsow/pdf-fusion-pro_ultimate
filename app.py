@@ -13,13 +13,14 @@ from pathlib import Path
 
 from config import AppConfig
 
-# Blueprints - IMPORT UNIQUE de legal_bp
+# Blueprints - IMPORT CORRECT
 from blueprints.pdf import pdf_bp
 from blueprints.api import api_bp
 from blueprints.stats import stats_bp
 from blueprints.admin import admin_bp
 from blueprints.conversion import conversion_bp
-from blueprints.legal import legal_bp  # UN SEUL IMPORT
+# IMPORT UNIQUE - Vérifiez où est défini legal_bp
+from legal.routes import legal_bp  # SI legal_bp est défini dans legal/routes.py
 
 # ============================================================
 # LOGGING PRODUCTION
