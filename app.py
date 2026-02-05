@@ -299,6 +299,8 @@ def create_app():
             logger.warning(f"Fichier statique non trouvé: {filename}")
             return "Fichier non trouvé", 404
 
+    
+
     # ========================================================
     # ERREURS (templates recommandés)
     # ========================================================
