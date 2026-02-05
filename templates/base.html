@@ -34,8 +34,54 @@
           rel="stylesheet">
     
     <!-- CSS principal -->
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/main.css') }}">
+    <style>
+    /* CSS inline d'urgence */
+    body { 
+        font-family: 'Inter', sans-serif; 
+        padding-top: 70px; 
+        background-color: #f8f9fa;
+        margin: 0;
+    }
+    
+    .navbar-main {
+        background-color: #4361ee !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .navbar-brand {
+        font-weight: 600;
+    }
+    
+    .nav-link {
+        font-weight: 500;
+    }
+    
+    .nav-link.active {
+        font-weight: 600;
+        border-bottom: 2px solid white;
+    }
+    
+    .loader-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .container {
+        min-height: 60vh;
+    }
+    
+    footer {
+        margin-top: auto;
+    }
+    </style>
 
     {% block extra_css %}{% endblock %}
 </head>
