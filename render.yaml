@@ -1,25 +1,41 @@
 services:
   - type: web
-    name: pdf-fusion-pro
-    runtime: python
-    repo: https://github.com/mybsow/pdf-fusion-pro
+    name: pdf-fusion-pro-ultimate
+    repo: https://github.com/mybsow/pdf-fusion-pro_ultimate
     region: frankfurt
     plan: free
     branch: main
-    buildCommand: |
-      pip install --upgrade pip
-      pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    autoDeploy: true
+    
+    # DÉSACTIVEZ Docker et forcez la build standard
+    dockerContext: .
+    dockerfilePath: Dockerfile  # Gardez-le mais avec le bon contenu
+    
     envVars:
       - key: FLASK_ENV
         value: production
       - key: SECRET_KEY
         generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 1
+      - key: PORT
+        value: 10000
       - key: PYTHON_VERSION
-        value: 3.9.16
+        value: 3.11.7
+      - key: TESSDATA_PREFIX
+        value: /usr/share/tesseract-ocr/4.00/tessdata
+    
+    # Commande de build personnalisée
+    buildCommand: |
+      chmod +x setup.sh
+      ./setup.sh
+    
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --worker-class gthread app:app
+    
     healthCheckPath: /health
+    healthCheckTimeout: 30
+    
     disk:
       name: tmp
       mountPath: /tmp
       sizeGB: 1
-    autoDeploy: true
