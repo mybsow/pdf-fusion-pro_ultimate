@@ -8,12 +8,11 @@ PyMuPDF==1.26.7
 pytesseract==0.3.13
 pdf2image==1.17.0
 opencv-python-headless==4.13.0.92
-Pillow==12.1.0
+Pillow==10.1.0  # Version compatible Python 3.13
 
 # Data / extraction
-pandas==2.2.2  # Version compatible avec Python 3.11
+pandas==2.1.4  # CHANGÉ : Version compatible Python 3.13
 openpyxl==3.1.5
-camelot-py==1.0.9
 
 # Documents
 reportlab==4.0.4
@@ -29,12 +28,4 @@ Flask-WTF==1.2.1
 WTForms==3.1.2
 
 # Utilitaires
-numpy==1.26.4  # Version compatible avec Python 3.11
-setuptools==70.0.0  # ESSENTIEL pour la compilation
-
-# OCR dependencies (API alternative si Tesseract échoue)
-pdfplumber==0.11.1
-pdfminer.six==20221105
-
-# Utilitaires système
-python-magic==0.4.27
+numpy==1.26.4
