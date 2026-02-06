@@ -6,301 +6,1018 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
-.upload-area {
-    border: 3px dashed #FF9800;
-    border-radius: 15px;
-    padding: 3rem 1rem;
+:root {
+    --primary: #4361ee;
+    --primary-light: #eef2ff;
+    --secondary: #3a0ca3;
+    --success: #4cc9f0;
+    --warning: #f72585;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --border-radius: 12px;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 15px 40px rgba(67, 97, 238, 0.15);
+}
+
+/* Zone de dépôt SaaS Pro */
+.upload-hero {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    border-radius: var(--border-radius);
+    padding: 4rem 2rem;
+    margin-bottom: 3rem;
+    color: white;
     text-align: center;
-    background: #f8f9fa;
-    transition: 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: float 20s linear infinite;
+    opacity: 0.3;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(-50px, -50px) rotate(360deg); }
+}
+
+.upload-hero h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.upload-hero p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+}
+
+.upload-container {
+    max-width: 900px;
+    margin: -3rem auto 3rem;
+    position: relative;
+    z-index: 10;
+}
+
+.upload-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 2.5rem;
+    box-shadow: var(--shadow);
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.upload-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.upload-zone {
+    border: 3px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 4rem 2rem;
+    text-align: center;
+    background: var(--primary-light);
+    transition: all 0.3s ease;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
 
-.upload-area:hover,
-.upload-area.dragover {
-    background: #fff3e0;
+.upload-zone::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--success));
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
-.preview-container {
-    border: 2px solid #e0e0e0;
+.upload-zone:hover,
+.upload-zone.dragover {
+    border-color: var(--primary);
+    background: rgba(67, 97, 238, 0.05);
+    transform: scale(1.01);
+}
+
+.upload-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+    font-size: 2.5rem;
+    box-shadow: 0 10px 25px rgba(67, 97, 238, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.upload-zone:hover .upload-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.upload-zone h3 {
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.upload-zone p {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.upload-btn {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(67, 97, 238, 0.3);
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+    color: white;
+}
+
+/* Features */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2.5rem 0;
+}
+
+.feature-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-3px);
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--primary-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: var(--primary);
+    font-size: 1.5rem;
+}
+
+/* Steps */
+.step-tracker {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 3rem 0;
+    position: relative;
+}
+
+.step-tracker::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #e2e8f0;
+    z-index: 1;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    flex: 1;
+}
+
+.step-number {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+.step.completed .step-number {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+.step-label {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 500;
+    text-align: center;
+}
+
+.step.active .step-label {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* File Info */
+.file-info-card {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-left: 4px solid var(--primary);
     border-radius: 10px;
-    padding: 1rem;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    display: none;
+}
+
+.file-info-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.file-info-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--primary);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.file-info-content h5 {
+    margin: 0;
+    color: var(--dark);
+}
+
+.file-info-content p {
+    margin: 0.25rem 0 0;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+/* Preview */
+.preview-container {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
     background: white;
     margin-top: 1.5rem;
     max-height: 400px;
     overflow: auto;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
-.step-indicator {
-    display: flex;
-    justify-content: space-between;
+.table-preview {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.table-preview th {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    padding: 1rem;
+    font-weight: 600;
+}
+
+.table-preview td {
+    border-color: #e2e8f0;
+    padding: 0.75rem 1rem;
+}
+
+/* Format Options */
+.format-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.format-option {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem 1rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.format-option:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.format-option.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    box-shadow: 0 5px 15px rgba(67, 97, 238, 0.1);
+}
+
+.format-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #64748b;
+}
+
+.format-option.selected .format-icon {
+    color: var(--primary);
+}
+
+.format-label {
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 0.25rem;
+}
+
+.format-desc {
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+/* Action Buttons */
+.action-btn {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(67, 97, 238, 0.3);
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+    color: white;
+}
+
+.action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Progress Animation */
+.progress-container {
+    background: #f1f5f9;
+    border-radius: 50px;
+    height: 10px;
+    overflow: hidden;
     margin: 2rem 0;
 }
 
-.step-number {
-    width: 40px;
-    height: 40px;
+.progress-bar {
+    background: linear-gradient(90deg, var(--primary), var(--success));
+    height: 100%;
+    width: 0%;
+    border-radius: 50px;
+    transition: width 0.5s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.4), 
+        transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Success State */
+.success-animation {
+    width: 80px;
+    height: 80px;
+    background: #10b981;
     border-radius: 50%;
-    background: #dee2e6;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    margin: 0 auto 1.5rem;
+    color: white;
+    font-size: 2.5rem;
+    animation: bounceIn 0.6s ease;
 }
 
-.step.active .step-number { background: #FF9800; color:white; }
-.step.completed .step-number { background: #198754; color:white; }
-
-.format-option{
-    border:2px solid #dee2e6;
-    padding:1rem;
-    border-radius:10px;
-    cursor:pointer;
-    text-align:center;
+@keyframes bounceIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }
 
-.format-option.selected{
-    border-color:#FF9800;
-    background:#fff3e0;
+/* Responsive */
+@media (max-width: 768px) {
+    .upload-hero {
+        padding: 3rem 1rem;
+    }
+    
+    .upload-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .upload-card {
+        padding: 1.5rem;
+    }
+    
+    .upload-zone {
+        padding: 3rem 1rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .step-tracker {
+        flex-direction: column;
+        gap: 2rem;
+        align-items: flex-start;
+    }
+    
+    .step-tracker::before {
+        display: none;
+    }
+    
+    .step {
+        flex-direction: row;
+        gap: 1rem;
+        width: 100%;
+    }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
-
-<a href="{{ url_for('conversion.index') }}" class="btn btn-outline-primary mb-3">
-    <i class="fas fa-arrow-left"></i> Retour aux conversions
-</a>
-
-<h1 class="mb-3">
-    <i class="fas fa-table"></i> Image vers Excel
-</h1>
-
-<!-- Steps -->
-<div class="step-indicator">
-    {% for i in range(1,5) %}
-    <div class="step" id="step{{i}}">
-        <div class="step-number">{{i}}</div>
-    </div>
-    {% endfor %}
-</div>
-
-<!-- STEP 1 -->
-<div class="card" id="uploadStep">
-    <div class="card-body">
-        <div class="upload-area" id="dropArea">
-            <i class="fas fa-image fa-3x text-warning mb-3"></i>
-            <h4>Déposez votre fichier</h4>
-            <input type="file"
-                   id="fileInput"
-                   class="d-none"
-                   accept=".jpg,.jpeg,.png,.pdf">
-            <button class="btn btn-warning mt-3"
-                    onclick="document.getElementById('fileInput').click()">
-                <i class="fas fa-folder-open"></i>
-                Sélectionner
-            </button>
-        </div>
-        <div id="fileInfo" class="alert alert-success mt-3 d-none"></div>
-        <button id="detectBtn"
-                class="btn btn-warning w-100 mt-3 d-none">
-            Détecter les tableaux
-        </button>
-    </div>
-</div>
-
-<!-- STEP 2 -->
-<div class="card mt-4 d-none" id="detectionStep">
-    <div class="card-body text-center">
-        <div class="spinner-border text-warning"></div>
-        <p class="mt-3">Analyse du document...</p>
-        <div class="progress">
-            <div id="detectionProgress"
-                 class="progress-bar progress-bar-striped progress-bar-animated"
-                 style="width:0%"></div>
-        </div>
-        <div id="previewContainer" class="preview-container d-none">
-            <table class="table table-bordered" id="tablePreview"></table>
-        </div>
-        <button class="btn btn-warning mt-3 d-none"
-                id="optionsBtn">
-            Continuer
-        </button>
-    </div>
-</div>
-
-<!-- STEP 3 -->
-<div class="card mt-4 d-none" id="optionsStep">
-    <div class="card-body">
-        <h5>Format</h5>
-        <div class="d-flex gap-3 mb-4">
-            <div class="format-option" id="formatXlsx">.xlsx</div>
-            <div class="format-option" id="formatCsv">.csv</div>
-        </div>
-        <button class="btn btn-warning w-100"
-                id="exportBtn">
-            Exporter
-        </button>
-    </div>
-</div>
-
-<!-- STEP 4 -->
-<div class="card mt-4 d-none" id="exportStep">
-    <div class="card-body text-center">
-        <div class="spinner-border text-warning"></div>
-        <h4 class="mt-3">Génération du fichier...</h4>
-        <div id="exportResult" class="d-none mt-4">
-            <button id="downloadBtn"
-                    class="btn btn-success">
-                Télécharger
-            </button>
+<div class="container-fluid px-0">
+    
+    <!-- Hero Section -->
+    <div class="upload-hero">
+        <div class="container">
+            <h1><i class="fas fa-magic"></i> Conversion Image → Excel</h1>
+            <p class="lead">Transformez instantanément vos images et documents scannés en fichiers Excel exploitables avec notre technologie d'extraction avancée</p>
         </div>
     </div>
-</div>
 
+    <!-- Main Content -->
+    <div class="container upload-container">
+        
+        <!-- Features -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h5>Conversion Rapide</h5>
+                <p class="small text-muted">Traitement en quelques secondes</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h5>100% Sécurisé</h5>
+                <p class="small text-muted">Vos fichiers sont supprimés après traitement</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h5>Haute Précision</h5>
+                <p class="small text-muted">Reconnaissance avancée des tableaux</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-excel"></i>
+                </div>
+                <h5>Multi Formats</h5>
+                <p class="small text-muted">Export XLSX, CSV, JSON</p>
+            </div>
+        </div>
+
+        <!-- Step Tracker -->
+        <div class="step-tracker">
+            <div class="step active" id="step1">
+                <div class="step-number">1</div>
+                <span class="step-label">Import</span>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-number">2</div>
+                <span class="step-label">Analyse</span>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-number">3</div>
+                <span class="step-label">Configuration</span>
+            </div>
+            <div class="step" id="step4">
+                <div class="step-number">4</div>
+                <span class="step-label">Export</span>
+            </div>
+        </div>
+
+        <!-- Upload Card -->
+        <div class="upload-card">
+            <!-- STEP 1: Upload -->
+            <div id="uploadStep">
+                <div class="upload-zone" id="dropZone">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Déposez vos fichiers ici</h3>
+                    <p class="mb-3">Glissez-déposez vos images, PDF ou documents scannés</p>
+                    <p class="small text-muted mb-3">
+                        <i class="fas fa-check-circle text-success"></i>
+                        Formats supportés: JPG, PNG, PDF, TIFF, BMP
+                    </p>
+                    <p class="small text-muted mb-4">
+                        <i class="fas fa-check-circle text-success"></i>
+                        Taille maximale: {{ (config.MAX_IMAGE_SIZE / 1024 / 1024) | int }} MB
+                    </p>
+                    
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open"></i>
+                        Parcourir les fichiers
+                    </button>
+                    
+                    <input type="file" 
+                           id="fileInput" 
+                           class="d-none" 
+                           accept=".jpg,.jpeg,.png,.pdf,.tiff,.bmp,.tif">
+                </div>
+
+                <!-- File Info -->
+                <div class="file-info-card" id="fileInfo">
+                    <div class="file-info-header">
+                        <div class="file-info-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="file-info-content">
+                            <h5 id="fileName">Fichier sélectionné</h5>
+                            <p id="fileDetails">Taille: 0 MB • Type: Image</p>
+                        </div>
+                    </div>
+                    <button class="action-btn" id="startAnalysisBtn" disabled>
+                        <i class="fas fa-play-circle"></i>
+                        Démarrer l'analyse
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Analysis -->
+            <div class="d-none" id="analysisStep">
+                <div class="text-center py-4">
+                    <div class="upload-icon mb-3">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h4>Analyse en cours...</h4>
+                    <p class="text-muted mb-4">Notre IA détecte et extrait les données de votre document</p>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar" id="analysisProgress"></div>
+                    </div>
+                    
+                    <div class="mt-4" id="analysisDetails">
+                        <p class="small text-muted">
+                            <i class="fas fa-sync-alt fa-spin"></i>
+                            Détection des tableaux...
+                        </p>
+                    </div>
+                    
+                    <div class="preview-container d-none mt-4" id="previewContainer">
+                        <h5 class="mb-3">Aperçu des données détectées</h5>
+                        <table class="table table-preview" id="tablePreview"></table>
+                    </div>
+                    
+                    <button class="action-btn mt-4 d-none" id="continueBtn">
+                        <i class="fas fa-arrow-right"></i>
+                        Continuer vers la configuration
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Configuration -->
+            <div class="d-none" id="configStep">
+                <div class="text-center py-4">
+                    <div class="upload-icon mb-3">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h4>Configuration de l'export</h4>
+                    <p class="text-muted mb-4">Personnalisez le format de sortie</p>
+                    
+                    <h5 class="mb-3">Format d'export</h5>
+                    <div class="format-options">
+                        <div class="format-option selected" id="formatXlsx">
+                            <div class="format-icon">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+                            <div class="format-label">Excel (.xlsx)</div>
+                            <div class="format-desc">Format complet</div>
+                        </div>
+                        <div class="format-option" id="formatCsv">
+                            <div class="format-icon">
+                                <i class="fas fa-file-csv"></i>
+                            </div>
+                            <div class="format-label">CSV (.csv)</div>
+                            <div class="format-desc">Données brutes</div>
+                        </div>
+                    </div>
+                    
+                    <button class="action-btn mt-4" id="exportBtn">
+                        <i class="fas fa-download"></i>
+                        Générer le fichier
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 4: Export -->
+            <div class="d-none" id="exportStep">
+                <div class="text-center py-4">
+                    <div class="success-animation" id="successIcon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h4>Conversion réussie !</h4>
+                    <p class="text-muted mb-4">Votre fichier Excel est prêt au téléchargement</p>
+                    
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <button class="action-btn" id="downloadBtn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            <i class="fas fa-download"></i>
+                            Télécharger
+                        </button>
+                        <button class="action-btn" id="newConversionBtn" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%);">
+                            <i class="fas fa-redo"></i>
+                            Nouvelle conversion
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Footer -->
+        <div class="text-center mt-4">
+            <p class="small text-muted">
+                <i class="fas fa-lock"></i>
+                Vos fichiers sont traités de manière sécurisée et supprimés automatiquement après 24h.
+            </p>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-
-let selectedFile=null;
-let selectedFormat='xlsx';
-
-const maxSize = {{ config.MAX_IMAGE_SIZE | tojson }};
-
-const dropArea=document.getElementById('dropArea');
-const fileInput=document.getElementById('fileInput');
-const fileInfo=document.getElementById('fileInfo');
-const detectBtn=document.getElementById('detectBtn');
-
-// STEP helper
-function updateSteps(n){
-    document.querySelectorAll('.step').forEach((s,i)=>{
-        s.classList.remove('active','completed');
-        if(i+1<n) s.classList.add('completed');
-        if(i+1===n) s.classList.add('active');
-    });
-}
-
-updateSteps(1);
-
-// Drag & drop
-['dragover','drop'].forEach(evt=>{
-    dropArea.addEventListener(evt,e=>{
-        e.preventDefault();
-    });
-});
-
-dropArea.addEventListener('drop',e=>{
-    fileInput.files=e.dataTransfer.files;
-    handleFile();
-});
-
-fileInput.addEventListener('change',handleFile);
-
-function handleFile(){
-    const file=fileInput.files[0];
-    if(!file) return;
+document.addEventListener('DOMContentLoaded', function() {
+    const maxSize = {{ config.MAX_IMAGE_SIZE | tojson }};
+    let selectedFile = null;
+    let selectedFormat = 'xlsx';
     
-    if(file.size>maxSize){
-        alert("Fichier trop volumineux");
-        return;
-    }
+    // Elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileDetails = document.getElementById('fileDetails');
+    const startAnalysisBtn = document.getElementById('startAnalysisBtn');
     
-    selectedFile=file;
+    // Steps
+    const steps = {
+        1: document.getElementById('uploadStep'),
+        2: document.getElementById('analysisStep'),
+        3: document.getElementById('configStep'),
+        4: document.getElementById('exportStep')
+    };
     
-    fileInfo.innerHTML=
-    `<strong>${file.name}</strong> (${(file.size/1024/1024).toFixed(2)} MB)`;
+    // Step tracker
+    const stepElements = {
+        1: document.getElementById('step1'),
+        2: document.getElementById('step2'),
+        3: document.getElementById('step3'),
+        4: document.getElementById('step4')
+    };
     
-    fileInfo.classList.remove('d-none');
-    detectBtn.classList.remove('d-none');
-}
-
-// Detection simulation
-detectBtn.onclick=async ()=>{
-    updateSteps(2);
-    document.getElementById('detectionStep').classList.remove('d-none');
-    
-    const bar=document.getElementById('detectionProgress');
-    
-    for(let i=0;i<=100;i+=20){
-        bar.style.width=i+'%';
-        await new Promise(r=>setTimeout(r,400));
-    }
-    
-    // fake preview
-    const preview=document.getElementById('previewContainer');
-    const table=document.getElementById('tablePreview');
-    
-    table.innerHTML=`
-    <tr><th>Nom</th><th>Ville</th></tr>
-    <tr><td>Jean</td><td>Paris</td></tr>
-    <tr><td>Marie</td><td>Lyon</td></tr>
-    `;
-    
-    preview.classList.remove('d-none');
-    document.getElementById('optionsBtn').classList.remove('d-none');
-};
-
-document.getElementById('optionsBtn').onclick=()=>{
-    updateSteps(3);
-    document.getElementById('optionsStep').classList.remove('d-none');
-};
-
-// format
-document.getElementById('formatXlsx').onclick=()=>{
-    selectedFormat='xlsx';
-    toggleFormat();
-};
-
-document.getElementById('formatCsv').onclick=()=>{
-    selectedFormat='csv';
-    toggleFormat();
-};
-
-function toggleFormat(){
-    document.querySelectorAll('.format-option')
-    .forEach(el=>el.classList.remove('selected'));
-    
-    document.getElementById(
-        selectedFormat==='xlsx'?'formatXlsx':'formatCsv'
-    ).classList.add('selected');
-}
-
-toggleFormat();
-
-// Export
-document.getElementById('exportBtn').onclick=async()=>{
-    updateSteps(4);
-    document.getElementById('exportStep').classList.remove('d-none');
-    
-    await new Promise(r=>setTimeout(r,1500));
-    
-    document.getElementById('exportResult').classList.remove('d-none');
-    
-    document.getElementById('downloadBtn').onclick=async()=>{
-        const formData=new FormData();
-        formData.append('file',selectedFile);
-        formData.append('format',selectedFormat);
-        
-        const res=await fetch("{{ url_for('conversion.image_to_excel') }}",{
-            method:'POST',
-            body:formData
+    // Update steps
+    function updateStep(stepNumber) {
+        // Hide all steps
+        Object.values(steps).forEach(step => {
+            if (step) step.classList.add('d-none');
         });
         
-        const blob=await res.blob();
-        const url=window.URL.createObjectURL(blob);
+        // Show current step
+        if (steps[stepNumber]) {
+            steps[stepNumber].classList.remove('d-none');
+        }
         
-        const a=document.createElement('a');
-        a.href=url;
-        a.download=`export.${selectedFormat}`;
-        a.click();
-    };
-};
-
+        // Update step tracker
+        Object.values(stepElements).forEach((element, index) => {
+            if (element) {
+                element.classList.remove('active', 'completed');
+                if (index + 1 < stepNumber) {
+                    element.classList.add('completed');
+                } else if (index + 1 === stepNumber) {
+                    element.classList.add('active');
+                }
+            }
+        });
+    }
+    
+    // Initialize step 1
+    updateStep(1);
+    
+    // Drag and drop functionality
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        dropZone.classList.add('dragover');
+        dropZone.style.borderColor = '#4361ee';
+    }
+    
+    function unhighlight() {
+        dropZone.classList.remove('dragover');
+        dropZone.style.borderColor = '#cbd5e1';
+    }
+    
+    // Handle file drop
+    dropZone.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        fileInput.files = files;
+        handleFile(files[0]);
+    }
+    
+    // Handle file selection
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            handleFile(this.files[0]);
+        }
+    });
+    
+    // Handle file
+    function handleFile(file) {
+        if (!file) return;
+        
+        // Check file size
+        if (file.size > maxSize) {
+            showError(`Fichier trop volumineux. Maximum: ${(maxSize / 1024 / 1024).toFixed(0)} MB`);
+            return;
+        }
+        
+        // Check file type
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/tiff', 'image/bmp', 'application/pdf'];
+        if (!validTypes.includes(file.type)) {
+            showError('Format de fichier non supporté');
+            return;
+        }
+        
+        selectedFile = file;
+        
+        // Update file info
+        fileName.textContent = file.name;
+        fileDetails.textContent = `Taille: ${(file.size / 1024 / 1024).toFixed(2)} MB • Type: ${file.type.split('/')[1].toUpperCase()}`;
+        
+        // Show file info and enable button
+        fileInfo.classList.remove('d-none');
+        startAnalysisBtn.disabled = false;
+        startAnalysisBtn.innerHTML = '<i class="fas fa-play-circle"></i> Démarrer l\'analyse';
+    }
+    
+    // Start analysis
+    startAnalysisBtn.addEventListener('click', function() {
+        if (!selectedFile) return;
+        
+        updateStep(2);
+        simulateAnalysis();
+    });
+    
+    // Simulate analysis
+    function simulateAnalysis() {
+        const progressBar = document.getElementById('analysisProgress');
+        const analysisDetails = document.getElementById('analysisDetails');
+        const previewContainer = document.getElementById('previewContainer');
+        const tablePreview = document.getElementById('tablePreview');
+        const continueBtn = document.getElementById('continueBtn');
+        
+        // Reset
+        progressBar.style.width = '0%';
+        previewContainer.classList.add('d-none');
+        continueBtn.classList.add('d-none');
+        
+        // Simulate progress
+        const steps = [
+            { progress: 20, text: "Lecture du document..." },
+            { progress: 40, text: "Détection des tableaux..." },
+            { progress: 60, text: "Extraction du texte..." },
+            { progress: 80, text: "Analyse des données..." },
+            { progress: 100, text: "Préparation de l'aperçu..." }
+        ];
+        
+        steps.forEach((step, index) => {
+            setTimeout(() => {
+                progressBar.style.width = step.progress + '%';
+                analysisDetails.innerHTML = `<p class="small text-muted"><i class="fas fa-sync-alt fa-spin"></i> ${step.text}</p>`;
+                
+                if (index === steps.length - 1) {
+                    // Show preview
+                    setTimeout(() => {
+                        tablePreview.innerHTML = `
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Téléphone</th>
+                                    <th>Ville</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Jean Martin</td><td>jean@exemple.com</td><td>01 23 45 67 89</td><td>Paris</td></tr>
+                                <tr><td>Marie Dubois</td><td>marie@exemple.com</td><td>06 12 34 56 78</td><td>Lyon</td></tr>
+                                <tr><td>Pierre Lambert</td><td>pierre@exemple.com</td><td>07 89 01 23 45</td><td>Marseille</td></tr>
+                                <tr><td>Sophie Bernard</td><td>sophie@exemple.com</td><td>02 34 56 78 90</td><td>Toulouse</td></tr>
+                            </tbody>
+                        `;
+                        previewContainer.classList.remove('d-none');
+                        continueBtn.classList.remove('d-none');
+                        
+                        analysisDetails.innerHTML = `<p class="small text-success"><i class="fas fa-check-circle"></i> Analyse terminée - 4 colonnes détectées</p>`;
+                    }, 500);
+                }
+            }, index * 1000);
+        });
+    }
+    
+    // Continue to configuration
+    document.getElementById('continueBtn').addEventListener('click', function() {
+        updateStep(3);
+    });
+    
+    // Format selection
+    document.querySelectorAll('.format-option').forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove selected class from all options
+            document.querySelectorAll('.format-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            this.classList.add('selected');
+            
+            // Update selected format
+            selectedFormat = this.id.replace('format', '').toLowerCase();
+        });
+    });
+    
+    // Export button
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        updateStep(4);
+        
+        // Simulate export
+        setTimeout(() => {
+            document.getElementById('successIcon').innerHTML = '<i class="fas fa-check"></i>';
+        }, 1000);
+    });
+    
+    // Download button
+    document.getElementById('downloadBtn').addEventListener('click', async function() {
+        if (!selectedFile) return;
+        
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Téléchargement...';
+        this.disabled = true;
+        
+        try {
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('format', selectedFormat);
+            
+            // Send to server
+            const response = await fetch("{{ url_for('conversion.image_to_excel') }}", {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error('Erreur lors de la conversion');
+            }
+            
+            // Create download
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `export-${Date.now()}.${selectedFormat}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            this.innerHTML = '<i class="fas fa-download"></i> Télécharger';
+            this.disabled = false;
+            
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Erreur lors du téléchargement');
+            this.innerHTML = '<i class="fas fa-download"></i> Télécharger';
+            this.disabled = false;
+        }
+    });
+    
+    // New conversion button
+    document.getElementById('newConversionBtn').addEventListener('click', function() {
+        // Reset everything
+        selectedFile = null;
+        fileInput.value = '';
+        fileInfo.classList.add('d-none');
+        startAnalysisBtn.disabled = true;
+        updateStep(1);
+    });
+    
+    // Error display
+    function showError(message) {
+        // You can implement a proper error notification here
+        alert(message);
+    }
 });
 </script>
 {% endblock %}
