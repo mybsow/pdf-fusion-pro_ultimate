@@ -20,8 +20,6 @@ services:
         value: 1
       - key: PORT
         value: 10000
-      - key: PYTHON_VERSION
-        value: 3.11.7
       - key: TESSDATA_PREFIX
         value: /usr/share/tesseract-ocr/4.00/tessdata
     
@@ -38,4 +36,5 @@ services:
     disk:
       name: tmp
       mountPath: /tmp
+
       sizeGB: 1
