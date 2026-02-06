@@ -160,77 +160,103 @@ def create_app():
     # CORRECTION ROUTE /conversion
     # ========================================================
     # Le blueprint conversion_bp est enregistré avec le préfixe /conversion
-    # Mais certaines routes peuvent avoir un double /conversion/conversion
-    # Cette redirection corrige le problème
+    # Cette redirection évite /conversion/conversion/... depuis d'anciens liens
     @app.route('/conversion')
     def redirect_conversion():
         """Redirige /conversion vers /conversion/ (avec slash)"""
         return redirect('/conversion/')
 
     # ========================================================
-    # OCR ENDPOINT (désactivé sur Render)
+    # OCR: DIAGNOSTIC DYNAMIQUE
     # ========================================================
-    @app.route('/ocr-to-excel', methods=['POST'])
-    def ocr_to_excel_endpoint():
-        """Endpoint pour la conversion OCR vers Excel (désactivé sur Render)"""
-        return jsonify({
-            "error": "OCR non disponible sur le serveur cloud",
-            "solution": "Pour utiliser l'OCR, téléchargez et exécutez l'application localement",
-            "instructions": "1. Clonez le dépôt GitHub\n2. Installez Tesseract OCR sur votre machine\n3. Exécutez: pip install pytesseract pillow pandas openpyxl\n4. Lancez l'application localement"
-        }), 503
+
+    def _ocr_probe():
+        """
+        Vérifie dynamiquement:
+        - si l'OCR est activé en config,
+        - la version de Tesseract,
+        - la présence de Poppler (pdftoppm/pdftocairo),
+        - la présence du pack de langue 'fra'.
+        """
+        status = {
+            "enabled": bool(AppConfig.OCR_ENABLED),
+            "tesseract": None,
+            "poppler": None,
+            "lang_fra": None,
+            "errors": []
+        }
+        try:
+            import shutil, subprocess
+            try:
+                import pytesseract
+                # Version Tesseract
+                try:
+                    status["tesseract"] = str(pytesseract.get_tesseract_version())
+                except Exception as e:
+                    status["errors"].append(f"tesseract_version: {e}")
+            except Exception as e:
+                status["errors"].append(f"pytesseract import: {e}")
+
+            # Poppler (pdftoppm / pdftocairo)
+            status["poppler"] = shutil.which("pdftoppm") or shutil.which("pdftocairo")
+
+            # Langue fra installée ?
+            try:
+                out = subprocess.check_output(["tesseract", "--list-langs"], stderr=subprocess.STDOUT, text=True)
+                status["lang_fra"] = ("fra" in out)
+            except Exception as e:
+                status["errors"].append(f"tesseract --list-langs: {e}")
+
+        except Exception as e:
+            status["errors"].append(str(e))
+        return status
+
+    # Log état OCR au démarrage
+    _probe = _ocr_probe()
+    logger.info(f"OCR activé (config) : {_probe['enabled']}")
+    logger.info(f"Tesseract: {_probe['tesseract']} | Poppler: {_probe['poppler']} | fra: {_probe['lang_fra']}")
+    if _probe["errors"]:
+        logger.warning(f"OCR diagnostics: {_probe['errors']}")
 
     # ========================================================
-    # TEST OCR
+    # TEST OCR (page de statut dynamique)
     # ========================================================
     @app.route('/test-ocr')
     def test_ocr():
-        """Page de test pour vérifier l'état de l'OCR"""
-        html = """
+        """Page de test pour vérifier l'état de l'OCR (statut réel)"""
+        probe = _ocr_probe()
+        ok = probe["enabled"] and probe["tesseract"] and probe["poppler"]
+        html = f"""
         <!DOCTYPE html>
         <html>
         <head>
+            <meta charset="utf-8" />
             <title>Test OCR</title>
             <style>
-                body { font-family: Arial, sans-serif; margin: 40px; }
-                .status { padding: 20px; margin: 20px 0; border-radius: 5px; }
-                .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-                .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-                .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+                body {{ font-family: Arial, sans-serif; margin: 40px; }}
+                .status {{ padding: 18px; border-radius: 8px; margin-bottom: 16px; }}
+                .ok {{ background:#d1fae5; color:#065f46; border:1px solid #10b981; }}
+                .warn {{ background:#fef3c7; color:#92400e; border:1px solid #f59e0b; }}
+                .err {{ background:#fee2e2; color:#991b1b; border:1px solid #ef4444; }}
+                code, pre {{ background:#f8fafc; padding:8px 10px; border-radius:6px; display:inline-block; }}
+                a {{ color:#2563eb; text-decoration:none; }}
+                a:hover {{ text-decoration:underline; }}
             </style>
         </head>
         <body>
-            <h1>État du service OCR sur Render</h1>
-            <div class="status error">
-                <h3>⚠️ OCR NON DISPONIBLE sur le serveur cloud</h3>
-                <p>L'OCR (Tesseract) ne peut pas être installé sur Render en raison de limitations techniques.</p>
-            </div>
-            <div class="status info">
-                <h3>✅ Solution : Utilisation locale</h3>
-                <p>Pour utiliser l'OCR :</p>
-                <ol>
-                    <li>Téléchargez le code depuis GitHub</li>
-                    <li>Installez Tesseract OCR sur votre ordinateur</li>
-                    <li>Exécutez l'application localement</li>
-                </ol>
-                <p><strong>Commandes d'installation locale :</strong></p>
-                <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
-# 1. Installer Tesseract (Windows)
-# Téléchargez depuis: https://github.com/UB-Mannheim/tesseract/wiki
-
-# 2. Installer les dépendances Python
-pip install pytesseract pillow pandas openpyxl flask
-
-# 3. Lancer l'application
-python app.py</pre>
-            </div>
-            <div class="status info">
-                <h3>🔗 Liens utiles</h3>
+            <h1>État du service OCR (Render)</h1>
+            <div class="status {'ok' if ok else 'err'}">
+                <h3>{'✅ OCR opérationnel' if ok else '⚠️ OCR non opérationnel'}</h3>
                 <ul>
-                    <li><a href="/">Accueil</a></li>
-                    <li><a href="/conversion/">Outils de conversion</a></li>
-                    <li><a href="https://github.com/mybsow/pdf-fusion-pro_ultimate">Code source GitHub</a></li>
+                    <li>OCR activé (config) : <strong>{probe['enabled']}</strong></li>
+                    <li>Tesseract : <strong>{probe['tesseract'] or '—'}</strong></li>
+                    <li>Poppler (pdftoppm/pdftocairo) : <strong>{probe['poppler'] or '—'}</strong></li>
+                    <li>Langue FRA : <strong>{'OK' if probe['lang_fra'] else '—'}</strong></li>
                 </ul>
+                {('<p class="warn">Ajoute/valide <code>aptPackages: [tesseract-ocr, tesseract-ocr-fra, poppler-utils]</code> dans <code>render.yaml</code> et <code>pytesseract</code>, <code>pdf2image</code> dans <code>requirements.txt</code>.</p>' if not ok else '')}
+                {('<pre>' + str(probe['errors']) + '</pre>' if probe['errors'] else '')}
             </div>
+            <p><a href="/">Accueil</a> • <a href="/conversion/">Outils de conversion</a></p>
         </body>
         </html>
         """
@@ -298,7 +324,7 @@ python app.py</pre>
                 <changefreq>weekly</changefreq>
                 <priority>0.8</priority>
             </url>
-            """)
+            """.strip())
 
         xml.append('</urlset>')
 
@@ -309,17 +335,21 @@ python app.py</pre>
         )
 
     # ========================================================
-    # HEALTHCHECK (Render)
+    # HEALTHCHECK (Render) — dynamique
     # ========================================================
 
     @app.route('/health')
     def health():
+        probe = _ocr_probe()
         return jsonify({
             "status": "healthy",
             "app": AppConfig.NAME,
             "version": AppConfig.VERSION,
-            "ocr_available": False,
-            "message": "Application déployée avec succès sur Render. OCR désactivé (nécessite installation locale)."
+            "ocr_available": bool(probe["enabled"] and probe["tesseract"] and probe["poppler"]),
+            "tesseract": probe["tesseract"],
+            "poppler": probe["poppler"],
+            "lang_fra": probe["lang_fra"],
+            "message": "Application déployée sur Render"
         }), 200
 
     # ========================================================
@@ -329,30 +359,27 @@ python app.py</pre>
     @app.route('/debug/static-files')
     def debug_static_files():
         """Vérifier les fichiers statiques"""
-        import os
-        from pathlib import Path
-        
         base_dir = Path(__file__).parent
         static_dir = base_dir / 'static'
-        
+
         files = []
-        
+
         def scan_dir(path, prefix=""):
             for item in path.iterdir():
                 if item.is_file():
                     files.append(f"{prefix}/{item.name}" if prefix else item.name)
                 elif item.is_dir():
                     scan_dir(item, f"{prefix}/{item.name}" if prefix else item.name)
-        
+
         if static_dir.exists():
             scan_dir(static_dir)
-        
+
         html = "<h1>Fichiers statiques disponibles</h1>"
         html += "<ul>"
         for file in sorted(files):
             html += f'<li><a href="/static/{file}">{file}</a></li>'
         html += "</ul>"
-        
+
         return html
 
     # ========================================================
@@ -364,7 +391,7 @@ python app.py</pre>
         """Servir les fichiers statiques avec les bons headers"""
         try:
             response = send_from_directory('static', filename)
-            
+
             # Ajouter les bons headers MIME
             if filename.endswith('.css'):
                 response.headers['Content-Type'] = 'text/css'
@@ -372,10 +399,10 @@ python app.py</pre>
                 response.headers['Content-Type'] = 'application/javascript'
             elif filename.endswith('.html'):
                 response.headers['Content-Type'] = 'text/html'
-            
+
             # Cache pour les fichiers statiques
             response.headers['Cache-Control'] = 'public, max-age=31536000'
-            
+
             return response
         except Exception as e:
             logger.warning(f"Fichier statique non trouvé: {filename}")
