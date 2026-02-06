@@ -120,7 +120,7 @@ class AppConfig:
     # OCR
     # ============================================================
 
-    OCR_ENABLED = os.environ.get("OCR_ENABLED", "false").lower() == "true"
+    OCR_ENABLED = os.environ.get("OCR_ENABLED", "true").lower() == "true"
     OCR_LANGUAGES = ['fra', 'eng', 'deu', 'spa', 'ita']
     OCR_DEFAULT_LANGUAGE = 'fra'
 
