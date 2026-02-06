@@ -7,17 +7,22 @@ services:
     branch: main
     autoDeploy: true
 
+    # Pas de Docker ici
+
     envVars:
       - key: FLASK_ENV
         value: production
       - key: SECRET_KEY
         generateValue: true
       - key: WEB_CONCURRENCY
-        value: 1
+        value: "1"
       - key: PORT
-        value: 10000
+        value: "10000"
       - key: TESSDATA_PREFIX
         value: /usr/share/tesseract-ocr/4.00/tessdata
+      # (Optionnel) Active explicitement l’OCR dans AppConfig si tu lis une var d'env
+      - key: OCR_ENABLED
+        value: "true"
 
     buildCommand: |
       python -m pip install --upgrade pip
@@ -25,6 +30,7 @@ services:
 
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --worker-class gthread app:app
 
+    # ➜ Installation système gérée par Render (nécessaire à l’OCR)
     aptPackages:
       - tesseract-ocr
       - tesseract-ocr-fra
