@@ -4,7 +4,7 @@ PDF Fusion Pro Ultimate - Application principale
 Version production ultra-stable (Render / Gunicorn ready)
 """
 
-from flask import Flask, redirect, Response, request, render_template, send_from_directory
+from flask import Flask, redirect, Response, request, render_template, send_from_directory, jsonify
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
 import os
@@ -157,6 +157,86 @@ def create_app():
             app.register_blueprint(bp)
 
     # ========================================================
+    # CORRECTION ROUTE /conversion
+    # ========================================================
+    # Le blueprint conversion_bp est enregistré avec le préfixe /conversion
+    # Mais certaines routes peuvent avoir un double /conversion/conversion
+    # Cette redirection corrige le problème
+    @app.route('/conversion')
+    def redirect_conversion():
+        """Redirige /conversion vers /conversion/ (avec slash)"""
+        return redirect('/conversion/')
+
+    # ========================================================
+    # OCR ENDPOINT (désactivé sur Render)
+    # ========================================================
+    @app.route('/ocr-to-excel', methods=['POST'])
+    def ocr_to_excel_endpoint():
+        """Endpoint pour la conversion OCR vers Excel (désactivé sur Render)"""
+        return jsonify({
+            "error": "OCR non disponible sur le serveur cloud",
+            "solution": "Pour utiliser l'OCR, téléchargez et exécutez l'application localement",
+            "instructions": "1. Clonez le dépôt GitHub\n2. Installez Tesseract OCR sur votre machine\n3. Exécutez: pip install pytesseract pillow pandas openpyxl\n4. Lancez l'application localement"
+        }), 503
+
+    # ========================================================
+    # TEST OCR
+    # ========================================================
+    @app.route('/test-ocr')
+    def test_ocr():
+        """Page de test pour vérifier l'état de l'OCR"""
+        html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Test OCR</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 40px; }
+                .status { padding: 20px; margin: 20px 0; border-radius: 5px; }
+                .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+                .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+                .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+            </style>
+        </head>
+        <body>
+            <h1>État du service OCR sur Render</h1>
+            <div class="status error">
+                <h3>⚠️ OCR NON DISPONIBLE sur le serveur cloud</h3>
+                <p>L'OCR (Tesseract) ne peut pas être installé sur Render en raison de limitations techniques.</p>
+            </div>
+            <div class="status info">
+                <h3>✅ Solution : Utilisation locale</h3>
+                <p>Pour utiliser l'OCR :</p>
+                <ol>
+                    <li>Téléchargez le code depuis GitHub</li>
+                    <li>Installez Tesseract OCR sur votre ordinateur</li>
+                    <li>Exécutez l'application localement</li>
+                </ol>
+                <p><strong>Commandes d'installation locale :</strong></p>
+                <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+# 1. Installer Tesseract (Windows)
+# Téléchargez depuis: https://github.com/UB-Mannheim/tesseract/wiki
+
+# 2. Installer les dépendances Python
+pip install pytesseract pillow pandas openpyxl flask
+
+# 3. Lancer l'application
+python app.py</pre>
+            </div>
+            <div class="status info">
+                <h3>🔗 Liens utiles</h3>
+                <ul>
+                    <li><a href="/">Accueil</a></li>
+                    <li><a href="/conversion/">Outils de conversion</a></li>
+                    <li><a href="https://github.com/mybsow/pdf-fusion-pro_ultimate">Code source GitHub</a></li>
+                </ul>
+            </div>
+        </body>
+        </html>
+        """
+        return html
+
+    # ========================================================
     # ROUTES SYSTEME
     # ========================================================
 
@@ -204,7 +284,7 @@ def create_app():
             "/privacy",             # Confidentialité
             "/terms",               # Conditions
             "/legal",               # Mentions légales
-            "/conversion",          # Accueil conversion
+            "/conversion/",         # Accueil conversion (avec slash)
         ]
 
         xml = ['<?xml version="1.0" encoding="UTF-8"?>']
@@ -234,11 +314,13 @@ def create_app():
 
     @app.route('/health')
     def health():
-        return {
+        return jsonify({
             "status": "healthy",
             "app": AppConfig.NAME,
-            "version": AppConfig.VERSION
-        }, 200
+            "version": AppConfig.VERSION,
+            "ocr_available": False,
+            "message": "Application déployée avec succès sur Render. OCR désactivé (nécessite installation locale)."
+        }), 200
 
     # ========================================================
     # DEBUG ROUTES
@@ -299,24 +381,31 @@ def create_app():
             logger.warning(f"Fichier statique non trouvé: {filename}")
             return "Fichier non trouvé", 404
 
-    
-
     # ========================================================
-    # ERREURS (templates recommandés)
+    # ERREURS (avec fallback si templates manquants)
     # ========================================================
 
     @app.errorhandler(404)
     def not_found(e):
-        return render_template("errors/404.html"), 404
+        try:
+            return render_template("errors/404.html"), 404
+        except:
+            return "<h1>Erreur 404 - Page non trouvée</h1><p><a href='/'>Retour à l'accueil</a></p>", 404
 
     @app.errorhandler(413)
     def too_large(e):
-        return render_template("errors/413.html"), 413
+        try:
+            return render_template("errors/413.html"), 413
+        except:
+            return "<h1>Erreur 413 - Fichier trop volumineux</h1><p>Le fichier dépasse la taille maximale autorisée.</p>", 413
 
     @app.errorhandler(500)
     def server_error(e):
         logger.exception("🔥 ERREUR 500")
-        return render_template("errors/500.html"), 500
+        try:
+            return render_template("errors/500.html"), 500
+        except:
+            return "<h1>Erreur 500 - Problème serveur</h1><p>Une erreur interne s'est produite.</p>", 500
 
     # ========================================================
     # FILTRES JINJA
@@ -330,6 +419,11 @@ def create_app():
             value /= 1024
 
     logger.info(f"✅ {AppConfig.NAME} v{AppConfig.VERSION} démarré")
+    logger.info(f"🔗 URLs disponibles:")
+    logger.info(f"   - Accueil: /")
+    logger.info(f"   - Conversion: /conversion/")
+    logger.info(f"   - Test OCR: /test-ocr")
+    logger.info(f"   - Health: /health")
 
     return app
 
