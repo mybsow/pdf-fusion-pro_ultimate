@@ -1017,8 +1017,24 @@ def unlock_pdf(file, form_data=None):
 def convert_image_to_word(file, form_data=None):
     """Convertit une image en Word avec OCR."""
     try:
-        if pytesseract is None:
-            return {'error': "pytesseract n'est pas installé"}
+        # Vérifier si l'OCR est disponible
+        if not AppConfig.OCR_ENABLED:
+            return {
+                'error': "OCR est désactivé dans la configuration. Activez-le dans les paramètres."
+            }
+        
+        # Vérifier les dépendances OCR
+        try:
+            import pytesseract
+            import shutil
+            if not shutil.which("tesseract"):
+                return {
+                    'error': "Tesseract n'est pas installé sur le serveur. L'OCR n'est pas disponible."
+                }
+        except ImportError:
+            return {
+                'error': "pytesseract n'est pas installé. Installez-le avec: pip install pytesseract"
+            }
         
         # Ouvrir l'image
         img = Image.open(file.stream).convert('RGB')
