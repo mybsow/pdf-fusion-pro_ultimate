@@ -1,12 +1,10 @@
-FROM ubuntu:22.04
+FROM python:3.11-slim
 
-# Éviter les prompts interactifs
+# 1. Éviter les prompts interactifs
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Installer les dépendances système
+# 2. Installer les dépendances système
 RUN apt-get update && apt-get install -y \
-    python3.11 \
-    python3-pip \
     tesseract-ocr \
     tesseract-ocr-fra \
     tesseract-ocr-eng \
@@ -16,21 +14,21 @@ RUN apt-get update && apt-get install -y \
     poppler-utils \
     libreoffice \
     unoconv \
+    libgl1-mesa-glx \
     libsm6 \
     libxext6 \
     libxrender-dev \
-    libgl1-mesa-glx \
     && rm -rf /var/lib/apt/lists/*
 
-# Créer un répertoire pour l'application
+# 3. Créer le répertoire de l'application
 WORKDIR /app
 
-# Copier les fichiers de l'application
+# 4. Copier les fichiers
 COPY . .
 
-# Installer les dépendances Python AVEC VERSIONS EXACTES
-RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir \
+# 5. Installer les dépendances Python
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
     Flask==3.0.0 \
     gunicorn==21.2.0 \
     pytesseract==0.3.10 \
@@ -41,10 +39,12 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
     PyPDF2==3.0.1 \
     PyMuPDF==1.23.8 \
     reportlab==4.0.4 \
-    python-docx==1.1.0
+    python-docx==1.1.0 \
+    openpyxl==3.1.2 \
+    numpy==1.24.4
 
-# Port exposé
+# 6. Port exposé
 EXPOSE 10000
 
-# Commande de démarrage
+# 7. Commande de démarrage
 CMD ["gunicorn", "--bind", "0.0.0.0:10000", "--workers", "1", "app:app"]
