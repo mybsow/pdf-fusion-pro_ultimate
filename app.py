@@ -172,11 +172,7 @@ def create_app():
 
     def _ocr_probe():
         """
-        Vérifie dynamiquement:
-        - si l'OCR est activé en config,
-        - la version de Tesseract,
-        - la présence de Poppler (pdftoppm/pdftocairo),
-        - la présence du pack de langue 'fra'.
+        Vérifie dynamiquement l'état de l'OCR
         """
         status = {
             "enabled": bool(AppConfig.OCR_ENABLED),
@@ -185,30 +181,58 @@ def create_app():
             "lang_fra": None,
             "errors": []
         }
+        
+        # Si l'OCR est désactivé en config, on skip
+        if not AppConfig.OCR_ENABLED:
+            return status
+        
         try:
-            import shutil, subprocess
+            import shutil
+            import subprocess
+            
+            # Vérifier Tesseract
+            tesseract_path = shutil.which("tesseract")
+            status["tesseract"] = tesseract_path
+            
+            # Vérifier Poppler
+            status["poppler"] = shutil.which("pdftoppm") or shutil.which("pdftocairo")
+            
+            # Vérifier pytesseract
             try:
                 import pytesseract
-                # Version Tesseract
+                pytesseract_available = True
+            except ImportError:
+                pytesseract_available = False
+                status["errors"].append("pytesseract non installé")
+            
+            # Si Tesseract est disponible, vérifier les langues
+            if tesseract_path:
                 try:
-                    status["tesseract"] = str(pytesseract.get_tesseract_version())
+                    result = subprocess.run(
+                        ["tesseract", "--list-langs"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5
+                    )
+                    if result.returncode == 0:
+                        available_langs = result.stdout.strip().split('\n')
+                        if len(available_langs) > 1:  # Skip first line "List of available languages"
+                            available_langs = available_langs[1:]
+                        status["lang_fra"] = any("fra" in lang for lang in available_langs)
+                    else:
+                        status["errors"].append(f"tesseract --list-langs failed: {result.stderr}")
+                except FileNotFoundError:
+                    status["errors"].append("tesseract command not found")
+                except subprocess.TimeoutExpired:
+                    status["errors"].append("tesseract timeout")
                 except Exception as e:
-                    status["errors"].append(f"tesseract_version: {e}")
-            except Exception as e:
-                status["errors"].append(f"pytesseract import: {e}")
-
-            # Poppler (pdftoppm / pdftocairo)
-            status["poppler"] = shutil.which("pdftoppm") or shutil.which("pdftocairo")
-
-            # Langue fra installée ?
-            try:
-                out = subprocess.check_output(["tesseract", "--list-langs"], stderr=subprocess.STDOUT, text=True)
-                status["lang_fra"] = ("fra" in out)
-            except Exception as e:
-                status["errors"].append(f"tesseract --list-langs: {e}")
-
+                    status["errors"].append(f"tesseract check error: {str(e)}")
+            else:
+                status["errors"].append("tesseract not found in PATH")
+            
         except Exception as e:
-            status["errors"].append(str(e))
+            status["errors"].append(f"OCR probe error: {str(e)}")
+        
         return status
 
     # Log état OCR au démarrage
