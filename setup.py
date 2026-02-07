@@ -1,0 +1,31 @@
+from setuptools import setup, find_packages
+
+setup(
+    name="pdf-fusion-pro",
+    version="1.0.0",
+    packages=find_packages(),
+    install_requires=[
+        'Flask==3.0.0',
+        'Werkzeug==3.0.1',
+        'gunicorn==21.2.0',
+        'PyPDF2==3.0.1',
+        'PyMuPDF==1.23.8',
+        'reportlab==4.0.4',
+        'img2pdf==0.4.4',
+        'pdf2image==1.16.3',
+        'pytesseract==0.3.10',
+        'Pillow==10.0.0',
+        'opencv-python-headless==4.8.1.78',
+        'python-docx==1.1.0',
+        'openpyxl==3.1.2',
+        'pandas==2.1.4',
+        'numpy==1.24.4',
+        'XlsxWriter==3.1.9',
+        'requests==2.31.0',
+        'Flask-Mail==0.9.1',
+        'Flask-WTF==1.2.1',
+        'WTForms==3.1.2',
+        'python-magic==0.4.27',
+        'python-dotenv==1.0.0',
+    ],
+)
