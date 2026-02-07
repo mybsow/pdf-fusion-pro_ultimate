@@ -211,6 +211,23 @@ def create_app():
         try:
             import shutil
             import subprocess
+            import os
+
+            # ✅ VÉRIFIER LES CHEMINS POSSIBLES DE TESSERACT
+            possible_tesseract_paths = [
+                '/usr/bin/tesseract',
+                '/usr/local/bin/tesseract',
+                '/opt/homebrew/bin/tesseract',  # Pour macOS
+                shutil.which('tesseract')       # Chercher dans PATH
+            ]
+            
+            tesseract_path = None
+            for path in possible_tesseract_paths:
+                if path and os.path.exists(path):
+                    tesseract_path = path
+                    break
+            
+            status["tesseract"] = tesseract_path
             
             # Vérifier Pillow
             try:
