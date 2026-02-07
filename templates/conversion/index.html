@@ -9,32 +9,68 @@
         padding: 4rem 1rem;
         border-radius: 0 0 20px 20px;
         margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at center, rgba(255,255,255,0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: float 20s linear infinite;
+    }
+    
+    @keyframes float {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        100% { transform: translate(-50px, -50px) rotate(360deg); }
+    }
+    
+    .category-section {
+        margin-bottom: 4rem;
+    }
+    
+    .category-header {
+        padding-bottom: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 3px solid;
     }
     
     .conversion-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border-radius: 15px;
         overflow: hidden;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         border: none;
+        height: 100%;
     }
     
     .conversion-card:hover {
         transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     }
     
-    .card-icon {
-        font-size: 3rem;
-        color: #667eea;
+    .card-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         margin-bottom: 1rem;
+        color: white;
+        font-size: 1.5rem;
     }
     
     .features-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 1.5rem;
-        margin: 2rem 0;
+        margin: 3rem 0;
     }
     
     .feature-item {
@@ -42,13 +78,13 @@
         padding: 1.5rem;
         background: #f8f9fa;
         border-radius: 10px;
+        transition: all 0.3s ease;
     }
     
-    .supported-formats {
-        background: #f8f9fa;
-        border-radius: 15px;
-        padding: 2rem;
-        margin: 2rem 0;
+    .feature-item:hover {
+        background: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transform: translateY(-5px);
     }
     
     .format-badge {
@@ -60,6 +96,47 @@
         font-size: 0.9rem;
         border: 1px solid #dee2e6;
     }
+    
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+    }
+    
+    .stats-number {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #667eea;
+        line-height: 1;
+    }
+    
+    /* Animation pour les cartes */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animated-card {
+        animation: fadeInUp 0.6s ease forwards;
+        opacity: 0;
+    }
+    
+    /* Délais d'animation pour les cartes */
+    .card-1 { animation-delay: 0.1s; }
+    .card-2 { animation-delay: 0.2s; }
+    .card-3 { animation-delay: 0.3s; }
+    .card-4 { animation-delay: 0.4s; }
+    .card-5 { animation-delay: 0.5s; }
+    .card-6 { animation-delay: 0.6s; }
 </style>
 {% endblock %}
 
@@ -67,184 +144,242 @@
 <div class="container">
     <!-- Hero Section -->
     <div class="hero-section text-center">
-        <h1 class="display-4 mb-3"><i class="fas fa-bullseye me-2"></i>Conversion de fichiers</h1>
-        <p class="lead mb-4">Transformez vos images en documents professionnels en quelques clics</p>
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <p class="mb-4">Convertissez vos images JPG, PNG et autres formats en PDF, Word ou Excel. Simple, rapide et sécurisé.</p>
+        <div class="position-relative">
+            <h1 class="display-4 mb-3"><i class="fas fa-exchange-alt me-2"></i>Convertisseur de fichiers</h1>
+            <p class="lead mb-4">Transformez vos documents en tous formats, gratuitement et en ligne</p>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <p class="mb-4">Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple, rapide et sécurisé.</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="#conversions" class="btn btn-light btn-lg">
+                    <i class="fas fa-arrow-down me-2"></i>Découvrir les outils
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Outils de conversion -->
-    <h2 class="text-center mb-4"><i class="fas fa-folder me-2"></i>Choisissez votre outil de conversion</h2>
-    
-    <div class="row">
-        <!-- Image vers PDF -->
-        <div class="col-md-4">
-            <div class="card conversion-card">
-                <div class="card-body text-center p-4">
-                    <div class="card-icon">
-                        <i class="fas fa-file-pdf"></i>
-                    </div>
-                    <h3 class="card-title h4">Image vers PDF</h3>
-                    <p class="card-text">Convertissez une ou plusieurs images en un seul document PDF</p>
-                    <ul class="text-start mb-3" style="font-size: 0.9rem;">
-                        <li>Jusqu'à {{ max_files }} images par PDF</li>
-                        <li>Support JPG, PNG, GIF, BMP, TIFF</li>
-                        <li>Ajustement qualité et orientation</li>
-                    </ul>
-                    <a href="{{ url_for('conversion.image_to_pdf') }}" class="btn btn-primary btn-lg w-100">
-                        <i class="fas fa-arrow-right me-1"></i> Convertir
-                    </a>
-                </div>
+    <!-- Statistiques -->
+    <div class="row mb-5">
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <div class="stats-number">{{ all_conversions|length }}</div>
+                <p class="text-muted mb-0">Outils de conversion</p>
             </div>
         </div>
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <div class="stats-number">100%</div>
+                <p class="text-muted mb-0">Gratuit</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <div class="stats-number">50MB</div>
+                <p class="text-muted mb-0">Max par fichier</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <div class="stats-number">∞</div>
+                <p class="text-muted mb-0">Conversions illimitées</p>
+            </div>
+        </div>
+    </div>
 
-        <!-- Image vers Word -->
-        <div class="col-md-4">
-            <div class="card conversion-card">
-                <div class="card-body text-center p-4">
-                    <div class="card-icon">
-                        <i class="fas fa-file-word"></i>
-                    </div>
-                    <h3 class="card-title h4">Image vers Word</h3>
-                    <p class="card-text">Transformez images et PDF en documents Word éditables</p>
-                    <ul class="text-start mb-3" style="font-size: 0.9rem;">
-                        <li>Reconnaissance de texte (OCR)</li>
-                        <li>Support 5 langues</li>
-                        <li>Format .docx compatible</li>
-                    </ul>
-                    <a href="{{ url_for('conversion.image_to_word') }}" class="btn btn-primary btn-lg w-100">
-                        <i class="fas fa-arrow-right me-1"></i> Convertir
+    <!-- Catégories de conversions -->
+    <div id="conversions">
+        {% for category_id, category in categories.items() %}
+        <div class="category-section">
+            <div class="category-header" style="border-color: {{ category.color }};">
+                <h2 class="mb-0">
+                    <i class="fas fa-{{ category.icon }} me-2"></i>
+                    {{ category.title }}
+                </h2>
+                <p class="text-muted mb-0 mt-2">{{ category.conversions|length }} outils disponibles</p>
+            </div>
+            
+            <div class="row">
+                {% for conversion in category.conversions %}
+                <div class="col-md-3 mb-4">
+                    <a href="{{ url_for('conversion.universal_converter', conversion_type=conversion_id_for_url(conversion)) }}" 
+                       class="text-decoration-none">
+                        <div class="card conversion-card animated-card card-{{ loop.index }}">
+                            <div class="card-body p-4">
+                                <div class="card-icon-wrapper" style="background: {{ conversion.color }};">
+                                    <i class="fas fa-{{ conversion.icon }}"></i>
+                                </div>
+                                <h4 class="card-title h5 mb-3">{{ conversion.title }}</h4>
+                                <p class="card-text small text-muted mb-3">
+                                    {{ conversion.description }}
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-light text-dark">
+                                        {{ conversion.from_format }} → {{ conversion.to_format }}
+                                    </span>
+                                    <i class="fas fa-arrow-right text-muted"></i>
+                                </div>
+                            </div>
+                        </div>
                     </a>
                 </div>
+                {% endfor %}
             </div>
         </div>
-
-        <!-- Image vers Excel -->
-        <div class="col-md-4">
-            <div class="card conversion-card">
-                <div class="card-body text-center p-4">
-                    <div class="card-icon">
-                        <i class="fas fa-file-excel"></i>
-                    </div>
-                    <h3 class="card-title h4">Image vers Excel</h3>
-                    <p class="card-text">Extrayez des tableaux d'images vers Excel</p>
-                    <ul class="text-start mb-3" style="font-size: 0.9rem;">
-                        <li>Détection automatique des tableaux</li>
-                        <li>OCR pour données structurées</li>
-                        <li>Export .xlsx et .csv</li>
-                    </ul>
-                    <a href="{{ url_for('conversion.image_to_excel') }}" class="btn btn-primary btn-lg w-100">
-                        <i class="fas fa-arrow-right me-1"></i> Convertir
-                    </a>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 
     <!-- Fonctionnalités principales -->
-    <div class="features-grid mt-5">
+    <div class="features-grid">
         <div class="feature-item">
-            <i class="fas fa-shield-alt text-primary" style="font-size: 2.5rem;"></i>
+            <i class="fas fa-shield-alt" style="font-size: 2.5rem; color: #667eea;"></i>
             <h4>Sécurisé</h4>
-            <p>Traitement local, fichiers supprimés après 1h</p>
+            <p class="mb-0">Fichiers traités localement et supprimés après conversion</p>
         </div>
         <div class="feature-item">
-            <i class="fas fa-bolt text-primary" style="font-size: 2.5rem;"></i>
+            <i class="fas fa-bolt" style="font-size: 2.5rem; color: #667eea;"></i>
             <h4>Rapide</h4>
-            <p>Conversion en quelques secondes</p>
+            <p class="mb-0">Conversion en quelques secondes, sans attente</p>
         </div>
         <div class="feature-item">
-            <i class="fas fa-laptop text-primary" style="font-size: 2.5rem;"></i>
+            <i class="fas fa-laptop" style="font-size: 2.5rem; color: #667eea;"></i>
             <h4>Multiplateforme</h4>
-            <p>Compatible tous navigateurs</p>
+            <p class="mb-0">Compatible avec tous les navigateurs modernes</p>
         </div>
         <div class="feature-item">
-            <i class="fas fa-cloud-slash text-primary" style="font-size: 2.5rem;"></i>
-            <h4>Sans stockage</h4>
-            <p>Aucun fichier stocké sur nos serveurs</p>
+            <i class="fas fa-infinity" style="font-size: 2.5rem; color: #667eea;"></i>
+            <h4>Illimité</h4>
+            <p class="mb-0">Aucune limite sur le nombre de conversions</p>
         </div>
     </div>
 
-    <!-- Formats supportés -->
-    <div class="supported-formats">
-        <h3 class="text-center mb-4"><i class="fas fa-clipboard-list me-2"></i>Formats de fichiers supportés</h3>
-        
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <h5>Images source</h5>
-                {% for ext in supported_formats.image %}
-                <span class="format-badge">{{ ext }}</span>
+    <!-- Toutes les conversions -->
+    <div class="row mt-5">
+        <div class="col-md-8">
+            <h3 class="mb-4"><i class="fas fa-list-alt me-2"></i>Toutes les conversions disponibles</h3>
+            <div class="row">
+                {% for key, conversion in all_conversions.items() %}
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center p-3 bg-light rounded">
+                        <div class="me-3" style="color: {{ conversion.color }};">
+                            <i class="fas fa-{{ conversion.icon }} fa-lg"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">{{ conversion.title }}</h6>
+                            <p class="mb-0 small text-muted">{{ conversion.description }}</p>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('conversion.universal_converter', conversion_type=key) }}" 
+                               class="btn btn-sm btn-outline-primary">
+                                Utiliser
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 {% endfor %}
-            </div>
-            <div class="col-md-6 mb-4">
-                <h5>PDF source</h5>
-                <span class="format-badge">.pdf</span>
-            </div>
-            <div class="col-md-6 mb-4">
-                <h5>Sortie PDF</h5>
-                <span class="format-badge">.pdf</span>
-            </div>
-            <div class="col-md-6 mb-4">
-                <h5>Sortie Word</h5>
-                <span class="format-badge">.docx</span>
-            </div>
-            <div class="col-md-6 mb-4">
-                <h5>Sortie Excel</h5>
-                <span class="format-badge">.xlsx</span>
-                <span class="format-badge">.csv</span>
             </div>
         </div>
         
-        <div class="alert alert-info mt-3">
-            <i class="fas fa-info-circle me-2"></i>
-            <strong>Limites :</strong> Taille max : {{ max_size_mb }} MB par fichier
-            | Jusqu'à {{ max_files }} images par conversion
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-question-circle me-2"></i>Comment ça marche ?</h5>
+                    <ol class="mt-3 ps-3">
+                        <li class="mb-2">Choisissez votre outil de conversion</li>
+                        <li class="mb-2">Téléchargez votre fichier source</li>
+                        <li class="mb-2">Configurez les options (si besoin)</li>
+                        <li class="mb-2">Lancez la conversion</li>
+                        <li>Téléchargez votre fichier converti</li>
+                    </ol>
+                    
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Important :</strong> Les fichiers sont automatiquement supprimés après 1 heure
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Liens rapides -->
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-link me-2"></i>Liens rapides</h5>
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('conversion.dependencies_page') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-cogs me-2"></i>Dépendances système
+                        </a>
+                        <a href="{{ url_for('conversion.clean_temp') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-trash me-2"></i>Nettoyer fichiers temporaires
+                        </a>
+                        <a href="{{ url_for('conversion.api_health') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-heartbeat me-2"></i>Vérifier l'état du service
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- FAQ -->
-    <div class="mt-5">
+    <div class="mt-5 pt-4">
         <h3 class="text-center mb-4"><i class="fas fa-question-circle me-2"></i>Questions fréquentes</h3>
-        <div class="accordion" id="faqAccordion">
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                        <i class="fas fa-shield-alt me-2"></i>Les fichiers sont-ils sécurisés ?
-                    </button>
-                </h2>
-                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-                    <div class="accordion-body">
-                        Oui, tous les fichiers sont traités localement et automatiquement supprimés après 1 heure. 
-                        Nous ne stockons pas vos documents sur nos serveurs.
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-shield-alt text-primary me-2"></i>
+                            Les fichiers sont-ils sécurisés ?
+                        </h5>
+                        <p class="card-text">
+                            Oui, tous les fichiers sont traités localement et automatiquement supprimés après 1 heure. 
+                            Nous ne stockons jamais vos documents sur nos serveurs.
+                        </p>
                     </div>
                 </div>
             </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                        <i class="fas fa-file-upload me-2"></i>Combien de fichiers puis-je convertir ?
-                    </button>
-                </h2>
-                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                    <div class="accordion-body">
-                        Vous pouvez convertir jusqu'à {{ max_files }} images en une seule fois pour les PDF, 
-                        et jusqu'à {{ config.MAX_FILES_PER_CONVERSION if config.MAX_FILES_PER_CONVERSION else 10 }} fichiers pour les autres conversions.
+            
+            <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-weight-hanging text-primary me-2"></i>
+                            Quelles sont les limites de taille ?
+                        </h5>
+                        <p class="card-text">
+                            Taille maximale par fichier : 50MB. 
+                            Nombre maximum de fichiers par conversion : variable selon l'outil (de 1 à 20).
+                        </p>
                     </div>
                 </div>
             </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                        <i class="fas fa-image me-2"></i>La qualité des images est-elle préservée ?
-                    </button>
-                </h2>
-                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                    <div class="accordion-body">
-                        Oui, vous pouvez choisir entre 3 niveaux de qualité : Basse, Moyenne et Haute. 
-                        La qualité Haute conserve la résolution originale de vos images.
+            
+            <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-clock text-primary me-2"></i>
+                            Combien de temps dure une conversion ?
+                        </h5>
+                        <p class="card-text">
+                            La plupart des conversions prennent moins de 30 secondes. 
+                            Pour les gros fichiers ou les conversions complexes (OCR), comptez 1 à 2 minutes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-file text-primary me-2"></i>
+                            Quels formats sont supportés ?
+                        </h5>
+                        <p class="card-text">
+                            Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, 
+                            JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -255,18 +390,38 @@
 
 {% block extra_js %}
 <script>
-    // Animation des cartes au chargement
     document.addEventListener('DOMContentLoaded', function() {
-        const cards = document.querySelectorAll('.conversion-card');
-        cards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 200);
+        // Animation au défilement
+        const animatedElements = document.querySelectorAll('.animated-card');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const delay = entry.target.classList.contains('card-1') ? 100 :
+                                 entry.target.classList.contains('card-2') ? 200 :
+                                 entry.target.classList.contains('card-3') ? 300 :
+                                 entry.target.classList.contains('card-4') ? 400 : 500;
+                    
+                    setTimeout(() => {
+                        entry.target.style.animationPlayState = 'running';
+                    }, delay);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        animatedElements.forEach(el => {
+            el.style.animationPlayState = 'paused';
+            observer.observe(el);
+        });
+        
+        // Mettre en surbrillance la catégorie actuelle dans le menu
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+        
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
         });
     });
 </script>
