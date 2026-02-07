@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV vers Excel - PDF Fusion Pro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/conversion.css') }}">
+    <style>
+        .container { max-width: 800px; margin: 40px auto; padding: 20px; }
+        h1 { color: #3b82f6; }
+        .upload-zone {
+            border: 2px dashed #ccc;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        .btn {
+            background: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Conversion CSV vers Excel</h1>
+        <p>Convertissez vos fichiers CSV en format Excel (XLSX)</p>
+        
+        <div class="upload-zone">
+            <h3>Déposez votre fichier CSV ici</h3>
+            <p>Formats supportés: .csv, .txt</p>
+            <input type="file" id="fileInput" accept=".csv,.txt">
+        </div>
+        
+        <button class="btn" onclick="convert()">Convertir en Excel</button>
+        
+        <p><a href="{{ url_for('conversion.conversion_home') }}">← Retour aux conversions</a></p>
+    </div>
+    
+    <script>
+        function convert() {
+            alert('Conversion CSV vers Excel - Fonctionnalité en développement');
+        }
+    </script>
+</body>
+</html>
