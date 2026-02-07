@@ -21,6 +21,54 @@ from blueprints.admin import admin_bp
 from blueprints.conversion import conversion_bp
 from blueprints.legal.routes import legal_bp  # IMPORT CORRECT !
 
+import subprocess
+import sys
+
+@app.route('/force-install-ocr')
+def force_install_ocr():
+    """Force l'installation des packages OCR (admin seulement)"""
+    try:
+        # Installer les packages
+        packages = [
+            'pytesseract==0.3.10',
+            'pdf2image==1.16.3',
+            'Pillow==10.0.0',
+            'opencv-python-headless==4.8.1.78'
+        ]
+        
+        results = []
+        for package in packages:
+            try:
+                # Installer avec pip
+                cmd = [sys.executable, "-m", "pip", "install", package, "--user"]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                
+                if result.returncode == 0:
+                    results.append(f"✅ {package} installé")
+                else:
+                    results.append(f"❌ {package} erreur: {result.stderr[:200]}")
+                    
+            except Exception as e:
+                results.append(f"❌ {package} exception: {str(e)}")
+        
+        # Tester l'import
+        test_results = []
+        try:
+            import pytesseract
+            test_results.append("✅ pytesseract importé")
+        except:
+            test_results.append("❌ pytesseract non importé")
+        
+        return jsonify({
+            "status": "installation forcée terminée",
+            "installation_results": results,
+            "import_test": test_results,
+            "python_path": sys.executable
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # ✅ AJOUTER ICI - Imports OCR conditionnels
 try:
     import pytesseract
@@ -210,7 +258,6 @@ def create_app():
         
         try:
             import shutil
-            import subprocess
             import os
 
             # ✅ VÉRIFIER LES CHEMINS POSSIBLES DE TESSERACT
