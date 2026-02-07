@@ -1,0 +1,744 @@
+<!-- templates/conversion/word_to_pdf.html -->
+{% extends "conversion/conversion_base.html" %}
+
+{% block converter_content %}
+<!-- Étape 1: Upload -->
+<div id="step1Content">
+    <div class="upload-zone" id="dropZone">
+        <div class="upload-icon">
+            <i class="fas fa-file-word"></i>
+        </div>
+        
+        <h3>Déposez votre Word ici</h3>
+        <p class="text-muted mb-4">
+            Convertissez vos documents Word en PDF
+        </p>
+        
+        <p class="small text-muted mb-3">
+            <i class="fas fa-info-circle me-1"></i>
+            Formats acceptés: .doc, .docx | Taille max: 50MB
+        </p>
+        
+        <input type="file" 
+               id="fileInput" 
+               class="d-none" 
+               accept=".doc,.docx">
+        
+        <button class="btn btn-primary btn-lg px-4 py-2"
+                onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-folder-open me-2"></i>
+            Sélectionner un document
+        </button>
+    </div>
+    
+    <!-- Options de conversion -->
+    <div class="mt-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    <i class="fas fa-cog me-2"></i>Options de conversion
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Format de page</label>
+                        <select class="form-select" id="pageFormat">
+                            <option value="A4" selected>A4 (210 × 297 mm)</option>
+                            <option value="Letter">Letter (8.5 × 11 in)</option>
+                            <option value="Legal">Legal (8.5 × 14 in)</option>
+                            <option value="A3">A3 (297 × 420 mm)</option>
+                            <option value="A5">A5 (148 × 210 mm)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Orientation</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="orientation" id="portrait" checked>
+                            <label class="btn btn-outline-primary" for="portrait">
+                                <i class="fas fa-file-alt me-1"></i>Portrait
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="orientation" id="landscape">
+                            <label class="btn btn-outline-primary" for="landscape">
+                                <i class="fas fa-file me-1"></i>Paysage
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Marges</label>
+                        <select class="form-select" id="margins">
+                            <option value="normal" selected>Normales (2.5 cm)</option>
+                            <option value="narrow">Étroites (1.3 cm)</option>
+                            <option value="moderate">Modérées (1.9 cm)</option>
+                            <option value="wide">Larges (5 cm)</option>
+                            <option value="none">Aucune</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Qualité</label>
+                        <select class="form-select" id="quality">
+                            <option value="standard" selected>Standard</option>
+                            <option value="high">Haute qualité</option>
+                            <option value="screen">Optimisé écran</option>
+                            <option value="print">Optimisé impression</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="preserveLayout" checked>
+                    <label class="form-check-label">
+                        Conserver la mise en page
+                    </label>
+                </div>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="includeBookmarks" checked>
+                    <label class="form-check-label">
+                        Inclure les signets
+                    </label>
+                </div>
+                
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="protectPDF">
+                    <label class="form-check-label">
+                        Protéger le PDF
+                    </label>
+                </div>
+                
+                <!-- Protection options (hidden by default) -->
+                <div id="protectionOptions" class="mt-3" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Mot de passe</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="password" 
+                                   placeholder="Optionnel">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Permissions</label>
+                            <select class="form-select" id="permissions">
+                                <option value="view" selected>Visualisation seule</option>
+                                <option value="print">Impression autorisée</option>
+                                <option value="edit">Modification autorisée</option>
+                                <option value="full">Toutes permissions</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Informations fichier -->
+    <div id="fileInfo" class="file-info-card mt-4" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="mb-1" id="fileName"></h5>
+                <p class="text-muted mb-0 small" id="fileDetails"></p>
+            </div>
+            <button class="btn btn-sm btn-outline-danger" onclick="clearFile()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <button class="btn btn-primary w-100 py-2" id="convertBtn" onclick="startConversion()">
+            <i class="fas fa-play me-2"></i>
+            Convertir en PDF
+        </button>
+    </div>
+</div>
+
+<!-- Étape 2: Conversion -->
+<div id="step2Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="upload-icon mb-4">
+            <i class="fas fa-sync-alt fa-spin"></i>
+        </div>
+        
+        <h3>Conversion en cours...</h3>
+        <p class="text-muted mb-4">
+            Transformation de votre document Word en PDF
+        </p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="conversionProgress"></div>
+        </div>
+        
+        <div class="mt-4" id="conversionDetails">
+            <p class="text-muted small">
+                <i class="fas fa-spinner fa-spin me-1"></i>
+                Lecture du document Word...
+            </p>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Pages estimées</h6>
+                        <p class="small text-muted mb-0" id="estimatedPages">Calcul...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Qualité</h6>
+                        <p class="small text-muted mb-0" id="qualitySetting">Standard</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Temps estimé</h6>
+                        <p class="small text-muted mb-0" id="estimatedTime">Quelques secondes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Étape 3: Téléchargement -->
+<div id="step3Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="success-animation">
+            <i class="fas fa-file-pdf"></i>
+        </div>
+        
+        <h3 class="mb-3">Conversion réussie !</h3>
+        <p class="text-muted mb-4">
+            Votre document PDF est prêt au téléchargement
+        </p>
+        
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="fas fa-file-pdf fa-2x text-danger mb-3"></i>
+                        <h5 id="pdfFileName">document.pdf</h5>
+                        <p class="small text-muted" id="pdfFileInfo">
+                            Taille: 0 MB | Pages: 0
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="fas fa-info-circle fa-2x text-primary mb-3"></i>
+                        <h5>Détails</h5>
+                        <p class="small text-muted" id="conversionDetailsInfo">
+                            Format: A4<br>
+                            Orientation: Portrait<br>
+                            Qualité: Standard
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong>Conversion parfaite !</strong> Tous les éléments ont été conservés.
+        </div>
+        
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+            <button class="btn btn-success btn-lg px-4" id="downloadBtn">
+                <i class="fas fa-download me-2"></i>
+                Télécharger PDF
+            </button>
+            
+            <button class="btn btn-outline-primary btn-lg px-4" onclick="resetConverter()">
+                <i class="fas fa-redo me-2"></i>
+                Nouvelle conversion
+            </button>
+        </div>
+        
+        <div class="mt-4">
+            <div class="btn-group" role="group">
+                <button class="btn btn-outline-secondary" onclick="updateStep(1)">
+                    <i class="fas fa-edit me-1"></i>
+                    Modifier les options
+                </button>
+                <a href="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-word') }}" 
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-exchange-alt me-1"></i>
+                    PDF vers Word
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedFile = null;
+
+// Gestion du drag & drop
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, highlight, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, unhighlight, false);
+});
+
+function highlight() {
+    dropZone.classList.add('dragover');
+}
+
+function unhighlight() {
+    dropZone.classList.remove('dragover');
+}
+
+dropZone.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    handleFile(files[0]);
+}
+
+fileInput.addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+        handleFile(this.files[0]);
+    }
+});
+
+function handleFile(file) {
+    if (!file) return;
+    
+    // Vérifier l'extension
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['doc', 'docx'].includes(ext)) {
+        showError('Veuillez sélectionner un fichier Word (.doc ou .docx)');
+        return;
+    }
+    
+    // Vérifier la taille (max 50MB)
+    if (file.size > 50 * 1024 * 1024) {
+        showError('Fichier trop volumineux (max 50MB)');
+        return;
+    }
+    
+    selectedFile = file;
+    
+    // Afficher les infos
+    document.getElementById('fileName').textContent = file.name;
+    const pages = Math.ceil(file.size / 10000); // Estimation basée sur la taille
+    document.getElementById('fileDetails').textContent = 
+        `${(file.size / 1024 / 1024).toFixed(2)} MB • ${pages} page(s) estimée(s)`;
+    
+    document.getElementById('fileInfo').style.display = 'block';
+    
+    // Gérer l'affichage des options de protection
+    document.getElementById('protectPDF').addEventListener('change', function() {
+        document.getElementById('protectionOptions').style.display = 
+            this.checked ? 'block' : 'none';
+    });
+}
+
+function clearFile() {
+    selectedFile = null;
+    fileInput.value = '';
+    document.getElementById('fileInfo').style.display = 'none';
+    document.getElementById('protectionOptions').style.display = 'none';
+}
+
+function startConversion() {
+    if (!selectedFile) return;
+    
+    updateStep(2);
+    
+    // Récupérer les paramètres
+    const pageFormat = document.getElementById('pageFormat').value;
+    const orientation = document.querySelector('input[name="orientation"]:checked').id;
+    const margins = document.getElementById('margins').value;
+    const quality = document.getElementById('quality').value;
+    const preserveLayout = document.getElementById('preserveLayout').checked;
+    const includeBookmarks = document.getElementById('includeBookmarks').checked;
+    const protectPDF = document.getElementById('protectPDF').checked;
+    const password = document.getElementById('password').value;
+    const permissions = document.getElementById('permissions').value;
+    
+    // Mettre à jour les infos d'estimation
+    document.getElementById('qualitySetting').textContent = 
+        quality === 'standard' ? 'Standard' : 
+        quality === 'high' ? 'Haute qualité' :
+        quality === 'screen' ? 'Optimisé écran' : 'Optimisé impression';
+    
+    const pages = Math.ceil(selectedFile.size / 10000);
+    document.getElementById('estimatedPages').textContent = `${pages} page(s)`;
+    
+    // Simuler la progression
+    let progress = 0;
+    const progressBar = document.getElementById('conversionProgress');
+    const details = document.getElementById('conversionDetails');
+    const estimatedTime = document.getElementById('estimatedTime');
+    
+    // Mettre à jour le temps estimé
+    const estimatedSeconds = Math.max(5, Math.ceil(selectedFile.size / (5 * 1024 * 1024)) * 3);
+    estimatedTime.textContent = `~${estimatedSeconds} secondes`;
+    
+    // Simulation de progression étape par étape
+    const steps = [
+        { percent: 15, message: "Lecture du document Word..." },
+        { percent: 30, message: "Extraction des styles et mises en page..." },
+        { percent: 50, message: "Conversion des images et tableaux..." },
+        { percent: 70, message: "Génération du PDF..." },
+        { percent: 90, message: "Application des paramètres de qualité..." },
+        { percent: 95, message: "Finalisation du document..." }
+    ];
+    
+    let currentStep = 0;
+    
+    function simulateProgress() {
+        if (currentStep < steps.length) {
+            const step = steps[currentStep];
+            progressBar.style.width = `${step.percent}%`;
+            details.innerHTML = `<p class="text-muted small">
+                <i class="fas fa-spinner fa-spin me-1"></i>
+                ${step.message}
+            </p>`;
+            
+            currentStep++;
+            
+            // Intervalle variable pour paraître plus réaliste
+            const interval = currentStep === steps.length - 1 ? 1500 : 
+                           currentStep < 2 ? 1000 : 
+                           currentStep < 4 ? 800 : 500;
+            
+            setTimeout(simulateProgress, interval);
+        } else {
+            // Fin de la simulation - transition vers l'étape 3
+            progressBar.style.width = '100%';
+            setTimeout(completeConversion, 1000);
+        }
+    }
+    
+    // Démarrer la simulation
+    setTimeout(simulateProgress, 500);
+    
+    // En parallèle, préparer l'appel API réel
+    prepareRealConversion();
+}
+
+function prepareRealConversion() {
+    // Ici, nous allons préparer les données pour l'API réelle
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('page_format', document.getElementById('pageFormat').value);
+    formData.append('orientation', document.querySelector('input[name="orientation"]:checked').id);
+    formData.append('margins', document.getElementById('margins').value);
+    formData.append('quality', document.getElementById('quality').value);
+    formData.append('preserve_layout', document.getElementById('preserveLayout').checked);
+    formData.append('include_bookmarks', document.getElementById('includeBookmarks').checked);
+    formData.append('protect_pdf', document.getElementById('protectPDF').checked);
+    formData.append('password', document.getElementById('password').value);
+    formData.append('permissions', document.getElementById('permissions').value);
+    
+    // Vous pouvez décommenter cette partie pour l'implémentation réelle
+    /*
+    fetch('/api/convert/word-to-pdf', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            completeConversion(data);
+        } else {
+            showError(data.error || 'Erreur lors de la conversion');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showError('Erreur de connexion au serveur');
+    });
+    */
+}
+
+function completeConversion(apiData = null) {
+    updateStep(3);
+    
+    // Mettre à jour les informations dans l'étape 3
+    const originalName = selectedFile.name;
+    const pdfName = originalName.replace(/\.[^/.]+$/, "") + '.pdf';
+    document.getElementById('pdfFileName').textContent = pdfName;
+    
+    // Simuler des données de conversion
+    const simulatedData = {
+        filename: pdfName,
+        file_size: (selectedFile.size * 0.6 / (1024 * 1024)).toFixed(2), // 40% de compression
+        pages: Math.ceil(selectedFile.size / 10000),
+        format: document.getElementById('pageFormat').value,
+        orientation: document.querySelector('input[name="orientation"]:checked').id === 'portrait' ? 'Portrait' : 'Paysage',
+        quality: document.getElementById('quality').value === 'standard' ? 'Standard' : 
+                document.getElementById('quality').value === 'high' ? 'Haute qualité' :
+                document.getElementById('quality').value === 'screen' ? 'Optimisé écran' : 'Optimisé impression'
+    };
+    
+    const data = apiData || simulatedData;
+    
+    document.getElementById('pdfFileInfo').textContent = 
+        `Taille: ${data.file_size} MB | Pages: ${data.pages}`;
+    
+    document.getElementById('conversionDetailsInfo').innerHTML = 
+        `Format: ${data.format}<br>
+         Orientation: ${data.orientation}<br>
+         Qualité: ${data.quality}`;
+    
+    // Configurer le bouton de téléchargement
+    const downloadBtn = document.getElementById('downloadBtn');
+    if (apiData && apiData.download_url) {
+        // URL réelle de téléchargement
+        downloadBtn.onclick = function() {
+            window.location.href = apiData.download_url;
+        };
+    } else {
+        // Simulation de téléchargement
+        downloadBtn.onclick = function() {
+            simulateDownload(pdfName, data);
+        };
+    }
+}
+
+function simulateDownload(filename, data) {
+    // Simulation de téléchargement (pour développement)
+    const blob = new Blob([`PDF généré: ${filename}\nTaille: ${data.file_size}MB\nPages: ${data.pages}`], 
+        { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    // Animation de succès
+    downloadBtn.innerHTML = '<i class="fas fa-check me-2"></i>Téléchargé !';
+    downloadBtn.classList.remove('btn-success');
+    downloadBtn.classList.add('btn-secondary');
+    setTimeout(() => {
+        downloadBtn.innerHTML = '<i class="fas fa-download me-2"></i>Télécharger PDF';
+        downloadBtn.classList.remove('btn-secondary');
+        downloadBtn.classList.add('btn-success');
+    }, 2000);
+}
+
+function updateStep(stepNumber) {
+    // Cacher toutes les étapes
+    document.getElementById('step1Content').style.display = 'none';
+    document.getElementById('step2Content').style.display = 'none';
+    document.getElementById('step3Content').style.display = 'none';
+    
+    // Afficher l'étape demandée
+    if (stepNumber === 1) {
+        document.getElementById('step1Content').style.display = 'block';
+    } else if (stepNumber === 2) {
+        document.getElementById('step2Content').style.display = 'block';
+    } else if (stepNumber === 3) {
+        document.getElementById('step3Content').style.display = 'block';
+    }
+}
+
+function resetConverter() {
+    // Réinitialiser tout
+    selectedFile = null;
+    fileInput.value = '';
+    document.getElementById('fileInfo').style.display = 'none';
+    document.getElementById('protectionOptions').style.display = 'none';
+    
+    // Réinitialiser les champs
+    document.getElementById('pageFormat').value = 'A4';
+    document.getElementById('portrait').checked = true;
+    document.getElementById('margins').value = 'normal';
+    document.getElementById('quality').value = 'standard';
+    document.getElementById('preserveLayout').checked = true;
+    document.getElementById('includeBookmarks').checked = true;
+    document.getElementById('protectPDF').checked = false;
+    document.getElementById('password').value = '';
+    document.getElementById('permissions').value = 'view';
+    
+    // Retour à l'étape 1
+    updateStep(1);
+}
+
+function showError(message) {
+    // Créer une alerte d'erreur
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+    alertDiv.innerHTML = `
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Insérer après le premier conteneur
+    const container = document.querySelector('.upload-zone').parentNode;
+    container.parentNode.insertBefore(alertDiv, container.nextSibling);
+    
+    // Auto-dismiss après 5 secondes
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion du bouton "Protéger le PDF"
+    document.getElementById('protectPDF').addEventListener('change', function() {
+        document.getElementById('protectionOptions').style.display = 
+            this.checked ? 'block' : 'none';
+    });
+    
+    // Validation du mot de passe
+    document.getElementById('password').addEventListener('input', function() {
+        const password = this.value;
+        if (password.length > 0 && password.length < 6) {
+            this.classList.add('is-invalid');
+            this.nextElementSibling?.remove();
+            const feedback = document.createElement('div');
+            feedback.className = 'invalid-feedback';
+            feedback.textContent = 'Le mot de passe doit faire au moins 6 caractères';
+            this.parentNode.appendChild(feedback);
+        } else {
+            this.classList.remove('is-invalid');
+            this.nextElementSibling?.remove();
+        }
+    });
+    
+    // Calcul intelligent du temps estimé
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            const pages = Math.ceil(file.size / 10000);
+            const estimatedTimeElement = document.getElementById('estimatedTime');
+            let timeText = 'Quelques secondes';
+            
+            if (pages > 50) {
+                timeText = '1-2 minutes';
+            } else if (pages > 20) {
+                timeText = '30-60 secondes';
+            } else if (pages > 10) {
+                timeText = '15-30 secondes';
+            }
+            
+            estimatedTimeElement.textContent = timeText;
+        }
+    });
+});
+</script>
+
+<style>
+.upload-zone {
+    border: 3px dashed #dee2e6;
+    border-radius: 15px;
+    padding: 60px 20px;
+    text-align: center;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.upload-zone:hover {
+    border-color: #0d6efd;
+    background-color: #e7f1ff;
+}
+
+.upload-zone.dragover {
+    border-color: #0d6efd;
+    background-color: #e7f1ff;
+    transform: scale(1.02);
+}
+
+.upload-icon {
+    font-size: 4rem;
+    color: #0d6efd;
+    margin-bottom: 20px;
+}
+
+.file-info-card {
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: white;
+}
+
+.progress-container {
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 20px auto;
+    max-width: 400px;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #0d6efd;
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 4px;
+}
+
+.success-animation {
+    font-size: 5rem;
+    color: #198754;
+    margin-bottom: 20px;
+    animation: bounce 1s;
+}
+
+@keyframes bounce {
+    0%, 20%, 60%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-20px);
+    }
+    80% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .upload-zone {
+        padding: 40px 15px;
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+    }
+    
+    .success-animation {
+        font-size: 4rem;
+    }
+}
+</style>
+{% endblock %}
