@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 """
-Installation OCR depuis GitHub
+Installation OCR simplifiée pour Render
 """
 
 import os
 import sys
 import subprocess
-import urllib.request
-import tarfile
-import zipfile
 
 def run_command(cmd, description):
     """Exécute une commande shell"""
@@ -17,81 +14,82 @@ def run_command(cmd, description):
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         if result.returncode == 0:
             print(f"✅ {description}")
+            if result.stdout:
+                print(f"   Sortie: {result.stdout[:100]}")
             return True
         else:
-            print(f"❌ {description}: {result.stderr[:200]}")
+            print(f"❌ {description}")
+            if result.stderr:
+                print(f"   Erreur: {result.stderr[:200]}")
             return False
     except Exception as e:
         print(f"❌ Exception: {e}")
         return False
 
-def install_tesseract_from_github():
-    """Installe Tesseract depuis GitHub"""
-    
-    # Option 1: Depuis les releases (binaires)
-    print("⬇️ Téléchargement Tesseract depuis GitHub Releases...")
-    
-    # URL pour Tesseract 5.3.3 (Linux x86_64)
-    tesseract_url = "https://github.com/tesseract-ocr/tesseract/archive/refs/tags/5.3.3.tar.gz"
-    
-    # Télécharger
-    urllib.request.urlretrieve(tesseract_url, "/tmp/tesseract.tar.gz")
-    
-    # Extraire
-    with tarfile.open("/tmp/tesseract.tar.gz", "r:gz") as tar:
-        tar.extractall("/tmp")
-    
-    # Compiler
-    os.chdir("/tmp/tesseract-5.3.3")
-    run_command("./autogen.sh", "Autogen Tesseract")
-    run_command("./configure", "Configure Tesseract")
-    run_command("make", "Compilation Tesseract")
-    run_command("make install", "Installation Tesseract")
-    run_command("ldconfig", "Mise à jour cache bibliothèques")
-    
-    # Télécharger les langues
-    print("🌍 Téléchargement langues OCR...")
-    lang_urls = [
-        ("https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata", "eng.traineddata"),
-        ("https://github.com/tesseract-ocr/tessdata/raw/main/fra.traineddata", "fra.traineddata"),
-    ]
-    
-    tessdata_dir = "/usr/local/share/tessdata"
-    os.makedirs(tessdata_dir, exist_ok=True)
-    
-    for url, filename in lang_urls:
-        urllib.request.urlretrieve(url, os.path.join(tessdata_dir, filename))
-        print(f"✅ {filename} téléchargé")
-
 def main():
     print("=" * 50)
-    print("🚀 INSTALLATION OCR DEPUIS GITHUB")
+    print("🚀 INSTALLATION OCR RAPIDE POUR RENDER")
     print("=" * 50)
     
-    # 1. Dépendances système
+    # 1. Mettre à jour apt
     run_command("apt-get update", "Mise à jour apt")
-    run_command("apt-get install -y git build-essential autoconf automake libtool", "Dépendances compilation")
     
-    # 2. Installer Tesseract
-    install_tesseract_from_github()
+    # 2. Installer Tesseract DEPUIS LES DÉPÔTS (pas de compilation)
+    print("📦 Installation Tesseract depuis les dépôts...")
+    run_command("apt-get install -y tesseract-ocr tesseract-ocr-fra poppler-utils", 
+                "Installation Tesseract OCR")
     
-    # 3. Installer Poppler
-    run_command("apt-get install -y poppler-utils", "Installation Poppler")
-    
-    # 4. Installer packages Python
-    run_command("pip install --upgrade pip", "Mise à jour pip")
-    run_command("pip install pytesseract==0.3.10 pdf2image==1.16.3 Pillow==10.0.0", "Packages Python OCR")
-    
-    # 5. Vérification
-    print("=" * 50)
-    print("🧪 VÉRIFICATION...")
+    # 3. Vérifier l'installation
+    print("✅ Vérification installation...")
+    run_command("which tesseract", "Chemin Tesseract")
     run_command("tesseract --version", "Version Tesseract")
-    run_command("tesseract --list-langs", "Langues disponibles")
-    run_command("which pdftoppm", "Vérification Poppler")
+    run_command("which pdftoppm", "Chemin Poppler")
+    
+    # 4. Installer packages Python OCR
+    print("🐍 Installation packages Python OCR...")
+    run_command("pip install --upgrade pip", "Mise à jour pip")
+    
+    # Installer chaque package séparément
+    packages = [
+        "pytesseract==0.3.10",
+        "pdf2image==1.16.3", 
+        "Pillow==10.0.0",
+        "opencv-python-headless==4.8.1.78",
+        "pandas==2.1.4"
+    ]
+    
+    for package in packages:
+        run_command(f"pip install {package}", f"Installation {package}")
+    
+    # 5. Vérification finale
+    print("=" * 50)
+    print("🧪 VÉRIFICATION FINALE")
+    print("=" * 50)
+    
+    # Tester les imports
+    test_packages = [
+        ("pytesseract", "pytesseract"),
+        ("pdf2image", "pdf2image"),
+        ("Pillow", "PIL.Image"),
+        ("OpenCV", "cv2"),
+        ("pandas", "pandas")
+    ]
+    
+    for name, import_name in test_packages:
+        try:
+            if import_name == "PIL.Image":
+                from PIL import Image
+                print(f"✅ {name}: OK (Pillow)")
+            else:
+                __import__(import_name.split('.')[0])
+                print(f"✅ {name}: OK")
+        except ImportError as e:
+            print(f"❌ {name}: {e}")
     
     print("=" * 50)
-    print("✅ INSTALLATION TERMINÉE")
+    print("✅ INSTALLATION OCR TERMINÉE")
     print("=" * 50)
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
