@@ -1,0 +1,276 @@
+<!-- templates/conversion/pdf_to_excel.html -->
+{% extends "conversion/conversion_base.html" %}
+
+{% block converter_content %}
+<!-- Étape 1: Upload -->
+<div id="step1Content">
+    <div class="upload-zone" id="dropZone">
+        <div class="upload-icon">
+            <i class="fas fa-cloud-upload-alt"></i>
+        </div>
+        
+        <h3>Déposez votre PDF ici</h3>
+        <p class="text-muted mb-4">
+            Glissez-déposez votre fichier PDF ou cliquez pour sélectionner
+        </p>
+        
+        <p class="small text-muted mb-3">
+            <i class="fas fa-info-circle me-1"></i>
+            Formats acceptés: {{ accept }}
+            {% if max_files > 1 %}
+                | Maximum: {{ max_files }} fichiers
+            {% endif %}
+        </p>
+        
+        <input type="file" 
+               id="fileInput" 
+               class="d-none" 
+               accept="{{ accept }}"
+               {% if max_files > 1 %}multiple{% endif %}>
+        
+        <button class="btn btn-primary btn-lg px-4 py-2"
+                onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-folder-open me-2"></i>
+            Sélectionner un fichier
+        </button>
+    </div>
+    
+    <!-- Informations fichier -->
+    <div id="fileInfo" class="file-info-card" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="mb-1" id="fileName"></h5>
+                <p class="text-muted mb-0 small" id="fileDetails"></p>
+            </div>
+            <button class="btn btn-sm btn-outline-danger" onclick="clearFile()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <button class="btn btn-primary w-100 py-2" id="convertBtn" onclick="startConversion()">
+            <i class="fas fa-play me-2"></i>
+            Convertir en Excel
+        </button>
+    </div>
+</div>
+
+<!-- Étape 2: Conversion -->
+<div id="step2Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="upload-icon mb-4">
+            <i class="fas fa-sync-alt fa-spin"></i>
+        </div>
+        
+        <h3>Conversion en cours...</h3>
+        <p class="text-muted mb-4">Extraction des données de votre PDF</p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="conversionProgress"></div>
+        </div>
+        
+        <div class="mt-4" id="conversionDetails">
+            <p class="text-muted small">
+                <i class="fas fa-spinner fa-spin me-1"></i>
+                Analyse du document...
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Étape 3: Téléchargement -->
+<div id="step3Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="success-animation">
+            <i class="fas fa-check"></i>
+        </div>
+        
+        <h3 class="mb-3">Conversion réussie !</h3>
+        <p class="text-muted mb-4">
+            Votre fichier Excel est prêt au téléchargement
+        </p>
+        
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+            <button class="btn btn-success btn-lg px-4" id="downloadBtn">
+                <i class="fas fa-download me-2"></i>
+                Télécharger Excel
+            </button>
+            
+            <button class="btn btn-outline-primary btn-lg px-4" onclick="resetConverter()">
+                <i class="fas fa-redo me-2"></i>
+                Nouvelle conversion
+            </button>
+        </div>
+        
+        <div class="mt-4">
+            <button class="btn btn-link text-muted" onclick="updateStep(1)">
+                <i class="fas fa-arrow-left me-1"></i>
+                Retour à l'upload
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedFile = null;
+
+// Gestion du drag & drop
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, highlight, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, unhighlight, false);
+});
+
+function highlight() {
+    dropZone.classList.add('dragover');
+}
+
+function unhighlight() {
+    dropZone.classList.remove('dragover');
+}
+
+dropZone.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    handleFile(files[0]);
+}
+
+fileInput.addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+        handleFile(this.files[0]);
+    }
+});
+
+function handleFile(file) {
+    if (!file) return;
+    
+    // Vérifier l'extension
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext !== 'pdf') {
+        showError('Veuillez sélectionner un fichier PDF');
+        return;
+    }
+    
+    // Vérifier la taille (max 50MB)
+    if (file.size > 50 * 1024 * 1024) {
+        showError('Fichier trop volumineux (max 50MB)');
+        return;
+    }
+    
+    selectedFile = file;
+    
+    // Afficher les infos
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileDetails').textContent = 
+        `${(file.size / 1024 / 1024).toFixed(2)} MB • PDF`;
+    
+    document.getElementById('fileInfo').style.display = 'block';
+}
+
+function clearFile() {
+    selectedFile = null;
+    fileInput.value = '';
+    document.getElementById('fileInfo').style.display = 'none';
+}
+
+function startConversion() {
+    if (!selectedFile) return;
+    
+    updateStep(2);
+    
+    // Simuler la progression
+    let progress = 0;
+    const progressBar = document.getElementById('conversionProgress');
+    const details = document.getElementById('conversionDetails');
+    
+    const steps = [
+        { progress: 20, text: "Lecture du PDF..." },
+        { progress: 40, text: "Extraction du texte..." },
+        { progress: 60, text: "Analyse des tableaux..." },
+        { progress: 80, text: "Création du fichier Excel..." },
+        { progress: 100, text: "Finalisation..." }
+    ];
+    
+    steps.forEach((step, index) => {
+        setTimeout(() => {
+            progressBar.style.width = step.progress + '%';
+            details.innerHTML = `
+                <p class="text-muted small">
+                    <i class="fas fa-spinner fa-spin me-1"></i>
+                    ${step.text}
+                </p>
+            `;
+            
+            if (index === steps.length - 1) {
+                setTimeout(() => {
+                    updateStep(3);
+                    prepareDownload();
+                }, 500);
+            }
+        }, index * 1000);
+    });
+}
+
+function prepareDownload() {
+    document.getElementById('downloadBtn').onclick = async () => {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        
+        showLoader();
+        
+        try {
+            const response = await fetch("{{ url_for('conversion.universal_converter', conversion_type='pdf-en-excel') }}", {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `converted_${Date.now()}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } else {
+                const error = await response.json();
+                showError(error.error || 'Erreur lors de la conversion');
+                updateStep(1);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Erreur de connexion au serveur');
+            updateStep(1);
+        } finally {
+            hideLoader();
+        }
+    };
+}
+
+function resetConverter() {
+    selectedFile = null;
+    fileInput.value = '';
+    document.getElementById('fileInfo').style.display = 'none';
+    updateStep(1);
+}
+</script>
+{% endblock %}
