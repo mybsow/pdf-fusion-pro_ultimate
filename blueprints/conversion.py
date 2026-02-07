@@ -29,6 +29,8 @@ import PyPDF2
 # OCR
 try:
     import pytesseract
+    # Si Tesseract n'est pas dans le PATH par défaut sur Render :
+    pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
     from pytesseract import Output
 except Exception as _e:
     pytesseract = None
