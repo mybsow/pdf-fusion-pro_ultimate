@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF en Images - PDF Fusion Pro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/conversion.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pdf_to_image.css') }}">
+    <style>
+        .conversion-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .format-option {
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .format-option:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .format-option.selected {
+            border-color: #3b82f6;
+            background-color: #dbeafe;
+        }
+        .format-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .ocr-section {
+            background-color: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- En-tête -->
+        <div class="header">
+            <h1><i class="format-icon">🖼️</i> PDF en Images</h1>
+            <p>Convertissez vos fichiers PDF en images (JPG, PNG, TIFF, etc.)</p>
+        </div>
+
+        <!-- Retour -->
+        <a href="{{ url_for('conversion.conversion_home') }}" class="back-link">
+            ← Retour aux conversions
+        </a>
+
+        <!-- Zone de dépôt -->
+        <div class="upload-zone" id="uploadZone">
+            <div class="upload-content">
+                <i class="upload-icon">📤</i>
+                <h3>Déposez votre PDF ici</h3>
+                <p>ou cliquez pour parcourir</p>
+                <input type="file" id="fileInput" accept=".pdf" multiple>
+            </div>
+        </div>
+
+        <!-- Options de conversion -->
+        <div class="conversion-options">
+            <div class="format-option" data-format="jpg">
+                <div class="format-icon">🖼️</div>
+                <h4>JPG</h4>
+                <p>Meilleur pour le web</p>
+            </div>
+            <div class="format-option" data-format="png">
+                <div class="format-icon">🖼️</div>
+                <h4>PNG</h4>
+                <p>Qualité sans perte</p>
+            </div>
+            <div class="format-option" data-format="tiff">
+                <div class="format-icon">🖼️</div>
+                <h4>TIFF</h4>
+                <p>Haute qualité</p>
+            </div>
+            <div class="format-option" data-format="bmp">
+                <div class="format-icon">🖼️</div>
+                <h4>BMP</h4>
+                <p>Format bitmap</p>
+            </div>
+        </div>
+
+        <!-- Options OCR (si disponible) -->
+        {% if config.OCR_ENABLED %}
+        <div class="ocr-section">
+            <h3><i class="format-icon">🔍</i> Options OCR</h3>
+            <div class="option-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="enableOcr">
+                    <span>Activer l'OCR (reconnaissance de texte)</span>
+                </label>
+                <p class="help-text">Extrait le texte des images pour des PDF scannés</p>
+            </div>
+            <div class="option-group">
+                <label>Qualité DPI :</label>
+                <select id="dpiSelect">
+                    <option value="150">150 DPI (standard)</option>
+                    <option value="300" selected>300 DPI (bonne qualité)</option>
+                    <option value="600">600 DPI (haute qualité)</option>
+                </select>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Bouton de conversion -->
+        <div class="action-section">
+            <button id="convertBtn" class="btn-primary" disabled>
+                <span class="btn-icon">⚡</span>
+                Convertir en images
+            </button>
+            <div class="progress-container" id="progressContainer" style="display: none;">
+                <div class="progress-bar" id="progressBar"></div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+        </div>
+
+        <!-- Résultats -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h3><i class="format-icon">✅</i> Conversion terminée</h3>
+            <div class="results-grid" id="resultsGrid"></div>
+            <div class="action-buttons">
+                <button id="downloadAllBtn" class="btn-secondary">
+                    <span class="btn-icon">📥</span>
+                    Télécharger toutes les images (ZIP)
+                </button>
+                <button id="newConversionBtn" class="btn-outline">
+                    <span class="btn-icon">🔄</span>
+                    Nouvelle conversion
+                </button>
+            </div>
+        </div>
+
+        <!-- Informations -->
+        <div class="info-section">
+            <h3><i class="format-icon">💡</i> Comment ça marche ?</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon">1</div>
+                    <h4>Téléversez</h4>
+                    <p>Déposez un ou plusieurs fichiers PDF</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">2</div>
+                    <h4>Configurez</h4>
+                    <p>Choisissez le format d'image et les options</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">3</div>
+                    <h4>Convertissez</h4>
+                    <p>Cliquez sur convertir et téléchargez les images</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/pdf_to_image.js') }}"></script>
+    <script>
+        // Configuration de base
+        const conversionConfig = {
+            endpoint: "{{ url_for('conversion.universal_converter') }}",
+            type: "pdf_to_image",
+            maxFileSize: {{ config.MAX_CONTENT_SIZE }},
+            allowedFormats: ['.pdf']
+        };
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sélection du format
+            const formatOptions = document.querySelectorAll('.format-option');
+            let selectedFormat = 'jpg';
+            
+            formatOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    formatOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedFormat = this.dataset.format;
+                });
+            });
+            
+            // Sélectionner JPG par défaut
+            formatOptions[0].classList.add('selected');
+
+            // Gestion de l'upload
+            const uploadZone = document.getElementById('uploadZone');
+            const fileInput = document.getElementById('fileInput');
+            
+            uploadZone.addEventListener('click', () => fileInput.click());
+            
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    document.getElementById('convertBtn').disabled = false;
+                }
+            });
+
+            // Drag & drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                uploadZone.classList.add('highlight');
+            }
+
+            function unhighlight() {
+                uploadZone.classList.remove('highlight');
+            }
+
+            uploadZone.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                fileInput.files = files;
+                document.getElementById('convertBtn').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
