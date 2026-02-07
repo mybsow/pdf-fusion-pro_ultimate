@@ -21,15 +21,14 @@ services:
       - key: ADMIN_PASSWORD
         value: "admin123"
 
-    # ✅ SUPPRIMER tout le buildCommand système et utiliser UNIQUEMENT aptPackages
+    # ✅ BUILD COMMAND SIMPLIFIÉ
     buildCommand: |
-      python -m pip install --upgrade pip
-      python -m pip install --upgrade setuptools wheel
-      python -m pip install -r requirements.txt
+      pip install --upgrade pip
+      pip install -r requirements.txt
 
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --worker-class gthread app:app
 
-    # ✅ Liste des packages système (Render les installera automatiquement)
+    # ✅ APT PACKAGES
     aptPackages:
       - tesseract-ocr
       - tesseract-ocr-fra
