@@ -21,6 +21,36 @@ from blueprints.admin import admin_bp
 from blueprints.conversion import conversion_bp
 from blueprints.legal.routes import legal_bp  # IMPORT CORRECT !
 
+import os
+import pytesseract
+
+# Configuration OCR
+if os.path.exists('/usr/bin/tesseract'):
+    pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
+else:
+    # Fallback si chemin différent
+    pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
+
+# Tester l'OCR
+@app.route('/test-tesseract')
+def test_tesseract():
+    try:
+        # Test Tesseract
+        version = pytesseract.get_tesseract_version()
+        langs = pytesseract.get_languages(config='')
+        
+        return {
+            'tesseract_version': str(version),
+            'available_languages': langs,
+            'tesseract_path': pytesseract.pytesseract.tesseract_cmd,
+            'status': 'OK'
+        }
+    except Exception as e:
+        return {
+            'error': str(e),
+            'status': 'FAILED'
+        }, 500
+
 # ============================================================
 # LOGGING PRODUCTION
 # ============================================================
