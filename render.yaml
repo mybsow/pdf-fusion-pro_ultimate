@@ -12,61 +12,24 @@ services:
         value: "10000"
       - key: OCR_ENABLED
         value: "true"
-      - key: RENDER
-        value: "true"
-      - key: DISABLE_POETRY
-        value: "true"
 
-    # ✅ TRUCE : Utiliser une commande shell complexe
+    # ✅ BUILD COMMAND AVEC GITHUB
     buildCommand: |
-      echo "🛠️ DÉBUT DU BUILD PERSONNALISÉ..."
-      echo "Python avant: $(python --version)"
+      echo "🚀 INSTALLATION OCR DEPUIS GITHUB"
       
-      # FORCER l'installation des dépendances système
-      apt-get update
-      apt-get install -y \
-          tesseract-ocr \
-          tesseract-ocr-fra \
-          tesseract-ocr-eng \
-          poppler-utils \
-          libreoffice
+      # Exécuter le script Python d'installation
+      python install_from_github.py
       
-      # Installer pip packages MANUELLEMENT
-      python -m pip install --upgrade pip
-      python -m pip install pytesseract==0.3.10
-      python -m pip install pdf2image==1.16.3
-      python -m pip install Pillow==10.0.0
-      python -m pip install opencv-python-headless==4.8.1.78
+      # Ou exécuter le script shell
+      # chmod +x render-build.sh
+      # ./render-build.sh
       
-      # Vérifier
-      echo "✅ VÉRIFICATION..."
-      python -c "
-      import sys
-      print('Python:', sys.version)
-      try:
-          import pytesseract
-          print('✅ pytesseract OK')
-          import pytesseract; print('Version:', pytesseract.__version__)
-      except Exception as e:
-          print('❌ pytesseract:', e)
-      "
+      # Installer le reste de l'app
+      pip install -r requirements.txt
       
-      # Installer le reste
-      if [ -f "requirements.txt" ]; then
-          pip install -r requirements.txt
-      fi
+      echo "✅ BUILD COMPLET"
 
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 app:app
-
-    # ✅ FORCER les packages système
-    aptPackages:
-      - tesseract-ocr
-      - tesseract-ocr-fra
-      - tesseract-ocr-eng
-      - tesseract-ocr-spa
-      - poppler-utils
-      - libreoffice
-      - unoconv
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 app:app
 
     healthCheckPath: /health
     healthCheckTimeout: 30
