@@ -6,76 +6,13 @@ services:
     plan: free
     branch: main
     autoDeploy: true
+    dockerfilePath: ./Dockerfile  # ✅ CECI EST ESSENTIEL
 
     envVars:
-      - key: FLASK_ENV
-        value: production
-      - key: SECRET_KEY
-        generateValue: true
-      - key: WEB_CONCURRENCY
-        value: "1"
       - key: PORT
         value: "10000"
       - key: OCR_ENABLED
         value: "true"
-      - key: ADMIN_PASSWORD
-        value: "admin123"
-
-    # ✅ BUILD COMMAND AVEC PREINSTALLATION OCR
-    buildCommand: |
-      echo "🚀 DÉBUT DU BUILD PDF FUSION PRO..."
-      
-      # 1. Exécuter le script d'installation OCR
-      chmod +x predeploy.sh
-      ./predeploy.sh
-      
-      # 2. Installer les autres requirements
-      echo "📦 Installation des autres dépendances..."
-      pip install --upgrade pip
-      pip install -r requirements.txt
-      
-      # 3. Vérification finale
-      echo "✅ VÉRIFICATION FINALE..."
-      python -c "
-      import sys
-      print('Python:', sys.version)
-      
-      packages = ['pytesseract', 'pdf2image', 'PIL', 'cv2', 'pandas']
-      for pkg in packages:
-          try:
-              if pkg == 'PIL':
-                  __import__('PIL')
-              else:
-                  __import__(pkg)
-              print(f'✅ {pkg}: OK')
-          except ImportError as e:
-              print(f'❌ {pkg}: {e}')
-      "
-      
-      echo "🏁 BUILD TERMINÉ AVEC SUCCÈS !"
-
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --worker-class gthread app:app
-
-    # ✅ Même si on utilise predeploy.sh, gardons aptPackages pour le cache
-    aptPackages:
-      - tesseract-ocr
-      - tesseract-ocr-fra
-      - tesseract-ocr-eng
-      - tesseract-ocr-spa
-      - tesseract-ocr-deu
-      - tesseract-ocr-ita
-      - poppler-utils
-      - libreoffice
-      - unoconv
-      - libsm6
-      - libxext6
-      - libxrender-dev
-      - libgl1-mesa-glx
 
     healthCheckPath: /health
     healthCheckTimeout: 30
-
-    disk:
-      name: tmp
-      mountPath: /tmp
-      sizeGB: 1
