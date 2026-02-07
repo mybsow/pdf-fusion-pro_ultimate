@@ -16,37 +16,20 @@ services:
         value: "1"
       - key: PORT
         value: "10000"
-      - key: TESSDATA_PREFIX
-        value: /usr/share/tesseract-ocr/4.00/tessdata
       - key: OCR_ENABLED
         value: "true"
-      - key: LIBREOFFICE_PATH
-        value: /usr/bin/libreoffice
       - key: ADMIN_PASSWORD
         value: "admin123"
 
+    # ✅ SUPPRIMER tout le buildCommand système et utiliser UNIQUEMENT aptPackages
     buildCommand: |
       python -m pip install --upgrade pip
       python -m pip install --upgrade setuptools wheel
       python -m pip install -r requirements.txt
-      # Installation des dépendances système
-      apt-get update && apt-get install -y \
-        tesseract-ocr \
-        tesseract-ocr-fra \
-        tesseract-ocr-eng \
-        tesseract-ocr-spa \
-        tesseract-ocr-deu \
-        tesseract-ocr-ita \
-        poppler-utils \
-        libreoffice \
-        unoconv \
-        libsm6 \
-        libxext6 \
-        libxrender-dev \
-        libgl1-mesa-glx
 
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --worker-class gthread app:app
 
+    # ✅ Liste des packages système (Render les installera automatiquement)
     aptPackages:
       - tesseract-ocr
       - tesseract-ocr-fra
