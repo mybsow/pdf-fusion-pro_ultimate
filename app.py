@@ -21,54 +21,6 @@ from blueprints.admin import admin_bp
 from blueprints.conversion import conversion_bp
 from blueprints.legal.routes import legal_bp  # IMPORT CORRECT !
 
-import subprocess
-import sys
-
-@app.route('/force-install-ocr')
-def force_install_ocr():
-    """Force l'installation des packages OCR (admin seulement)"""
-    try:
-        # Installer les packages
-        packages = [
-            'pytesseract==0.3.10',
-            'pdf2image==1.16.3',
-            'Pillow==10.0.0',
-            'opencv-python-headless==4.8.1.78'
-        ]
-        
-        results = []
-        for package in packages:
-            try:
-                # Installer avec pip
-                cmd = [sys.executable, "-m", "pip", "install", package, "--user"]
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
-                
-                if result.returncode == 0:
-                    results.append(f"✅ {package} installé")
-                else:
-                    results.append(f"❌ {package} erreur: {result.stderr[:200]}")
-                    
-            except Exception as e:
-                results.append(f"❌ {package} exception: {str(e)}")
-        
-        # Tester l'import
-        test_results = []
-        try:
-            import pytesseract
-            test_results.append("✅ pytesseract importé")
-        except:
-            test_results.append("❌ pytesseract non importé")
-        
-        return jsonify({
-            "status": "installation forcée terminée",
-            "installation_results": results,
-            "import_test": test_results,
-            "python_path": sys.executable
-        })
-        
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 # ✅ AJOUTER ICI - Imports OCR conditionnels
 try:
     import pytesseract
@@ -188,6 +140,68 @@ def create_app():
         return response
 
     # ========================================================
+    # FORCE INSTALL OCR (installation manuelle)
+    # ========================================================
+    
+    @app.route('/force-install-ocr')
+    def force_install_ocr():
+        """Force l'installation des packages OCR"""
+        import subprocess
+        import sys
+        
+        try:
+            packages = [
+                'pytesseract==0.3.10',
+                'pdf2image==1.16.3',
+                'Pillow==10.0.0',
+                'opencv-python-headless==4.8.1.78'
+            ]
+            
+            results = []
+            for package in packages:
+                try:
+                    # Installer avec pip (sans --user sur Render)
+                    cmd = [sys.executable, "-m", "pip", "install", package]
+                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                    
+                    if result.returncode == 0:
+                        results.append(f"✅ {package} installé")
+                    else:
+                        results.append(f"❌ {package} erreur: {result.stderr[:200]}")
+                        
+                except Exception as e:
+                    results.append(f"❌ {package} exception: {str(e)}")
+            
+            # Tester l'import après installation
+            test_results = []
+            for pkg_name, import_name in [
+                ('pytesseract', 'pytesseract'),
+                ('pdf2image', 'pdf2image'),
+                ('Pillow', 'PIL.Image'),
+                ('opencv', 'cv2')
+            ]:
+                try:
+                    if import_name == 'PIL.Image':
+                        from PIL import Image
+                        test_results.append(f"✅ {pkg_name} importé")
+                    else:
+                        __import__(import_name.split('.')[0])
+                        test_results.append(f"✅ {pkg_name} importé")
+                except ImportError as e:
+                    test_results.append(f"❌ {pkg_name}: {e}")
+            
+            return jsonify({
+                "status": "installation forcée terminée",
+                "installation_results": results,
+                "import_tests": test_results,
+                "python_path": sys.executable,
+                "python_version": sys.version
+            })
+            
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    # ========================================================
     # Managers (safe import)
     # ========================================================
 
@@ -258,23 +272,7 @@ def create_app():
         
         try:
             import shutil
-            import os
-
-            # ✅ VÉRIFIER LES CHEMINS POSSIBLES DE TESSERACT
-            possible_tesseract_paths = [
-                '/usr/bin/tesseract',
-                '/usr/local/bin/tesseract',
-                '/opt/homebrew/bin/tesseract',  # Pour macOS
-                shutil.which('tesseract')       # Chercher dans PATH
-            ]
-            
-            tesseract_path = None
-            for path in possible_tesseract_paths:
-                if path and os.path.exists(path):
-                    tesseract_path = path
-                    break
-            
-            status["tesseract"] = tesseract_path
+            import subprocess
             
             # Vérifier Pillow
             try:
@@ -429,6 +427,16 @@ def create_app():
                 .badge-ok {{ background:#10b981; color:white; }}
                 .badge-err {{ background:#ef4444; color:white; }}
                 .badge-warn {{ background:#f59e0b; color:white; }}
+                .action-buttons {{ margin: 20px 0; }}
+                .action-buttons a {{ 
+                    display: inline-block; 
+                    padding: 10px 20px; 
+                    margin: 5px; 
+                    background: #3b82f6; 
+                    color: white; 
+                    text-decoration: none; 
+                    border-radius: 5px; 
+                }}
             </style>
         </head>
         <body>
@@ -437,6 +445,18 @@ def create_app():
             <div class="status {'ok' if probe['tesseract'] and probe['poppler'] else 'err'}">
                 <h2>{'✅ OCR Opérationnel' if probe['tesseract'] and probe['poppler'] else '❌ OCR Non Opérationnel'}</h2>
                 <p>Configuration: {'Activé' if probe['enabled'] else 'Désactivé'}</p>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="/force-install-ocr" onclick="return confirm('Installer les packages OCR manuellement? Cette opération peut prendre 30 secondes.')">
+                    🔧 FORCER l'installation OCR
+                </a>
+                <a href="/test-tesseract" target="_blank">
+                    🧪 Tester Tesseract API
+                </a>
+                <a href="/health" target="_blank">
+                    📊 Vérifier santé
+                </a>
             </div>
             
             <h3>📦 Packages Python</h3>
@@ -458,23 +478,13 @@ def create_app():
             
             <h3>🔧 Configuration Render</h3>
             <div class="status info">
-                <p><strong>Dans render.yaml, assurez-vous d'avoir:</strong></p>
-                <pre>
-    aptPackages:
-      - tesseract-ocr
-      - tesseract-ocr-fra
-      - tesseract-ocr-eng
-      - poppler-utils
-      - libreoffice
-      - unoconv</pre>
-                
-                <p><strong>Dans requirements.txt, assurez-vous d'avoir:</strong></p>
-                <pre>
-    pytesseract==0.3.10
-    pdf2image==1.16.3
-    Pillow==10.1.0
-    opencv-python-headless==4.8.1.78
-    pandas==2.1.4  # IMPORTANT: Version 3.0.0 incompatible</pre>
+                <p><strong>Si OCR ne fonctionne pas:</strong></p>
+                <ol>
+                    <li>Cliquez sur "FORCER l'installation OCR" ci-dessus</li>
+                    <li>Attendez 30 secondes</li>
+                    <li>Rechargez cette page</li>
+                    <li>Si toujours KO, redéployez avec Docker</li>
+                </ol>
             </div>
             
             {errors_html}
@@ -485,7 +495,7 @@ def create_app():
                     <a href="/">Accueil</a> • 
                     <a href="/conversion/">Conversions</a> • 
                     <a href="/admin/login">Administration</a> • 
-                    <a href="/test-tesseract">Test Tesseract API</a>
+                    <a href="/test-tesseract" target="_blank">Test Tesseract API</a>
                 </p>
             </div>
         </body>
@@ -543,6 +553,7 @@ def create_app():
             "/legal",               # Mentions légales
             "/conversion/",         # Accueil conversion (avec slash)
             "/test-ocr",            # Test OCR
+            "/force-install-ocr",   # Installation OCR
         ]
 
         xml = ['<?xml version="1.0" encoding="UTF-8"?>']
@@ -684,6 +695,7 @@ def create_app():
     logger.info(f"   - Conversion: /conversion/")
     logger.info(f"   - Test OCR: /test-ocr")
     logger.info(f"   - Test Tesseract API: /test-tesseract")
+    logger.info(f"   - Force Install OCR: /force-install-ocr")
     logger.info(f"   - Health: /health")
     logger.info(f"📦 Packages Python:")
     logger.info(f"   - pytesseract: {'✓' if PYTESSERACT_AVAILABLE else '✗'}")
