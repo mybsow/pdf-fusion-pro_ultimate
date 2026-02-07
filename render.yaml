@@ -7,8 +7,6 @@ services:
     branch: main
     autoDeploy: true
 
-    # Pas de Docker ici
-
     envVars:
       - key: FLASK_ENV
         value: production
@@ -20,21 +18,48 @@ services:
         value: "10000"
       - key: TESSDATA_PREFIX
         value: /usr/share/tesseract-ocr/4.00/tessdata
-      # (Optionnel) Active explicitement l’OCR dans AppConfig si tu lis une var d'env
       - key: OCR_ENABLED
         value: "true"
+      - key: LIBREOFFICE_PATH
+        value: /usr/bin/libreoffice  # Chemin LibreOffice sur Render
 
     buildCommand: |
       python -m pip install --upgrade pip
+      python -m pip install --upgrade setuptools wheel
       python -m pip install -r requirements.txt
+      # Installation des dépendances système via apt
+      apt-get update && apt-get install -y \
+        tesseract-ocr \
+        tesseract-ocr-fra \
+        tesseract-ocr-eng \
+        tesseract-ocr-spa \
+        tesseract-ocr-deu \
+        tesseract-ocr-ita \
+        poppler-utils \
+        libsm6 \
+        libxext6 \
+        libxrender-dev \
+        libgl1-mesa-glx \
+        libreoffice \
+        unoconv
 
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --worker-class gthread app:app
 
-    # ➜ Installation système gérée par Render (nécessaire à l’OCR)
+    # Packages système nécessaires
     aptPackages:
       - tesseract-ocr
       - tesseract-ocr-fra
+      - tesseract-ocr-eng
+      - tesseract-ocr-spa
+      - tesseract-ocr-deu
+      - tesseract-ocr-ita
       - poppler-utils
+      - libreoffice
+      - unoconv
+      - libsm6
+      - libxext6
+      - libxrender-dev
+      - libgl1-mesa-glx
 
     healthCheckPath: /health
     healthCheckTimeout: 30
