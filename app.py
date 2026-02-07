@@ -21,35 +21,25 @@ from blueprints.admin import admin_bp
 from blueprints.conversion import conversion_bp
 from blueprints.legal.routes import legal_bp  # IMPORT CORRECT !
 
-import os
-import pytesseract
+# ✅ AJOUTER ICI - Imports OCR conditionnels
+try:
+    import pytesseract
+    PYTESSERACT_AVAILABLE = True
+except ImportError:
+    PYTESSERACT_AVAILABLE = False
+    pytesseract = None
 
-# Configuration OCR
-if os.path.exists('/usr/bin/tesseract'):
-    pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
-else:
-    # Fallback si chemin différent
-    pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
+try:
+    import cv2
+    OPENCV_AVAILABLE = True
+except ImportError:
+    OPENCV_AVAILABLE = False
 
-# Tester l'OCR
-@app.route('/test-tesseract')
-def test_tesseract():
-    try:
-        # Test Tesseract
-        version = pytesseract.get_tesseract_version()
-        langs = pytesseract.get_languages(config='')
-        
-        return {
-            'tesseract_version': str(version),
-            'available_languages': langs,
-            'tesseract_path': pytesseract.pytesseract.tesseract_cmd,
-            'status': 'OK'
-        }
-    except Exception as e:
-        return {
-            'error': str(e),
-            'status': 'FAILED'
-        }, 500
+try:
+    from pdf2image import convert_from_path
+    PDF2IMAGE_AVAILABLE = True
+except ImportError:
+    PDF2IMAGE_AVAILABLE = False
 
 # ============================================================
 # LOGGING PRODUCTION
@@ -209,16 +199,29 @@ def create_app():
             "tesseract": None,
             "poppler": None,
             "lang_fra": None,
+            "python_packages": {
+                "pytesseract": PYTESSERACT_AVAILABLE,
+                "Pillow": False,
+                "pdf2image": PDF2IMAGE_AVAILABLE,
+                "opencv-python": OPENCV_AVAILABLE
+            },
             "errors": []
         }
-        
-        # Si l'OCR est désactivé en config, on skip
-        if not AppConfig.OCR_ENABLED:
-            return status
         
         try:
             import shutil
             import subprocess
+            
+            # Vérifier Pillow
+            try:
+                from PIL import Image
+                status["python_packages"]["Pillow"] = True
+            except ImportError:
+                status["python_packages"]["Pillow"] = False
+            
+            # Si l'OCR est désactivé en config, on skip
+            if not AppConfig.OCR_ENABLED:
+                return status
             
             # Vérifier Tesseract
             tesseract_path = shutil.which("tesseract")
@@ -227,38 +230,27 @@ def create_app():
             # Vérifier Poppler
             status["poppler"] = shutil.which("pdftoppm") or shutil.which("pdftocairo")
             
-            # Vérifier pytesseract
-            try:
-                import pytesseract
-                pytesseract_available = True
-            except ImportError:
-                pytesseract_available = False
-                status["errors"].append("pytesseract non installé")
-            
             # Si Tesseract est disponible, vérifier les langues
-            if tesseract_path:
+            if tesseract_path and PYTESSERACT_AVAILABLE:
                 try:
-                    result = subprocess.run(
-                        ["tesseract", "--list-langs"],
-                        capture_output=True,
-                        text=True,
-                        timeout=5
-                    )
-                    if result.returncode == 0:
-                        available_langs = result.stdout.strip().split('\n')
-                        if len(available_langs) > 1:  # Skip first line "List of available languages"
-                            available_langs = available_langs[1:]
-                        status["lang_fra"] = any("fra" in lang for lang in available_langs)
-                    else:
-                        status["errors"].append(f"tesseract --list-langs failed: {result.stderr}")
-                except FileNotFoundError:
-                    status["errors"].append("tesseract command not found")
-                except subprocess.TimeoutExpired:
-                    status["errors"].append("tesseract timeout")
+                    # Configurer pytesseract
+                    pytesseract.pytesseract.tesseract_cmd = tesseract_path
+                    
+                    # Test de version
+                    version = pytesseract.get_tesseract_version()
+                    status["tesseract"] = f"{tesseract_path} (v{version})"
+                    
+                    # Test des langues
+                    langs = pytesseract.get_languages(config='')
+                    status["lang_fra"] = "fra" in langs
+                    
                 except Exception as e:
-                    status["errors"].append(f"tesseract check error: {str(e)}")
+                    status["errors"].append(f"pytesseract error: {str(e)}")
             else:
-                status["errors"].append("tesseract not found in PATH")
+                if not tesseract_path:
+                    status["errors"].append("tesseract not found in PATH")
+                if not PYTESSERACT_AVAILABLE:
+                    status["errors"].append("pytesseract Python package not installed")
             
         except Exception as e:
             status["errors"].append(f"OCR probe error: {str(e)}")
@@ -273,56 +265,69 @@ def create_app():
         logger.warning(f"OCR diagnostics: {_probe['errors']}")
 
     # ========================================================
-    # TEST OCR (page de statut dynamique)
+    # TEST TESSERACT SIMPLE
     # ========================================================
-# ============================================================
-# OCR: DIAGNOSTIC DYNAMIQUE
-# ============================================================
-
-    def _ocr_probe():
-        """
-        Vérifie dynamiquement:
-        - si l'OCR est activé en config,
-        - la version de Tesseract,
-        - la présence de Poppler (pdftoppm/pdftocairo),
-        - la présence du pack de langue 'fra'.
-        """
-        status = {
-            "enabled": bool(AppConfig.OCR_ENABLED),
-            "tesseract": None,
-            "poppler": None,
-            "lang_fra": None,
-            "errors": []
-        }
+    
+    @app.route('/test-tesseract')
+    def test_tesseract():
+        """Test simple de Tesseract"""
         try:
-            import shutil, subprocess
+            if not PYTESSERACT_AVAILABLE:
+                return jsonify({
+                    "error": "pytesseract non disponible",
+                    "installed": False,
+                    "python_packages": {
+                        "pytesseract": PYTESSERACT_AVAILABLE,
+                        "Pillow": False,
+                        "pdf2image": PDF2IMAGE_AVAILABLE,
+                        "opencv-python": OPENCV_AVAILABLE
+                    }
+                }), 500
+            
+            # Configuration du chemin Tesseract
+            tesseract_cmd = '/usr/bin/tesseract'
+            if not os.path.exists(tesseract_cmd):
+                tesseract_cmd = '/usr/local/bin/tesseract'
+            
+            pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+            
+            # Test de version
+            version = pytesseract.get_tesseract_version()
+            
+            # Test des langues
             try:
-                import pytesseract
-                # Version Tesseract
-                try:
-                    status["tesseract"] = str(pytesseract.get_tesseract_version())
-                except Exception as e:
-                    status["errors"].append(f"tesseract_version: {e}")
-            except Exception as e:
-                status["errors"].append(f"pytesseract import: {e}")
-    
-            # Poppler (pdftoppm / pdftocairo)
-            status["poppler"] = shutil.which("pdftoppm") or shutil.which("pdftocairo")
-    
-            # Langue fra installée ?
-            try:
-                out = subprocess.check_output(["tesseract", "--list-langs"], stderr=subprocess.STDOUT, text=True)
-                status["lang_fra"] = ("fra" in out)
-            except Exception as e:
-                status["errors"].append(f"tesseract --list-langs: {e}")
-    
+                langs = pytesseract.get_languages(config='')
+            except:
+                langs = ["non disponible"]
+            
+            return jsonify({
+                "status": "OK",
+                "pytesseract_available": True,
+                "tesseract_version": str(version),
+                "tesseract_path": tesseract_cmd,
+                "available_languages": langs,
+                "opencv_available": OPENCV_AVAILABLE,
+                "pdf2image_available": PDF2IMAGE_AVAILABLE,
+                "python_packages": {
+                    "pytesseract": PYTESSERACT_AVAILABLE,
+                    "Pillow": False,
+                    "pdf2image": PDF2IMAGE_AVAILABLE,
+                    "opencv-python": OPENCV_AVAILABLE
+                }
+            })
+            
         except Exception as e:
-            status["errors"].append(str(e))
-        return status
-    
-    # ============================================================
+            return jsonify({
+                "error": str(e),
+                "pytesseract_available": PYTESSERACT_AVAILABLE,
+                "opencv_available": OPENCV_AVAILABLE,
+                "pdf2image_available": PDF2IMAGE_AVAILABLE,
+                "traceback": str(type(e))
+            }), 500
+
+    # ========================================================
     # TEST OCR (page de diagnostic amélioré)
-    # ============================================================
+    # ========================================================
     
     @app.route('/test-ocr')
     def test_ocr():
@@ -330,19 +335,7 @@ def create_app():
         probe = _ocr_probe()
         
         # Vérifier les packages Python
-        python_packages = {
-            'pytesseract': False,
-            'Pillow': False,
-            'pdf2image': False,
-            'opencv-python': False
-        }
-        
-        for package in python_packages:
-            try:
-                __import__(package.replace('-', '_'))
-                python_packages[package] = True
-            except ImportError:
-                pass
+        python_packages = probe["python_packages"]
         
         # Préparer le HTML des erreurs
         errors_html = ""
@@ -416,6 +409,7 @@ def create_app():
     pytesseract==0.3.10
     pdf2image==1.16.3
     Pillow==10.1.0
+    opencv-python-headless==4.8.1.78
     pandas==2.1.4  # IMPORTANT: Version 3.0.0 incompatible</pre>
             </div>
             
@@ -423,7 +417,12 @@ def create_app():
             
             <div class="status">
                 <h3>🔗 Liens utiles</h3>
-                <p><a href="/">Accueil</a> • <a href="/conversion/">Conversions</a> • <a href="/admin/login">Administration</a></p>
+                <p>
+                    <a href="/">Accueil</a> • 
+                    <a href="/conversion/">Conversions</a> • 
+                    <a href="/admin/login">Administration</a> • 
+                    <a href="/test-tesseract">Test Tesseract API</a>
+                </p>
             </div>
         </body>
         </html>
@@ -479,6 +478,7 @@ def create_app():
             "/terms",               # Conditions
             "/legal",               # Mentions légales
             "/conversion/",         # Accueil conversion (avec slash)
+            "/test-ocr",            # Test OCR
         ]
 
         xml = ['<?xml version="1.0" encoding="UTF-8"?>']
@@ -517,6 +517,7 @@ def create_app():
             "tesseract": probe["tesseract"],
             "poppler": probe["poppler"],
             "lang_fra": probe["lang_fra"],
+            "python_packages": probe["python_packages"],
             "message": "Application déployée sur Render"
         }), 200
 
@@ -618,7 +619,12 @@ def create_app():
     logger.info(f"   - Accueil: /")
     logger.info(f"   - Conversion: /conversion/")
     logger.info(f"   - Test OCR: /test-ocr")
+    logger.info(f"   - Test Tesseract API: /test-tesseract")
     logger.info(f"   - Health: /health")
+    logger.info(f"📦 Packages Python:")
+    logger.info(f"   - pytesseract: {'✓' if PYTESSERACT_AVAILABLE else '✗'}")
+    logger.info(f"   - opencv-python: {'✓' if OPENCV_AVAILABLE else '✗'}")
+    logger.info(f"   - pdf2image: {'✓' if PDF2IMAGE_AVAILABLE else '✗'}")
 
     return app
 
