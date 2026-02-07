@@ -6,62 +6,37 @@ Werkzeug==3.0.1
 gunicorn==21.2.0
 
 # ==============================================
-# PDF PROCESSING
+# PDF PROCESSING (versions compatibles)
 # ==============================================
 PyPDF2==3.0.1
-PyMuPDF==1.26.7
+PyMuPDF==1.23.8  # Version plus stable
 reportlab==4.0.4
-img2pdf==0.6.3
-pdf2image==1.17.0
+img2pdf==0.4.4
+pdf2image==1.16.3
 
 # ==============================================
 # OCR & IMAGE PROCESSING
 # ==============================================
-pytesseract==0.3.13
+pytesseract==0.3.10
 Pillow==10.1.0
-opencv-python-headless==4.13.0.92
+opencv-python-headless==4.8.1.78  # Version compatible
 
 # ==============================================
 # DOCUMENT PROCESSING
 # ==============================================
-python-docx==1.2.0
-openpyxl==3.1.5
-pandas==2.1.4
-XlsxWriter==3.2.0
-
-# ==============================================
-# OFFICE CONVERSION (alternative to LibreOffice)
-# ==============================================
-docx2pdf==0.1.8
-comtypes==1.2.0  # For Windows Office automation
-pywin32==306  # For Windows Office automation
+python-docx==1.1.0
+openpyxl==3.1.2
+pandas==2.1.4  # IMPORTANT: Version compatible
+numpy==1.24.4  # Version compatible
+XlsxWriter==3.1.9
 
 # ==============================================
 # UTILITIES
 # ==============================================
-numpy==1.26.4
-requests==2.32.3
+requests==2.31.0
 Flask-Mail==0.9.1
 Flask-WTF==1.2.1
 WTForms==3.1.2
-
-# ==============================================
-# FILE & DATA HANDLING
-# ==============================================
-python-magic==0.4.27  # File type detection
-python-magic-bin==0.4.14  # Windows support for python-magic
-chardet==5.2.0  # Encoding detection
-cchardet==2.1.7  # Faster encoding detection
-
-# ==============================================
-# TEMPORARY & SECURITY
-# ==============================================
+python-magic==0.4.27
+python-magic-bin==0.4.14  # Pour Windows
 python-dotenv==1.0.0
-bcrypt==4.1.2
-cryptography==41.0.7
-
-# ==============================================
-# ASYNC & PERFORMANCE (optional)
-# ==============================================
-aiofiles==23.2.1
-asyncio==3.4.3
