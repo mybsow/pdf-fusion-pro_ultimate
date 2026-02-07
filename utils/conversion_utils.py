@@ -1,0 +1,266 @@
+"""
+Utilities pour les conversions de fichiers
+"""
+
+import os
+import tempfile
+import subprocess
+import shutil
+from pathlib import Path
+from PIL import Image
+import PyPDF2
+from io import BytesIO
+from config import AppConfig
+
+
+class ConversionUtils:
+    """Classe utilitaire pour les conversions"""
+    
+    @staticmethod
+    def ensure_temp_dir():
+        """Crée un dossier temporaire sécurisé"""
+        temp_dir = Path(AppConfig.TEMP_FOLDER) / "conversions"
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        return temp_dir
+    
+    @staticmethod
+    def cleanup_temp_files(temp_path):
+        """Nettoie les fichiers temporaires"""
+        try:
+            if os.path.exists(temp_path):
+                if os.path.isdir(temp_path):
+                    shutil.rmtree(temp_path)
+                else:
+                    os.remove(temp_path)
+        except Exception as e:
+            print(f"⚠️  Cleanup error: {e}")
+    
+    @staticmethod
+    def convert_word_to_pdf_via_libreoffice(input_path, output_path):
+        """Convertit Word en PDF avec LibreOffice"""
+        try:
+            cmd = [
+                AppConfig.LIBREOFFICE_PATH,
+                '--headless',
+                '--convert-to', 'pdf',
+                '--outdir', str(Path(output_path).parent),
+                str(input_path)
+            ]
+            
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+            
+            if result.returncode == 0:
+                # LibreOffice crée le fichier avec l'extension .pdf
+                expected_pdf = Path(input_path).with_suffix('.pdf')
+                if expected_pdf.exists():
+                    return True
+            return False
+            
+        except subprocess.TimeoutExpired:
+            print("⚠️  LibreOffice conversion timeout")
+            return False
+        except Exception as e:
+            print(f"⚠️  LibreOffice error: {e}")
+            return False
+    
+    @staticmethod
+    def optimize_image_for_ocr(image_path, output_path):
+        """Optimise une image pour l'OCR"""
+        try:
+            img = Image.open(image_path)
+            
+            # Convert to grayscale
+            if img.mode != 'L':
+                img = img.convert('L')
+            
+            # Enhance contrast
+            from PIL import ImageEnhance
+            enhancer = ImageEnhance.Contrast(img)
+            img = enhancer.enhance(2.0)
+            
+            # Save optimized image
+            img.save(output_path, 'PNG', optimize=True)
+            return True
+            
+        except Exception as e:
+            print(f"⚠️  Image optimization error: {e}")
+            return False
+    
+    @staticmethod
+    def extract_text_with_ocr(image_path, languages=None):
+        """Extrait le texte d'une image avec OCR"""
+        try:
+            import pytesseract
+            
+            if languages is None:
+                languages = AppConfig.OCR_LANGUAGES
+            
+            # Configure pytesseract
+            pytesseract.pytesseract.tesseract_cmd = AppConfig.TESSERACT_CMD
+            
+            # Read image
+            img = Image.open(image_path)
+            
+            # Perform OCR
+            custom_config = f'--oem 3 --psm 6 -l {"+".join(languages)}'
+            text = pytesseract.image_to_string(img, config=custom_config)
+            
+            return text.strip()
+            
+        except Exception as e:
+            print(f"⚠️  OCR extraction error: {e}")
+            return ""
+    
+    @staticmethod
+    def extract_tables_with_ocr(image_path, languages=None):
+        """Extrait les tableaux d'une image avec OCR"""
+        try:
+            import pytesseract
+            import pandas as pd
+            
+            if languages is None:
+                languages = AppConfig.OCR_LANGUAGES
+            
+            pytesseract.pytesseract.tesseract_cmd = AppConfig.TESSERACT_CMD
+            
+            # Use OCR to get structured data
+            custom_config = f'--oem 3 --psm 6 -l {"+".join(languages)}'
+            data = pytesseract.image_to_data(
+                Image.open(image_path),
+                config=custom_config,
+                output_type=pytesseract.Output.DATAFRAME
+            )
+            
+            if data is not None and not data.empty:
+                # Filter out non-text elements
+                data = data[data['conf'] > 30]
+                data = data[data['text'].notna() & (data['text'].str.strip() != '')]
+                
+                if not data.empty:
+                    # Group by line and word
+                    structured_data = []
+                    current_line = None
+                    current_words = []
+                    
+                    for _, row in data.iterrows():
+                        if current_line != row['line_num']:
+                            if current_words:
+                                structured_data.append(' '.join(current_words))
+                            current_line = row['line_num']
+                            current_words = [str(row['text'])]
+                        else:
+                            current_words.append(str(row['text']))
+                    
+                    if current_words:
+                        structured_data.append(' '.join(current_words))
+                    
+                    return structured_data
+            
+            return []
+            
+        except Exception as e:
+            print(f"⚠️  Table extraction error: {e}")
+            return []
+    
+    @staticmethod
+    def convert_images_to_pdf(images, output_path, options=None):
+        """Convertit plusieurs images en PDF"""
+        try:
+            if options is None:
+                options = {}
+            
+            images_list = []
+            temp_files = []
+            
+            for img_data in images:
+                if isinstance(img_data, BytesIO):
+                    img_data.seek(0)
+                    img = Image.open(img_data)
+                elif isinstance(img_data, str) and os.path.exists(img_data):
+                    img = Image.open(img_data)
+                elif isinstance(img_data, Image.Image):
+                    img = img_data
+                else:
+                    continue
+                
+                # Convert to RGB if necessary
+                if img.mode != 'RGB':
+                    img = img.convert('RGB')
+                
+                images_list.append(img)
+            
+            if not images_list:
+                return False
+            
+            # Save as PDF
+            if len(images_list) == 1:
+                images_list[0].save(output_path, 'PDF', **options)
+            else:
+                images_list[0].save(
+                    output_path, 'PDF',
+                    save_all=True,
+                    append_images=images_list[1:],
+                    **options
+                )
+            
+            # Cleanup
+            for img in images_list:
+                img.close()
+            
+            return True
+            
+        except Exception as e:
+            print(f"⚠️  Images to PDF conversion error: {e}")
+            return False
+    
+    @staticmethod
+    def validate_file_type(file_stream, allowed_extensions):
+        """Valide le type de fichier"""
+        try:
+            import magic
+            
+            # Read first 2048 bytes for magic number detection
+            file_stream.seek(0)
+            header = file_stream.read(2048)
+            file_stream.seek(0)
+            
+            mime = magic.from_buffer(header, mime=True)
+            
+            # Map MIME types to extensions
+            mime_to_ext = {
+                'image/jpeg': '.jpg',
+                'image/png': '.png',
+                'image/gif': '.gif',
+                'image/bmp': '.bmp',
+                'image/tiff': '.tiff',
+                'image/webp': '.webp',
+                'application/pdf': '.pdf',
+                'application/msword': '.doc',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+                'application/vnd.ms-excel': '.xls',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
+                'application/vnd.ms-powerpoint': '.ppt',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation': '.pptx',
+                'text/csv': '.csv',
+                'text/plain': '.txt'
+            }
+            
+            detected_ext = mime_to_ext.get(mime)
+            
+            if detected_ext and detected_ext in allowed_extensions:
+                return True
+                
+            # Fallback: check extension
+            return False
+            
+        except ImportError:
+            # If python-magic is not available, use file extension only
+            return True
+        except Exception as e:
+            print(f"⚠️  File validation error: {e}")
+            return True  # Allow if validation fails
