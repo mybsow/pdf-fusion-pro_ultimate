@@ -1,31 +1,67 @@
+# ==============================================
+# CORE FRAMEWORK
+# ==============================================
 Flask==3.0.0
 Werkzeug==3.0.1
 gunicorn==21.2.0
 
-# PDF / OCR
+# ==============================================
+# PDF PROCESSING
+# ==============================================
 PyPDF2==3.0.1
 PyMuPDF==1.26.7
-pytesseract==0.3.13
-pdf2image==1.17.0
-opencv-python-headless==4.13.0.92
-Pillow==10.1.0  # Version compatible Python 3.13
-
-# Data / extraction
-pandas==2.1.4  # CHANGÉ : Version compatible Python 3.13
-openpyxl==3.1.5
-
-# Documents
 reportlab==4.0.4
-python-docx==1.2.0
 img2pdf==0.6.3
+pdf2image==1.17.0
 
-# Mail / HTTP
+# ==============================================
+# OCR & IMAGE PROCESSING
+# ==============================================
+pytesseract==0.3.13
+Pillow==10.1.0
+opencv-python-headless==4.13.0.92
+
+# ==============================================
+# DOCUMENT PROCESSING
+# ==============================================
+python-docx==1.2.0
+openpyxl==3.1.5
+pandas==2.1.4
+XlsxWriter==3.2.0
+
+# ==============================================
+# OFFICE CONVERSION (alternative to LibreOffice)
+# ==============================================
+docx2pdf==0.1.8
+comtypes==1.2.0  # For Windows Office automation
+pywin32==306  # For Windows Office automation
+
+# ==============================================
+# UTILITIES
+# ==============================================
+numpy==1.26.4
 requests==2.32.3
 Flask-Mail==0.9.1
-
-# Forms
 Flask-WTF==1.2.1
 WTForms==3.1.2
 
-# Utilitaires
-numpy==1.26.4
+# ==============================================
+# FILE & DATA HANDLING
+# ==============================================
+python-magic==0.4.27  # File type detection
+python-magic-bin==0.4.14  # Windows support for python-magic
+chardet==5.2.0  # Encoding detection
+cchardet==2.1.7  # Faster encoding detection
+
+# ==============================================
+# TEMPORARY & SECURITY
+# ==============================================
+python-dotenv==1.0.0
+bcrypt==4.1.2
+cryptography==41.0.7
+
+# ==============================================
+# ASYNC & PERFORMANCE (optional)
+# ==============================================
+aiofiles==23.2.1
+asyncio==3.4.3
