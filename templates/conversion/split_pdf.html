@@ -1,0 +1,1032 @@
+<!-- templates/conversion/split_pdf.html -->
+{% extends "conversion/conversion_base.html" %}
+
+{% block extra_css %}
+{{ super() }}
+<style>
+.split-methods {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.method-card {
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+}
+
+.method-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.method-card.selected {
+    border-color: var(--primary-color);
+    background: rgba(231, 76, 60, 0.05);
+}
+
+.method-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.page-ranges {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #f8f9fa;
+}
+
+.range-item {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.range-item:hover {
+    border-color: var(--primary-color);
+}
+
+.range-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.page-preview {
+    width: 40px;
+    height: 50px;
+    background: #e9ecef;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.size-badge {
+    background: #e9ecef;
+    color: #6c757d;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.split-preview {
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-files {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.preview-file {
+    text-align: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+</style>
+{% endblock %}
+
+{% block converter_content %}
+<!-- Étape 1: Upload et configuration -->
+<div id="step1Content">
+    <div class="upload-zone" id="dropZone">
+        <div class="upload-icon">
+            <i class="fas fa-cut"></i>
+        </div>
+        
+        <h3>Déposez votre PDF ici</h3>
+        <p class="text-muted mb-4">
+            Divisez votre PDF en plusieurs fichiers
+        </p>
+        
+        <p class="small text-muted mb-3">
+            <i class="fas fa-info-circle me-1"></i>
+            Formats acceptés: .pdf | Taille max: 50MB
+        </p>
+        
+        <input type="file" 
+               id="fileInput" 
+               class="d-none" 
+               accept=".pdf">
+        
+        <button class="btn btn-primary btn-lg px-4 py-2"
+                onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-folder-open me-2"></i>
+            Sélectionner un PDF
+        </button>
+    </div>
+    
+    <!-- Configuration de la division -->
+    <div id="splitConfig" class="mt-4" style="display: none;">
+        <!-- Méthodes de division -->
+        <h5 class="mb-3">
+            <i class="fas fa-th-large me-2"></i>Méthode de division
+        </h5>
+        
+        <div class="split-methods">
+            <div class="method-card selected" data-method="range" onclick="selectMethod('range')">
+                <div class="method-icon">
+                    <i class="fas fa-list-ol"></i>
+                </div>
+                <h6>Par plages</h6>
+                <p class="small text-muted mb-0">
+                    Spécifiez les pages ou plages
+                </p>
+            </div>
+            
+            <div class="method-card" data-method="size" onclick="selectMethod('size')">
+                <div class="method-icon">
+                    <i class="fas fa-weight"></i>
+                </div>
+                <h6>Par taille</h6>
+                <p class="small text-muted mb-0">
+                    Limite de taille par fichier
+                </p>
+            </div>
+            
+            <div class="method-card" data-method="interval" onclick="selectMethod('interval')">
+                <div class="method-icon">
+                    <i class="fas fa-ruler"></i>
+                </div>
+                <h6>Par intervalle</h6>
+                <p class="small text-muted mb-0">
+                    Toutes les X pages
+                </p>
+            </div>
+            
+            <div class="method-card" data-method="single" onclick="selectMethod('single')">
+                <div class="method-icon">
+                    <i class="fas fa-file"></i>
+                </div>
+                <h6>Pages individuelles</h6>
+                <p class="small text-muted mb-0">
+                    Une page par fichier
+                </p>
+            </div>
+        </div>
+        
+        <!-- Configuration selon la méthode -->
+        <div id="methodConfig">
+            <!-- Méthode par plages (défaut) -->
+            <div class="method-content" id="rangeConfig">
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-sliders-h me-2"></i>Configuration des plages
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label">Plages de pages</label>
+                                <textarea class="form-control" 
+                                          id="pageRanges" 
+                                          rows="3" 
+                                          placeholder="Ex: 1-3, 5, 7-10"></textarea>
+                                <div class="form-text small">
+                                    Séparez par des virgules, utilisez des tirets pour les plages
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Total de pages</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-file"></i>
+                                    </span>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="totalPages" 
+                                           value="1"
+                                           readonly>
+                                    <span class="input-group-text">pages</span>
+                                </div>
+                                <button class="btn btn-outline-primary w-100 mt-2" onclick="autoGenerateRanges()">
+                                    <i class="fas fa-magic me-1"></i>
+                                    Générer automatiquement
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <h6>Aperçu des plages</h6>
+                            <div class="page-ranges" id="rangesPreview">
+                                <!-- Les plages seront générées ici -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Méthode par taille -->
+            <div class="method-content" id="sizeConfig" style="display: none;">
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-weight me-2"></i>Configuration par taille
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Taille maximale par fichier</label>
+                                <div class="input-group">
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="maxSize" 
+                                           value="5"
+                                           min="1"
+                                           max="50">
+                                    <span class="input-group-text">MB</span>
+                                </div>
+                                <div class="form-text small">
+                                    Le PDF sera divisé pour que chaque fichier ne dépasse pas cette taille
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fichiers estimés</label>
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h2 id="estimatedFiles">1</h2>
+                                        <p class="small text-muted mb-0">fichiers</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            La division par taille est une estimation basée sur la compression des pages
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Méthode par intervalle -->
+            <div class="method-content" id="intervalConfig" style="display: none;">
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-ruler me-2"></i>Configuration par intervalle
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Pages par fichier</label>
+                                <div class="input-group">
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="pagesPerFile" 
+                                           value="5"
+                                           min="1"
+                                           max="100">
+                                    <span class="input-group-text">pages</span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fichiers estimés</label>
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h2 id="intervalFiles">1</h2>
+                                        <p class="small text-muted mb-0">fichiers</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Exemple: Avec 10 pages et 3 pages par fichier = 4 fichiers (3, 3, 3, 1)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Méthode pages individuelles -->
+            <div class="method-content" id="singleConfig" style="display: none;">
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-file me-2"></i>Configuration pages individuelles
+                        </h5>
+                        
+                        <div class="text-center py-4">
+                            <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                            <h5>Une page = Un fichier</h5>
+                            <p class="text-muted">
+                                Chaque page sera extraite dans un fichier PDF séparé
+                            </p>
+                            <div class="card bg-light d-inline-block">
+                                <div class="card-body">
+                                    <h2 id="singleFiles">1</h2>
+                                    <p class="small text-muted mb-0">fichiers PDF</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Options de sortie -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    <i class="fas fa-download me-2"></i>Options de sortie
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Format des noms de fichiers</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-font"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="fileNameFormat" 
+                                   value="document_page_{{page}}"
+                                   placeholder="Ex: document_page_{{page}}">
+                        </div>
+                        <div class="form-text small">
+                            Utilisez {{page}} pour le numéro de page, {{range}} pour la plage
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Méthode de téléchargement</label>
+                        <select class="form-select" id="downloadMethod">
+                            <option value="zip" selected>Fichier ZIP (tous les PDFs)</option>
+                            <option value="individual">Fichiers individuels</option>
+                        </select>
+                        <div class="form-text small">
+                            ZIP recommandé pour plus de 5 fichiers
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Pour les très grands PDFs, le traitement peut prendre quelques minutes
+                </div>
+            </div>
+        </div>
+        
+        <!-- Aperçu de la division -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    <i class="fas fa-eye me-2"></i>Aperçu de la division
+                </h5>
+                
+                <div class="split-preview" id="splitPreview">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-file-pdf fa-3x mb-3 opacity-25"></i>
+                        <p>Configuration en cours...</p>
+                        <p class="small">L'aperçu sera généré après configuration</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bouton de division -->
+        <div class="mt-4">
+            <button class="btn btn-primary w-100 py-3 btn-lg" onclick="startSplit()">
+                <i class="fas fa-cut me-2"></i>
+                Diviser le PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Étape 2: Division -->
+<div id="step2Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="upload-icon mb-4">
+            <i class="fas fa-cut fa-spin"></i>
+        </div>
+        
+        <h3>Division en cours...</h3>
+        <p class="text-muted mb-4">
+            Découpage de votre PDF selon la configuration
+        </p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="splitProgress"></div>
+        </div>
+        
+        <div class="mt-4" id="splitDetails">
+            <p class="text-muted small">
+                <i class="fas fa-spinner fa-spin me-1"></i>
+                Préparation des fichiers...
+            </p>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Fichiers créés</h6>
+                        <p class="small text-muted mb-0" id="createdFiles">0/0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Pages traitées</h6>
+                        <p class="small text-muted mb-0" id="processedPages">0/0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Taille totale</h6>
+                        <p class="small text-muted mb-0" id="totalSize">0 MB</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Temps estimé</h6>
+                        <p class="small text-muted mb-0" id="splitTime">Quelques secondes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Étape 3: Téléchargement -->
+<div id="step3Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="success-animation">
+            <i class="fas fa-check"></i>
+        </div>
+        
+        <h3 class="mb-3">Division réussie !</h3>
+        <p class="text-muted mb-4">
+            Vos fichiers sont prêts au téléchargement
+        </p>
+        
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="fas fa-file-archive fa-2x text-primary mb-3"></i>
+                        <h5 id="outputType">Archive ZIP</h5>
+                        <p class="small text-muted" id="outputInfo">
+                            Contient tous les fichiers PDF
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="fas fa-chart-pie fa-2x text-primary mb-3"></i>
+                        <h5>Résumé</h5>
+                        <p class="small text-muted" id="splitSummary">
+                            Fichiers créés: 0<br>
+                            Pages totales: 0
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+            <button class="btn btn-success btn-lg px-4" id="downloadBtn">
+                <i class="fas fa-download me-2"></i>
+                <span id="downloadText">Télécharger ZIP</span>
+            </button>
+            
+            <button class="btn btn-outline-primary btn-lg px-4" onclick="resetConverter()">
+                <i class="fas fa-redo me-2"></i>
+                Nouvelle division
+            </button>
+        </div>
+        
+        <div class="mt-4">
+            <div class="btn-group" role="group">
+                <button class="btn btn-outline-secondary" onclick="updateStep(1)">
+                    <i class="fas fa-edit me-1"></i>
+                    Modifier la configuration
+                </button>
+                <a href="{{ url_for('conversion.universal_converter', conversion_type='fusionner-pdf') }}" 
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-object-group me-1"></i>
+                    Fusionner PDF
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedFile = null;
+let totalPages = 1;
+let selectedMethod = 'range';
+
+// Gestion du drag & drop
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, highlight, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, unhighlight, false);
+});
+
+function highlight() {
+    dropZone.classList.add('dragover');
+}
+
+function unhighlight() {
+    dropZone.classList.remove('dragover');
+}
+
+dropZone.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    handleFile(files[0]);
+}
+
+fileInput.addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+        handleFile(this.files[0]);
+    }
+});
+
+function handleFile(file) {
+    if (!file) return;
+    
+    // Vérifier l'extension
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext !== 'pdf') {
+        showError('Veuillez sélectionner un fichier PDF');
+        return;
+    }
+    
+    // Vérifier la taille (max 50MB)
+    if (file.size > 50 * 1024 * 1024) {
+        showError('Fichier trop volumineux (max 50MB)');
+        return;
+    }
+    
+    selectedFile = file;
+    
+    // Estimation du nombre de pages
+    totalPages = Math.ceil(file.size / 50000);
+    
+    // Afficher la configuration
+    document.getElementById('splitConfig').style.display = 'block';
+    
+    // Mettre à jour l'interface
+    document.getElementById('totalPages').value = totalPages;
+    document.getElementById('estimatedFiles').textContent = 
+        Math.ceil(totalPages / 5);
+    document.getElementById('intervalFiles').textContent = 
+        Math.ceil(totalPages / 5);
+    document.getElementById('singleFiles').textContent = totalPages;
+    
+    // Générer les plages par défaut
+    autoGenerateRanges();
+    
+    // Mettre à jour les événements
+    setupEventListeners();
+}
+
+function selectMethod(method) {
+    selectedMethod = method;
+    
+    // Mettre à jour l'apparence
+    document.querySelectorAll('.method-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    document.querySelector(`[data-method="${method}"]`).classList.add('selected');
+    
+    // Afficher la configuration appropriée
+    document.querySelectorAll('.method-content').forEach(content => {
+        content.style.display = 'none';
+    });
+    document.getElementById(`${method}Config`).style.display = 'block';
+    
+    // Mettre à jour l'aperçu
+    updatePreview();
+}
+
+function setupEventListeners() {
+    // Mettre à jour l'aperçu quand les paramètres changent
+    document.getElementById('pageRanges').addEventListener('input', updateRangesPreview);
+    document.getElementById('maxSize').addEventListener('input', updateSizePreview);
+    document.getElementById('pagesPerFile').addEventListener('input', updateIntervalPreview);
+    document.getElementById('fileNameFormat').addEventListener('input', updatePreview);
+    document.getElementById('downloadMethod').addEventListener('change', updatePreview);
+}
+
+function autoGenerateRanges() {
+    // Générer des plages par défaut (groupes de 5 pages)
+    let ranges = [];
+    for (let i = 0; i < totalPages; i += 5) {
+        const end = Math.min(i + 5, totalPages);
+        ranges.push(`${i + 1}-${end}`);
+    }
+    
+    document.getElementById('pageRanges').value = ranges.join(', ');
+    updateRangesPreview();
+}
+
+function updateRangesPreview() {
+    const rangesText = document.getElementById('pageRanges').value;
+    const preview = document.getElementById('rangesPreview');
+    
+    if (!rangesText.trim()) {
+        preview.innerHTML = '<div class="text-center text-muted py-3">Aucune plage définie</div>';
+        return;
+    }
+    
+    // Parser les plages
+    const ranges = parseRanges(rangesText);
+    let html = '';
+    
+    ranges.forEach((range, index) => {
+        const pages = range.pages;
+        const size = (selectedFile.size / totalPages * pages.length / 1024 / 1024).toFixed(2);
+        
+        html += `
+            <div class="range-item">
+                <div class="range-info">
+                    <div class="page-preview">
+                        ${pages.length}
+                    </div>
+                    <div>
+                        <strong>Fichier ${index + 1}</strong>
+                        <div class="small text-muted">
+                            Pages: ${range.start}-${range.end}
+                        </div>
+                    </div>
+                </div>
+                <div class="size-badge">
+                    ${size} MB
+                </div>
+            </div>
+        `;
+    });
+    
+    preview.innerHTML = html;
+    updatePreview();
+}
+
+function parseRanges(text) {
+    // Exemple: "1-3, 5, 7-10"
+    const parts = text.split(',').map(p => p.trim()).filter(p => p);
+    const ranges = [];
+    
+    parts.forEach(part => {
+        if (part.includes('-')) {
+            const [start, end] = part.split('-').map(n => parseInt(n));
+            if (!isNaN(start) && !isNaN(end) && start <= end) {
+                const pages = [];
+                for (let i = start; i <= end; i++) {
+                    if (i >= 1 && i <= totalPages) {
+                        pages.push(i);
+                    }
+                }
+                if (pages.length > 0) {
+                    ranges.push({
+                        start: start,
+                        end: end,
+                        pages: pages
+                    });
+                }
+            }
+        } else {
+            const page = parseInt(part);
+            if (!isNaN(page) && page >= 1 && page <= totalPages) {
+                ranges.push({
+                    start: page,
+                    end: page,
+                    pages: [page]
+                });
+            }
+        }
+    });
+    
+    return ranges;
+}
+
+function updateSizePreview() {
+    const maxSize = parseInt(document.getElementById('maxSize').value) || 5;
+    const estimated = Math.ceil(selectedFile.size / 1024 / 1024 / maxSize);
+    document.getElementById('estimatedFiles').textContent = estimated;
+    updatePreview();
+}
+
+function updateIntervalPreview() {
+    const perFile = parseInt(document.getElementById('pagesPerFile').value) || 5;
+    const estimated = Math.ceil(totalPages / perFile);
+    document.getElementById('intervalFiles').textContent = estimated;
+    updatePreview();
+}
+
+function updatePreview() {
+    const preview = document.getElementById('splitPreview');
+    let filesCount = 0;
+    let description = '';
+    
+    switch (selectedMethod) {
+        case 'range':
+            const ranges = parseRanges(document.getElementById('pageRanges').value);
+            filesCount = ranges.length;
+            description = `${filesCount} plage(s) de pages`;
+            break;
+            
+        case 'size':
+            const maxSize = parseInt(document.getElementById('maxSize').value) || 5;
+            filesCount = Math.ceil(selectedFile.size / 1024 / 1024 / maxSize);
+            description = `${filesCount} fichier(s) max ${maxSize}MB`;
+            break;
+            
+        case 'interval':
+            const perFile = parseInt(document.getElementById('pagesPerFile').value) || 5;
+            filesCount = Math.ceil(totalPages / perFile);
+            description = `${filesCount} fichier(s) de ${perFile} pages`;
+            break;
+            
+        case 'single':
+            filesCount = totalPages;
+            description = `${filesCount} fichier(s) (1 page chacun)`;
+            break;
+    }
+    
+    const downloadMethod = document.getElementById('downloadMethod').value;
+    const fileNameFormat = document.getElementById('fileNameFormat').value;
+    
+    preview.innerHTML = `
+        <div class="text-center">
+            <div class="mb-4">
+                <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                <h5>${description}</h5>
+                <p class="text-muted">${selectedFile.name}</p>
+            </div>
+            
+            <div class="preview-files">
+                ${Array.from({length: Math.min(filesCount, 6)}, (_, i) => {
+                    const fileName = fileNameFormat
+                        .replace('{{page}}', i + 1)
+                        .replace('{{range}}', `pages-${i+1}`);
+                    return `
+                        <div class="preview-file">
+                            <i class="fas fa-file-pdf fa-2x text-danger mb-2"></i>
+                            <div class="small">${fileName}.pdf</div>
+                        </div>
+                    `;
+                }).join('')}
+                
+                ${filesCount > 6 ? `
+                    <div class="preview-file">
+                        <i class="fas fa-ellipsis-h fa-2x text-muted mb-2"></i>
+                        <div class="small">+${filesCount - 6} autres</div>
+                    </div>
+                ` : ''}
+            </div>
+            
+            <div class="mt-4">
+                <span class="badge bg-primary me-2">
+                    ${downloadMethod === 'zip' ? 'Archive ZIP' : 'Fichiers individuels'}
+                </span>
+                <span class="badge bg-secondary">
+                    ${totalPages} pages totales
+                </span>
+            </div>
+        </div>
+    `;
+}
+
+function startSplit() {
+    if (!selectedFile) return;
+    
+    updateStep(2);
+    
+    // Simuler la progression
+    let progress = 0;
+    const progressBar = document.getElementById('splitProgress');
+    const details = document.getElementById('splitDetails');
+    const createdFiles = document.getElementById('createdFiles');
+    const processedPages = document.getElementById('processedPages');
+    const totalSize = document.getElementById('totalSize');
+    const splitTime = document.getElementById('splitTime');
+    
+    let filesCount = 0;
+    switch (selectedMethod) {
+        case 'range':
+            const ranges = parseRanges(document.getElementById('pageRanges').value);
+            filesCount = ranges.length;
+            break;
+        case 'size':
+            const maxSize = parseInt(document.getElementById('maxSize').value) || 5;
+            filesCount = Math.ceil(selectedFile.size / 1024 / 1024 / maxSize);
+            break;
+        case 'interval':
+            const perFile = parseInt(document.getElementById('pagesPerFile').value) || 5;
+            filesCount = Math.ceil(totalPages / perFile);
+            break;
+        case 'single':
+            filesCount = totalPages;
+            break;
+    }
+    
+    let processed = 0;
+    let fileCount = 0;
+    
+    const steps = Array.from({length: filesCount}, (_, i) => i);
+    
+    steps.forEach((fileIndex, stepIndex) => {
+        setTimeout(() => {
+            fileCount++;
+            const stepProgress = ((stepIndex + 1) / filesCount) * 100;
+            
+            progressBar.style.width = stepProgress + '%';
+            createdFiles.textContent = `${fileCount}/${filesCount}`;
+            processedPages.textContent = `${Math.min(totalPages, Math.ceil((stepIndex + 1) * (totalPages / filesCount)))}/${totalPages}`;
+            totalSize.textContent = `${(selectedFile.size / 1024 / 1024 * (stepIndex + 1) / filesCount).toFixed(2)} MB`;
+            
+            details.innerHTML = `
+                <p class="text-muted small">
+                    <i class="fas fa-spinner fa-spin me-1"></i>
+                    Création du fichier ${fileIndex + 1}/${filesCount}
+                </p>
+            `;
+            
+            // Estimer le temps restant
+            const remaining = (filesCount - stepIndex - 1) * 0.5;
+            splitTime.textContent = remaining < 1 ? 
+                'Quelques secondes' : 
+                `${Math.ceil(remaining)} seconde(s)`;
+            
+            // Dernière étape
+            if (stepIndex === steps.length - 1) {
+                setTimeout(() => {
+                    // Mettre à jour les infos finales
+                    const downloadMethod = document.getElementById('downloadMethod').value;
+                    document.getElementById('outputType').textContent = 
+                        downloadMethod === 'zip' ? 'Archive ZIP' : 'Fichiers PDF';
+                    document.getElementById('outputInfo').textContent = 
+                        downloadMethod === 'zip' ? 
+                        `Contient ${filesCount} fichiers PDF` :
+                        `${filesCount} fichiers PDF individuels`;
+                    document.getElementById('splitSummary').innerHTML = `
+                        Fichiers créés: ${filesCount}<br>
+                        Pages totales: ${totalPages}<br>
+                        Taille totale: ${(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                    `;
+                    document.getElementById('downloadText').textContent = 
+                        downloadMethod === 'zip' ? 'Télécharger ZIP' : 'Télécharger les fichiers';
+                    
+                    updateStep(3);
+                    prepareDownload();
+                }, 1000);
+            }
+        }, stepIndex * 1000);
+    });
+}
+
+function prepareDownload() {
+    document.getElementById('downloadBtn').onclick = async () => {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('method', selectedMethod);
+        
+        switch (selectedMethod) {
+            case 'range':
+                formData.append('ranges', document.getElementById('pageRanges').value);
+                break;
+            case 'size':
+                formData.append('maxSize', document.getElementById('maxSize').value);
+                break;
+            case 'interval':
+                formData.append('pagesPerFile', document.getElementById('pagesPerFile').value);
+                break;
+            case 'single':
+                // Pas de paramètres supplémentaires
+                break;
+        }
+        
+        formData.append('fileNameFormat', document.getElementById('fileNameFormat').value);
+        formData.append('downloadMethod', document.getElementById('downloadMethod').value);
+        
+        showLoader();
+        
+        try {
+            const response = await fetch("{{ url_for('conversion.universal_converter', conversion_type='diviser-pdf') }}", {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                
+                const downloadMethod = document.getElementById('downloadMethod').value;
+                const fileName = selectedFile.name.replace('.pdf', '');
+                a.download = downloadMethod === 'zip' ? 
+                    `${fileName}_split.zip` : 
+                    `${fileName}_page_1.pdf`;
+                
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } else {
+                const error = await response.json();
+                showError(error.error || 'Erreur lors de la division');
+                updateStep(1);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Erreur de connexion au serveur');
+            updateStep(1);
+        } finally {
+            hideLoader();
+        }
+    };
+}
+
+function resetConverter() {
+    selectedFile = null;
+    fileInput.value = '';
+    selectedMethod = 'range';
+    totalPages = 1;
+    
+    document.getElementById('splitConfig').style.display = 'none';
+    document.querySelectorAll('.method-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    document.querySelector('[data-method="range"]').classList.add('selected');
+    
+    // Réinitialiser les configurations
+    document.querySelectorAll('.method-content').forEach(content => {
+        content.style.display = 'none';
+    });
+    document.getElementById('rangeConfig').style.display = 'block';
+    
+    updateStep(1);
+}
+</script>
+{% endblock %}
