@@ -1,63 +1,112 @@
 <!-- templates/conversion/conversion_base.html -->
 {% extends "base.html" %}
 
-{% block head %}
-{{ super() }}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
+{% block extra_css %}
 <style>
 :root {
-    --primary: #e74c3c; /* Rouge comme le site de référence */
-    --primary-dark: #c0392b;
-    --light: #f8f9fa;
-    --dark: #333;
+    --primary-color: {{ color|default('#e74c3c') }};
+    --primary-dark: {{ color|default('#c0392b') }};
 }
 
 .converter-hero {
-    background: linear-gradient(135deg, var(--primary) 0%, #c0392b 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     color: white;
     padding: 4rem 0;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.converter-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: float 20s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(-50px, -50px) rotate(360deg); }
+}
+
+.converter-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    border: none;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.converter-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
 }
 
 .upload-zone {
     border: 3px dashed #ddd;
     border-radius: 15px;
-    padding: 3rem;
+    padding: 3rem 2rem;
     text-align: center;
     background: #f8f9fa;
     transition: all 0.3s;
     cursor: pointer;
+    position: relative;
 }
 
 .upload-zone:hover,
 .upload-zone.dragover {
-    border-color: var(--primary);
+    border-color: var(--primary-color);
     background: rgba(231, 76, 60, 0.05);
+    transform: translateY(-2px);
 }
 
-.converter-icon {
+.upload-icon {
     font-size: 4rem;
-    color: var(--primary);
-    margin-bottom: 1rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s;
 }
 
-.converter-steps {
+.upload-zone:hover .upload-icon {
+    transform: scale(1.1);
+}
+
+.file-info-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    border-left: 5px solid var(--primary-color);
+}
+
+.step-tracker {
     display: flex;
     justify-content: space-between;
     margin: 3rem 0;
     position: relative;
 }
 
-.converter-steps::before {
+.step-tracker::before {
     content: '';
     position: absolute;
     top: 25px;
     left: 0;
     right: 0;
-    height: 2px;
-    background: #ddd;
+    height: 3px;
+    background: #e9ecef;
     z-index: 1;
 }
 
@@ -71,21 +120,24 @@
 .step-number {
     width: 50px;
     height: 50px;
-    background: #fff;
-    border: 3px solid #ddd;
+    background: white;
+    border: 3px solid #e9ecef;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
+    font-size: 1.2rem;
     margin: 0 auto 10px;
     transition: all 0.3s;
 }
 
 .step.active .step-number {
-    background: var(--primary);
-    border-color: var(--primary);
+    background: var(--primary-color);
+    border-color: var(--primary-color);
     color: white;
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
 }
 
 .step.completed .step-number {
@@ -94,195 +146,235 @@
     color: white;
 }
 
-.file-preview {
-    max-width: 200px;
-    max-height: 200px;
-    border-radius: 10px;
-    display: none;
+.step-label {
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.step.active .step-label {
+    color: var(--primary-color);
+}
+
+.progress-container {
+    height: 10px;
+    background: #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 2rem 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+    border-radius: 5px;
+    transition: width 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.converter-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 3rem 0;
+}
+
+.feature-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    transition: all 0.3s;
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.success-animation {
+    width: 100px;
+    height: 100px;
+    background: #2ecc71;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    color: white;
+    font-size: 2.5rem;
+    animation: bounceIn 0.6s;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .converter-hero {
+        padding: 3rem 1rem;
+    }
+    
+    .converter-card {
+        padding: 1.5rem;
+    }
+    
+    .step-tracker {
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .step-tracker::before {
+        display: none;
+    }
+    
+    .step {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-align: left;
+    }
+    
+    .step-number {
+        margin: 0;
+        flex-shrink: 0;
+    }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid px-0">
-    
-    <!-- Hero Section -->
-    <div class="converter-hero">
-        <div class="container text-center">
-            <h1 class="display-4">
-                <i class="fas fa-exchange-alt me-3"></i>
-                {{ title }}
-            </h1>
-            <p class="lead">Convertissez vos fichiers rapidement et gratuitement</p>
+<div class="converter-hero">
+    <div class="container text-center position-relative">
+        <h1 class="display-4 fw-bold mb-3">
+            <i class="fas fa-{{ icon|default('exchange-alt') }} me-3"></i>
+            {{ title }}
+        </h1>
+        <p class="lead mb-4">{{ description }}</p>
+        <div class="badge bg-light text-dark fs-6 px-3 py-2">
+            <i class="fas fa-arrow-right me-2"></i>
+            {{ from_format }} → {{ to_format }}
         </div>
-    </div>
-
-    <div class="container">
-        
-        <!-- Steps Tracker -->
-        <div class="converter-steps">
-            <div class="step active" id="step1">
-                <div class="step-number">1</div>
-                <div class="step-label">Télécharger</div>
-            </div>
-            <div class="step" id="step2">
-                <div class="step-number">2</div>
-                <div class="step-label">Convertir</div>
-            </div>
-            <div class="step" id="step3">
-                <div class="step-number">3</div>
-                <div class="step-label">Télécharger</div>
-            </div>
-        </div>
-
-        <!-- Main Card -->
-        <div class="card shadow-lg border-0">
-            <div class="card-body p-5">
-                
-                <!-- Step 1: Upload -->
-                <div id="uploadStep">
-                    <div class="upload-zone" id="dropZone">
-                        <div class="converter-icon">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                        </div>
-                        
-                        <h3>Déposez votre fichier ici</h3>
-                        <p class="text-muted mb-4">
-                            Glissez-déposez votre fichier {{ from_format }} ou cliquez pour sélectionner
-                        </p>
-                        
-                        <p class="small text-muted mb-3">
-                            Formats acceptés: {{ accept }}
-                        </p>
-                        
-                        <input type="file" 
-                               id="fileInput" 
-                               class="d-none" 
-                               accept="{{ accept }}">
-                        
-                        <button class="btn btn-primary btn-lg"
-                                onclick="document.getElementById('fileInput').click()">
-                            <i class="fas fa-folder-open me-2"></i>
-                            Sélectionner un fichier
-                        </button>
-                    </div>
-                    
-                    <!-- File Info -->
-                    <div id="fileInfo" class="mt-4" style="display: none;">
-                        <div class="alert alert-success d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-check-circle me-2"></i>
-                                <strong id="fileName"></strong>
-                                <span id="fileSize" class="text-muted"></span>
-                            </div>
-                            <button class="btn btn-sm btn-outline-danger" onclick="clearFile()">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="text-center">
-                            <button class="btn btn-primary btn-lg" id="convertBtn" onclick="convertFile()">
-                                <i class="fas fa-play me-2"></i>
-                                Convertir en {{ to_format }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Step 2: Converting -->
-                <div id="convertingStep" class="text-center" style="display: none;">
-                    <div class="converter-icon mb-4">
-                        <i class="fas fa-sync-alt fa-spin"></i>
-                    </div>
-                    
-                    <h3>Conversion en cours...</h3>
-                    <p class="text-muted">Veuillez patienter pendant la conversion</p>
-                    
-                    <div class="progress mt-4" style="height: 10px;">
-                        <div id="conversionProgress" 
-                             class="progress-bar progress-bar-striped progress-bar-animated" 
-                             style="width: 0%"></div>
-                    </div>
-                </div>
-                
-                <!-- Step 3: Download -->
-                <div id="downloadStep" class="text-center" style="display: none;">
-                    <div class="converter-icon mb-4 text-success">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    
-                    <h3>Conversion réussie !</h3>
-                    <p class="text-muted mb-4">Votre fichier {{ to_format }} est prêt</p>
-                    
-                    <div class="d-flex justify-content-center gap-3">
-                        <button class="btn btn-success btn-lg" id="downloadBtn">
-                            <i class="fas fa-download me-2"></i>
-                            Télécharger
-                        </button>
-                        <button class="btn btn-outline-primary btn-lg" onclick="resetConverter()">
-                            <i class="fas fa-redo me-2"></i>
-                            Nouvelle conversion
-                        </button>
-                    </div>
-                </div>
-                
-            </div>
-        </div>
-        
-        <!-- Additional Information -->
-        <div class="row mt-5">
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="fas fa-shield-alt fa-2x text-primary mb-3"></i>
-                        <h5>Sécurisé</h5>
-                        <p class="text-muted small">Vos fichiers sont supprimés automatiquement après conversion</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="fas fa-bolt fa-2x text-primary mb-3"></i>
-                        <h5>Rapide</h5>
-                        <p class="text-muted small">Conversion en quelques secondes seulement</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="fas fa-laptop fa-2x text-primary mb-3"></i>
-                        <h5>Accessible</h5>
-                        <p class="text-muted small">Utilisez depuis n'importe quel navigateur</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-let selectedFile = null;
-
-// Initialiser les étapes
-function updateStep(stepNumber) {
-    // Cacher toutes les étapes
-    document.getElementById('uploadStep').style.display = 'none';
-    document.getElementById('convertingStep').style.display = 'none';
-    document.getElementById('downloadStep').style.display = 'none';
+<div class="container">
+    <!-- Étapes de conversion -->
+    <div class="step-tracker">
+        <div class="step active" id="step1">
+            <div class="step-number">1</div>
+            <div class="step-label">Télécharger</div>
+        </div>
+        <div class="step" id="step2">
+            <div class="step-number">2</div>
+            <div class="step-label">Convertir</div>
+        </div>
+        <div class="step" id="step3">
+            <div class="step-number">3</div>
+            <div class="step-label">Télécharger</div>
+        </div>
+    </div>
     
-    // Afficher l'étape active
-    if (stepNumber === 1) {
-        document.getElementById('uploadStep').style.display = 'block';
-    } else if (stepNumber === 2) {
-        document.getElementById('convertingStep').style.display = 'block';
-    } else if (stepNumber === 3) {
-        document.getElementById('downloadStep').style.display = 'block';
-    }
+    <!-- Carte principale -->
+    <div class="converter-card">
+        {% block converter_content %}
+        <!-- Le contenu spécifique à chaque conversion sera inséré ici -->
+        {% endblock %}
+    </div>
+    
+    <!-- Fonctionnalités -->
+    <div class="converter-features">
+        <div class="feature-item">
+            <div class="feature-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h5>Sécurisé</h5>
+            <p class="text-muted small mb-0">Vos fichiers sont supprimés après conversion</p>
+        </div>
+        
+        <div class="feature-item">
+            <div class="feature-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h5>Rapide</h5>
+            <p class="text-muted small mb-0">Conversion en quelques secondes</p>
+        </div>
+        
+        <div class="feature-item">
+            <div class="feature-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h5>Confidentiel</h5>
+            <p class="text-muted small mb-0">Personne n'accède à vos fichiers</p>
+        </div>
+        
+        <div class="feature-item">
+            <div class="feature-icon">
+                <i class="fas fa-globe"></i>
+            </div>
+            <h5>Accessible</h5>
+            <p class="text-muted small mb-0">Utilisez depuis n'importe où</p>
+        </div>
+    </div>
+    
+    <!-- Informations supplémentaires -->
+    <div class="alert alert-info mt-4">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-info-circle fa-2x me-3"></i>
+            <div>
+                <h6 class="mb-1">Comment ça marche ?</h6>
+                <p class="mb-0 small">
+                    1. Téléchargez votre fichier {{ from_format }}<br>
+                    2. Notre système le convertit en {{ to_format }}<br>
+                    3. Téléchargez votre fichier converti
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Script de base pour toutes les conversions
+function updateStep(stepNumber) {
+    // Cacher tous les contenus d'étape
+    document.querySelectorAll('[id$="Step"]').forEach(el => {
+        if (el.id.endsWith('Step')) {
+            el.style.display = 'none';
+        }
+    });
     
     // Mettre à jour le tracker
     document.querySelectorAll('.step').forEach((step, index) => {
@@ -293,134 +385,52 @@ function updateStep(stepNumber) {
             step.classList.add('active');
         }
     });
-}
-
-// Gestion du drag & drop
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, preventDefaults, false);
-});
-
-function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
-}
-
-['dragenter', 'dragover'].forEach(eventName => {
-    dropZone.addEventListener(eventName, highlight, false);
-});
-
-['dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, unhighlight, false);
-});
-
-function highlight() {
-    dropZone.classList.add('dragover');
-}
-
-function unhighlight() {
-    dropZone.classList.remove('dragover');
-}
-
-dropZone.addEventListener('drop', handleDrop, false);
-
-function handleDrop(e) {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-    handleFile(files[0]);
-}
-
-fileInput.addEventListener('change', function() {
-    if (this.files && this.files[0]) {
-        handleFile(this.files[0]);
+    
+    // Afficher l'étape active
+    const activeStep = document.getElementById(`step${stepNumber}Content`);
+    if (activeStep) {
+        activeStep.style.display = 'block';
     }
-});
-
-function handleFile(file) {
-    if (!file) return;
-    
-    selectedFile = file;
-    
-    // Afficher les informations du fichier
-    document.getElementById('fileName').textContent = file.name;
-    document.getElementById('fileSize').textContent = 
-        ` (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
-    
-    document.getElementById('fileInfo').style.display = 'block';
 }
 
-function clearFile() {
-    selectedFile = null;
-    fileInput.value = '';
-    document.getElementById('fileInfo').style.display = 'none';
-}
-
-function convertFile() {
-    if (!selectedFile) return;
+function showError(message) {
+    // Créer une alerte Bootstrap
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+    alertDiv.innerHTML = `
+        <i class="fas fa-exclamation-circle me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
     
-    updateStep(2);
+    // Ajouter au début du conteneur principal
+    const container = document.querySelector('.container');
+    container.insertBefore(alertDiv, container.firstChild);
     
-    // Simuler la progression
-    let progress = 0;
-    const progressBar = document.getElementById('conversionProgress');
-    
-    const interval = setInterval(() => {
-        progress += 10;
-        progressBar.style.width = progress + '%';
-        
-        if (progress >= 100) {
-            clearInterval(interval);
-            setTimeout(() => {
-                updateStep(3);
-                prepareDownload();
-            }, 500);
+    // Supprimer automatiquement après 5 secondes
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
         }
-    }, 200);
+    }, 5000);
 }
 
-function prepareDownload() {
-    // Préparer le téléchargement
-    document.getElementById('downloadBtn').onclick = async () => {
-        const formData = new FormData();
-        formData.append('file', selectedFile);
-        
-        try {
-            const response = await fetch("{{ url_for('conversion.universal_converter', conversion_type=conversion_type) }}", {
-                method: 'POST',
-                body: formData
-            });
-            
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `converted_${Date.now()}.{{ to_format }}`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            } else {
-                alert('Erreur lors de la conversion');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Erreur lors de la conversion');
-        }
-    };
+function showLoader() {
+    const loader = document.getElementById('loaderOverlay');
+    if (loader) {
+        loader.style.display = 'flex';
+    }
 }
 
-function resetConverter() {
-    selectedFile = null;
-    fileInput.value = '';
-    document.getElementById('fileInfo').style.display = 'none';
-    updateStep(1);
+function hideLoader() {
+    const loader = document.getElementById('loaderOverlay');
+    if (loader) {
+        loader.style.display = 'none';
+    }
 }
 
-// Initialiser
-document.addEventListener('DOMContentLoaded', function() {
+// Initialiser l'étape 1
+document.addEventListener('DOMContentLoaded', () => {
     updateStep(1);
 });
 </script>
