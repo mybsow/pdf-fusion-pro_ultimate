@@ -245,42 +245,149 @@ def create_app():
     # ========================================================
     # TEST OCR (page de statut dynamique)
     # ========================================================
+# ============================================================
+# OCR: DIAGNOSTIC DYNAMIQUE
+# ============================================================
+
+    def _ocr_probe():
+        """
+        Vérifie dynamiquement:
+        - si l'OCR est activé en config,
+        - la version de Tesseract,
+        - la présence de Poppler (pdftoppm/pdftocairo),
+        - la présence du pack de langue 'fra'.
+        """
+        status = {
+            "enabled": bool(AppConfig.OCR_ENABLED),
+            "tesseract": None,
+            "poppler": None,
+            "lang_fra": None,
+            "errors": []
+        }
+        try:
+            import shutil, subprocess
+            try:
+                import pytesseract
+                # Version Tesseract
+                try:
+                    status["tesseract"] = str(pytesseract.get_tesseract_version())
+                except Exception as e:
+                    status["errors"].append(f"tesseract_version: {e}")
+            except Exception as e:
+                status["errors"].append(f"pytesseract import: {e}")
+    
+            # Poppler (pdftoppm / pdftocairo)
+            status["poppler"] = shutil.which("pdftoppm") or shutil.which("pdftocairo")
+    
+            # Langue fra installée ?
+            try:
+                out = subprocess.check_output(["tesseract", "--list-langs"], stderr=subprocess.STDOUT, text=True)
+                status["lang_fra"] = ("fra" in out)
+            except Exception as e:
+                status["errors"].append(f"tesseract --list-langs: {e}")
+    
+        except Exception as e:
+            status["errors"].append(str(e))
+        return status
+    
+    # ============================================================
+    # TEST OCR (page de diagnostic amélioré)
+    # ============================================================
+    
     @app.route('/test-ocr')
     def test_ocr():
-        """Page de test pour vérifier l'état de l'OCR (statut réel)"""
+        """Page de test pour vérifier l'état de l'OCR"""
         probe = _ocr_probe()
-        ok = probe["enabled"] and probe["tesseract"] and probe["poppler"]
+        
+        # Vérifier les packages Python
+        python_packages = {
+            'pytesseract': False,
+            'Pillow': False,
+            'pdf2image': False,
+            'opencv-python': False
+        }
+        
+        for package in python_packages:
+            try:
+                __import__(package.replace('-', '_'))
+                python_packages[package] = True
+            except ImportError:
+                pass
+        
+        # HTML de diagnostic
         html = f"""
         <!DOCTYPE html>
         <html>
         <head>
-            <meta charset="utf-8" />
-            <title>Test OCR</title>
+            <meta charset="utf-8">
+            <title>Diagnostic OCR - PDF Fusion Pro</title>
             <style>
                 body {{ font-family: Arial, sans-serif; margin: 40px; }}
-                .status {{ padding: 18px; border-radius: 8px; margin-bottom: 16px; }}
-                .ok {{ background:#d1fae5; color:#065f46; border:1px solid #10b981; }}
-                .warn {{ background:#fef3c7; color:#92400e; border:1px solid #f59e0b; }}
-                .err {{ background:#fee2e2; color:#991b1b; border:1px solid #ef4444; }}
-                code, pre {{ background:#f8fafc; padding:8px 10px; border-radius:6px; display:inline-block; }}
-                a {{ color:#2563eb; text-decoration:none; }}
-                a:hover {{ text-decoration:underline; }}
+                .status {{ padding: 20px; border-radius: 10px; margin-bottom: 20px; }}
+                .ok {{ background:#d1fae5; color:#065f46; border:2px solid #10b981; }}
+                .warn {{ background:#fef3c7; color:#92400e; border:2px solid #f59e0b; }}
+                .err {{ background:#fee2e2; color:#991b1b; border:2px solid #ef4444; }}
+                .info {{ background:#dbeafe; color:#1e40af; border:2px solid #3b82f6; }}
+                table {{ width:100%; border-collapse:collapse; margin:20px 0; }}
+                th, td {{ padding:12px; text-align:left; border-bottom:1px solid #ddd; }}
+                th {{ background:#f8fafc; }}
+                .badge {{ display:inline-block; padding:4px 8px; border-radius:4px; font-size:12px; }}
+                .badge-ok {{ background:#10b981; color:white; }}
+                .badge-err {{ background:#ef4444; color:white; }}
+                .badge-warn {{ background:#f59e0b; color:white; }}
             </style>
         </head>
         <body>
-            <h1>État du service OCR (Render)</h1>
-            <div class="status {'ok' if ok else 'err'}">
-                <h3>{'✅ OCR opérationnel' if ok else '⚠️ OCR non opérationnel'}</h3>
-                <ul>
-                    <li>OCR activé (config) : <strong>{probe['enabled']}</strong></li>
-                    <li>Tesseract : <strong>{probe['tesseract'] or '—'}</strong></li>
-                    <li>Poppler (pdftoppm/pdftocairo) : <strong>{probe['poppler'] or '—'}</strong></li>
-                    <li>Langue FRA : <strong>{'OK' if probe['lang_fra'] else '—'}</strong></li>
-                </ul>
-                {('<p class="warn">Ajoute/valide <code>aptPackages: [tesseract-ocr, tesseract-ocr-fra, poppler-utils]</code> dans <code>render.yaml</code> et <code>pytesseract</code>, <code>pdf2image</code> dans <code>requirements.txt</code>.</p>' if not ok else '')}
-                {('<pre>' + str(probe['errors']) + '</pre>' if probe['errors'] else '')}
+            <h1>🧪 Diagnostic OCR - PDF Fusion Pro</h1>
+            
+            <div class="status {'ok' if probe['tesseract'] and probe['poppler'] else 'err'}">
+                <h2>{'✅ OCR Opérationnel' if probe['tesseract'] and probe['poppler'] else '❌ OCR Non Opérationnel'}</h2>
+                <p>Configuration: {'Activé' if probe['enabled'] else 'Désactivé'}</p>
             </div>
-            <p><a href="/">Accueil</a> • <a href="/conversion/">Outils de conversion</a></p>
+            
+            <h3>📦 Packages Python</h3>
+            <table>
+                <tr><th>Package</th><th>Status</th><th>Action</th></tr>
+                {"".join([
+                    f'<tr><td>{name}</td><td><span class="badge {"badge-ok" if installed else "badge-err"}">{"✅ Installé" if installed else "❌ Manquant"}</span></td><td>{"pip install " + name if not installed else "✓"}</td></tr>'
+                    for name, installed in python_packages.items()
+                ])}
+            </table>
+            
+            <h3>🖥️ Dépendances Système</h3>
+            <table>
+                <tr><th>Dépendance</th><th>Status</th><th>Chemin</th></tr>
+                <tr><td>Tesseract OCR</td><td><span class="badge {'badge-ok' if probe['tesseract'] else 'badge-err'}">{'✅ Trouvé' if probe['tesseract'] else '❌ Non trouvé'}</span></td><td>{probe['tesseract'] or '—'}</td></tr>
+                <tr><td>Poppler (pdf2image)</td><td><span class="badge {'badge-ok' if probe['poppler'] else 'badge-err'}">{'✅ Trouvé' if probe['poppler'] else '❌ Non trouvé'}</span></td><td>{probe['poppler'] or '—'}</td></tr>
+                <tr><td>Langue Française</td><td><span class="badge {'badge-ok' if probe['lang_fra'] else 'badge-warn'}">{'✅ Disponible' if probe['lang_fra'] else '⚠️ Manquante'}</span></td><td>{'tesseract-ocr-fra' if probe['lang_fra'] else 'Installer: apt-get install tesseract-ocr-fra'}</td></tr>
+            </table>
+            
+            <h3>🔧 Configuration Render</h3>
+            <div class="status info">
+                <p><strong>Dans render.yaml, assurez-vous d'avoir:</strong></p>
+                <pre>
+    aptPackages:
+      - tesseract-ocr
+      - tesseract-ocr-fra
+      - tesseract-ocr-eng
+      - poppler-utils
+      - libreoffice
+      - unoconv</pre>
+                
+                <p><strong>Dans requirements.txt, assurez-vous d'avoir:</strong></p>
+                <pre>
+    pytesseract==0.3.10
+    pdf2image==1.16.3
+    Pillow==10.1.0
+    pandas==2.1.4  # IMPORTANT: Version 3.0.0 incompatible</pre>
+            </div>
+            
+            {f'<h3>⚠️ Erreurs</h3><div class="status warn"><pre>{"\\n".join(probe["errors"])}</pre></div>' if probe["errors"] else ''}
+            
+            <div class="status">
+                <h3>🔗 Liens utiles</h3>
+                <p><a href="/">Accueil</a> • <a href="/conversion/">Conversions</a> • <a href="/admin/login">Administration</a></p>
+            </div>
         </body>
         </html>
         """
