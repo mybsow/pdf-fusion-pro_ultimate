@@ -302,8 +302,8 @@ def index():
             'conversions': [
                 CONVERSION_MAP['word-en-pdf'],
                 CONVERSION_MAP['excel-en-pdf'],
-                CONVERSION_MAP['image-en-pdf'],
-                CONVERSION_MAP['powerpoint-en-pdf']
+                CONVERSION_MAP['powerpoint-en-pdf'],
+                CONVERSION_MAP['image-en-pdf']
             ]
         },
         'convert_from_pdf': {
@@ -313,6 +313,7 @@ def index():
             'conversions': [
                 CONVERSION_MAP['pdf-en-word'],
                 CONVERSION_MAP['pdf-en-excel'],
+                CONVERSION_MAP['pdf-en-powerpoint'],
                 CONVERSION_MAP['pdf-en-image'],
                 CONVERSION_MAP['pdf-en-pdfa']
             ]
@@ -325,7 +326,9 @@ def index():
                 CONVERSION_MAP['fusionner-pdf'],
                 CONVERSION_MAP['diviser-pdf'],
                 CONVERSION_MAP['compresser-pdf'],
-                CONVERSION_MAP['rotation-pdf']
+                CONVERSION_MAP['rotation-pdf'],
+                CONVERSION_MAP['proteger-pdf'],
+                CONVERSION_MAP['deverrouiller-pdf']
             ]
         },
         'other_conversions': {
@@ -342,7 +345,7 @@ def index():
     }
     
     return render_template('conversion/index.html',
-                          title="Convertisseur de fichiers",
+                          title="Convertisseur de fichiers universel",
                           categories=categories,
                           all_conversions=CONVERSION_MAP)
 
@@ -1210,6 +1213,21 @@ def convert_excel_to_csv(files, form_data=None):
 # ============================================================================
 # ROUTES API ET UTILITAIRES
 # ============================================================================
+@conversion_bp.context_processor
+def utility_processor():
+    """Fonctions utilitaires disponibles dans les templates."""
+    
+    def conversion_id_for_url(conversion_config):
+        """Trouve l'ID de conversion à partir de sa configuration."""
+        for key, config in CONVERSION_MAP.items():
+            if config == conversion_config:
+                return key
+        return None
+    
+    return {
+        'conversion_id_for_url': conversion_id_for_url,
+        'now': datetime.now
+    }
 
 @conversion_bp.route('/api/supported-formats')
 def api_supported_formats():
