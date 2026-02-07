@@ -6,56 +6,15 @@ services:
     plan: free
     branch: main
     autoDeploy: true
-
+    dockerfilePath: ./Dockerfile  # ✅ Spécifier le Dockerfile
+    
     envVars:
-      - key: FLASK_ENV
-        value: production
-      - key: SECRET_KEY
-        generateValue: true
-      - key: WEB_CONCURRENCY
-        value: "1"
       - key: PORT
         value: "10000"
       - key: OCR_ENABLED
         value: "true"
       - key: ADMIN_PASSWORD
         value: "admin123"
-
-    # ✅ BUILD COMMAND FORCÉ
-    buildCommand: |
-      # Mettre à jour pip et installer les packages système d'abord
-      apt-get update && apt-get install -y \
-        tesseract-ocr \
-        tesseract-ocr-fra \
-        tesseract-ocr-eng \
-        tesseract-ocr-spa \
-        tesseract-ocr-deu \
-        tesseract-ocr-ita \
-        poppler-utils \
-        libreoffice \
-        unoconv \
-        libsm6 \
-        libxext6 \
-        libxrender-dev \
-        libgl1-mesa-glx
-      
-      # Installer les packages Python
-      pip install --upgrade pip setuptools wheel
-      pip install pytesseract==0.3.10
-      pip install pdf2image==1.16.3
-      pip install Pillow==10.0.0
-      pip install opencv-python-headless==4.8.1.78
-      pip install pandas==2.1.4
-      
-      # Installer le reste des requirements
-      pip install -r requirements.txt
-
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --worker-class gthread app:app
-
+    
     healthCheckPath: /health
     healthCheckTimeout: 30
-
-    disk:
-      name: tmp
-      mountPath: /tmp
-      sizeGB: 1
