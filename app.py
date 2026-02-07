@@ -314,6 +314,13 @@ def create_app():
             except ImportError:
                 pass
         
+        # Préparer le HTML des erreurs
+        errors_html = ""
+        if probe["errors"]:
+            # Utiliser <br> pour les sauts de ligne HTML
+            errors_formatted = "<br>".join(probe["errors"])
+            errors_html = f'<h3>⚠️ Erreurs</h3><div class="status warn"><pre>{errors_formatted}</pre></div>'
+        
         # HTML de diagnostic
         html = f"""
         <!DOCTYPE html>
@@ -382,7 +389,7 @@ def create_app():
     pandas==2.1.4  # IMPORTANT: Version 3.0.0 incompatible</pre>
             </div>
             
-            {f'<h3>⚠️ Erreurs</h3><div class="status warn"><pre>{"\\n".join(probe["errors"])}</pre></div>' if probe["errors"] else ''}
+            {errors_html}
             
             <div class="status">
                 <h3>🔗 Liens utiles</h3>
