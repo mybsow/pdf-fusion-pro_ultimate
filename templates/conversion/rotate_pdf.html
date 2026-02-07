@@ -1,0 +1,770 @@
+<!-- templates/conversion/rotate_pdf.html -->
+{% extends "conversion/conversion_base.html" %}
+
+{% block extra_css %}
+{{ super() }}
+<style>
+.preview-container {
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    padding: 1rem;
+    background: #f8f9fa;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pdf-preview {
+    max-width: 100%;
+    max-height: 250px;
+    transition: transform 0.3s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.rotation-controls {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.rotation-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #dee2e6;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.3s;
+}
+
+.rotation-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.rotation-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    min-width: 80px;
+    text-align: center;
+}
+
+.page-selector {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.page-item {
+    padding: 0.5rem;
+    border-bottom: 1px solid #f1f1f1;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.page-item:hover {
+    background: #f8f9fa;
+}
+
+.page-item.selected {
+    background: rgba(231, 76, 60, 0.1);
+    border-left: 3px solid var(--primary-color);
+}
+
+.page-thumbnail {
+    width: 40px;
+    height: 50px;
+    background: #e9ecef;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+</style>
+{% endblock %}
+
+{% block converter_content %}
+<!-- Étape 1: Upload -->
+<div id="step1Content">
+    <div class="upload-zone" id="dropZone">
+        <div class="upload-icon">
+            <i class="fas fa-sync-alt"></i>
+        </div>
+        
+        <h3>Déposez votre PDF ici</h3>
+        <p class="text-muted mb-4">
+            Faites pivoter les pages de votre document PDF
+        </p>
+        
+        <p class="small text-muted mb-3">
+            <i class="fas fa-info-circle me-1"></i>
+            Formats acceptés: .pdf | Taille max: 50MB
+        </p>
+        
+        <input type="file" 
+               id="fileInput" 
+               class="d-none" 
+               accept=".pdf">
+        
+        <button class="btn btn-primary btn-lg px-4 py-2"
+                onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-folder-open me-2"></i>
+            Sélectionner un PDF
+        </button>
+    </div>
+    
+    <!-- Aperçu et contrôles -->
+    <div id="rotationControls" class="mt-4" style="display: none;">
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-eye me-2"></i>Aperçu
+                </h5>
+                <div class="preview-container">
+                    <div id="pdfPreview">
+                        <div class="text-center text-muted">
+                            <i class="fas fa-file-pdf fa-3x mb-3 opacity-25"></i>
+                            <p>Chargement de l'aperçu...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div>
+                        <span class="text-muted small" id="pageInfo">Page 1/1</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="prevPage()">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="nextPage()">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <h5 class="mb-3">
+                    <i class="fas fa-sliders-h me-2"></i>Contrôles de rotation
+                </h5>
+                
+                <div class="rotation-controls mb-4">
+                    <div class="d-flex align-items-center justify-content-center mb-4">
+                        <button class="rotation-btn me-4" onclick="rotateLeft()">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                        
+                        <div class="rotation-value" id="rotationValue">0°</div>
+                        
+                        <button class="rotation-btn ms-4" onclick="rotateRight()">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Rotation précise</label>
+                        <input type="range" 
+                               class="form-range" 
+                               id="rotationSlider" 
+                               min="-180" 
+                               max="180" 
+                               value="0"
+                               step="90">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">-180°</small>
+                            <small class="text-muted">0°</small>
+                            <small class="text-muted">180°</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="applyToCurrentPage()">
+                            <i class="fas fa-check me-2"></i>
+                            Appliquer à cette page
+                        </button>
+                        <button class="btn btn-primary" onclick="applyToAllPages()">
+                            <i class="fas fa-check-double me-2"></i>
+                            Appliquer à toutes les pages
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="resetRotation()">
+                            <i class="fas fa-undo me-2"></i>
+                            Réinitialiser
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sélection des pages -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    <i class="fas fa-file me-2"></i>Sélection des pages
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Pages à modifier</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="pageSelection" id="allPages" checked>
+                            <label class="btn btn-outline-primary" for="allPages">
+                                Toutes
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="pageSelection" id="currentPage">
+                            <label class="btn btn-outline-primary" for="currentPage">
+                                Actuelle
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="pageSelection" id="customPages">
+                            <label class="btn btn-outline-primary" for="customPages">
+                                Personnalisé
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3" id="customRangeGroup" style="display: none;">
+                        <label class="form-label">Plage de pages</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="pageRange" 
+                               placeholder="Ex: 1,3-5,7"
+                               value="1-{{ selectedFiles.length if selectedFiles else 1 }}">
+                        <div class="form-text small">
+                            Séparez par des virgules, utilisez des tirets pour les plages
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Miniatures des pages -->
+                <div class="mt-3">
+                    <h6>Pages du document</h6>
+                    <div class="page-selector" id="pageSelector">
+                        <!-- Les pages seront générées ici -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bouton de rotation -->
+        <div class="mt-4">
+            <button class="btn btn-primary w-100 py-3 btn-lg" onclick="startRotation()">
+                <i class="fas fa-sync-alt me-2"></i>
+                Appliquer la rotation
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Étape 2: Rotation -->
+<div id="step2Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="upload-icon mb-4">
+            <i class="fas fa-sync-alt fa-spin"></i>
+        </div>
+        
+        <h3>Rotation en cours...</h3>
+        <p class="text-muted mb-4">
+            Application des rotations aux pages sélectionnées
+        </p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="rotationProgress"></div>
+        </div>
+        
+        <div class="mt-4" id="rotationDetails">
+            <p class="text-muted small">
+                <i class="fas fa-spinner fa-spin me-1"></i>
+                Traitement de la page 1...
+            </p>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Pages modifiées</h6>
+                        <p class="small text-muted mb-0" id="modifiedPages">0/0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Angle appliqué</h6>
+                        <p class="small text-muted mb-0" id="appliedAngle">0°</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Temps estimé</h6>
+                        <p class="small text-muted mb-0" id="rotationTime">Quelques secondes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Étape 3: Téléchargement -->
+<div id="step3Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="success-animation">
+            <i class="fas fa-check"></i>
+        </div>
+        
+        <h3 class="mb-3">Rotation appliquée !</h3>
+        <p class="text-muted mb-4">
+            Votre PDF modifié est prêt au téléchargement
+        </p>
+        
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="fas fa-file-pdf fa-2x text-primary mb-3"></i>
+                        <h5 id="rotatedFileName">document_rotation.pdf</h5>
+                        <p class="small text-muted" id="rotatedFileInfo">
+                            Taille: 0 MB | Pages: 0
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="fas fa-tachometer-alt fa-2x text-primary mb-3"></i>
+                        <h5>Résumé</h5>
+                        <p class="small text-muted" id="rotationSummary">
+                            Pages modifiées: 0<br>
+                            Angle appliqué: 0°
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+            <button class="btn btn-success btn-lg px-4" id="downloadBtn">
+                <i class="fas fa-download me-2"></i>
+                Télécharger PDF
+            </button>
+            
+            <button class="btn btn-outline-primary btn-lg px-4" onclick="resetConverter()">
+                <i class="fas fa-redo me-2"></i>
+                Nouvelle rotation
+            </button>
+        </div>
+        
+        <div class="mt-4">
+            <div class="btn-group" role="group">
+                <button class="btn btn-outline-secondary" onclick="updateStep(1)">
+                    <i class="fas fa-edit me-1"></i>
+                    Modifier la rotation
+                </button>
+                <a href="{{ url_for('conversion.universal_converter', conversion_type='fusionner-pdf') }}" 
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-object-group me-1"></i>
+                    Fusionner PDF
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedFile = null;
+let currentRotation = 0;
+let currentPageIndex = 0;
+let pageRotations = {}; // Stocke la rotation par page
+let totalPages = 1;
+
+// Gestion du drag & drop
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, highlight, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, unhighlight, false);
+});
+
+function highlight() {
+    dropZone.classList.add('dragover');
+}
+
+function unhighlight() {
+    dropZone.classList.remove('dragover');
+}
+
+dropZone.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    handleFile(files[0]);
+}
+
+fileInput.addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+        handleFile(this.files[0]);
+    }
+});
+
+function handleFile(file) {
+    if (!file) return;
+    
+    // Vérifier l'extension
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext !== 'pdf') {
+        showError('Veuillez sélectionner un fichier PDF');
+        return;
+    }
+    
+    // Vérifier la taille (max 50MB)
+    if (file.size > 50 * 1024 * 1024) {
+        showError('Fichier trop volumineux (max 50MB)');
+        return;
+    }
+    
+    selectedFile = file;
+    
+    // Estimation du nombre de pages
+    totalPages = Math.ceil(file.size / 50000);
+    
+    // Initialiser les rotations
+    pageRotations = {};
+    for (let i = 0; i < totalPages; i++) {
+        pageRotations[i] = 0;
+    }
+    
+    // Afficher les contrôles
+    document.getElementById('rotationControls').style.display = 'block';
+    
+    // Mettre à jour l'interface
+    updatePageInfo();
+    generatePageSelector();
+    updatePreview();
+    
+    // Gérer la sélection des pages
+    document.querySelectorAll('input[name="pageSelection"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.getElementById('customRangeGroup').style.display = 
+                this.id === 'customPages' ? 'block' : 'none';
+        });
+    });
+}
+
+function updatePageInfo() {
+    document.getElementById('pageInfo').textContent = 
+        `Page ${currentPageIndex + 1}/${totalPages}`;
+}
+
+function generatePageSelector() {
+    const selector = document.getElementById('pageSelector');
+    selector.innerHTML = '';
+    
+    for (let i = 0; i < totalPages; i++) {
+        const div = document.createElement('div');
+        div.className = `page-item ${i === currentPageIndex ? 'selected' : ''}`;
+        div.onclick = () => selectPage(i);
+        
+        div.innerHTML = `
+            <div class="d-flex align-items-center">
+                <div class="page-thumbnail me-3">
+                    ${i + 1}
+                </div>
+                <div style="flex: 1;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Page ${i + 1}</span>
+                        <span class="badge bg-light text-dark" id="pageRotation${i}">
+                            ${pageRotations[i]}°
+                        </span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        selector.appendChild(div);
+    }
+}
+
+function selectPage(pageIndex) {
+    currentPageIndex = pageIndex;
+    currentRotation = pageRotations[pageIndex];
+    updateRotationDisplay();
+    updatePageInfo();
+    generatePageSelector();
+    updatePreview();
+}
+
+function updatePreview() {
+    const preview = document.getElementById('pdfPreview');
+    preview.innerHTML = `
+        <div class="text-center">
+            <div class="mb-3">
+                <i class="fas fa-file-pdf fa-4x text-danger"></i>
+            </div>
+            <div class="bg-white p-3 rounded shadow-sm d-inline-block"
+                 style="transform: rotate(${currentRotation}deg); transition: transform 0.3s;">
+                <div class="border border-secondary" style="width: 150px; height: 200px;">
+                    <div class="h-100 d-flex flex-column justify-content-center align-items-center">
+                        <div class="fw-bold">Page ${currentPageIndex + 1}</div>
+                        <div class="small text-muted mt-2">${selectedFile.name}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="badge bg-primary">Rotation: ${currentRotation}°</div>
+            </div>
+        </div>
+    `;
+}
+
+function rotateLeft() {
+    currentRotation -= 90;
+    if (currentRotation < -180) currentRotation = 180;
+    updateRotationDisplay();
+    updatePreview();
+}
+
+function rotateRight() {
+    currentRotation += 90;
+    if (currentRotation > 180) currentRotation = -180;
+    updateRotationDisplay();
+    updatePreview();
+}
+
+function updateRotationDisplay() {
+    document.getElementById('rotationValue').textContent = `${currentRotation}°`;
+    document.getElementById('rotationSlider').value = currentRotation;
+    document.getElementById(`pageRotation${currentPageIndex}`).textContent = `${currentRotation}°`;
+}
+
+document.getElementById('rotationSlider').addEventListener('input', function() {
+    currentRotation = parseInt(this.value);
+    updateRotationDisplay();
+    updatePreview();
+});
+
+function applyToCurrentPage() {
+    pageRotations[currentPageIndex] = currentRotation;
+    showNotification(`Rotation de ${currentRotation}° appliquée à la page ${currentPageIndex + 1}`);
+    generatePageSelector();
+}
+
+function applyToAllPages() {
+    for (let i = 0; i < totalPages; i++) {
+        pageRotations[i] = currentRotation;
+    }
+    showNotification(`Rotation de ${currentRotation}° appliquée à toutes les pages`);
+    generatePageSelector();
+}
+
+function resetRotation() {
+    currentRotation = 0;
+    for (let i = 0; i < totalPages; i++) {
+        pageRotations[i] = 0;
+    }
+    updateRotationDisplay();
+    updatePreview();
+    generatePageSelector();
+    showNotification('Rotation réinitialisée');
+}
+
+function prevPage() {
+    if (currentPageIndex > 0) {
+        selectPage(currentPageIndex - 1);
+    }
+}
+
+function nextPage() {
+    if (currentPageIndex < totalPages - 1) {
+        selectPage(currentPageIndex + 1);
+    }
+}
+
+function showNotification(message) {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-info alert-dismissible fade show position-fixed';
+    alert.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+    alert.innerHTML = `
+        <i class="fas fa-info-circle me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.remove();
+        }
+    }, 3000);
+}
+
+function startRotation() {
+    if (!selectedFile) return;
+    
+    // Vérifier si des rotations ont été appliquées
+    const hasRotations = Object.values(pageRotations).some(rot => rot !== 0);
+    if (!hasRotations) {
+        showError('Aucune rotation n\'a été appliquée');
+        return;
+    }
+    
+    updateStep(2);
+    
+    // Simuler la progression
+    let progress = 0;
+    const progressBar = document.getElementById('rotationProgress');
+    const details = document.getElementById('rotationDetails');
+    const modifiedPages = document.getElementById('modifiedPages');
+    const appliedAngle = document.getElementById('appliedAngle');
+    const rotationTime = document.getElementById('rotationTime');
+    
+    // Compter les pages modifiées
+    const modifiedCount = Object.values(pageRotations).filter(rot => rot !== 0).length;
+    
+    let processed = 0;
+    
+    const steps = Array.from({length: totalPages}, (_, i) => i);
+    
+    steps.forEach((pageIndex, stepIndex) => {
+        setTimeout(() => {
+            if (pageRotations[pageIndex] !== 0) {
+                processed++;
+                const stepProgress = ((stepIndex + 1) / totalPages) * 100;
+                
+                progressBar.style.width = stepProgress + '%';
+                modifiedPages.textContent = `${processed}/${modifiedCount}`;
+                appliedAngle.textContent = `${pageRotations[pageIndex]}°`;
+                
+                details.innerHTML = `
+                    <p class="text-muted small">
+                        <i class="fas fa-spinner fa-spin me-1"></i>
+                        Rotation de la page ${pageIndex + 1} (${pageRotations[pageIndex]}°)
+                    </p>
+                `;
+                
+                // Estimer le temps restant
+                const remaining = (totalPages - stepIndex - 1) * 0.5;
+                rotationTime.textContent = remaining < 1 ? 
+                    'Quelques secondes' : 
+                    `${Math.ceil(remaining)} seconde(s)`;
+            }
+            
+            // Dernière étape
+            if (stepIndex === steps.length - 1) {
+                setTimeout(() => {
+                    // Mettre à jour les infos finales
+                    document.getElementById('rotatedFileName').textContent = 
+                        `${selectedFile.name.replace('.pdf', '')}_rotation.pdf`;
+                    document.getElementById('rotatedFileInfo').textContent = 
+                        `Taille: ${(selectedFile.size / 1024 / 1024).toFixed(2)} MB | Pages: ${totalPages}`;
+                    document.getElementById('rotationSummary').innerHTML = `
+                        Pages modifiées: ${modifiedCount}/${totalPages}<br>
+                        Angle moyen: ${Object.values(pageRotations).reduce((a, b) => a + Math.abs(b), 0) / modifiedCount || 0}°
+                    `;
+                    
+                    updateStep(3);
+                    prepareDownload();
+                }, 1000);
+            }
+        }, stepIndex * 500);
+    });
+}
+
+function prepareDownload() {
+    document.getElementById('downloadBtn').onclick = async () => {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('angle', currentRotation);
+        
+        // Préparer les rotations par page
+        const rotationsData = Object.entries(pageRotations)
+            .filter(([_, rot]) => rot !== 0)
+            .map(([page, rot]) => `${page}:${rot}`)
+            .join(',');
+        formData.append('rotations', rotationsData);
+        
+        // Sélection des pages
+        const pageSelection = document.querySelector('input[name="pageSelection"]:checked').id;
+        formData.append('selection', pageSelection);
+        
+        if (pageSelection === 'customPages') {
+            formData.append('range', document.getElementById('pageRange').value);
+        }
+        
+        showLoader();
+        
+        try {
+            const response = await fetch("{{ url_for('conversion.universal_converter', conversion_type='rotation-pdf') }}", {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${selectedFile.name.replace('.pdf', '')}_rotation.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } else {
+                const error = await response.json();
+                showError(error.error || 'Erreur lors de la rotation');
+                updateStep(1);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Erreur de connexion au serveur');
+            updateStep(1);
+        } finally {
+            hideLoader();
+        }
+    };
+}
+
+function resetConverter() {
+    selectedFile = null;
+    fileInput.value = '';
+    currentRotation = 0;
+    currentPageIndex = 0;
+    pageRotations = {};
+    totalPages = 1;
+    
+    document.getElementById('rotationControls').style.display = 'none';
+    updateStep(1);
+}
+</script>
+{% endblock %}
