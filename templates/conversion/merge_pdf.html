@@ -1,0 +1,678 @@
+<!-- templates/conversion/merge_pdf.html -->
+{% extends "conversion/conversion_base.html" %}
+
+{% block extra_css %}
+{{ super() }}
+<style>
+.file-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 1rem;
+    background: #f8f9fa;
+}
+
+.file-item {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s;
+}
+
+.file-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.file-item.dragging {
+    opacity: 0.5;
+    background: #e9ecef;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.file-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.file-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.sortable-handle {
+    cursor: move;
+    color: #6c757d;
+    padding: 0.5rem;
+}
+
+.sortable-handle:hover {
+    color: var(--primary-color);
+}
+
+.page-count {
+    font-size: 0.85rem;
+    color: #6c757d;
+    background: #e9ecef;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+</style>
+{% endblock %}
+
+{% block converter_content %}
+<!-- Étape 1: Upload multiple -->
+<div id="step1Content">
+    <div class="upload-zone" id="dropZone">
+        <div class="upload-icon">
+            <i class="fas fa-object-group"></i>
+        </div>
+        
+        <h3>Déposez vos PDFs ici</h3>
+        <p class="text-muted mb-4">
+            Glissez-déposez plusieurs fichiers PDF à fusionner
+        </p>
+        
+        <p class="small text-muted mb-3">
+            <i class="fas fa-info-circle me-1"></i>
+            Maximum: 20 fichiers PDF | Taille max par fichier: 50MB
+        </p>
+        
+        <input type="file" 
+               id="fileInput" 
+               class="d-none" 
+               accept=".pdf"
+               multiple>
+        
+        <button class="btn btn-primary btn-lg px-4 py-2"
+                onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-folder-open me-2"></i>
+            Sélectionner des PDFs
+        </button>
+    </div>
+    
+    <!-- Liste des fichiers -->
+    <div class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+                Fichiers à fusionner
+                <span class="badge bg-primary ms-2" id="fileCount">0</span>
+            </h5>
+            <button class="btn btn-sm btn-outline-danger" onclick="clearAllFiles()">
+                <i class="fas fa-trash me-1"></i>Tout effacer
+            </button>
+        </div>
+        
+        <div class="file-list" id="fileList">
+            <div class="text-center py-5 text-muted" id="emptyMessage">
+                <i class="fas fa-file-pdf fa-3x mb-3 opacity-25"></i>
+                <p>Aucun fichier sélectionné</p>
+                <p class="small">Glissez-déposez ou cliquez pour ajouter des PDFs</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Options de fusion -->
+    <div class="mt-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    <i class="fas fa-sliders-h me-2"></i>Options de fusion
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Ordre des fichiers</label>
+                        <div class="form-text small mb-2">
+                            Glissez-déplacez les fichiers pour réorganiser
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="autoOrder" checked>
+                            <label class="form-check-label">
+                                Trier par nom de fichier
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Format de sortie</label>
+                        <select class="form-select" id="outputFormat">
+                            <option value="standard" selected>PDF standard</option>
+                            <option value="compressed">PDF compressé</option>
+                            <option value="pdfa">PDF/A (archivage)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Nom du fichier fusionné</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="outputName" 
+                               value="document_fusionne"
+                               placeholder="Nom du fichier de sortie">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            Pages totales estimées: <span id="totalPages">0</span>
+                        </label>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar" id="sizeProgress" style="width: 0%"></div>
+                        </div>
+                        <div class="form-text small" id="totalSize">Taille totale: 0 MB</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bouton de fusion -->
+    <div class="mt-4" id="mergeButton" style="display: none;">
+        <button class="btn btn-primary w-100 py-3 btn-lg" onclick="startMerge()">
+            <i class="fas fa-object-group me-2"></i>
+            Fusionner les PDFs
+        </button>
+    </div>
+</div>
+
+<!-- Étape 2: Fusion -->
+<div id="step2Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="upload-icon mb-4">
+            <i class="fas fa-sync-alt fa-spin"></i>
+        </div>
+        
+        <h3>Fusion en cours...</h3>
+        <p class="text-muted mb-4">
+            Assemblage de vos fichiers PDF
+        </p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="mergeProgress"></div>
+        </div>
+        
+        <div class="mt-4" id="mergeDetails">
+            <p class="text-muted small">
+                <i class="fas fa-spinner fa-spin me-1"></i>
+                Préparation des documents...
+            </p>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 id="currentFile">Fichier 1/0</h6>
+                        <p class="small text-muted mb-0" id="currentPage">Page 0/0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Pages traitées</h6>
+                        <p class="small text-muted mb-0" id="processedPages">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Temps estimé</h6>
+                        <p class="small text-muted mb-0" id="estimatedTime">Quelques secondes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Étape 3: Téléchargement -->
+<div id="step3Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="success-animation">
+            <i class="fas fa-check"></i>
+        </div>
+        
+        <h3 class="mb-3">Fusion réussie !</h3>
+        <p class="text-muted mb-4">
+            Votre PDF fusionné est prêt au téléchargement
+        </p>
+        
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="fas fa-file-pdf fa-2x text-primary mb-3"></i>
+                        <h5 id="finalFileName">document_fusionne.pdf</h5>
+                        <p class="small text-muted" id="finalFileInfo">
+                            Taille: 0 MB | Pages: 0
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="fas fa-chart-pie fa-2x text-primary mb-3"></i>
+                        <h5>Résumé</h5>
+                        <p class="small text-muted" id="mergeSummary">
+                            Fichiers fusionnés: 0<br>
+                            Pages totales: 0
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+            <button class="btn btn-success btn-lg px-4" id="downloadBtn">
+                <i class="fas fa-download me-2"></i>
+                Télécharger PDF fusionné
+            </button>
+            
+            <button class="btn btn-outline-primary btn-lg px-4" onclick="resetConverter()">
+                <i class="fas fa-redo me-2"></i>
+                Nouvelle fusion
+            </button>
+        </div>
+        
+        <div class="mt-4">
+            <div class="btn-group" role="group">
+                <button class="btn btn-outline-secondary" onclick="updateStep(1)">
+                    <i class="fas fa-edit me-1"></i>
+                    Modifier les fichiers
+                </button>
+                <a href="{{ url_for('conversion.universal_converter', conversion_type='diviser-pdf') }}" 
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-cut me-1"></i>
+                    Diviser un PDF
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedFiles = [];
+let fileOrder = [];
+
+// Gestion du drag & drop
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, highlight, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, unhighlight, false);
+});
+
+function highlight() {
+    dropZone.classList.add('dragover');
+}
+
+function unhighlight() {
+    dropZone.classList.remove('dragover');
+}
+
+dropZone.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = Array.from(dt.files);
+    handleFiles(files);
+}
+
+fileInput.addEventListener('change', function() {
+    if (this.files && this.files.length > 0) {
+        handleFiles(Array.from(this.files));
+    }
+});
+
+function handleFiles(files) {
+    // Filtrer les fichiers PDF
+    const pdfFiles = files.filter(file => {
+        const ext = file.name.split('.').pop().toLowerCase();
+        return ext === 'pdf';
+    });
+    
+    // Vérifier la limite
+    if (selectedFiles.length + pdfFiles.length > 20) {
+        showError('Maximum 20 fichiers autorisés');
+        return;
+    }
+    
+    // Vérifier la taille
+    pdfFiles.forEach(file => {
+        if (file.size > 50 * 1024 * 1024) {
+            showError(`Fichier trop volumineux: ${file.name} (max 50MB)`);
+            return;
+        }
+    });
+    
+    // Ajouter les fichiers
+    pdfFiles.forEach(file => {
+        const fileId = Date.now() + Math.random();
+        selectedFiles.push({
+            id: fileId,
+            file: file,
+            name: file.name,
+            size: file.size,
+            pages: Math.ceil(file.size / 50000) // Estimation
+        });
+        fileOrder.push(fileId);
+    });
+    
+    updateFileList();
+}
+
+function updateFileList() {
+    const fileList = document.getElementById('fileList');
+    const emptyMessage = document.getElementById('emptyMessage');
+    const mergeButton = document.getElementById('mergeButton');
+    const fileCount = document.getElementById('fileCount');
+    
+    fileCount.textContent = selectedFiles.length;
+    
+    if (selectedFiles.length === 0) {
+        emptyMessage.style.display = 'block';
+        mergeButton.style.display = 'none';
+        fileList.innerHTML = '';
+        fileList.appendChild(emptyMessage);
+        updateStats();
+        return;
+    }
+    
+    emptyMessage.style.display = 'none';
+    mergeButton.style.display = 'block';
+    
+    // Trier selon fileOrder
+    const sortedFiles = fileOrder.map(id => 
+        selectedFiles.find(f => f.id === id)
+    ).filter(Boolean);
+    
+    fileList.innerHTML = '';
+    
+    sortedFiles.forEach((fileObj, index) => {
+        const div = document.createElement('div');
+        div.className = 'file-item';
+        div.dataset.id = fileObj.id;
+        div.draggable = true;
+        
+        div.innerHTML = `
+            <div class="file-info">
+                <div class="file-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>${fileObj.name}</strong>
+                        <span class="page-count">${fileObj.pages} page(s)</span>
+                    </div>
+                    <div class="small text-muted">
+                        ${(fileObj.size / 1024 / 1024).toFixed(2)} MB
+                    </div>
+                </div>
+            </div>
+            <div class="file-controls">
+                <span class="sortable-handle">
+                    <i class="fas fa-arrows-alt"></i>
+                </span>
+                <button class="btn btn-sm btn-outline-danger" onclick="removeFile('${fileObj.id}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        // Drag & drop pour réorganiser
+        div.addEventListener('dragstart', handleDragStart);
+        div.addEventListener('dragover', handleDragOver);
+        div.addEventListener('drop', handleDropItem);
+        div.addEventListener('dragend', handleDragEnd);
+        
+        fileList.appendChild(div);
+    });
+    
+    updateStats();
+    initSortable();
+}
+
+function handleDragStart(e) {
+    e.dataTransfer.setData('text/plain', this.dataset.id);
+    this.classList.add('dragging');
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+}
+
+function handleDropItem(e) {
+    e.preventDefault();
+    const draggedId = e.dataTransfer.getData('text/plain');
+    const targetId = this.dataset.id;
+    
+    if (draggedId !== targetId) {
+        const draggedIndex = fileOrder.indexOf(draggedId);
+        const targetIndex = fileOrder.indexOf(targetId);
+        
+        fileOrder.splice(draggedIndex, 1);
+        fileOrder.splice(targetIndex, 0, draggedId);
+        
+        updateFileList();
+    }
+}
+
+function handleDragEnd() {
+    this.classList.remove('dragging');
+}
+
+function initSortable() {
+    const items = document.querySelectorAll('.file-item');
+    items.forEach(item => {
+        item.addEventListener('dragstart', handleDragStart);
+        item.addEventListener('dragover', handleDragOver);
+        item.addEventListener('drop', handleDropItem);
+        item.addEventListener('dragend', handleDragEnd);
+    });
+}
+
+function removeFile(fileId) {
+    selectedFiles = selectedFiles.filter(f => f.id !== fileId);
+    fileOrder = fileOrder.filter(id => id !== fileId);
+    updateFileList();
+}
+
+function clearAllFiles() {
+    selectedFiles = [];
+    fileOrder = [];
+    fileInput.value = '';
+    updateFileList();
+}
+
+function updateStats() {
+    const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+    const totalPages = selectedFiles.reduce((sum, f) => sum + f.pages, 0);
+    
+    document.getElementById('totalPages').textContent = totalPages;
+    document.getElementById('totalSize').textContent = 
+        `Taille totale: ${(totalSize / 1024 / 1024).toFixed(2)} MB`;
+    
+    const progress = Math.min((totalSize / (50 * 1024 * 1024)) * 100, 100);
+    document.getElementById('sizeProgress').style.width = progress + '%';
+}
+
+function startMerge() {
+    if (selectedFiles.length < 2) {
+        showError('Sélectionnez au moins 2 fichiers PDF à fusionner');
+        return;
+    }
+    
+    updateStep(2);
+    
+    // Simuler la progression
+    let progress = 0;
+    const progressBar = document.getElementById('mergeProgress');
+    const details = document.getElementById('mergeDetails');
+    const currentFile = document.getElementById('currentFile');
+    const currentPage = document.getElementById('currentPage');
+    const processedPages = document.getElementById('processedPages');
+    const estimatedTime = document.getElementById('estimatedTime');
+    
+    let totalPages = selectedFiles.reduce((sum, f) => sum + f.pages, 0);
+    let processed = 0;
+    
+    const steps = selectedFiles.map((file, index) => ({
+        file: file,
+        index: index + 1,
+        total: selectedFiles.length
+    }));
+    
+    steps.forEach((step, stepIndex) => {
+        setTimeout(() => {
+            // Mettre à jour l'interface pour ce fichier
+            currentFile.textContent = `Fichier ${step.index}/${step.total}`;
+            
+            // Simuler le traitement des pages de ce fichier
+            const pageSteps = Array.from({length: step.file.pages}, (_, i) => i + 1);
+            
+            pageSteps.forEach((page, pageIndex) => {
+                setTimeout(() => {
+                    processed++;
+                    const fileProgress = ((stepIndex + (pageIndex + 1) / step.file.pages) / steps.length) * 100;
+                    
+                    progressBar.style.width = fileProgress + '%';
+                    currentPage.textContent = `Page ${page}/${step.file.pages}`;
+                    processedPages.textContent = `${processed}/${totalPages}`;
+                    
+                    // Estimer le temps restant
+                    const remaining = (steps.length - stepIndex - 1) * 2 + 
+                                     (step.file.pages - pageIndex) * 0.1;
+                    estimatedTime.textContent = remaining < 1 ? 
+                        'Quelques secondes' : 
+                        `${Math.ceil(remaining)} seconde(s)`;
+                    
+                    details.innerHTML = `
+                        <p class="text-muted small">
+                            <i class="fas fa-spinner fa-spin me-1"></i>
+                            Fusion de ${step.file.name}...
+                        </p>
+                    `;
+                    
+                    // Dernière étape
+                    if (stepIndex === steps.length - 1 && pageIndex === step.file.pages - 1) {
+                        setTimeout(() => {
+                            // Mettre à jour les infos finales
+                            const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+                            document.getElementById('finalFileName').textContent = 
+                                document.getElementById('outputName').value + '.pdf';
+                            document.getElementById('finalFileInfo').textContent = 
+                                `Taille: ${(totalSize / 1024 / 1024).toFixed(2)} MB | Pages: ${totalPages}`;
+                            document.getElementById('mergeSummary').innerHTML = `
+                                Fichiers fusionnés: ${selectedFiles.length}<br>
+                                Pages totales: ${totalPages}<br>
+                                Taille totale: ${(totalSize / 1024 / 1024).toFixed(2)} MB
+                            `;
+                            
+                            updateStep(3);
+                            prepareDownload();
+                        }, 1000);
+                    }
+                }, pageIndex * 100);
+            });
+        }, stepIndex * 2000);
+    });
+}
+
+function prepareDownload() {
+    document.getElementById('downloadBtn').onclick = async () => {
+        const formData = new FormData();
+        
+        // Ajouter les fichiers dans l'ordre
+        fileOrder.forEach(id => {
+            const fileObj = selectedFiles.find(f => f.id === id);
+            if (fileObj) {
+                formData.append('files', fileObj.file);
+            }
+        });
+        
+        formData.append('outputName', document.getElementById('outputName').value);
+        formData.append('outputFormat', document.getElementById('outputFormat').value);
+        formData.append('autoOrder', document.getElementById('autoOrder').checked);
+        
+        showLoader();
+        
+        try {
+            const response = await fetch("{{ url_for('conversion.universal_converter', conversion_type='fusionner-pdf') }}", {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = document.getElementById('outputName').value + '.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } else {
+                const error = await response.json();
+                showError(error.error || 'Erreur lors de la fusion');
+                updateStep(1);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Erreur de connexion au serveur');
+            updateStep(1);
+        } finally {
+            hideLoader();
+        }
+    };
+}
+
+function resetConverter() {
+    selectedFiles = [];
+    fileOrder = [];
+    fileInput.value = '';
+    document.getElementById('outputName').value = 'document_fusionne';
+    updateFileList();
+    updateStep(1);
+}
+</script>
+{% endblock %}
