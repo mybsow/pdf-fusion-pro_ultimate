@@ -15,11 +15,11 @@ img2pdf==0.4.4
 pdf2image==1.16.3
 
 # ==============================================
-# OCR & IMAGE PROCESSING
+# OCR & IMAGE PROCESSING (VERSIONS STABLES)
 # ==============================================
 pytesseract==0.3.10
-Pillow==10.1.0
-opencv-python-headless==4.8.1.78  # ✅ UNIQUEMENT headless sur serveur
+Pillow==10.0.0  # Version plus stable
+opencv-python-headless==4.8.1.78
 
 # ==============================================
 # DOCUMENT PROCESSING
@@ -40,4 +40,4 @@ WTForms==3.1.2
 python-magic==0.4.27
 python-dotenv==1.0.0
 
-# RETIRER : python-magic-bin (pour Windows seulement)
+# Supprimer python-magic-bin (Windows seulement)
