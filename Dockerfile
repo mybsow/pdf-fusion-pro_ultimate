@@ -1,27 +1,31 @@
 # Dockerfile
 FROM python:3.11-slim
 
-# Installer les dépendances système
+# 1. Installer Tesseract OCR (AU BUILD TIME - avec permissions root)
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     tesseract-ocr-fra \
+    tesseract-ocr-eng \
     poppler-utils \
+    libgl1-mesa-glx \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Créer un répertoire pour l'application
+# 2. Vérifier l'installation
+RUN which tesseract && tesseract --version
+RUN which pdftoppm && pdftoppm -v 2>&1 | head -1
+
+# 3. Installer les packages Python
 WORKDIR /app
-
-# Copier les fichiers de dépendances
 COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Installer les dépendances Python
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copier le reste de l'application
+# 4. Copier l'application
 COPY . .
 
-# Exposer le port
+# 5. Port et commande
 EXPOSE 10000
-
-# Démarrer l'application
 CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000", "--workers", "2"]
