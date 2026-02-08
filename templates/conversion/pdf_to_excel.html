@@ -109,6 +109,15 @@
         </div>
     </div>
 </div>
+
+<!-- Formulaire caché pour la soumission POST -->
+<form method="POST" 
+      action="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-excel') }}"
+      enctype="multipart/form-data"
+      id="hiddenForm"
+      style="display: none;">
+    <input type="file" name="file" id="hiddenFileInput">
+</form>
 {% endblock %}
 
 {% block extra_js %}
@@ -229,40 +238,23 @@ function startConversion() {
 }
 
 function prepareDownload() {
-    document.getElementById('downloadBtn').onclick = async () => {
-        const formData = new FormData();
-        formData.append('file', selectedFile);
+    document.getElementById('downloadBtn').onclick = function() {
+        // Utiliser le formulaire caché
+        const hiddenForm = document.getElementById('hiddenForm');
+        const hiddenFileInput = document.getElementById('hiddenFileInput');
         
-        showLoader();
+        // Transférer le fichier au champ caché
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(selectedFile);
+        hiddenFileInput.files = dataTransfer.files;
         
-        try {
-            const response = await fetch("{{ url_for('conversion.universal_converter', conversion_type='pdf-en-excel') }}", {
-                method: 'POST',
-                body: formData
-            });
-            
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `converted_${Date.now()}.xlsx`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            } else {
-                const error = await response.json();
-                showError(error.error || 'Erreur lors de la conversion');
-                updateStep(1);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showError('Erreur de connexion au serveur');
-            updateStep(1);
-        } finally {
-            hideLoader();
-        }
+        // Soumettre le formulaire
+        hiddenForm.submit();
+        
+        // Réinitialiser après soumission
+        setTimeout(() => {
+            resetConverter();
+        }, 1000);
     };
 }
 
@@ -272,5 +264,122 @@ function resetConverter() {
     document.getElementById('fileInfo').style.display = 'none';
     updateStep(1);
 }
+
+// Fonctions utilitaires
+function updateStep(stepNumber) {
+    document.getElementById('step1Content').style.display = 'none';
+    document.getElementById('step2Content').style.display = 'none';
+    document.getElementById('step3Content').style.display = 'none';
+    
+    if (stepNumber === 1) {
+        document.getElementById('step1Content').style.display = 'block';
+    } else if (stepNumber === 2) {
+        document.getElementById('step2Content').style.display = 'block';
+    } else if (stepNumber === 3) {
+        document.getElementById('step3Content').style.display = 'block';
+    }
+}
+
+function showError(message) {
+    // Créer une alerte Bootstrap
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+    alertDiv.innerHTML = `
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Auto-dismiss après 5 secondes
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+function showLoader() {
+    const loader = document.getElementById('conversionProgress');
+    if (loader) {
+        loader.style.width = '100%';
+    }
+}
+
+function hideLoader() {
+    const loader = document.getElementById('conversionProgress');
+    if (loader) {
+        loader.style.width = '0%';
+    }
+}
 </script>
+
+<style>
+.progress-container {
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 20px auto;
+    max-width: 500px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 4px;
+}
+
+.success-animation {
+    width: 80px;
+    height: 80px;
+    background: #198754;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    color: white;
+    font-size: 2rem;
+    animation: bounceIn 0.6s;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.upload-zone {
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    padding: 3rem 1rem;
+    text-align: center;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.upload-zone.dragover {
+    border-color: var(--primary-color);
+    background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.file-info-card {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+</style>
 {% endblock %}
