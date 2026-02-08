@@ -1,10 +1,8 @@
 services:
   - type: web
     name: pdf-fusion-pro-ultimate
-    repo: https://github.com/mybsow/pdf-fusion-pro_ultimate
     region: frankfurt
     plan: free
-    branch: main
     autoDeploy: true
 
     envVars:
@@ -12,66 +10,18 @@ services:
         value: "10000"
       - key: OCR_ENABLED
         value: "true"
-      - key: PYTHON_VERSION
-        value: "3.11.0"
 
-    # ✅ BUILD COMMAND OPTIMISÉ
     buildCommand: |
-      echo "🚀 DÉMARRAGE DU BUILD PDF FUSION PRO..."
-      
-      # 1. Installer Tesseract OCR (version système)
       apt-get update
       apt-get install -y tesseract-ocr tesseract-ocr-fra poppler-utils
-      
-      # 2. Vérifier l'installation
-      echo "✅ Vérification OCR..."
-      which tesseract && tesseract --version
-      which pdftoppm
-      
-      # 3. Installer pip et packages Python
       pip install --upgrade pip
-      
-      # 4. Installer les packages OCR CRITIQUES
-      pip install \
-        pytesseract==0.3.10 \
-        pdf2image==1.16.3 \
-        Pillow==10.0.0 \
-        opencv-python-headless==4.8.1.78 \
-        pandas==2.1.4
-      
-      # 5. Installer le reste depuis requirements.txt
-      if [ -f "requirements.txt" ]; then
-          pip install -r requirements.txt
-      fi
-      
-      # 6. Vérification finale
-      echo "🧪 VÉRIFICATION FINALE..."
-      python -c "
-      import sys
-      print('Python:', sys.version)
-      
-      packages = ['pytesseract', 'pdf2image', 'PIL', 'cv2', 'pandas']
-      for pkg in packages:
-          try:
-              if pkg == 'PIL':
-                  import PIL
-                  print(f'✅ {pkg}: OK')
-              else:
-                  __import__(pkg)
-                  print(f'✅ {pkg}: OK')
-          except ImportError as e:
-              print(f'❌ {pkg}: {e}')
-      "
-      
-      echo "✅ BUILD COMPLET"
+      pip install -r requirements.txt
 
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 app:app
 
-    # ✅ Ajouter aptPackages pour le cache Render
     aptPackages:
       - tesseract-ocr
       - tesseract-ocr-fra
       - poppler-utils
 
     healthCheckPath: /health
-    healthCheckTimeout: 30
