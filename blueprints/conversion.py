@@ -664,7 +664,7 @@ def convert_pdf_to_word(file, form_data=None):
 
 
 def convert_pdf_to_excel(file, form_data=None):
-    """Convertit PDF en Excel avec OCR - Version une seule feuille."""
+    """Convertit PDF en Excel avec OCR - Version robuste une feuille."""
     try:
         # Vérifier les dépendances OCR
         if pytesseract is None:
@@ -673,31 +673,51 @@ def convert_pdf_to_excel(file, form_data=None):
         if convert_from_bytes is None:
             return {'error': "pdf2image n'est pas installé"}
         
-        # Convertir PDF en images
-        pdf_bytes = file.read()
-        pages = convert_from_bytes(pdf_bytes, dpi=300)
+        current_app.logger.info(f"Début conversion PDF->Excel: {file.filename}")
         
-        if not pages:
-            return {'error': 'Aucune page détectée dans le PDF'}
+        # Lire le contenu du PDF
+        pdf_bytes = file.read()
+        file.seek(0)  # Réinitialiser le pointeur pour d'autres usages
+        
+        if not pdf_bytes:
+            return {'error': 'Fichier PDF vide'}
+        
+        current_app.logger.info(f"Taille PDF: {len(pdf_bytes)} bytes")
+        
+        try:
+            # Convertir PDF en images
+            current_app.logger.info("Conversion PDF en images...")
+            pages = convert_from_bytes(pdf_bytes, dpi=200)  # DPI réduit pour la vitesse
+            
+            if not pages:
+                return {'error': 'Aucune page détectée dans le PDF'}
+            
+            current_app.logger.info(f"Pages converties: {len(pages)}")
+            
+        except Exception as conv_error:
+            current_app.logger.error(f"Erreur conversion PDF->images: {conv_error}")
+            return {'error': f'Erreur conversion PDF: {str(conv_error)}'}
         
         # Liste pour collecter toutes les données
-        all_tableau_data = []
+        all_data = []
+        total_confidence = 0
+        total_words = 0
         
         # Traiter chaque page
         for page_num, page_img in enumerate(pages, 1):
             try:
+                current_app.logger.info(f"Traitement page {page_num}/{len(pages)}")
+                
                 # Convertir l'image PIL en format compatible
                 img = page_img.convert('RGB')
                 
-                # Prétraitement de l'image pour améliorer l'OCR
-                img = preprocess_image_for_ocr(img)
-                
                 # OCR avec données détaillées
+                current_app.logger.info("Exécution OCR...")
                 ocr_data = pytesseract.image_to_data(
                     img, 
-                    lang='fra+eng', 
+                    lang='fra+eng',  # Seulement français et anglais disponibles
                     output_type=Output.DICT,
-                    config='--psm 6'
+                    config='--psm 6'  # Mode bloc uniforme
                 )
                 
                 # Convertir en DataFrame
@@ -709,7 +729,17 @@ def convert_pdf_to_excel(file, form_data=None):
                 df_ocr = df_ocr[df_ocr['text'] != '']
                 
                 if df_ocr.empty:
-                    continue  # Passer à la page suivante
+                    current_app.logger.warning(f"Page {page_num}: Aucun texte détecté")
+                    all_data.append([f"Page {page_num}", "Aucun texte détecté"])
+                    continue
+                
+                # Calculer les statistiques de confiance
+                page_confidence = df_ocr['conf'].mean()
+                page_words = len(df_ocr)
+                total_confidence += page_confidence * page_words
+                total_words += page_words
+                
+                current_app.logger.info(f"Page {page_num}: {page_words} mots, confiance {page_confidence:.1f}%")
                 
                 # Grouper les mots par lignes
                 lines = {}
@@ -718,10 +748,10 @@ def convert_pdf_to_excel(file, form_data=None):
                     left = row['left']
                     text = row['text']
                     
-                    # Trouver la ligne la plus proche
+                    # Trouver la ligne la plus proche (tolérance de 15 pixels)
                     found_line = None
                     for line_top in lines.keys():
-                        if abs(top - line_top) < 10:
+                        if abs(top - line_top) < 15:
                             found_line = line_top
                             break
                     
@@ -736,166 +766,96 @@ def convert_pdf_to_excel(file, form_data=None):
                 # Trier les lignes par position verticale
                 sorted_lines = sorted(lines.items(), key=lambda x: x[0])
                 
-                # Détecter les colonnes
-                column_positions = detect_column_positions(sorted_lines)
+                # Ajouter un séparateur de page
+                if all_data:  # Sauf pour la première page
+                    all_data.append([])  # Ligne vide comme séparateur
+                all_data.append([f"=== Page {page_num} ==="])
                 
-                # Reconstruire le tableau pour cette page
-                page_tableau_data = []
-                
+                # Ajouter les lignes de texte
                 for line_top, words in sorted_lines:
                     # Trier les mots de gauche à droite
                     words.sort(key=lambda x: x[0])
                     
-                    # Répartir les mots dans les colonnes
-                    row_data = [''] * len(column_positions)
+                    # Concaténer les mots de la ligne
+                    line_text = ' '.join([word[1] for word in words])
+                    all_data.append([line_text])
                     
-                    for left, text in words:
-                        # Trouver la colonne appropriée
-                        for i, (col_left, col_right) in enumerate(column_positions):
-                            if col_left <= left <= col_right:
-                                if row_data[i]:
-                                    row_data[i] += ' ' + text
-                                else:
-                                    row_data[i] = text
-                                break
-                    
-                    # Ajouter la ligne si elle contient des données
-                    if any(cell.strip() for cell in row_data):
-                        # Ajouter un indicateur de page si c'est la première ligne
-                        if not page_tableau_data:
-                            page_tableau_data.append([f"=== Page {page_num} ==="] + [''] * (len(column_positions) - 1))
-                        page_tableau_data.append(row_data)
-                
-                # Ajouter les données de cette page à l'ensemble
-                all_tableau_data.extend(page_tableau_data)
-                
-                # Ajouter une ligne vide entre les pages (sauf la dernière)
-                if page_num < len(pages) and page_tableau_data:
-                    all_tableau_data.append([''] * len(column_positions))
-                
             except Exception as page_error:
                 current_app.logger.error(f"Erreur page {page_num}: {page_error}")
+                all_data.append([f"Page {page_num}", f"Erreur: {str(page_error)[:50]}..."])
                 continue
         
-        # Si aucune donnée n'a été extraite
-        if not all_tableau_data:
+        # Si aucune donnée valide n'a été extraite
+        if len(all_data) <= 1:  # Seulement les en-têtes de page
             return {'error': 'Aucun texte détecté dans le PDF'}
         
-        # Identifier les en-têtes (première ligne significative après les titres de page)
-        headers = []
-        data_start = 0
+        current_app.logger.info(f"Données extraites: {len(all_data)} lignes")
         
-        for i, row in enumerate(all_tableau_data):
-            row_text = ' '.join([str(cell) for cell in row if cell]).lower()
-            # Rechercher des mots typiques d'en-tête
-            if any(keyword in row_text for keyword in ['réf', 'dsp', 'nom', 'valeur', 'total', 'montant', 'quantité']):
-                headers = all_tableau_data[i]
-                data_start = i + 1
-                break
+        # Calculer la confiance moyenne
+        avg_confidence = total_confidence / total_words if total_words > 0 else 0
         
         # Créer le DataFrame final
-        if headers:
-            # Filtrer les lignes de données (ignorer les titres de page)
-            data_rows = [row for row in all_tableau_data[data_start:] 
-                        if not any('=== Page' in str(cell) for cell in row)]
-            
-            # S'assurer que toutes les lignes ont le même nombre de colonnes
-            max_cols = len(headers)
-            for i in range(len(data_rows)):
-                if len(data_rows[i]) < max_cols:
-                    data_rows[i] = data_rows[i] + [''] * (max_cols - len(data_rows[i]))
-                elif len(data_rows[i]) > max_cols:
-                    data_rows[i] = data_rows[i][:max_cols]
-            
-            df_final = pd.DataFrame(data_rows, columns=headers)
-        else:
-            # Créer des noms de colonnes génériques
-            max_cols = max(len(row) for row in all_tableau_data)
-            col_names = [f'Colonne {i+1}' for i in range(max_cols)]
-            
-            # S'assurer que toutes les lignes ont le même nombre de colonnes
-            uniform_data = []
-            for row in all_tableau_data:
-                if len(row) < max_cols:
-                    uniform_data.append(row + [''] * (max_cols - len(row)))
-                elif len(row) > max_cols:
-                    uniform_data.append(row[:max_cols])
-                else:
-                    uniform_data.append(row)
-            
-            df_final = pd.DataFrame(uniform_data, columns=col_names)
+        df_final = pd.DataFrame(all_data, columns=['Contenu extrait'])
         
-        # Créer Excel avec UNE SEULE FEUILLE
+        # Créer Excel avec une seule feuille
         output = BytesIO()
         
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            # Écrire le tableau principal
-            df_final.to_excel(writer, index=False, sheet_name='Données extraites')
+            # Écrire les données extraites
+            df_final.to_excel(writer, index=False, sheet_name='Extraction PDF')
+            
+            # Personnaliser la feuille
+            worksheet = writer.sheets['Extraction PDF']
+            
+            # Ajuster la largeur des colonnes
+            worksheet.column_dimensions['A'].width = 80
             
             # Ajouter des statistiques
-            total_pages = len(pages)
-            total_rows = len(df_final)
-            total_cells = total_rows * len(df_final.columns) if total_rows > 0 else 0
+            stats_start_row = len(df_final) + 3
             
-            # Calculer la confiance moyenne si on a les données OCR
-            avg_confidence = "N/A"
-            try:
-                # Essayer de calculer la confiance moyenne
-                confidences = []
-                for page in pages:
-                    img = page.convert('RGB')
-                    ocr_result = pytesseract.image_to_data(img, output_type=Output.DICT, lang='fra+eng')
-                    if 'conf' in ocr_result:
-                        confidences.extend([c for c in ocr_result['conf'] if c > 0])
-                if confidences:
-                    avg_confidence = f"{sum(confidences) / len(confidences):.2f}%"
-            except:
-                pass
-            
-            # Statistiques
+            # Créer un DataFrame pour les statistiques
             stats_data = {
                 'Statistique': [
                     'Fichier source',
-                    'Date d\'extraction', 
+                    'Date d\'extraction',
                     'Pages traitées',
                     'Lignes extraites',
-                    'Colonnes détectées',
-                    'Cellules extraites',
-                    'Confiance moyenne OCR'
+                    'Mots détectés',
+                    'Confiance moyenne OCR',
+                    'Format de sortie'
                 ],
                 'Valeur': [
                     file.filename,
                     datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                    total_pages,
-                    total_rows,
-                    len(df_final.columns) if total_rows > 0 else 0,
-                    total_cells,
-                    avg_confidence
+                    len(pages),
+                    len(df_final),
+                    total_words,
+                    f"{avg_confidence:.1f}%" if avg_confidence > 0 else "N/A",
+                    "Excel (XLSX)"
                 ]
             }
             
             stats_df = pd.DataFrame(stats_data)
-            
-            # Écrire les statistiques après les données
-            start_row = total_rows + 3  # 2 lignes d'espace
             stats_df.to_excel(
-                writer, 
-                index=False, 
-                startrow=start_row, 
-                sheet_name='Données extraites', 
+                writer,
+                index=False,
+                startrow=stats_start_row,
+                sheet_name='Extraction PDF',
                 header=False
             )
             
             # Ajouter une note explicative
-            note_row = start_row + len(stats_df) + 2
-            worksheet = writer.sheets['Données extraites']
-            worksheet.cell(row=note_row, column=1, value="Note:")
+            note_row = stats_start_row + len(stats_df) + 2
+            worksheet.cell(row=note_row, column=1, 
+                          value="Note: Les données sont extraites ligne par ligne. Pour une extraction tabulaire,")
             worksheet.cell(row=note_row + 1, column=1, 
-                          value="Les données de plusieurs pages sont fusionnées dans cette feuille.")
+                          value="utilisez l'outil 'Image vers Excel' avec des captures d'écran du PDF.")
         
         output.seek(0)
+        file_size = len(output.getvalue())
+        current_app.logger.info(f"Fichier Excel généré: {file_size} bytes")
         
-        filename = f"{os.path.splitext(file.filename)[0]}.xlsx"
+        filename = f"{os.path.splitext(file.filename)[0]}_extrait.xlsx"
         
         return send_file(
             output,
@@ -1258,24 +1218,42 @@ def convert_image_to_word(file, form_data=None):
 
 
 def convert_image_to_excel(file, form_data=None):
-    """Convertit une image en Excel avec OCR."""
+    """Convertit une image en Excel avec OCR - Version améliorée."""
     try:
+        current_app.logger.info(f"Début conversion Image->Excel: {file.filename}")
+        
         if pytesseract is None:
             return {'error': "pytesseract n'est pas installé"}
         
         # Ouvrir l'image
-        img = Image.open(file.stream).convert('RGB')
+        try:
+            img = Image.open(file.stream).convert('RGB')
+            current_app.logger.info(f"Image chargée: {img.size[0]}x{img.size[1]}, mode: {img.mode}")
+        except Exception as img_error:
+            current_app.logger.error(f"Erreur ouverture image: {img_error}")
+            return {'error': f'Format d\'image non supporté: {str(img_error)}'}
         
         # Prétraitement de l'image pour améliorer l'OCR
-        img = preprocess_image_for_ocr(img)
+        try:
+            img = preprocess_image_for_ocr(img)
+            current_app.logger.info("Image prétraitée avec succès")
+        except Exception as prep_error:
+            current_app.logger.warning(f"Erreur prétraitement image: {prep_error}")
+            # Continuer avec l'image originale
         
         # OCR avec données détaillées
-        ocr_data = pytesseract.image_to_data(
-            img, 
-            lang='fra+eng', 
-            output_type=Output.DICT,
-            config='--psm 6'  # Mode: supposer un bloc uniforme de texte
-        )
+        try:
+            current_app.logger.info("Exécution OCR...")
+            ocr_data = pytesseract.image_to_data(
+                img, 
+                lang='fra+eng', 
+                output_type=Output.DICT,
+                config='--psm 6'  # Mode: supposer un bloc uniforme de texte
+            )
+            current_app.logger.info(f"OCR terminé: {len(ocr_data['text'])} éléments détectés")
+        except Exception as ocr_error:
+            current_app.logger.error(f"Erreur OCR: {ocr_error}")
+            return {'error': f'Erreur OCR: {str(ocr_error)}'}
         
         # Convertir en DataFrame pour faciliter le traitement
         df_ocr = pd.DataFrame(ocr_data)
@@ -1286,7 +1264,10 @@ def convert_image_to_excel(file, form_data=None):
         df_ocr = df_ocr[df_ocr['text'] != '']
         
         if df_ocr.empty:
+            current_app.logger.warning("Aucun texte détecté dans l'image")
             return {'error': 'Aucun texte détecté dans l\'image'}
+        
+        current_app.logger.info(f"Texte filtré: {len(df_ocr)} mots, confiance moyenne: {df_ocr['conf'].mean():.1f}%")
         
         # RECONSTITUER LE TABLEAU STRUCTURÉ
         tableau_data = []
@@ -1316,9 +1297,16 @@ def convert_image_to_excel(file, form_data=None):
         
         # Trier les lignes par position verticale
         sorted_lines = sorted(lines.items(), key=lambda x: x[0])
+        current_app.logger.info(f"Lignes détectées: {len(sorted_lines)}")
         
         # Détecter les colonnes basées sur la position horizontale
-        column_positions = detect_column_positions(sorted_lines)
+        try:
+            column_positions = detect_column_positions(sorted_lines)
+            current_app.logger.info(f"Colonnes détectées: {len(column_positions)}")
+        except Exception as col_error:
+            current_app.logger.warning(f"Erreur détection colonnes: {col_error}")
+            # Utiliser une seule colonne par défaut
+            column_positions = [(0, img.size[0])]
         
         # Reconstruire le tableau
         for line_top, words in sorted_lines:
@@ -1342,68 +1330,162 @@ def convert_image_to_excel(file, form_data=None):
             if any(cell.strip() for cell in row_data):
                 tableau_data.append(row_data)
         
+        current_app.logger.info(f"Lignes de tableau reconstruites: {len(tableau_data)}")
+        
         # Détecter l'en-tête (première ligne significative)
         if tableau_data:
             # Vérifier si la première ligne contient des mots typiques d'en-tête
-            first_row_text = ' '.join([str(cell) for cell in tableau_data[0] if cell])
-            if (any(keyword in first_row_text.lower() for keyword in ['réf', 'dsp', 'nom', 'valeur', 'total']) and
-                len(tableau_data) > 1):
+            first_row_text = ' '.join([str(cell) for cell in tableau_data[0] if cell]).lower()
+            header_keywords = ['réf', 'dsp', 'nom', 'valeur', 'total', 'montant', 'quantité', 'code', 'libellé', 'prix']
+            
+            if any(keyword in first_row_text for keyword in header_keywords) and len(tableau_data) > 1:
                 headers = tableau_data[0]
                 tableau_data = tableau_data[1:]
+                current_app.logger.info(f"En-tête détecté: {headers}")
         
         # Créer le DataFrame final
         if headers:
-            df_final = pd.DataFrame(tableau_data, columns=headers)
+            # Nettoyer les noms de colonnes
+            cleaned_headers = []
+            for header in headers:
+                if isinstance(header, str):
+                    cleaned_headers.append(header.strip())
+                else:
+                    cleaned_headers.append(f'Colonne {len(cleaned_headers) + 1}')
+            
+            # S'assurer que toutes les lignes ont le même nombre de colonnes
+            max_cols = len(cleaned_headers)
+            uniform_data = []
+            for row in tableau_data:
+                if len(row) < max_cols:
+                    uniform_data.append(row + [''] * (max_cols - len(row)))
+                elif len(row) > max_cols:
+                    uniform_data.append(row[:max_cols])
+                else:
+                    uniform_data.append(row)
+            
+            df_final = pd.DataFrame(uniform_data, columns=cleaned_headers)
         else:
             # Créer des noms de colonnes génériques
-            num_columns = len(column_positions)
+            num_columns = max(len(row) for row in tableau_data) if tableau_data else 1
             col_names = [f'Colonne {i+1}' for i in range(num_columns)]
-            df_final = pd.DataFrame(tableau_data, columns=col_names)
+            
+            # Uniformiser la longueur des lignes
+            uniform_data = []
+            for row in tableau_data:
+                if len(row) < num_columns:
+                    uniform_data.append(row + [''] * (num_columns - len(row)))
+                elif len(row) > num_columns:
+                    uniform_data.append(row[:num_columns])
+                else:
+                    uniform_data.append(row)
+            
+            df_final = pd.DataFrame(uniform_data, columns=col_names)
+        
+        # Si le tableau est vide ou très petit, utiliser une extraction simple
+        if len(df_final) <= 1 or (len(df_final.columns) == 1 and len(df_final) < 3):
+            current_app.logger.info("Tableau trop petit, extraction simple")
+            # Extraction simple ligne par ligne
+            simple_data = []
+            for _, words in sorted_lines:
+                words.sort(key=lambda x: x[0])
+                line_text = ' '.join([word[1] for word in words])
+                simple_data.append([line_text])
+            
+            df_final = pd.DataFrame(simple_data, columns=['Texte extrait'])
+        
+        current_app.logger.info(f"DataFrame final: {len(df_final)} lignes x {len(df_final.columns)} colonnes")
         
         # Créer Excel avec UNE SEULE FEUILLE
         output = BytesIO()
         
-        # Créer un writer Excel
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             # Écrire le tableau principal
-            df_final.to_excel(writer, index=False, sheet_name='Données extraites')
+            sheet_name = 'Données extraites'
+            df_final.to_excel(writer, index=False, sheet_name=sheet_name)
             
-            # Ajouter des statistiques dans la même feuille, après les données
+            # Personnaliser la feuille
+            worksheet = writer.sheets[sheet_name]
+            
+            # Ajuster la largeur des colonnes
+            for column in worksheet.columns:
+                max_length = 0
+                column_letter = column[0].column_letter
+                for cell in column:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(str(cell.value))
+                    except:
+                        pass
+                adjusted_width = min(max_length + 2, 50)  # Max 50 caractères
+                worksheet.column_dimensions[column_letter].width = adjusted_width
+            
+            # Ajouter des statistiques
             if not df_final.empty:
                 # Calculer les statistiques
                 total_rows = len(df_final)
-                total_cells = total_rows * len(df_final.columns)
+                total_columns = len(df_final.columns)
+                total_cells = total_rows * total_columns
                 avg_confidence = df_ocr['conf'].mean() if not df_ocr.empty else 0
+                filled_cells = sum(1 for row in df_final.values.flatten() if str(row).strip())
                 
                 # Créer un DataFrame pour les statistiques
                 stats_data = {
-                    'Statistique': ['Fichier source', 'Date d\'extraction', 'Nombre de lignes', 
-                                   'Nombre de colonnes', 'Nombre de cellules', 'Confiance moyenne OCR'],
+                    'Statistique': [
+                        'Fichier source',
+                        'Date d\'extraction',
+                        'Type d\'image',
+                        'Taille de l\'image',
+                        'Lignes extraites',
+                        'Colonnes détectées',
+                        'Cellules remplies',
+                        'Confiance moyenne OCR',
+                        'Taux de remplissage'
+                    ],
                     'Valeur': [
                         file.filename,
                         datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        img.format if hasattr(img, 'format') else 'Inconnu',
+                        f"{img.size[0]}x{img.size[1]}",
                         total_rows,
-                        len(df_final.columns),
-                        total_cells,
-                        f'{avg_confidence:.2f}%'
+                        total_columns,
+                        f"{filled_cells}/{total_cells}",
+                        f"{avg_confidence:.1f}%" if avg_confidence > 0 else "N/A",
+                        f"{(filled_cells/total_cells*100):.1f}%" if total_cells > 0 else "0%"
                     ]
                 }
+                
                 stats_df = pd.DataFrame(stats_data)
                 
-                # Écrire les statistiques après les données (avec une ligne vide)
+                # Écrire les statistiques après les données
                 start_row = total_rows + 3  # 2 lignes d'espace
-                stats_df.to_excel(writer, index=False, startrow=start_row, 
-                                sheet_name='Données extraites', 
-                                header=False)
+                stats_df.to_excel(
+                    writer, 
+                    index=False, 
+                    startrow=start_row, 
+                    sheet_name=sheet_name, 
+                    header=False
+                )
+                
+                # Ajouter une note
+                note_row = start_row + len(stats_df) + 2
+                worksheet.cell(row=note_row, column=1, 
+                              value="Note: Pour de meilleurs résultats, utilisez des images nettes avec")
+                worksheet.cell(row=note_row + 1, column=1, 
+                              value="un bon contraste et des tableaux bien alignés.")
         
         output.seek(0)
+        file_size = len(output.getvalue())
+        current_app.logger.info(f"Fichier Excel généré: {file_size} bytes")
         
-        filename = f"{os.path.splitext(file.filename)[0]}.xlsx"
+        filename = f"{os.path.splitext(file.filename)[0]}_extrait.xlsx"
         
-        return send_file(output,
-                        as_attachment=True,
-                        download_name=filename,
-                        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        return send_file(
+            output,
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
         
     except Exception as e:
         current_app.logger.error(f"Erreur Image->Excel: {str(e)}\n{traceback.format_exc()}")
