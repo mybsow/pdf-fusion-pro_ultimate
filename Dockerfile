@@ -13,6 +13,7 @@ RUN apt-get update && \
 
 # 2. VÉRIFIER L'INSTALLATION
 RUN which tesseract && tesseract --version
+RUN tesseract --list-langs
 RUN which pdftoppm && pdftoppm -v 2>&1 | head -1
 
 # 3. VÉRIFIER LES LANGUES
