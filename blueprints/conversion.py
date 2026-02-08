@@ -6,6 +6,7 @@ Blueprint pour les conversions de fichiers - Version universelle
 from flask import Blueprint, render_template, request, jsonify, send_file, flash, redirect, url_for, current_app
 from werkzeug.utils import secure_filename
 import os
+os.environ["OMP_THREAD_LIMIT"] = "1"
 import tempfile
 import uuid
 from datetime import datetime
