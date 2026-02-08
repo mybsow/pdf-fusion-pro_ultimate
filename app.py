@@ -10,6 +10,8 @@ from datetime import datetime
 import os
 import logging
 from pathlib import Path
+import cv2
+cv2.setNumThreads(0)
 
 from config import AppConfig
 
