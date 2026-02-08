@@ -114,6 +114,62 @@ def init_app_dirs():
 # ============================================================
 
 def create_app():
+    # ========================================================
+    # ✅ FORCER INSTALLATION TESSERACT AU DÉMARRAGE
+    # ========================================================
+    import subprocess
+    import sys
+    import os
+    
+    def force_tesseract_install():
+        """Installe Tesseract manuellement si non présent"""
+        try:
+            # Vérifier si tesseract existe déjà
+            check = subprocess.run(['which', 'tesseract'], 
+                                 capture_output=True, text=True)
+            
+            if check.returncode == 0:
+                print(f"✅ Tesseract déjà installé: {check.stdout.strip()}")
+                return True
+            
+            print("🚨 TESSERACT MANQUANT - Installation en cours...")
+            
+            # Commande d'installation (Render utilise Ubuntu)
+            install_cmds = [
+                ['apt-get', 'update', '-y'],
+                ['apt-get', 'install', '-y', 'tesseract-ocr'],
+                ['apt-get', 'install', '-y', 'tesseract-ocr-fra'],
+                ['apt-get', 'install', '-y', 'poppler-utils'],
+            ]
+            
+            for cmd in install_cmds:
+                print(f"🔧 Exécution: {' '.join(cmd)}")
+                result = subprocess.run(cmd, capture_output=True, text=True)
+                if result.returncode != 0:
+                    print(f"⚠️ Erreur: {result.stderr[:200]}")
+            
+            # Vérifier après installation
+            check = subprocess.run(['which', 'tesseract'], 
+                                 capture_output=True, text=True)
+            if check.returncode == 0:
+                print(f"✅ Tesseract installé avec succès: {check.stdout.strip()}")
+                # Vérifier la langue française
+                langs = subprocess.run(['tesseract', '--list-langs'], 
+                                      capture_output=True, text=True)
+                print(f"📦 Langues disponibles: {langs.stdout}")
+                return True
+            else:
+                print("❌ Échec installation Tesseract")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Exception installation: {e}")
+            return False
+    
+    # Appeler la fonction d'installation
+    tesseract_installed = force_tesseract_install()
+    
+    # Continuer avec le reste...
     
     check_and_create_templates()  # <-- AJOUTEZ CETTE LIGNE
 
