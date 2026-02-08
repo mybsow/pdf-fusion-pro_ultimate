@@ -1,3 +1,4 @@
+# render.yaml
 services:
   - type: web
     name: pdf-fusion-pro-ultimate
@@ -6,23 +7,14 @@ services:
     plan: free
     branch: main
     autoDeploy: true
-
+    
+    # ⬇️ AJOUTEZ CETTE LIGNE CRITIQUE ⬇️
+    dockerfilePath: ./Dockerfile
+    
     envVars:
       - key: PORT
         value: "10000"
       - key: OCR_ENABLED
         value: "true"
-
-    # ✅ UTILISEZ build.sh
-    buildCommand: |
-      chmod +x build.sh
-      ./build.sh
-
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 app:app
-
-    aptPackages:
-      - tesseract-ocr
-      - tesseract-ocr-fra
-      - poppler-utils
-
+    
     healthCheckPath: /health
