@@ -22,6 +22,7 @@ services:
 
     # ✅ BUILD COMMAND CORRECT
     buildCommand: |
+      ./build.sh
       echo "🚀 BUILD PDF FUSION PRO - DÉSACTIVATION POETRY"
       
       # Désactiver Poetry
@@ -58,3 +59,4 @@ services:
 
     healthCheckPath: /health
     healthCheckTimeout: 30
+
