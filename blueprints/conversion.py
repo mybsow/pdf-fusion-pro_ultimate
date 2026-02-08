@@ -29,23 +29,34 @@ import PyPDF2
 import numpy as np
 from PIL import Image, ImageEnhance
 
-# OCR
+# -----------------------------
+# OCR avec Tesseract
+# -----------------------------
 try:
     import pytesseract
-    # Si Tesseract n'est pas dans le PATH par défaut sur Render :
-    pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
     from pytesseract import Output
-except Exception as _e:
+    # Sur Render, Tesseract n'est pas forcément dans le PATH par défaut
+    pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+except ImportError:
     pytesseract = None
     Output = None
+    print("[WARN] pytesseract non installé, OCR désactivé")
 
+# -----------------------------
 # PDF -> images
+# -----------------------------
 try:
-    from pdf2image import convert_from_bytes
-except Exception as _e:
+    from pdf2image import convert_from_bytes, convert_from_path
+    from pdf2image.pdf2image import pdfinfo_from_path
+except ImportError:
     convert_from_bytes = None
+    convert_from_path = None
+    pdfinfo_from_path = None
+    print("[WARN] pdf2image non installé, conversion PDF impossible")
 
-# Word -> PDF (utilisant LibreOffice via subprocess)
+# -----------------------------
+# Word / Excel / PPT -> PDF via LibreOffice
+# -----------------------------
 import subprocess
 
 conversion_bp = Blueprint('conversion', __name__,
@@ -666,47 +677,60 @@ def convert_pdf_to_word(file, form_data=None):
         return {'error': f'Erreur de conversion: {str(e)}'}
 
 
-def convert_pdf_to_excel(file_storage):
+def convert_pdf_to_excel(file_storage, form_data=None):
+    """Convertit un PDF en Excel avec OCR (page par page)."""
+    import gc
+    from openpyxl import Workbook
+    from pdf2image import convert_from_path
+    from pdf2image.pdf2image import pdfinfo_from_path
+
+    # Créer un fichier temporaire pour le PDF
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         file_storage.save(tmp.name)
         pdf_path = tmp.name
 
-    info = pdfinfo_from_path(pdf_path)
-    total_pages = info["Pages"]
+    try:
+        # Récupérer le nombre de pages
+        info = pdfinfo_from_path(pdf_path)
+        total_pages = info.get("Pages", 0)
 
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "OCR PDF"
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "OCR PDF"
 
-    for page_num in range(1, total_pages + 1):
+        for page_num in range(1, total_pages + 1):
+            pages = convert_from_path(
+                pdf_path,
+                dpi=150,
+                first_page=page_num,
+                last_page=page_num
+            )
 
-        pages = convert_from_path(
-            pdf_path,
-            dpi=150,
-            first_page=page_num,
-            last_page=page_num
-        )
+            img = pages[0]
 
-        img = pages[0]
+            words = smart_ocr(img)
 
-        words = smart_ocr(img)
+            ws.append([f"--- PAGE {page_num} ---"])
+            for word in words:
+                ws.append([word])
 
-        ws.append([f"--- PAGE {page_num} ---"])
+            img.close()
+            del pages
+            gc.collect()
 
-        for word in words:
-            ws.append([word])
+        # Créer un fichier Excel temporaire
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as out_tmp:
+            output_path = out_tmp.name
+            wb.save(output_path)
 
-        img.close()
-        del pages
+    finally:
+        # Nettoyer le PDF temporaire
+        if os.path.exists(pdf_path):
+            os.remove(pdf_path)
         gc.collect()
 
-    output_path = pdf_path.replace(".pdf", ".xlsx")
-    wb.save(output_path)
-
-    os.remove(pdf_path)
-    gc.collect()
-
     return output_path
+
 
 
 def convert_pdf_to_images(file, form_data=None):
@@ -1057,30 +1081,42 @@ def convert_image_to_word(file, form_data=None):
         return {'error': f'Erreur d\'extraction: {str(e)}'}
 
 
-def convert_image_to_excel(file_storage):
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
+def convert_image_to_excel(file_storage, form_data=None):
+    """Convertit une image en Excel avec OCR."""
+    import gc
+    from openpyxl import Workbook
+
+    # Créer un fichier temporaire pour l'image
+    suffix = os.path.splitext(file_storage.filename)[1] or ".png"
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
         file_storage.save(tmp.name)
         image_path = tmp.name
 
-    img = Image.open(image_path)
+    try:
+        img = Image.open(image_path)
+        words = smart_ocr(img)
+        img.close()
 
-    words = smart_ocr(img)
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "OCR Image"
 
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "OCR Image"
+        for word in words:
+            ws.append([word])
 
-    for word in words:
-        ws.append([word])
+        # Créer un fichier Excel temporaire
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as out_tmp:
+            output_path = out_tmp.name
+            wb.save(output_path)
 
-    output_path = image_path.replace(".png", ".xlsx")
-    wb.save(output_path)
-
-    img.close()
-    os.remove(image_path)
-    gc.collect()
+    finally:
+        # Nettoyer le fichier image temporaire
+        if os.path.exists(image_path):
+            os.remove(image_path)
+        gc.collect()
 
     return output_path
+
 
 
 # FONCTIONS AUXILIAIRES AMÉLIORÉES
