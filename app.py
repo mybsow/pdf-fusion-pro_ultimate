@@ -134,20 +134,6 @@ def create_app():
             
             print("🚨 TESSERACT MANQUANT - Installation en cours...")
             
-            # Commande d'installation (Render utilise Ubuntu)
-            install_cmds = [
-                ['apt-get', 'update', '-y'],
-                ['apt-get', 'install', '-y', 'tesseract-ocr'],
-                ['apt-get', 'install', '-y', 'tesseract-ocr-fra'],
-                ['apt-get', 'install', '-y', 'poppler-utils'],
-            ]
-            
-            for cmd in install_cmds:
-                print(f"🔧 Exécution: {' '.join(cmd)}")
-                result = subprocess.run(cmd, capture_output=True, text=True)
-                if result.returncode != 0:
-                    print(f"⚠️ Erreur: {result.stderr[:200]}")
-            
             # Vérifier après installation
             check = subprocess.run(['which', 'tesseract'], 
                                  capture_output=True, text=True)
