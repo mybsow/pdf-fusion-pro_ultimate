@@ -52,11 +52,5 @@ EXPOSE 10000
 # -----------------------------
 # CMD GUNICORN
 # -----------------------------
-CMD [
-    "gunicorn",
-    "app:app",
-    "--bind", "0.0.0.0:10000",
-    "--workers", "1",
-    "--threads", "2",
-    "--timeout", "180"
-]
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000", "--workers", "1", "--threads", "2", "--timeout", "180"]
+
