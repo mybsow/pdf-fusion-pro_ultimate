@@ -13,7 +13,6 @@ services:
       - key: OCR_ENABLED
         value: "true"
 
-    # ✅ BUILD COMMAND ULTRA SIMPLE ET EFFICACE
     buildCommand: |
       apt-get update
       apt-get install -y tesseract-ocr tesseract-ocr-fra poppler-utils
@@ -22,7 +21,6 @@ services:
 
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 app:app
 
-    # ✅ Packages système (Render les installera automatiquement)
     aptPackages:
       - tesseract-ocr
       - tesseract-ocr-fra
