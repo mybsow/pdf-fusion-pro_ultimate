@@ -486,6 +486,29 @@ def process_conversion(conversion_type, file=None, files=None, form_data=None):
 # FONCTIONS DE CONVERSION
 # ============================================================================
 
+# -----------------------------
+# Fonction OCR "smart_ocr"
+# -----------------------------
+def smart_ocr(img):
+    """
+    Retourne une liste de mots détectés dans l'image via Tesseract OCR
+    """
+    if pytesseract is None or Output is None:
+        return []
+
+    try:
+        data = pytesseract.image_to_data(img, lang="fra+eng", output_type=Output.DICT)
+        words = []
+        for text in data.get("text", []):
+            text = str(text).strip()
+            if text:
+                words.append(text)
+        return words
+    except Exception as e:
+        print(f"[WARN] OCR échoué: {e}")
+        return []
+
+
 # 1. CONVERSION EN PDF
 def convert_word_to_pdf(file, form_data=None):
     """Convertit Word en PDF."""
