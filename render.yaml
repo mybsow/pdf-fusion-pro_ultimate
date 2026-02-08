@@ -13,11 +13,10 @@ services:
       - key: OCR_ENABLED
         value: "true"
 
+    # ✅ UTILISEZ build.sh
     buildCommand: |
-      apt-get update
-      apt-get install -y tesseract-ocr tesseract-ocr-fra poppler-utils
-      pip install --upgrade pip
-      pip install -r requirements.txt
+      chmod +x build.sh
+      ./build.sh
 
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 app:app
 
