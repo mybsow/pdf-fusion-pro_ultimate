@@ -349,6 +349,7 @@ def create_app():
         try:
             import shutil
             import subprocess
+            import os
             
             # Vérifier Pillow
             try:
@@ -361,17 +362,31 @@ def create_app():
             if not AppConfig.OCR_ENABLED:
                 return status
             
-            # Vérifier Tesseract
-            tesseract_path = shutil.which("tesseract")
+            # ⭐⭐ SOLUTION : Chercher tesseract dans les chemins FIXES ⭐⭐
+            tesseract_path = None
+            
+            # Essayer plusieurs chemins connus
+            possible_paths = [
+                '/usr/bin/tesseract',       # Ubuntu/Debian standard
+                '/usr/local/bin/tesseract', # Installation manuelle
+                '/bin/tesseract',           # Alternative
+                shutil.which("tesseract")   # PATH classique
+            ]
+            
+            for path in possible_paths:
+                if path and os.path.exists(path):
+                    tesseract_path = path
+                    break
+            
             status["tesseract"] = tesseract_path
             
             # Vérifier Poppler
-            status["poppler"] = shutil.which("pdftoppm") or shutil.which("pdftocairo")
+            status["poppler"] = shutil.which("pdftoppm") or '/usr/bin/pdftoppm'
             
-            # Si Tesseract est disponible, vérifier les langues
+            # Si Tesseract est trouvé, vérifier les langues
             if tesseract_path and PYTESSERACT_AVAILABLE:
                 try:
-                    # Configurer pytesseract
+                    # Configurer pytesseract AVANT de l'utiliser
                     pytesseract.pytesseract.tesseract_cmd = tesseract_path
                     
                     # Test de version
@@ -379,14 +394,30 @@ def create_app():
                     status["tesseract"] = f"{tesseract_path} (v{version})"
                     
                     # Test des langues
-                    langs = pytesseract.get_languages(config='')
-                    status["lang_fra"] = "fra" in langs
+                    try:
+                        langs = pytesseract.get_languages(config='')
+                        status["lang_fra"] = "fra" in langs
+                    except:
+                        # Fallback : vérifier avec commande système
+                        result = subprocess.run([tesseract_path, '--list-langs'], 
+                                              capture_output=True, text=True)
+                        if result.returncode == 0:
+                            langs = result.stdout.strip().split('\n')[1:]  # Skip first line
+                            status["lang_fra"] = "fra" in langs
                     
                 except Exception as e:
                     status["errors"].append(f"pytesseract error: {str(e)}")
+                    # Essayer une commande système
+                    try:
+                        result = subprocess.run([tesseract_path, '--version'], 
+                                              capture_output=True, text=True)
+                        if result.returncode == 0:
+                            status["tesseract"] = f"{tesseract_path} ({result.stdout.split()[1]})"
+                    except:
+                        pass
             else:
                 if not tesseract_path:
-                    status["errors"].append("tesseract not found in PATH")
+                    status["errors"].append(f"tesseract not found in fixed paths: {possible_paths}")
                 if not PYTESSERACT_AVAILABLE:
                     status["errors"].append("pytesseract Python package not installed")
             
@@ -413,20 +444,27 @@ def create_app():
             if not PYTESSERACT_AVAILABLE:
                 return jsonify({
                     "error": "pytesseract non disponible",
-                    "installed": False,
-                    "python_packages": {
-                        "pytesseract": PYTESSERACT_AVAILABLE,
-                        "Pillow": False,
-                        "pdf2image": PDF2IMAGE_AVAILABLE,
-                        "opencv-python": OPENCV_AVAILABLE
-                    }
+                    "installed": False
                 }), 500
             
-            # Configuration du chemin Tesseract
-            tesseract_cmd = '/usr/bin/tesseract'
-            if not os.path.exists(tesseract_cmd):
-                tesseract_cmd = '/usr/local/bin/tesseract'
+            # ⭐⭐ CHERCHER TESSERACT DANS LES CHEMINS FIXES ⭐⭐
+            import os
+            tesseract_cmd = None
+            possible_paths = ['/usr/bin/tesseract', '/usr/local/bin/tesseract', '/bin/tesseract']
             
+            for path in possible_paths:
+                if os.path.exists(path):
+                    tesseract_cmd = path
+                    break
+            
+            if not tesseract_cmd:
+                return jsonify({
+                    "error": "Tesseract non trouvé dans les chemins standards",
+                    "checked_paths": possible_paths,
+                    "python_package": True
+                }), 500
+            
+            # Configurer pytesseract
             pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
             
             # Test de version
@@ -436,33 +474,25 @@ def create_app():
             try:
                 langs = pytesseract.get_languages(config='')
             except:
-                langs = ["non disponible"]
+                langs = ["test échoué"]
             
             return jsonify({
                 "status": "OK",
                 "pytesseract_available": True,
                 "tesseract_version": str(version),
                 "tesseract_path": tesseract_cmd,
+                "tesseract_exists": os.path.exists(tesseract_cmd),
                 "available_languages": langs,
                 "opencv_available": OPENCV_AVAILABLE,
                 "pdf2image_available": PDF2IMAGE_AVAILABLE,
-                "python_packages": {
-                    "pytesseract": PYTESSERACT_AVAILABLE,
-                    "Pillow": False,
-                    "pdf2image": PDF2IMAGE_AVAILABLE,
-                    "opencv-python": OPENCV_AVAILABLE
-                }
             })
             
         except Exception as e:
             return jsonify({
                 "error": str(e),
                 "pytesseract_available": PYTESSERACT_AVAILABLE,
-                "opencv_available": OPENCV_AVAILABLE,
-                "pdf2image_available": PDF2IMAGE_AVAILABLE,
                 "traceback": str(type(e))
             }), 500
-
     # ========================================================
     # TEST OCR (page de diagnostic amélioré)
     # ========================================================
@@ -701,6 +731,55 @@ def create_app():
         html += "</ul>"
 
         return html
+
+    @app.route('/debug/system')
+    def debug_system():
+        """Debug système complet"""
+        import os
+        import subprocess
+        
+        checks = []
+        
+        # Vérifier tesseract
+        paths_to_check = [
+            '/usr/bin/tesseract',
+            '/usr/local/bin/tesseract', 
+            '/bin/tesseract'
+        ]
+        
+        for path in paths_to_check:
+            exists = os.path.exists(path)
+            checks.append({
+                'path': path,
+                'exists': exists,
+                'executable': os.access(path, os.X_OK) if exists else False
+            })
+        
+        # Liste des fichiers dans /usr/bin
+        try:
+            files_in_bin = os.listdir('/usr/bin')
+            tesseract_files = [f for f in files_in_bin if 'tesseract' in f]
+        except:
+            tesseract_files = ['erreur listing']
+        
+        # Test commande
+        try:
+            result = subprocess.run(['/usr/bin/tesseract', '--version'], 
+                                  capture_output=True, text=True)
+            cmd_test = {
+                'success': result.returncode == 0,
+                'output': result.stdout[:200],
+                'error': result.stderr[:200]
+            }
+        except Exception as e:
+            cmd_test = {'error': str(e)}
+        
+        return jsonify({
+            'system_checks': checks,
+            'tesseract_files_in_bin': tesseract_files,
+            'command_test': cmd_test,
+            'env_path': os.environ.get('PATH', '')
+        })
 
     # ========================================================
     # STATIC FILES FIX
