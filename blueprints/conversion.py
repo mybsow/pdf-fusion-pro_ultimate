@@ -409,27 +409,12 @@ def handle_conversion_request(conversion_type, request, config):
             
             result = process_conversion(conversion_type, file=file, form_data=request.form)
         
-        # ⭐⭐ CORRECTION ICI - LIGNE 413 ⭐⭐
         # Vérifier si result est un dictionnaire avec une erreur
         if isinstance(result, dict) and 'error' in result:
             flash(result['error'], 'error')
             return redirect(request.url)
         
         # Si c'est une Response (fichier à télécharger), la retourner directement
-        return result
-        
-    except Exception as e:
-        current_app.logger.error(f"Erreur conversion {conversion_type}: {str(e)}\n{traceback.format_exc()}")
-        flash(f'Erreur lors de la conversion: {str(e)}', 'error')
-        return redirect(request.url)
-            
-            result = process_conversion(conversion_type, file=file, form_data=request.form)
-        
-        # Retourner le résultat
-        if result and 'error' in result:
-            flash(result['error'], 'error')
-            return redirect(request.url)
-        
         return result
         
     except Exception as e:
