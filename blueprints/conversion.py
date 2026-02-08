@@ -25,6 +25,8 @@ from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.utils import ImageReader
 from docx import Document
 import PyPDF2
+import numpy as np
+from PIL import Image, ImageEnhance
 
 # OCR
 try:
@@ -1218,7 +1220,7 @@ def convert_image_to_word(file, form_data=None):
 
 
 def convert_image_to_excel(file, form_data=None):
-    """Convertit une image en Excel avec OCR - Version améliorée."""
+    """Convertit une image en Excel avec OCR - Version améliorée avec meilleur prétraitement."""
     try:
         current_app.logger.info(f"Début conversion Image->Excel: {file.filename}")
         
@@ -1228,46 +1230,74 @@ def convert_image_to_excel(file, form_data=None):
         # Ouvrir l'image
         try:
             img = Image.open(file.stream).convert('RGB')
-            current_app.logger.info(f"Image chargée: {img.size[0]}x{img.size[1]}, mode: {img.mode}")
+            original_size = img.size
+            current_app.logger.info(f"Image chargée: {original_size[0]}x{original_size[1]}, mode: {img.mode}")
         except Exception as img_error:
             current_app.logger.error(f"Erreur ouverture image: {img_error}")
             return {'error': f'Format d\'image non supporté: {str(img_error)}'}
         
-        # Prétraitement de l'image pour améliorer l'OCR
+        # PRÉTRAITEMENT AMÉLIORÉ DE L'IMAGE
         try:
-            img = preprocess_image_for_ocr(img)
-            current_app.logger.info("Image prétraitée avec succès")
+            img = enhanced_preprocess_image_for_ocr(img)
+            current_app.logger.info("Image prétraitée avec succès - taille finale: {img.size[0]}x{img.size[1]}")
         except Exception as prep_error:
             current_app.logger.warning(f"Erreur prétraitement image: {prep_error}")
-            # Continuer avec l'image originale
+            # Utiliser le prétraitement de base
+            img = basic_preprocess_image_for_ocr(img)
         
-        # OCR avec données détaillées
-        try:
-            current_app.logger.info("Exécution OCR...")
-            ocr_data = pytesseract.image_to_data(
-                img, 
-                lang='fra+eng', 
-                output_type=Output.DICT,
-                config='--psm 6'  # Mode: supposer un bloc uniforme de texte
-            )
-            current_app.logger.info(f"OCR terminé: {len(ocr_data['text'])} éléments détectés")
-        except Exception as ocr_error:
-            current_app.logger.error(f"Erreur OCR: {ocr_error}")
-            return {'error': f'Erreur OCR: {str(ocr_error)}'}
+        # TESTER DIFFÉRENTS PARAMÈTRES OCR
+        ocr_results = []
         
-        # Convertir en DataFrame pour faciliter le traitement
-        df_ocr = pd.DataFrame(ocr_data)
+        # Essayer différents paramètres OCR
+        ocr_configs = [
+            {'config': '--psm 6', 'desc': 'Bloc uniforme'},
+            {'config': '--psm 3', 'desc': 'Auto orientation'},
+            {'config': '--psm 4', 'desc': 'Colonne unique'},
+            {'config': '--psm 11', 'desc': 'Texte dense'}
+        ]
         
-        # Filtrer les lignes avec du texte
-        df_ocr = df_ocr[df_ocr['conf'] > 0]
-        df_ocr['text'] = df_ocr['text'].astype(str).str.strip()
-        df_ocr = df_ocr[df_ocr['text'] != '']
+        for ocr_config in ocr_configs:
+            try:
+                current_app.logger.info(f"Test OCR config: {ocr_config['desc']}")
+                ocr_data = pytesseract.image_to_data(
+                    img, 
+                    lang='fra+eng', 
+                    output_type=Output.DICT,
+                    config=ocr_config['config']
+                )
+                
+                # Analyser les résultats
+                df_test = pd.DataFrame(ocr_data)
+                df_test = df_test[df_test['conf'] > 0]
+                df_test['text'] = df_test['text'].astype(str).str.strip()
+                df_test = df_test[df_test['text'] != '']
+                
+                if not df_test.empty:
+                    word_count = len(df_test)
+                    avg_conf = df_test['conf'].mean()
+                    ocr_results.append({
+                        'config': ocr_config['config'],
+                        'desc': ocr_config['desc'],
+                        'data': ocr_data,
+                        'df': df_test,
+                        'word_count': word_count,
+                        'avg_conf': avg_conf
+                    })
+                    current_app.logger.info(f"  Config {ocr_config['desc']}: {word_count} mots, confiance {avg_conf:.1f}%")
+                
+            except Exception as ocr_test_error:
+                current_app.logger.warning(f"Erreur test OCR {ocr_config['desc']}: {ocr_test_error}")
         
-        if df_ocr.empty:
-            current_app.logger.warning("Aucun texte détecté dans l'image")
+        # Choisir la meilleure configuration OCR
+        if not ocr_results:
+            current_app.logger.error("Aucune configuration OCR n'a fonctionné")
             return {'error': 'Aucun texte détecté dans l\'image'}
         
-        current_app.logger.info(f"Texte filtré: {len(df_ocr)} mots, confiance moyenne: {df_ocr['conf'].mean():.1f}%")
+        # Sélectionner la configuration avec le plus de mots ou la meilleure confiance
+        best_result = max(ocr_results, key=lambda x: x['word_count'] * x['avg_conf'])
+        current_app.logger.info(f"Meilleure config: {best_result['desc']} ({best_result['word_count']} mots, {best_result['avg_conf']:.1f}%)")
+        
+        df_ocr = best_result['df']
         
         # RECONSTITUER LE TABLEAU STRUCTURÉ
         tableau_data = []
@@ -1280,10 +1310,10 @@ def convert_image_to_excel(file, form_data=None):
             left = row['left']
             text = row['text']
             
-            # Trouver la ligne la plus proche (tolérance de 10 pixels)
+            # Trouver la ligne la plus proche (tolérance de 15 pixels)
             found_line = None
             for line_top in lines.keys():
-                if abs(top - line_top) < 10:
+                if abs(top - line_top) < 15:
                     found_line = line_top
                     break
             
@@ -1299,14 +1329,22 @@ def convert_image_to_excel(file, form_data=None):
         sorted_lines = sorted(lines.items(), key=lambda x: x[0])
         current_app.logger.info(f"Lignes détectées: {len(sorted_lines)}")
         
-        # Détecter les colonnes basées sur la position horizontale
+        # Afficher les lignes détectées pour débogage
+        for i, (line_top, words) in enumerate(sorted_lines):
+            words.sort(key=lambda x: x[0])
+            line_text = ' '.join([word[1] for word in words])
+            current_app.logger.info(f"  Ligne {i+1}: '{line_text}'")
+        
+        # Détection avancée des colonnes
         try:
-            column_positions = detect_column_positions(sorted_lines)
+            column_positions = advanced_detect_columns(sorted_lines, original_size[0])
             current_app.logger.info(f"Colonnes détectées: {len(column_positions)}")
+            for i, (left, right) in enumerate(column_positions):
+                current_app.logger.info(f"  Colonne {i+1}: {left}-{right}")
         except Exception as col_error:
             current_app.logger.warning(f"Erreur détection colonnes: {col_error}")
-            # Utiliser une seule colonne par défaut
-            column_positions = [(0, img.size[0])]
+            # Utiliser une détection simple
+            column_positions = simple_detect_columns(sorted_lines)
         
         # Reconstruire le tableau
         for line_top, words in sorted_lines:
@@ -1332,60 +1370,37 @@ def convert_image_to_excel(file, form_data=None):
         
         current_app.logger.info(f"Lignes de tableau reconstruites: {len(tableau_data)}")
         
-        # Détecter l'en-tête (première ligne significative)
+        # Détection intelligente des en-têtes
         if tableau_data:
-            # Vérifier si la première ligne contient des mots typiques d'en-tête
-            first_row_text = ' '.join([str(cell) for cell in tableau_data[0] if cell]).lower()
-            header_keywords = ['réf', 'dsp', 'nom', 'valeur', 'total', 'montant', 'quantité', 'code', 'libellé', 'prix']
+            # Analyser la première ligne pour détecter les en-têtes
+            first_row_cells = [cell for cell in tableau_data[0] if cell.strip()]
+            first_row_text = ' '.join(first_row_cells).lower()
             
-            if any(keyword in first_row_text for keyword in header_keywords) and len(tableau_data) > 1:
+            # Liste étendue de mots-clés d'en-tête
+            header_keywords = [
+                'réf', 'dsp', 'pm', 'nom', 'valeur', 'total', 'montant', 
+                'quantité', 'code', 'libellé', 'prix', 'article', 'description',
+                'client', 'date', 'heure', 'adresse', 'ville', 'cp', 'téléphone',
+                'email', 'commande', 'facture', 'devis', 'produit', 'service'
+            ]
+            
+            # Vérifier si la première ligne ressemble à un en-tête
+            is_header = False
+            if len(tableau_data) > 1:  # Doit avoir au moins une ligne de données
+                header_word_count = sum(len(cell.split()) for cell in first_row_cells)
+                has_header_keyword = any(keyword in first_row_text for keyword in header_keywords)
+                is_short = header_word_count <= 5  # Les en-têtes sont généralement courts
+                
+                is_header = has_header_keyword or is_short
+            
+            if is_header:
                 headers = tableau_data[0]
                 tableau_data = tableau_data[1:]
                 current_app.logger.info(f"En-tête détecté: {headers}")
         
-        # Créer le DataFrame final
-        if headers:
-            # Nettoyer les noms de colonnes
-            cleaned_headers = []
-            for header in headers:
-                if isinstance(header, str):
-                    cleaned_headers.append(header.strip())
-                else:
-                    cleaned_headers.append(f'Colonne {len(cleaned_headers) + 1}')
-            
-            # S'assurer que toutes les lignes ont le même nombre de colonnes
-            max_cols = len(cleaned_headers)
-            uniform_data = []
-            for row in tableau_data:
-                if len(row) < max_cols:
-                    uniform_data.append(row + [''] * (max_cols - len(row)))
-                elif len(row) > max_cols:
-                    uniform_data.append(row[:max_cols])
-                else:
-                    uniform_data.append(row)
-            
-            df_final = pd.DataFrame(uniform_data, columns=cleaned_headers)
-        else:
-            # Créer des noms de colonnes génériques
-            num_columns = max(len(row) for row in tableau_data) if tableau_data else 1
-            col_names = [f'Colonne {i+1}' for i in range(num_columns)]
-            
-            # Uniformiser la longueur des lignes
-            uniform_data = []
-            for row in tableau_data:
-                if len(row) < num_columns:
-                    uniform_data.append(row + [''] * (num_columns - len(row)))
-                elif len(row) > num_columns:
-                    uniform_data.append(row[:num_columns])
-                else:
-                    uniform_data.append(row)
-            
-            df_final = pd.DataFrame(uniform_data, columns=col_names)
-        
-        # Si le tableau est vide ou très petit, utiliser une extraction simple
-        if len(df_final) <= 1 or (len(df_final.columns) == 1 and len(df_final) < 3):
-            current_app.logger.info("Tableau trop petit, extraction simple")
-            # Extraction simple ligne par ligne
+        # Si peu de données, utiliser l'extraction brute
+        if len(tableau_data) <= 1 or (len(tableau_data[0]) == 1 and len(tableau_data) < 5):
+            current_app.logger.info("Peu de données, extraction brute")
             simple_data = []
             for _, words in sorted_lines:
                 words.sort(key=lambda x: x[0])
@@ -1393,18 +1408,54 @@ def convert_image_to_excel(file, form_data=None):
                 simple_data.append([line_text])
             
             df_final = pd.DataFrame(simple_data, columns=['Texte extrait'])
+        else:
+            # Créer le DataFrame final structuré
+            if headers:
+                cleaned_headers = []
+                for header in headers:
+                    if isinstance(header, str):
+                        cleaned_headers.append(header.strip())
+                    else:
+                        cleaned_headers.append(f'Colonne {len(cleaned_headers) + 1}')
+                
+                # Uniformiser les données
+                max_cols = len(cleaned_headers)
+                uniform_data = []
+                for row in tableau_data:
+                    if len(row) < max_cols:
+                        uniform_data.append(row + [''] * (max_cols - len(row)))
+                    elif len(row) > max_cols:
+                        uniform_data.append(row[:max_cols])
+                    else:
+                        uniform_data.append(row)
+                
+                df_final = pd.DataFrame(uniform_data, columns=cleaned_headers)
+            else:
+                # Colonnes génériques
+                num_columns = max(len(row) for row in tableau_data) if tableau_data else 1
+                col_names = [f'Colonne {i+1}' for i in range(num_columns)]
+                
+                uniform_data = []
+                for row in tableau_data:
+                    if len(row) < num_columns:
+                        uniform_data.append(row + [''] * (num_columns - len(row)))
+                    elif len(row) > num_columns:
+                        uniform_data.append(row[:num_columns])
+                    else:
+                        uniform_data.append(row)
+                
+                df_final = pd.DataFrame(uniform_data, columns=col_names)
         
         current_app.logger.info(f"DataFrame final: {len(df_final)} lignes x {len(df_final.columns)} colonnes")
         
-        # Créer Excel avec UNE SEULE FEUILLE
+        # Créer Excel avec des informations détaillées
         output = BytesIO()
         
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            # Écrire le tableau principal
+            # Feuille principale des données
             sheet_name = 'Données extraites'
             df_final.to_excel(writer, index=False, sheet_name=sheet_name)
             
-            # Personnaliser la feuille
             worksheet = writer.sheets[sheet_name]
             
             # Ajuster la largeur des colonnes
@@ -1413,66 +1464,69 @@ def convert_image_to_excel(file, form_data=None):
                 column_letter = column[0].column_letter
                 for cell in column:
                     try:
-                        if len(str(cell.value)) > max_length:
-                            max_length = len(str(cell.value))
+                        if cell.value:
+                            max_length = max(max_length, len(str(cell.value)))
                     except:
                         pass
-                adjusted_width = min(max_length + 2, 50)  # Max 50 caractères
+                adjusted_width = min(max_length + 2, 50)
                 worksheet.column_dimensions[column_letter].width = adjusted_width
             
-            # Ajouter des statistiques
-            if not df_final.empty:
-                # Calculer les statistiques
-                total_rows = len(df_final)
-                total_columns = len(df_final.columns)
-                total_cells = total_rows * total_columns
-                avg_confidence = df_ocr['conf'].mean() if not df_ocr.empty else 0
-                filled_cells = sum(1 for row in df_final.values.flatten() if str(row).strip())
-                
-                # Créer un DataFrame pour les statistiques
-                stats_data = {
-                    'Statistique': [
-                        'Fichier source',
-                        'Date d\'extraction',
-                        'Type d\'image',
-                        'Taille de l\'image',
-                        'Lignes extraites',
-                        'Colonnes détectées',
-                        'Cellules remplies',
-                        'Confiance moyenne OCR',
-                        'Taux de remplissage'
-                    ],
-                    'Valeur': [
-                        file.filename,
-                        datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                        img.format if hasattr(img, 'format') else 'Inconnu',
-                        f"{img.size[0]}x{img.size[1]}",
-                        total_rows,
-                        total_columns,
-                        f"{filled_cells}/{total_cells}",
-                        f"{avg_confidence:.1f}%" if avg_confidence > 0 else "N/A",
-                        f"{(filled_cells/total_cells*100):.1f}%" if total_cells > 0 else "0%"
-                    ]
-                }
-                
-                stats_df = pd.DataFrame(stats_data)
-                
-                # Écrire les statistiques après les données
-                start_row = total_rows + 3  # 2 lignes d'espace
-                stats_df.to_excel(
-                    writer, 
-                    index=False, 
-                    startrow=start_row, 
-                    sheet_name=sheet_name, 
-                    header=False
-                )
-                
-                # Ajouter une note
-                note_row = start_row + len(stats_df) + 2
-                worksheet.cell(row=note_row, column=1, 
-                              value="Note: Pour de meilleurs résultats, utilisez des images nettes avec")
-                worksheet.cell(row=note_row + 1, column=1, 
-                              value="un bon contraste et des tableaux bien alignés.")
+            # Feuille de diagnostic
+            diagnostic_data = {
+                'Paramètre': [
+                    'Fichier source',
+                    'Date d\'extraction',
+                    'Taille originale',
+                    'Taille après prétraitement',
+                    'Meilleure config OCR',
+                    'Mots détectés',
+                    'Confiance moyenne',
+                    'Lignes détectées',
+                    'Colonnes détectées',
+                    'Configuration utilisée'
+                ],
+                'Valeur': [
+                    file.filename,
+                    datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    f"{original_size[0]}x{original_size[1]}",
+                    f"{img.size[0]}x{img.size[1]}",
+                    best_result['desc'],
+                    best_result['word_count'],
+                    f"{best_result['avg_conf']:.1f}%",
+                    len(sorted_lines),
+                    len(column_positions),
+                    best_result['config']
+                ]
+            }
+            
+            diagnostic_df = pd.DataFrame(diagnostic_data)
+            diagnostic_df.to_excel(writer, index=False, sheet_name='Diagnostic')
+            
+            # Statistiques de performance
+            stats_start_row = len(df_final) + 3
+            stats_data = {
+                'Statistique': [
+                    'Performance OCR',
+                    'Taux de détection',
+                    'Qualité extraction',
+                    'Recommandations'
+                ],
+                'Valeur': [
+                    f"{'Faible' if best_result['avg_conf'] < 50 else 'Moyenne' if best_result['avg_conf'] < 80 else 'Bonne'} ({best_result['avg_conf']:.1f}%)",
+                    f"{best_result['word_count']} mots",
+                    f"{len(df_final)} lignes x {len(df_final.columns)} colonnes",
+                    "Utilisez des images plus nettes avec un bon contraste"
+                ]
+            }
+            
+            stats_df = pd.DataFrame(stats_data)
+            stats_df.to_excel(
+                writer, 
+                index=False, 
+                startrow=stats_start_row, 
+                sheet_name=sheet_name, 
+                header=False
+            )
         
         output.seek(0)
         file_size = len(output.getvalue())
@@ -1490,6 +1544,226 @@ def convert_image_to_excel(file, form_data=None):
     except Exception as e:
         current_app.logger.error(f"Erreur Image->Excel: {str(e)}\n{traceback.format_exc()}")
         return {'error': f'Erreur d\'extraction: {str(e)}'}
+
+
+# FONCTIONS AUXILIAIRES AMÉLIORÉES
+
+def enhanced_preprocess_image_for_ocr(img):
+    """Prétraitement amélioré de l'image pour OCR."""
+    try:
+        current_app.logger.info("Début prétraitement amélioré")
+        
+        # Sauvegarder la taille originale
+        original_size = img.size
+        
+        # 1. Convertir en niveaux de gris
+        if img.mode != 'L':
+            img = img.convert('L')
+        
+        # 2. Redimensionner si trop petite (min 300px de large)
+        min_width = 300
+        if img.size[0] < min_width:
+            scale_factor = min_width / img.size[0]
+            new_width = min_width
+            new_height = int(img.size[1] * scale_factor)
+            img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            current_app.logger.info(f"Redimensionné: {original_size} -> {img.size}")
+        
+        # 3. Améliorer le contraste avec CLAHE (si OpenCV disponible)
+        try:
+            import cv2
+            import numpy as np
+            
+            # Convertir PIL en numpy array
+            img_array = np.array(img)
+            
+            # Appliquer CLAHE pour améliorer le contraste local
+            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+            img_array = clahe.apply(img_array)
+            
+            # Reconvertir en PIL
+            img = Image.fromarray(img_array)
+            current_app.logger.info("CLAHE appliqué")
+        except ImportError:
+            # Fallback simple si OpenCV n'est pas disponible
+            enhancer = ImageEnhance.Contrast(img)
+            img = enhancer.enhance(2.0)
+            current_app.logger.info("Amélioration contraste simple")
+        
+        # 4. Réduction du bruit
+        try:
+            import cv2
+            import numpy as np
+            
+            img_array = np.array(img)
+            
+            # Réduction de bruit avec filtre médian
+            img_array = cv2.medianBlur(img_array, 3)
+            
+            # Seuillage adaptatif
+            img_array = cv2.adaptiveThreshold(
+                img_array, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                cv2.THRESH_BINARY, 11, 2
+            )
+            
+            img = Image.fromarray(img_array)
+            current_app.logger.info("Réduction de bruit appliquée")
+        except:
+            # Fallback simple
+            pass
+        
+        # 5. Améliorer la netteté
+        enhancer = ImageEnhance.Sharpness(img)
+        img = enhancer.enhance(1.5)
+        
+        # 6. Normaliser les niveaux de gris
+        img_array = np.array(img)
+        img_array = cv2.normalize(img_array, None, alpha=0, beta=255, 
+                                 norm_type=cv2.NORM_MINMAX)
+        img = Image.fromarray(img_array)
+        
+        current_app.logger.info("Prétraitement terminé avec succès")
+        return img
+        
+    except Exception as e:
+        current_app.logger.warning(f"Erreur prétraitement amélioré: {e}")
+        # Retourner au prétraitement de base
+        return basic_preprocess_image_for_ocr(img)
+
+
+def basic_preprocess_image_for_ocr(img):
+    """Prétraitement de base pour OCR."""
+    try:
+        # Convertir en niveaux de gris
+        if img.mode != 'L':
+            img = img.convert('L')
+        
+        # Améliorer le contraste
+        enhancer = ImageEnhance.Contrast(img)
+        img = enhancer.enhance(2.0)
+        
+        # Améliorer la netteté
+        enhancer = ImageEnhance.Sharpness(img)
+        img = enhancer.enhance(1.5)
+        
+        return img
+    except Exception as e:
+        current_app.logger.warning(f"Erreur prétraitement basique: {e}")
+        return img
+
+
+def advanced_detect_columns(sorted_lines, image_width, min_column_width=30):
+    """Détection avancée des colonnes."""
+    if not sorted_lines:
+        return [(0, image_width)]
+    
+    # Collecter toutes les positions X
+    all_positions = []
+    for _, words in sorted_lines:
+        for left, _ in words:
+            all_positions.append(left)
+    
+    if not all_positions:
+        return [(0, image_width)]
+    
+    # Trier les positions
+    all_positions.sort()
+    
+    # Détecter les clusters (colonnes)
+    positions = np.array(all_positions)
+    
+    # Utiliser K-means pour détecter les centres de colonnes
+    try:
+        from sklearn.cluster import KMeans
+        
+        # Essayer différents nombres de clusters
+        best_score = -1
+        best_clusters = None
+        
+        for n_clusters in range(1, min(10, len(positions))):
+            if len(positions) >= n_clusters:
+                kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+                labels = kmeans.fit_predict(positions.reshape(-1, 1))
+                
+                # Calculer le score (inertie)
+                score = -kmeans.inertia_  # Négatif car on veut minimiser l'inertie
+                
+                if score > best_score:
+                    best_score = score
+                    best_clusters = (kmeans.cluster_centers_.flatten(), labels)
+        
+        if best_clusters:
+            centers, labels = best_clusters
+            centers = np.sort(centers)
+            
+            # Créer les positions de colonnes
+            column_positions = []
+            for i, center in enumerate(centers):
+                left = max(0, center - min_column_width)
+                right = min(image_width, center + min_column_width)
+                
+                if i > 0:
+                    left = max(left, column_positions[-1][1] + 5)
+                
+                column_positions.append((int(left), int(right)))
+            
+            return column_positions
+    
+    except ImportError:
+        current_app.logger.warning("scikit-learn non disponible, détection simple")
+    
+    # Fallback: détection simple
+    return simple_detect_columns(sorted_lines, image_width)
+
+
+def simple_detect_columns(sorted_lines, image_width=1000):
+    """Détection simple des colonnes."""
+    if not sorted_lines:
+        return [(0, image_width)]
+    
+    # Regrouper par zones horizontales
+    zones = []
+    
+    for _, words in sorted_lines:
+        for left, text in words:
+            # Trouver une zone existante
+            found = False
+            for zone in zones:
+                zone_left, zone_right = zone
+                if zone_left - 30 <= left <= zone_right + 30:
+                    # Étendre la zone
+                    zones[zones.index(zone)] = (min(zone_left, left), max(zone_right, left + len(text) * 10))
+                    found = True
+                    break
+            
+            if not found:
+                # Nouvelle zone
+                zones.append((left, left + len(text) * 10))
+    
+    # Fusionner les zones proches
+    zones.sort()
+    merged_zones = []
+    
+    for zone in zones:
+        if not merged_zones:
+            merged_zones.append(list(zone))
+        else:
+            last_zone = merged_zones[-1]
+            if zone[0] - last_zone[1] < 50:  # Fusionner si proches
+                last_zone[1] = max(last_zone[1], zone[1])
+            else:
+                merged_zones.append(list(zone))
+    
+    # Convertir en positions de colonnes
+    column_positions = []
+    for left, right in merged_zones:
+        column_positions.append((max(0, int(left - 10)), min(image_width, int(right + 10))))
+    
+    # S'assurer qu'il y a au moins une colonne
+    if not column_positions:
+        column_positions = [(0, image_width)]
+    
+    return column_positions
 
 def detect_column_positions(sorted_lines, min_column_width=50):
     """Détecte les positions des colonnes basées sur les données."""
