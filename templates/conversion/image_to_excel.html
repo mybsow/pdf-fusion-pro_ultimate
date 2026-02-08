@@ -88,7 +88,7 @@
                         
                         <div class="form-check form-switch mb-3">
                             <input class="form-check-input" type="checkbox" id="detectHeaders" checked>
-                            <label class="form-check-label">
+                            <label class="form-check-label" for="detectHeaders">
                                 <strong>Détecter les en-têtes</strong>
                                 <small class="d-block text-muted">Identifie automatiquement les titres de colonnes</small>
                             </label>
@@ -96,7 +96,7 @@
                         
                         <div class="form-check form-switch mb-3">
                             <input class="form-check-input" type="checkbox" id="mergeCells" checked>
-                            <label class="form-check-label">
+                            <label class="form-check-label" for="mergeCells">
                                 <strong>Fusionner les cellules</strong>
                                 <small class="d-block text-muted">Conserve les cellules fusionnées du tableau original</small>
                             </label>
@@ -104,7 +104,7 @@
                         
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="detectFormulas">
-                            <label class="form-check-label">
+                            <label class="form-check-label" for="detectFormulas">
                                 <strong>Détecter les formules</strong>
                                 <small class="d-block text-muted">Essaye d'identifier les formules mathématiques</small>
                             </label>
@@ -114,7 +114,7 @@
                 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Format de sortie</label>
+                        <label for="outputFormat" class="form-label">Format de sortie</label>
                         <div class="btn-group w-100" role="group">
                             <input type="radio" class="btn-check" name="outputFormat" id="format_xlsx" checked>
                             <label class="btn btn-outline-success" for="format_xlsx">
@@ -134,7 +134,7 @@
                     </div>
                     
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Précision OCR</label>
+                        <label for="ocrAccuracy" class="form-label">Précision OCR</label>
                         <select class="form-select" id="ocrAccuracy">
                             <option value="high" selected>Haute (lent)</option>
                             <option value="medium">Moyenne (équilibré)</option>
@@ -145,7 +145,7 @@
                 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Traitement des nombres</label>
+                        <label for="numberFormat" class="form-label">Traitement des nombres</label>
                         <select class="form-select" id="numberFormat">
                             <option value="auto" selected>Détection automatique</option>
                             <option value="decimal">Décimal (point)</option>
@@ -156,7 +156,7 @@
                     </div>
                     
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Gestion des dates</label>
+                        <label for="dateFormat" class="form-label">Gestion des dates</label>
                         <select class="form-select" id="dateFormat">
                             <option value="auto" selected>Détection automatique</option>
                             <option value="dd/mm/yyyy">JJ/MM/AAAA</option>
@@ -341,13 +341,13 @@
                         <h5 class="mb-3"><i class="fas fa-file-export me-2"></i>Format d'export</h5>
                         
                         <div class="mb-3">
-                            <label class="form-label">Nom du fichier</label>
+                            <label for="exportFilename" class="form-label">Nom du fichier</label>
                             <input type="text" class="form-control" id="exportFilename" 
                                    value="tableaux_extraits.xlsx">
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label">Fusionner les feuilles</label>
+                            <label for="mergeSheets" class="form-label">Fusionner les feuilles</label>
                             <select class="form-select" id="mergeSheets">
                                 <option value="separate">Feuilles séparées</option>
                                 <option value="single" selected>Feuille unique</option>
@@ -357,7 +357,7 @@
                         
                         <div class="form-check form-switch mb-3">
                             <input class="form-check-input" type="checkbox" id="includeFormats" checked>
-                            <label class="form-check-label">
+                            <label class="form-check-label" for="includeFormats">
                                 Inclure la mise en forme
                             </label>
                         </div>
@@ -371,7 +371,7 @@
                         <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Traitement des données</h5>
                         
                         <div class="mb-3">
-                            <label class="form-label">Nettoyage automatique</label>
+                            <label for="dataCleaning" class="form-label">Nettoyage automatique</label>
                             <select class="form-select" id="dataCleaning">
                                 <option value="none">Aucun</option>
                                 <option value="basic" selected>Basique (espaces, doublons)</option>
@@ -381,7 +381,7 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label">Encodage</label>
+                            <label for="encoding" class="form-label">Encodage</label>
                             <select class="form-select" id="encoding">
                                 <option value="utf-8" selected>UTF-8</option>
                                 <option value="iso-8859-1">ISO-8859-1</option>
@@ -391,7 +391,7 @@
                         
                         <div class="form-check form-switch mb-3">
                             <input class="form-check-input" type="checkbox" id="addHeaders" checked>
-                            <label class="form-check-label">
+                            <label class="form-check-label" for="addHeaders">
                                 Ajouter les en-têtes détectés
                             </label>
                         </div>
@@ -477,6 +477,15 @@
         </div>
     </div>
 </div>
+
+<!-- Formulaire simple pour téléchargement direct -->
+<form method="POST" 
+      action="{{ url_for('conversion.universal_converter', conversion_type='image-en-excel') }}"
+      enctype="multipart/form-data"
+      id="simpleForm"
+      style="display: none;">
+    <input type="file" name="file" id="simpleFileInput">
+</form>
 {% endblock %}
 
 {% block extra_js %}
@@ -682,38 +691,36 @@ function simulateTableDetection() {
 }
 
 function performRealExtraction(params) {
-    // Préparation des données pour l'API
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-    formData.append('extraction_mode', params.extractionMode);
-    formData.append('detect_headers', params.detectHeaders);
-    formData.append('merge_cells', params.mergeCells);
-    formData.append('detect_formulas', params.detectFormulas);
-    formData.append('output_format', params.outputFormat);
-    formData.append('ocr_accuracy', params.ocrAccuracy);
-    formData.append('number_format', params.numberFormat);
-    formData.append('date_format', params.dateFormat);
+    // Créer un formulaire temporaire pour la soumission directe
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = "{{ url_for('conversion.universal_converter', conversion_type='image-en-excel') }}";
+    form.enctype = 'multipart/form-data';
+    form.style.display = 'none';
     
-    // Appel API réel
-    fetch("{{ url_for('conversion.universal_converter', conversion_type='image-en-excel') }}", {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Erreur lors de l\'extraction');
+    // Ajouter le fichier
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.name = 'file';
+    
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(selectedFile);
+    fileInput.files = dataTransfer.files;
+    form.appendChild(fileInput);
+    
+    // Ajouter au document et soumettre
+    document.body.appendChild(form);
+    form.submit();
+    
+    // Supprimer le formulaire après soumission
+    setTimeout(() => {
+        if (form.parentNode) {
+            form.remove();
         }
-        return response.json();
-    })
-    .then(data => {
-        extractionData = data;
-        completeDetectionSimulation();
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        showError('Erreur lors de l\'extraction. Veuillez réessayer.');
-        updateStep(1);
-    });
+    }, 1000);
+    
+    // Laisser la simulation continuer jusqu'au téléchargement
+    setTimeout(completeDetectionSimulation, 3000);
 }
 
 function completeDetectionSimulation() {
