@@ -1093,6 +1093,9 @@ def convert_image_to_excel(file, form_data=None):
         # Ouvrir l'image
         img = Image.open(file.stream).convert('RGB')
         
+        # Prétraitement de l'image pour améliorer l'OCR
+        img = preprocess_image_for_ocr(img)
+        
         # OCR avec données détaillées
         ocr_data = pytesseract.image_to_data(
             img, 
@@ -1109,12 +1112,14 @@ def convert_image_to_excel(file, form_data=None):
         df_ocr['text'] = df_ocr['text'].astype(str).str.strip()
         df_ocr = df_ocr[df_ocr['text'] != '']
         
-        # 1. RECONSTITUER LE TABLEAU STRUCTURÉ
-        # ==================================
+        if df_ocr.empty:
+            return {'error': 'Aucun texte détecté dans l\'image'}
+        
+        # RECONSTITUER LE TABLEAU STRUCTURÉ
         tableau_data = []
+        headers = []
         
         # Grouper les mots par lignes (basé sur la coordonnée Y)
-        # On utilise une tolérance pour regrouper les mots sur la même ligne
         lines = {}
         for idx, row in df_ocr.iterrows():
             top = row['top']
@@ -1136,119 +1141,87 @@ def convert_image_to_excel(file, form_data=None):
             
             lines[found_line].append((left, text))
         
-        # Trier les lignes par position verticale (de haut en bas)
+        # Trier les lignes par position verticale
         sorted_lines = sorted(lines.items(), key=lambda x: x[0])
         
-        # Identifier la structure du tableau
-        header_found = False
+        # Détecter les colonnes basées sur la position horizontale
+        column_positions = detect_column_positions(sorted_lines)
+        
+        # Reconstruire le tableau
         for line_top, words in sorted_lines:
-            # Trier les mots de gauche à droite dans la ligne
+            # Trier les mots de gauche à droite
             words.sort(key=lambda x: x[0])
             
-            # Reconstituer le texte de la ligne
-            line_text = ' '.join([word[1] for word in words])
+            # Répartir les mots dans les colonnes
+            row_data = [''] * len(column_positions)
             
-            # Identifier l'en-tête
-            if 'réf' in line_text.lower() and ('dsp' in line_text.lower() or 'pm' in line_text.lower()):
-                # C'est l'en-tête du tableau
-                # Séparer en deux colonnes si possible
-                if 'réf.' in line_text and 'dsp' in line_text.upper():
-                    # Cas: "Réf. PM DSP" -> deux colonnes
-                    parts = line_text.split('DSP')
-                    if len(parts) >= 2:
-                        left_part = parts[0].strip()
-                        tableau_data.append([left_part, 'DSP'])
-                        header_found = True
-                else:
-                    # Autre format d'en-tête
-                    tableau_data.append([line_text, ''])
-                    header_found = True
+            for left, text in words:
+                # Trouver la colonne appropriée
+                for i, (col_left, col_right) in enumerate(column_positions):
+                    if col_left <= left <= col_right:
+                        if row_data[i]:
+                            row_data[i] += ' ' + text
+                        else:
+                            row_data[i] = text
+                        break
             
-            # Identifier les lignes de données (contiennent SRO-... et CORSICA)
-            elif 'SRO-' in line_text.upper() and 'CORSICA' in line_text.upper():
-                # C'est une ligne de données
-                # Séparer les deux colonnes
-                parts = line_text.split('CORSICA')
-                if len(parts) >= 2:
-                    ref = parts[0].strip()
-                    tableau_data.append([ref, 'CORSICA'])
-            
-            # Lignes contenant uniquement des références SRO-
-            elif 'SRO-' in line_text.upper():
-                # C'est peut-être une référence seule
-                # Vérifier si la ligne suivante contient CORSICA
-                tableau_data.append([line_text, ''])
-            
-            # Lignes contenant uniquement CORSICA
-            elif 'CORSICA' in line_text.upper():
-                # C'est peut-être la deuxième colonne pour une ligne précédente
-                if tableau_data and not tableau_data[-1][1]:
-                    tableau_data[-1][1] = line_text
-                else:
-                    tableau_data.append(['', line_text])
+            # Ajouter la ligne si elle contient des données
+            if any(cell.strip() for cell in row_data):
+                tableau_data.append(row_data)
         
-        # 2. ORGANISER LES DONNÉES POUR EXCEL
-        # ====================================
+        # Détecter l'en-tête (première ligne significative)
+        if tableau_data:
+            # Vérifier si la première ligne contient des mots typiques d'en-tête
+            first_row_text = ' '.join([str(cell) for cell in tableau_data[0] if cell])
+            if (any(keyword in first_row_text.lower() for keyword in ['réf', 'dsp', 'nom', 'valeur', 'total']) and
+                len(tableau_data) > 1):
+                headers = tableau_data[0]
+                tableau_data = tableau_data[1:]
         
-        # Créer Excel
+        # Créer le DataFrame final
+        if headers:
+            df_final = pd.DataFrame(tableau_data, columns=headers)
+        else:
+            # Créer des noms de colonnes génériques
+            num_columns = len(column_positions)
+            col_names = [f'Colonne {i+1}' for i in range(num_columns)]
+            df_final = pd.DataFrame(tableau_data, columns=col_names)
+        
+        # Créer Excel avec UNE SEULE FEUILLE
         output = BytesIO()
+        
+        # Créer un writer Excel
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            # Si on a des données de tableau, les organiser proprement
-            if tableau_data:
-                # Créer un DataFrame pour le tableau reconstitué
-                df_tableau = pd.DataFrame(tableau_data)
-                
-                # Si la première ligne ressemble à un en-tête
-                if header_found and len(df_tableau) > 1:
-                    # Utiliser la première ligne comme en-tête
-                    df_table = pd.DataFrame(df_tableau.iloc[1:].values, columns=df_tableau.iloc[0])
-                else:
-                    # Sinon, utiliser des noms de colonnes génériques
-                    df_table = pd.DataFrame(tableau_data, columns=['Colonne 1', 'Colonne 2'])
-                
-                # Écrire le tableau reconstitué
-                df_table.to_excel(writer, index=False, sheet_name='Tableau extrait')
-                
-                # Écrire également les données OCR brutes pour référence
-                if not df_ocr.empty:
-                    df_ocr.to_excel(writer, index=False, sheet_name='Données OCR brutes')
-            else:
-                # Si pas de tableau détecté, utiliser le texte brut
-                text = pytesseract.image_to_string(img, lang='fra+eng')
-                df_text = pd.DataFrame({'Texte': text.strip().split('\n')})
-                df_text.to_excel(writer, index=False, sheet_name='Texte extrait')
-                
-                # Ajouter les données OCR détaillées
-                if not df_ocr.empty:
-                    df_ocr.to_excel(writer, index=False, sheet_name='Données OCR brutes')
+            # Écrire le tableau principal
+            df_final.to_excel(writer, index=False, sheet_name='Données extraites')
             
-            # Onglet d'informations
-            info_df = pd.DataFrame({
-                'Information': ['Fichier source', 'Date', 'Confiance moyenne OCR', 'Lignes détectées'],
-                'Valeur': [
-                    file.filename,
-                    datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                    df_ocr['conf'].mean() if not df_ocr.empty else 'N/A',
-                    len(tableau_data) if tableau_data else 0
-                ]
-            })
-            info_df.to_excel(writer, index=False, sheet_name='Infos')
-            
-            # Optionnel: Ajouter un onglet avec les données groupées par ligne
-            if not df_ocr.empty:
-                # Créer un résumé par ligne
-                line_summary = []
-                for line_top, words in sorted_lines:
-                    words.sort(key=lambda x: x[0])
-                    line_text = ' '.join([word[1] for word in words])
-                    line_summary.append({
-                        'Position Y': line_top,
-                        'Texte': line_text,
-                        'Nombre de mots': len(words)
-                    })
+            # Ajouter des statistiques dans la même feuille, après les données
+            if not df_final.empty:
+                # Calculer les statistiques
+                total_rows = len(df_final)
+                total_cells = total_rows * len(df_final.columns)
+                avg_confidence = df_ocr['conf'].mean() if not df_ocr.empty else 0
                 
-                df_lines = pd.DataFrame(line_summary)
-                df_lines.to_excel(writer, index=False, sheet_name='Lignes détectées')
+                # Créer un DataFrame pour les statistiques
+                stats_data = {
+                    'Statistique': ['Fichier source', 'Date d\'extraction', 'Nombre de lignes', 
+                                   'Nombre de colonnes', 'Nombre de cellules', 'Confiance moyenne OCR'],
+                    'Valeur': [
+                        file.filename,
+                        datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        total_rows,
+                        len(df_final.columns),
+                        total_cells,
+                        f'{avg_confidence:.2f}%'
+                    ]
+                }
+                stats_df = pd.DataFrame(stats_data)
+                
+                # Écrire les statistiques après les données (avec une ligne vide)
+                start_row = total_rows + 3  # 2 lignes d'espace
+                stats_df.to_excel(writer, index=False, startrow=start_row, 
+                                sheet_name='Données extraites', 
+                                header=False)
         
         output.seek(0)
         
@@ -1263,6 +1236,110 @@ def convert_image_to_excel(file, form_data=None):
         current_app.logger.error(f"Erreur Image->Excel: {str(e)}\n{traceback.format_exc()}")
         return {'error': f'Erreur d\'extraction: {str(e)}'}
 
+def detect_column_positions(sorted_lines, min_column_width=50):
+    """Détecte les positions des colonnes basées sur les données."""
+    column_positions = []
+    
+    # Collecter toutes les positions X des mots
+    all_left_positions = []
+    for _, words in sorted_lines:
+        for left, _ in words:
+            all_left_positions.append(left)
+    
+    if not all_left_positions:
+        return [(0, 1000)]  # Par défaut
+    
+    # Trier et regrouper les positions
+    all_left_positions.sort()
+    
+    # Détecter les clusters de positions (colonnes)
+    current_column = None
+    min_gap = min_column_width  # Espace minimum entre colonnes
+    
+    for pos in all_left_positions:
+        if current_column is None:
+            current_column = [pos, pos]
+        elif pos - current_column[1] < min_gap:
+            # Dans la même colonne
+            current_column[1] = max(current_column[1], pos)
+        else:
+            # Nouvelle colonne
+            column_positions.append((current_column[0], current_column[1]))
+            current_column = [pos, pos]
+    
+    if current_column is not None:
+        column_positions.append((current_column[0], current_column[1]))
+    
+    # Si aucune colonne détectée, retourner une colonne par défaut
+    if not column_positions:
+        min_pos = min(all_left_positions)
+        max_pos = max(all_left_positions)
+        column_positions = [(min_pos, max_pos)]
+    
+    return column_positions
+
+def preprocess_image_for_ocr(img):
+    """Prétraite l'image pour améliorer la reconnaissance OCR."""
+    try:
+        # Convertir en niveaux de gris
+        if img.mode != 'L':
+            img = img.convert('L')
+        
+        # Améliorer le contraste
+        enhancer = ImageEnhance.Contrast(img)
+        img = enhancer.enhance(1.5)
+        
+        # Améliorer la netteté
+        enhancer = ImageEnhance.Sharpness(img)
+        img = enhancer.enhance(1.2)
+        
+        return img
+    except Exception as e:
+        current_app.logger.warning(f"Erreur prétraitement image: {e}")
+        return img
+
+
+def detect_column_positions(sorted_lines, min_column_width=50):
+    """Détecte les positions des colonnes basées sur les données."""
+    column_positions = []
+    
+    # Collecter toutes les positions X des mots
+    all_left_positions = []
+    for _, words in sorted_lines:
+        for left, _ in words:
+            all_left_positions.append(left)
+    
+    if not all_left_positions:
+        return [(0, 1000)]  # Par défaut
+    
+    # Trier et regrouper les positions
+    all_left_positions.sort()
+    
+    # Détecter les clusters de positions (colonnes)
+    current_column = None
+    min_gap = min_column_width  # Espace minimum entre colonnes
+    
+    for pos in all_left_positions:
+        if current_column is None:
+            current_column = [pos, pos]
+        elif pos - current_column[1] < min_gap:
+            # Dans la même colonne
+            current_column[1] = max(current_column[1], pos)
+        else:
+            # Nouvelle colonne
+            column_positions.append((current_column[0], current_column[1]))
+            current_column = [pos, pos]
+    
+    if current_column is not None:
+        column_positions.append((current_column[0], current_column[1]))
+    
+    # Si aucune colonne détectée, retourner une colonne par défaut
+    if not column_positions:
+        min_pos = min(all_left_positions)
+        max_pos = max(all_left_positions)
+        column_positions = [(min_pos, max_pos)]
+    
+    return column_positions
 
 def convert_csv_to_excel(files, form_data=None):
     """Convertit CSV en Excel."""
