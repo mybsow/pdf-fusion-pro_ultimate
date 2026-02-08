@@ -1,24 +1,16 @@
-# render.yaml
+# render.yaml - Version pour Docker
 services:
   - type: web
-    name: pdf-fusion-pro-ultimate
+    name: pdf-fusion-pro_ultimate_ltd
+    repo: https://github.com/mybsow/pdf-fusion-pro_ultimate
     region: frankfurt
     plan: free
     branch: main
     autoDeploy: true
-    
-    # ⭐⭐ FORCER DOCKERFILE ⭐⭐
     dockerfilePath: ./Dockerfile
-    
-    # ⭐⭐ SUPPRIMEZ CES LIGNES ⭐⭐
-    # buildCommand: ...
-    # startCommand: ...
-    # aptPackages: ...
-    
     envVars:
       - key: PORT
         value: "10000"
       - key: OCR_ENABLED
         value: "true"
-    
     healthCheckPath: /health
