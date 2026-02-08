@@ -1593,6 +1593,10 @@ def detect_column_positions(sorted_lines, min_column_width=50):
         min_pos = min(all_left_positions)
         max_pos = max(all_left_positions)
         column_positions = [(min_pos, max_pos)]
+
+        # S'assurer qu'il y a au moins une colonne
+    if not column_positions:
+        column_positions = [(0, 1000)]
     
     return column_positions
 
