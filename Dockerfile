@@ -2,16 +2,15 @@ FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV OMP_THREAD_LIMIT=1
 
 RUN apt-get update && \
     apt-get install -y \
     tesseract-ocr \
-    tesseract-ocr-osd
+    tesseract-ocr-osd \
     tesseract-ocr-fra \
     tesseract-ocr-eng \
     poppler-utils \
-    libreoffice
-    unoconv
     libglib2.0-0 \
     libgl1 \
     && rm -rf /var/lib/apt/lists/*
