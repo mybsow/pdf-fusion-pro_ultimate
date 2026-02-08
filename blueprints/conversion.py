@@ -1093,33 +1093,162 @@ def convert_image_to_excel(file, form_data=None):
         # Ouvrir l'image
         img = Image.open(file.stream).convert('RGB')
         
-        # OCR avec données structurées
-        data = pytesseract.image_to_data(img, lang='fra+eng', output_type=Output.DATAFRAME)
+        # OCR avec données détaillées
+        ocr_data = pytesseract.image_to_data(
+            img, 
+            lang='fra+eng', 
+            output_type=Output.DICT,
+            config='--psm 6'  # Mode: supposer un bloc uniforme de texte
+        )
         
-        # Filtrer les données
-        if data is not None and not data.empty:
-            data = data[data['conf'] > 30]
-            data = data[data['text'].notna() & (data['text'].str.strip() != '')]
+        # Convertir en DataFrame pour faciliter le traitement
+        df_ocr = pd.DataFrame(ocr_data)
+        
+        # Filtrer les lignes avec du texte
+        df_ocr = df_ocr[df_ocr['conf'] > 0]
+        df_ocr['text'] = df_ocr['text'].astype(str).str.strip()
+        df_ocr = df_ocr[df_ocr['text'] != '']
+        
+        # 1. RECONSTITUER LE TABLEAU STRUCTURÉ
+        # ==================================
+        tableau_data = []
+        
+        # Grouper les mots par lignes (basé sur la coordonnée Y)
+        # On utilise une tolérance pour regrouper les mots sur la même ligne
+        lines = {}
+        for idx, row in df_ocr.iterrows():
+            top = row['top']
+            left = row['left']
+            text = row['text']
+            
+            # Trouver la ligne la plus proche (tolérance de 10 pixels)
+            found_line = None
+            for line_top in lines.keys():
+                if abs(top - line_top) < 10:
+                    found_line = line_top
+                    break
+            
+            if found_line is None:
+                found_line = top
+            
+            if found_line not in lines:
+                lines[found_line] = []
+            
+            lines[found_line].append((left, text))
+        
+        # Trier les lignes par position verticale (de haut en bas)
+        sorted_lines = sorted(lines.items(), key=lambda x: x[0])
+        
+        # Identifier la structure du tableau
+        header_found = False
+        for line_top, words in sorted_lines:
+            # Trier les mots de gauche à droite dans la ligne
+            words.sort(key=lambda x: x[0])
+            
+            # Reconstituer le texte de la ligne
+            line_text = ' '.join([word[1] for word in words])
+            
+            # Identifier l'en-tête
+            if 'réf' in line_text.lower() and ('dsp' in line_text.lower() or 'pm' in line_text.lower()):
+                # C'est l'en-tête du tableau
+                # Séparer en deux colonnes si possible
+                if 'réf.' in line_text and 'dsp' in line_text.upper():
+                    # Cas: "Réf. PM DSP" -> deux colonnes
+                    parts = line_text.split('DSP')
+                    if len(parts) >= 2:
+                        left_part = parts[0].strip()
+                        tableau_data.append([left_part, 'DSP'])
+                        header_found = True
+                else:
+                    # Autre format d'en-tête
+                    tableau_data.append([line_text, ''])
+                    header_found = True
+            
+            # Identifier les lignes de données (contiennent SRO-... et CORSICA)
+            elif 'SRO-' in line_text.upper() and 'CORSICA' in line_text.upper():
+                # C'est une ligne de données
+                # Séparer les deux colonnes
+                parts = line_text.split('CORSICA')
+                if len(parts) >= 2:
+                    ref = parts[0].strip()
+                    tableau_data.append([ref, 'CORSICA'])
+            
+            # Lignes contenant uniquement des références SRO-
+            elif 'SRO-' in line_text.upper():
+                # C'est peut-être une référence seule
+                # Vérifier si la ligne suivante contient CORSICA
+                tableau_data.append([line_text, ''])
+            
+            # Lignes contenant uniquement CORSICA
+            elif 'CORSICA' in line_text.upper():
+                # C'est peut-être la deuxième colonne pour une ligne précédente
+                if tableau_data and not tableau_data[-1][1]:
+                    tableau_data[-1][1] = line_text
+                else:
+                    tableau_data.append(['', line_text])
+        
+        # 2. ORGANISER LES DONNÉES POUR EXCEL
+        # ====================================
         
         # Créer Excel
         output = BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            if data is not None and not data.empty:
-                data.to_excel(writer, index=False, sheet_name='Données OCR')
+            # Si on a des données de tableau, les organiser proprement
+            if tableau_data:
+                # Créer un DataFrame pour le tableau reconstitué
+                df_tableau = pd.DataFrame(tableau_data)
+                
+                # Si la première ligne ressemble à un en-tête
+                if header_found and len(df_tableau) > 1:
+                    # Utiliser la première ligne comme en-tête
+                    df_table = pd.DataFrame(df_tableau.iloc[1:].values, columns=df_tableau.iloc[0])
+                else:
+                    # Sinon, utiliser des noms de colonnes génériques
+                    df_table = pd.DataFrame(tableau_data, columns=['Colonne 1', 'Colonne 2'])
+                
+                # Écrire le tableau reconstitué
+                df_table.to_excel(writer, index=False, sheet_name='Tableau extrait')
+                
+                # Écrire également les données OCR brutes pour référence
+                if not df_ocr.empty:
+                    df_ocr.to_excel(writer, index=False, sheet_name='Données OCR brutes')
             else:
-                # Texte simple si pas de données structurées
+                # Si pas de tableau détecté, utiliser le texte brut
                 text = pytesseract.image_to_string(img, lang='fra+eng')
                 df_text = pd.DataFrame({'Texte': text.strip().split('\n')})
-                df_text.to_excel(writer, index=False, sheet_name='Texte')
+                df_text.to_excel(writer, index=False, sheet_name='Texte extrait')
+                
+                # Ajouter les données OCR détaillées
+                if not df_ocr.empty:
+                    df_ocr.to_excel(writer, index=False, sheet_name='Données OCR brutes')
             
-            # Infos
+            # Onglet d'informations
             info_df = pd.DataFrame({
-                'Information': ['Fichier source', 'Date', 'Confiance moyenne'],
-                'Valeur': [file.filename, 
-                          datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                          data['conf'].mean() if data is not None and 'conf' in data.columns else 'N/A']
+                'Information': ['Fichier source', 'Date', 'Confiance moyenne OCR', 'Lignes détectées'],
+                'Valeur': [
+                    file.filename,
+                    datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    df_ocr['conf'].mean() if not df_ocr.empty else 'N/A',
+                    len(tableau_data) if tableau_data else 0
+                ]
             })
             info_df.to_excel(writer, index=False, sheet_name='Infos')
+            
+            # Optionnel: Ajouter un onglet avec les données groupées par ligne
+            if not df_ocr.empty:
+                # Créer un résumé par ligne
+                line_summary = []
+                for line_top, words in sorted_lines:
+                    words.sort(key=lambda x: x[0])
+                    line_text = ' '.join([word[1] for word in words])
+                    line_summary.append({
+                        'Position Y': line_top,
+                        'Texte': line_text,
+                        'Nombre de mots': len(words)
+                    })
+                
+                df_lines = pd.DataFrame(line_summary)
+                df_lines.to_excel(writer, index=False, sheet_name='Lignes détectées')
         
         output.seek(0)
         
