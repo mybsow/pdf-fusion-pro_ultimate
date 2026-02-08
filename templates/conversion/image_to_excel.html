@@ -57,7 +57,11 @@
                         </label>
                         
                         <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="extractionMode" id="mode_auto" checked>
+                            <input class="form-check-input" type="radio" 
+                                   name="extractionMode" 
+                                   id="mode_auto" 
+                                   value="auto" 
+                                   checked>
                             <label class="form-check-label" for="mode_auto">
                                 <strong>Automatique</strong>
                                 <small class="d-block text-muted">Détection intelligente des tableaux (recommandé)</small>
@@ -65,7 +69,10 @@
                         </div>
                         
                         <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="extractionMode" id="mode_manual">
+                            <input class="form-check-input" type="radio" 
+                                   name="extractionMode" 
+                                   id="mode_manual" 
+                                   value="manual">
                             <label class="form-check-label" for="mode_manual">
                                 <strong>Manuel</strong>
                                 <small class="d-block text-muted">Sélectionnez manuellement les zones à extraire</small>
@@ -73,7 +80,10 @@
                         </div>
                         
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="extractionMode" id="mode_grid">
+                            <input class="form-check-input" type="radio" 
+                                   name="extractionMode" 
+                                   id="mode_grid" 
+                                   value="grid">
                             <label class="form-check-label" for="mode_grid">
                                 <strong>Grille</strong>
                                 <small class="d-block text-muted">Extraction par grille fixe</small>
@@ -87,7 +97,11 @@
                         </label>
                         
                         <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="detectHeaders" checked>
+                            <input class="form-check-input" type="checkbox" 
+                                   id="detectHeaders" 
+                                   name="detect_headers" 
+                                   value="1" 
+                                   checked>
                             <label class="form-check-label" for="detectHeaders">
                                 <strong>Détecter les en-têtes</strong>
                                 <small class="d-block text-muted">Identifie automatiquement les titres de colonnes</small>
@@ -95,7 +109,11 @@
                         </div>
                         
                         <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="mergeCells" checked>
+                            <input class="form-check-input" type="checkbox" 
+                                   id="mergeCells" 
+                                   name="merge_cells" 
+                                   value="1" 
+                                   checked>
                             <label class="form-check-label" for="mergeCells">
                                 <strong>Fusionner les cellules</strong>
                                 <small class="d-block text-muted">Conserve les cellules fusionnées du tableau original</small>
@@ -103,7 +121,10 @@
                         </div>
                         
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="detectFormulas">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="detectFormulas" 
+                                   name="detect_formulas" 
+                                   value="1">
                             <label class="form-check-label" for="detectFormulas">
                                 <strong>Détecter les formules</strong>
                                 <small class="d-block text-muted">Essaye d'identifier les formules mathématiques</small>
@@ -116,17 +137,27 @@
                     <div class="col-md-6 mb-3">
                         <label for="outputFormat" class="form-label">Format de sortie</label>
                         <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" name="outputFormat" id="format_xlsx" checked>
+                            <input type="radio" class="btn-check" 
+                                   name="outputFormat" 
+                                   id="format_xlsx" 
+                                   value="xlsx" 
+                                   checked>
                             <label class="btn btn-outline-success" for="format_xlsx">
                                 <i class="fas fa-file-excel me-1"></i>XLSX
                             </label>
                             
-                            <input type="radio" class="btn-check" name="outputFormat" id="format_csv">
+                            <input type="radio" class="btn-check" 
+                                   name="outputFormat" 
+                                   id="format_csv" 
+                                   value="csv">
                             <label class="btn btn-outline-success" for="format_csv">
                                 <i class="fas fa-file-csv me-1"></i>CSV
                             </label>
                             
-                            <input type="radio" class="btn-check" name="outputFormat" id="format_json">
+                            <input type="radio" class="btn-check" 
+                                   name="outputFormat" 
+                                   id="format_json" 
+                                   value="json">
                             <label class="btn btn-outline-success" for="format_json">
                                 <i class="fas fa-file-code me-1"></i>JSON
                             </label>
@@ -135,7 +166,7 @@
                     
                     <div class="col-md-6 mb-3">
                         <label for="ocrAccuracy" class="form-label">Précision OCR</label>
-                        <select class="form-select" id="ocrAccuracy">
+                        <select class="form-select" id="ocrAccuracy" name="ocr_accuracy">
                             <option value="high" selected>Haute (lent)</option>
                             <option value="medium">Moyenne (équilibré)</option>
                             <option value="low">Basse (rapide)</option>
@@ -146,7 +177,7 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="numberFormat" class="form-label">Traitement des nombres</label>
-                        <select class="form-select" id="numberFormat">
+                        <select class="form-select" id="numberFormat" name="number_format">
                             <option value="auto" selected>Détection automatique</option>
                             <option value="decimal">Décimal (point)</option>
                             <option value="comma">Décimal (virgule)</option>
@@ -157,7 +188,7 @@
                     
                     <div class="col-md-6 mb-3">
                         <label for="dateFormat" class="form-label">Gestion des dates</label>
-                        <select class="form-select" id="dateFormat">
+                        <select class="form-select" id="dateFormat" name="date_format">
                             <option value="auto" selected>Détection automatique</option>
                             <option value="dd/mm/yyyy">JJ/MM/AAAA</option>
                             <option value="mm/dd/yyyy">MM/JJ/AAAA</option>
@@ -945,3 +976,4 @@ function showError(message) {
 }
 </style>
 {% endblock %}
+
