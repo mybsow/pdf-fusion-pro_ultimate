@@ -664,7 +664,7 @@ def convert_pdf_to_word(file, form_data=None):
 
 
 def convert_pdf_to_excel(file, form_data=None):
-    """Convertit PDF en Excel avec OCR."""
+    """Convertit PDF en Excel avec OCR - Version une seule feuille."""
     try:
         # Vérifier les dépendances OCR
         if pytesseract is None:
@@ -680,56 +680,229 @@ def convert_pdf_to_excel(file, form_data=None):
         if not pages:
             return {'error': 'Aucune page détectée dans le PDF'}
         
-        # Extraire le texte avec OCR
-        all_data = []
+        # Liste pour collecter toutes les données
+        all_tableau_data = []
+        
+        # Traiter chaque page
         for page_num, page_img in enumerate(pages, 1):
             try:
-                # OCR
-                text = pytesseract.image_to_string(page_img, lang='fra+eng')
+                # Convertir l'image PIL en format compatible
+                img = page_img.convert('RGB')
                 
-                if text.strip():
-                    # Diviser en lignes
-                    lines = text.strip().split('\n')
-                    for line_num, line in enumerate(lines, 1):
-                        if line.strip():
-                            all_data.append({
-                                'Page': page_num,
-                                'Ligne': line_num,
-                                'Texte': line.strip()
-                            })
+                # Prétraitement de l'image pour améliorer l'OCR
+                img = preprocess_image_for_ocr(img)
+                
+                # OCR avec données détaillées
+                ocr_data = pytesseract.image_to_data(
+                    img, 
+                    lang='fra+eng', 
+                    output_type=Output.DICT,
+                    config='--psm 6'
+                )
+                
+                # Convertir en DataFrame
+                df_ocr = pd.DataFrame(ocr_data)
+                
+                # Filtrer les lignes avec du texte
+                df_ocr = df_ocr[df_ocr['conf'] > 0]
+                df_ocr['text'] = df_ocr['text'].astype(str).str.strip()
+                df_ocr = df_ocr[df_ocr['text'] != '']
+                
+                if df_ocr.empty:
+                    continue  # Passer à la page suivante
+                
+                # Grouper les mots par lignes
+                lines = {}
+                for idx, row in df_ocr.iterrows():
+                    top = row['top']
+                    left = row['left']
+                    text = row['text']
+                    
+                    # Trouver la ligne la plus proche
+                    found_line = None
+                    for line_top in lines.keys():
+                        if abs(top - line_top) < 10:
+                            found_line = line_top
+                            break
+                    
+                    if found_line is None:
+                        found_line = top
+                    
+                    if found_line not in lines:
+                        lines[found_line] = []
+                    
+                    lines[found_line].append((left, text))
+                
+                # Trier les lignes par position verticale
+                sorted_lines = sorted(lines.items(), key=lambda x: x[0])
+                
+                # Détecter les colonnes
+                column_positions = detect_column_positions(sorted_lines)
+                
+                # Reconstruire le tableau pour cette page
+                page_tableau_data = []
+                
+                for line_top, words in sorted_lines:
+                    # Trier les mots de gauche à droite
+                    words.sort(key=lambda x: x[0])
+                    
+                    # Répartir les mots dans les colonnes
+                    row_data = [''] * len(column_positions)
+                    
+                    for left, text in words:
+                        # Trouver la colonne appropriée
+                        for i, (col_left, col_right) in enumerate(column_positions):
+                            if col_left <= left <= col_right:
+                                if row_data[i]:
+                                    row_data[i] += ' ' + text
+                                else:
+                                    row_data[i] = text
+                                break
+                    
+                    # Ajouter la ligne si elle contient des données
+                    if any(cell.strip() for cell in row_data):
+                        # Ajouter un indicateur de page si c'est la première ligne
+                        if not page_tableau_data:
+                            page_tableau_data.append([f"=== Page {page_num} ==="] + [''] * (len(column_positions) - 1))
+                        page_tableau_data.append(row_data)
+                
+                # Ajouter les données de cette page à l'ensemble
+                all_tableau_data.extend(page_tableau_data)
+                
+                # Ajouter une ligne vide entre les pages (sauf la dernière)
+                if page_num < len(pages) and page_tableau_data:
+                    all_tableau_data.append([''] * len(column_positions))
+                
             except Exception as page_error:
                 current_app.logger.error(f"Erreur page {page_num}: {page_error}")
                 continue
         
-        # Créer DataFrame
-        df = pd.DataFrame(all_data)
+        # Si aucune donnée n'a été extraite
+        if not all_tableau_data:
+            return {'error': 'Aucun texte détecté dans le PDF'}
         
-        if df.empty:
-            df = pd.DataFrame({'Message': ['Aucun texte détecté dans le PDF']})
+        # Identifier les en-têtes (première ligne significative après les titres de page)
+        headers = []
+        data_start = 0
         
-        # Créer Excel
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name='Extraction')
+        for i, row in enumerate(all_tableau_data):
+            row_text = ' '.join([str(cell) for cell in row if cell]).lower()
+            # Rechercher des mots typiques d'en-tête
+            if any(keyword in row_text for keyword in ['réf', 'dsp', 'nom', 'valeur', 'total', 'montant', 'quantité']):
+                headers = all_tableau_data[i]
+                data_start = i + 1
+                break
+        
+        # Créer le DataFrame final
+        if headers:
+            # Filtrer les lignes de données (ignorer les titres de page)
+            data_rows = [row for row in all_tableau_data[data_start:] 
+                        if not any('=== Page' in str(cell) for cell in row)]
             
-            # Ajouter onglet d'infos
-            info_df = pd.DataFrame({
-                'Information': ['Fichier source', 'Date', 'Pages traitées', 'Lignes extraites'],
-                'Valeur': [file.filename, 
-                          datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                          len(pages),
-                          len(df)]
-            })
-            info_df.to_excel(writer, index=False, sheet_name='Infos')
+            # S'assurer que toutes les lignes ont le même nombre de colonnes
+            max_cols = len(headers)
+            for i in range(len(data_rows)):
+                if len(data_rows[i]) < max_cols:
+                    data_rows[i] = data_rows[i] + [''] * (max_cols - len(data_rows[i]))
+                elif len(data_rows[i]) > max_cols:
+                    data_rows[i] = data_rows[i][:max_cols]
+            
+            df_final = pd.DataFrame(data_rows, columns=headers)
+        else:
+            # Créer des noms de colonnes génériques
+            max_cols = max(len(row) for row in all_tableau_data)
+            col_names = [f'Colonne {i+1}' for i in range(max_cols)]
+            
+            # S'assurer que toutes les lignes ont le même nombre de colonnes
+            uniform_data = []
+            for row in all_tableau_data:
+                if len(row) < max_cols:
+                    uniform_data.append(row + [''] * (max_cols - len(row)))
+                elif len(row) > max_cols:
+                    uniform_data.append(row[:max_cols])
+                else:
+                    uniform_data.append(row)
+            
+            df_final = pd.DataFrame(uniform_data, columns=col_names)
+        
+        # Créer Excel avec UNE SEULE FEUILLE
+        output = BytesIO()
+        
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            # Écrire le tableau principal
+            df_final.to_excel(writer, index=False, sheet_name='Données extraites')
+            
+            # Ajouter des statistiques
+            total_pages = len(pages)
+            total_rows = len(df_final)
+            total_cells = total_rows * len(df_final.columns) if total_rows > 0 else 0
+            
+            # Calculer la confiance moyenne si on a les données OCR
+            avg_confidence = "N/A"
+            try:
+                # Essayer de calculer la confiance moyenne
+                confidences = []
+                for page in pages:
+                    img = page.convert('RGB')
+                    ocr_result = pytesseract.image_to_data(img, output_type=Output.DICT, lang='fra+eng')
+                    if 'conf' in ocr_result:
+                        confidences.extend([c for c in ocr_result['conf'] if c > 0])
+                if confidences:
+                    avg_confidence = f"{sum(confidences) / len(confidences):.2f}%"
+            except:
+                pass
+            
+            # Statistiques
+            stats_data = {
+                'Statistique': [
+                    'Fichier source',
+                    'Date d\'extraction', 
+                    'Pages traitées',
+                    'Lignes extraites',
+                    'Colonnes détectées',
+                    'Cellules extraites',
+                    'Confiance moyenne OCR'
+                ],
+                'Valeur': [
+                    file.filename,
+                    datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    total_pages,
+                    total_rows,
+                    len(df_final.columns) if total_rows > 0 else 0,
+                    total_cells,
+                    avg_confidence
+                ]
+            }
+            
+            stats_df = pd.DataFrame(stats_data)
+            
+            # Écrire les statistiques après les données
+            start_row = total_rows + 3  # 2 lignes d'espace
+            stats_df.to_excel(
+                writer, 
+                index=False, 
+                startrow=start_row, 
+                sheet_name='Données extraites', 
+                header=False
+            )
+            
+            # Ajouter une note explicative
+            note_row = start_row + len(stats_df) + 2
+            worksheet = writer.sheets['Données extraites']
+            worksheet.cell(row=note_row, column=1, value="Note:")
+            worksheet.cell(row=note_row + 1, column=1, 
+                          value="Les données de plusieurs pages sont fusionnées dans cette feuille.")
         
         output.seek(0)
         
         filename = f"{os.path.splitext(file.filename)[0]}.xlsx"
         
-        return send_file(output,
-                        as_attachment=True,
-                        download_name=filename,
-                        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        return send_file(
+            output,
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
         
     except Exception as e:
         current_app.logger.error(f"Erreur PDF->Excel: {str(e)}\n{traceback.format_exc()}")
