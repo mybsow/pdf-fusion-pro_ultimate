@@ -1,0 +1,70 @@
+/* =================================
+   Upload Zone PRO — PDF Fusion Style
+================================= */
+
+.upload-zone-pro {
+    border: 2px dashed #d6dbe6;
+    border-radius: 14px;
+    padding: 55px 25px;
+    text-align: center;
+    cursor: pointer;
+    background: #fafbff;
+    transition: all 0.25s ease;
+    position: relative;
+}
+
+/* Hover */
+.upload-zone-pro:hover {
+    border-color: #4a6cf7;
+    background: #f4f7ff;
+    transform: translateY(-2px);
+}
+
+/* Drag actif */
+.upload-zone-pro.drag-active {
+    border-color: #4a6cf7;
+    background: #eef3ff;
+    box-shadow: 0 8px 25px rgba(74,108,247,0.12);
+}
+
+/* Quand fichier chargé */
+.upload-zone-pro.has-file {
+    border-style: solid;
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+
+/* Inner */
+.upload-inner {
+    pointer-events: none;
+}
+
+/* Icon */
+.upload-zone-pro .upload-icon {
+    font-size: 52px;
+    color: #4a6cf7;
+    margin-bottom: 18px;
+}
+
+/* Title */
+.upload-title {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+/* Subtitle */
+.upload-subtitle {
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+.upload-link {
+    color: #4a6cf7;
+    font-weight: 600;
+}
+
+/* Info */
+.upload-info {
+    font-size: 13px;
+    color: #9aa3b2;
+}

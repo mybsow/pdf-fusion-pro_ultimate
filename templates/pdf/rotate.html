@@ -2,308 +2,52 @@
 
 {% block title %}Tourner PDF - Corriger l'orientation des pages PDF{% endblock %}
 
-{% block description %}Tournez les pages de vos PDFs à 90°, 180° ou 270°. Corrigez l'orientation de documents scannés facilement.{% endblock %}
+{% block description %}Tournez les pages de vos PDFs à 90°, 180° ou 270° facilement.{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
 <section class="hero-section">
     <div class="container text-center">
         <h1 class="hero-title">Tourner des fichiers PDF</h1>
-        <p class="hero-subtitle">
-            Corrigez l'orientation de vos documents PDF en quelques clics.
-            <br>Faites pivoter des pages spécifiques ou l'ensemble du document.
-        </p>
     </div>
 </section>
 
-<!-- Rotation Tool -->
 <div class="tool-container">
-    <div class="tool-header">
-        <h3><i class="fas fa-sync-alt me-2"></i>Tourner un fichier PDF</h3>
-        <p class="text-muted mb-0">Faites pivoter des pages spécifiques ou l'ensemble du document</p>
+    <div class="upload-zone-pro" id="rotateUploadZone">
+        <div class="upload-inner">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h4 class="upload-title">Déposez votre PDF ici</h4>
+            <p class="upload-subtitle">Glissez-déposez ou cliquez pour parcourir</p>
+        </div>
+        <input type="file" id="rotateFileInput" accept=".pdf" hidden>
     </div>
-    <div class="tool-content">
-        <div class="upload-zone" id="rotateUploadZone" onclick="document.getElementById('rotateFileInput').click()">
-            <div class="upload-icon">
-                <i class="fas fa-file-pdf"></i>
-            </div>
-            <div class="upload-text">
-                <h4>Sélectionnez un fichier PDF à tourner</h4>
-                <p>Glissez-déposez ou cliquez pour choisir (max 50MB)</p>
-            </div>
-            <input type="file" id="rotateFileInput" accept=".pdf" style="display: none;" onchange="handleRotateFile(this.files)">
-        </div>
-        
-        <div class="file-list" id="rotateFileInfo"></div>
-        
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label class="form-label">Pages à tourner</label>
-                    <input type="text" class="form-control" id="rotatePages" 
-                           placeholder="Ex: 1,3-5 ou laissez 'all' pour toutes">
-                    <small class="text-muted">
-                        Format: numéros séparés par des virgules, plages avec tiret.
-                        <br>Ex: "1,3-5,8" pour les pages 1, 3, 4, 5 et 8.
-                        <br>Laissez "all" (ou vide) pour toutes les pages.
-                    </small>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label class="form-label">Angle de rotation</label>
-                    <div class="btn-group w-100" role="group">
-                        <input type="radio" class="btn-check" name="rotateAngle" id="angle90" value="90" checked>
-                        <label class="btn btn-outline-primary" for="angle90">
-                            <i class="fas fa-redo"></i> 90°
-                        </label>
-                        
-                        <input type="radio" class="btn-check" name="rotateAngle" id="angle180" value="180">
-                        <label class="btn btn-outline-primary" for="angle180">
-                            <i class="fas fa-undo"></i> 180°
-                        </label>
-                        
-                        <input type="radio" class="btn-check" name="rotateAngle" id="angle270" value="270">
-                        <label class="btn btn-outline-primary" for="angle270">
-                            <i class="fas fa-redo-alt"></i> 270°
-                        </label>
-                        
-                        <input type="radio" class="btn-check" name="rotateAngle" id="angleMinus90" value="-90">
-                        <label class="btn btn-outline-primary" for="angleMinus90">
-                            <i class="fas fa-undo-alt"></i> -90°
-                        </label>
-                    </div>
-                    <small class="text-muted mt-2 d-block">
-                        90° et -90°: Rotation quart de tour
-                        <br>180°: Demi-tour (retournement)
-                    </small>
-                </div>
-            </div>
-        </div>
-        
-        <div class="alert alert-info">
-            <i class="fas fa-info-circle me-2"></i>
-            <strong>À savoir :</strong>
-            <ul class="mb-0 mt-2">
-                <li>La rotation est réversible - vous pouvez toujours annuler la rotation</li>
-                <li>Les métadonnées et la qualité du PDF sont préservées</li>
-                <li>Vous pouvez tourner des pages spécifiques sans affecter les autres</li>
-                <li>Parfait pour corriger des documents mal scannés</li>
-            </ul>
-        </div>
-        
-        <div class="action-buttons">
-            <button class="btn btn-primary btn-lg" onclick="processRotate()" id="rotateButton" disabled>
-                <i class="fas fa-sync-alt me-2"></i>Tourner le PDF
-            </button>
-            <button class="btn btn-outline btn-lg" onclick="resetRotateForm()">
-                <i class="fas fa-redo me-2"></i>Réinitialiser
-            </button>
-        </div>
-        
-        <div class="mt-4 pt-3 border-top">
-            <h5><i class="fas fa-question-circle me-2"></i>Quand utiliser la rotation PDF ?</h5>
-            <div class="row mt-3">
-                <div class="col-md-4">
-                    <div class="card border-0 bg-light">
-                        <div class="card-body text-center">
-                            <div class="text-primary mb-3">
-                                <i class="fas fa-camera fa-2x"></i>
-                            </div>
-                            <h6>Documents scannés</h6>
-                            <p class="small text-muted">Corrigez l'orientation de documents mal scannés</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-0 bg-light">
-                        <div class="card-body text-center">
-                            <div class="text-success mb-3">
-                                <i class="fas fa-mobile-alt fa-2x"></i>
-                            </div>
-                            <h6>Photos mobiles</h6>
-                            <p class="small text-muted">Redressez des photos prises en mode portrait/ paysage</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-0 bg-light">
-                        <div class="card-body text-center">
-                            <div class="text-warning mb-3">
-                                <i class="fas fa-file-image fa-2x"></i>
-                            </div>
-                            <h6>Présentations</h6>
-                            <p class="small text-muted">Ajustez l'orientation pour l'impression ou la présentation</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+    <div class="file-list" id="rotateFileInfo"></div>
+
+    <div class="action-buttons mt-3">
+        <button class="btn btn-primary btn-lg" id="rotateButton" disabled>
+            <i class="fas fa-sync-alt me-2"></i>Tourner le PDF
+        </button>
+        <button class="btn btn-outline btn-lg" id="rotateClearButton">
+            <i class="fas fa-redo me-2"></i>Réinitialiser
+        </button>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pages/rotate-pdf.js') }}"></script>
 <script>
-// State for rotate page
-let rotateState = {
-    file: null
-};
-
-// File Upload Handler
-function handleRotateFile(files) {
-    if (!files || files.length === 0) return;
-    
-    const file = files[0];
-    
-    if (file.type !== 'application/pdf') {
-        showToast('error', 'Format invalide', 'Veuillez sélectionner un fichier PDF.');
-        return;
+UploadManager.init({
+    id: 'rotate',
+    multiple: false,
+    maxSizeMB: 50,
+    onChange: (files) => {
+        document.getElementById('rotateButton').disabled = files.length === 0;
     }
-
-    if (file.size > 50 * 1024 * 1024) {
-        showToast('error', 'Fichier trop volumineux', 'La taille maximale est de 50MB.');
-        return;
-    }
-
-    rotateState.file = file;
-    updateRotateFileInfo();
-    updateRotateButton();
-}
-
-// Update File Info
-function updateRotateFileInfo() {
-    const container = document.getElementById('rotateFileInfo');
-    if (!container || !rotateState.file) {
-        container.innerHTML = '';
-        return;
-    }
-
-    const file = rotateState.file;
-    container.innerHTML = `
-        <div class="file-item">
-            <div class="file-info">
-                <div class="file-icon">
-                    <i class="fas fa-file-pdf"></i>
-                </div>
-                <div class="file-details">
-                    <h6>${escapeHtml(file.name)}</h6>
-                    <small>${formatFileSize(file.size)}</small>
-                </div>
-            </div>
-            <div class="file-actions">
-                <button class="btn btn-sm btn-outline-danger" onclick="clearRotateFile()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-// Clear File
-function clearRotateFile() {
-    rotateState.file = null;
-    updateRotateFileInfo();
-    updateRotateButton();
-    document.getElementById('rotateFileInput').value = '';
-}
-
-function resetRotateForm() {
-    clearRotateFile();
-    document.getElementById('rotatePages').value = '';
-    document.querySelector('input[name="rotateAngle"]:checked').checked = false;
-    document.getElementById('angle90').checked = true;
-}
-
-// Update Button
-function updateRotateButton() {
-    document.getElementById('rotateButton').disabled = !rotateState.file;
-}
-
-// Process Rotation
-async function processRotate() {
-    if (!rotateState.file) {
-        showToast('error', 'Aucun fichier', 'Veuillez sélectionner un fichier PDF.');
-        return;
-    }
-
-    const pages = document.getElementById('rotatePages').value.trim() || 'all';
-    const angleElement = document.querySelector('input[name="rotateAngle"]:checked');
-    
-    if (!angleElement) {
-        showToast('error', 'Angle manquant', 'Veuillez sélectionner un angle de rotation.');
-        return;
-    }
-    
-    const angle = parseInt(angleElement.value);
-
-    if (pages !== 'all' && !/^[\d,\-\s]+$/.test(pages)) {
-        showToast('error', 'Format invalide', 'Format des pages invalide. Utilisez: all, 1,3-5, ou 1,4,8');
-        return;
-    }
-
-    showLoader('Rotation des pages PDF...');
-
-    try {
-        const base64 = await fileToBase64(rotateState.file);
-
-        const response = await fetch('/api/rotate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                file: { data: base64 },
-                pages: pages,
-                angle: angle
-            })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            downloadFile(result.data, result.filename, 'application/pdf');
-            showToast('success', 'Succès', result.rotated + ' pages tournées sur ' + result.pages + ' totales');
-            loadStats();
-        } else {
-            showToast('error', 'Erreur', result.error || 'Erreur lors de la rotation');
-        }
-    } catch (error) {
-        showToast('error', 'Erreur', 'Impossible de tourner le fichier');
-        console.error('Rotate error:', error);
-    } finally {
-        hideLoader();
-    }
-}
-
-// Drag & Drop Setup
-function setupDragAndDrop() {
-    const zone = document.getElementById('rotateUploadZone');
-    if (!zone) return;
-
-    zone.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        zone.classList.add('drag-over');
-    });
-
-    zone.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        zone.classList.remove('drag-over');
-    });
-
-    zone.addEventListener('drop', function(e) {
-        e.preventDefault();
-        zone.classList.remove('drag-over');
-        handleRotateFile(e.dataTransfer.files);
-    });
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    setupDragAndDrop();
-    
-    // Make functions globally available
-    window.clearRotateFile = clearRotateFile;
-    window.resetRotateForm = resetRotateForm;
-    window.processRotate = processRotate;
+});
+document.getElementById('rotateClearButton').addEventListener('click', () => {
+    UploadManager.clearFile('rotate');
 });
 </script>
 {% endblock %}

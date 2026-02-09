@@ -5,7 +5,6 @@
 {% block description %}Fusionnez gratuitement plusieurs fichiers PDF en un seul document organisé. Interface intuitive, rapide et sécurisée. Aucune inscription requise.{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
 <section class="hero-section">
     <h1 class="hero-title">Fusionner des fichiers PDF</h1>
     <p class="hero-subtitle">
@@ -14,255 +13,57 @@
     </p>
 </section>
 
-<!-- Fusionner Tool -->
 <div class="tool-container active">
     <div class="tool-header">
         <h3><i class="fas fa-object-group me-2"></i>Fusionner des fichiers PDF</h3>
         <p class="text-muted mb-0">Glissez-déposez vos PDFs dans l'ordre souhaité</p>
     </div>
     <div class="tool-content">
-        <div class="upload-zone" id="mergeUploadZone" onclick="document.getElementById('mergeFileInput').click()">
-            <div class="upload-icon">
-                <i class="fas fa-cloud-upload-alt"></i>
-            </div>
-            <div class="upload-text">
-                <h4>Glissez-déposez vos fichiers PDF</h4>
-                <p>ou cliquez pour sélectionner (max 10 fichiers, 50MB chacun)</p>
-                <p class="small text-muted mt-2">
-                    <i class="fas fa-info-circle me-1"></i>
-                    Les fichiers seront fusionnés dans l'ordre d'ajout
+
+        <div class="upload-zone-pro" id="mergeUploadZone">
+            <div class="upload-inner">
+                <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                <h4 class="upload-title">Déposez vos fichiers PDF</h4>
+                <p class="upload-subtitle">
+                    Glissez-déposez vos fichiers ou
+                    <span class="upload-link">cliquez pour parcourir</span>
                 </p>
+                <div class="upload-info">Maximum 10 fichiers • 50MB chacun</div>
             </div>
-            <input type="file" id="mergeFileInput" accept=".pdf" multiple style="display: none;" onchange="handleMergeFiles(this.files)">
+            <input type="file" id="mergeFileInput" accept=".pdf" multiple hidden>
         </div>
-        
+
         <div class="file-list" id="mergeFileList"></div>
-        
-        <div class="alert alert-info">
-            <i class="fas fa-lightbulb me-2"></i>
-            <strong>Conseil :</strong> Vous pouvez réorganiser les fichiers en supprimant et réajoutant dans l'ordre souhaité.
-            Le premier fichier ajouté deviendra la première page du PDF fusionné.
-        </div>
-        
-        <div class="action-buttons">
-            <button class="btn btn-primary btn-lg" onclick="processMerge()" id="mergeButton" disabled>
+
+        <div class="preview-container d-flex flex-wrap mt-3" id="mergePreviewGrid"></div>
+
+        <div class="action-buttons mt-3">
+            <button class="btn btn-primary btn-lg" id="mergeButton" disabled>
                 <i class="fas fa-magic me-2"></i>Fusionner les PDFs
             </button>
-            <button class="btn btn-outline btn-lg" onclick="clearMergeFiles()">
+            <button class="btn btn-outline btn-lg" id="mergeClearButton">
                 <i class="fas fa-trash me-2"></i>Effacer la liste
             </button>
-        </div>
-        
-        <div class="mt-4 pt-3 border-top">
-            <h5><i class="fas fa-question-circle me-2"></i>Comment ça marche ?</h5>
-            <ol class="mt-3">
-                <li class="mb-2">Ajoutez vos fichiers PDF (jusqu'à 10)</li>
-                <li class="mb-2">Organisez-les dans l'ordre souhaité</li>
-                <li class="mb-2">Cliquez sur "Fusionner les PDFs"</li>
-                <li>Téléchargez votre document fusionné</li>
-            </ol>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pages/merge-pdf.js') }}"></script>
 <script>
-// State for merge page
-let mergeState = {
-    files: []
-};
-
-// File Upload Handler
-function handleMergeFiles(files) {
-    const newFiles = Array.from(files).filter(file => 
-        file.type === 'application/pdf' && file.size <= 50 * 1024 * 1024
-    );
-    
-    if (newFiles.length === 0) {
-        showToast('error', 'Format invalide', 'Seuls les fichiers PDF de moins de 50MB sont acceptés.');
-        return;
+UploadManager.init({
+    id: 'merge',
+    multiple: true,
+    maxFiles: 10,
+    maxSizeMB: 50,
+    onChange: (files) => {
+        document.getElementById('mergeButton').disabled = files.length === 0;
     }
-
-    mergeState.files = mergeState.files.concat(newFiles);
-    if (mergeState.files.length > 10) {
-        mergeState.files = mergeState.files.slice(0, 10);
-        showToast('warning', 'Limite atteinte', 'Maximum 10 fichiers autorisés.');
-    }
-
-    updateMergeFileList();
-    updateMergeButton();
-}
-
-// Update File List
-function updateMergeFileList() {
-    const container = document.getElementById('mergeFileList');
-    if (!container) return;
-
-    if (mergeState.files.length === 0) {
-        container.innerHTML = '';
-        return;
-    }
-
-    container.innerHTML = mergeState.files.map((file, index) => `
-        <div class="file-item">
-            <div class="file-info">
-                <div class="file-icon">
-                    <i class="fas fa-file-pdf"></i>
-                </div>
-                <div class="file-details">
-                    <h6>${escapeHtml(file.name)}</h6>
-                    <small>${formatFileSize(file.size)} • ${file.pages || '?'} pages</small>
-                </div>
-            </div>
-            <div class="file-actions">
-                <div class="btn-group">
-                    <button class="btn btn-sm btn-outline" onclick="moveFileUp(${index})" ${index === 0 ? 'disabled' : ''}>
-                        <i class="fas fa-arrow-up"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline" onclick="moveFileDown(${index})" ${index === mergeState.files.length - 1 ? 'disabled' : ''}>
-                        <i class="fas fa-arrow-down"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="removeMergeFile(${index})">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-// File Management
-function removeMergeFile(index) {
-    mergeState.files.splice(index, 1);
-    updateMergeFileList();
-    updateMergeButton();
-}
-
-function moveFileUp(index) {
-    if (index > 0) {
-        const temp = mergeState.files[index];
-        mergeState.files[index] = mergeState.files[index - 1];
-        mergeState.files[index - 1] = temp;
-        updateMergeFileList();
-    }
-}
-
-function moveFileDown(index) {
-    if (index < mergeState.files.length - 1) {
-        const temp = mergeState.files[index];
-        mergeState.files[index] = mergeState.files[index + 1];
-        mergeState.files[index + 1] = temp;
-        updateMergeFileList();
-    }
-}
-
-function clearMergeFiles() {
-    mergeState.files = [];
-    updateMergeFileList();
-    updateMergeButton();
-    document.getElementById('mergeFileInput').value = '';
-}
-
-// Button Update
-function updateMergeButton() {
-    const button = document.getElementById('mergeButton');
-    button.disabled = mergeState.files.length === 0;
-}
-
-// Process Merge
-async function processMerge() {
-    if (mergeState.files.length === 0) {
-        showToast('error', 'Aucun fichier', 'Veuillez sélectionner au moins un fichier PDF.');
-        return;
-    }
-
-    showLoader('Fusion des fichiers PDF...');
-
-    try {
-        const filesData = await Promise.all(
-            mergeState.files.map(async file => ({
-                data: await fileToBase64(file)
-            }))
-        );
-
-        const response = await fetch('/api/merge', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ files: filesData })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            downloadFile(result.data, result.filename, 'application/pdf');
-            showToast('success', 'Succès', result.pages + ' pages fusionnées avec succès');
-            loadStats();
-        } else {
-            showToast('error', 'Erreur', result.error || 'Erreur lors de la fusion');
-        }
-    } catch (error) {
-        showToast('error', 'Erreur', 'Impossible de fusionner les fichiers');
-        console.error('Merge error:', error);
-    } finally {
-        hideLoader();
-    }
-}
-
-// Utility function
-function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            const base64 = reader.result.split(',')[1];
-            resolve(base64);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
-
-function downloadFile(base64, filename, mimeType) {
-    const link = document.createElement('a');
-    link.href = `data:${mimeType};base64,${base64}`;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-// Drag & Drop Setup
-function setupDragAndDrop() {
-    const zone = document.getElementById('mergeUploadZone');
-    if (!zone) return;
-
-    zone.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        zone.classList.add('drag-over');
-    });
-
-    zone.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        zone.classList.remove('drag-over');
-    });
-
-    zone.addEventListener('drop', function(e) {
-        e.preventDefault();
-        zone.classList.remove('drag-over');
-        handleMergeFiles(e.dataTransfer.files);
-    });
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    setupDragAndDrop();
-    
-    // Make functions globally available
-    window.removeMergeFile = removeMergeFile;
-    window.clearMergeFiles = clearMergeFiles;
-    window.moveFileUp = moveFileUp;
-    window.moveFileDown = moveFileDown;
-    window.processMerge = processMerge;
+});
+document.getElementById('mergeClearButton').addEventListener('click', () => {
+    UploadManager.clearFile('merge');
 });
 </script>
 {% endblock %}
