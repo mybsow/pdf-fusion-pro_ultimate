@@ -6,15 +6,14 @@ import io
 import base64
 import zipfile
 import os
-import json
 from datetime import datetime
-from flask import render_template, jsonify, request, Response, session, redirect
+from flask import render_template, jsonify, request
 from . import pdf_bp
 from config import AppConfig
 from .engine import PDFEngine
+from managers.stats_manager import stats_manager
 from managers.contact_manager import contact_manager
 from managers.rating_manager import rating_manager
-from managers.stats_manager import stats_manager
 from utils.middleware import setup_middleware
 
 
@@ -99,7 +98,6 @@ def api_merge():
         if not isinstance(files_b64, list):
             return jsonify({"error": "Format de fichiers invalide"}), 400
         
-        # Décodage des PDFs
         pdfs = []
         for file_data in files_b64:
             if "data" in file_data:
@@ -111,7 +109,6 @@ def api_merge():
         if not pdfs:
             return jsonify({"error": "Aucun PDF valide fourni"}), 400
         
-        # Fusion
         merged_pdf, page_count = PDFEngine.merge(pdfs)
         stats_manager.increment("merges")
         
@@ -125,6 +122,7 @@ def api_merge():
     except Exception as e:
         return jsonify({"error": "Erreur interne du serveur"}), 500
 
+
 @pdf_bp.route('/api/split', methods=["POST"])
 def api_split():
     """API pour diviser un PDF"""
@@ -137,7 +135,6 @@ def api_split():
         if "data" not in file_data:
             return jsonify({"error": "Données du fichier manquantes"}), 400
         
-        # Décodage
         try:
             pdf_bytes = base64.b64decode(file_data["data"])
         except (base64.binascii.Error, TypeError):
@@ -146,11 +143,9 @@ def api_split():
         mode = data.get("mode", "all")
         arg = data.get("arg", "")
         
-        # Division
         split_files = PDFEngine.split(pdf_bytes, mode, arg)
         stats_manager.increment("splits")
         
-        # Préparation des résultats
         result_files = []
         for i, pdf_data in enumerate(split_files):
             result_files.append({
@@ -167,6 +162,7 @@ def api_split():
     except Exception as e:
         return jsonify({"error": "Erreur interne du serveur"}), 500
 
+
 @pdf_bp.route('/api/split_zip', methods=["POST"])
 def api_split_zip():
     """API pour diviser un PDF et retourner un ZIP"""
@@ -179,7 +175,6 @@ def api_split_zip():
         if "data" not in file_data:
             return jsonify({"error": "Données du fichier manquantes"}), 400
         
-        # Décodage
         try:
             pdf_bytes = base64.b64decode(file_data["data"])
         except (base64.binascii.Error, TypeError):
@@ -188,11 +183,9 @@ def api_split_zip():
         mode = data.get("mode", "all")
         arg = data.get("arg", "")
         
-        # Division
         split_files = PDFEngine.split(pdf_bytes, mode, arg)
         stats_manager.increment("splits")
         
-        # Création du ZIP
         zip_data, zip_name = PDFEngine.create_zip(split_files)
         
         return jsonify({
@@ -204,6 +197,7 @@ def api_split_zip():
     
     except Exception as e:
         return jsonify({"error": "Erreur interne du serveur"}), 500
+
 
 @pdf_bp.route('/api/rotate', methods=["POST"])
 def api_rotate():
@@ -217,7 +211,6 @@ def api_rotate():
         if "data" not in file_data:
             return jsonify({"error": "Données du fichier manquantes"}), 400
         
-        # Décodage
         try:
             pdf_bytes = base64.b64decode(file_data["data"])
         except (base64.binascii.Error, TypeError):
@@ -226,7 +219,6 @@ def api_rotate():
         angle = int(data.get("angle", 90))
         pages = data.get("pages", "all")
         
-        # Rotation
         rotated_pdf, total_pages, rotated_count = PDFEngine.rotate(pdf_bytes, angle, pages)
         stats_manager.increment("rotations")
         
@@ -241,6 +233,7 @@ def api_rotate():
     except Exception as e:
         return jsonify({"error": "Erreur interne du serveur"}), 500
 
+
 @pdf_bp.route('/api/compress', methods=["POST"])
 def api_compress():
     """API pour compresser un PDF"""
@@ -253,13 +246,11 @@ def api_compress():
         if "data" not in file_data:
             return jsonify({"error": "Données du fichier manquantes"}), 400
         
-        # Décodage
         try:
             pdf_bytes = base64.b64decode(file_data["data"])
         except (base64.binascii.Error, TypeError):
             return jsonify({"error": "Format Base64 invalide"}), 400
         
-        # Compression
         compressed_pdf, page_count = PDFEngine.compress(pdf_bytes)
         stats_manager.increment("compressions")
         
@@ -273,6 +264,7 @@ def api_compress():
     except Exception as e:
         return jsonify({"error": "Erreur interne du serveur"}), 500
 
+
 @pdf_bp.route('/api/preview', methods=["POST"])
 def api_preview():
     """API pour générer des aperçus de PDF"""
@@ -285,13 +277,11 @@ def api_preview():
         if "data" not in file_data:
             return jsonify({"error": "Données du fichier manquantes"}), 400
         
-        # Décodage
         try:
             pdf_bytes = base64.b64decode(file_data["data"])
         except (base64.binascii.Error, TypeError):
             return jsonify({"error": "Format Base64 invalide"}), 400
         
-        # Génération des aperçus
         previews, total_pages = PDFEngine.preview(pdf_bytes)
         stats_manager.increment("previews")
         
@@ -303,6 +293,7 @@ def api_preview():
     
     except Exception as e:
         return jsonify({"error": "Erreur interne du serveur"}), 500
+
 
 @pdf_bp.route('/health')
 def health_check():
@@ -326,6 +317,7 @@ def health_check():
         "user_sessions": stats_manager.get_stat("user_sessions", 0)
     })
 
+
 @pdf_bp.route('/api/rating', methods=["POST"])
 def api_rating():
     """API pour enregistrer les évaluations"""
@@ -337,8 +329,6 @@ def api_rating():
         rating = data.get("rating", 0)
         feedback = data.get("feedback", "")
         
-        print(f"Évaluation reçue: {rating} étoiles - Feedback: {feedback}")
-        
         # Enregistrer dans les statistiques
         stats_manager.increment("ratings")
         
@@ -349,10 +339,12 @@ def api_rating():
         })
     
     except Exception as e:
-        print(f"Erreur lors de l'enregistrement de l'évaluation: {e}")
         return jsonify({"error": "Erreur interne du serveur"}), 500
 
 
+# ============================================================
+# UTILITAIRES
+# ============================================================
 def get_rating_html():
     """Génère le HTML pour le système d'évaluation"""
     return '''
