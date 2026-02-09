@@ -53,6 +53,7 @@ class UploadManager {
             }
         });
         this.updateFileList();
+        this.updateThumbnails();
         this.updateButton();
     }
 
@@ -135,6 +136,52 @@ class UploadManager {
             reader.readAsDataURL(file);
         });
     }
+
+    updateThumbnails() {
+    const thumbsContainer = document.getElementById(this.zone.id + 'Thumbnails');
+    if (!thumbsContainer) return;
+
+    thumbsContainer.innerHTML = ''; // reset
+
+    this.files.forEach((file, index) => {
+        if (file.type !== 'application/pdf') return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const pdfData = new Uint8Array(e.target.result);
+
+            pdfjsLib.getDocument({data: pdfData}).promise.then(pdf => {
+                pdf.getPage(1).then(page => {
+                    const viewport = page.getViewport({scale: 0.2});
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+
+                    page.render({canvasContext: context, viewport: viewport}).promise.then(() => {
+                        canvas.dataset.index = index;
+                        thumbsContainer.appendChild(canvas);
+                    });
+                });
+            });
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    // Activer le drag & drop avec Sortable.js
+    if (typeof Sortable !== 'undefined') {
+        Sortable.create(thumbsContainer, {
+            animation: 150,
+            onEnd: (evt) => {
+                // Réordonner this.files selon le drag & drop
+                const movedItem = this.files.splice(evt.oldIndex, 1)[0];
+                this.files.splice(evt.newIndex, 0, movedItem);
+                this.updateFileList(); // Mettre à jour la liste
+            }
+        });
+    }
+}
+
 }
 
 // Initialisation globale

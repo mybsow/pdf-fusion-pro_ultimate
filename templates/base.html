@@ -186,6 +186,31 @@
             }
         }
     </style>
+
+    {% block extra_css %}
+    <style>
+    /* Conteneur pour les miniatures PDF */
+    .upload-thumbnails {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
+
+    .upload-thumbnails canvas {
+        width: 100px;
+        height: auto;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        cursor: grab;
+    }
+
+    .upload-thumbnails canvas.dragging {
+        opacity: 0.5;
+    }
+    </style>
+    {% endblock %}
+
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -535,6 +560,10 @@
 <!-- ================= SCRIPTS ================= -->
 <!-- Bootstrap Bundle avec Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- PDF.js et Sortable.js requis pour les miniatures et drag&drop -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.12.313/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
 <!-- Script principal -->
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
