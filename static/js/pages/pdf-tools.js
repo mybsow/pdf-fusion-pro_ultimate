@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const tools = ['merge', 'split', 'compress', 'rotate'];
+
     tools.forEach(tool => {
         const button = document.getElementById(`${tool}Button`);
         const pagesInput = document.getElementById(`${tool}Pages`);
@@ -14,35 +15,59 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!button) return;
 
         button.addEventListener('click', async () => {
-            const files = window.uploadManagers[`${tool}UploadZone`].getFiles();
-            if (!files.length) return;
+            const uploadManager = window.uploadManagers[`${tool}UploadZone`];
+            if (!uploadManager) return;
+
+            const files = uploadManager.getFiles();
+            if (!files.length) {
+                alert("Veuillez sélectionner au moins un fichier PDF.");
+                return;
+            }
 
             toggleLoader(true);
-            const formData = new FormData();
-
-            files.forEach(f => formData.append('files', f));
-            if (tool === 'split' || tool === 'rotate') {
-                formData.append('pages', pagesInput?.value || 'all');
-            }
-            if (tool === 'rotate') {
-                const angle = document.querySelector('input[name="rotateAngle"]:checked').value;
-                formData.append('angle', angle);
-            }
 
             try {
+                const formData = new FormData();
+                files.forEach(f => formData.append('files', f));
+
+                if (tool === 'split' || tool === 'rotate') {
+                    formData.append('pages', pagesInput?.value || 'all');
+                }
+
+                if (tool === 'rotate') {
+                    const angle = document.querySelector('input[name="rotateAngle"]:checked').value;
+                    formData.append('angle', angle);
+                }
+
+                // Requête POST vers ton endpoint
                 const res = await fetch(`/pdf/${tool}`, { method: 'POST', body: formData });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(text || 'Erreur serveur inconnue');
+                }
+
                 const blob = await res.blob();
+
+                // Téléchargement automatique
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = tool === 'merge' ? 'merged.pdf'
-                                : tool === 'split' ? 'split.pdf'
-                                : tool === 'compress' ? 'compressed.pdf'
-                                : 'rotated.pdf';
+
+                const defaultNames = {
+                    merge: 'merged.pdf',
+                    split: 'split.pdf',
+                    compress: 'compressed.pdf',
+                    rotate: 'rotated.pdf'
+                };
+                a.download = defaultNames[tool] || 'file.pdf';
+
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
+
             } catch (err) {
+                console.error(err);
                 alert(`Erreur lors du traitement : ${err.message}`);
             } finally {
                 toggleLoader(false);
