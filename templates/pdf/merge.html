@@ -1,69 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}Fusionner PDF - Outil gratuit pour combiner des fichiers PDF{% endblock %}
-
-{% block description %}Fusionnez gratuitement plusieurs fichiers PDF en un seul document organisé. Interface intuitive, rapide et sécurisée. Aucune inscription requise.{% endblock %}
+{% block title %}Fusionner PDF - PDF Fusion Pro{% endblock %}
+{% block description %}Fusionnez plusieurs fichiers PDF en un seul document, facilement et rapidement.{% endblock %}
 
 {% block content %}
-<section class="hero-section">
-    <h1 class="hero-title">Fusionner des fichiers PDF</h1>
-    <p class="hero-subtitle">
-        Combine plusieurs PDF en un seul document organisé. Simple, rapide et 100% gratuit.
-        <br>Vos fichiers ne sont jamais uploadés sur nos serveurs.
-    </p>
+<section class="hero-section text-center">
+    <h1>Fusionner plusieurs PDF</h1>
+    <p>Déposez vos fichiers PDF et obtenez un document unique fusionné.</p>
 </section>
 
-<div class="tool-container active">
-    <div class="tool-header">
-        <h3><i class="fas fa-object-group me-2"></i>Fusionner des fichiers PDF</h3>
-        <p class="text-muted mb-0">Glissez-déposez vos PDFs dans l'ordre souhaité</p>
+<div class="tool-container">
+    <div class="upload-zone-pro" id="mergeUploadZone" data-info-id="mergeFileInfo" data-btn-id="mergeButton">
+        <div class="upload-inner">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h4 class="upload-title">Déposez vos PDF ici</h4>
+            <p class="upload-subtitle">Glissez-déposez vos fichiers ou cliquez pour parcourir</p>
+            <div class="upload-info">PDF uniquement • Taille max : 50MB</div>
+        </div>
+        <input type="file" accept=".pdf" multiple style="display:none;">
     </div>
-    <div class="tool-content">
 
-        <div class="upload-zone-pro" id="mergeUploadZone">
-            <div class="upload-inner">
-                <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                <h4 class="upload-title">Déposez vos fichiers PDF</h4>
-                <p class="upload-subtitle">
-                    Glissez-déposez vos fichiers ou
-                    <span class="upload-link">cliquez pour parcourir</span>
-                </p>
-                <div class="upload-info">Maximum 10 fichiers • 50MB chacun</div>
-            </div>
-            <input type="file" id="mergeFileInput" accept=".pdf" multiple hidden>
-        </div>
+    <div id="mergeFileInfo" class="file-list"></div>
 
-        <div class="file-list" id="mergeFileList"></div>
-
-        <div class="preview-container d-flex flex-wrap mt-3" id="mergePreviewGrid"></div>
-
-        <div class="action-buttons mt-3">
-            <button class="btn btn-primary btn-lg" id="mergeButton" disabled>
-                <i class="fas fa-magic me-2"></i>Fusionner les PDFs
-            </button>
-            <button class="btn btn-outline btn-lg" id="mergeClearButton">
-                <i class="fas fa-trash me-2"></i>Effacer la liste
-            </button>
-        </div>
+    <div class="action-buttons mt-3">
+        <button class="btn btn-primary btn-lg" id="mergeButton" disabled>
+            <i class="fas fa-object-group me-2"></i>Fusionner les PDF
+        </button>
+        <button class="btn btn-outline btn-lg" onclick="window.uploadManagers.mergeUploadZone.removeFile(0)">
+            <i class="fas fa-redo me-2"></i>Réinitialiser
+        </button>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
-<script src="{{ url_for('static', filename='js/pages/merge-pdf.js') }}"></script>
-<script>
-UploadManager.init({
-    id: 'merge',
-    multiple: true,
-    maxFiles: 10,
-    maxSizeMB: 50,
-    onChange: (files) => {
-        document.getElementById('mergeButton').disabled = files.length === 0;
-    }
-});
-document.getElementById('mergeClearButton').addEventListener('click', () => {
-    UploadManager.clearFile('merge');
-});
-</script>
+<script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
 {% endblock %}

@@ -1,34 +1,32 @@
 {% extends "base.html" %}
 
-{% block title %}Compresser PDF - Réduire la taille des fichiers PDF{% endblock %}
-
-{% block description %}Compressez vos fichiers PDF pour réduire leur taille sans perte de qualité.{% endblock %}
+{% block title %}Compresser PDF - PDF Fusion Pro{% endblock %}
+{% block description %}Réduisez la taille de vos fichiers PDF tout en conservant la qualité.{% endblock %}
 
 {% block content %}
-<section class="hero-section">
-    <div class="container text-center">
-        <h1 class="hero-title">Compresser des fichiers PDF</h1>
-    </div>
+<section class="hero-section text-center">
+    <h1>Compresser un PDF</h1>
+    <p>Déposez votre fichier PDF et obtenez une version plus légère.</p>
 </section>
 
 <div class="tool-container">
-    <div class="upload-zone-pro" id="compressUploadZone">
+    <div class="upload-zone-pro" id="compressUploadZone" data-info-id="compressFileInfo" data-btn-id="compressButton">
         <div class="upload-inner">
-            <div class="upload-icon"><i class="fas fa-file-pdf"></i></div>
-            <h4 class="upload-title">Déposez votre fichier PDF</h4>
-            <p class="upload-subtitle">Glissez-déposez ou cliquez pour parcourir</p>
-            <div class="upload-info">Taille max : 50MB</div>
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h4 class="upload-title">Déposez votre PDF ici</h4>
+            <p class="upload-subtitle">Glissez-déposez votre fichier ou cliquez pour parcourir</p>
+            <div class="upload-info">PDF uniquement • Taille max : 50MB</div>
         </div>
-        <input type="file" id="compressFileInput" accept=".pdf" hidden>
+        <input type="file" accept=".pdf" style="display:none;">
     </div>
 
-    <div class="file-list" id="compressFileInfo"></div>
+    <div id="compressFileInfo" class="file-list"></div>
 
     <div class="action-buttons mt-3">
         <button class="btn btn-primary btn-lg" id="compressButton" disabled>
-            <i class="fas fa-compress-alt me-2"></i>Compresser le PDF
+            <i class="fas fa-compress me-2"></i>Compresser le PDF
         </button>
-        <button class="btn btn-outline btn-lg" id="compressClearButton">
+        <button class="btn btn-outline btn-lg" onclick="window.uploadManagers.compressUploadZone.removeFile(0)">
             <i class="fas fa-redo me-2"></i>Réinitialiser
         </button>
     </div>
@@ -37,18 +35,5 @@
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
-<script src="{{ url_for('static', filename='js/pages/compress-pdf.js') }}"></script>
-<script>
-UploadManager.init({
-    id: 'compress',
-    multiple: false,
-    maxSizeMB: 50,
-    onChange: (files) => {
-        document.getElementById('compressButton').disabled = files.length === 0;
-    }
-});
-document.getElementById('compressClearButton').addEventListener('click', () => {
-    UploadManager.clearFile('compress');
-});
-</script>
+<script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
 {% endblock %}
