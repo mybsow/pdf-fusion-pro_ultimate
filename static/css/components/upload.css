@@ -68,3 +68,24 @@
     font-size: 13px;
     color: #9aa3b2;
 }
+
+/* ================= MINIATURES PDF ================= */
+.upload-thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.upload-thumbnails canvas {
+    width: 100px;
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: grab;
+}
+
+.upload-thumbnails canvas.dragging {
+    opacity: 0.5;
+}
+
