@@ -4,7 +4,7 @@ PDF Fusion Pro Ultimate - Application principale
 Version production ultra-stable (Render / Gunicorn ready)
 """
 
-from lask import Flask, redirect, Response, request, render_template, send_from_directory, jsonify
+from flask import Flask, redirect, Response, request, render_template, send_from_directory, jsonify
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
 import os
