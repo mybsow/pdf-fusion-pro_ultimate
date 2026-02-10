@@ -206,65 +206,54 @@ CONVERSION_MAP = {
     },
     
     # ==================== OUTILS PDF ====================
-    'fusionner-pdf': {
-        'template': 'merge_pdf.html',
-        'title': 'Fusionner PDF',
-        'description': 'Fusionnez plusieurs fichiers PDF en un seul',
-        'from_format': 'PDF',
-        'to_format': 'PDF',
-        'icon': 'object-group',
-        'color': '#3498db',
-        'accept': '.pdf',
-        'max_files': 20
-    },
-    
-    'diviser-pdf': {
-        'template': 'split_pdf.html',
-        'title': 'Diviser PDF',
-        'description': 'Divisez un PDF en plusieurs fichiers',
-        'from_format': 'PDF',
-        'to_format': 'PDF',
-        'icon': 'cut',
-        'color': '#9b59b6',
-        'accept': '.pdf',
-        'max_files': 1
-    },
-    
-    'compresser-pdf': {
-        'template': 'compress_pdf.html',
-        'title': 'Compresser PDF',
-        'description': 'Réduisez la taille de vos fichiers PDF',
-        'from_format': 'PDF',
-        'to_format': 'PDF',
-        'icon': 'compress',
-        'color': '#2ecc71',
-        'accept': '.pdf',
-        'max_files': 1
-    },
-    
-    'rotation-pdf': {
-        'template': 'rotate_pdf.html',
-        'title': 'Rotation PDF',
-        'description': 'Faites pivoter les pages de vos PDF',
-        'from_format': 'PDF',
-        'to_format': 'PDF',
-        'icon': 'sync-alt',
-        'color': '#f39c12',
-        'accept': '.pdf',
-        'max_files': 1
-    },
-    
-    'proteger-pdf': {
-        'template': 'protect_pdf.html',
-        'title': 'Protéger PDF',
-        'description': 'Ajoutez un mot de passe à vos PDF',
-        'from_format': 'PDF',
-        'to_format': 'PDF',
-        'icon': 'lock',
-        'color': '#e67e22',
-        'accept': '.pdf',
-        'max_files': 1
-    },
+    # SUPPRIMEZ CES 4 ENTREES (ou commentez-les) :
+    # 'fusionner-pdf': {
+    #     'template': 'merge_pdf.html',
+    #     'title': 'Fusionner PDF',
+    #     'description': 'Fusionnez plusieurs fichiers PDF en un seul',
+    #     'from_format': 'PDF',
+    #     'to_format': 'PDF',
+    #     'icon': 'object-group',
+    #     'color': '#3498db',
+    #     'accept': '.pdf',
+    #     'max_files': 20
+    # },
+    # 
+    # 'diviser-pdf': {
+    #     'template': 'split_pdf.html',
+    #     'title': 'Diviser PDF',
+    #     'description': 'Divisez un PDF en plusieurs fichiers',
+    #     'from_format': 'PDF',
+    #     'to_format': 'PDF',
+    #     'icon': 'cut',
+    #     'color': '#9b59b6',
+    #     'accept': '.pdf',
+    #     'max_files': 1
+    # },
+    # 
+    # 'compresser-pdf': {
+    #     'template': 'compress_pdf.html',
+    #     'title': 'Compresser PDF',
+    #     'description': 'Réduisez la taille de vos fichiers PDF',
+    #     'from_format': 'PDF',
+    #     'to_format': 'PDF',
+    #     'icon': 'compress',
+    #     'color': '#2ecc71',
+    #     'accept': '.pdf',
+    #     'max_files': 1
+    # },
+    # 
+    # 'rotation-pdf': {
+    #     'template': 'rotate_pdf.html',
+    #     'title': 'Rotation PDF',
+    #     'description': 'Faites pivoter les pages de vos PDF',
+    #     'from_format': 'PDF',
+    #     'to_format': 'PDF',
+    #     'icon': 'sync-alt',
+    #     'color': '#f39c12',
+    #     'accept': '.pdf',
+    #     'max_files': 1
+    # },
     
     'deverrouiller-pdf': {
         'template': 'unlock_pdf.html',
@@ -393,7 +382,21 @@ def universal_converter(conversion_type):
     """
     Route universelle pour toutes les conversions.
     """
-    # Vérifier si la conversion existe
+    # Définir les outils PDF qui doivent rediriger vers le blueprint pdf
+    pdf_tools = ['fusionner-pdf', 'diviser-pdf', 'compresser-pdf', 'rotation-pdf']
+    
+    # Si c'est un outil PDF, rediriger vers le blueprint pdf
+    if conversion_type in pdf_tools:
+        pdf_endpoints = {
+            'fusionner-pdf': 'pdf.merge',
+            'diviser-pdf': 'pdf.split', 
+            'compresser-pdf': 'pdf.compress',
+            'rotation-pdf': 'pdf.rotate'
+        }
+        endpoint = pdf_endpoints.get(conversion_type, 'pdf.index')
+        return redirect(url_for(endpoint))
+    
+    # Vérifier si la conversion existe dans CONVERSION_MAP
     if conversion_type not in CONVERSION_MAP:
         flash(f'Type de conversion non supporté: {conversion_type}', 'error')
         return redirect(url_for('conversion.index'))
@@ -404,16 +407,36 @@ def universal_converter(conversion_type):
         return handle_conversion_request(conversion_type, request, config)
     
     # GET request - afficher le formulaire
-    return render_template(f'conversion/{config["template"]}',
-                          title=config['title'],
-                          description=config['description'],
-                          from_format=config['from_format'],
-                          to_format=config['to_format'],
-                          icon=config['icon'],
-                          color=config['color'],
-                          accept=config['accept'],
-                          max_files=config['max_files'],
-                          conversion_type=conversion_type)
+    # Détecter où se trouve le template
+    template_name = config["template"]
+    
+    # Vérifier si le template existe dans conversion/ d'abord
+    template_paths = [
+        f'conversion/{template_name}',  # D'abord chercher dans conversion/
+        f'pdf/{template_name}',          # Puis dans pdf/
+        template_name                    # Enfin directement
+    ]
+    
+    # Utiliser le premier template qui existe
+    for template_path in template_paths:
+        try:
+            # Essayer de rendre le template
+            return render_template(template_path,
+                                  title=config['title'],
+                                  description=config['description'],
+                                  from_format=config['from_format'],
+                                  to_format=config['to_format'],
+                                  icon=config['icon'],
+                                  color=config['color'],
+                                  accept=config['accept'],
+                                  max_files=config['max_files'],
+                                  conversion_type=conversion_type)
+        except:
+            continue
+    
+    # Si aucun template n'est trouvé
+    flash(f'Template non trouvé pour {conversion_type}', 'error')
+    return redirect(url_for('conversion.index'))
 
 
 # -----------------------------
@@ -422,21 +445,25 @@ def universal_converter(conversion_type):
 # -----------------------------
 
 @conversion_bp.route('/fusion-pdf')
+@conversion_bp.route('/fusionner-pdf')  # AJOUTEZ CETTE ROUTE
 def fusion_redirect():
     return redirect(url_for('pdf.merge'), code=301)
 
 
 @conversion_bp.route('/division-pdf')
+@conversion_bp.route('/diviser-pdf')  # AJOUTEZ CETTE ROUTE
 def division_redirect():
     return redirect(url_for('pdf.split'), code=301)
 
 
 @conversion_bp.route('/rotation-pdf')
+@conversion_bp.route('/compresser-pdf')  # AJOUTEZ CETTE ROUTE
 def rotation_redirect():
     return redirect(url_for('pdf.rotate'), code=301)
 
 
 @conversion_bp.route('/compression-pdf')
+@conversion_bp.route('/compresser-pdf')  # AJOUTEZ CETTE ROUTE
 def compression_redirect():
     return redirect(url_for('pdf.compress'), code=301)
 
