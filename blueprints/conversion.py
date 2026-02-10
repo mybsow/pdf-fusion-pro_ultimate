@@ -27,34 +27,6 @@ from reportlab.lib.utils import ImageReader
 from docx import Document
 import PyPDF2
 import numpy as np
-from PIL import Image, ImageEnhance
-
-from flask import Blueprint, redirect, url_for
-
-
-# -----------------------------
-# Redirections vers outils PDF
-# -----------------------------
-
-@conversion_bp.route('/fusion-pdf')
-def fusion_redirect():
-    return redirect(url_for('pdf.merge'), code=301)
-
-
-@conversion_bp.route('/division-pdf')
-def division_redirect():
-    return redirect(url_for('pdf.split'), code=301)
-
-
-@conversion_bp.route('/rotation-pdf')
-def rotation_redirect():
-    return redirect(url_for('pdf.rotate'), code=301)
-
-
-@conversion_bp.route('/compression-pdf')
-def compression_redirect():
-    return redirect(url_for('pdf.compress'), code=301)
-
 
 # -----------------------------
 # OCR avec Tesseract
@@ -415,6 +387,31 @@ def universal_converter(conversion_type):
                           accept=config['accept'],
                           max_files=config['max_files'],
                           conversion_type=conversion_type)
+
+
+# -----------------------------
+# Redirections vers outils PDF
+# Ces routes doivent être APRÈS la définition du blueprint
+# -----------------------------
+
+@conversion_bp.route('/fusion-pdf')
+def fusion_redirect():
+    return redirect(url_for('pdf.merge'), code=301)
+
+
+@conversion_bp.route('/division-pdf')
+def division_redirect():
+    return redirect(url_for('pdf.split'), code=301)
+
+
+@conversion_bp.route('/rotation-pdf')
+def rotation_redirect():
+    return redirect(url_for('pdf.rotate'), code=301)
+
+
+@conversion_bp.route('/compression-pdf')
+def compression_redirect():
+    return redirect(url_for('pdf.compress'), code=301)
 
 
 def handle_conversion_request(conversion_type, request, config):
@@ -1446,52 +1443,6 @@ def preprocess_image_for_ocr(img):
         current_app.logger.warning(f"Erreur prétraitement image: {e}")
         return img
 
-
-def detect_column_positions(sorted_lines, min_column_width=50):
-    """Détecte les positions des colonnes basées sur les données."""
-    column_positions = []
-    
-    # Collecter toutes les positions X des mots
-    all_left_positions = []
-    for _, words in sorted_lines:
-        for left, _ in words:
-            all_left_positions.append(left)
-    
-    if not all_left_positions:
-        return [(0, 1000)]  # Par défaut
-    
-    # Trier et regrouper les positions
-    all_left_positions.sort()
-    
-    # Détecter les clusters de positions (colonnes)
-    current_column = None
-    min_gap = min_column_width  # Espace minimum entre colonnes
-    
-    for pos in all_left_positions:
-        if current_column is None:
-            current_column = [pos, pos]
-        elif pos - current_column[1] < min_gap:
-            # Dans la même colonne
-            current_column[1] = max(current_column[1], pos)
-        else:
-            # Nouvelle colonne
-            column_positions.append((current_column[0], current_column[1]))
-            current_column = [pos, pos]
-    
-    if current_column is not None:
-        column_positions.append((current_column[0], current_column[1]))
-    
-    # Si aucune colonne détectée, retourner une colonne par défaut
-    if not column_positions:
-        min_pos = min(all_left_positions)
-        max_pos = max(all_left_positions)
-        column_positions = [(min_pos, max_pos)]
-
-        # S'assurer qu'il y a au moins une colonne
-    if not column_positions:
-        column_positions = [(0, 1000)]
-    
-    return column_positions
 
 def convert_csv_to_excel(files, form_data=None):
     """Convertit CSV en Excel."""
