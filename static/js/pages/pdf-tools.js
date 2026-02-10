@@ -134,7 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // CORRECTION: Envoyer à /{tool} (pas /pdf/{tool}) car le blueprint est à la racine
-                const endpoint = `/${tool}`;
+                const API_PREFIX = "/pdf";
+                const endpoint = `${API_PREFIX}/${tool}`;
                 console.log(`Envoi à: ${endpoint}`, tool, formData);
                 
                 const res = await fetch(endpoint, { 
