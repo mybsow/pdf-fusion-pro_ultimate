@@ -457,7 +457,7 @@ def division_redirect():
 
 
 @conversion_bp.route('/rotation-pdf')
-@conversion_bp.route('/compresser-pdf')  # AJOUTEZ CETTE ROUTE
+@conversion_bp.route('/tourner-pdf')  # AJOUTEZ CETTE ROUTE
 def rotation_redirect():
     return redirect(url_for('pdf.rotate'), code=301)
 
