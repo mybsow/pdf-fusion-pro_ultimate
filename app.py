@@ -22,7 +22,7 @@ from config import AppConfig
 from blueprints.pdf.routes import pdf_bp
 from blueprints.api.routes import api_bp
 from blueprints.stats.routes import stats_bp
-from blueprints.admin.routes import admin_bp
+from blueprints.admin import admin_bp
 from blueprints.conversion import conversion_bp  # Directement dans conversion.py
 from blueprints.legal.routes import legal_bp
 
