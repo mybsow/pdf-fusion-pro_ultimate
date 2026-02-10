@@ -29,6 +29,33 @@ import PyPDF2
 import numpy as np
 from PIL import Image, ImageEnhance
 
+from flask import Blueprint, redirect, url_for
+
+
+# -----------------------------
+# Redirections vers outils PDF
+# -----------------------------
+
+@conversion_bp.route('/fusion-pdf')
+def fusion_redirect():
+    return redirect(url_for('pdf.merge'), code=301)
+
+
+@conversion_bp.route('/division-pdf')
+def division_redirect():
+    return redirect(url_for('pdf.split'), code=301)
+
+
+@conversion_bp.route('/rotation-pdf')
+def rotation_redirect():
+    return redirect(url_for('pdf.rotate'), code=301)
+
+
+@conversion_bp.route('/compression-pdf')
+def compression_redirect():
+    return redirect(url_for('pdf.compress'), code=301)
+
+
 # -----------------------------
 # OCR avec Tesseract
 # -----------------------------
@@ -339,10 +366,6 @@ def index():
             'icon': 'tools',
             'color': '#2ecc71',
             'conversions': [
-                CONVERSION_MAP['fusionner-pdf'],
-                CONVERSION_MAP['diviser-pdf'],
-                CONVERSION_MAP['compresser-pdf'],
-                CONVERSION_MAP['rotation-pdf'],
                 CONVERSION_MAP['proteger-pdf'],
                 CONVERSION_MAP['deverrouiller-pdf']
             ]

@@ -221,8 +221,8 @@ def create_app():
     # FORCE INSTALL OCR (installation manuelle)
     # ========================================================
     
-    @app.route('/force-install-ocr')
-    def force_install_ocr():
+    #@app.route('/force-install-ocr')
+    #def force_install_ocr():
         """Force l'installation des packages OCR"""
         import subprocess
         import sys
@@ -307,7 +307,7 @@ def create_app():
         (legal_bp, None),          # PAS de préfixe pour les pages légales
         (stats_bp, None),
         (admin_bp, "/admin"),      # Préfixe pour admin
-        (conversion_bp, "/conversion")  # Préfixe pour conversion
+        (conversion_bp, None)  # Préfixe pour conversion
     ]
 
     for bp, prefix in blueprints:
@@ -324,7 +324,7 @@ def create_app():
     @app.route('/conversion')
     def redirect_conversion():
         """Redirige /conversion vers /conversion/ (avec slash)"""
-        return redirect('/conversion/')
+        return redirect('/', code=301)
 
     # ========================================================
     # OCR: DIAGNOSTIC DYNAMIQUE
@@ -787,8 +787,8 @@ def create_app():
     # STATIC FILES FIX
     # ========================================================
 
-    @app.route('/static/<path:filename>')
-    def serve_static(filename):
+    #@app.route('/static/<path:filename>')
+    #def serve_static(filename):
         """Servir les fichiers statiques avec les bons headers"""
         try:
             response = send_from_directory('static', filename)
