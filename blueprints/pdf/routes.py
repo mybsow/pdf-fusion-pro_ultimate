@@ -81,6 +81,179 @@ def compress():
         rating_html=get_rating_html()
     )
 
+# ============================================================
+# ROUTES POST DIRECTES (pour FormData)
+# ============================================================
+
+@pdf_bp.route('/merge', methods=['POST'])
+def handle_merge():
+    """Traitement direct de fusion PDF (FormData)"""
+    try:
+        if 'files' not in request.files:
+            return jsonify({"error": "Aucun fichier reçu"}), 400
+        
+        files = request.files.getlist('files')
+        if not files or files[0].filename == '':
+            return jsonify({"error": "Aucun fichier valide"}), 400
+        
+        pdfs = []
+        for file in files:
+            if file and file.filename.lower().endswith('.pdf'):
+                pdfs.append(file.read())
+        
+        if not pdfs:
+            return jsonify({"error": "Aucun PDF valide"}), 400
+        
+        merged_pdf, page_count = PDFEngine.merge(pdfs)
+        stats_manager.increment("merges")
+        
+        from flask import send_file
+        import io
+        
+        return send_file(
+            io.BytesIO(merged_pdf),
+            as_attachment=True,
+            download_name=f"fusion_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+            mimetype='application/pdf'
+        )
+    
+    except Exception as e:
+        return jsonify({"error": f"Erreur interne: {str(e)}"}), 500
+
+
+@pdf_bp.route('/split', methods=['POST'])
+def handle_split():
+    """Traitement direct de division PDF (FormData)"""
+    try:
+        if 'files' not in request.files:
+            return jsonify({"error": "Aucun fichier reçu"}), 400
+        
+        file = request.files['files']
+        if not file or file.filename == '':
+            return jsonify({"error": "Fichier manquant"}), 400
+        
+        if not file.filename.lower().endswith('.pdf'):
+            return jsonify({"error": "Format non supporté"}), 400
+        
+        pdf_bytes = file.read()
+        pages = request.form.get('pages', 'all')
+        
+        split_files = PDFEngine.split(pdf_bytes, 'range', pages)
+        stats_manager.increment("splits")
+        
+        # Créer un ZIP avec les fichiers splités
+        import zipfile
+        import io
+        
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for i, pdf_data in enumerate(split_files, 1):
+                zip_file.writestr(f"page_{i:03d}.pdf", pdf_data)
+        
+        zip_buffer.seek(0)
+        
+        from flask import send_file
+        return send_file(
+            zip_buffer,
+            as_attachment=True,
+            download_name=f"split_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip",
+            mimetype='application/zip'
+        )
+    
+    except Exception as e:
+        return jsonify({"error": f"Erreur interne: {str(e)}"}), 500
+
+
+@pdf_bp.route('/rotate', methods=['POST'])
+def handle_rotate():
+    """Traitement direct de rotation PDF (FormData)"""
+    try:
+        if 'files' not in request.files:
+            return jsonify({"error": "Aucun fichier reçu"}), 400
+        
+        file = request.files['files']
+        if not file or file.filename == '':
+            return jsonify({"error": "Fichier manquant"}), 400
+        
+        if not file.filename.lower().endswith('.pdf'):
+            return jsonify({"error": "Format non supporté"}), 400
+        
+        pdf_bytes = file.read()
+        angle = int(request.form.get('angle', 90))
+        pages = request.form.get('pages', 'all')
+        
+        rotated_pdf, total_pages, rotated_count = PDFEngine.rotate(pdf_bytes, angle, pages)
+        stats_manager.increment("rotations")
+        
+        from flask import send_file
+        import io
+        
+        return send_file(
+            io.BytesIO(rotated_pdf),
+            as_attachment=True,
+            download_name=f"rotation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+            mimetype='application/pdf'
+        )
+    
+    except Exception as e:
+        return jsonify({"error": f"Erreur interne: {str(e)}"}), 500
+
+
+@pdf_bp.route('/compress', methods=['POST'])
+def handle_compress():
+    """Traitement direct de compression PDF (FormData)"""
+    try:
+        if 'files' not in request.files:
+            return jsonify({"error": "Aucun fichier reçu"}), 400
+        
+        file = request.files['files']
+        if not file or file.filename == '':
+            return jsonify({"error": "Fichier manquant"}), 400
+        
+        if not file.filename.lower().endswith('.pdf'):
+            return jsonify({"error": "Format non supporté"}), 400
+        
+        pdf_bytes = file.read()
+        compressed_pdf, page_count = PDFEngine.compress(pdf_bytes)
+        stats_manager.increment("compressions")
+        
+        from flask import send_file
+        import io
+        
+        return send_file(
+            io.BytesIO(compressed_pdf),
+            as_attachment=True,
+            download_name=f"compressed_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+            mimetype='application/pdf'
+        )
+    
+    except Exception as e:
+        return jsonify({"error": f"Erreur interne: {str(e)}"}), 500
+    
+
+# ============================================================
+# ROUTES GET SIMPLIFIÉES (Redirections)
+# ============================================================
+
+@pdf_bp.route('/merge', methods=['GET'])
+def merge_short():
+    """Redirige vers la page complète de fusion PDF"""
+    return redirect(url_for('pdf.merge'))
+
+@pdf_bp.route('/split', methods=['GET'])
+def split_short():
+    """Redirige vers la page complète de division PDF"""
+    return redirect(url_for('pdf.split'))
+
+@pdf_bp.route('/rotate', methods=['GET'])
+def rotate_short():
+    """Redirige vers la page complète de rotation PDF"""
+    return redirect(url_for('pdf.rotate'))
+
+@pdf_bp.route('/compress', methods=['GET'])
+def compress_short():
+    """Redirige vers la page complète de compression PDF"""
+    return redirect(url_for('pdf.compress'))
 
 # ============================================================
 # API ENDPOINTS

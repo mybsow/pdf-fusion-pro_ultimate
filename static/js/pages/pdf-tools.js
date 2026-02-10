@@ -102,43 +102,112 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const formData = new FormData();
-                uploadManager.files.forEach(f => formData.append('files', f));
-
-                if (tool === 'split' || tool === 'rotate') {
-                    formData.append('pages', pagesInput?.value || 'all');
+                
+                // Préparer les données selon l'outil
+                if (tool === 'merge') {
+                    // Pour la fusion, envoyer tous les fichiers
+                    uploadManager.files.forEach(f => formData.append('files', f));
+                } else {
+                    // Pour split, rotate, compress: un seul fichier
+                    if (uploadManager.files.length > 1) {
+                        alert(`Pour ${tool}, veuillez sélectionner un seul fichier PDF.`);
+                        toggleLoader(false);
+                        return;
+                    }
+                    formData.append('files', uploadManager.files[0]);
                 }
+                
+                // Ajouter les paramètres spécifiques
+                if (tool === 'split' || tool === 'rotate') {
+                    const pages = pagesInput?.value || 'all';
+                    formData.append('pages', pages);
+                }
+                
                 if (tool === 'rotate') {
-                    const angle = document.querySelector('input[name="rotateAngle"]:checked').value;
+                    const angle = document.querySelector('input[name="rotateAngle"]:checked')?.value || '90';
                     formData.append('angle', angle);
                 }
+                
+                if (tool === 'compress') {
+                    const level = document.querySelector('input[name="compressionLevel"]:checked')?.value || 'medium';
+                    formData.append('level', level);
+                }
 
-                const res = await fetch(`/pdf/${tool}`, { method: 'POST', body: formData });
+                // CORRECTION: Envoyer à /{tool} (pas /pdf/{tool}) car le blueprint est à la racine
+                const endpoint = `/${tool}`;
+                console.log(`Envoi à: ${endpoint}`, tool, formData);
+                
+                const res = await fetch(endpoint, { 
+                    method: 'POST', 
+                    body: formData 
+                });
 
                 if (!res.ok) {
-                    const text = await res.text();
-                    throw new Error(text || 'Erreur serveur inconnue');
+                    let errorText = await res.text();
+                    console.error('Erreur serveur:', res.status, errorText);
+                    
+                    // Essayer d'extraire un message d'erreur lisible
+                    try {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(errorText, 'text/html');
+                        const errorMsg = doc.querySelector('h1, p, pre')?.textContent || errorText;
+                        throw new Error(`Erreur ${res.status}: ${errorMsg.substring(0, 200)}`);
+                    } catch {
+                        throw new Error(`Erreur ${res.status}: ${errorText.substring(0, 200)}`);
+                    }
+                }
+
+                // Récupérer le nom de fichier depuis les headers si possible
+                const contentDisposition = res.headers.get('Content-Disposition');
+                let filename = '';
+                
+                if (contentDisposition) {
+                    const matches = contentDisposition.match(/filename="?(.+?)"?$/);
+                    if (matches) {
+                        filename = matches[1];
+                    }
+                }
+                
+                // Nom par défaut si pas trouvé dans les headers
+                if (!filename) {
+                    const defaultNames = {
+                        merge: 'fichiers-fusionnes.pdf',
+                        split: 'pages-separees.zip',
+                        compress: 'fichier-compresse.pdf',
+                        rotate: 'pages-tournees.pdf'
+                    };
+                    filename = defaultNames[tool] || 'fichier.pdf';
                 }
 
                 const blob = await res.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-
-                const defaultNames = {
-                    merge: 'merged.pdf',
-                    split: 'split.pdf',
-                    compress: 'compressed.pdf',
-                    rotate: 'rotated.pdf'
-                };
-                a.download = defaultNames[tool] || 'file.pdf';
+                a.download = filename;
 
                 document.body.appendChild(a);
                 a.click();
-                a.remove();
+                document.body.removeChild(a);
+                
+                // Libérer la mémoire
+                setTimeout(() => window.URL.revokeObjectURL(url), 100);
 
             } catch (err) {
-                console.error(err);
-                alert(`Erreur lors du traitement : ${err.message}`);
+                console.error('Erreur détaillée:', err);
+                
+                // Message utilisateur plus clair
+                let message = 'Erreur lors du traitement';
+                if (err.message.includes('404')) {
+                    message = 'Le service est temporairement indisponible. Veuillez réessayer.';
+                } else if (err.message.includes('NetworkError')) {
+                    message = 'Problème de connexion. Vérifiez votre internet.';
+                } else if (err.message.includes('500')) {
+                    message = 'Erreur serveur. Le fichier PDF est peut-être corrompu.';
+                } else {
+                    message = err.message.substring(0, 100) + '...';
+                }
+                
+                alert(message);
             } finally {
                 toggleLoader(false);
             }
