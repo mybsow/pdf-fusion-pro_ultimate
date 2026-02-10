@@ -2,7 +2,6 @@
 """
 Blueprint pour les conversions de fichiers - Version universelle
 """
-
 from flask import Blueprint, render_template, request, jsonify, send_file, flash, redirect, url_for, current_app
 from werkzeug.utils import secure_filename
 import sys
@@ -45,15 +44,50 @@ except ImportError:
                 HOSTING = "Render"
                 DOMAIN = "pdffusionpro.com"
 
+# ============================
+# IMPORTATIONS AVEC GESTION D'ERREURS
+# ============================
+
 # Import pour les conversions
-import pandas as pd
-from PIL import Image, ImageEnhance
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter, A4
-from reportlab.lib.utils import ImageReader
-from docx import Document
-import PyPDF2
-import numpy as np
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
+    print("[WARN] pandas non installé, conversions CSV/Excel désactivées")
+
+try:
+    from PIL import Image, ImageEnhance
+except ImportError:
+    Image = ImageEnhance = None
+    print("[WARN] PIL/Pillow non installé, conversions images désactivées")
+
+try:
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.lib.utils import ImageReader
+except ImportError:
+    canvas = None
+    letter = A4 = None
+    ImageReader = None
+    print("[WARN] reportlab non installé, génération PDF désactivée")
+
+try:
+    from docx import Document
+except ImportError:
+    Document = None
+    print("[WARN] python-docx non installé, conversions Word désactivées")
+
+try:
+    import PyPDF2
+except ImportError:
+    PyPDF2 = None
+    print("[WARN] PyPDF2 non installé, manipulations PDF désactivées")
+
+try:
+    import numpy as np
+except ImportError:
+    np = None
+    print("[WARN] numpy non installé, certains traitements désactivés")
 
 # -----------------------------
 # OCR avec Tesseract

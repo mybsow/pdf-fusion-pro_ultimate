@@ -7,7 +7,8 @@ import base64
 import zipfile
 import os
 from datetime import datetime
-from flask import render_template, jsonify, request
+# AJOUTEZ CES IMPORTS :
+from flask import render_template, jsonify, request, redirect, url_for
 from . import pdf_bp
 from config import AppConfig
 from .engine import PDFEngine
