@@ -16,12 +16,15 @@ cv2.setNumThreads(0)
 from config import AppConfig
 
 # Blueprints - IMPORT DEPUIS BLUEPRINTS
-from blueprints.pdf import pdf_bp
-from blueprints.api import api_bp
-from blueprints.stats import stats_bp
-from blueprints.admin import admin_bp
-from blueprints.conversion import conversion_bp
-from blueprints.legal.routes import legal_bp  # IMPORT CORRECT !
+# Note: conversion_bp est dans blueprints/conversion.py directement
+# Les autres sont dans des sous-dossiers avec routes.py
+
+from blueprints.pdf.routes import pdf_bp
+from blueprints.api.routes import api_bp
+from blueprints.stats.routes import stats_bp
+from blueprints.admin.routes import admin_bp
+from blueprints.conversion import conversion_bp  # Directement dans conversion.py
+from blueprints.legal.routes import legal_bp
 
 # ✅ AJOUTER ICI - Imports OCR conditionnels
 try:
@@ -221,8 +224,8 @@ def create_app():
     # FORCE INSTALL OCR (installation manuelle)
     # ========================================================
     
-    #@app.route('/force-install-ocr')
-    #def force_install_ocr():
+    @app.route('/force-install-ocr')
+    def force_install_ocr():
         """Force l'installation des packages OCR"""
         import subprocess
         import sys
@@ -307,7 +310,7 @@ def create_app():
         (legal_bp, None),          # PAS de préfixe pour les pages légales
         (stats_bp, None),
         (admin_bp, "/admin"),      # Préfixe pour admin
-        (conversion_bp, None)  # Préfixe pour conversion
+        (conversion_bp, "/conversion")  # Préfixe pour conversion
     ]
 
     for bp, prefix in blueprints:
@@ -324,7 +327,7 @@ def create_app():
     @app.route('/conversion')
     def redirect_conversion():
         """Redirige /conversion vers /conversion/ (avec slash)"""
-        return redirect('/', code=301)
+        return redirect('/conversion/', code=301)
 
     # ========================================================
     # OCR: DIAGNOSTIC DYNAMIQUE

@@ -17,7 +17,33 @@ import traceback
 from io import BytesIO
 import zipfile
 
-from ..config import AppConfig
+# Ajouter la racine du projet au sys.path
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+# Solution 1: Import absolu (recommandé pour éviter les erreurs)
+try:
+    # Essayez d'abord l'import absolu depuis la racine
+    from config import AppConfig
+except ImportError:
+    try:
+        # Si ça ne marche pas, essayez un import relatif correct
+        from .config import AppConfig
+    except ImportError:
+        try:
+            # Ou depuis le dossier parent
+            from ..config import AppConfig
+        except ImportError:
+            # Fallback: définir une classe de config par défaut
+            class AppConfig:
+                OCR_ENABLED = True
+                NAME = "PDF Fusion Pro"
+                VERSION = "1.0.0"
+                DEVELOPER_NAME = "Votre Nom"
+                DEVELOPER_EMAIL = "contact@example.com"
+                HOSTING = "Render"
+                DOMAIN = "pdffusionpro.com"
 
 # Import pour les conversions
 import pandas as pd
