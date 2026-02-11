@@ -139,8 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     formData.append('level', level);
                 }
 
-                const API_PREFIX = "/pdf";
-                const endpoint = `${API_PREFIX}/${tool}`;
+                const endpoint = `/${tool}`; // ✅ Devient /merge, /split, /rotate, /compress
                 console.log(`Envoi à: ${endpoint}`, tool, Object.fromEntries(formData));
                 
                 const res = await fetch(endpoint, { 
