@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         toggleLoader(false);
                         return;
                     }
-                    formData.append('files', uploadManager.files[0]);
+                    formData.append('file', uploadManager.files[0]);
                 }
                 
                 // Ajouter les paramètres spécifiques
