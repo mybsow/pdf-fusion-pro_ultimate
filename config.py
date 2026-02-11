@@ -439,7 +439,7 @@ class AppConfig:
             return
             
         try:
-            import pytesseract
+            import pytesseract # type: ignore
             import subprocess
             
             # Vérifier Tesseract

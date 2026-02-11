@@ -28,11 +28,11 @@ from blueprints.conversion import conversion_bp  # Directement dans conversion.p
 from blueprints.legal.routes import legal_bp
 
 # Dossier temp ultra rapide
-app.config["UPLOAD_FOLDER"] = tempfile.gettempdir()
+app.config["UPLOAD_FOLDER"] = tempfile.gettempdir() # type: ignore
 
 # ✅ AJOUTER ICI - Imports OCR conditionnels
 try:
-    import pytesseract
+    import pytesseract # type: ignore
     PYTESSERACT_AVAILABLE = True
 except ImportError:
     PYTESSERACT_AVAILABLE = False
@@ -45,7 +45,7 @@ except ImportError:
     OPENCV_AVAILABLE = False
 
 try:
-    from pdf2image import convert_from_path
+    from pdf2image import convert_from_path # type: ignore
     PDF2IMAGE_AVAILABLE = True
 except ImportError:
     PDF2IMAGE_AVAILABLE = False

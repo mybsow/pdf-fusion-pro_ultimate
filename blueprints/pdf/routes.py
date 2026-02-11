@@ -18,6 +18,8 @@ from pathlib import Path
 import uuid
 from config import AppConfig
 from pypdf import PdfReader, PdfWriter
+
+from managers import stats_manager
 from . import pdf_bp
 from .engine import PDFEngine
 from .file_manager import TempFileManager
@@ -149,7 +151,7 @@ def merge_pdf():
 # -------------------------------
 @pdf_bp.route("/ocr", methods=["POST"])
 def ocr_image():
-    import pytesseract
+    import pytesseract # type: ignore
     from PIL import Image
 
     temp_paths = []

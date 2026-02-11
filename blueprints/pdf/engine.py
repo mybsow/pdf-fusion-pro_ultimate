@@ -6,10 +6,10 @@ import io
 import base64
 import zipfile
 from typing import List, Tuple, Optional
-from PyPDF2 import PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter
 
 try:
-    from PyPDF2 import Transformation
+    from pypdf import Transformation
 except ImportError:
     Transformation = None
 
