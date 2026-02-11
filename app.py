@@ -11,26 +11,15 @@ import tempfile
 import os
 import logging
 from pathlib import Path
-import cv2
-cv2.setNumThreads(0)
 
-from config import AppConfig
+# ============================================================
+# Création de l'app Flask
+# ============================================================
+app = Flask(__name__)
 
-# Blueprints - IMPORT DEPUIS BLUEPRINTS
-# Note: conversion_bp est dans blueprints/conversion.py directement
-# Les autres sont dans des sous-dossiers avec routes.py
-
-from blueprints.pdf.routes import pdf_bp
-from blueprints.api.routes import api_bp
-from blueprints.stats.routes import stats_bp
-from blueprints.admin import admin_bp
-from blueprints.conversion import conversion_bp  # Directement dans conversion.py
-from blueprints.legal.routes import legal_bp
-
-# Dossier temp ultra rapide
-app.config["UPLOAD_FOLDER"] = tempfile.gettempdir() # type: ignore
-
-# ✅ AJOUTER ICI - Imports OCR conditionnels
+# ============================================================
+# Variables OCR globales
+# ============================================================
 try:
     import pytesseract # type: ignore
     PYTESSERACT_AVAILABLE = True
@@ -41,6 +30,7 @@ except ImportError:
 try:
     import cv2
     OPENCV_AVAILABLE = True
+    cv2.setNumThreads(0)
 except ImportError:
     OPENCV_AVAILABLE = False
 
@@ -50,22 +40,40 @@ try:
 except ImportError:
     PDF2IMAGE_AVAILABLE = False
 
-# ============================================================
-# LOGGING PRODUCTION
-# ============================================================
+from config import AppConfig
 
+# ============================================================
+# Logging production
+# ============================================================
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
-
 logger = logging.getLogger(__name__)
 
+# ============================================================
+# Configuration Flask
+# ============================================================
+app.config.from_object(AppConfig)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", AppConfig.SECRET_KEY)
+app.config["UPLOAD_FOLDER"] = tempfile.gettempdir()
+app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
+app.config['PREFERRED_URL_SCHEME'] = 'https'
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000
+
+# Proxy reverse
+app.wsgi_app = ProxyFix(
+    app.wsgi_app,
+    x_for=1,
+    x_proto=1,
+    x_host=1,
+    x_port=1
+)
+
+# ============================================================
+# Fonctions d'initialisation
+# ============================================================
 def check_and_create_templates():
-    """Vérifie et crée les templates manquants"""
-    import os
-    from pathlib import Path
-    
     required = [
         'conversion/csv_to_excel.html',
         'conversion/excel_to_csv.html',
@@ -75,9 +83,9 @@ def check_and_create_templates():
         'conversion/pdf_to_pdf.html',
         'conversion/pdf_to_ppt.html',
         'errors/404.html',
+        'errors/413.html',
         'errors/500.html'
     ]
-    
     for template in required:
         path = Path('templates') / template
         if not path.exists():
@@ -93,254 +101,81 @@ def check_and_create_templates():
 </html>""")
             logger.info(f"✅ Template créé: {template}")
 
-
-# ============================================================
-# INIT DOSSIERS
-# ============================================================
-
 def init_app_dirs():
     base_dir = Path(__file__).parent
-
-    dirs = [
-        'data/contacts',
-        'data/ratings',
-        'uploads',
-        'temp',
-        'logs'
-    ]
-
+    dirs = ['data/contacts', 'data/ratings', 'uploads', 'temp', 'logs']
     for d in dirs:
         path = base_dir / d
         path.mkdir(parents=True, exist_ok=True)
-
     contacts_file = base_dir / 'data' / 'contacts.json'
     if not contacts_file.exists():
         contacts_file.write_text('[]', encoding='utf-8')
 
-
 # ============================================================
-# FACTORY
+# Create App complet
 # ============================================================
-
 def create_app():
-    # ========================================================
-    # ✅ FORCER INSTALLATION TESSERACT AU DÉMARRAGE
-    # ========================================================
-    import subprocess
-    import sys
-    import os
-    
-    def force_tesseract_install():
-        """Installe Tesseract manuellement si non présent"""
-        try:
-            # Vérifier si tesseract existe déjà
-            check = subprocess.run(['which', 'tesseract'], 
-                                 capture_output=True, text=True)
-            
-            if check.returncode == 0:
-                print(f"✅ Tesseract déjà installé: {check.stdout.strip()}")
-                return True
-            
-            print("🚨 TESSERACT MANQUANT - Installation en cours...")
-            
-            # Vérifier après installation
-            check = subprocess.run(['which', 'tesseract'], 
-                                 capture_output=True, text=True)
-            if check.returncode == 0:
-                print(f"✅ Tesseract installé avec succès: {check.stdout.strip()}")
-                # Vérifier la langue française
-                langs = subprocess.run(['tesseract', '--list-langs'], 
-                                      capture_output=True, text=True)
-                print(f"📦 Langues disponibles: {langs.stdout}")
-                return True
-            else:
-                print("❌ Échec installation Tesseract")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Exception installation: {e}")
-            return False
-    
-    # Appeler la fonction d'installation
-    tesseract_installed = force_tesseract_install()
-    
-    # Continuer avec le reste...
-    
-    check_and_create_templates()  # <-- AJOUTEZ CETTE LIGNE
-
     logger.info("🚀 Initialisation Flask...")
-
     AppConfig.initialize()
     init_app_dirs()
+    check_and_create_templates()
 
-    app = Flask(__name__)
-    app.config.from_object(AppConfig)
-
-    # IMPORTANT
-    app.secret_key = os.environ.get(
-        "FLASK_SECRET_KEY",
-        AppConfig.SECRET_KEY
-    )
-
-    app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
-    app.config['PREFERRED_URL_SCHEME'] = 'https'
-    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000
-
-    # Proxy reverse
-    app.wsgi_app = ProxyFix(
-        app.wsgi_app,
-        x_for=1,
-        x_proto=1,
-        x_host=1,
-        x_port=1
-    )
-
-    # ========================================================
-    # Inject config dans Jinja
-    # ========================================================
-
-    @app.context_processor
-    def inject_config():
-        return dict(config=app.config)
-
-    # ========================================================
-    # SECURITY HEADERS
-    # ========================================================
-
-    @app.after_request
-    def security_headers(response):
-
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["X-Frame-Options"] = "SAMEORIGIN"
-        response.headers["X-XSS-Protection"] = "1; mode=block"
-
-        if not app.debug:
-            response.headers["Strict-Transport-Security"] = \
-                "max-age=31536000; includeSubDomains"
-
-        if "static" in request.path:
-            response.headers["Cache-Control"] = \
-                "public, max-age=31536000"
-
-        return response
-
-    # ========================================================
-    # FORCE INSTALL OCR (installation manuelle)
-    # ========================================================
-    
-    @app.route('/force-install-ocr')
-    def force_install_ocr():
-        """Force l'installation des packages OCR"""
-        import subprocess
-        import sys
-        
-        try:
-            packages = [
-                'pytesseract==0.3.10',
-                'pdf2image==1.16.3',
-                'Pillow==10.0.0',
-                'opencv-python-headless==4.8.1.78'
-            ]
-            
-            results = []
-            for package in packages:
-                try:
-                    # Installer avec pip (sans --user sur Render)
-                    cmd = [sys.executable, "-m", "pip", "install", package]
-                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
-                    
-                    if result.returncode == 0:
-                        results.append(f"✅ {package} installé")
-                    else:
-                        results.append(f"❌ {package} erreur: {result.stderr[:200]}")
-                        
-                except Exception as e:
-                    results.append(f"❌ {package} exception: {str(e)}")
-            
-            # Tester l'import après installation
-            test_results = []
-            for pkg_name, import_name in [
-                ('pytesseract', 'pytesseract'),
-                ('pdf2image', 'pdf2image'),
-                ('Pillow', 'PIL.Image'),
-                ('opencv', 'cv2')
-            ]:
-                try:
-                    if import_name == 'PIL.Image':
-                        from PIL import Image
-                        test_results.append(f"✅ {pkg_name} importé")
-                    else:
-                        __import__(import_name.split('.')[0])
-                        test_results.append(f"✅ {pkg_name} importé")
-                except ImportError as e:
-                    test_results.append(f"❌ {pkg_name}: {e}")
-            
-            return jsonify({
-                "status": "installation forcée terminée",
-                "installation_results": results,
-                "import_tests": test_results,
-                "python_path": sys.executable,
-                "python_version": sys.version
-            })
-            
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
-
-    # ========================================================
-    # Managers (safe import)
-    # ========================================================
-
-    try:
-        from managers.contact_manager import contact_manager
-        from managers.stats_manager import stats_manager
-        from utils.middleware import setup_middleware
-
-        setup_middleware(app, stats_manager)
-
-        with app.app_context():
-            unseen = contact_manager.get_unseen_count()
-            logger.info(f"📨 Messages non lus: {unseen}")
-
-    except Exception as e:
-        logger.warning(f"Managers non chargés: {e}")
-
-    # ========================================================
-    # BLUEPRINTS
-    # ========================================================
+    # --------------------------------------------------------
+    # Import Blueprints
+    # --------------------------------------------------------
+    from blueprints.pdf.routes import pdf_bp
+    from blueprints.api.routes import api_bp
+    from blueprints.stats.routes import stats_bp
+    from blueprints.admin import admin_bp
+    from blueprints.conversion import conversion_bp
+    from blueprints.legal.routes import legal_bp
 
     blueprints = [
         (pdf_bp, "/pdf"),
         (api_bp, "/api"),
-        (legal_bp, None),          # PAS de préfixe pour les pages légales
+        (legal_bp, None),
         (stats_bp, None),
-        (admin_bp, "/admin"),      # Préfixe pour admin
-        (conversion_bp, "/conversion")  # Préfixe pour conversion
+        (admin_bp, "/admin"),
+        (conversion_bp, "/conversion")
     ]
-
     for bp, prefix in blueprints:
         if prefix:
-            app.register_blueprint(bp, url_prefix=prefix or None)
+            app.register_blueprint(bp, url_prefix=prefix)
         else:
             app.register_blueprint(bp)
 
-    # ========================================================
-    # CORRECTION ROUTE /conversion
-    # ========================================================
-    # Le blueprint conversion_bp est enregistré avec le préfixe /conversion
-    # Cette redirection évite /conversion/conversion/... depuis d'anciens liens
+    # Redirection /conversion vers /conversion/
     @app.route('/conversion')
     def redirect_conversion():
-        """Redirige /conversion vers /conversion/ (avec slash)"""
         return redirect('/conversion/', code=301)
 
-    # ========================================================
-    # OCR: DIAGNOSTIC DYNAMIQUE
-    # ========================================================
+    # --------------------------------------------------------
+    # Context processor pour config
+    # --------------------------------------------------------
+    @app.context_processor
+    def inject_config():
+        return dict(config=app.config)
 
+    # --------------------------------------------------------
+    # Security headers
+    # --------------------------------------------------------
+    @app.after_request
+    def security_headers(response):
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "SAMEORIGIN"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        if not app.debug:
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        if "static" in request.path:
+            response.headers["Cache-Control"] = "public, max-age=31536000"
+        return response
+
+    # ============================================================
+    # OCR Probe
+    # ============================================================
     def _ocr_probe():
-        """
-        Vérifie dynamiquement l'état de l'OCR
-        """
+        import shutil
+        import subprocess
         status = {
             "enabled": bool(AppConfig.OCR_ENABLED),
             "tesseract": None,
@@ -354,533 +189,189 @@ def create_app():
             },
             "errors": []
         }
-        
+
         try:
-            import shutil
-            import subprocess
-            import os
-            
-            # Vérifier Pillow
             try:
                 from PIL import Image
                 status["python_packages"]["Pillow"] = True
             except ImportError:
                 status["python_packages"]["Pillow"] = False
-            
-            # Si l'OCR est désactivé en config, on skip
+
             if not AppConfig.OCR_ENABLED:
                 return status
-            
-            # ⭐⭐ SOLUTION : Chercher tesseract dans les chemins FIXES ⭐⭐
-            tesseract_path = None
-            
-            # Essayer plusieurs chemins connus
-            possible_paths = [
-                '/usr/bin/tesseract',       # Ubuntu/Debian standard
-                '/usr/local/bin/tesseract', # Installation manuelle
-                '/bin/tesseract',           # Alternative
-                shutil.which("tesseract")   # PATH classique
-            ]
-            
-            for path in possible_paths:
-                if path and os.path.exists(path):
-                    tesseract_path = path
-                    break
-            
+
+            possible_paths = ['/usr/bin/tesseract', '/usr/local/bin/tesseract', '/bin/tesseract', shutil.which("tesseract")]
+            tesseract_path = next((p for p in possible_paths if p and os.path.exists(p)), None)
             status["tesseract"] = tesseract_path
-            
-            # Vérifier Poppler
             status["poppler"] = shutil.which("pdftoppm") or '/usr/bin/pdftoppm'
-            
-            # Si Tesseract est trouvé, vérifier les langues
+
             if tesseract_path and PYTESSERACT_AVAILABLE:
+                pytesseract.pytesseract.tesseract_cmd = tesseract_path
+                version = pytesseract.get_tesseract_version()
+                status["tesseract"] = f"{tesseract_path} (v{version})"
                 try:
-                    # Configurer pytesseract AVANT de l'utiliser
-                    pytesseract.pytesseract.tesseract_cmd = tesseract_path
-                    
-                    # Test de version
-                    version = pytesseract.get_tesseract_version()
-                    status["tesseract"] = f"{tesseract_path} (v{version})"
-                    
-                    # Test des langues
-                    try:
-                        langs = pytesseract.get_languages(config='')
+                    langs = pytesseract.get_languages(config='')
+                    status["lang_fra"] = "fra" in langs
+                except:
+                    result = subprocess.run([tesseract_path, '--list-langs'], capture_output=True, text=True)
+                    if result.returncode == 0:
+                        langs = result.stdout.strip().split('\n')[1:]
                         status["lang_fra"] = "fra" in langs
-                    except:
-                        # Fallback : vérifier avec commande système
-                        result = subprocess.run([tesseract_path, '--list-langs'], 
-                                              capture_output=True, text=True)
-                        if result.returncode == 0:
-                            langs = result.stdout.strip().split('\n')[1:]  # Skip first line
-                            status["lang_fra"] = "fra" in langs
-                    
-                except Exception as e:
-                    status["errors"].append(f"pytesseract error: {str(e)}")
-                    # Essayer une commande système
-                    try:
-                        result = subprocess.run([tesseract_path, '--version'], 
-                                              capture_output=True, text=True)
-                        if result.returncode == 0:
-                            status["tesseract"] = f"{tesseract_path} ({result.stdout.split()[1]})"
-                    except:
-                        pass
-            else:
-                if not tesseract_path:
-                    status["errors"].append(f"tesseract not found in fixed paths: {possible_paths}")
-                if not PYTESSERACT_AVAILABLE:
-                    status["errors"].append("pytesseract Python package not installed")
-            
         except Exception as e:
-            status["errors"].append(f"OCR probe error: {str(e)}")
-        
+            status["errors"].append(str(e))
+
         return status
 
-    # Log état OCR au démarrage
-    _probe = _ocr_probe()
-    logger.info(f"OCR activé (config) : {_probe['enabled']}")
-    logger.info(f"Tesseract: {_probe['tesseract']} | Poppler: {_probe['poppler']} | fra: {_probe['lang_fra']}")
-    if _probe["errors"]:
-        logger.warning(f"OCR diagnostics: {_probe['errors']}")
-
-    # ========================================================
-    # TEST TESSERACT SIMPLE
-    # ========================================================
-    
-    @app.route('/test-tesseract')
-    def test_tesseract():
-        """Test simple de Tesseract"""
-        try:
-            if not PYTESSERACT_AVAILABLE:
-                return jsonify({
-                    "error": "pytesseract non disponible",
-                    "installed": False
-                }), 500
-            
-            # ⭐⭐ CHERCHER TESSERACT DANS LES CHEMINS FIXES ⭐⭐
-            import os
-            tesseract_cmd = None
-            possible_paths = ['/usr/bin/tesseract', '/usr/local/bin/tesseract', '/bin/tesseract']
-            
-            for path in possible_paths:
-                if os.path.exists(path):
-                    tesseract_cmd = path
-                    break
-            
-            if not tesseract_cmd:
-                return jsonify({
-                    "error": "Tesseract non trouvé dans les chemins standards",
-                    "checked_paths": possible_paths,
-                    "python_package": True
-                }), 500
-            
-            # Configurer pytesseract
-            pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
-            
-            # Test de version
-            version = pytesseract.get_tesseract_version()
-            
-            # Test des langues
-            try:
-                langs = pytesseract.get_languages(config='')
-            except:
-                langs = ["test échoué"]
-            
-            return jsonify({
-                "status": "OK",
-                "pytesseract_available": True,
-                "tesseract_version": str(version),
-                "tesseract_path": tesseract_cmd,
-                "tesseract_exists": os.path.exists(tesseract_cmd),
-                "available_languages": langs,
-                "opencv_available": OPENCV_AVAILABLE,
-                "pdf2image_available": PDF2IMAGE_AVAILABLE,
-            })
-            
-        except Exception as e:
-            return jsonify({
-                "error": str(e),
-                "pytesseract_available": PYTESSERACT_AVAILABLE,
-                "traceback": str(type(e))
-            }), 500
-    # ========================================================
-    # TEST OCR (page de diagnostic amélioré)
-    # ========================================================
-    
+    # --------------------------------------------------------
+    # Routes OCR
+    # --------------------------------------------------------
     @app.route('/test-ocr')
     def test_ocr():
-        """Page de test pour vérifier l'état de l'OCR"""
         probe = _ocr_probe()
-        
-        # Vérifier les packages Python
-        python_packages = probe["python_packages"]
-        
-        # Préparer le HTML des erreurs
-        errors_html = ""
-        if probe["errors"]:
-            # Utiliser <br> pour les sauts de ligne HTML
-            errors_formatted = "<br>".join(probe["errors"])
-            errors_html = f'<h3>⚠️ Erreurs</h3><div class="status warn"><pre>{errors_formatted}</pre></div>'
-        
-        # HTML de diagnostic
-        html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <title>Diagnostic OCR - PDF Fusion Pro</title>
-            <style>
-                body {{ font-family: Arial, sans-serif; margin: 40px; }}
-                .status {{ padding: 20px; border-radius: 10px; margin-bottom: 20px; }}
-                .ok {{ background:#d1fae5; color:#065f46; border:2px solid #10b981; }}
-                .warn {{ background:#fef3c7; color:#92400e; border:2px solid #f59e0b; }}
-                .err {{ background:#fee2e2; color:#991b1b; border:2px solid #ef4444; }}
-                .info {{ background:#dbeafe; color:#1e40af; border:2px solid #3b82f6; }}
-                table {{ width:100%; border-collapse:collapse; margin:20px 0; }}
-                th, td {{ padding:12px; text-align:left; border-bottom:1px solid #ddd; }}
-                th {{ background:#f8fafc; }}
-                .badge {{ display:inline-block; padding:4px 8px; border-radius:4px; font-size:12px; }}
-                .badge-ok {{ background:#10b981; color:white; }}
-                .badge-err {{ background:#ef4444; color:white; }}
-                .badge-warn {{ background:#f59e0b; color:white; }}
-                .action-buttons {{ margin: 20px 0; }}
-                .action-buttons a {{ 
-                    display: inline-block; 
-                    padding: 10px 20px; 
-                    margin: 5px; 
-                    background: #3b82f6; 
-                    color: white; 
-                    text-decoration: none; 
-                    border-radius: 5px; 
-                }}
-            </style>
-        </head>
-        <body>
-            <h1>🧪 Diagnostic OCR - PDF Fusion Pro</h1>
-            
-            <div class="status {'ok' if probe['tesseract'] and probe['poppler'] else 'err'}">
-                <h2>{'✅ OCR Opérationnel' if probe['tesseract'] and probe['poppler'] else '❌ OCR Non Opérationnel'}</h2>
-                <p>Configuration: {'Activé' if probe['enabled'] else 'Désactivé'}</p>
-            </div>
-            
-            <div class="action-buttons">
-                <a href="/force-install-ocr" onclick="return confirm('Installer les packages OCR manuellement? Cette opération peut prendre 30 secondes.')">
-                    🔧 FORCER l'installation OCR
-                </a>
-                <a href="/test-tesseract" target="_blank">
-                    🧪 Tester Tesseract API
-                </a>
-                <a href="/health" target="_blank">
-                    📊 Vérifier santé
-                </a>
-            </div>
-            
-            <h3>📦 Packages Python</h3>
-            <table>
-                <tr><th>Package</th><th>Status</th><th>Action</th></tr>
-                {"".join([
-                    f'<tr><td>{name}</td><td><span class="badge {"badge-ok" if installed else "badge-err"}">{"✅ Installé" if installed else "❌ Manquant"}</span></td><td>{"pip install " + name if not installed else "✓"}</td></tr>'
-                    for name, installed in python_packages.items()
-                ])}
-            </table>
-            
-            <h3>🖥️ Dépendances Système</h3>
-            <table>
-                <tr><th>Dépendance</th><th>Status</th><th>Chemin</th></tr>
-                <tr><td>Tesseract OCR</td><td><span class="badge {'badge-ok' if probe['tesseract'] else 'badge-err'}">{'✅ Trouvé' if probe['tesseract'] else '❌ Non trouvé'}</span></td><td>{probe['tesseract'] or '—'}</td></tr>
-                <tr><td>Poppler (pdf2image)</td><td><span class="badge {'badge-ok' if probe['poppler'] else 'badge-err'}">{'✅ Trouvé' if probe['poppler'] else '❌ Non trouvé'}</span></td><td>{probe['poppler'] or '—'}</td></tr>
-                <tr><td>Langue Française</td><td><span class="badge {'badge-ok' if probe['lang_fra'] else 'badge-warn'}">{'✅ Disponible' if probe['lang_fra'] else '⚠️ Manquante'}</span></td><td>{'tesseract-ocr-fra' if probe['lang_fra'] else 'Installer: apt-get install tesseract-ocr-fra'}</td></tr>
-            </table>
-            
-            <h3>🔧 Configuration Render</h3>
-            <div class="status info">
-                <p><strong>Si OCR ne fonctionne pas:</strong></p>
-                <ol>
-                    <li>Cliquez sur "FORCER l'installation OCR" ci-dessus</li>
-                    <li>Attendez 30 secondes</li>
-                    <li>Rechargez cette page</li>
-                    <li>Si toujours KO, redéployez avec Docker</li>
-                </ol>
-            </div>
-            
-            {errors_html}
-            
-            <div class="status">
-                <h3>🔗 Liens utiles</h3>
-                <p>
-                    <a href="/">Accueil</a> • 
-                    <a href="/conversion/">Conversions</a> • 
-                    <a href="/admin/login">Administration</a> • 
-                    <a href="/test-tesseract" target="_blank">Test Tesseract API</a>
-                </p>
-            </div>
-        </body>
-        </html>
-        """
-        return html
+        return jsonify(probe)
 
-    # ========================================================
-    # ROUTES SYSTEME
-    # ========================================================
+    @app.route('/test-tesseract')
+    def test_tesseract():
+        try:
+            if not PYTESSERACT_AVAILABLE:
+                return jsonify({"error": "pytesseract non disponible", "installed": False}), 500
+            tesseract_cmd = next((p for p in ['/usr/bin/tesseract','/usr/local/bin/tesseract','/bin/tesseract'] if os.path.exists(p)), None)
+            if not tesseract_cmd:
+                return jsonify({"error": "Tesseract non trouvé", "python_package": True}), 500
+            pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+            version = pytesseract.get_tesseract_version()
+            langs = pytesseract.get_languages(config='') if PYTESSERACT_AVAILABLE else []
+            return jsonify({"status": "OK","tesseract_version": str(version),"tesseract_path": tesseract_cmd,"available_languages": langs})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
 
+    @app.route('/force-install-ocr')
+    def force_install_ocr():
+        import subprocess, sys
+        packages = ['pytesseract==0.3.10','pdf2image==1.16.3','Pillow==10.0.0','opencv-python-headless==4.8.1.78']
+        results = []
+        for package in packages:
+            try:
+                cmd = [sys.executable, "-m", "pip", "install", package]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                if result.returncode == 0:
+                    results.append(f"✅ {package} installé")
+                else:
+                    results.append(f"❌ {package} erreur: {result.stderr[:200]}")
+            except Exception as e:
+                results.append(f"❌ {package} exception: {str(e)}")
+        return jsonify({"installation_results": results})
+
+    # ============================================================
+    # Routes système et sitemap
+    # ============================================================
     @app.route('/')
     def index():
         return redirect('/pdf')
 
     @app.route('/ads.txt')
     def ads():
-        return Response(
-            "google.com, pub-8967416460526921, DIRECT, f08c47fec0942fa0",
-            mimetype="text/plain"
-        )
+        return Response("google.com, pub-8967416460526921, DIRECT, f08c47fec0942fa0", mimetype="text/plain")
 
     @app.route('/robots.txt')
     def robots():
-
         domain = AppConfig.DOMAIN.rstrip("/")
-        content = (
-            "User-agent: *\n"
-            "Allow: /\n"
-            "Disallow: /admin/\n"
-            "Disallow: /debug/\n"
-            f"Sitemap: https://{domain}/sitemap.xml\n"
-        )
-
-        return Response(content, mimetype="text/plain")
-
-    # ========================================================
-    # SITEMAP
-    # ========================================================
+        return Response(f"User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: https://{domain}/sitemap.xml\n", mimetype="text/plain")
 
     @app.route('/sitemap.xml')
     def sitemap():
-
         domain = AppConfig.DOMAIN.rstrip("/")
         base_url = f"https://{domain}"
         today = datetime.now().strftime('%Y-%m-%d')
-
-        pages = [
-            "/",                    # Accueil
-            "/pdf",                 # Accueil PDF
-            "/contact",             # Contact
-            "/about",               # À propos
-            "/privacy",             # Confidentialité
-            "/terms",               # Conditions
-            "/legal",               # Mentions légales
-            "/conversion/",         # Accueil conversion (avec slash)
-            "/test-ocr",            # Test OCR
-            "/force-install-ocr",   # Installation OCR
-        ]
-
-        xml = ['<?xml version="1.0" encoding="UTF-8"?>']
-        xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
-
+        pages = ["/", "/pdf", "/contact", "/about", "/privacy", "/terms", "/legal", "/conversion/", "/test-ocr", "/force-install-ocr"]
+        xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
         for p in pages:
-            xml.append(f"""
-            <url>
-                <loc>{base_url}{p}</loc>
-                <lastmod>{today}</lastmod>
-                <changefreq>weekly</changefreq>
-                <priority>0.8</priority>
-            </url>
-            """.strip())
-
+            xml.append(f"<url><loc>{base_url}{p}</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>")
         xml.append('</urlset>')
-
-        return Response(
-            "\n".join(xml),
-            mimetype="application/xml",
-            headers={"Cache-Control": "public, max-age=3600"}
-        )
-
-    # ========================================================
-    # HEALTHCHECK (Render) — dynamique
-    # ========================================================
+        return Response("\n".join(xml), mimetype="application/xml", headers={"Cache-Control": "public, max-age=3600"})
 
     @app.route('/health')
     def health():
         probe = _ocr_probe()
         return jsonify({
             "status": "healthy",
-            "app": AppConfig.NAME,
-            "version": AppConfig.VERSION,
             "ocr_available": bool(probe["enabled"] and probe["tesseract"] and probe["poppler"]),
             "tesseract": probe["tesseract"],
             "poppler": probe["poppler"],
-            "lang_fra": probe["lang_fra"],
-            "python_packages": probe["python_packages"],
-            "message": "Application déployée sur Render"
-        }), 200
+            "lang_fra": probe["lang_fra"]
+        })
 
-    # ========================================================
-    # DEBUG ROUTES
-    # ========================================================
-
+    # ============================================================
+    # Routes debug
+    # ============================================================
     @app.route('/debug/static-files')
     def debug_static_files():
-        """Vérifier les fichiers statiques"""
-        base_dir = Path(__file__).parent
-        static_dir = base_dir / 'static'
-
+        base_dir = Path(__file__).parent / 'static'
         files = []
-
         def scan_dir(path, prefix=""):
             for item in path.iterdir():
                 if item.is_file():
                     files.append(f"{prefix}/{item.name}" if prefix else item.name)
                 elif item.is_dir():
                     scan_dir(item, f"{prefix}/{item.name}" if prefix else item.name)
-
-        if static_dir.exists():
-            scan_dir(static_dir)
-
-        html = "<h1>Fichiers statiques disponibles</h1>"
-        html += "<ul>"
+        if base_dir.exists():
+            scan_dir(base_dir)
+        html = "<h1>Fichiers statiques disponibles</h1><ul>"
         for file in sorted(files):
             html += f'<li><a href="/static/{file}">{file}</a></li>'
         html += "</ul>"
-
         return html
 
     @app.route('/debug/system')
     def debug_system():
-        """Debug système complet"""
-        import os
         import subprocess
-        
-        checks = []
-        
-        # Vérifier tesseract
-        paths_to_check = [
-            '/usr/bin/tesseract',
-            '/usr/local/bin/tesseract', 
-            '/bin/tesseract'
-        ]
-        
-        for path in paths_to_check:
-            exists = os.path.exists(path)
-            checks.append({
-                'path': path,
-                'exists': exists,
-                'executable': os.access(path, os.X_OK) if exists else False
-            })
-        
-        # Liste des fichiers dans /usr/bin
+        paths_to_check = ['/usr/bin/tesseract','/usr/local/bin/tesseract','/bin/tesseract']
+        checks = [{'path':p,'exists':os.path.exists(p),'executable':os.access(p,os.X_OK) if os.path.exists(p) else False} for p in paths_to_check]
         try:
-            files_in_bin = os.listdir('/usr/bin')
-            tesseract_files = [f for f in files_in_bin if 'tesseract' in f]
-        except:
-            tesseract_files = ['erreur listing']
-        
-        # Test commande
-        try:
-            result = subprocess.run(['/usr/bin/tesseract', '--version'], 
-                                  capture_output=True, text=True)
-            cmd_test = {
-                'success': result.returncode == 0,
-                'output': result.stdout[:200],
-                'error': result.stderr[:200]
-            }
+            result = subprocess.run(['/usr/bin/tesseract','--version'], capture_output=True, text=True)
+            cmd_test = {'success': result.returncode == 0,'output':result.stdout[:200],'error':result.stderr[:200]}
         except Exception as e:
             cmd_test = {'error': str(e)}
-        
-        return jsonify({
-            'system_checks': checks,
-            'tesseract_files_in_bin': tesseract_files,
-            'command_test': cmd_test,
-            'env_path': os.environ.get('PATH', '')
-        })
+        return jsonify({'system_checks': checks,'command_test': cmd_test})
 
-    # ========================================================
-    # STATIC FILES FIX
-    # ========================================================
-
-    #@app.route('/static/<path:filename>')
-    #def serve_static(filename):
-        """Servir les fichiers statiques avec les bons headers"""
-        try:
-            response = send_from_directory('static', filename)
-
-            # Ajouter les bons headers MIME
-            if filename.endswith('.css'):
-                response.headers['Content-Type'] = 'text/css'
-            elif filename.endswith('.js'):
-                response.headers['Content-Type'] = 'application/javascript'
-            elif filename.endswith('.html'):
-                response.headers['Content-Type'] = 'text/html'
-
-            # Cache pour les fichiers statiques
-            response.headers['Cache-Control'] = 'public, max-age=31536000'
-
-            return response
-        except Exception as e:
-            logger.warning(f"Fichier statique non trouvé: {filename}")
-            return "Fichier non trouvé", 404
-
-    # ========================================================
-    # ERREURS (avec fallback si templates manquants)
-    # ========================================================
-
+    # ============================================================
+    # Erreurs et filtres Jinja
+    # ============================================================
     @app.errorhandler(404)
     def not_found(e):
         try:
             return render_template("errors/404.html"), 404
         except:
-            return "<h1>Erreur 404 - Page non trouvée</h1><p><a href='/'>Retour à l'accueil</a></p>", 404
+            return "<h1>Erreur 404</h1>", 404
 
     @app.errorhandler(413)
     def too_large(e):
         try:
             return render_template("errors/413.html"), 413
         except:
-            return "<h1>Erreur 413 - Fichier trop volumineux</h1><p>Le fichier dépasse la taille maximale autorisée.</p>", 413
+            return "<h1>Erreur 413 - Fichier trop volumineux</h1>", 413
 
     @app.errorhandler(500)
     def server_error(e):
-        logger.exception("🔥 ERREUR 500")
         try:
             return render_template("errors/500.html"), 500
         except:
-            return "<h1>Erreur 500 - Problème serveur</h1><p>Une erreur interne s'est produite.</p>", 500
-
-    # ========================================================
-    # FILTRES JINJA
-    # ========================================================
+            return "<h1>Erreur 500</h1>", 500
 
     @app.template_filter('filesize')
     def filesize(value):
-        for unit in ['B', 'KB', 'MB', 'GB']:
+        for unit in ['B','KB','MB','GB']:
             if value < 1024:
                 return f"{value:.1f} {unit}"
             value /= 1024
 
-    logger.info(f"✅ {AppConfig.NAME} v{AppConfig.VERSION} démarré")
-    logger.info(f"🔗 URLs disponibles:")
-    logger.info(f"   - Accueil: /")
-    logger.info(f"   - Conversion: /conversion/")
-    logger.info(f"   - Test OCR: /test-ocr")
-    logger.info(f"   - Test Tesseract API: /test-tesseract")
-    logger.info(f"   - Force Install OCR: /force-install-ocr")
-    logger.info(f"   - Health: /health")
-    logger.info(f"📦 Packages Python:")
-    logger.info(f"   - pytesseract: {'✓' if PYTESSERACT_AVAILABLE else '✗'}")
-    logger.info(f"   - opencv-python: {'✓' if OPENCV_AVAILABLE else '✗'}")
-    logger.info(f"   - pdf2image: {'✓' if PDF2IMAGE_AVAILABLE else '✗'}")
-
     return app
 
-
 # ============================================================
-# ENTRYPOINT
+# Entrypoint
 # ============================================================
-
 app = create_app()
 
 if __name__ == "__main__":
-
     port = int(os.environ.get("PORT", 5000))
-
-    app.run(
-        host="0.0.0.0",
-        port=port,
-        debug=False
-    )
+    app.run(host="0.0.0.0", port=port, debug=False)
