@@ -305,7 +305,7 @@ def create_app():
     # ========================================================
 
     blueprints = [
-        (pdf_bp, None),
+        (pdf_bp, "/pdf"),
         (api_bp, "/api"),
         (legal_bp, None),          # PAS de préfixe pour les pages légales
         (stats_bp, None),
@@ -315,7 +315,7 @@ def create_app():
 
     for bp, prefix in blueprints:
         if prefix:
-            app.register_blueprint(bp, url_prefix=prefix)
+            app.register_blueprint(bp, url_prefix=prefix or None)
         else:
             app.register_blueprint(bp)
 
