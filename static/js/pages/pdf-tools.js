@@ -26,25 +26,42 @@ document.addEventListener('DOMContentLoaded', () => {
     tools.forEach(tool => {
         const button = document.getElementById(`${tool}Button`);
         const pagesInput = document.getElementById(`${tool}Pages`);
-        const uploadManager = window.uploadManagers[`${tool}UploadZone`];
+        const uploadZone = document.getElementById(`${tool}UploadZone`);
+        const fileInput = uploadZone ? uploadZone.querySelector('input[type="file"]') : null;
 
-        if (!button || !uploadManager) return;
+        if (!button || !uploadZone || !fileInput) return;
 
-        // Observer la liste de fichiers pour créer miniatures et drag & drop
-        const fileInfoDiv = document.getElementById(uploadManager.fileInfo.id);
+        // Élément pour afficher les miniatures
+        const fileInfoId = `${tool}FileInfo`;
+        let fileInfoDiv = document.getElementById(fileInfoId);
+        
+        // Créer le conteneur de miniatures s'il n'existe pas
+        if (!fileInfoDiv) {
+            fileInfoDiv = document.createElement('div');
+            fileInfoDiv.id = fileInfoId;
+            fileInfoDiv.className = 'file-info mt-3';
+            uploadZone.appendChild(fileInfoDiv);
+        }
+
+        // Fonction pour mettre à jour les miniatures
         const updateThumbnails = async () => {
             if (!fileInfoDiv) return;
             fileInfoDiv.innerHTML = '';
 
-            for (let i = 0; i < uploadManager.files.length; i++) {
-                const f = uploadManager.files[i];
+            const files = Array.from(fileInput.files);
+            
+            for (let i = 0; i < files.length; i++) {
+                const f = files[i];
 
                 const li = document.createElement('div');
-                li.className = 'file-thumb d-flex align-items-center mb-2';
+                li.className = 'file-thumb d-flex align-items-center mb-2 p-2 bg-dark rounded';
                 li.dataset.index = i;
 
                 const thumb = document.createElement('img');
-                thumb.className = 'thumb-img me-2';
+                thumb.className = 'thumb-img me-2 rounded';
+                thumb.style.width = '50px';
+                thumb.style.height = '50px';
+                thumb.style.objectFit = 'cover';
                 thumb.alt = f.name;
 
                 try {
@@ -54,12 +71,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const info = document.createElement('span');
+                info.className = 'flex-grow-1';
                 info.textContent = `${f.name} (${(f.size/1024/1024).toFixed(2)} MB)`;
 
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'btn-close btn-close-white btn-sm ms-auto';
-                removeBtn.addEventListener('click', () => {
-                    uploadManager.removeFile(i);
+                removeBtn.setAttribute('aria-label', 'Supprimer');
+                removeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Créer un nouveau FileList sans le fichier supprimé
+                    const dt = new DataTransfer();
+                    const newFiles = Array.from(fileInput.files).filter((_, index) => index !== i);
+                    newFiles.forEach(file => dt.items.add(file));
+                    fileInput.files = dt.files;
+                    
+                    // Déclencher l'événement change
+                    fileInput.dispatchEvent(new Event('change', { bubbles: true }));
                 });
 
                 li.appendChild(thumb);
@@ -70,30 +99,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Activation du bouton
-            button.disabled = !uploadManager.files.length;
-
-            // Initialiser le drag & drop pour réordonner
-            if (uploadManager.files.length > 1 && tool === 'merge') {
-                new Sortable(fileInfoDiv, {
-                    animation: 150,
-                    onEnd: (evt) => {
-                        const movedItem = uploadManager.files.splice(evt.oldIndex, 1)[0];
-                        uploadManager.files.splice(evt.newIndex, 0, movedItem);
-                    }
-                });
-            }
+            button.disabled = files.length === 0;
         };
 
-        // Sur changement de fichiers
-        const originalUpdateFileList = uploadManager.updateFileList.bind(uploadManager);
-        uploadManager.updateFileList = () => {
-            originalUpdateFileList();
+        // Écouter les changements de fichiers
+        fileInput.addEventListener('change', updateThumbnails);
+
+        // Initialiser les miniatures si des fichiers sont déjà sélectionnés
+        if (fileInput.files.length > 0) {
             updateThumbnails();
-        };
+        }
 
         // Bouton d'action
-        button.addEventListener('click', async () => {
-            if (!uploadManager.files.length) {
+        button.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            const files = Array.from(fileInput.files);
+            
+            if (!files.length) {
                 alert("Veuillez sélectionner au moins un fichier PDF.");
                 return;
             }
@@ -103,44 +126,50 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const formData = new FormData();
                 
-                // Préparer les données selon l'outil
+                // === RÉCUPÉRATION RADICALE DIRECTEMENT DEPUIS L'INPUT ===
                 if (tool === 'merge') {
-                    // Pour la fusion, envoyer tous les fichiers
-                    uploadManager.files.forEach(f => formData.append('files', f));
+                    // Pour la fusion, envoyer TOUS les fichiers
+                    files.forEach(f => {
+                        formData.append('files', f);
+                        console.log(`Fichier ajouté (merge): ${f.name}, taille: ${f.size}, type: ${f.type}`);
+                    });
                 } else {
-                    // Pour split, rotate, compress: un seul fichier
-                    if (uploadManager.files.length > 1) {
+                    // Pour split, rotate, compress: UN SEUL fichier
+                    if (files.length > 1) {
                         alert(`Pour ${tool}, veuillez sélectionner un seul fichier PDF.`);
                         toggleLoader(false);
                         return;
                     }
-                    formData.append('file', uploadManager.files[0]);
+                    formData.append('file', files[0]);
+                    console.log(`Fichier ajouté (${tool}): ${files[0].name}, taille: ${files[0].size}, type: ${files[0].type}`);
                 }
                 
-                // === CORRECTIONS CRITIQUES POUR LES PARAMÈTRES ===
+                // === PARAMÈTRES SPÉCIFIQUES ===
                 if (tool === 'split') {
                     const pages = pagesInput?.value || 'all';
-                    // PDFEngine.split attend mode et arg
                     formData.append('mode', 'range');
                     formData.append('arg', pages);
+                    console.log(`Split params: mode=range, arg=${pages}`);
                 }
                 
                 if (tool === 'rotate') {
                     const pages = pagesInput?.value || 'all';
-                    // PDFEngine.rotate attend pages_input
                     formData.append('pages', pages);
                     
                     const angle = document.querySelector('input[name="rotateAngle"]:checked')?.value || '90';
                     formData.append('angle', angle);
+                    console.log(`Rotate params: pages=${pages}, angle=${angle}`);
                 }
                 
                 if (tool === 'compress') {
                     const level = document.querySelector('input[name="compressionLevel"]:checked')?.value || 'medium';
                     formData.append('level', level);
+                    console.log(`Compress params: level=${level}`);
                 }
 
-                const endpoint = `/${tool}`; // ✅ Devient /merge, /split, /rotate, /compress
-                console.log(`Envoi à: ${endpoint}`, tool, Object.fromEntries(formData));
+                // === ENDPOINT CORRECT ===
+                const endpoint = `/${tool}`;
+                console.log(`🚀 Envoi à: ${endpoint}`);
                 
                 const res = await fetch(endpoint, { 
                     method: 'POST', 
@@ -149,9 +178,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (!res.ok) {
                     let errorText = await res.text();
-                    console.error('Erreur serveur:', res.status, errorText);
+                    console.error('❌ Erreur serveur:', res.status, errorText);
                     
-                    // Essayer d'extraire un message d'erreur lisible
                     try {
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(errorText, 'text/html');
@@ -162,10 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // Vérifier le type de contenu pour déterminer si c'est un ZIP ou PDF
-                const contentType = res.headers.get('Content-Type');
-                
-                // Récupérer le nom de fichier depuis les headers si possible
+                // === TÉLÉCHARGEMENT ===
                 const contentDisposition = res.headers.get('Content-Disposition');
                 let filename = '';
                 
@@ -176,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 
-                // Nom par défaut si pas trouvé dans les headers
                 if (!filename) {
                     const defaultNames = {
                         merge: 'fichiers-fusionnes.pdf',
@@ -197,13 +221,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 a.click();
                 document.body.removeChild(a);
                 
-                // Libérer la mémoire
                 setTimeout(() => window.URL.revokeObjectURL(url), 100);
+                
+                console.log(`✅ Téléchargement: ${filename}`);
 
             } catch (err) {
-                console.error('Erreur détaillée:', err);
+                console.error('❌ Erreur détaillée:', err);
                 
-                // Message utilisateur plus clair
                 let message = 'Erreur lors du traitement';
                 if (err.message.includes('404')) {
                     message = 'Le service est temporairement indisponible. Veuillez réessayer.';
@@ -211,6 +235,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     message = 'Problème de connexion. Vérifiez votre internet.';
                 } else if (err.message.includes('500')) {
                     message = 'Erreur serveur. Le fichier PDF est peut-être corrompu.';
+                } else if (err.message.includes('Aucun fichier')) {
+                    message = 'Fichier non reçu par le serveur. Vérifiez le format PDF.';
                 } else {
                     message = err.message.substring(0, 100) + '...';
                 }
