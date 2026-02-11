@@ -8,6 +8,7 @@ from datetime import datetime
 
 from flask import (
     Blueprint,
+    render_template,
     request,
     jsonify,
     send_file,
@@ -106,10 +107,12 @@ def pdf_index():
 # MERGE
 # ==========================================
 
-@pdf_bp.route("/merge", methods=["POST"])
+@pdf_bp.route("/merge", methods=["GET", "POST"])
 def merge():
-    temp_paths = []
+    if request.method == "GET":
+        return render_template("pdf/merge.html")
 
+    temp_paths = []
     try:
         if "files" not in request.files:
             return jsonify({"error": "Aucun fichier"}), 400
@@ -158,30 +161,50 @@ def merge():
 # -------------------------------
 # Route OCR image → texte
 # -------------------------------
-@pdf_bp.route("/ocr", methods=["POST"])
+@pdf_bp.route("/ocr", methods=["GET", "POST"])
 def ocr_image():
-    import pytesseract # type: ignore
+    # GET : Afficher la page OCR
+    if request.method == "GET":
+        from flask import render_template
+        return render_template("pdf/ocr.html")
+    
+    # POST : Traiter l'OCR
+    import pytesseract
     from PIL import Image
-
+    
     temp_paths = []
-
     try:
         if "file" not in request.files:
             return jsonify({"error": "Aucun fichier"}), 400
 
         file = request.files["file"]
+        
+        # Vérifier que c'est une image
+        if not file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp')):
+            return jsonify({"error": "Format non supporté. Utilisez PNG, JPG, TIFF ou BMP"}), 400
+            
         path = save_temp_file(file, "images")
         temp_paths.append(path)
 
         img = Image.open(path)
-        text = pytesseract.image_to_string(img, lang=AppConfig.OCR_DEFAULT_LANGUAGE, config=AppConfig.OCR_CONFIG)
+        text = pytesseract.image_to_string(
+            img, 
+            lang=AppConfig.OCR_DEFAULT_LANGUAGE, 
+            config=AppConfig.OCR_CONFIG
+        )
 
-        return jsonify({"text": text})
+        return jsonify({
+            "success": True,
+            "text": text,
+            "filename": file.filename
+        })
 
+    except pytesseract.TesseractNotFoundError:
+        current_app.logger.error("Tesseract non installé")
+        return jsonify({"error": "OCR non disponible sur le serveur"}), 503
     except Exception as e:
         current_app.logger.exception("OCR échoué")
         return jsonify({"error": str(e)}), 500
-
     finally:
         cleanup_files(temp_paths)
 
@@ -190,8 +213,10 @@ def ocr_image():
 # SPLIT
 # ==========================================
 
-@pdf_bp.route("/split", methods=["POST"])
+@pdf_bp.route("/split", methods=["GET", "POST"])
 def split():
+    if request.method == "GET":
+        return render_template("pdf/split.html")
     try:
 
         if "file" not in request.files:
@@ -241,8 +266,10 @@ def split():
 # ROTATE
 # ==========================================
 
-@pdf_bp.route("/rotate", methods=["POST"])
+@pdf_bp.route("/rotate", methods=["GET", "POST"])
 def rotate():
+    if request.method == "GET":
+        return render_template("pdf/rotate.html")
     try:
 
         if "file" not in request.files:
@@ -284,8 +311,10 @@ def rotate():
 # COMPRESS
 # ==========================================
 
-@pdf_bp.route("/compress", methods=["POST"])
+@pdf_bp.route("/compress", methods=["GET", "POST"])
 def compress():
+    if request.method == "GET":
+        return render_template("pdf/compress.html")
     try:
 
         if "file" not in request.files:
@@ -320,10 +349,12 @@ def compress():
 # PREVIEW (Base64)
 # ==========================================
 
-@pdf_bp.route("/preview", methods=["POST"])
+@pdf_bp.route("/preview", methods=["POST"])  # POST seulement
 def handle_preview():
+    """
+    Génère des aperçus des pages PDF (POST uniquement)
+    """
     try:
-
         if "file" not in request.files:
             return jsonify({"error": "Aucun fichier reçu"}), 400
 
@@ -337,6 +368,7 @@ def handle_preview():
         previews, total_pages = PDFEngine.preview(pdf_bytes)
 
         return jsonify({
+            "success": True,
             "previews": previews,
             "total_pages": total_pages
         })
@@ -369,9 +401,9 @@ def health_check():
     })
 
 
-@pdf_bp.route('/api/rating', methods=["POST"])
+@pdf_bp.route('/api/rating', methods=["POST"])  # POST seulement
 def api_rating():
-    """API pour enregistrer les évaluations"""
+    """API pour enregistrer les évaluations (POST uniquement)"""
     try:
         data = request.get_json(force=True, silent=True)
         if not data:
@@ -379,17 +411,56 @@ def api_rating():
         
         rating = data.get("rating", 0)
         feedback = data.get("feedback", "")
+        page = data.get("page", "unknown")
+        
+        # Validation
+        if not isinstance(rating, int) or rating < 1 or rating > 5:
+            return jsonify({"error": "Note invalide (1-5)"}), 400
         
         # Enregistrer dans les statistiques
         stats_manager.increment("ratings")
+        stats_manager.increment(f"rating_{rating}")
+        
+        # Sauvegarder le feedback (optionnel)
+        if feedback and feedback.strip():
+            try:
+                from datetime import datetime
+                import json
+                from pathlib import Path
+                
+                ratings_file = Path(__file__).parent.parent / 'data' / 'ratings.json'
+                ratings_file.parent.mkdir(parents=True, exist_ok=True)
+                
+                # Charger existant
+                ratings = []
+                if ratings_file.exists():
+                    ratings = json.loads(ratings_file.read_text())
+                
+                # Ajouter nouveau
+                ratings.append({
+                    "timestamp": datetime.now().isoformat(),
+                    "rating": rating,
+                    "feedback": feedback.strip(),
+                    "page": page,
+                    "ip": request.remote_addr[:15] if request.remote_addr else "unknown"
+                })
+                
+                # Garder seulement les 1000 derniers
+                ratings = ratings[-1000:]
+                
+                # Sauvegarder
+                ratings_file.write_text(json.dumps(ratings, indent=2))
+            except Exception as e:
+                current_app.logger.error(f"Erreur sauvegarde rating: {e}")
         
         return jsonify({
             "success": True,
-            "message": "Évaluation enregistrée",
+            "message": "Merci pour votre évaluation !",
             "rating": rating
         })
     
     except Exception as e:
+        current_app.logger.exception("Erreur API rating")
         return jsonify({"error": "Erreur interne du serveur"}), 500
 
 
