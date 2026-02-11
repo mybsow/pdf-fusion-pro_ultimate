@@ -107,7 +107,7 @@ def pdf_index():
 # ==========================================
 
 @pdf_bp.route("/merge", methods=["POST"])
-def merge_pdf():
+def merge():
     temp_paths = []
 
     try:
@@ -191,7 +191,7 @@ def ocr_image():
 # ==========================================
 
 @pdf_bp.route("/split", methods=["POST"])
-def handle_split():
+def split():
     try:
 
         if "file" not in request.files:
@@ -242,7 +242,7 @@ def handle_split():
 # ==========================================
 
 @pdf_bp.route("/rotate", methods=["POST"])
-def handle_rotate():
+def rotate():
     try:
 
         if "file" not in request.files:
@@ -285,7 +285,7 @@ def handle_rotate():
 # ==========================================
 
 @pdf_bp.route("/compress", methods=["POST"])
-def handle_compress():
+def compress():
     try:
 
         if "file" not in request.files:
