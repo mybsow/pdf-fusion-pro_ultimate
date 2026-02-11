@@ -27,7 +27,6 @@ from .file_manager import TempFileManager
 # Initialiser dossier temporaire dès le démarrage
 AppConfig.initialize()
 
-pdf_bp = Blueprint('pdf', __name__, url_prefix='/pdf')
 
 # -------------------------------
 # Helper fichier temporaire
