@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.disabled = !uploadManager.files.length;
 
             // Initialiser le drag & drop pour réordonner
-            if (uploadManager.files.length > 1) {
+            if (uploadManager.files.length > 1 && tool === 'merge') {
                 new Sortable(fileInfoDiv, {
                     animation: 150,
                     onEnd: (evt) => {
@@ -117,13 +117,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     formData.append('file', uploadManager.files[0]);
                 }
                 
-                // Ajouter les paramètres spécifiques
-                if (tool === 'split' || tool === 'rotate') {
+                // === CORRECTIONS CRITIQUES POUR LES PARAMÈTRES ===
+                if (tool === 'split') {
                     const pages = pagesInput?.value || 'all';
-                    formData.append('pages', pages);
+                    // PDFEngine.split attend mode et arg
+                    formData.append('mode', 'range');
+                    formData.append('arg', pages);
                 }
                 
                 if (tool === 'rotate') {
+                    const pages = pagesInput?.value || 'all';
+                    // PDFEngine.rotate attend pages_input
+                    formData.append('pages', pages);
+                    
                     const angle = document.querySelector('input[name="rotateAngle"]:checked')?.value || '90';
                     formData.append('angle', angle);
                 }
@@ -133,10 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     formData.append('level', level);
                 }
 
-                // CORRECTION: Envoyer à /{tool} (pas /pdf/{tool}) car le blueprint est à la racine
                 const API_PREFIX = "/pdf";
                 const endpoint = `${API_PREFIX}/${tool}`;
-                console.log(`Envoi à: ${endpoint}`, tool, formData);
+                console.log(`Envoi à: ${endpoint}`, tool, Object.fromEntries(formData));
                 
                 const res = await fetch(endpoint, { 
                     method: 'POST', 
@@ -158,6 +163,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
+                // Vérifier le type de contenu pour déterminer si c'est un ZIP ou PDF
+                const contentType = res.headers.get('Content-Type');
+                
                 // Récupérer le nom de fichier depuis les headers si possible
                 const contentDisposition = res.headers.get('Content-Disposition');
                 let filename = '';
