@@ -92,6 +92,16 @@ def read_uploaded_pdf(file):
 
     return data
 
+@pdf_bp.route("/", methods=["GET"])
+def pdf_index():
+    """
+    Page d'accueil du module PDF.
+    Redirige ou rend un template.
+    """
+    # Si tu as un template d'accueil PDF
+    from flask import render_template
+    return render_template("pdf/index.html")
+
 
 # ==========================================
 # MERGE

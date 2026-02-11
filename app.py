@@ -268,6 +268,11 @@ def create_app():
     @app.route('/')
     def index():
         return redirect('/pdf')
+    
+    @app.route("/pdf")
+    def redirect_pdf():
+        return redirect("/pdf/", code=301)
+
 
     @app.route('/ads.txt')
     def ads():
