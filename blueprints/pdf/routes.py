@@ -1,472 +1,303 @@
 """
-Routes principales pour les outils PDF (version refactorisée avec templates séparés)
+Routes pour les outils PDF
+Version ultra robuste production
 """
 
 import io
-import base64
-import zipfile
-import os
 from datetime import datetime
-# AJOUTEZ CES IMPORTS :
-from flask import render_template, jsonify, request, redirect, url_for
-from . import pdf_bp
+
+from flask import (
+    Blueprint,
+    request,
+    jsonify,
+    send_file,
+    current_app
+)
+
+from pathlib import Path
+import uuid
 from config import AppConfig
+from PyPDF2 import PdfReader, PdfWriter  # Remplacer par pypdf si possible
+from . import pdf_bp
 from .engine import PDFEngine
-from managers.stats_manager import stats_manager
-from managers.contact_manager import contact_manager
-from managers.rating_manager import rating_manager
-from utils.middleware import setup_middleware
+
+# Initialiser dossier temporaire dès le démarrage
+AppConfig.initialize()
+
+pdf_bp = Blueprint('pdf', __name__, url_prefix='/pdf')
+
+# -------------------------------
+# Helper fichier temporaire
+# -------------------------------
+def save_temp_file(file, subfolder="general"):
+    if file.filename == "":
+        raise ValueError("Fichier invalide")
+    
+    temp_dir = AppConfig.get_conversion_temp_dir(subfolder)
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    
+    filename = f"{uuid.uuid4()}{Path(file.filename).suffix.lower()}"
+    path = temp_dir / filename
+    file.save(path)
+    
+    if path.stat().st_size == 0:
+        path.unlink()
+        raise ValueError("Fichier vide")
+    
+    return path
 
 
-# ============================================================
-# ROUTES DE PAGES
-# ============================================================
+def cleanup_files(paths):
+    for p in paths:
+        try:
+            if Path(p).exists():
+                Path(p).unlink()
+        except Exception:
+            pass
 
-@pdf_bp.route('/')
-def index():
-    """Page d'accueil principale"""
-    return render_template(
-        'pdf/index.html',
-        title="PDF Fusion Pro – Fusionner, Diviser, Tourner, Compresser PDF Gratuit",
-        description="Outil PDF en ligne 100% gratuit. Fusionnez plusieurs PDFs en un seul, divisez des PDFs par pages, tournez des pages PDF et compressez des fichiers PDF sans perte de qualité. Aucune inscription requise, traitement sécurisé dans votre navigateur.",
-        config=AppConfig,
-        current_year=datetime.now().year,
-        rating_html=get_rating_html()
-    )
 
-@pdf_bp.route('/fusion-pdf')
-def merge():
-    """Page dédiée à la fusion PDF"""
-    return render_template(
-        'pdf/merge.html',
-        title="Fusionner PDF - Outil gratuit pour combiner des fichiers PDF",
-        description="Fusionnez gratuitement plusieurs fichiers PDF en un seul document organisé. Interface intuitive, rapide et sécurisée. Aucune inscription requise.",
-        config=AppConfig,
-        current_year=datetime.now().year,
-        rating_html=get_rating_html()
-    )
 
-@pdf_bp.route('/division-pdf')
-def split():
-    """Page dédiée à la division PDF"""
-    return render_template(
-        'pdf/split.html',
-        title="Diviser PDF - Extraire des pages de fichiers PDF",
-        description="Divisez vos fichiers PDF par pages ou plages spécifiques. Téléchargez les pages séparément ou en archive ZIP. Simple et efficace.",
-        config=AppConfig,
-        current_year=datetime.now().year,
-        rating_html=get_rating_html()
-    )
+# ==========================================
+# LECTURE SÉCURISÉE DES FICHIERS
+# ==========================================
 
-@pdf_bp.route('/rotation-pdf')
-def rotate():
-    """Page dédiée à la rotation PDF"""
-    return render_template(
-        'pdf/rotate.html',
-        title="Tourner PDF - Corriger l'orientation des pages PDF",
-        description="Tournez les pages de vos PDFs à 90°, 180° ou 270°. Corrigez l'orientation de documents scannés facilement.",
-        config=AppConfig,
-        current_year=datetime.now().year,
-        rating_html=get_rating_html()
-    )
+def read_uploaded_pdf(file):
+    """
+    Lecture sécurisée d'un PDF uploadé.
+    Protège contre :
+    - stream déjà lu
+    - fichiers vides
+    - faux PDF
+    """
 
-@pdf_bp.route('/compression-pdf')
-def compress():
-    """Page dédiée à la compression PDF"""
-    return render_template(
-        'pdf/compress.html',
-        title="Compresser PDF - Réduire la taille des fichiers PDF",
-        description="Compressez vos fichiers PDF pour réduire leur taille sans perte de qualité notable. Optimisez l'espace de stockage et le partage.",
-        config=AppConfig,
-        current_year=datetime.now().year,
-        rating_html=get_rating_html()
-    )
+    if not file or file.filename == "":
+        raise ValueError("Fichier invalide")
 
-# ============================================================
-# ROUTES POST DIRECTES (pour FormData)
-# ============================================================
+    if not file.filename.lower().endswith(".pdf"):
+        raise ValueError(f"{file.filename} n'est pas un PDF")
 
-@pdf_bp.route('/merge', methods=['POST'])
+    # ⭐ CRITIQUE : reset du stream
+    file.stream.seek(0)
+    data = file.read()
+
+    if not data:
+        raise ValueError(f"{file.filename} est vide")
+
+    # Vérifie la signature PDF
+    if not data.startswith(b"%PDF"):
+        raise ValueError(f"{file.filename} est corrompu ou non-PDF")
+
+    return data
+
+
+# ==========================================
+# MERGE
+# ==========================================
+
+@pdf_bp.route("/merge", methods=["POST"])
 def handle_merge():
-    """Traitement direct de fusion PDF (FormData)"""
     try:
-        if 'files' not in request.files:
+
+        if "files" not in request.files:
             return jsonify({"error": "Aucun fichier reçu"}), 400
-        
-        files = request.files.getlist('files')
-        if not files or files[0].filename == '':
+
+        files = request.files.getlist("files")
+
+        if not files:
             return jsonify({"error": "Aucun fichier valide"}), 400
-        
+
         pdfs = []
+
         for file in files:
-            if file and file.filename.lower().endswith('.pdf'):
-                pdfs.append(file.read())
-        
+            try:
+                pdf_bytes = read_uploaded_pdf(file)
+                pdfs.append(pdf_bytes)
+
+            except ValueError as e:
+                return jsonify({"error": str(e)}), 400
+
         if not pdfs:
-            return jsonify({"error": "Aucun PDF valide"}), 400
-        
+            return jsonify({"error": "Aucun PDF exploitable"}), 400
+
         merged_pdf, page_count = PDFEngine.merge(pdfs)
-        stats_manager.increment("merges")
-        
-        from flask import send_file
-        import io
-        
+
+        current_app.logger.info(
+            f"PDF merge réussi — {len(pdfs)} fichiers, {page_count} pages"
+        )
+
         return send_file(
             io.BytesIO(merged_pdf),
             as_attachment=True,
             download_name=f"fusion_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-            mimetype='application/pdf'
+            mimetype="application/pdf"
         )
+
+    except Exception:
+        current_app.logger.exception("Crash /merge")
+        return jsonify({"error": "Erreur interne serveur"}), 500
     
-    except Exception as e:
-        return jsonify({"error": f"Erreur interne: {str(e)}"}), 500
+    finally:
+        cleanup_files(temp_paths)
 
 
-@pdf_bp.route('/split', methods=['POST'])
+# ==========================================
+# SPLIT
+# ==========================================
+
+@pdf_bp.route("/split", methods=["POST"])
 def handle_split():
-    """Traitement direct de division PDF (FormData)"""
     try:
-        if 'files' not in request.files:
+
+        if "file" not in request.files:
             return jsonify({"error": "Aucun fichier reçu"}), 400
-        
-        file = request.files['files']
-        if not file or file.filename == '':
-            return jsonify({"error": "Fichier manquant"}), 400
-        
-        if not file.filename.lower().endswith('.pdf'):
-            return jsonify({"error": "Format non supporté"}), 400
-        
-        pdf_bytes = file.read()
-        pages = request.form.get('pages', 'all')
-        
-        split_files = PDFEngine.split(pdf_bytes, 'range', pages)
-        stats_manager.increment("splits")
-        
-        # Créer un ZIP avec les fichiers splités
-        import zipfile
-        import io
-        
-        zip_buffer = io.BytesIO()
-        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-            for i, pdf_data in enumerate(split_files, 1):
-                zip_file.writestr(f"page_{i:03d}.pdf", pdf_data)
-        
-        zip_buffer.seek(0)
-        
-        from flask import send_file
+
+        file = request.files["file"]
+
+        try:
+            pdf_bytes = read_uploaded_pdf(file)
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+
+        mode = request.form.get("mode", "all")
+        arg = request.form.get("pages", "")
+
+        output_files = PDFEngine.split(pdf_bytes, mode, arg)
+
+        if not output_files:
+            return jsonify({"error": "Aucune page générée"}), 400
+
+        # Si plusieurs fichiers → ZIP
+        if len(output_files) > 1:
+
+            zip_bytes, zip_name = PDFEngine.create_zip(output_files)
+
+            return send_file(
+                io.BytesIO(zip_bytes),
+                as_attachment=True,
+                download_name=zip_name,
+                mimetype="application/zip"
+            )
+
+        # Sinon un seul PDF
         return send_file(
-            zip_buffer,
+            io.BytesIO(output_files[0]),
             as_attachment=True,
-            download_name=f"split_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip",
-            mimetype='application/zip'
+            download_name=f"split_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+            mimetype="application/pdf"
         )
-    
-    except Exception as e:
-        return jsonify({"error": f"Erreur interne: {str(e)}"}), 500
+
+    except Exception:
+        current_app.logger.exception("Crash /split")
+        return jsonify({"error": "Erreur interne serveur"}), 500
 
 
-@pdf_bp.route('/rotate', methods=['POST'])
+# ==========================================
+# ROTATE
+# ==========================================
+
+@pdf_bp.route("/rotate", methods=["POST"])
 def handle_rotate():
-    """Traitement direct de rotation PDF (FormData)"""
     try:
-        if 'files' not in request.files:
+
+        if "file" not in request.files:
             return jsonify({"error": "Aucun fichier reçu"}), 400
-        
-        file = request.files['files']
-        if not file or file.filename == '':
-            return jsonify({"error": "Fichier manquant"}), 400
-        
-        if not file.filename.lower().endswith('.pdf'):
-            return jsonify({"error": "Format non supporté"}), 400
-        
-        pdf_bytes = file.read()
-        angle = int(request.form.get('angle', 90))
-        pages = request.form.get('pages', 'all')
-        
-        rotated_pdf, total_pages, rotated_count = PDFEngine.rotate(pdf_bytes, angle, pages)
-        stats_manager.increment("rotations")
-        
-        from flask import send_file
-        import io
-        
+
+        file = request.files["file"]
+
+        try:
+            pdf_bytes = read_uploaded_pdf(file)
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+
+        angle = int(request.form.get("angle", 90))
+        pages = request.form.get("pages", "all")
+
+        rotated_pdf, total_pages, rotated_count = PDFEngine.rotate(
+            pdf_bytes,
+            angle,
+            pages
+        )
+
+        current_app.logger.info(
+            f"Rotation PDF — {rotated_count}/{total_pages} pages"
+        )
+
         return send_file(
             io.BytesIO(rotated_pdf),
             as_attachment=True,
             download_name=f"rotation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-            mimetype='application/pdf'
+            mimetype="application/pdf"
         )
-    
-    except Exception as e:
-        return jsonify({"error": f"Erreur interne: {str(e)}"}), 500
+
+    except Exception:
+        current_app.logger.exception("Crash /rotate")
+        return jsonify({"error": "Erreur interne serveur"}), 500
 
 
-@pdf_bp.route('/compress', methods=['POST'])
+# ==========================================
+# COMPRESS
+# ==========================================
+
+@pdf_bp.route("/compress", methods=["POST"])
 def handle_compress():
-    """Traitement direct de compression PDF (FormData)"""
     try:
-        if 'files' not in request.files:
+
+        if "file" not in request.files:
             return jsonify({"error": "Aucun fichier reçu"}), 400
-        
-        file = request.files['files']
-        if not file or file.filename == '':
-            return jsonify({"error": "Fichier manquant"}), 400
-        
-        if not file.filename.lower().endswith('.pdf'):
-            return jsonify({"error": "Format non supporté"}), 400
-        
-        pdf_bytes = file.read()
-        compressed_pdf, page_count = PDFEngine.compress(pdf_bytes)
-        stats_manager.increment("compressions")
-        
-        from flask import send_file
-        import io
-        
+
+        file = request.files["file"]
+
+        try:
+            pdf_bytes = read_uploaded_pdf(file)
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+
+        compressed_pdf, total_pages = PDFEngine.compress(pdf_bytes)
+
+        current_app.logger.info(
+            f"Compression PDF — {total_pages} pages"
+        )
+
         return send_file(
             io.BytesIO(compressed_pdf),
             as_attachment=True,
-            download_name=f"compressed_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-            mimetype='application/pdf'
+            download_name=f"compresse_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+            mimetype="application/pdf"
         )
-    
-    except Exception as e:
-        return jsonify({"error": f"Erreur interne: {str(e)}"}), 500
-    
 
-# ============================================================
-# ROUTES GET SIMPLIFIÉES (Redirections)
-# ============================================================
+    except Exception:
+        current_app.logger.exception("Crash /compress")
+        return jsonify({"error": "Erreur interne serveur"}), 500
 
-@pdf_bp.route('/merge', methods=['GET'])
-def merge_short():
-    """Redirige vers la page complète de fusion PDF"""
-    return redirect(url_for('pdf.merge'))
 
-@pdf_bp.route('/split', methods=['GET'])
-def split_short():
-    """Redirige vers la page complète de division PDF"""
-    return redirect(url_for('pdf.split'))
+# ==========================================
+# PREVIEW (Base64)
+# ==========================================
 
-@pdf_bp.route('/rotate', methods=['GET'])
-def rotate_short():
-    """Redirige vers la page complète de rotation PDF"""
-    return redirect(url_for('pdf.rotate'))
-
-@pdf_bp.route('/compress', methods=['GET'])
-def compress_short():
-    """Redirige vers la page complète de compression PDF"""
-    return redirect(url_for('pdf.compress'))
-
-# ============================================================
-# API ENDPOINTS
-# ============================================================
-
-@pdf_bp.route('/api/merge', methods=["POST"])
-def api_merge():
-    """API pour fusionner des PDFs"""
+@pdf_bp.route("/preview", methods=["POST"])
+def handle_preview():
     try:
-        data = request.get_json(force=True, silent=True)
-        if not data or "files" not in data:
+
+        if "file" not in request.files:
             return jsonify({"error": "Aucun fichier reçu"}), 400
-        
-        files_b64 = data["files"]
-        if not isinstance(files_b64, list):
-            return jsonify({"error": "Format de fichiers invalide"}), 400
-        
-        pdfs = []
-        for file_data in files_b64:
-            if "data" in file_data:
-                try:
-                    pdfs.append(base64.b64decode(file_data["data"]))
-                except (base64.binascii.Error, TypeError):
-                    return jsonify({"error": "Format Base64 invalide"}), 400
-        
-        if not pdfs:
-            return jsonify({"error": "Aucun PDF valide fourni"}), 400
-        
-        merged_pdf, page_count = PDFEngine.merge(pdfs)
-        stats_manager.increment("merges")
-        
-        return jsonify({
-            "success": True,
-            "filename": f"fusion_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-            "pages": page_count,
-            "data": base64.b64encode(merged_pdf).decode()
-        })
-    
-    except Exception as e:
-        return jsonify({"error": "Erreur interne du serveur"}), 500
 
+        file = request.files["file"]
 
-@pdf_bp.route('/api/split', methods=["POST"])
-def api_split():
-    """API pour diviser un PDF"""
-    try:
-        data = request.get_json(force=True, silent=True)
-        if not data or "file" not in data:
-            return jsonify({"error": "Fichier manquant"}), 400
-        
-        file_data = data["file"]
-        if "data" not in file_data:
-            return jsonify({"error": "Données du fichier manquantes"}), 400
-        
         try:
-            pdf_bytes = base64.b64decode(file_data["data"])
-        except (base64.binascii.Error, TypeError):
-            return jsonify({"error": "Format Base64 invalide"}), 400
-        
-        mode = data.get("mode", "all")
-        arg = data.get("arg", "")
-        
-        split_files = PDFEngine.split(pdf_bytes, mode, arg)
-        stats_manager.increment("splits")
-        
-        result_files = []
-        for i, pdf_data in enumerate(split_files):
-            result_files.append({
-                "filename": f"split_{i+1:03d}.pdf",
-                "data": base64.b64encode(pdf_data).decode()
-            })
-        
-        return jsonify({
-            "success": True,
-            "count": len(split_files),
-            "files": result_files
-        })
-    
-    except Exception as e:
-        return jsonify({"error": "Erreur interne du serveur"}), 500
+            pdf_bytes = read_uploaded_pdf(file)
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
 
-
-@pdf_bp.route('/api/split_zip', methods=["POST"])
-def api_split_zip():
-    """API pour diviser un PDF et retourner un ZIP"""
-    try:
-        data = request.get_json(force=True, silent=True)
-        if not data or "file" not in data:
-            return jsonify({"error": "Fichier manquant"}), 400
-        
-        file_data = data["file"]
-        if "data" not in file_data:
-            return jsonify({"error": "Données du fichier manquantes"}), 400
-        
-        try:
-            pdf_bytes = base64.b64decode(file_data["data"])
-        except (base64.binascii.Error, TypeError):
-            return jsonify({"error": "Format Base64 invalide"}), 400
-        
-        mode = data.get("mode", "all")
-        arg = data.get("arg", "")
-        
-        split_files = PDFEngine.split(pdf_bytes, mode, arg)
-        stats_manager.increment("splits")
-        
-        zip_data, zip_name = PDFEngine.create_zip(split_files)
-        
-        return jsonify({
-            "success": True,
-            "filename": zip_name,
-            "count": len(split_files),
-            "data": base64.b64encode(zip_data).decode()
-        })
-    
-    except Exception as e:
-        return jsonify({"error": "Erreur interne du serveur"}), 500
-
-
-@pdf_bp.route('/api/rotate', methods=["POST"])
-def api_rotate():
-    """API pour tourner les pages d'un PDF"""
-    try:
-        data = request.get_json(force=True, silent=True)
-        if not data or "file" not in data:
-            return jsonify({"error": "Fichier manquant"}), 400
-        
-        file_data = data["file"]
-        if "data" not in file_data:
-            return jsonify({"error": "Données du fichier manquantes"}), 400
-        
-        try:
-            pdf_bytes = base64.b64decode(file_data["data"])
-        except (base64.binascii.Error, TypeError):
-            return jsonify({"error": "Format Base64 invalide"}), 400
-        
-        angle = int(data.get("angle", 90))
-        pages = data.get("pages", "all")
-        
-        rotated_pdf, total_pages, rotated_count = PDFEngine.rotate(pdf_bytes, angle, pages)
-        stats_manager.increment("rotations")
-        
-        return jsonify({
-            "success": True,
-            "filename": f"rotation_{angle}deg_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-            "pages": total_pages,
-            "rotated": rotated_count,
-            "data": base64.b64encode(rotated_pdf).decode()
-        })
-    
-    except Exception as e:
-        return jsonify({"error": "Erreur interne du serveur"}), 500
-
-
-@pdf_bp.route('/api/compress', methods=["POST"])
-def api_compress():
-    """API pour compresser un PDF"""
-    try:
-        data = request.get_json(force=True, silent=True)
-        if not data or "file" not in data:
-            return jsonify({"error": "Fichier manquant"}), 400
-        
-        file_data = data["file"]
-        if "data" not in file_data:
-            return jsonify({"error": "Données du fichier manquantes"}), 400
-        
-        try:
-            pdf_bytes = base64.b64decode(file_data["data"])
-        except (base64.binascii.Error, TypeError):
-            return jsonify({"error": "Format Base64 invalide"}), 400
-        
-        compressed_pdf, page_count = PDFEngine.compress(pdf_bytes)
-        stats_manager.increment("compressions")
-        
-        return jsonify({
-            "success": True,
-            "filename": f"compressed_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-            "pages": page_count,
-            "data": base64.b64encode(compressed_pdf).decode()
-        })
-    
-    except Exception as e:
-        return jsonify({"error": "Erreur interne du serveur"}), 500
-
-
-@pdf_bp.route('/api/preview', methods=["POST"])
-def api_preview():
-    """API pour générer des aperçus de PDF"""
-    try:
-        data = request.get_json(force=True, silent=True)
-        if not data or "file" not in data:
-            return jsonify({"error": "Fichier manquant"}), 400
-        
-        file_data = data["file"]
-        if "data" not in file_data:
-            return jsonify({"error": "Données du fichier manquantes"}), 400
-        
-        try:
-            pdf_bytes = base64.b64decode(file_data["data"])
-        except (base64.binascii.Error, TypeError):
-            return jsonify({"error": "Format Base64 invalide"}), 400
-        
         previews, total_pages = PDFEngine.preview(pdf_bytes)
-        stats_manager.increment("previews")
-        
+
         return jsonify({
-            "success": True,
             "previews": previews,
             "total_pages": total_pages
         })
-    
-    except Exception as e:
-        return jsonify({"error": "Erreur interne du serveur"}), 500
+
+    except Exception:
+        current_app.logger.exception("Crash /preview")
+        return jsonify({"error": "Erreur interne serveur"}), 500
 
 
 @pdf_bp.route('/health')
