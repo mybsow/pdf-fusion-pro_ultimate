@@ -7,6 +7,7 @@ Version production ultra-stable (Render / Gunicorn ready)
 from flask import Flask, redirect, Response, request, render_template, send_from_directory, jsonify
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
+import tempfile
 import os
 import logging
 from pathlib import Path
@@ -25,6 +26,9 @@ from blueprints.stats.routes import stats_bp
 from blueprints.admin import admin_bp
 from blueprints.conversion import conversion_bp  # Directement dans conversion.py
 from blueprints.legal.routes import legal_bp
+
+# Dossier temp ultra rapide
+app.config["UPLOAD_FOLDER"] = tempfile.gettempdir()
 
 # ✅ AJOUTER ICI - Imports OCR conditionnels
 try:

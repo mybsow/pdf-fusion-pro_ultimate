@@ -17,9 +17,10 @@ from flask import (
 from pathlib import Path
 import uuid
 from config import AppConfig
-from PyPDF2 import PdfReader, PdfWriter  # Remplacer par pypdf si possible
+from pypdf import PdfReader, PdfWriter
 from . import pdf_bp
 from .engine import PDFEngine
+from .file_manager import TempFileManager
 
 # Initialiser dossier temporaire dès le démarrage
 AppConfig.initialize()
@@ -95,47 +96,81 @@ def read_uploaded_pdf(file):
 # ==========================================
 
 @pdf_bp.route("/merge", methods=["POST"])
-def handle_merge():
-    try:
+def merge_pdf():
+    temp_paths = []
 
+    try:
         if "files" not in request.files:
-            return jsonify({"error": "Aucun fichier reçu"}), 400
+            return jsonify({"error": "Aucun fichier"}), 400
 
         files = request.files.getlist("files")
 
-        if not files:
-            return jsonify({"error": "Aucun fichier valide"}), 400
+        if len(files) > AppConfig.MAX_FILES_PER_CONVERSION:
+            return jsonify({"error": f"Maximum {AppConfig.MAX_FILES_PER_CONVERSION} fichiers"}), 400
 
-        pdfs = []
+        # Sauvegarder les fichiers sur disque
+        for f in files:
+            path = save_temp_file(f, "pdf")
+            temp_paths.append(path)
 
-        for file in files:
-            try:
-                pdf_bytes = read_uploaded_pdf(file)
-                pdfs.append(pdf_bytes)
+        # Merge PDF disque → disque
+        writer = PdfWriter()
+        total_pages = 0
 
-            except ValueError as e:
-                return jsonify({"error": str(e)}), 400
+        for path in temp_paths:
+            reader = PdfReader(str(path), strict=False)
+            for page in reader.pages:
+                writer.add_page(page)
+                total_pages += 1
 
-        if not pdfs:
-            return jsonify({"error": "Aucun PDF exploitable"}), 400
+        output_path = AppConfig.get_conversion_temp_dir("pdf") / f"{uuid.uuid4()}_merged.pdf"
+        with open(output_path, "wb") as f:
+            writer.write(f)
 
-        merged_pdf, page_count = PDFEngine.merge(pdfs)
-
-        current_app.logger.info(
-            f"PDF merge réussi — {len(pdfs)} fichiers, {page_count} pages"
-        )
+        temp_paths.append(output_path)
 
         return send_file(
-            io.BytesIO(merged_pdf),
+            output_path,
             as_attachment=True,
-            download_name=f"fusion_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+            download_name="fusion.pdf",
             mimetype="application/pdf"
         )
 
-    except Exception:
-        current_app.logger.exception("Crash /merge")
-        return jsonify({"error": "Erreur interne serveur"}), 500
-    
+    except Exception as e:
+        current_app.logger.exception("Merge PDF échoué")
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cleanup_files(temp_paths)
+
+
+# -------------------------------
+# Route OCR image → texte
+# -------------------------------
+@pdf_bp.route("/ocr", methods=["POST"])
+def ocr_image():
+    import pytesseract
+    from PIL import Image
+
+    temp_paths = []
+
+    try:
+        if "file" not in request.files:
+            return jsonify({"error": "Aucun fichier"}), 400
+
+        file = request.files["file"]
+        path = save_temp_file(file, "images")
+        temp_paths.append(path)
+
+        img = Image.open(path)
+        text = pytesseract.image_to_string(img, lang=AppConfig.OCR_DEFAULT_LANGUAGE, config=AppConfig.OCR_CONFIG)
+
+        return jsonify({"text": text})
+
+    except Exception as e:
+        current_app.logger.exception("OCR échoué")
+        return jsonify({"error": str(e)}), 500
+
     finally:
         cleanup_files(temp_paths)
 
