@@ -28,9 +28,6 @@ from .engine import PDFEngine
 # Initialiser dossiers
 AppConfig.initialize()
 
-# ⭐ limite anti PDF bomb (à ajuster)
-MAX_PAGES_PER_FILE = 500
-
 
 # ============================================================
 # HELPERS
@@ -48,6 +45,9 @@ def save_temp_file(file, subfolder="general"):
     if not file or file.filename == "":
         raise ValueError("Fichier invalide")
 
+    # IMPORTANT: Reset stream position avant lecture
+    file.stream.seek(0)
+    
     temp_dir = AppConfig.get_conversion_temp_dir(subfolder)
     temp_dir.mkdir(parents=True, exist_ok=True)
 
@@ -109,6 +109,7 @@ def read_uploaded_pdf(file):
     if not file.filename.lower().endswith(".pdf"):
         raise ValueError(f"{file.filename} n'est pas un PDF")
 
+    # IMPORTANT: Reset stream position avant lecture
     file.stream.seek(0)
     data = file.read()
     
@@ -120,6 +121,9 @@ def read_uploaded_pdf(file):
 
     if not data.startswith(b"%PDF"):
         raise ValueError(f"{file.filename} est corrompu ou non-PDF")
+        
+    # IMPORTANT: Reset stream position après lecture pour permettre save()
+    file.stream.seek(0)
 
     return data
 
@@ -158,7 +162,7 @@ def merge():
 
             reader = PdfReader(str(path), strict=False)
             
-            if len(reader.pages) > 500:  # ⭐ limite anti PDF bomb
+            if len(reader.pages) > 500:
                 raise ValueError(f"Fichier {f.filename} contient trop de pages")
 
             for page in reader.pages:
@@ -212,14 +216,17 @@ def split():
         if "file" not in request.files:
             return jsonify({"error": "Aucun fichier"}), 400
 
-        path = save_temp_file(request.files["file"], "pdf")
+        file = request.files["file"]
+        
+        # SOLUTION: Sauvegarder d'abord, lire ensuite
+        path = save_temp_file(file, "pdf")
         validate_pdf(path)
 
         temp_paths.append(path)
 
         reader = PdfReader(str(path), strict=False)
         
-        if len(reader.pages) > 500:  # ⭐ limite anti PDF bomb
+        if len(reader.pages) > 500:
             raise ValueError("Fichier contient trop de pages")
 
         output_files = []
@@ -237,7 +244,6 @@ def split():
             output_files.append(output_path)
             temp_paths.append(output_path)
 
-        # ZIP si plusieurs
         if len(output_files) > 1:
             zip_bytes, zip_name = PDFEngine.create_zip_from_paths(output_files)
 
@@ -256,7 +262,6 @@ def split():
                 mimetype="application/zip"
             )
 
-        # Sinon un seul
         @after_this_request
         def cleanup(response):
             cleanup_files(temp_paths)
@@ -294,7 +299,10 @@ def rotate():
         if "file" not in request.files:
             return jsonify({"error": "Aucun fichier"}), 400
             
-        path = save_temp_file(request.files["file"], "pdf")
+        file = request.files["file"]
+            
+        # SOLUTION: Sauvegarder d'abord, lire ensuite
+        path = save_temp_file(file, "pdf")
         validate_pdf(path)
 
         temp_paths.append(path)
@@ -303,7 +311,7 @@ def rotate():
 
         reader = PdfReader(str(path), strict=False)
         
-        if len(reader.pages) > 500:  # ⭐ limite anti PDF bomb
+        if len(reader.pages) > 500:
             raise ValueError("Fichier contient trop de pages")
         
         writer = PdfWriter()
@@ -359,14 +367,17 @@ def compress():
         if "file" not in request.files:
             return jsonify({"error": "Aucun fichier"}), 400
             
-        path = save_temp_file(request.files["file"], "pdf")
+        file = request.files["file"]
+            
+        # SOLUTION: Sauvegarder d'abord, lire ensuite
+        path = save_temp_file(file, "pdf")
         validate_pdf(path)
 
         temp_paths.append(path)
 
         reader = PdfReader(str(path), strict=False)
         
-        if len(reader.pages) > 500:  # ⭐ limite anti PDF bomb
+        if len(reader.pages) > 500:
             raise ValueError("Fichier contient trop de pages")
         
         writer = PdfWriter()
@@ -408,6 +419,9 @@ def compress():
         return jsonify({"error": "Erreur interne serveur"}), 500
 
 
+MAX_PAGES_PER_FILE = 500
+
+
 # -------------------------------
 # OCR image → texte
 # -------------------------------
@@ -433,6 +447,8 @@ def ocr_image():
         ):
             return jsonify({"error": "Format non supporté"}), 400
 
+        # Reset stream avant sauvegarde
+        file.stream.seek(0)
         path = save_temp_file(file, "images")
         temp_paths.append(path)
 
@@ -474,9 +490,25 @@ def handle_preview():
         if "file" not in request.files:
             return jsonify({"error": "Aucun fichier"}), 400
             
-        pdf_bytes = read_uploaded_pdf(request.files["file"])
+        file = request.files["file"]
+        
+        # Reset stream avant lecture
+        file.stream.seek(0)
+        data = file.read()
+        
+        if len(data) > AppConfig.MAX_CONTENT_SIZE:
+            raise ValueError("Fichier trop volumineux")
+            
+        # Reset stream pour permettre réutilisation
+        file.stream.seek(0)
+            
+        if not data:
+            raise ValueError(f"{file.filename} est vide")
 
-        previews, total_pages = PDFEngine.preview(pdf_bytes)
+        if not data.startswith(b"%PDF"):
+            raise ValueError(f"{file.filename} est corrompu ou non-PDF")
+
+        previews, total_pages = PDFEngine.preview(data)
 
         stats_manager.increment("previews")
 
@@ -486,9 +518,9 @@ def handle_preview():
             "total_pages": total_pages
         })
 
-    except Exception:
+    except Exception as e:
         current_app.logger.exception("Crash /preview")
-        return jsonify({"error": "Erreur interne serveur"}), 500
+        return jsonify({"error": str(e) if isinstance(e, ValueError) else "Erreur interne serveur"}), 500
 
 
 # ============================================================
@@ -530,26 +562,21 @@ def api_rating():
         feedback = data.get("feedback", "")
         page = data.get("page", "unknown")
         
-        # Validation
         if not isinstance(rating, int) or rating < 1 or rating > 5:
             return jsonify({"error": "Note invalide (1-5)"}), 400
         
-        # Enregistrer dans les statistiques
         stats_manager.increment("ratings")
         stats_manager.increment(f"rating_{rating}")
         
-        # Sauvegarder le feedback (optionnel)
         if feedback and feedback.strip():
             try:
                 ratings_file = Path(__file__).parent.parent / 'data' / 'ratings.json'
                 ratings_file.parent.mkdir(parents=True, exist_ok=True)
                 
-                # Charger existant
                 ratings = []
                 if ratings_file.exists():
                     ratings = json.loads(ratings_file.read_text())
                 
-                # Ajouter nouveau
                 ratings.append({
                     "timestamp": datetime.now().isoformat(),
                     "rating": rating,
@@ -558,10 +585,8 @@ def api_rating():
                     "ip": request.remote_addr[:15] if request.remote_addr else "unknown"
                 })
                 
-                # Garder seulement les 1000 derniers
                 ratings = ratings[-1000:]
                 
-                # Sauvegarder
                 ratings_file.write_text(json.dumps(ratings, indent=2))
             except Exception as e:
                 current_app.logger.error(f"Erreur sauvegarde rating: {e}")
@@ -572,7 +597,7 @@ def api_rating():
             "rating": rating
         })
     
-    except Exception as e:
+    except Exception:
         current_app.logger.exception("Erreur API rating")
         return jsonify({"error": "Erreur interne du serveur"}), 500
 
@@ -588,7 +613,6 @@ def get_rating_html():
         <div style="position:relative">
             <button onclick="closeRatingPopup()" style="position:absolute;top:5px;right:5px;background:none;border:none;font-size:20px;cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;" aria-label="Fermer">&times;</button>
             
-            <!-- Message d'invitation -->
             <div id="ratingInvitation" style="text-align:center;">
                 <div style="font-size:32px;margin-bottom:10px;">★</div>
                 <h5 style="margin-bottom:8px;font-size:1.1rem;">Votre avis compte !</h5>
@@ -597,7 +621,6 @@ def get_rating_html():
                 </p>
             </div>
             
-            <!-- Étoiles -->
             <div style="font-size:24px;margin-bottom:15px;text-align:center;" id="starsContainer">
                 <span style="cursor:pointer" onmouseover="highlightStars(1)" onclick="rate(1)" aria-label="1 étoile">☆</span>
                 <span style="cursor:pointer" onmouseover="highlightStars(2)" onclick="rate(2)" aria-label="2 étoiles">☆</span>
@@ -606,7 +629,6 @@ def get_rating_html():
                 <span style="cursor:pointer" onmouseover="highlightStars(5)" onclick="rate(5)" aria-label="5 étoiles">☆</span>
             </div>
             
-            <!-- Section feedback (cachée au début) -->
             <div id="feedbackSection" style="display:none">
                 <p style="font-size:0.9rem;color:#666;margin-bottom:10px;">
                     Merci ! Avez-vous des suggestions d'amélioration ?
@@ -615,7 +637,6 @@ def get_rating_html():
                 <button onclick="submitRating()" style="background:#4361ee;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;width:100%;font-size:14px;">Envoyer mon évaluation</button>
             </div>
             
-            <!-- Bouton pour refuser poliment -->
             <div id="skipSection" style="text-align:center;margin-top:10px;">
                 <button onclick="skipRating()" style="background:none;border:none;color:#888;font-size:0.85rem;cursor:pointer;text-decoration:underline;">
                     Peut-être plus tard
@@ -624,8 +645,7 @@ def get_rating_html():
         </div>
     </div>
     
-    <!-- Bouton déclencheur -->
-    <div id="ratingTrigger" style="position:fixed;bottom:20px;right:20px;background:#4361ee;color:white;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(67,97,238,0.3);" onclick="showRating()" aria-label="Évaluer l\'application" title="Donnez votre avis">
+    <div id="ratingTrigger" style="position:fixed;bottom:20px;right:20px;background:#4361ee;color:white;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(67,97,238,0.3);" onclick="showRating()" aria-label="Évaluer l'application" title="Donnez votre avis">
         ★
         <div style="position:absolute;top:-5px;right:-5px;background:#ff4757;color:white;font-size:0.7rem;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;">
             !
