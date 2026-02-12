@@ -1,63 +1,101 @@
 """
 Routes pour les outils PDF
-Version ultra robuste production
+Version ULTRA ROBUSTE — Production Ready
 """
 
 import io
+import json
+import uuid
 from datetime import datetime
+from pathlib import Path
 
 from flask import (
-    Blueprint,
     render_template,
     request,
     jsonify,
     send_file,
+    after_this_request,
     current_app
 )
 
-from pathlib import Path
-import uuid
 from config import AppConfig
 from pypdf import PdfReader, PdfWriter
 
 from managers import stats_manager
 from . import pdf_bp
 from .engine import PDFEngine
-from .file_manager import TempFileManager
 
-# Initialiser dossier temporaire dès le démarrage
+# Initialiser dossiers
 AppConfig.initialize()
 
+# ⭐ limite anti PDF bomb (à ajuster)
+MAX_PAGES_PER_FILE = 500
 
-# -------------------------------
-# Helper fichier temporaire
-# -------------------------------
+
+# ============================================================
+# HELPERS
+# ============================================================
+
 def save_temp_file(file, subfolder="general"):
-    if file.filename == "":
+    """
+    Sauvegarde sécurisée sur disque.
+    Protège contre :
+    - fichiers vides
+    - fichiers énormes
+    - faux PDF
+    """
+
+    if not file or file.filename == "":
         raise ValueError("Fichier invalide")
-    
+
     temp_dir = AppConfig.get_conversion_temp_dir(subfolder)
     temp_dir.mkdir(parents=True, exist_ok=True)
-    
+
     filename = f"{uuid.uuid4()}{Path(file.filename).suffix.lower()}"
     path = temp_dir / filename
+
     file.save(path)
-    
-    if path.stat().st_size == 0:
-        path.unlink()
+
+    size = path.stat().st_size
+
+    if size == 0:
+        path.unlink(missing_ok=True)
         raise ValueError("Fichier vide")
-    
+
+    if size > AppConfig.MAX_CONTENT_SIZE:
+        path.unlink(missing_ok=True)
+        raise ValueError("Fichier trop volumineux")
+
     return path
+
+
+def validate_pdf(path: Path):
+    """
+    Vérifie qu'un fichier est un vrai PDF.
+    """
+    with open(path, "rb") as f:
+        header = f.read(4)
+
+    if header != b"%PDF":
+        path.unlink(missing_ok=True)
+        raise ValueError("Fichier corrompu ou non-PDF")
 
 
 def cleanup_files(paths):
     for p in paths:
         try:
-            if Path(p).exists():
-                Path(p).unlink()
+            Path(p).unlink(missing_ok=True)
         except Exception:
             pass
 
+
+# ============================================================
+# INDEX
+# ============================================================
+
+@pdf_bp.route("/", methods=["GET"])
+def pdf_index():
+    return render_template("pdf/index.html")
 
 
 # ==========================================
@@ -65,47 +103,30 @@ def cleanup_files(paths):
 # ==========================================
 
 def read_uploaded_pdf(file):
-    """
-    Lecture sécurisée d'un PDF uploadé.
-    Protège contre :
-    - stream déjà lu
-    - fichiers vides
-    - faux PDF
-    """
-
     if not file or file.filename == "":
         raise ValueError("Fichier invalide")
 
     if not file.filename.lower().endswith(".pdf"):
         raise ValueError(f"{file.filename} n'est pas un PDF")
 
-    # ⭐ CRITIQUE : reset du stream
     file.stream.seek(0)
     data = file.read()
+    
+    if len(data) > AppConfig.MAX_CONTENT_SIZE:
+        raise ValueError("Fichier trop volumineux")
 
     if not data:
         raise ValueError(f"{file.filename} est vide")
 
-    # Vérifie la signature PDF
     if not data.startswith(b"%PDF"):
         raise ValueError(f"{file.filename} est corrompu ou non-PDF")
 
     return data
 
-@pdf_bp.route("/", methods=["GET"])
-def pdf_index():
-    """
-    Page d'accueil du module PDF.
-    Redirige ou rend un template.
-    """
-    # Si tu as un template d'accueil PDF
-    from flask import render_template
-    return render_template("pdf/index.html")
 
-
-# ==========================================
-# MERGE
-# ==========================================
+# ============================================================
+# MERGE — FULL DISK MODE
+# ============================================================
 
 @pdf_bp.route("/merge", methods=["GET", "POST"])
 def merge():
@@ -113,134 +134,120 @@ def merge():
         return render_template("pdf/merge.html")
 
     temp_paths = []
+
     try:
         if "files" not in request.files:
             return jsonify({"error": "Aucun fichier"}), 400
 
         files = request.files.getlist("files")
 
+        if len(files) < 2:
+            return jsonify({"error": "Au moins 2 PDF requis"}), 400
+
         if len(files) > AppConfig.MAX_FILES_PER_CONVERSION:
             return jsonify({"error": f"Maximum {AppConfig.MAX_FILES_PER_CONVERSION} fichiers"}), 400
 
-        # Sauvegarder les fichiers sur disque
-        for f in files:
-            path = save_temp_file(f, "pdf")
-            temp_paths.append(path)
-
-        # Merge PDF disque → disque
         writer = PdfWriter()
         total_pages = 0
 
-        for path in temp_paths:
+        for f in files:
+            path = save_temp_file(f, "pdf")
+            validate_pdf(path)
+
+            temp_paths.append(path)
+
             reader = PdfReader(str(path), strict=False)
+            
+            if len(reader.pages) > 500:  # ⭐ limite anti PDF bomb
+                raise ValueError(f"Fichier {f.filename} contient trop de pages")
+
             for page in reader.pages:
                 writer.add_page(page)
                 total_pages += 1
 
         output_path = AppConfig.get_conversion_temp_dir("pdf") / f"{uuid.uuid4()}_merged.pdf"
-        with open(output_path, "wb") as f:
-            writer.write(f)
+
+        with open(output_path, "wb") as out:
+            writer.write(out)
 
         temp_paths.append(output_path)
+
+        stats_manager.increment("merges")
+        stats_manager.increment("total_operations")
+
+        @after_this_request
+        def cleanup(response):
+            cleanup_files(temp_paths)
+            return response
 
         return send_file(
             output_path,
             as_attachment=True,
-            download_name="fusion.pdf",
+            download_name=f"fusion_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
             mimetype="application/pdf"
         )
 
-    except Exception as e:
+    except ValueError as e:
+        cleanup_files(temp_paths)
+        return jsonify({"error": str(e)}), 400
+
+    except Exception:
+        cleanup_files(temp_paths)
         current_app.logger.exception("Merge PDF échoué")
-        return jsonify({"error": str(e)}), 500
-
-    finally:
-        cleanup_files(temp_paths)
+        return jsonify({"error": "Erreur interne serveur"}), 500
 
 
-# -------------------------------
-# Route OCR image → texte
-# -------------------------------
-@pdf_bp.route("/ocr", methods=["GET", "POST"])
-def ocr_image():
-    # GET : Afficher la page OCR
-    if request.method == "GET":
-        from flask import render_template
-        return render_template("pdf/ocr.html")
-    
-    # POST : Traiter l'OCR
-    import pytesseract
-    from PIL import Image
-    
-    temp_paths = []
-    try:
-        if "file" not in request.files:
-            return jsonify({"error": "Aucun fichier"}), 400
-
-        file = request.files["file"]
-        
-        # Vérifier que c'est une image
-        if not file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp')):
-            return jsonify({"error": "Format non supporté. Utilisez PNG, JPG, TIFF ou BMP"}), 400
-            
-        path = save_temp_file(file, "images")
-        temp_paths.append(path)
-
-        img = Image.open(path)
-        text = pytesseract.image_to_string(
-            img, 
-            lang=AppConfig.OCR_DEFAULT_LANGUAGE, 
-            config=AppConfig.OCR_CONFIG
-        )
-
-        return jsonify({
-            "success": True,
-            "text": text,
-            "filename": file.filename
-        })
-
-    except pytesseract.TesseractNotFoundError:
-        current_app.logger.error("Tesseract non installé")
-        return jsonify({"error": "OCR non disponible sur le serveur"}), 503
-    except Exception as e:
-        current_app.logger.exception("OCR échoué")
-        return jsonify({"error": str(e)}), 500
-    finally:
-        cleanup_files(temp_paths)
-
-
-# ==========================================
-# SPLIT
-# ==========================================
+# ============================================================
+# SPLIT — DISK MODE
+# ============================================================
 
 @pdf_bp.route("/split", methods=["GET", "POST"])
 def split():
     if request.method == "GET":
         return render_template("pdf/split.html")
+
+    temp_paths = []
+
     try:
-
         if "file" not in request.files:
-            return jsonify({"error": "Aucun fichier reçu"}), 400
+            return jsonify({"error": "Aucun fichier"}), 400
 
-        file = request.files["file"]
+        path = save_temp_file(request.files["file"], "pdf")
+        validate_pdf(path)
 
-        try:
-            pdf_bytes = read_uploaded_pdf(file)
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
+        temp_paths.append(path)
 
-        mode = request.form.get("mode", "all")
-        arg = request.form.get("pages", "")
+        reader = PdfReader(str(path), strict=False)
+        
+        if len(reader.pages) > 500:  # ⭐ limite anti PDF bomb
+            raise ValueError("Fichier contient trop de pages")
 
-        output_files = PDFEngine.split(pdf_bytes, mode, arg)
+        output_files = []
+        temp_dir = AppConfig.get_conversion_temp_dir("pdf")
 
-        if not output_files:
-            return jsonify({"error": "Aucune page générée"}), 400
+        for i, page in enumerate(reader.pages):
+            writer = PdfWriter()
+            writer.add_page(page)
 
-        # Si plusieurs fichiers → ZIP
+            output_path = temp_dir / f"{uuid.uuid4()}_page_{i+1}.pdf"
+
+            with open(output_path, "wb") as f:
+                writer.write(f)
+
+            output_files.append(output_path)
+            temp_paths.append(output_path)
+
+        # ZIP si plusieurs
         if len(output_files) > 1:
+            zip_bytes, zip_name = PDFEngine.create_zip_from_paths(output_files)
 
-            zip_bytes, zip_name = PDFEngine.create_zip(output_files)
+            stats_manager.increment("splits")
+            stats_manager.increment("total_operations")
+
+            @after_this_request
+            def cleanup(response):
+                cleanup_files(temp_paths)
+                return response
 
             return send_file(
                 io.BytesIO(zip_bytes),
@@ -249,123 +256,229 @@ def split():
                 mimetype="application/zip"
             )
 
-        # Sinon un seul PDF
+        # Sinon un seul
+        @after_this_request
+        def cleanup(response):
+            cleanup_files(temp_paths)
+            return response
+
         return send_file(
-            io.BytesIO(output_files[0]),
+            output_files[0],
             as_attachment=True,
-            download_name=f"split_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+            download_name="split.pdf",
             mimetype="application/pdf"
         )
 
+    except ValueError as e:
+        cleanup_files(temp_paths)
+        return jsonify({"error": str(e)}), 400
+
     except Exception:
-        current_app.logger.exception("Crash /split")
+        cleanup_files(temp_paths)
+        current_app.logger.exception("Split crash")
         return jsonify({"error": "Erreur interne serveur"}), 500
 
 
-# ==========================================
-# ROTATE
-# ==========================================
+# ============================================================
+# ROTATE — DISK MODE
+# ============================================================
 
 @pdf_bp.route("/rotate", methods=["GET", "POST"])
 def rotate():
     if request.method == "GET":
         return render_template("pdf/rotate.html")
+
+    temp_paths = []
+
     try:
-
         if "file" not in request.files:
-            return jsonify({"error": "Aucun fichier reçu"}), 400
+            return jsonify({"error": "Aucun fichier"}), 400
+            
+        path = save_temp_file(request.files["file"], "pdf")
+        validate_pdf(path)
 
-        file = request.files["file"]
-
-        try:
-            pdf_bytes = read_uploaded_pdf(file)
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
+        temp_paths.append(path)
 
         angle = int(request.form.get("angle", 90))
-        pages = request.form.get("pages", "all")
 
-        rotated_pdf, total_pages, rotated_count = PDFEngine.rotate(
-            pdf_bytes,
-            angle,
-            pages
-        )
+        reader = PdfReader(str(path), strict=False)
+        
+        if len(reader.pages) > 500:  # ⭐ limite anti PDF bomb
+            raise ValueError("Fichier contient trop de pages")
+        
+        writer = PdfWriter()
 
-        current_app.logger.info(
-            f"Rotation PDF — {rotated_count}/{total_pages} pages"
-        )
+        for page in reader.pages:
+            page.rotate(angle)
+            writer.add_page(page)
+
+        output_path = AppConfig.get_conversion_temp_dir("pdf") / f"{uuid.uuid4()}_rotated.pdf"
+
+        with open(output_path, "wb") as f:
+            writer.write(f)
+
+        temp_paths.append(output_path)
+
+        stats_manager.increment("rotations")
+        stats_manager.increment("total_operations")
+
+        @after_this_request
+        def cleanup(response):
+            cleanup_files(temp_paths)
+            return response
 
         return send_file(
-            io.BytesIO(rotated_pdf),
+            output_path,
             as_attachment=True,
-            download_name=f"rotation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+            download_name="rotation.pdf",
             mimetype="application/pdf"
         )
 
+    except ValueError as e:
+        cleanup_files(temp_paths)
+        return jsonify({"error": str(e)}), 400
+
     except Exception:
-        current_app.logger.exception("Crash /rotate")
+        cleanup_files(temp_paths)
+        current_app.logger.exception("Rotate crash")
         return jsonify({"error": "Erreur interne serveur"}), 500
 
 
-# ==========================================
-# COMPRESS
-# ==========================================
+# ============================================================
+# COMPRESS — SAFE MODE
+# ============================================================
 
 @pdf_bp.route("/compress", methods=["GET", "POST"])
 def compress():
     if request.method == "GET":
         return render_template("pdf/compress.html")
+
+    temp_paths = []
+
     try:
-
         if "file" not in request.files:
-            return jsonify({"error": "Aucun fichier reçu"}), 400
+            return jsonify({"error": "Aucun fichier"}), 400
+            
+        path = save_temp_file(request.files["file"], "pdf")
+        validate_pdf(path)
 
-        file = request.files["file"]
+        temp_paths.append(path)
 
-        try:
-            pdf_bytes = read_uploaded_pdf(file)
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
+        reader = PdfReader(str(path), strict=False)
+        
+        if len(reader.pages) > 500:  # ⭐ limite anti PDF bomb
+            raise ValueError("Fichier contient trop de pages")
+        
+        writer = PdfWriter()
 
-        compressed_pdf, total_pages = PDFEngine.compress(pdf_bytes)
+        for page in reader.pages:
+            writer.add_page(page)
 
-        current_app.logger.info(
-            f"Compression PDF — {total_pages} pages"
-        )
+        writer.add_metadata(reader.metadata)
+
+        output_path = AppConfig.get_conversion_temp_dir("pdf") / f"{uuid.uuid4()}_compressed.pdf"
+
+        with open(output_path, "wb") as f:
+            writer.write(f)
+
+        temp_paths.append(output_path)
+
+        stats_manager.increment("compressions")
+        stats_manager.increment("total_operations")
+
+        @after_this_request
+        def cleanup(response):
+            cleanup_files(temp_paths)
+            return response
 
         return send_file(
-            io.BytesIO(compressed_pdf),
+            output_path,
             as_attachment=True,
-            download_name=f"compresse_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+            download_name="compresse.pdf",
             mimetype="application/pdf"
         )
 
+    except ValueError as e:
+        cleanup_files(temp_paths)
+        return jsonify({"error": str(e)}), 400
+
     except Exception:
-        current_app.logger.exception("Crash /compress")
+        cleanup_files(temp_paths)
+        current_app.logger.exception("Compress crash")
         return jsonify({"error": "Erreur interne serveur"}), 500
 
 
-# ==========================================
-# PREVIEW (Base64)
-# ==========================================
+# -------------------------------
+# OCR image → texte
+# -------------------------------
+@pdf_bp.route("/ocr", methods=["GET", "POST"])
+def ocr_image():
 
-@pdf_bp.route("/preview", methods=["POST"])  # POST seulement
-def handle_preview():
-    """
-    Génère des aperçus des pages PDF (POST uniquement)
-    """
+    if request.method == "GET":
+        return render_template("pdf/ocr.html")
+
+    import pytesseract
+    from PIL import Image
+
+    temp_paths = []
+
     try:
         if "file" not in request.files:
-            return jsonify({"error": "Aucun fichier reçu"}), 400
+            return jsonify({"error": "Aucun fichier"}), 400
 
         file = request.files["file"]
 
-        try:
-            pdf_bytes = read_uploaded_pdf(file)
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
+        if not file.filename.lower().endswith(
+            ('.png', '.jpg', '.jpeg', '.tiff', '.bmp')
+        ):
+            return jsonify({"error": "Format non supporté"}), 400
+
+        path = save_temp_file(file, "images")
+        temp_paths.append(path)
+
+        img = Image.open(path)
+
+        text = pytesseract.image_to_string(
+            img,
+            lang=AppConfig.OCR_DEFAULT_LANGUAGE,
+            config=AppConfig.OCR_CONFIG
+        )
+
+        @after_this_request
+        def cleanup(response):
+            cleanup_files(temp_paths)
+            return response
+
+        return jsonify({
+            "success": True,
+            "text": text,
+            "filename": file.filename
+        })
+
+    except pytesseract.TesseractNotFoundError:
+        return jsonify({"error": "OCR non disponible"}), 503
+
+    except Exception:
+        cleanup_files(temp_paths)
+        current_app.logger.exception("OCR échoué")
+        return jsonify({"error": "Erreur interne serveur"}), 500
+
+
+# ============================================================
+# PREVIEW PDF — SAFE MODE
+# ============================================================
+@pdf_bp.route("/preview", methods=["POST"])
+def handle_preview():
+
+    try:
+        if "file" not in request.files:
+            return jsonify({"error": "Aucun fichier"}), 400
+            
+        pdf_bytes = read_uploaded_pdf(request.files["file"])
 
         previews, total_pages = PDFEngine.preview(pdf_bytes)
+
+        stats_manager.increment("previews")
 
         return jsonify({
             "success": True,
@@ -378,18 +491,22 @@ def handle_preview():
         return jsonify({"error": "Erreur interne serveur"}), 500
 
 
+# ============================================================
+# HEALTH
+# ============================================================
+
 @pdf_bp.route('/health')
 def health_check():
     """Endpoint de santé de l'application"""
     return jsonify({
         "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
         "app": AppConfig.NAME,
         "version": AppConfig.VERSION,
         "developer": AppConfig.DEVELOPER_NAME,
         "email": AppConfig.DEVELOPER_EMAIL,
         "hosting": AppConfig.HOSTING,
         "domain": AppConfig.DOMAIN,
-        "timestamp": datetime.now().isoformat(),
         "total_operations": stats_manager.get_stat("total_operations", 0),
         "merges": stats_manager.get_stat("merges", 0),
         "splits": stats_manager.get_stat("splits", 0),
@@ -401,7 +518,7 @@ def health_check():
     })
 
 
-@pdf_bp.route('/api/rating', methods=["POST"])  # POST seulement
+@pdf_bp.route('/api/rating', methods=["POST"])
 def api_rating():
     """API pour enregistrer les évaluations (POST uniquement)"""
     try:
@@ -424,10 +541,6 @@ def api_rating():
         # Sauvegarder le feedback (optionnel)
         if feedback and feedback.strip():
             try:
-                from datetime import datetime
-                import json
-                from pathlib import Path
-                
                 ratings_file = Path(__file__).parent.parent / 'data' / 'ratings.json'
                 ratings_file.parent.mkdir(parents=True, exist_ok=True)
                 
@@ -586,7 +699,7 @@ def get_rating_html():
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                document.getElementById("ratingPopup").innerHTML = \'<div style="text-align:center;padding:20px"><div style="color:#4CAF50;font-size:40px;margin-bottom:15px;">✓</div><h5 style="margin-bottom:10px;">Merci pour votre retour !</h5><p style="color:#666;font-size:0.9rem;">Votre évaluation nous aide à améliorer notre service.</p></div>\';
+                document.getElementById("ratingPopup").innerHTML = '<div style="text-align:center;padding:20px"><div style="color:#4CAF50;font-size:40px;margin-bottom:15px;">✓</div><h5 style="margin-bottom:10px;">Merci pour votre retour !</h5><p style="color:#666;font-size:0.9rem;">Votre évaluation nous aide à améliorer notre service.</p></div>';
                 
                 localStorage.setItem("hasRated", "true");
                 

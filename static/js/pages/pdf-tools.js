@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // === ENDPOINT CORRECT ===
-                const endpoint = `/${tool}`;
+                const endpoint = `/pdf/${tool}`;
                 console.log(`🚀 Envoi à: ${endpoint}`);
                 
                 const res = await fetch(endpoint, { 

@@ -65,7 +65,7 @@ class AppConfig:
     MAX_PPT_SIZE = 50 * 1024 * 1024    # 50 MB
 
     MAX_IMAGES_PER_PDF = 50  # Augmenté
-    MAX_FILES_PER_CONVERSION = 20  # Augmenté
+    MAX_FILES_PER_CONVERSION = 10  # Augmenté
 
     # ============================================================
     # DOSSIERS
