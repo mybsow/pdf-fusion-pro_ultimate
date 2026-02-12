@@ -11,6 +11,7 @@ ENV PYTHONUNBUFFERED=1
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
+ENV PORT=10000
 
 # -----------------------------
 # Installer les dépendances système
@@ -49,7 +50,8 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir unoconv
+    pip install --no-cache-dir unoconv \
+    ln -sf /usr/bin/python3 /usr/bin/python
 
 # -----------------------------
 # Copier l’application
