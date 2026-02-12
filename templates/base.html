@@ -21,11 +21,11 @@
     
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- ⭐ AJOUTEZ ICI : Bootstrap Icons -->
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
     <!-- Font Awesome -->
@@ -181,6 +181,37 @@
             border-radius: 10px;
             border: none;
         }
+
+        /* Style pour les miniatures PDF */
+        .thumb-container {
+            transition: all 0.2s ease;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .thumb-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .pdf-thumb {
+            background: #2c3e50;
+            color: white;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .trash-btn {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .thumb-container:hover .trash-btn {
+            opacity: 1;
+        }
         
         @media (max-width: 768px) {
             .conversion-grid {
@@ -191,7 +222,6 @@
                 font-size: 1.2rem;
             }
         }
-
     </style>
 
 </head>
@@ -549,12 +579,27 @@
 <!-- Bootstrap Bundle avec Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- PDF.js et Sortable.js requis pour les miniatures et drag&drop -->
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.12.313/pdf.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<!-- ⭐ PDF.js - CHARGEMENT SYNC (PAS DEFER) ⭐ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+    // Configuration immédiate de PDF.js
+    if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        console.log('✅ PDF.js chargé - version:', pdfjsLib.version);
+    } else {
+        console.error('❌ PDF.js non chargé');
+    }
+</script>
+
+<!-- Sortable.js -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
 <!-- Script principal -->
-<script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+<!-- ⭐ Scripts d'upload - SANS DEFER ⭐ -->
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
