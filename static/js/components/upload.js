@@ -71,7 +71,7 @@ class UploadManager {
     removeFile(index) {
         this.files.splice(index, 1);
         this.updateFileList();
-        this.updateThumbnails(); // ✅ AJOUTER cette ligne pour mettre à jour les miniatures
+        this.updateThumbnails();
         this.updateButton();
     }
 
@@ -127,6 +127,7 @@ class UploadManager {
         this.actionButton.disabled = !this.files.length;
     }
 
+    // ✅ MÉTHODE getFiles() - AJOUTÉE CORRECTEMENT ICI
     getFiles() {
         return this.files;
     }

@@ -187,6 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // ⭐ BOUTON D'ACTION PRINCIPAL
         button.addEventListener('click', async (e) => {
             e.preventDefault();
+
+                // ✅ VÉRIFICATION DE SÉCURITÉ - AJOUTER CES 3 LIGNES
+            if (typeof uploadManager.getFiles !== 'function') {
+                alert('❌ Erreur: méthode getFiles() non disponible');
+                console.error('getFiles() manquant dans uploadManager');
+                return;
+            }
             
             const files = uploadManager.getFiles();
             
