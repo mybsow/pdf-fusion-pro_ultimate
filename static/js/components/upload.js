@@ -1,5 +1,16 @@
 // static/js/components/upload.js
 
+// ✅ PROTECTION CONTRE LE DOUBLE CHARGEMENT
+if (typeof window.UPLOAD_JS_LOADED !== 'undefined') {
+    console.log('📁 Upload.js déjà chargé, ignoré');
+} else {
+    window.UPLOAD_JS_LOADED = true;
+    console.log('📁 Upload.js chargé');
+
+// ============================================================
+// UPLOAD MANAGER - GESTIONNAIRE DE FICHIERS
+// ============================================================
+
 class UploadManager {
     constructor(zoneId, fileInfoId, actionButtonId, previewId) {
         this.zone = document.getElementById(zoneId);
@@ -60,6 +71,7 @@ class UploadManager {
     removeFile(index) {
         this.files.splice(index, 1);
         this.updateFileList();
+        this.updateThumbnails(); // ✅ AJOUTER cette ligne pour mettre à jour les miniatures
         this.updateButton();
     }
 
@@ -138,50 +150,92 @@ class UploadManager {
     }
 
     updateThumbnails() {
-    const thumbsContainer = document.getElementById(this.zone.id + 'Thumbnails');
-    if (!thumbsContainer) return;
+        const thumbsContainer = document.getElementById(this.zone.id + 'Thumbnails');
+        if (!thumbsContainer) return;
 
-    thumbsContainer.innerHTML = ''; // reset
+        thumbsContainer.innerHTML = ''; // reset
 
-    this.files.forEach((file, index) => {
-        if (file.type !== 'application/pdf') return;
+        this.files.forEach((file, index) => {
+            if (file.type !== 'application/pdf') return;
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const pdfData = new Uint8Array(e.target.result);
-
-            pdfjsLib.getDocument({data: pdfData}).promise.then(pdf => {
-                pdf.getPage(1).then(page => {
-                    const viewport = page.getViewport({scale: 0.2});
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
-
-                    page.render({canvasContext: context, viewport: viewport}).promise.then(() => {
-                        canvas.dataset.index = index;
-                        thumbsContainer.appendChild(canvas);
-                    });
-                });
-            });
-        };
-        reader.readAsArrayBuffer(file);
-    });
-
-    // Activer le drag & drop avec Sortable.js
-    if (typeof Sortable !== 'undefined') {
-        Sortable.create(thumbsContainer, {
-            animation: 150,
-            onEnd: (evt) => {
-                // Réordonner this.files selon le drag & drop
-                const movedItem = this.files.splice(evt.oldIndex, 1)[0];
-                this.files.splice(evt.newIndex, 0, movedItem);
-                this.updateFileList(); // Mettre à jour la liste
+            // ✅ VÉRIFIER QUE PDF.JS EST DISPONIBLE
+            if (typeof pdfjsLib === 'undefined') {
+                console.warn('⚠️ PDF.js non disponible - création miniature par défaut');
+                this.createFallbackThumbnail(thumbsContainer, file, index);
+                return;
             }
-        });
-    }
-}
 
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const pdfData = new Uint8Array(e.target.result);
+
+                    pdfjsLib.getDocument({data: pdfData}).promise.then(pdf => {
+                        pdf.getPage(1).then(page => {
+                            const viewport = page.getViewport({scale: 0.2});
+                            const canvas = document.createElement('canvas');
+                            const context = canvas.getContext('2d');
+                            canvas.width = viewport.width;
+                            canvas.height = viewport.height;
+
+                            page.render({canvasContext: context, viewport: viewport}).promise.then(() => {
+                                canvas.dataset.index = index;
+                                canvas.style.width = '80px';
+                                canvas.style.height = 'auto';
+                                canvas.style.border = '1px solid #444';
+                                canvas.style.borderRadius = '4px';
+                                thumbsContainer.appendChild(canvas);
+                            }).catch(() => {
+                                this.createFallbackThumbnail(thumbsContainer, file, index);
+                            });
+                        }).catch(() => {
+                            this.createFallbackThumbnail(thumbsContainer, file, index);
+                        });
+                    }).catch(() => {
+                        this.createFallbackThumbnail(thumbsContainer, file, index);
+                    });
+                } catch (error) {
+                    console.error('❌ Erreur PDF.js:', error);
+                    this.createFallbackThumbnail(thumbsContainer, file, index);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        // Activer le drag & drop avec Sortable.js
+        if (typeof Sortable !== 'undefined' && thumbsContainer.children.length > 0) {
+            Sortable.create(thumbsContainer, {
+                animation: 150,
+                onEnd: (evt) => {
+                    // Réordonner this.files selon le drag & drop
+                    const movedItem = this.files.splice(evt.oldIndex, 1)[0];
+                    this.files.splice(evt.newIndex, 0, movedItem);
+                    this.updateFileList(); // Mettre à jour la liste
+                }
+            });
+        }
+    }
+
+    // ✅ NOUVELLE MÉTHODE: Fallback pour les miniatures
+    createFallbackThumbnail(container, file, index) {
+        const div = document.createElement('div');
+        div.className = 'pdf-thumb';
+        div.style.width = '80px';
+        div.style.height = '100px';
+        div.style.display = 'flex';
+        div.style.flexDirection = 'column';
+        div.style.alignItems = 'center';
+        div.style.justifyContent = 'center';
+        div.style.background = '#2c3e50';
+        div.style.color = 'white';
+        div.style.borderRadius = '4px';
+        div.style.padding = '5px';
+        div.style.fontSize = '10px';
+        div.style.textAlign = 'center';
+        div.innerHTML = `<i class="fas fa-file-pdf fa-2x mb-1"></i><br>${file.name.length > 15 ? file.name.substring(0, 12) + '...' : file.name}`;
+        div.dataset.index = index;
+        container.appendChild(div);
+    }
 }
 
 // Initialisation globale
@@ -195,3 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.uploadManagers[id] = new UploadManager(id, infoId, btnId, previewId);
     });
 });
+
+// ✅ FERMETURE DE LA PROTECTION
+} // fin du else
