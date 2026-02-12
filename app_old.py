@@ -17,10 +17,10 @@ from typing import Dict, List, Tuple, Optional, Any
 
 from flask import Flask, jsonify, request, render_template_string, Response, g
 from werkzeug.middleware.proxy_fix import ProxyFix
-from PyPDF2 import PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter
 
 try:
-    from PyPDF2 import Transformation
+    from pypdf import Transformation
 except ImportError:
     Transformation = None
 

@@ -8,7 +8,7 @@ setup(
         'Flask==3.0.0',
         'Werkzeug==3.0.1',
         'gunicorn==21.2.0',
-        'PyPDF2==3.0.1',
+        'pypdf==4.0.1',
         'PyMuPDF==1.23.8',
         'reportlab==4.0.4',
         'img2pdf==0.4.4',

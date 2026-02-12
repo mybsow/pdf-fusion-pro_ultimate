@@ -906,8 +906,8 @@ def convert_pdf_to_pdfa(file, form_data=None):
     """Convertit PDF en PDF/A."""
     try:
         # Lire le PDF
-        pdf_reader = pypdf.PdfReader(file)
-        pdf_writer = pypdf.PdfWriter()
+        pdf_reader = PyPDF2.PdfReader(file)
+        pdf_writer = PyPDF2.PdfWriter()
         
         # Copier toutes les pages
         for page in pdf_reader.pages:
@@ -946,10 +946,10 @@ def convert_pdf_to_pdfa(file, form_data=None):
 def merge_pdfs(files, form_data=None):
     """Fusionne plusieurs PDF."""
     try:
-        pdf_writer = pypdf.PdfWriter()
+        pdf_writer = PyPDF2.PdfWriter()
         
         for file in files:
-            pdf_reader = pypdf.PdfReader(file)
+            pdf_reader = PyPDF2.PdfReader(file)
             
             # Ajouter toutes les pages
             for page_num in range(len(pdf_reader.pages)):
@@ -976,7 +976,7 @@ def merge_pdfs(files, form_data=None):
 def split_pdf(file, form_data=None):
     """Divise un PDF."""
     try:
-        pdf_reader = pypdf.PdfReader(file)
+        pdf_reader = PyPDF2.PdfReader(file)
         num_pages = len(pdf_reader.pages)
         
         # Obtenir les plages de pages
@@ -987,7 +987,7 @@ def split_pdf(file, form_data=None):
             zip_buffer = BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
                 for i in range(num_pages):
-                    pdf_writer = pypdf.PdfWriter()
+                    pdf_writer = PyPDF2.PdfWriter()
                     pdf_writer.add_page(pdf_reader.pages[i])
                     
                     page_buffer = BytesIO()
@@ -1017,8 +1017,8 @@ def split_pdf(file, form_data=None):
 def compress_pdf(file, form_data=None):
     """Compresse un PDF."""
     try:
-        pdf_reader = pypdf.PdfReader(file)
-        pdf_writer = pypdf.PdfWriter()
+        pdf_reader = PyPDF2.PdfReader(file)
+        pdf_writer = PyPDF2.PdfWriter()
         
         # Copier toutes les pages (compression basique)
         for page in pdf_reader.pages:
@@ -1053,8 +1053,8 @@ def compress_pdf(file, form_data=None):
 def rotate_pdf(file, form_data=None):
     """Tourne les pages d'un PDF."""
     try:
-        pdf_reader = pypdf.PdfReader(file)
-        pdf_writer = pypdf.PdfWriter()
+        pdf_reader = PyPDF2.PdfReader(file)
+        pdf_writer = PyPDF2.PdfWriter()
         
         # Angle de rotation
         angle = int(form_data.get('angle', 90)) if form_data else 90
@@ -1084,8 +1084,8 @@ def rotate_pdf(file, form_data=None):
 def protect_pdf(file, form_data=None):
     """Protège un PDF avec mot de passe."""
     try:
-        pdf_reader = pypdf.PdfReader(file)
-        pdf_writer = pypdf.PdfWriter()
+        pdf_reader = PyPDF2.PdfReader(file)
+        pdf_writer = PyPDF2.PdfWriter()
         
         # Copier toutes les pages
         for page in pdf_reader.pages:
@@ -1121,11 +1121,11 @@ def unlock_pdf(file, form_data=None):
         
         # Essayer de lire avec le mot de passe
         try:
-            pdf_reader = pypdf.PdfReader(file, password=password if password else None)
+            pdf_reader = PyPDF2.PdfReader(file, password=password if password else None)
         except Exception as read_error:
             return {'error': f'Mot de passe incorrect ou PDF corrompu: {read_error}'}
         
-        pdf_writer = pypdf.PdfWriter()
+        pdf_writer = PyPDF2.PdfWriter()
         
         # Copier toutes les pages
         for page in pdf_reader.pages:
@@ -1664,7 +1664,7 @@ def api_health():
     """Vérifie l'état des dépendances."""
     dependencies = {
         'pandas': False,
-        'pypdf': False,
+        'PyPDF2': False,
         'Pillow': False,
         'pytesseract': False,
         'pdf2image': False,
@@ -1694,7 +1694,7 @@ def dependencies_page():
     
     required = {
         'pandas': 'Manipulation de données',
-        'pypdf': 'Traitement PDF',
+        'PyPDF2': 'Traitement PDF',
         'Pillow': 'Manipulation d\'images',
         'pytesseract': 'OCR (reconnaissance de texte)',
         'pdf2image': 'Conversion PDF vers images',

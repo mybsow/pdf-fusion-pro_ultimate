@@ -40,7 +40,7 @@ def main():
     packages = [
         ("Flask", "flask"),
         ("Werkzeug", "werkzeug"),
-        ("PyPDF2", "PyPDF2"),
+        ("pypdf", "pypdf"),
         ("PyMuPDF", "fitz"),
         ("Pillow", "PIL"),
         ("pytesseract", "pytesseract"),
