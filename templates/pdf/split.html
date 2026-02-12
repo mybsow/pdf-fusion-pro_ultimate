@@ -20,22 +20,22 @@
         <input type="file" accept=".pdf" style="display:none;">
     </div>
 
-    <div id="splitFileInfo" class="file-list"></div>
-    <div class="upload-thumbnails" id="mergeThumbnails"></div>
+    <div id="splitFileInfo" class="file-list mt-3"></div>
+    <div id="splitUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
 
-    <div class="row mt-3">
-        <div class="col-md-6">
-            <label>Pages à extraire</label>
+    <div class="row mt-4">
+        <div class="col-md-8 mx-auto">
+            <label class="form-label fw-bold">Pages à extraire</label>
             <input type="text" id="splitPages" class="form-control" placeholder="Ex: 1,3-5 ou 'all' pour toutes">
             <small class="text-muted">Format: numéros séparés par des virgules, plages avec tiret. Ex: "1,3-5"</small>
         </div>
     </div>
 
-    <div class="action-buttons mt-3">
+    <div class="action-buttons mt-4">
         <button class="btn btn-primary btn-lg" id="splitButton" disabled>
             <i class="fas fa-cut me-2"></i>Diviser le PDF
         </button>
-        <button class="btn btn-outline btn-lg" onclick="window.uploadManagers.splitUploadZone.removeFile(0)">
+        <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.splitUploadZone.removeFile(0)">
             <i class="fas fa-redo me-2"></i>Réinitialiser
         </button>
     </div>

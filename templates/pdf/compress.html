@@ -20,14 +20,29 @@
         <input type="file" accept=".pdf" style="display:none;">
     </div>
 
-    <div id="compressFileInfo" class="file-list"></div>
-    <div class="upload-thumbnails" id="mergeThumbnails"></div>
+    <div id="compressFileInfo" class="file-list mt-3"></div>
+    <div id="compressUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
 
-    <div class="action-buttons mt-3">
+    <div class="row mt-4">
+        <div class="col-md-8 mx-auto">
+            <label class="form-label fw-bold">Niveau de compression</label>
+            <div class="btn-group w-100" role="group">
+                <input type="radio" class="btn-check" name="compressionLevel" id="low" value="low">
+                <label class="btn btn-outline-primary" for="low">Faible</label>
+                <input type="radio" class="btn-check" name="compressionLevel" id="medium" value="medium" checked>
+                <label class="btn btn-outline-primary" for="medium">Moyen</label>
+                <input type="radio" class="btn-check" name="compressionLevel" id="high" value="high">
+                <label class="btn btn-outline-primary" for="high">Fort</label>
+            </div>
+            <small class="text-muted d-block mt-2">Compression plus forte = fichier plus petit, qualité réduite</small>
+        </div>
+    </div>
+
+    <div class="action-buttons mt-4">
         <button class="btn btn-primary btn-lg" id="compressButton" disabled>
             <i class="fas fa-compress me-2"></i>Compresser le PDF
         </button>
-        <button class="btn btn-outline btn-lg" onclick="window.uploadManagers.compressUploadZone.removeFile(0)">
+        <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.compressUploadZone.removeFile(0)">
             <i class="fas fa-redo me-2"></i>Réinitialiser
         </button>
     </div>
