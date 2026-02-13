@@ -338,6 +338,41 @@ def create_app():
         except Exception as e:
             cmd_test = {'error': str(e)}
         return jsonify({'system_checks': checks,'command_test': cmd_test})
+    
+
+# Ajoutez ceci DANS votre app.py (après les autres routes)
+
+    @app.route('/debug/static-check')
+    def debug_static_check():
+        """Vérifie les fichiers statiques"""
+        import os
+        from pathlib import Path
+        
+        static_dir = Path('static')
+        result = {
+            'static_exists': static_dir.exists(),
+            'js_components': [],
+            'js_pages': [],
+            'css_files': []
+        }
+        
+        if static_dir.exists():
+            # Vérifier js/components
+            js_components = static_dir / 'js' / 'components'
+            if js_components.exists():
+                result['js_components'] = [f.name for f in js_components.glob('*.js')]
+            
+            # Vérifier js/pages
+            js_pages = static_dir / 'js' / 'pages'
+            if js_pages.exists():
+                result['js_pages'] = [f.name for f in js_pages.glob('*.js')]
+            
+            # Vérifier css
+            css_dir = static_dir / 'css'
+            if css_dir.exists():
+                result['css_files'] = [f.name for f in css_dir.glob('*.css')]
+        
+        return jsonify(result)
 
     # ============================================================
     # Erreurs et filtres Jinja
