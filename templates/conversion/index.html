@@ -203,7 +203,7 @@
             <div class="row">
                 {% for conversion in category.conversions %}
                 <div class="col-md-3 mb-4">
-                    <a href="{{ url_for('conversion.universal_converter', conversion_type=conversion_id_for_url(conversion)) }}" 
+                    <a href="{{ url_for('conversion.universal_converter', conversion_type=conversion.type) }}" 
                        class="text-decoration-none">
                         <div class="card conversion-card animated-card card-{{ loop.index }}">
                             <div class="card-body p-4">
