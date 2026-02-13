@@ -1,9 +1,167 @@
-<!DOCTYPE html>
-<html>
-<head><title>conversion/excel_to_csv.html</title></head>
-<body>
-    <h1>conversion/excel_to_csv.html</h1>
-    <p>Page en développement</p>
-    <a href="/">← Retour à l'accueil</a>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Excel vers CSV - {{ title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header" style="background-color: #217346; color: white;">
+                    <h4 class="mb-0"><i class="fas fa-file-excel me-2"></i>{{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">{{ description }}</p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Convertissez vos feuilles de calcul Excel en fichiers CSV (valeurs séparées par des virgules).
+                    </div>
+                    
+                    <!-- Zone d'upload -->
+                    <div class="upload-zone-pro mb-4" id="excelToCsvUploadZone" data-info-id="excelToCsvFileInfo" data-btn-id="excelToCsvButton">
+                        <div class="upload-inner">
+                            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                            <h4 class="upload-title">Déposez vos fichiers Excel ici</h4>
+                            <p class="upload-subtitle">Glissez-déposez ou cliquez pour sélectionner</p>
+                            <div class="upload-info">Formats: .xls, .xlsx • Taille max: 50MB</div>
+                        </div>
+                        <input type="file" accept=".xls,.xlsx" multiple style="display:none;">
+                    </div>
+                    
+                    <div id="excelToCsvFileInfo" class="file-list mt-3"></div>
+                    <div id="excelToCsvUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
+                    
+                    <!-- Options -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-bold">Séparateur</label>
+                                <select class="form-select" id="separator">
+                                    <option value=",">Virgule (,)</option>
+                                    <option value=";">Point-virgule (;)</option>
+                                    <option value="\t">Tabulation</option>
+                                    <option value="|">Pipe (|)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-bold">Feuille à exporter</label>
+                                <select class="form-select" id="sheet">
+                                    <option value="0">Première feuille</option>
+                                    <option value="all">Toutes les feuilles (ZIP)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeHeader" checked>
+                                <label class="form-check-label" for="includeHeader">
+                                    Inclure les en-têtes
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="utf8Bom" checked>
+                                <label class="form-check-label" for="utf8Bom">
+                                    Ajouter BOM UTF-8 (pour Excel)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons mt-4">
+                        <button class="btn btn-success btn-lg" id="excelToCsvButton" disabled>
+                            <i class="fas fa-file-csv me-2"></i>Convertir en CSV
+                        </button>
+                        <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.excelToCsvUploadZone.removeFile(0)">
+                            <i class="fas fa-redo me-2"></i>Réinitialiser
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const button = document.getElementById('excelToCsvButton');
+    
+    function updateButtonState() {
+        const manager = window.uploadManagers?.excelToCsvUploadZone;
+        button.disabled = !manager?.files?.length;
+    }
+    
+    const originalHandleFiles = window.uploadManagers?.excelToCsvUploadZone?.handleFiles;
+    if (originalHandleFiles) {
+        window.uploadManagers.excelToCsvUploadZone.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+    }
+    
+    const originalRemoveFile = window.uploadManagers?.excelToCsvUploadZone?.removeFile;
+    if (originalRemoveFile) {
+        window.uploadManagers.excelToCsvUploadZone.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+    
+    button.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        const manager = window.uploadManagers?.excelToCsvUploadZone;
+        if (!manager?.files?.length) {
+            alert('Veuillez sélectionner au moins un fichier Excel');
+            return;
+        }
+        
+        const loader = document.getElementById('loaderOverlay');
+        if (loader) loader.style.display = 'flex';
+        
+        const formData = new FormData();
+        manager.files.forEach(file => formData.append('files', file));
+        formData.append('separator', document.getElementById('separator').value);
+        formData.append('sheet', document.getElementById('sheet').value);
+        formData.append('includeHeader', document.getElementById('includeHeader').checked);
+        formData.append('utf8Bom', document.getElementById('utf8Bom').checked);
+        
+        try {
+            const response = await fetch('/conversion/excel-en-csv', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) throw new Error(`Erreur ${response.status}`);
+            
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'conversion.zip';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la conversion: ' + error.message);
+        } finally {
+            if (loader) loader.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+{% endblock %}

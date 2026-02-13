@@ -271,6 +271,19 @@ CONVERSION_MAP = {
     # 'compresser-pdf': { ... },
     # 'rotation-pdf': { ... },
     
+    'proteger-pdf': {
+        'template': 'protect_pdf.html',
+        'title': 'Protéger PDF',
+        'description': 'Ajoutez un mot de passe pour protéger vos PDF',
+        'from_format': 'PDF',
+        'to_format': 'PDF',
+        'icon': 'lock',
+        'color': '#e67e22',
+        'accept': '.pdf',
+        'max_files': 1,
+        'deps': ['pypdf']
+    },
+
     'deverrouiller-pdf': {
         'template': 'unlock_pdf.html',
         'title': 'Déverrouiller PDF',
@@ -432,7 +445,7 @@ def index():
                 categories['convert_from_pdf']['conversions'].append(conv)
         
         # Outils PDF
-        for conv_key in ['deverrouiller-pdf']:
+        for conv_key in ['proteger-pdf', 'deverrouiller-pdf']:  # ← AJOUTEZ proteger-pdf
             if conv_key in CONVERSION_MAP:
                 conv = CONVERSION_MAP[conv_key].copy()
                 conv['type'] = conv_key

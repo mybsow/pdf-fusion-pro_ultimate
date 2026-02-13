@@ -1,380 +1,67 @@
-{% extends "conversion/conversion_base.html" %}
+{% extends "base.html" %}
 
-{% block title %}Images vers PDF - Convertisseur{% endblock %}
+{% block title %}Image vers PDF - {{ title }}{% endblock %}
 
-{% block converter_content %}
-<!-- Étape 1: Upload -->
-<div id="step1Content">
-    <div class="upload-zone" id="dropZone">
-        <div class="upload-icon">
-            <i class="fas fa-images"></i>
-        </div>
-        
-        <h3>Convertissez vos images en PDF</h3>
-        <p class="text-muted mb-4">
-            Transformez une ou plusieurs images en un document PDF professionnel
-        </p>
-        
-        <div class="mb-4">
-            {% for ext in supported_formats.image %}
-            <span class="badge bg-secondary me-2">
-                <i class="fas fa-image me-1"></i>{{ ext }}
-            </span>
-            {% endfor %}
-            <span class="badge bg-warning text-dark">
-                <i class="fas fa-weight-hanging me-1"></i>Max 50MB/image
-            </span>
-        </div>
-        
-        <input type="file" 
-               id="fileInput" 
-               class="d-none" 
-               accept=".jpg,.jpeg,.png,.bmp,.gif,.tiff,.tif,.webp"
-               multiple>
-        
-        <button class="btn btn-primary btn-lg px-4 py-3"
-                onclick="document.getElementById('fileInput').click()">
-            <i class="fas fa-folder-open me-2"></i>
-            Sélectionner des images
-        </button>
-        
-        <p class="small text-muted mt-3">
-            <i class="fas fa-info-circle me-1"></i>
-            Glissez-déposez ou sélectionnez jusqu'à {{ max_files }} images
-        </p>
-    </div>
-    
-    <!-- Options de mise en page -->
-    <div class="mt-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title mb-4">
-                    <i class="fas fa-object-group me-2"></i>Mise en page du PDF
-                </h5>
-                
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label class="form-label fw-bold mb-3">
-                            <i class="fas fa-file-alt me-1"></i>Format de page
-                        </label>
-                        
-                        <div class="row">
-                            <div class="col-6 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="pageFormat" id="format_a4" checked>
-                                    <label class="form-check-label" for="format_a4">
-                                        <strong>A4</strong>
-                                        <small class="d-block text-muted">21.0 × 29.7 cm</small>
-                                    </label>
-                                </div>
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header" style="background-color: #e74c3c; color: white;">
+                    <h4 class="mb-0"><i class="fas fa-file-image me-2"></i>{{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">{{ description }}</p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Convertissez vos images en documents PDF. Vous pouvez combiner plusieurs images dans un seul PDF.
+                    </div>
+                    
+                    <!-- Zone d'upload -->
+                    <div class="upload-zone-pro mb-4" id="imageToPdfUploadZone" data-info-id="imageToPdfFileInfo" data-btn-id="imageToPdfButton">
+                        <div class="upload-inner">
+                            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                            <h4 class="upload-title">Déposez vos images ici</h4>
+                            <p class="upload-subtitle">Glissez-déposez ou cliquez pour sélectionner</p>
+                            <div class="upload-info">Formats: JPG, PNG, BMP, GIF, TIFF • Taille max: 50MB</div>
+                        </div>
+                        <input type="file" accept=".jpg,.jpeg,.png,.bmp,.gif,.tiff,.webp" multiple style="display:none;">
+                    </div>
+                    
+                    <div id="imageToPdfFileInfo" class="file-list mt-3"></div>
+                    <div id="imageToPdfUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
+                    
+                    <!-- Options -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-bold">Orientation</label>
+                                <select class="form-select" id="orientation">
+                                    <option value="portrait">Portrait</option>
+                                    <option value="landscape">Paysage</option>
+                                </select>
                             </div>
-                            <div class="col-6 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="pageFormat" id="format_letter">
-                                    <label class="form-check-label" for="format_letter">
-                                        <strong>Letter</strong>
-                                        <small class="d-block text-muted">21.6 × 27.9 cm</small>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="pageFormat" id="format_a3">
-                                    <label class="form-check-label" for="format_a3">
-                                        <strong>A3</strong>
-                                        <small class="d-block text-muted">29.7 × 42.0 cm</small>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="pageFormat" id="format_a5">
-                                    <label class="form-check-label" for="format_a5">
-                                        <strong>A5</strong>
-                                        <small class="d-block text-muted">14.8 × 21.0 cm</small>
-                                    </label>
-                                </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-bold">Qualité</label>
+                                <select class="form-select" id="quality">
+                                    <option value="high">Haute (fichier plus gros)</option>
+                                    <option value="medium" selected>Moyenne</option>
+                                    <option value="low">Basse (fichier plus petit)</option>
+                                </select>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="col-md-6 mb-4">
-                        <label class="form-label fw-bold mb-3">
-                            <i class="fas fa-expand-alt me-1"></i>Disposition des images
-                        </label>
-                        
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="layout" id="layout_full" checked>
-                            <label class="form-check-label" for="layout_full">
-                                <strong>Pleine page</strong>
-                                <small class="d-block text-muted">Une image par page, ajustée à la page</small>
-                            </label>
-                        </div>
-                        
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="layout" id="layout_grid">
-                            <label class="form-check-label" for="layout_grid">
-                                <strong>Grille</strong>
-                                <small class="d-block text-muted">Plusieurs images par page (2×2, 3×3)</small>
-                            </label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="layout" id="layout_continuous">
-                            <label class="form-check-label" for="layout_continuous">
-                                <strong>Continu</strong>
-                                <small class="d-block text-muted">Images à la suite sans saut de page</small>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Orientation</label>
-                        <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" name="orientation" id="orientation_portrait" checked>
-                            <label class="btn btn-outline-primary" for="orientation_portrait">
-                                <i class="fas fa-arrow-up me-1"></i>Portrait
-                            </label>
-                            
-                            <input type="radio" class="btn-check" name="orientation" id="orientation_landscape">
-                            <label class="btn btn-outline-primary" for="orientation_landscape">
-                                <i class="fas fa-arrow-right me-1"></i>Paysage
-                            </label>
-                            
-                            <input type="radio" class="btn-check" name="orientation" id="orientation_auto">
-                            <label class="btn btn-outline-primary" for="orientation_auto">
-                                <i class="fas fa-sync-alt me-1"></i>Auto
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Marges</label>
-                        <select class="form-select" id="margins">
-                            <option value="none">Aucune</option>
-                            <option value="small" selected>Petites (1 cm)</option>
-                            <option value="medium">Moyennes (2 cm)</option>
-                            <option value="large">Grandes (3 cm)</option>
-                            <option value="custom">Personnalisées</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- Options de grille (masquées par défaut) -->
-                <div id="gridOptions" class="row mt-3" style="display: none;">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Images par ligne</label>
-                        <select class="form-select" id="gridCols">
-                            <option value="2">2 images</option>
-                            <option value="3" selected>3 images</option>
-                            <option value="4">4 images</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Espacement</label>
-                        <input type="range" class="form-range" id="gridSpacing" min="0" max="50" value="10">
-                        <small class="text-muted"><span id="spacingValue">10</span> px entre les images</small>
-                    </div>
-                </div>
-                
-                <!-- Options de qualité -->
-                <div class="row mt-3">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Qualité d'image</label>
-                        <select class="form-select" id="quality">
-                            <option value="high" selected>Haute (300 DPI)</option>
-                            <option value="medium">Moyenne (150 DPI)</option>
-                            <option value="low">Basse (72 DPI)</option>
-                            <option value="original">Originale</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Compression</label>
-                        <select class="form-select" id="compression">
-                            <option value="none">Aucune</option>
-                            <option value="low">Faible</option>
-                            <option value="medium" selected>Moyenne</option>
-                            <option value="high">Forte</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- Options avancées -->
-                <div class="accordion mt-3" id="advancedOptions">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced">
-                                <i class="fas fa-sliders-h me-2"></i>Options avancées
-                            </button>
-                        </h2>
-                        <div id="collapseAdvanced" class="accordion-collapse collapse" data-bs-parent="#advancedOptions">
-                            <div class="accordion-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="addPageNumbers" checked>
-                                            <label class="form-check-label">
-                                                Ajouter des numéros de page
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="addFooter" checked>
-                                            <label class="form-check-label">
-                                                Ajouter un pied de page
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="optimizeForPrint">
-                                            <label class="form-check-label">
-                                                Optimiser pour l'impression
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="preserveAspectRatio" checked>
-                                            <label class="form-check-label">
-                                                Conserver les proportions
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="row mt-2">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Ordre des images</label>
-                                        <select class="form-select" id="imageOrder">
-                                            <option value="original" selected>Ordre original</option>
-                                            <option value="alphabetical">Alphabétique</option>
-                                            <option value="date">Date de modification</option>
-                                            <option value="size">Taille</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Rotation automatique</label>
-                                        <select class="form-select" id="autoRotate">
-                                            <option value="none">Aucune</option>
-                                            <option value="portrait" selected>Forcer portrait</option>
-                                            <option value="landscape">Forcer paysage</option>
-                                            <option value="auto">Détection automatique</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Liste des images -->
-    <div id="imagesList" class="file-info-card mt-4" style="display: none;">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <h5 class="mb-1">
-                    <i class="fas fa-images me-2"></i>
-                    Images sélectionnées (<span id="imagesCount">0</span>/{{ max_files }})
-                </h5>
-                <p class="text-muted mb-0 small" id="totalSize">Taille totale: 0 MB</p>
-            </div>
-            <div>
-                <button class="btn btn-sm btn-outline-danger" onclick="clearAllFiles()">
-                    <i class="fas fa-trash me-1"></i>Tout supprimer
-                </button>
-            </div>
-        </div>
-        
-        <div class="images-grid" id="imagesGrid">
-            <!-- Les miniatures des images seront ajoutées ici -->
-        </div>
-        
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <div>
-                <button class="btn btn-sm btn-outline-primary" onclick="reorderImages()">
-                    <i class="fas fa-sort me-1"></i>Réorganiser
-                </button>
-                <button class="btn btn-sm btn-outline-secondary ms-2" onclick="togglePreview()">
-                    <i class="fas fa-eye me-1"></i>Aperçu
-                </button>
-            </div>
-            <button class="btn btn-primary py-2 px-4" id="convertBtn" onclick="startConversion()">
-                <i class="fas fa-file-pdf me-2"></i>
-                Créer le PDF
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Étape 2: Conversion -->
-<div id="step2Content" style="display: none;">
-    <div class="text-center py-5">
-        <div class="upload-icon mb-4">
-            <div class="spinner-border text-primary" style="width: 5rem; height: 5rem;" role="status">
-                <span class="visually-hidden">Chargement...</span>
-            </div>
-        </div>
-        
-        <h3 class="mb-4">Création du PDF en cours</h3>
-        <p class="text-muted mb-4">
-            Assemblage et optimisation de vos images en document PDF
-        </p>
-        
-        <div class="progress-container">
-            <div class="progress-bar" id="conversionProgress"></div>
-        </div>
-        
-        <div class="mt-4" id="conversionDetails">
-            <p class="text-muted small">
-                <i class="fas fa-sync-alt fa-spin me-1"></i>
-                Préparation des images...
-            </p>
-        </div>
-        
-        <!-- Miniatures en cours de traitement -->
-        <div class="row mt-5" id="processingThumbnails">
-            <!-- Les miniatures seront ajoutées dynamiquement -->
-        </div>
-        
-        <!-- Statistiques -->
-        <div class="row mt-4">
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h6><i class="fas fa-image me-1"></i>Images</h6>
-                        <p class="small text-muted mb-0" id="processingImages">0/0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h6><i class="fas fa-file me-1"></i>Pages</h6>
-                        <p class="small text-muted mb-0" id="processingPages">0 estimée(s)</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h6><i class="fas fa-compress me-1"></i>Compression</h6>
-                        <p class="small text-muted mb-0" id="processingCompression">Moyenne</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h6><i class="fas fa-clock me-1"></i>Temps restant</h6>
-                        <p class="small text-muted mb-0" id="processingTime">Quelques secondes</p>
+                    <div class="action-buttons mt-4">
+                        <button class="btn btn-primary btn-lg" id="imageToPdfButton" disabled>
+                            <i class="fas fa-file-pdf me-2"></i>Convertir en PDF
+                        </button>
+                        <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.imageToPdfUploadZone.removeFile(0)">
+                            <i class="fas fa-redo me-2"></i>Réinitialiser
+                        </button>
                     </div>
                 </div>
             </div>
@@ -382,716 +69,77 @@
     </div>
 </div>
 
-<!-- Étape 3: Téléchargement -->
-<div id="step3Content" style="display: none;">
-    <div class="text-center py-5">
-        <div class="success-animation">
-            <i class="fas fa-file-pdf"></i>
-        </div>
-        
-        <h3 class="mb-3">PDF créé avec succès !</h3>
-        <p class="text-muted mb-4">
-            Votre document PDF est prêt au téléchargement
-        </p>
-        
-        <div class="row g-4 mb-4">
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="fas fa-file-pdf fa-2x text-danger mb-3"></i>
-                        <h5 id="pdfFileName">images.pdf</h5>
-                        <p class="small text-muted" id="pdfFileInfo">
-                            Taille: 0 MB | Pages: 0 | Images: 0
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="fas fa-chart-bar fa-2x text-primary mb-3"></i>
-                        <h5>Résumé</h5>
-                        <p class="small text-muted" id="pdfSummary">
-                            Format: A4<br>
-                            Orientation: Portrait<br>
-                            Qualité: Haute
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Aperçu du PDF -->
-        <div class="card border-0 shadow-sm mt-4">
-            <div class="card-body">
-                <h6 class="mb-3"><i class="fas fa-eye me-1"></i>Aperçu du PDF</h6>
-                <div id="pdfPreview" class="pdf-preview-container">
-                    <div class="pdf-preview-placeholder">
-                        <i class="fas fa-file-pdf fa-3x text-muted mb-3"></i>
-                        <p class="text-muted mb-0">Aperçu du PDF généré</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="alert alert-success mt-4" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
-            <strong>Conversion parfaite !</strong> Toutes les images ont été intégrées avec une qualité optimale.
-        </div>
-        
-        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
-            <button class="btn btn-success btn-lg px-4 py-3" id="downloadBtn">
-                <i class="fas fa-download me-2"></i>
-                Télécharger PDF
-            </button>
-            
-            <button class="btn btn-outline-primary btn-lg px-4 py-3" onclick="resetConverter()">
-                <i class="fas fa-redo me-2"></i>
-                Nouvelle conversion
-            </button>
-        </div>
-        
-        <div class="mt-4">
-            <div class="btn-group" role="group">
-                <button class="btn btn-outline-secondary" onclick="updateStep(1)">
-                    <i class="fas fa-edit me-1"></i>
-                    Modifier les options
-                </button>
-                <button class="btn btn-outline-secondary" onclick="sharePDF()">
-                    <i class="fas fa-share-alt me-1"></i>
-                    Partager
-                </button>
-                <a href="{{ url_for('conversion.universal_converter', conversion_type='image-en-word') }}" 
-                   class="btn btn-outline-secondary">
-                    <i class="fas fa-file-word me-1"></i>
-                    Extraire le texte
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
 <script>
-let selectedFiles = [];
-let pdfBlob = null;
-
-// Initialisation
 document.addEventListener('DOMContentLoaded', function() {
-    // Gestion du drag & drop
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
+    const button = document.getElementById('imageToPdfButton');
     
-    // Gestion des options de grille
-    document.querySelectorAll('input[name="layout"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            document.getElementById('gridOptions').style.display = 
-                this.id === 'layout_grid' ? 'block' : 'none';
-        });
-    });
+    function updateButtonState() {
+        const manager = window.uploadManagers?.imageToPdfUploadZone;
+        button.disabled = !manager?.files?.length;
+    }
     
-    // Gestion de l'espacement de grille
-    const spacingSlider = document.getElementById('gridSpacing');
-    const spacingValue = document.getElementById('spacingValue');
+    const originalHandleFiles = window.uploadManagers?.imageToPdfUploadZone?.handleFiles;
+    if (originalHandleFiles) {
+        window.uploadManagers.imageToPdfUploadZone.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+    }
     
-    spacingSlider.addEventListener('input', function() {
-        spacingValue.textContent = this.value;
-    });
-
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults(e) {
+    const originalRemoveFile = window.uploadManagers?.imageToPdfUploadZone?.removeFile;
+    if (originalRemoveFile) {
+        window.uploadManagers.imageToPdfUploadZone.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+    
+    button.addEventListener('click', async function(e) {
         e.preventDefault();
-        e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropZone.addEventListener(eventName, highlight, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, unhighlight, false);
-    });
-
-    function highlight() {
-        dropZone.classList.add('dragover');
-    }
-
-    function unhighlight() {
-        dropZone.classList.remove('dragover');
-    }
-
-    dropZone.addEventListener('drop', handleDrop, false);
-
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        handleFiles(Array.from(files));
-    }
-
-    fileInput.addEventListener('change', function() {
-        if (this.files && this.files.length > 0) {
-            handleFiles(Array.from(this.files));
+        
+        const manager = window.uploadManagers?.imageToPdfUploadZone;
+        if (!manager?.files?.length) {
+            alert('Veuillez sélectionner au moins une image');
+            return;
+        }
+        
+        const loader = document.getElementById('loaderOverlay');
+        if (loader) loader.style.display = 'flex';
+        
+        const formData = new FormData();
+        manager.files.forEach(file => formData.append('files', file));
+        formData.append('orientation', document.getElementById('orientation').value);
+        formData.append('quality', document.getElementById('quality').value);
+        
+        try {
+            const response = await fetch('/conversion/image-en-pdf', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) throw new Error(`Erreur ${response.status}`);
+            
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'images.pdf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la conversion: ' + error.message);
+        } finally {
+            if (loader) loader.style.display = 'none';
         }
     });
 });
-
-function handleFiles(files) {
-    const maxFiles = {{ max_files }};
-    const maxSize = 50 * 1024 * 1024; // 50MB
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff', 'image/webp'];
-    
-    // Vérifier le nombre maximum de fichiers
-    if (selectedFiles.length + files.length > maxFiles) {
-        showError(`Maximum ${maxFiles} images autorisées. Vous avez déjà ${selectedFiles.length} image(s).`);
-        return;
-    }
-    
-    // Filtrer et valider les fichiers
-    files.forEach(file => {
-        if (!allowedTypes.includes(file.type)) {
-            showError(`Format non supporté: ${file.name}. Formats acceptés: JPG, PNG, GIF, BMP, TIFF, WEBP`);
-            return;
-        }
-        
-        if (file.size > maxSize) {
-            showError(`Fichier trop volumineux: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB). Maximum: 50 MB`);
-            return;
-        }
-        
-        selectedFiles.push(file);
-    });
-    
-    updateFileList();
-}
-
-function updateFileList() {
-    if (selectedFiles.length === 0) {
-        document.getElementById('imagesList').style.display = 'none';
-        return;
-    }
-    
-    document.getElementById('imagesList').style.display = 'block';
-    document.getElementById('imagesCount').textContent = selectedFiles.length;
-    
-    // Calculer la taille totale
-    const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
-    document.getElementById('totalSize').textContent = 
-        `Taille totale: ${(totalSize / 1024 / 1024).toFixed(2)} MB`;
-    
-    // Mettre à jour la grille d'images
-    const grid = document.getElementById('imagesGrid');
-    grid.innerHTML = '';
-    
-    selectedFiles.forEach((file, index) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const div = document.createElement('div');
-            div.className = 'image-thumbnail';
-            div.innerHTML = `
-                <div class="thumbnail-container">
-                    <img src="${e.target.result}" alt="${file.name}" class="thumbnail-image">
-                    <div class="thumbnail-overlay">
-                        <button class="btn btn-sm btn-danger" onclick="removeFile(${index})">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <span class="badge bg-dark">${index + 1}</span>
-                    </div>
-                </div>
-                <div class="thumbnail-info">
-                    <small class="text-truncate d-block">${file.name}</small>
-                    <small class="text-muted">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
-                </div>
-            `;
-            grid.appendChild(div);
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-function removeFile(index) {
-    selectedFiles.splice(index, 1);
-    updateFileList();
-}
-
-function clearAllFiles() {
-    selectedFiles = [];
-    document.getElementById('fileInput').value = '';
-    updateFileList();
-}
-
-function reorderImages() {
-    // Implémentez la réorganisation via drag & drop si nécessaire
-    alert('La réorganisation n\'est pas implémentée dans cette démo.');
-}
-
-function togglePreview() {
-    // Afficher un aperçu de toutes les images
-    const previewWindow = window.open('', '_blank');
-    previewWindow.document.write('<html><head><title>Aperçu des images</title></head><body>');
-    previewWindow.document.write('<div style="padding: 20px;">');
-    
-    selectedFiles.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            previewWindow.document.write(`
-                <div style="margin-bottom: 20px; border: 1px solid #ddd; padding: 10px;">
-                    <h4>${file.name}</h4>
-                    <img src="${e.target.result}" style="max-width: 100%; max-height: 400px;">
-                    <p>Taille: ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                </div>
-            `);
-        };
-        reader.readAsDataURL(file);
-    });
-    
-    previewWindow.document.write('</div></body></html>');
-}
-
-function startConversion() {
-    if (selectedFiles.length === 0) {
-        showError('Veuillez sélectionner au moins une image.');
-        return;
-    }
-    
-    updateStep(2);
-    
-    // Récupérer les paramètres
-    const pageFormat = document.querySelector('input[name="pageFormat"]:checked').id.replace('format_', '');
-    const layout = document.querySelector('input[name="layout"]:checked').id.replace('layout_', '');
-    const orientation = document.querySelector('input[name="orientation"]:checked').id.replace('orientation_', '');
-    const margins = document.getElementById('margins').value;
-    const quality = document.getElementById('quality').value;
-    const compression = document.getElementById('compression').value;
-    const addPageNumbers = document.getElementById('addPageNumbers').checked;
-    const addFooter = document.getElementById('addFooter').checked;
-    const optimizeForPrint = document.getElementById('optimizeForPrint').checked;
-    const preserveAspectRatio = document.getElementById('preserveAspectRatio').checked;
-    const imageOrder = document.getElementById('imageOrder').value;
-    const autoRotate = document.getElementById('autoRotate').value;
-    
-    // Options de grille si applicable
-    let gridOptions = null;
-    if (layout === 'grid') {
-        gridOptions = {
-            cols: parseInt(document.getElementById('gridCols').value),
-            spacing: parseInt(document.getElementById('gridSpacing').value)
-        };
-    }
-    
-    // Mettre à jour les informations de traitement
-    document.getElementById('processingImages').textContent = `0/${selectedFiles.length}`;
-    
-    const estimatedPages = layout === 'full' ? selectedFiles.length : 
-                         layout === 'grid' ? Math.ceil(selectedFiles.length / (gridOptions.cols * gridOptions.cols)) : 1;
-    document.getElementById('processingPages').textContent = `${estimatedPages} page(s)`;
-    
-    document.getElementById('processingCompression').textContent = 
-        compression === 'none' ? 'Aucune' :
-        compression === 'low' ? 'Faible' :
-        compression === 'medium' ? 'Moyenne' : 'Forte';
-    
-    const estimatedTime = Math.max(5, Math.ceil(selectedFiles.length / 5));
-    document.getElementById('processingTime').textContent = `${estimatedTime} secondes`;
-    
-    // Simulation de progression
-    simulatePDFCreation();
-    
-    // Lancer la conversion réelle
-    performRealConversion({
-        pageFormat,
-        layout,
-        orientation,
-        margins,
-        quality,
-        compression,
-        addPageNumbers,
-        addFooter,
-        optimizeForPrint,
-        preserveAspectRatio,
-        imageOrder,
-        autoRotate,
-        gridOptions
-    });
-}
-
-function simulatePDFCreation() {
-    const progressBar = document.getElementById('conversionProgress');
-    const details = document.getElementById('conversionDetails');
-    const processingImages = document.getElementById('processingImages');
-    const thumbnailsContainer = document.getElementById('processingThumbnails');
-    
-    thumbnailsContainer.innerHTML = '';
-    
-    const steps = [
-        { percent: 10, message: "Préparation des images..." },
-        { percent: 30, message: "Optimisation de la qualité..." },
-        { percent: 50, message: "Création des pages..." },
-        { percent: 70, message: "Application des paramètres..." },
-        { percent: 85, message: "Génération du PDF..." },
-        { percent: 95, message: "Compression finale..." },
-        { percent: 100, message: "Finalisation..." }
-    ];
-    
-    let currentStep = 0;
-    let processedImages = 0;
-    
-    function nextStep() {
-        if (currentStep < steps.length) {
-            const step = steps[currentStep];
-            progressBar.style.width = step.percent + '%';
-            details.innerHTML = `<p class="text-muted small">
-                <i class="fas fa-sync-alt fa-spin me-1"></i>
-                ${step.message}
-            </p>`;
-            
-            // Simuler le traitement des images
-            if (currentStep === 2) {
-                const interval = setInterval(() => {
-                    if (processedImages < selectedFiles.length) {
-                        processedImages++;
-                        processingImages.textContent = `${processedImages}/${selectedFiles.length}`;
-                        
-                        // Ajouter une miniature traitée
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const col = document.createElement('div');
-                            col.className = 'col-md-2 col-4 mb-3';
-                            col.innerHTML = `
-                                <div class="processing-thumbnail">
-                                    <img src="${e.target.result}" class="img-fluid rounded">
-                                    <div class="processing-check">
-                                        <i class="fas fa-check text-success"></i>
-                                    </div>
-                                </div>
-                            `;
-                            thumbnailsContainer.appendChild(col);
-                        };
-                        reader.readAsDataURL(selectedFiles[processedImages - 1]);
-                    } else {
-                        clearInterval(interval);
-                    }
-                }, 300);
-            }
-            
-            currentStep++;
-            
-            const interval = currentStep === steps.length - 1 ? 1500 : 1000;
-            setTimeout(nextStep, interval);
-        } else {
-            // Simulation terminée
-            setTimeout(() => {
-                completePDFCreation();
-            }, 1000);
-        }
-    }
-    
-    setTimeout(nextStep, 500);
-}
-
-function performRealConversion(params) {
-    // Préparation des données pour l'API
-    const formData = new FormData();
-    
-    selectedFiles.forEach((file, index) => {
-        formData.append('files', file);
-    });
-    
-    formData.append('page_format', params.pageFormat);
-    formData.append('layout', params.layout);
-    formData.append('orientation', params.orientation);
-    formData.append('margins', params.margins);
-    formData.append('quality', params.quality);
-    formData.append('compression', params.compression);
-    formData.append('add_page_numbers', params.addPageNumbers);
-    formData.append('add_footer', params.addFooter);
-    formData.append('optimize_for_print', params.optimizeForPrint);
-    formData.append('preserve_aspect_ratio', params.preserveAspectRatio);
-    formData.append('image_order', params.imageOrder);
-    formData.append('auto_rotate', params.autoRotate);
-    
-    if (params.gridOptions) {
-        formData.append('grid_cols', params.gridOptions.cols);
-        formData.append('grid_spacing', params.gridOptions.spacing);
-    }
-    
-    // Appel API réel
-    fetch("{{ url_for('conversion.universal_converter', conversion_type='image-en-pdf') }}", {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Erreur lors de la création du PDF');
-        }
-        return response.blob();
-    })
-    .then(blob => {
-        pdfBlob = blob;
-        completePDFCreation();
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        showError('Erreur lors de la création du PDF. Veuillez réessayer.');
-        updateStep(1);
-    });
-}
-
-function completePDFCreation() {
-    updateStep(3);
-    
-    // Mettre à jour les informations
-    const fileName = selectedFiles.length === 1 ? 
-        selectedFiles[0].name.replace(/\.[^/.]+$/, "") + '.pdf' : 
-        `images_${new Date().toISOString().slice(0,10)}.pdf`;
-    
-    document.getElementById('pdfFileName').textContent = fileName;
-    
-    const fileSize = pdfBlob ? (pdfBlob.size / 1024 / 1024).toFixed(2) : '0';
-    const pages = Math.ceil(selectedFiles.length / 3); // Estimation
-    
-    document.getElementById('pdfFileInfo').textContent = 
-        `Taille: ${fileSize} MB | Pages: ${pages} | Images: ${selectedFiles.length}`;
-    
-    document.getElementById('pdfSummary').innerHTML = `
-        Format: ${document.querySelector('input[name="pageFormat"]:checked').id.replace('format_', '').toUpperCase()}<br>
-        Orientation: ${document.querySelector('input[name="orientation"]:checked').id.replace('orientation_', '')}<br>
-        Qualité: ${document.getElementById('quality').value === 'high' ? 'Haute' : 
-                  document.getElementById('quality').value === 'medium' ? 'Moyenne' : 'Basse'}
-    `;
-    
-    // Configurer le bouton de téléchargement
-    const downloadBtn = document.getElementById('downloadBtn');
-    downloadBtn.onclick = function() {
-        const url = URL.createObjectURL(pdfBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        // Feedback visuel
-        downloadBtn.innerHTML = '<i class="fas fa-check me-2"></i>Téléchargé !';
-        downloadBtn.classList.remove('btn-success');
-        downloadBtn.classList.add('btn-secondary');
-        
-        setTimeout(() => {
-            downloadBtn.innerHTML = '<i class="fas fa-download me-2"></i>Télécharger PDF';
-            downloadBtn.classList.remove('btn-secondary');
-            downloadBtn.classList.add('btn-success');
-        }, 2000);
-    };
-}
-
-function sharePDF() {
-    if (!pdfBlob) return;
-    
-    // Implémentez le partage selon vos besoins
-    alert('Le partage de PDF n\'est pas implémenté dans cette démo.');
-}
-
-function resetConverter() {
-    selectedFiles = [];
-    pdfBlob = null;
-    
-    document.getElementById('fileInput').value = '';
-    document.getElementById('imagesList').style.display = 'none';
-    
-    // Réinitialiser les paramètres
-    document.getElementById('format_a4').checked = true;
-    document.getElementById('layout_full').checked = true;
-    document.getElementById('orientation_portrait').checked = true;
-    document.getElementById('margins').value = 'small';
-    document.getElementById('quality').value = 'high';
-    document.getElementById('compression').value = 'medium';
-    document.getElementById('addPageNumbers').checked = true;
-    document.getElementById('addFooter').checked = true;
-    document.getElementById('optimizeForPrint').checked = false;
-    document.getElementById('preserveAspectRatio').checked = true;
-    document.getElementById('imageOrder').value = 'original';
-    document.getElementById('autoRotate').value = 'portrait';
-    document.getElementById('gridOptions').style.display = 'none';
-    
-    updateStep(1);
-}
-
-// Fonctions de base
-function updateStep(stepNumber) {
-    document.getElementById('step1Content').style.display = 'none';
-    document.getElementById('step2Content').style.display = 'none';
-    document.getElementById('step3Content').style.display = 'none';
-    
-    document.getElementById('step1Content').style.display = stepNumber === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = stepNumber === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = stepNumber === 3 ? 'block' : 'none';
-    
-    // Mettre à jour le tracker d'étapes
-    document.querySelectorAll('.step').forEach((step, index) => {
-        step.classList.remove('active', 'completed');
-        if (index + 1 < stepNumber) {
-            step.classList.add('completed');
-        } else if (index + 1 === stepNumber) {
-            step.classList.add('active');
-        }
-    });
-}
-
-function showError(message) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-    alertDiv.innerHTML = `
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    const container = document.querySelector('.container');
-    container.insertBefore(alertDiv, container.firstChild);
-    
-    setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.remove();
-        }
-    }, 5000);
-}
 </script>
+{% endblock %}
 
-<style>
-.images-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-}
-
-.image-thumbnail {
-    position: relative;
-}
-
-.thumbnail-container {
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
-    background: #f8f9fa;
-    aspect-ratio: 1;
-}
-
-.thumbnail-container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-}
-
-.thumbnail-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.thumbnail-overlay {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    display: flex;
-    gap: 5px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.thumbnail-container:hover .thumbnail-overlay {
-    opacity: 1;
-}
-
-.thumbnail-info {
-    margin-top: 8px;
-    text-align: center;
-}
-
-.processing-thumbnail {
-    position: relative;
-    border: 2px solid #dee2e6;
-    border-radius: 8px;
-    overflow: hidden;
-    aspect-ratio: 1;
-}
-
-.processing-check {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-.pdf-preview-container {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 40px 20px;
-    text-align: center;
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.pdf-preview-placeholder {
-    color: #6c757d;
-}
-
-.progress-container {
-    height: 8px;
-    background-color: #e9ecef;
-    border-radius: 4px;
-    overflow: hidden;
-    margin: 20px auto;
-    max-width: 500px;
-}
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
-    width: 0%;
-    transition: width 0.5s ease;
-    border-radius: 4px;
-}
-
-.success-animation {
-    width: 100px;
-    height: 100px;
-    background: #dc3545;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 2rem;
-    color: white;
-    font-size: 2.5rem;
-    animation: bounceIn 0.6s;
-}
-
-@keyframes bounceIn {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-@media (max-width: 768px) {
-    .images-grid {
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-        gap: 10px;
-    }
-}
-</style>
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 {% endblock %}

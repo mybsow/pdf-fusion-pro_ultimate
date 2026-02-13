@@ -1,239 +1,173 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF en Images - PDF Fusion Pro</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/conversion.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pdf_to_image.css') }}">
-    <style>
-        .conversion-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-        .format-option {
-            padding: 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .format-option:hover {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
-        }
-        .format-option.selected {
-            border-color: #3b82f6;
-            background-color: #dbeafe;
-        }
-        .format-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        .ocr-section {
-            background-color: #f8fafc;
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            margin: 2rem 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- En-tête -->
-        <div class="header">
-            <h1><i class="format-icon">🖼️</i> PDF en Images</h1>
-            <p>Convertissez vos fichiers PDF en images (JPG, PNG, TIFF, etc.)</p>
-        </div>
+{% extends "base.html" %}
 
-        <!-- Retour -->
-        <a href="{{ url_for('conversion.conversion_home') }}" class="back-link">
-            ← Retour aux conversions
-        </a>
+{% block title %}PDF vers Image - {{ title }}{% endblock %}
 
-        <!-- Zone de dépôt -->
-        <div class="upload-zone" id="uploadZone">
-            <div class="upload-content">
-                <i class="upload-icon">📤</i>
-                <h3>Déposez votre PDF ici</h3>
-                <p>ou cliquez pour parcourir</p>
-                <input type="file" id="fileInput" accept=".pdf" multiple>
-            </div>
-        </div>
-
-        <!-- Options de conversion -->
-        <div class="conversion-options">
-            <div class="format-option" data-format="jpg">
-                <div class="format-icon">🖼️</div>
-                <h4>JPG</h4>
-                <p>Meilleur pour le web</p>
-            </div>
-            <div class="format-option" data-format="png">
-                <div class="format-icon">🖼️</div>
-                <h4>PNG</h4>
-                <p>Qualité sans perte</p>
-            </div>
-            <div class="format-option" data-format="tiff">
-                <div class="format-icon">🖼️</div>
-                <h4>TIFF</h4>
-                <p>Haute qualité</p>
-            </div>
-            <div class="format-option" data-format="bmp">
-                <div class="format-icon">🖼️</div>
-                <h4>BMP</h4>
-                <p>Format bitmap</p>
-            </div>
-        </div>
-
-        <!-- Options OCR (si disponible) -->
-        {% if config.OCR_ENABLED %}
-        <div class="ocr-section">
-            <h3><i class="format-icon">🔍</i> Options OCR</h3>
-            <div class="option-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="enableOcr">
-                    <span>Activer l'OCR (reconnaissance de texte)</span>
-                </label>
-                <p class="help-text">Extrait le texte des images pour des PDF scannés</p>
-            </div>
-            <div class="option-group">
-                <label>Qualité DPI :</label>
-                <select id="dpiSelect">
-                    <option value="150">150 DPI (standard)</option>
-                    <option value="300" selected>300 DPI (bonne qualité)</option>
-                    <option value="600">600 DPI (haute qualité)</option>
-                </select>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Bouton de conversion -->
-        <div class="action-section">
-            <button id="convertBtn" class="btn-primary" disabled>
-                <span class="btn-icon">⚡</span>
-                Convertir en images
-            </button>
-            <div class="progress-container" id="progressContainer" style="display: none;">
-                <div class="progress-bar" id="progressBar"></div>
-                <div class="progress-text" id="progressText">0%</div>
-            </div>
-        </div>
-
-        <!-- Résultats -->
-        <div class="results-section" id="resultsSection" style="display: none;">
-            <h3><i class="format-icon">✅</i> Conversion terminée</h3>
-            <div class="results-grid" id="resultsGrid"></div>
-            <div class="action-buttons">
-                <button id="downloadAllBtn" class="btn-secondary">
-                    <span class="btn-icon">📥</span>
-                    Télécharger toutes les images (ZIP)
-                </button>
-                <button id="newConversionBtn" class="btn-outline">
-                    <span class="btn-icon">🔄</span>
-                    Nouvelle conversion
-                </button>
-            </div>
-        </div>
-
-        <!-- Informations -->
-        <div class="info-section">
-            <h3><i class="format-icon">💡</i> Comment ça marche ?</h3>
-            <div class="info-grid">
-                <div class="info-card">
-                    <div class="info-icon">1</div>
-                    <h4>Téléversez</h4>
-                    <p>Déposez un ou plusieurs fichiers PDF</p>
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header" style="background-color: #e74c3c; color: white;">
+                    <h4 class="mb-0"><i class="fas fa-file-image me-2"></i>{{ title }}</h4>
                 </div>
-                <div class="info-card">
-                    <div class="info-icon">2</div>
-                    <h4>Configurez</h4>
-                    <p>Choisissez le format d'image et les options</p>
-                </div>
-                <div class="info-card">
-                    <div class="info-icon">3</div>
-                    <h4>Convertissez</h4>
-                    <p>Cliquez sur convertir et téléchargez les images</p>
+                <div class="card-body">
+                    <p class="lead">{{ description }}</p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Convertissez chaque page de votre PDF en image (format PNG ou JPG).
+                    </div>
+                    
+                    <!-- Zone d'upload -->
+                    <div class="upload-zone-pro mb-4" id="pdfToImageUploadZone" data-info-id="pdfToImageFileInfo" data-btn-id="pdfToImageButton">
+                        <div class="upload-inner">
+                            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                            <h4 class="upload-title">Déposez votre PDF ici</h4>
+                            <p class="upload-subtitle">Glissez-déposez ou cliquez pour sélectionner</p>
+                            <div class="upload-info">PDF uniquement • Taille max: 50MB</div>
+                        </div>
+                        <input type="file" accept=".pdf" style="display:none;">
+                    </div>
+                    
+                    <div id="pdfToImageFileInfo" class="file-list mt-3"></div>
+                    <div id="pdfToImageUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
+                    
+                    <!-- Options -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-bold">Format d'image</label>
+                                <select class="form-select" id="imageFormat">
+                                    <option value="png">PNG (qualité supérieure)</option>
+                                    <option value="jpg">JPG (taille réduite)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-bold">Qualité (pour JPG)</label>
+                                <select class="form-select" id="quality" disabled>
+                                    <option value="high">Haute</option>
+                                    <option value="medium" selected>Moyenne</option>
+                                    <option value="low">Basse</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-bold">Pages à convertir</label>
+                                <input type="text" class="form-control" id="pages" placeholder="Ex: 1,3-5 ou 'all' pour toutes">
+                                <small class="text-muted">Laissez vide pour toutes les pages</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-bold">DPI (résolution)</label>
+                                <select class="form-select" id="dpi">
+                                    <option value="150">150 DPI (standard)</option>
+                                    <option value="300">300 DPI (haute qualité)</option>
+                                    <option value="72">72 DPI (web)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons mt-4">
+                        <button class="btn btn-primary btn-lg" id="pdfToImageButton" disabled>
+                            <i class="fas fa-file-image me-2"></i>Convertir en images
+                        </button>
+                        <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.pdfToImageUploadZone.removeFile(0)">
+                            <i class="fas fa-redo me-2"></i>Réinitialiser
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="{{ url_for('static', filename='js/pdf_to_image.js') }}"></script>
-    <script>
-        // Configuration de base
-        const conversionConfig = {
-            endpoint: "{{ url_for('conversion.universal_converter') }}",
-            type: "pdf_to_image",
-            maxFileSize: {{ config.MAX_CONTENT_SIZE }},
-            allowedFormats: ['.pdf']
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const button = document.getElementById('pdfToImageButton');
+    const formatSelect = document.getElementById('imageFormat');
+    const qualitySelect = document.getElementById('quality');
+    
+    formatSelect.addEventListener('change', function() {
+        qualitySelect.disabled = this.value !== 'jpg';
+    });
+    
+    function updateButtonState() {
+        const manager = window.uploadManagers?.pdfToImageUploadZone;
+        button.disabled = !manager?.files?.length;
+    }
+    
+    const originalHandleFiles = window.uploadManagers?.pdfToImageUploadZone?.handleFiles;
+    if (originalHandleFiles) {
+        window.uploadManagers.pdfToImageUploadZone.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
         };
-
-        // Initialisation
-        document.addEventListener('DOMContentLoaded', function() {
-            // Sélection du format
-            const formatOptions = document.querySelectorAll('.format-option');
-            let selectedFormat = 'jpg';
-            
-            formatOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    formatOptions.forEach(opt => opt.classList.remove('selected'));
-                    this.classList.add('selected');
-                    selectedFormat = this.dataset.format;
-                });
+    }
+    
+    const originalRemoveFile = window.uploadManagers?.pdfToImageUploadZone?.removeFile;
+    if (originalRemoveFile) {
+        window.uploadManagers.pdfToImageUploadZone.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+    
+    button.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        const manager = window.uploadManagers?.pdfToImageUploadZone;
+        if (!manager?.files?.length) {
+            alert('Veuillez sélectionner un fichier PDF');
+            return;
+        }
+        
+        const loader = document.getElementById('loaderOverlay');
+        if (loader) loader.style.display = 'flex';
+        
+        const formData = new FormData();
+        formData.append('file', manager.files[0]);
+        formData.append('format', formatSelect.value);
+        formData.append('quality', qualitySelect.value);
+        formData.append('pages', document.getElementById('pages').value || 'all');
+        formData.append('dpi', document.getElementById('dpi').value);
+        
+        try {
+            const response = await fetch('/conversion/pdf-en-image', {
+                method: 'POST',
+                body: formData
             });
             
-            // Sélectionner JPG par défaut
-            formatOptions[0].classList.add('selected');
-
-            // Gestion de l'upload
-            const uploadZone = document.getElementById('uploadZone');
-            const fileInput = document.getElementById('fileInput');
+            if (!response.ok) throw new Error(`Erreur ${response.status}`);
             
-            uploadZone.addEventListener('click', () => fileInput.click());
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'images.zip';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
             
-            fileInput.addEventListener('change', function(e) {
-                if (e.target.files.length > 0) {
-                    document.getElementById('convertBtn').disabled = false;
-                }
-            });
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la conversion: ' + error.message);
+        } finally {
+            if (loader) loader.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}
 
-            // Drag & drop
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                uploadZone.addEventListener(eventName, preventDefaults, false);
-            });
-
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-
-            ['dragenter', 'dragover'].forEach(eventName => {
-                uploadZone.addEventListener(eventName, highlight, false);
-            });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                uploadZone.addEventListener(eventName, unhighlight, false);
-            });
-
-            function highlight() {
-                uploadZone.classList.add('highlight');
-            }
-
-            function unhighlight() {
-                uploadZone.classList.remove('highlight');
-            }
-
-            uploadZone.addEventListener('drop', handleDrop, false);
-
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                fileInput.files = files;
-                document.getElementById('convertBtn').disabled = false;
-            }
-        });
-    </script>
-</body>
-</html>
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+{% endblock %}

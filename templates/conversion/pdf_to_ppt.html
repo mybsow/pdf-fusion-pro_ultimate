@@ -1,9 +1,235 @@
-<!DOCTYPE html>
-<html>
-<head><title>conversion/pdf_to_ppt.html</title></head>
-<body>
-    <h1>conversion/pdf_to_ppt.html</h1>
-    <p>Page en développement</p>
-    <a href="/">← Retour à l'accueil</a>
-</body>
-</html>
+{% extends "conversion/conversion_base.html" %}
+
+{% block title %}PDF vers PowerPoint - Convertisseur{% endblock %}
+
+{% block converter_content %}
+<!-- Étape 1: Upload -->
+<div id="step1Content">
+    <div class="upload-zone-pro" id="pdfToPptUploadZone" data-info-id="pdfToPptFileInfo" data-btn-id="convertBtn">
+        <div class="upload-inner">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h4 class="upload-title">Déposez votre PDF ici</h4>
+            <p class="upload-subtitle">Glissez-déposez ou cliquez pour sélectionner</p>
+            <div class="upload-info">PDF uniquement • Taille max : 50MB</div>
+        </div>
+        <input type="file" accept=".pdf" style="display:none;">
+    </div>
+    
+    <div id="pdfToPptFileInfo" class="file-list mt-3"></div>
+    <div id="pdfToPptUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
+    
+    <!-- Options de conversion -->
+    <div class="mt-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    <i class="fas fa-cog me-2"></i>Options de conversion
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Mise en page</label>
+                        <select class="form-select" id="layoutStyle">
+                            <option value="single" selected>Une page par diapositive</option>
+                            <option value="multiple">Plusieurs pages par diapositive</option>
+                            <option value="handouts">Document de distribution</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Format de diapositive</label>
+                        <select class="form-select" id="slideSize">
+                            <option value="standard" selected>Standard (4:3)</option>
+                            <option value="widescreen">Widescreen (16:9)</option>
+                            <option value="letter">Letter</option>
+                            <option value="a4">A4</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="includeImages" checked>
+                            <label class="form-check-label">
+                                Inclure les images
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editableText" checked>
+                            <label class="form-check-label">
+                                Texte éditable
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-2">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Format PowerPoint :</strong> Compatible avec toutes les versions récentes de PowerPoint (PPTX).
+                </div>
+                
+                <div class="action-buttons mt-4">
+                    <button class="btn btn-primary btn-lg" id="convertBtn" disabled>
+                        <i class="fas fa-play me-2"></i>
+                        Convertir en PowerPoint
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Étape 2: Conversion -->
+<div id="step2Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="upload-icon mb-4">
+            <div class="spinner-border text-primary" style="width: 5rem; height: 5rem;" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+        </div>
+        
+        <h3 class="mb-4">Conversion en cours...</h3>
+        <p class="text-muted mb-4">Transformation de votre PDF en présentation PowerPoint</p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="conversionProgress"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Étape 3: Téléchargement -->
+<div id="step3Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="success-animation">
+            <i class="fas fa-file-powerpoint"></i>
+        </div>
+        
+        <h3 class="mb-3">Conversion réussie !</h3>
+        <p class="text-muted mb-4">
+            Votre présentation PowerPoint est prête au téléchargement
+        </p>
+        
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
+            <button class="btn btn-success btn-lg px-4 py-3" id="downloadBtn">
+                <i class="fas fa-download me-2"></i>
+                Télécharger PowerPoint
+            </button>
+            
+            <button class="btn btn-outline-primary btn-lg px-4 py-3" onclick="resetConverter()">
+                <i class="fas fa-redo me-2"></i>
+                Nouveau PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Formulaire caché pour la soumission POST -->
+<form method="POST" 
+      action="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-powerpoint') }}"
+      enctype="multipart/form-data"
+      id="hiddenForm"
+      style="display: none;">
+    <input type="file" name="file" id="hiddenFileInput">
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const convertBtn = document.getElementById('convertBtn');
+    const uploadManager = window.uploadManagers?.pdfToPptUploadZone;
+    
+    function updateButtonState() {
+        convertBtn.disabled = !uploadManager?.files?.length;
+    }
+    
+    if (uploadManager) {
+        const originalHandleFiles = uploadManager.handleFiles;
+        uploadManager.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+        
+        const originalRemoveFile = uploadManager.removeFile;
+        uploadManager.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+    
+    convertBtn.addEventListener('click', async function() {
+        if (!uploadManager?.files?.length) {
+            alert('Veuillez sélectionner un fichier PDF');
+            return;
+        }
+        
+        const file = uploadManager.files[0];
+        document.getElementById('step1Content').style.display = 'none';
+        document.getElementById('step2Content').style.display = 'block';
+        
+        // Simuler la progression
+        const progressBar = document.getElementById('conversionProgress');
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            progressBar.style.width = progress + '%';
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    document.getElementById('step2Content').style.display = 'none';
+                    document.getElementById('step3Content').style.display = 'block';
+                }, 500);
+            }
+        }, 300);
+        
+        // Préparer le téléchargement
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('layout', document.getElementById('layoutStyle').value);
+        formData.append('slide_size', document.getElementById('slideSize').value);
+        formData.append('include_images', document.getElementById('includeImages').checked);
+        formData.append('editable_text', document.getElementById('editableText').checked);
+        
+        document.getElementById('downloadBtn').onclick = async function() {
+            const response = await fetch("{{ url_for('conversion.universal_converter', conversion_type='pdf-en-powerpoint') }}", {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = file.name.replace('.pdf', '') + '.pptx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
+        };
+    });
+});
+
+function resetConverter() {
+    const uploadManager = window.uploadManagers?.pdfToPptUploadZone;
+    if (uploadManager) {
+        while (uploadManager.files.length > 0) {
+            uploadManager.removeFile(0);
+        }
+    }
+    document.getElementById('step1Content').style.display = 'block';
+    document.getElementById('step2Content').style.display = 'none';
+    document.getElementById('step3Content').style.display = 'none';
+}
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+{% endblock %}

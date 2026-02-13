@@ -5,42 +5,32 @@
 {% block converter_content %}
 <!-- Étape 1: Upload -->
 <div id="step1Content">
-    <div class="upload-zone" id="dropZone">
-        <div class="upload-icon">
-            <i class="fas fa-file-excel"></i>
+    <!-- Zone d'upload avec UploadManager -->
+    <div class="upload-zone-pro" id="imageToExcelUploadZone" data-info-id="imageToExcelFileInfo" data-btn-id="convertBtn">
+        <div class="upload-inner">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h4 class="upload-title">Extrayez les tableaux de vos images</h4>
+            <p class="upload-subtitle">Glissez-déposez ou cliquez pour sélectionner</p>
+            <div class="upload-info mb-4">
+                <span class="badge bg-success me-2">
+                    <i class="fas fa-image me-1"></i>Images
+                </span>
+                <span class="badge bg-danger me-2">
+                    <i class="fas fa-file-pdf me-1"></i>PDF
+                </span>
+                <span class="badge bg-primary me-2">
+                    <i class="fas fa-table me-1"></i>Tableaux
+                </span>
+                <span class="badge bg-warning text-dark">
+                    <i class="fas fa-weight-hanging me-1"></i>Max 50MB
+                </span>
+            </div>
         </div>
-        
-        <h3>Extrayez les tableaux de vos images</h3>
-        <p class="text-muted mb-4">
-            Convertissez images et PDF en feuilles Excel structurées avec détection automatique des tableaux
-        </p>
-        
-        <div class="mb-4">
-            <span class="badge bg-success me-2">
-                <i class="fas fa-image me-1"></i>Images
-            </span>
-            <span class="badge bg-danger me-2">
-                <i class="fas fa-file-pdf me-1"></i>PDF
-            </span>
-            <span class="badge bg-primary me-2">
-                <i class="fas fa-table me-1"></i>Tableaux
-            </span>
-            <span class="badge bg-warning text-dark">
-                <i class="fas fa-weight-hanging me-1"></i>Max 50MB
-            </span>
-        </div>
-        
-        <input type="file" 
-               id="fileInput" 
-               class="d-none" 
-               accept=".jpg,.jpeg,.png,.bmp,.tiff,.tif,.webp,.pdf">
-        
-        <button class="btn btn-primary btn-lg px-4 py-3"
-                onclick="document.getElementById('fileInput').click()">
-            <i class="fas fa-folder-open me-2"></i>
-            Sélectionner un document
-        </button>
+        <input type="file" accept=".jpg,.jpeg,.png,.bmp,.tiff,.tif,.webp,.pdf" style="display:none;">
     </div>
+    
+    <div id="imageToExcelFileInfo" class="file-list mt-3"></div>
+    <div id="imageToExcelUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
     
     <!-- Options de détection de tableaux -->
     <div class="mt-4">
@@ -196,61 +186,37 @@
                         </select>
                     </div>
                 </div>
+                
+                <div class="action-buttons mt-4">
+                    <button class="btn btn-primary btn-lg" id="convertBtn" disabled>
+                        <i class="fas fa-search me-2"></i>
+                        Détecter et extraire les tableaux
+                    </button>
+                </div>
             </div>
         </div>
     </div>
     
-    <!-- Informations fichier -->
-    <div id="fileInfo" class="file-info-card mt-4" style="display: none;">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="d-flex align-items-center">
-                <div class="me-3">
-                    <i class="fas fa-file-alt fa-2x text-success"></i>
-                </div>
-                <div>
-                    <h5 class="mb-1" id="fileName"></h5>
-                    <div class="d-flex gap-3">
-                        <span class="text-muted small" id="fileDetails"></span>
-                        <span class="badge bg-info" id="fileType"></span>
-                    </div>
-                </div>
+    <!-- Statistiques de détection -->
+    <div id="tableStats" class="mt-3 p-3 bg-light rounded" style="display: none;">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="display-6 text-primary" id="tablesCount">0</div>
+                <small class="text-muted">Tableau(x)</small>
             </div>
-            <div>
-                <button class="btn btn-sm btn-outline-danger me-2" onclick="clearFile()">
-                    <i class="fas fa-times me-1"></i>Supprimer
-                </button>
-                <button class="btn btn-sm btn-outline-primary" onclick="previewFile()">
-                    <i class="fas fa-eye me-1"></i>Aperçu
-                </button>
+            <div class="col-md-3">
+                <div class="display-6 text-success" id="rowsCount">0</div>
+                <small class="text-muted">Ligne(s)</small>
+            </div>
+            <div class="col-md-3">
+                <div class="display-6 text-warning" id="columnsCount">0</div>
+                <small class="text-muted">Colonne(s)</small>
+            </div>
+            <div class="col-md-3">
+                <div class="display-6 text-info" id="cellsCount">0</div>
+                <small class="text-muted">Cellule(s)</small>
             </div>
         </div>
-        
-        <!-- Statistiques de détection -->
-        <div id="tableStats" class="mt-3 p-3 bg-light rounded" style="display: none;">
-            <div class="row text-center">
-                <div class="col-md-3">
-                    <div class="display-6 text-primary" id="tablesCount">0</div>
-                    <small class="text-muted">Tableau(x)</small>
-                </div>
-                <div class="col-md-3">
-                    <div class="display-6 text-success" id="rowsCount">0</div>
-                    <small class="text-muted">Ligne(s)</small>
-                </div>
-                <div class="col-md-3">
-                    <div class="display-6 text-warning" id="columnsCount">0</div>
-                    <small class="text-muted">Colonne(s)</small>
-                </div>
-                <div class="col-md-3">
-                    <div class="display-6 text-info" id="cellsCount">0</div>
-                    <small class="text-muted">Cellule(s)</small>
-                </div>
-            </div>
-        </div>
-        
-        <button class="btn btn-success w-100 py-3 mt-3" id="convertBtn" onclick="startConversion()">
-            <i class="fas fa-search me-2"></i>
-            Détecter et extraire les tableaux
-        </button>
     </div>
 </div>
 
@@ -277,23 +243,6 @@
                 <i class="fas fa-sync-alt fa-spin me-1"></i>
                 Chargement et analyse du document...
             </p>
-        </div>
-        
-        <!-- Prévisualisation en temps réel -->
-        <div class="card border-0 shadow-sm mt-5">
-            <div class="card-body">
-                <h6 class="mb-3"><i class="fas fa-eye me-1"></i>Détection en temps réel</h6>
-                <div id="detectionCanvas" class="position-relative">
-                    <canvas id="previewCanvas" class="img-fluid rounded border"></canvas>
-                    <div id="tableOverlay" class="position-absolute top-0 start-0 w-100 h-100"></div>
-                </div>
-                <div class="mt-3">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Les zones détectées sont surlignées en vert
-                    </small>
-                </div>
-            </div>
         </div>
         
         <!-- Statistiques d'extraction -->
@@ -500,10 +449,6 @@
                     <i class="fas fa-edit me-1"></i>
                     Modifier l'export
                 </button>
-                <a href="#" class="btn btn-outline-secondary" id="viewDataBtn">
-                    <i class="fas fa-eye me-1"></i>
-                    Voir les données
-                </a>
             </div>
         </div>
     </div>
@@ -520,403 +465,260 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 <script>
-let selectedFile = null;
-let extractionData = null;
-let exportBlob = null;
-
-// Initialisation
 document.addEventListener('DOMContentLoaded', function() {
-    // Gestion du drag & drop
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropZone.addEventListener(eventName, highlight, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, unhighlight, false);
-    });
-
-    function highlight() {
-        dropZone.classList.add('dragover');
-    }
-
-    function unhighlight() {
-        dropZone.classList.remove('dragover');
-    }
-
-    dropZone.addEventListener('drop', handleDrop, false);
-
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        handleFile(files[0]);
-    }
-
-    fileInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            handleFile(this.files[0]);
-        }
-    });
-});
-
-function handleFile(file) {
-    if (!file) return;
+    const convertBtn = document.getElementById('convertBtn');
+    const uploadManager = window.uploadManagers?.imageToExcelUploadZone;
     
-    // Vérifier l'extension
-    const ext = '.' + file.name.split('.').pop().toLowerCase();
-    const allowedExts = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.webp', '.pdf'];
-    
-    if (!allowedExts.includes(ext)) {
-        showError('Format de fichier non supporté. Formats acceptés: ' + allowedExts.join(', '));
-        return;
-    }
-    
-    // Vérifier la taille (max 50MB)
-    if (file.size > 50 * 1024 * 1024) {
-        showError('Fichier trop volumineux (max 50MB)');
-        return;
-    }
-    
-    selectedFile = file;
-    
-    // Afficher les infos
-    document.getElementById('fileName').textContent = file.name;
-    document.getElementById('fileDetails').textContent = 
-        `${(file.size / 1024 / 1024).toFixed(2)} MB`;
-    
-    // Déterminer le type
-    const fileType = file.type.startsWith('image/') ? 'Image' : 
-                    file.type === 'application/pdf' ? 'PDF' : 'Document';
-    document.getElementById('fileType').textContent = fileType;
-    
-    document.getElementById('fileInfo').style.display = 'block';
-    document.getElementById('tableStats').style.display = 'block';
-    
-    // Simuler une détection rapide pour les statistiques
-    simulateQuickDetection();
-}
-
-function simulateQuickDetection() {
-    // Statistiques simulées basées sur la taille du fichier
-    const tables = Math.max(1, Math.floor(selectedFile.size / (5 * 1024 * 1024)));
-    const rows = tables * 10;
-    const columns = 5;
-    const cells = rows * columns;
-    
-    document.getElementById('tablesCount').textContent = tables;
-    document.getElementById('rowsCount').textContent = rows;
-    document.getElementById('columnsCount').textContent = columns;
-    document.getElementById('cellsCount').textContent = cells;
-}
-
-function previewFile() {
-    if (!selectedFile) return;
-    
-    if (selectedFile.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const newTab = window.open();
-            newTab.document.write(`<img src="${e.target.result}" style="max-width:100%;">`);
-        };
-        reader.readAsDataURL(selectedFile);
-    }
-}
-
-function clearFile() {
-    selectedFile = null;
-    document.getElementById('fileInput').value = '';
-    document.getElementById('fileInfo').style.display = 'none';
-    document.getElementById('tableStats').style.display = 'none';
-}
-
-function startConversion() {
-    if (!selectedFile) return;
-    
-    updateStep(2);
-    
-    // Récupérer les paramètres
-    const extractionMode = document.querySelector('input[name="extractionMode"]:checked').id.replace('mode_', '');
-    const detectHeaders = document.getElementById('detectHeaders').checked;
-    const mergeCells = document.getElementById('mergeCells').checked;
-    const detectFormulas = document.getElementById('detectFormulas').checked;
-    const outputFormat = document.querySelector('input[name="outputFormat"]:checked').id.replace('format_', '');
-    const ocrAccuracy = document.getElementById('ocrAccuracy').value;
-    const numberFormat = document.getElementById('numberFormat').value;
-    const dateFormat = document.getElementById('dateFormat').value;
-    
-    // Simulation de progression avec détection visuelle
-    simulateTableDetection();
-    
-    // Lancer l'extraction réelle
-    performRealExtraction({
-        extractionMode,
-        detectHeaders,
-        mergeCells,
-        detectFormulas,
-        outputFormat,
-        ocrAccuracy,
-        numberFormat,
-        dateFormat
-    });
-}
-
-function simulateTableDetection() {
-    const progressBar = document.getElementById('analysisProgress');
-    const details = document.getElementById('analysisDetails');
-    const detectedTables = document.getElementById('detectedTables');
-    const detectedCells = document.getElementById('detectedCells');
-    const detectionConfidence = document.getElementById('detectionConfidence');
-    const timeRemaining = document.getElementById('timeRemaining');
-    
-    const steps = [
-        { percent: 15, message: "Prétraitement de l'image...", tables: 0, cells: 0, confidence: 10, time: 25 },
-        { percent: 30, message: "Détection des contours...", tables: 1, cells: 50, confidence: 25, time: 20 },
-        { percent: 45, message: "Identification des lignes...", tables: 1, cells: 120, confidence: 40, time: 15 },
-        { percent: 60, message: "Détection des colonnes...", tables: 2, cells: 250, confidence: 60, time: 10 },
-        { percent: 75, message: "Extraction du contenu...", tables: 2, cells: 400, confidence: 75, time: 5 },
-        { percent: 90, message: "Structuration des données...", tables: 3, cells: 550, confidence: 85, time: 2 },
-        { percent: 100, message: "Validation des résultats...", tables: 3, cells: 720, confidence: 95, time: 0 }
-    ];
-    
-    let currentStep = 0;
-    
-    function nextStep() {
-        if (currentStep < steps.length) {
-            const step = steps[currentStep];
-            progressBar.style.width = step.percent + '%';
-            details.innerHTML = `<p class="text-muted small">
-                <i class="fas fa-sync-alt fa-spin me-1"></i>
-                ${step.message}
-            </p>`;
-            
-            detectedTables.textContent = `${step.tables} détecté(s)`;
-            detectedCells.textContent = `${step.cells} détectée(s)`;
-            detectionConfidence.textContent = `${step.confidence}%`;
-            timeRemaining.textContent = `${step.time}s`;
-            
-            currentStep++;
-            
-            const interval = currentStep === steps.length - 1 ? 1500 : 1000;
-            setTimeout(nextStep, interval);
+    function updateButtonState() {
+        convertBtn.disabled = !uploadManager?.files?.length;
+        
+        // Afficher les statistiques simulées quand un fichier est sélectionné
+        if (uploadManager?.files?.length > 0) {
+            simulateQuickDetection(uploadManager.files[0]);
+            document.getElementById('tableStats').style.display = 'block';
         } else {
-            // Simulation terminée
-            setTimeout(() => {
-                completeDetectionSimulation();
-            }, 1000);
+            document.getElementById('tableStats').style.display = 'none';
         }
     }
     
-    setTimeout(nextStep, 500);
-}
-
-function performRealExtraction(params) {
-    // Créer un formulaire temporaire pour la soumission directe
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = "{{ url_for('conversion.universal_converter', conversion_type='image-en-excel') }}";
-    form.enctype = 'multipart/form-data';
-    form.style.display = 'none';
+    if (uploadManager) {
+        const originalHandleFiles = uploadManager.handleFiles;
+        uploadManager.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+        
+        const originalRemoveFile = uploadManager.removeFile;
+        uploadManager.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
     
-    // Ajouter le fichier
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.name = 'file';
+    function simulateQuickDetection(file) {
+        // Statistiques simulées basées sur la taille du fichier
+        const tables = Math.max(1, Math.floor(file.size / (5 * 1024 * 1024)));
+        const rows = tables * 10;
+        const columns = 5;
+        const cells = rows * columns;
+        
+        document.getElementById('tablesCount').textContent = tables;
+        document.getElementById('rowsCount').textContent = rows;
+        document.getElementById('columnsCount').textContent = columns;
+        document.getElementById('cellsCount').textContent = cells;
+    }
     
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(selectedFile);
-    fileInput.files = dataTransfer.files;
-    form.appendChild(fileInput);
-    
-    // Ajouter au document et soumettre
-    document.body.appendChild(form);
-    form.submit();
-    
-    // Supprimer le formulaire après soumission
-    setTimeout(() => {
-        if (form.parentNode) {
-            form.remove();
+    convertBtn.addEventListener('click', async function() {
+        if (!uploadManager?.files?.length) {
+            alert('Veuillez sélectionner un fichier');
+            return;
         }
-    }, 1000);
+        
+        const file = uploadManager.files[0];
+        document.getElementById('step1Content').style.display = 'none';
+        document.getElementById('step2Content').style.display = 'block';
+        
+        // Simuler la progression
+        const progressBar = document.getElementById('analysisProgress');
+        const details = document.getElementById('analysisDetails');
+        const detectedTables = document.getElementById('detectedTables');
+        const detectedCells = document.getElementById('detectedCells');
+        const detectionConfidence = document.getElementById('detectionConfidence');
+        const timeRemaining = document.getElementById('timeRemaining');
+        
+        const steps = [
+            { percent: 15, message: "Prétraitement de l'image...", tables: 0, cells: 0, confidence: 10, time: 25 },
+            { percent: 30, message: "Détection des contours...", tables: 1, cells: 50, confidence: 25, time: 20 },
+            { percent: 45, message: "Identification des lignes...", tables: 1, cells: 120, confidence: 40, time: 15 },
+            { percent: 60, message: "Détection des colonnes...", tables: 2, cells: 250, confidence: 60, time: 10 },
+            { percent: 75, message: "Extraction du contenu...", tables: 2, cells: 400, confidence: 75, time: 5 },
+            { percent: 90, message: "Structuration des données...", tables: 3, cells: 550, confidence: 85, time: 2 },
+            { percent: 100, message: "Validation des résultats...", tables: 3, cells: 720, confidence: 95, time: 0 }
+        ];
+        
+        let currentStep = 0;
+        
+        function nextStep() {
+            if (currentStep < steps.length) {
+                const step = steps[currentStep];
+                progressBar.style.width = step.percent + '%';
+                details.innerHTML = `<p class="text-muted small">
+                    <i class="fas fa-sync-alt fa-spin me-1"></i>
+                    ${step.message}
+                </p>`;
+                
+                detectedTables.textContent = `${step.tables} détecté(s)`;
+                detectedCells.textContent = `${step.cells} détectée(s)`;
+                detectionConfidence.textContent = `${step.confidence}%`;
+                timeRemaining.textContent = `${step.time}s`;
+                
+                currentStep++;
+                
+                const interval = currentStep === steps.length - 1 ? 1500 : 1000;
+                setTimeout(nextStep, interval);
+            } else {
+                setTimeout(completeDetectionSimulation, 1000);
+            }
+        }
+        
+        setTimeout(nextStep, 500);
+        
+        // Soumettre le formulaire directement
+        setTimeout(() => {
+            const simpleForm = document.getElementById('simpleForm');
+            const simpleFileInput = document.getElementById('simpleFileInput');
+            
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            simpleFileInput.files = dataTransfer.files;
+            
+            simpleForm.submit();
+        }, 500);
+    });
     
-    // Laisser la simulation continuer jusqu'au téléchargement
-    setTimeout(completeDetectionSimulation, 3000);
-}
-
-function completeDetectionSimulation() {
-    updateStep(3);
+    function completeDetectionSimulation() {
+        updateStep(3);
+        
+        // Préparer les données pour l'aperçu
+        const sampleData = {
+            headers: ['Nom', 'Email', 'Téléphone', 'Ville', 'Code Postal'],
+            rows: [
+                ['Jean Martin', 'jean.martin@exemple.com', '01 23 45 67 89', 'Paris', '75001'],
+                ['Marie Dubois', 'marie.dubois@exemple.com', '06 12 34 56 78', 'Lyon', '69001'],
+                ['Pierre Lambert', 'pierre.lambert@exemple.com', '07 89 01 23 45', 'Marseille', '13001'],
+                ['Sophie Bernard', 'sophie.bernard@exemple.com', '02 34 56 78 90', 'Toulouse', '31000'],
+                ['Thomas Petit', 'thomas.petit@exemple.com', '03 45 67 89 01', 'Nice', '06000'],
+                ['Julie Robert', 'julie.robert@exemple.com', '04 56 78 90 12', 'Nantes', '44000'],
+                ['Nicolas Richard', 'nicolas.richard@exemple.com', '05 67 89 01 23', 'Strasbourg', '67000'],
+                ['Isabelle Durand', 'isabelle.durand@exemple.com', '01 78 90 12 34', 'Montpellier', '34000'],
+                ['François Moreau', 'francois.moreau@exemple.com', '06 89 01 23 45', 'Bordeaux', '33000'],
+                ['Catherine Simon', 'catherine.simon@exemple.com', '07 90 12 34 56', 'Lille', '59000']
+            ]
+        };
+        
+        // Afficher l'aperçu
+        const header = document.getElementById('previewHeader');
+        const body = document.getElementById('previewBody');
+        const totalRows = document.getElementById('totalRows');
+        
+        header.innerHTML = '<tr>' + sampleData.headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+        body.innerHTML = sampleData.rows.map(row => 
+            '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>'
+        ).join('');
+        
+        totalRows.textContent = '25'; // Données simulées
+        
+        if (uploadManager?.files?.length > 0) {
+            const file = uploadManager.files[0];
+            document.getElementById('exportFilename').value = 
+                file.name.replace(/\.[^/.]+$/, "") + '_tableaux.xlsx';
+        }
+    }
     
-    // Préparer les données pour l'aperçu
-    const sampleData = {
-        headers: ['Nom', 'Email', 'Téléphone', 'Ville', 'Code Postal'],
-        rows: [
-            ['Jean Martin', 'jean.martin@exemple.com', '01 23 45 67 89', 'Paris', '75001'],
-            ['Marie Dubois', 'marie.dubois@exemple.com', '06 12 34 56 78', 'Lyon', '69001'],
-            ['Pierre Lambert', 'pierre.lambert@exemple.com', '07 89 01 23 45', 'Marseille', '13001'],
-            ['Sophie Bernard', 'sophie.bernard@exemple.com', '02 34 56 78 90', 'Toulouse', '31000'],
-            ['Thomas Petit', 'thomas.petit@exemple.com', '03 45 67 89 01', 'Nice', '06000'],
-            ['Julie Robert', 'julie.robert@exemple.com', '04 56 78 90 12', 'Nantes', '44000'],
-            ['Nicolas Richard', 'nicolas.richard@exemple.com', '05 67 89 01 23', 'Strasbourg', '67000'],
-            ['Isabelle Durand', 'isabelle.durand@exemple.com', '01 78 90 12 34', 'Montpellier', '34000'],
-            ['François Moreau', 'francois.moreau@exemple.com', '06 89 01 23 45', 'Bordeaux', '33000'],
-            ['Catherine Simon', 'catherine.simon@exemple.com', '07 90 12 34 56', 'Lille', '59000']
-        ]
+    window.exportData = function() {
+        updateStep(4);
+        
+        const filename = document.getElementById('exportFilename').value;
+        const mergeSheets = document.getElementById('mergeSheets').value;
+        
+        // Simuler la génération du fichier
+        setTimeout(() => {
+            const stats = {
+                tables: 3,
+                rows: 25,
+                columns: 5,
+                cells: 125,
+                accuracy: 92,
+                size: 0.45
+            };
+            
+            document.getElementById('excelFileName').textContent = filename;
+            document.getElementById('excelFileInfo').textContent = 
+                `Taille: ${stats.size} MB | Feuilles: ${mergeSheets === 'single' ? 1 : stats.tables} | Lignes: ${stats.rows}`;
+            
+            document.getElementById('exportStats').innerHTML = 
+                `Tableaux: ${stats.tables}<br>
+                 Cellules: ${stats.cells}<br>
+                 Précision: ${stats.accuracy}%`;
+            
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.onclick = function() {
+                // Créer un blob de démonstration
+                const blob = new Blob(['Fichier Excel simulé'], { 
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+                });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                downloadBtn.innerHTML = '<i class="fas fa-check me-2"></i>Téléchargé !';
+                downloadBtn.classList.remove('btn-success');
+                downloadBtn.classList.add('btn-secondary');
+                
+                setTimeout(() => {
+                    downloadBtn.innerHTML = '<i class="fas fa-download me-2"></i>Télécharger Excel';
+                    downloadBtn.classList.remove('btn-secondary');
+                    downloadBtn.classList.add('btn-success');
+                }, 2000);
+            };
+        }, 1000);
     };
     
-    // Afficher l'aperçu
-    const header = document.getElementById('previewHeader');
-    const body = document.getElementById('previewBody');
-    const totalRows = document.getElementById('totalRows');
+    window.resetConverter = function() {
+        if (uploadManager) {
+            while (uploadManager.files.length > 0) {
+                uploadManager.removeFile(0);
+            }
+        }
+        updateStep(1);
+    };
     
-    header.innerHTML = '<tr>' + sampleData.headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
-    body.innerHTML = sampleData.rows.map(row => 
-        '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>'
-    ).join('');
-    
-    totalRows.textContent = '25'; // Données simulées
-    
-    // Configurer l'export
-    document.getElementById('exportFilename').value = 
-        selectedFile.name.replace(/\.[^/.]+$/, "") + '_tableaux.xlsx';
-}
-
-function exportData() {
-    updateStep(4);
-    
-    // Récupérer les paramètres d'export
-    const filename = document.getElementById('exportFilename').value;
-    const mergeSheets = document.getElementById('mergeSheets').value;
-    const includeFormats = document.getElementById('includeFormats').checked;
-    const dataCleaning = document.getElementById('dataCleaning').value;
-    const encoding = document.getElementById('encoding').value;
-    const addHeaders = document.getElementById('addHeaders').checked;
-    
-    // Simuler la génération du fichier
-    setTimeout(() => {
-        // Données simulées pour la démo
-        const stats = {
-            tables: 3,
-            rows: 25,
-            columns: 5,
-            cells: 125,
-            accuracy: 92,
-            size: 0.45
-        };
+    window.updateStep = function(stepNumber) {
+        document.getElementById('step1Content').style.display = 'none';
+        document.getElementById('step2Content').style.display = 'none';
+        document.getElementById('step3Content').style.display = 'none';
+        document.getElementById('step4Content').style.display = 'none';
         
-        document.getElementById('excelFileName').textContent = filename;
-        document.getElementById('excelFileInfo').textContent = 
-            `Taille: ${stats.size} MB | Feuilles: ${mergeSheets === 'single' ? 1 : stats.tables} | Lignes: ${stats.rows}`;
+        document.getElementById('step1Content').style.display = stepNumber === 1 ? 'block' : 'none';
+        document.getElementById('step2Content').style.display = stepNumber === 2 ? 'block' : 'none';
+        document.getElementById('step3Content').style.display = stepNumber === 3 ? 'block' : 'none';
+        document.getElementById('step4Content').style.display = stepNumber === 4 ? 'block' : 'none';
         
-        document.getElementById('exportStats').innerHTML = 
-            `Tableaux: ${stats.tables}<br>
-             Cellules: ${stats.cells}<br>
-             Précision: ${stats.accuracy}%`;
-        
-        // Créer un blob de démonstration
-        exportBlob = new Blob(['Fichier Excel simulé'], { 
-            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+        document.querySelectorAll('.step').forEach((step, index) => {
+            step.classList.remove('active', 'completed');
+            if (index + 1 < stepNumber) {
+                step.classList.add('completed');
+            } else if (index + 1 === stepNumber) {
+                step.classList.add('active');
+            }
         });
+    };
+    
+    function showError(message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        alertDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
         
-        // Configurer le bouton de téléchargement
-        const downloadBtn = document.getElementById('downloadBtn');
-        downloadBtn.onclick = function() {
-            const url = URL.createObjectURL(exportBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            // Feedback visuel
-            downloadBtn.innerHTML = '<i class="fas fa-check me-2"></i>Téléchargé !';
-            downloadBtn.classList.remove('btn-success');
-            downloadBtn.classList.add('btn-secondary');
-            
-            setTimeout(() => {
-                downloadBtn.innerHTML = '<i class="fas fa-download me-2"></i>Télécharger Excel';
-                downloadBtn.classList.remove('btn-secondary');
-                downloadBtn.classList.add('btn-success');
-            }, 2000);
-        };
-    }, 1000);
-}
-
-function resetConverter() {
-    selectedFile = null;
-    extractionData = null;
-    exportBlob = null;
-    
-    document.getElementById('fileInput').value = '';
-    document.getElementById('fileInfo').style.display = 'none';
-    document.getElementById('tableStats').style.display = 'none';
-    
-    // Réinitialiser les paramètres
-    document.getElementById('mode_auto').checked = true;
-    document.getElementById('detectHeaders').checked = true;
-    document.getElementById('mergeCells').checked = true;
-    document.getElementById('detectFormulas').checked = false;
-    document.getElementById('format_xlsx').checked = true;
-    document.getElementById('ocrAccuracy').value = 'high';
-    document.getElementById('numberFormat').value = 'auto';
-    document.getElementById('dateFormat').value = 'auto';
-    
-    updateStep(1);
-}
-
-// Fonctions de base
-function updateStep(stepNumber) {
-    document.getElementById('step1Content').style.display = 'none';
-    document.getElementById('step2Content').style.display = 'none';
-    document.getElementById('step3Content').style.display = 'none';
-    document.getElementById('step4Content').style.display = 'none';
-    
-    document.getElementById('step1Content').style.display = stepNumber === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = stepNumber === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = stepNumber === 3 ? 'block' : 'none';
-    document.getElementById('step4Content').style.display = stepNumber === 4 ? 'block' : 'none';
-    
-    // Mettre à jour le tracker d'étapes
-    document.querySelectorAll('.step').forEach((step, index) => {
-        step.classList.remove('active', 'completed');
-        if (index + 1 < stepNumber) {
-            step.classList.add('completed');
-        } else if (index + 1 === stepNumber) {
-            step.classList.add('active');
-        }
-    });
-}
-
-function showError(message) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-    alertDiv.innerHTML = `
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    const container = document.querySelector('.container');
-    container.insertBefore(alertDiv, container.firstChild);
-    
-    setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.remove();
-        }
-    }, 5000);
-}
+        const container = document.querySelector('.container');
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        setTimeout(() => {
+            if (alertDiv.parentNode) alertDiv.remove();
+        }, 5000);
+    }
+});
 </script>
 
 <style>
@@ -957,19 +759,6 @@ function showError(message) {
     100% { transform: scale(1); opacity: 1; }
 }
 
-#detectionCanvas {
-    max-height: 400px;
-    overflow: auto;
-}
-
-#previewCanvas {
-    max-width: 100%;
-}
-
-#tableOverlay {
-    pointer-events: none;
-}
-
 .table-responsive {
     max-height: 300px;
     overflow-y: auto;
@@ -977,3 +766,6 @@ function showError(message) {
 </style>
 {% endblock %}
 
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+{% endblock %}

@@ -39,6 +39,20 @@
         </button>
     </div>
     
+    <!-- Zone d'upload avec UploadManager -->
+    <div class="upload-zone-pro mt-4" id="imageToWordUploadZone" data-info-id="imageToWordFileInfo" data-btn-id="convertBtn">
+        <div class="upload-inner">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h4 class="upload-title">Ou utilisez notre système d'upload avancé</h4>
+            <p class="upload-subtitle">Glissez-déposez vos fichiers ici</p>
+            <div class="upload-info">Images ou PDF • Taille max : 50MB</div>
+        </div>
+        <input type="file" accept=".jpg,.jpeg,.png,.bmp,.tiff,.webp,.pdf" style="display:none;">
+    </div>
+    
+    <div id="imageToWordFileInfo" class="file-list mt-3"></div>
+    <div id="imageToWordUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
+    
     <!-- Options OCR avancées -->
     <div class="mt-4">
         <div class="card border-0 shadow-sm">
@@ -123,75 +137,14 @@
                     </div>
                 </div>
                 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Qualité d'image</label>
-                        <select class="form-select" id="imageQuality">
-                            <option value="original">Conserver originale</option>
-                            <option value="high" selected>Haute (300 DPI)</option>
-                            <option value="medium">Moyenne (150 DPI)</option>
-                            <option value="low">Basse (72 DPI)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Correction automatique</label>
-                        <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" name="correction" id="correction_none">
-                            <label class="btn btn-outline-primary" for="correction_none">
-                                Aucune
-                            </label>
-                            
-                            <input type="radio" class="btn-check" name="correction" id="correction_basic" checked>
-                            <label class="btn btn-outline-primary" for="correction_basic">
-                                Basique
-                            </label>
-                            
-                            <input type="radio" class="btn-check" name="correction" id="correction_advanced">
-                            <label class="btn btn-outline-primary" for="correction_advanced">
-                                Avancée
-                            </label>
-                        </div>
-                    </div>
+                <div class="action-buttons mt-4">
+                    <button class="btn btn-primary btn-lg" id="convertBtn" disabled>
+                        <i class="fas fa-magic me-2"></i>
+                        Extraire et convertir en Word
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Informations fichier -->
-    <div id="fileInfo" class="file-info-card mt-4" style="display: none;">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="d-flex align-items-center">
-                <div class="me-3">
-                    <i class="fas fa-file-alt fa-2x text-primary"></i>
-                </div>
-                <div>
-                    <h5 class="mb-1" id="fileName"></h5>
-                    <div class="d-flex gap-3">
-                        <span class="text-muted small" id="fileDetails"></span>
-                        <span class="badge bg-info" id="fileType"></span>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <button class="btn btn-sm btn-outline-danger me-2" onclick="clearFile()">
-                    <i class="fas fa-times me-1"></i>Supprimer
-                </button>
-                <button class="btn btn-sm btn-outline-primary" onclick="previewFile()">
-                    <i class="fas fa-eye me-1"></i>Aperçu
-                </button>
-            </div>
-        </div>
-        
-        <!-- Aperçu image -->
-        <div id="imagePreview" class="text-center mt-3" style="display: none;">
-            <img id="previewImage" class="img-fluid rounded shadow-sm" style="max-height: 300px;">
-        </div>
-        
-        <button class="btn btn-success w-100 py-3 mt-3" id="convertBtn" onclick="startConversion()">
-            <i class="fas fa-magic me-2"></i>
-            Extraire et convertir en Word
-        </button>
     </div>
 </div>
 
@@ -212,69 +165,6 @@
         <div class="progress-container">
             <div class="progress-bar" id="conversionProgress"></div>
         </div>
-        
-        <div class="mt-4" id="conversionDetails">
-            <p class="text-muted small">
-                <i class="fas fa-sync-alt fa-spin me-1"></i>
-                Initialisation du moteur OCR...
-            </p>
-        </div>
-        
-        <div class="row mt-5">
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h6><i class="fas fa-language me-1"></i>Langues</h6>
-                        <p class="small text-muted mb-0" id="ocrLanguages">Français</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h6><i class="fas fa-bolt me-1"></i>Mode</h6>
-                        <p class="small text-muted mb-0" id="ocrMode">Binarisation</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h6><i class="fas fa-chart-line me-1"></i>Précision</h6>
-                        <p class="small text-muted mb-0" id="ocrConfidence">70%</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h6><i class="fas fa-clock me-1"></i>Temps estimé</h6>
-                        <p class="small text-muted mb-0" id="estimatedTime">30 secondes</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Statistiques OCR -->
-        <div class="card border-0 shadow-sm mt-4">
-            <div class="card-body">
-                <h6 class="mb-3"><i class="fas fa-chart-bar me-1"></i>Statistiques d'extraction</h6>
-                <div class="row text-center">
-                    <div class="col-md-4">
-                        <div class="display-6 text-primary" id="pagesCount">1</div>
-                        <small class="text-muted">Page(s)</small>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="display-6 text-success" id="wordsCount">0</div>
-                        <small class="text-muted">Mot(s)</small>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="display-6 text-warning" id="confidenceAvg">0%</div>
-                        <small class="text-muted">Confiance moyenne</small>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -290,48 +180,6 @@
             Votre document Word est prêt au téléchargement
         </p>
         
-        <div class="row g-4 mb-4">
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="fas fa-file-word fa-2x text-primary mb-3"></i>
-                        <h5 id="wordFileName">document.docx</h5>
-                        <p class="small text-muted" id="wordFileInfo">
-                            Taille: 0 MB | Pages: 1 | Mots: 0
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="fas fa-chart-pie fa-2x text-success mb-3"></i>
-                        <h5>Statistiques</h5>
-                        <p class="small text-muted" id="ocrStats">
-                            Précision: 0%<br>
-                            Temps: 0s<br>
-                            Langues: Français
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Aperçu du texte extrait -->
-        <div class="card border-0 shadow-sm mt-4">
-            <div class="card-body">
-                <h6 class="mb-3"><i class="fas fa-eye me-1"></i>Aperçu du texte extrait</h6>
-                <div id="extractedTextPreview" class="text-start p-3 bg-light rounded" style="max-height: 200px; overflow-y: auto;">
-                    <p class="mb-0 small">Le texte extrait apparaîtra ici...</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="alert alert-success mt-4" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
-            <strong>Extraction de haute qualité !</strong> Le texte a été correctement structuré et formaté.
-        </div>
-        
         <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
             <button class="btn btn-success btn-lg px-4 py-3" id="downloadBtn">
                 <i class="fas fa-download me-2"></i>
@@ -343,31 +191,27 @@
                 Nouvelle extraction
             </button>
         </div>
-        
-        <div class="mt-4">
-            <div class="btn-group" role="group">
-                <button class="btn btn-outline-secondary" onclick="updateStep(1)">
-                    <i class="fas fa-edit me-1"></i>
-                    Modifier les paramètres
-                </button>
-                <button class="btn btn-outline-secondary" onclick="copyToClipboard()">
-                    <i class="fas fa-copy me-1"></i>
-                    Copier le texte
-                </button>
-            </div>
-        </div>
     </div>
 </div>
+
+<!-- Formulaire caché pour la soumission POST -->
+<form method="POST" 
+      action="{{ url_for('conversion.universal_converter', conversion_type='image-en-word') }}"
+      enctype="multipart/form-data"
+      id="hiddenForm"
+      style="display: none;">
+    <input type="file" name="file" id="hiddenFileInput">
+</form>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 <script>
-let selectedFile = null;
-let extractedText = '';
-let conversionResult = null;
-
-// Initialisation
 document.addEventListener('DOMContentLoaded', function() {
+    const convertBtn = document.getElementById('convertBtn');
+    const uploadZone = document.getElementById('imageToWordUploadZone');
+    const uploadManager = window.uploadManagers?.imageToWordUploadZone;
+    
     // Afficher la valeur du niveau de confiance
     const confidenceSlider = document.getElementById('confidenceLevel');
     const confidenceValue = document.getElementById('confidenceValue');
@@ -376,440 +220,95 @@ document.addEventListener('DOMContentLoaded', function() {
         confidenceValue.textContent = this.value + '%';
     });
     
-    // Gestion du drag & drop
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
+    function updateButtonState() {
+        convertBtn.disabled = !uploadManager?.files?.length;
     }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropZone.addEventListener(eventName, highlight, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, unhighlight, false);
-    });
-
-    function highlight() {
-        dropZone.classList.add('dragover');
+    
+    if (uploadManager) {
+        const originalHandleFiles = uploadManager.handleFiles;
+        uploadManager.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+        
+        const originalRemoveFile = uploadManager.removeFile;
+        uploadManager.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
     }
-
-    function unhighlight() {
-        dropZone.classList.remove('dragover');
-    }
-
-    dropZone.addEventListener('drop', handleDrop, false);
-
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        handleFile(files[0]);
-    }
-
-    fileInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            handleFile(this.files[0]);
+    
+    convertBtn.addEventListener('click', async function() {
+        if (!uploadManager?.files?.length) {
+            alert('Veuillez sélectionner un fichier');
+            return;
         }
+        
+        const file = uploadManager.files[0];
+        document.getElementById('step1Content').style.display = 'none';
+        document.getElementById('step2Content').style.display = 'block';
+        
+        // Simuler la progression
+        const progressBar = document.getElementById('conversionProgress');
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            progressBar.style.width = progress + '%';
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    document.getElementById('step2Content').style.display = 'none';
+                    document.getElementById('step3Content').style.display = 'block';
+                }, 500);
+            }
+        }, 300);
+        
+        // Préparer le téléchargement
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('languages', 
+            Array.from(document.querySelectorAll('input[name="languages"]:checked')).map(cb => cb.value).join(','));
+        formData.append('confidence', confidenceSlider.value);
+        formData.append('preserve_layout', document.getElementById('preserveLayout').checked);
+        formData.append('preprocessing', document.getElementById('preprocessing').value);
+        formData.append('output_format', document.getElementById('outputFormat').value);
+        
+        document.getElementById('downloadBtn').onclick = async function() {
+            const response = await fetch("{{ url_for('conversion.universal_converter', conversion_type='image-en-word') }}", {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = file.name.replace(/\.[^/.]+$/, '') + '.' + 
+                    (document.getElementById('outputFormat').value === 'txt' ? 'txt' : 'docx');
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
+        };
     });
 });
 
-function handleFile(file) {
-    if (!file) return;
-    
-    // Vérifier l'extension
-    const ext = '.' + file.name.split('.').pop().toLowerCase();
-    const allowedExts = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.webp', '.pdf'];
-    
-    if (!allowedExts.includes(ext)) {
-        showError('Format de fichier non supporté. Formats acceptés: ' + allowedExts.join(', '));
-        return;
-    }
-    
-    // Vérifier la taille (max 50MB)
-    if (file.size > 50 * 1024 * 1024) {
-        showError('Fichier trop volumineux (max 50MB)');
-        return;
-    }
-    
-    selectedFile = file;
-    
-    // Afficher les infos
-    document.getElementById('fileName').textContent = file.name;
-    document.getElementById('fileDetails').textContent = 
-        `${(file.size / 1024 / 1024).toFixed(2)} MB`;
-    
-    // Déterminer le type
-    const fileType = file.type.startsWith('image/') ? 'Image' : 
-                    file.type === 'application/pdf' ? 'PDF' : 'Document';
-    document.getElementById('fileType').textContent = fileType;
-    
-    document.getElementById('fileInfo').style.display = 'block';
-    
-    // Afficher l'aperçu pour les images
-    if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = document.getElementById('previewImage');
-            img.src = e.target.result;
-            document.getElementById('imagePreview').style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-    } else {
-        document.getElementById('imagePreview').style.display = 'none';
-    }
-}
-
-function previewFile() {
-    if (!selectedFile) return;
-    
-    if (selectedFile.type.startsWith('image/')) {
-        // Ouvrir l'image dans un nouvel onglet
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const newTab = window.open();
-            newTab.document.write(`<img src="${e.target.result}" style="max-width:100%;">`);
-        };
-        reader.readAsDataURL(selectedFile);
-    } else if (selectedFile.type === 'application/pdf') {
-        // Afficher le PDF
-        const url = URL.createObjectURL(selectedFile);
-        window.open(url, '_blank');
-    }
-}
-
-function clearFile() {
-    selectedFile = null;
-    document.getElementById('fileInput').value = '';
-    document.getElementById('fileInfo').style.display = 'none';
-    document.getElementById('imagePreview').style.display = 'none';
-}
-
-function startConversion() {
-    if (!selectedFile) return;
-    
-    updateStep(2);
-    
-    // Récupérer les paramètres
-    const languages = Array.from(document.querySelectorAll('input[name="languages"]:checked'))
-        .map(cb => cb.value);
-    
-    const confidence = document.getElementById('confidenceLevel').value;
-    const preserveLayout = document.getElementById('preserveLayout').checked;
-    const preprocessing = document.getElementById('preprocessing').value;
-    const outputFormat = document.getElementById('outputFormat').value;
-    const imageQuality = document.getElementById('imageQuality').value;
-    const correction = document.querySelector('input[name="correction"]:checked').value;
-    
-    // Mettre à jour les infos d'estimation
-    document.getElementById('ocrLanguages').textContent = 
-        languages.length > 1 ? `${languages.length} langues` : 
-        languages[0] === 'fra' ? 'Français' : 
-        languages[0] === 'eng' ? 'Anglais' : 'Autre';
-    
-    document.getElementById('ocrMode').textContent = 
-        preprocessing === 'binarization' ? 'Binarisation' :
-        preprocessing === 'grayscale' ? 'Niveaux de gris' :
-        preprocessing === 'denoise' ? 'Réduction bruit' :
-        preprocessing === 'skew' ? 'Correction inclinaison' : 'Aucun';
-    
-    document.getElementById('ocrConfidence').textContent = confidence + '%';
-    
-    // Estimation basée sur la taille du fichier
-    const estimatedTime = Math.max(10, Math.ceil(selectedFile.size / (2 * 1024 * 1024)));
-    document.getElementById('estimatedTime').textContent = `${estimatedTime} secondes`;
-    
-    // Simulation de progression
-    simulateOCRProgress();
-    
-    // Lancer la conversion réelle
-    performRealConversion({
-        languages,
-        confidence,
-        preserveLayout,
-        preprocessing,
-        outputFormat,
-        imageQuality,
-        correction
-    });
-}
-
-function simulateOCRProgress() {
-    const progressBar = document.getElementById('conversionProgress');
-    const details = document.getElementById('conversionDetails');
-    const pagesCount = document.getElementById('pagesCount');
-    const wordsCount = document.getElementById('wordsCount');
-    const confidenceAvg = document.getElementById('confidenceAvg');
-    
-    const steps = [
-        { percent: 10, message: "Analyse du document...", pages: 1, words: 0, confidence: 0 },
-        { percent: 25, message: "Prétraitement de l'image...", pages: 1, words: 0, confidence: 15 },
-        { percent: 40, message: "Détection des zones de texte...", pages: 1, words: 50, confidence: 30 },
-        { percent: 60, message: "Reconnaissance des caractères...", pages: 1, words: 120, confidence: 55 },
-        { percent: 75, message: "Correction orthographique...", pages: 1, words: 180, confidence: 72 },
-        { percent: 90, message: "Structuration du document...", pages: 1, words: 230, confidence: 85 },
-        { percent: 100, message: "Génération du fichier Word...", pages: 1, words: 300, confidence: 92 }
-    ];
-    
-    let currentStep = 0;
-    
-    function nextStep() {
-        if (currentStep < steps.length) {
-            const step = steps[currentStep];
-            progressBar.style.width = step.percent + '%';
-            details.innerHTML = `<p class="text-muted small">
-                <i class="fas fa-sync-alt fa-spin me-1"></i>
-                ${step.message}
-            </p>`;
-            
-            // Mettre à jour les statistiques
-            pagesCount.textContent = step.pages;
-            wordsCount.textContent = step.words;
-            confidenceAvg.textContent = step.confidence + '%';
-            
-            currentStep++;
-            
-            const interval = currentStep === steps.length - 1 ? 1500 : 800;
-            setTimeout(nextStep, interval);
-        } else {
-            // Simulation terminée
-            completeConversionSimulation();
-        }
-    }
-    
-    setTimeout(nextStep, 500);
-}
-
-function performRealConversion(params) {
-    // Préparation des données pour l'API
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-    formData.append('languages', params.languages.join(','));
-    formData.append('confidence', params.confidence);
-    formData.append('preserve_layout', params.preserveLayout);
-    formData.append('preprocessing', params.preprocessing);
-    formData.append('output_format', params.outputFormat);
-    formData.append('image_quality', params.imageQuality);
-    formData.append('correction', params.correction);
-    
-    // Appel API réel
-    fetch("{{ url_for('conversion.universal_converter', conversion_type='image-en-word') }}", {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Erreur lors de la conversion');
-        }
-        return response.blob();
-    })
-    .then(blob => {
-        // Simuler un texte extrait pour l'aperçu
-        extractedText = "Ceci est un exemple de texte extrait par OCR. Dans la version réelle, ceci serait le contenu exact de votre document.";
-        
-        conversionResult = {
-            filename: selectedFile.name.replace(/\.[^/.]+$/, "") + '.' + (params.outputFormat === 'txt' ? 'txt' : 
-                      params.outputFormat === 'rtf' ? 'rtf' : 
-                      params.outputFormat === 'doc' ? 'doc' : 'docx'),
-            file_size: (blob.size / 1024 / 1024).toFixed(2),
-            pages: 1,
-            words: 350,
-            confidence: 92,
-            languages: params.languages.length,
-            time: 15,
-            blob: blob
-        };
-        
-        // Terminer la simulation avec les vraies données
-        completeConversionSimulation();
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        showError('Erreur lors de la conversion. Veuillez réessayer.');
-        updateStep(1);
-    });
-}
-
-function completeConversionSimulation() {
-    updateStep(3);
-    
-    if (conversionResult) {
-        // Utiliser les données réelles de l'API
-        const result = conversionResult;
-        
-        document.getElementById('wordFileName').textContent = result.filename;
-        document.getElementById('wordFileInfo').textContent = 
-            `Taille: ${result.file_size} MB | Pages: ${result.pages} | Mots: ${result.words}`;
-        
-        document.getElementById('ocrStats').innerHTML = 
-            `Précision: ${result.confidence}%<br>
-             Temps: ${result.time}s<br>
-             Langues: ${result.languages}`;
-        
-        // Aperçu du texte extrait
-        document.getElementById('extractedTextPreview').innerHTML = 
-            `<p class="mb-0">${extractedText}</p>`;
-        
-        // Configurer le bouton de téléchargement
-        const downloadBtn = document.getElementById('downloadBtn');
-        downloadBtn.onclick = function() {
-            const url = URL.createObjectURL(result.blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = result.filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            // Feedback visuel
-            downloadBtn.innerHTML = '<i class="fas fa-check me-2"></i>Téléchargé !';
-            downloadBtn.classList.remove('btn-success');
-            downloadBtn.classList.add('btn-secondary');
-            
-            setTimeout(() => {
-                downloadBtn.innerHTML = '<i class="fas fa-download me-2"></i>Télécharger Word';
-                downloadBtn.classList.remove('btn-secondary');
-                downloadBtn.classList.add('btn-success');
-            }, 2000);
-        };
-    }
-}
-
-function copyToClipboard() {
-    if (!extractedText) return;
-    
-    navigator.clipboard.writeText(extractedText)
-        .then(() => {
-            // Notification de succès
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
-            alert.style.zIndex = '9999';
-            alert.innerHTML = `
-                <i class="fas fa-check-circle me-2"></i>
-                Texte copié dans le presse-papiers !
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.body.appendChild(alert);
-            
-            setTimeout(() => {
-                if (alert.parentNode) {
-                    alert.remove();
-                }
-            }, 3000);
-        })
-        .catch(err => {
-            console.error('Erreur copie:', err);
-            showError('Erreur lors de la copie');
-        });
-}
-
 function resetConverter() {
-    selectedFile = null;
-    extractedText = '';
-    conversionResult = null;
-    
-    document.getElementById('fileInput').value = '';
-    document.getElementById('fileInfo').style.display = 'none';
-    document.getElementById('imagePreview').style.display = 'none';
-    
-    // Réinitialiser les paramètres
-    document.getElementById('confidenceLevel').value = 70;
-    document.getElementById('confidenceValue').textContent = '70%';
-    document.getElementById('preserveLayout').checked = true;
-    document.getElementById('preprocessing').value = 'binarization';
-    document.getElementById('outputFormat').value = 'docx';
-    document.getElementById('imageQuality').value = 'high';
-    document.getElementById('correction_basic').checked = true;
-    
-    updateStep(1);
-}
-
-// Fonctions de base (définies dans conversion_base.html)
-function updateStep(stepNumber) {
-    document.getElementById('step1Content').style.display = 'none';
+    const uploadManager = window.uploadManagers?.imageToWordUploadZone;
+    if (uploadManager) {
+        while (uploadManager.files.length > 0) {
+            uploadManager.removeFile(0);
+        }
+    }
+    document.getElementById('step1Content').style.display = 'block';
     document.getElementById('step2Content').style.display = 'none';
     document.getElementById('step3Content').style.display = 'none';
-    
-    document.getElementById('step1Content').style.display = stepNumber === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = stepNumber === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = stepNumber === 3 ? 'block' : 'none';
-    
-    // Mettre à jour le tracker d'étapes
-    document.querySelectorAll('.step').forEach((step, index) => {
-        step.classList.remove('active', 'completed');
-        if (index + 1 < stepNumber) {
-            step.classList.add('completed');
-        } else if (index + 1 === stepNumber) {
-            step.classList.add('active');
-        }
-    });
-}
-
-function showError(message) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-    alertDiv.innerHTML = `
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    const container = document.querySelector('.container');
-    container.insertBefore(alertDiv, container.firstChild);
-    
-    setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.remove();
-        }
-    }, 5000);
 }
 </script>
+{% endblock %}
 
-<style>
-.language-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-}
-
-@media (max-width: 768px) {
-    .language-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-.success-animation {
-    animation: bounceIn 0.6s;
-}
-
-@keyframes bounceIn {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.progress-container {
-    height: 8px;
-    background-color: #e9ecef;
-    border-radius: 4px;
-    overflow: hidden;
-    margin: 20px auto;
-    max-width: 500px;
-}
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
-    width: 0%;
-    transition: width 0.5s ease;
-    border-radius: 4px;
-}
-</style>
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 {% endblock %}

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}PDF vers PDF/A - {{ title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header" style="background-color: #e74c3c; color: white;">
+                    <h4 class="mb-0"><i class="fas fa-archive me-2"></i>{{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">{{ description }}</p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Le format PDF/A est une version standardisée pour l'archivage à long terme des documents électroniques.
+                    </div>
+                    
+                    <!-- Zone d'upload -->
+                    <div class="upload-zone-pro mb-4" id="pdfToPdfaUploadZone" data-info-id="pdfToPdfaFileInfo" data-btn-id="pdfToPdfaButton">
+                        <div class="upload-inner">
+                            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                            <h4 class="upload-title">Déposez votre PDF ici</h4>
+                            <p class="upload-subtitle">Glissez-déposez ou cliquez pour sélectionner</p>
+                            <div class="upload-info">PDF uniquement • Taille max: 50MB</div>
+                        </div>
+                        <input type="file" accept=".pdf" style="display:none;">
+                    </div>
+                    
+                    <div id="pdfToPdfaFileInfo" class="file-list mt-3"></div>
+                    <div id="pdfToPdfaUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
+                    
+                    <!-- Options -->
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label fw-bold">Version PDF/A</label>
+                                <select class="form-select" id="pdfaVersion">
+                                    <option value="1">PDF/A-1 (2005)</option>
+                                    <option value="2">PDF/A-2 (2011)</option>
+                                    <option value="3">PDF/A-3 (2012)</option>
+                                </select>
+                                <small class="text-muted">La version la plus récente est recommandée pour l'archivage</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        La conversion en PDF/A peut modifier légèrement l'apparence du document pour garantir sa pérennité.
+                    </div>
+                    
+                    <div class="action-buttons mt-4">
+                        <button class="btn btn-primary btn-lg" id="pdfToPdfaButton" disabled>
+                            <i class="fas fa-archive me-2"></i>Convertir en PDF/A
+                        </button>
+                        <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.pdfToPdfaUploadZone.removeFile(0)">
+                            <i class="fas fa-redo me-2"></i>Réinitialiser
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const button = document.getElementById('pdfToPdfaButton');
+    
+    function updateButtonState() {
+        const manager = window.uploadManagers?.pdfToPdfaUploadZone;
+        button.disabled = !manager?.files?.length;
+    }
+    
+    const originalHandleFiles = window.uploadManagers?.pdfToPdfaUploadZone?.handleFiles;
+    if (originalHandleFiles) {
+        window.uploadManagers.pdfToPdfaUploadZone.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+    }
+    
+    const originalRemoveFile = window.uploadManagers?.pdfToPdfaUploadZone?.removeFile;
+    if (originalRemoveFile) {
+        window.uploadManagers.pdfToPdfaUploadZone.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+    
+    button.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        const manager = window.uploadManagers?.pdfToPdfaUploadZone;
+        if (!manager?.files?.length) {
+            alert('Veuillez sélectionner un fichier PDF');
+            return;
+        }
+        
+        const loader = document.getElementById('loaderOverlay');
+        if (loader) loader.style.display = 'flex';
+        
+        const formData = new FormData();
+        formData.append('file', manager.files[0]);
+        formData.append('version', document.getElementById('pdfaVersion').value);
+        
+        try {
+            const response = await fetch('/conversion/pdf-en-pdfa', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) throw new Error(`Erreur ${response.status}`);
+            
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'document_pdfa.pdf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la conversion: ' + error.message);
+        } finally {
+            if (loader) loader.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Protéger PDF - {{ title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-lock me-2"></i>{{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">{{ description }}</p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Protégez votre PDF avec un mot de passe pour empêcher toute ouverture ou modification non autorisée.
+                    </div>
+                    
+                    <!-- Zone d'upload -->
+                    <div class="upload-zone-pro mb-4" id="protectUploadZone" data-info-id="protectFileInfo" data-btn-id="protectButton">
+                        <div class="upload-inner">
+                            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                            <h4 class="upload-title">Déposez votre PDF ici</h4>
+                            <p class="upload-subtitle">Glissez-déposez ou cliquez pour sélectionner</p>
+                            <div class="upload-info">PDF uniquement • Taille max : 50MB</div>
+                        </div>
+                        <input type="file" accept=".pdf" style="display:none;">
+                    </div>
+                    
+                    <div id="protectFileInfo" class="file-list mt-3"></div>
+                    <div id="protectUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
+                    
+                    <!-- Options de protection -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-bold">Mot de passe d'ouverture</label>
+                                <input type="password" class="form-control" id="password" placeholder="Entrez un mot de passe">
+                                <small class="text-muted">Le fichier nécessitera ce mot de passe pour être ouvert</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-bold">Confirmer le mot de passe</label>
+                                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirmez le mot de passe">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-bold">Mot de passe de modification (optionnel)</label>
+                                <input type="password" class="form-control" id="ownerPassword" placeholder="Mot de passe propriétaire">
+                                <small class="text-muted">Permet de restreindre la modification</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-bold">Permissions</label>
+                                <select class="form-select" id="permissions">
+                                    <option value="none">Aucune restriction</option>
+                                    <option value="print">Impression uniquement</option>
+                                    <option value="modify">Modification uniquement</option>
+                                    <option value="all">Impression et modification</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Important :</strong> Notez bien votre mot de passe. Il n'y a aucun moyen de le récupérer en cas d'oubli.
+                    </div>
+                    
+                    <div class="action-buttons mt-4">
+                        <button class="btn btn-primary btn-lg" id="protectButton" disabled>
+                            <i class="fas fa-lock me-2"></i>Protéger le PDF
+                        </button>
+                        <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.protectUploadZone.removeFile(0)">
+                            <i class="fas fa-redo me-2"></i>Réinitialiser
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const protectButton = document.getElementById('protectButton');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirmPassword');
+    const ownerPassword = document.getElementById('ownerPassword');
+    const permissions = document.getElementById('permissions');
+    
+    // Vérifier que les mots de passe correspondent
+    function validatePasswords() {
+        if (password.value !== confirmPassword.value) {
+            return false;
+        }
+        return password.value.length > 0;
+    }
+    
+    // Activer/désactiver le bouton
+    function updateButtonState() {
+        const manager = window.uploadManagers?.protectUploadZone;
+        protectButton.disabled = !manager?.files?.length || !validatePasswords();
+    }
+    
+    password.addEventListener('input', updateButtonState);
+    confirmPassword.addEventListener('input', updateButtonState);
+    
+    // Surveiller les changements dans uploadManager
+    const originalHandleFiles = window.uploadManagers?.protectUploadZone?.handleFiles;
+    if (originalHandleFiles) {
+        window.uploadManagers.protectUploadZone.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+    }
+    
+    const originalRemoveFile = window.uploadManagers?.protectUploadZone?.removeFile;
+    if (originalRemoveFile) {
+        window.uploadManagers.protectUploadZone.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+    
+    // Gestionnaire du bouton
+    protectButton.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        const manager = window.uploadManagers?.protectUploadZone;
+        if (!manager?.files?.length) {
+            alert('Veuillez sélectionner un fichier PDF');
+            return;
+        }
+        
+        if (password.value !== confirmPassword.value) {
+            alert('Les mots de passe ne correspondent pas');
+            return;
+        }
+        
+        if (!password.value) {
+            alert('Veuillez entrer un mot de passe');
+            return;
+        }
+        
+        const loader = document.getElementById('loaderOverlay');
+        if (loader) loader.style.display = 'flex';
+        
+        const formData = new FormData();
+        formData.append('file', manager.files[0]);
+        formData.append('password', password.value);
+        if (ownerPassword.value) {
+            formData.append('owner_password', ownerPassword.value);
+        }
+        formData.append('permissions', permissions.value);
+        
+        try {
+            const response = await fetch('/conversion/proteger-pdf', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Erreur ${response.status}`);
+            }
+            
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'document_protege.pdf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la protection du PDF: ' + error.message);
+        } finally {
+            if (loader) loader.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
+{% endblock %}

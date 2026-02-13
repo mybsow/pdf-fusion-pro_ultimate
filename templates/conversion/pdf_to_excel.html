@@ -1,55 +1,85 @@
 {% extends "conversion/conversion_base.html" %}
 
+{% block title %}PDF vers Excel - Convertisseur{% endblock %}
+
 {% block converter_content %}
 <!-- Étape 1: Upload -->
 <div id="step1Content">
-    <div class="upload-zone" id="dropZone">
-        <div class="upload-icon">
-            <i class="fas fa-cloud-upload-alt"></i>
+    <div class="upload-zone-pro" id="pdfToExcelUploadZone" data-info-id="pdfToExcelFileInfo" data-btn-id="convertBtn">
+        <div class="upload-inner">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h4 class="upload-title">Déposez votre PDF ici</h4>
+            <p class="upload-subtitle">Glissez-déposez ou cliquez pour sélectionner</p>
+            <div class="upload-info">PDF uniquement • Taille max : 50MB</div>
         </div>
-        
-        <h3>Déposez votre PDF ici</h3>
-        <p class="text-muted mb-4">
-            Glissez-déposez votre fichier PDF ou cliquez pour sélectionner
-        </p>
-        
-        <p class="small text-muted mb-3">
-            <i class="fas fa-info-circle me-1"></i>
-            Formats acceptés: {{ accept }}
-            {% if max_files > 1 %}
-                | Maximum: {{ max_files }} fichiers
-            {% endif %}
-        </p>
-        
-        <input type="file" 
-               id="fileInput" 
-               class="d-none" 
-               accept="{{ accept }}"
-               {% if max_files > 1 %}multiple{% endif %}>
-        
-        <button class="btn btn-primary btn-lg px-4 py-2"
-                onclick="document.getElementById('fileInput').click()">
-            <i class="fas fa-folder-open me-2"></i>
-            Sélectionner un fichier
-        </button>
+        <input type="file" accept=".pdf" style="display:none;">
     </div>
     
-    <!-- Informations fichier -->
-    <div id="fileInfo" class="file-info-card" style="display: none;">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <h5 class="mb-1" id="fileName"></h5>
-                <p class="text-muted mb-0 small" id="fileDetails"></p>
+    <div id="pdfToExcelFileInfo" class="file-list mt-3"></div>
+    <div id="pdfToExcelUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
+    
+    <!-- Options de conversion -->
+    <div class="mt-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    <i class="fas fa-cog me-2"></i>Options d'extraction
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Mode d'extraction</label>
+                        <select class="form-select" id="extractionMode">
+                            <option value="tables" selected>Extraire les tableaux</option>
+                            <option value="all">Extraire tout le texte</option>
+                            <option value="smart">Détection intelligente</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Langue</label>
+                        <select class="form-select" id="language">
+                            <option value="fra" selected>Français</option>
+                            <option value="eng">Anglais</option>
+                            <option value="deu">Allemand</option>
+                            <option value="spa">Espagnol</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="ocrEnabled" checked>
+                            <label class="form-check-label">
+                                Activer l'OCR pour les PDF scannés
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="preserveFormatting" checked>
+                            <label class="form-check-label">
+                                Conserver la mise en forme
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-2">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Extraction intelligente :</strong> Les tableaux seront automatiquement détectés et convertis en feuilles Excel.
+                </div>
+                
+                <div class="action-buttons mt-4">
+                    <button class="btn btn-primary btn-lg" id="convertBtn" disabled>
+                        <i class="fas fa-play me-2"></i>
+                        Convertir en Excel
+                    </button>
+                </div>
             </div>
-            <button class="btn btn-sm btn-outline-danger" onclick="clearFile()">
-                <i class="fas fa-times"></i>
-            </button>
         </div>
-        
-        <button class="btn btn-primary w-100 py-2" id="convertBtn" onclick="startConversion()">
-            <i class="fas fa-play me-2"></i>
-            Convertir en Excel
-        </button>
     </div>
 </div>
 
@@ -57,21 +87,16 @@
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
         <div class="upload-icon mb-4">
-            <i class="fas fa-sync-alt fa-spin"></i>
+            <div class="spinner-border text-primary" style="width: 5rem; height: 5rem;" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
         </div>
         
-        <h3>Conversion en cours...</h3>
-        <p class="text-muted mb-4">Extraction des données de votre PDF</p>
+        <h3 class="mb-4">Extraction en cours...</h3>
+        <p class="text-muted mb-4">Analyse et extraction des données de votre PDF</p>
         
         <div class="progress-container">
             <div class="progress-bar" id="conversionProgress"></div>
-        </div>
-        
-        <div class="mt-4" id="conversionDetails">
-            <p class="text-muted small">
-                <i class="fas fa-spinner fa-spin me-1"></i>
-                Analyse du document...
-            </p>
         </div>
     </div>
 </div>
@@ -80,7 +105,7 @@
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
         <div class="success-animation">
-            <i class="fas fa-check"></i>
+            <i class="fas fa-file-excel"></i>
         </div>
         
         <h3 class="mb-3">Conversion réussie !</h3>
@@ -88,22 +113,15 @@
             Votre fichier Excel est prêt au téléchargement
         </p>
         
-        <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
-            <button class="btn btn-success btn-lg px-4" id="downloadBtn">
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
+            <button class="btn btn-success btn-lg px-4 py-3" id="downloadBtn">
                 <i class="fas fa-download me-2"></i>
                 Télécharger Excel
             </button>
             
-            <button class="btn btn-outline-primary btn-lg px-4" onclick="resetConverter()">
+            <button class="btn btn-outline-primary btn-lg px-4 py-3" onclick="resetConverter()">
                 <i class="fas fa-redo me-2"></i>
-                Nouvelle conversion
-            </button>
-        </div>
-        
-        <div class="mt-4">
-            <button class="btn btn-link text-muted" onclick="updateStep(1)">
-                <i class="fas fa-arrow-left me-1"></i>
-                Retour à l'upload
+                Nouveau PDF
             </button>
         </div>
     </div>
@@ -120,266 +138,98 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 <script>
-let selectedFile = null;
-
-// Gestion du drag & drop
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, preventDefaults, false);
-});
-
-function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
-}
-
-['dragenter', 'dragover'].forEach(eventName => {
-    dropZone.addEventListener(eventName, highlight, false);
-});
-
-['dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, unhighlight, false);
-});
-
-function highlight() {
-    dropZone.classList.add('dragover');
-}
-
-function unhighlight() {
-    dropZone.classList.remove('dragover');
-}
-
-dropZone.addEventListener('drop', handleDrop, false);
-
-function handleDrop(e) {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-    handleFile(files[0]);
-}
-
-fileInput.addEventListener('change', function() {
-    if (this.files && this.files[0]) {
-        handleFile(this.files[0]);
-    }
-});
-
-function handleFile(file) {
-    if (!file) return;
+document.addEventListener('DOMContentLoaded', function() {
+    const convertBtn = document.getElementById('convertBtn');
+    const uploadManager = window.uploadManagers?.pdfToExcelUploadZone;
     
-    // Vérifier l'extension
-    const ext = file.name.split('.').pop().toLowerCase();
-    if (ext !== 'pdf') {
-        showError('Veuillez sélectionner un fichier PDF');
-        return;
+    function updateButtonState() {
+        convertBtn.disabled = !uploadManager?.files?.length;
     }
     
-    // Vérifier la taille (max 50MB)
-    if (file.size > 50 * 1024 * 1024) {
-        showError('Fichier trop volumineux (max 50MB)');
-        return;
+    if (uploadManager) {
+        const originalHandleFiles = uploadManager.handleFiles;
+        uploadManager.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+        
+        const originalRemoveFile = uploadManager.removeFile;
+        uploadManager.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
     }
     
-    selectedFile = file;
-    
-    // Afficher les infos
-    document.getElementById('fileName').textContent = file.name;
-    document.getElementById('fileDetails').textContent = 
-        `${(file.size / 1024 / 1024).toFixed(2)} MB • PDF`;
-    
-    document.getElementById('fileInfo').style.display = 'block';
-}
-
-function clearFile() {
-    selectedFile = null;
-    fileInput.value = '';
-    document.getElementById('fileInfo').style.display = 'none';
-}
-
-function startConversion() {
-    if (!selectedFile) return;
-    
-    updateStep(2);
-    
-    // Simuler la progression
-    let progress = 0;
-    const progressBar = document.getElementById('conversionProgress');
-    const details = document.getElementById('conversionDetails');
-    
-    const steps = [
-        { progress: 20, text: "Lecture du PDF..." },
-        { progress: 40, text: "Extraction du texte..." },
-        { progress: 60, text: "Analyse des tableaux..." },
-        { progress: 80, text: "Création du fichier Excel..." },
-        { progress: 100, text: "Finalisation..." }
-    ];
-    
-    steps.forEach((step, index) => {
-        setTimeout(() => {
-            progressBar.style.width = step.progress + '%';
-            details.innerHTML = `
-                <p class="text-muted small">
-                    <i class="fas fa-spinner fa-spin me-1"></i>
-                    ${step.text}
-                </p>
-            `;
-            
-            if (index === steps.length - 1) {
+    convertBtn.addEventListener('click', async function() {
+        if (!uploadManager?.files?.length) {
+            alert('Veuillez sélectionner un fichier PDF');
+            return;
+        }
+        
+        const file = uploadManager.files[0];
+        document.getElementById('step1Content').style.display = 'none';
+        document.getElementById('step2Content').style.display = 'block';
+        
+        // Simuler la progression
+        const progressBar = document.getElementById('conversionProgress');
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            progressBar.style.width = progress + '%';
+            if (progress >= 100) {
+                clearInterval(interval);
                 setTimeout(() => {
-                    updateStep(3);
-                    prepareDownload();
+                    document.getElementById('step2Content').style.display = 'none';
+                    document.getElementById('step3Content').style.display = 'block';
                 }, 500);
             }
-        }, index * 1000);
+        }, 300);
+        
+        // Préparer le téléchargement
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('mode', document.getElementById('extractionMode').value);
+        formData.append('language', document.getElementById('language').value);
+        formData.append('ocr_enabled', document.getElementById('ocrEnabled').checked);
+        formData.append('preserve_formatting', document.getElementById('preserveFormatting').checked);
+        
+        document.getElementById('downloadBtn').onclick = async function() {
+            const response = await fetch("{{ url_for('conversion.universal_converter', conversion_type='pdf-en-excel') }}", {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = file.name.replace('.pdf', '') + '.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
+        };
     });
-}
-
-function prepareDownload() {
-    document.getElementById('downloadBtn').onclick = function() {
-        // Utiliser le formulaire caché
-        const hiddenForm = document.getElementById('hiddenForm');
-        const hiddenFileInput = document.getElementById('hiddenFileInput');
-        
-        // Transférer le fichier au champ caché
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(selectedFile);
-        hiddenFileInput.files = dataTransfer.files;
-        
-        // Soumettre le formulaire
-        hiddenForm.submit();
-        
-        // Réinitialiser après soumission
-        setTimeout(() => {
-            resetConverter();
-        }, 1000);
-    };
-}
+});
 
 function resetConverter() {
-    selectedFile = null;
-    fileInput.value = '';
-    document.getElementById('fileInfo').style.display = 'none';
-    updateStep(1);
-}
-
-// Fonctions utilitaires
-function updateStep(stepNumber) {
-    document.getElementById('step1Content').style.display = 'none';
+    const uploadManager = window.uploadManagers?.pdfToExcelUploadZone;
+    if (uploadManager) {
+        while (uploadManager.files.length > 0) {
+            uploadManager.removeFile(0);
+        }
+    }
+    document.getElementById('step1Content').style.display = 'block';
     document.getElementById('step2Content').style.display = 'none';
     document.getElementById('step3Content').style.display = 'none';
-    
-    if (stepNumber === 1) {
-        document.getElementById('step1Content').style.display = 'block';
-    } else if (stepNumber === 2) {
-        document.getElementById('step2Content').style.display = 'block';
-    } else if (stepNumber === 3) {
-        document.getElementById('step3Content').style.display = 'block';
-    }
-}
-
-function showError(message) {
-    // Créer une alerte Bootstrap
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-    alertDiv.innerHTML = `
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    const container = document.querySelector('.container');
-    container.insertBefore(alertDiv, container.firstChild);
-    
-    // Auto-dismiss après 5 secondes
-    setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.remove();
-        }
-    }, 5000);
-}
-
-function showLoader() {
-    const loader = document.getElementById('conversionProgress');
-    if (loader) {
-        loader.style.width = '100%';
-    }
-}
-
-function hideLoader() {
-    const loader = document.getElementById('conversionProgress');
-    if (loader) {
-        loader.style.width = '0%';
-    }
 }
 </script>
-
-<style>
-.progress-container {
-    height: 8px;
-    background-color: #e9ecef;
-    border-radius: 4px;
-    overflow: hidden;
-    margin: 20px auto;
-    max-width: 500px;
-}
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
-    width: 0%;
-    transition: width 0.5s ease;
-    border-radius: 4px;
-}
-
-.success-animation {
-    width: 80px;
-    height: 80px;
-    background: #198754;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 2rem;
-    color: white;
-    font-size: 2rem;
-    animation: bounceIn 0.6s;
-}
-
-@keyframes bounceIn {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.upload-zone {
-    border: 2px dashed #dee2e6;
-    border-radius: 10px;
-    padding: 3rem 1rem;
-    text-align: center;
-    background-color: #f8f9fa;
-    transition: all 0.3s ease;
-}
-
-.upload-zone.dragover {
-    border-color: var(--primary-color);
-    background-color: rgba(var(--primary-rgb), 0.1);
-}
-
-.upload-icon {
-    font-size: 3rem;
-    color: #6c757d;
-    margin-bottom: 1rem;
-}
-
-.file-info-card {
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-</style>
 {% endblock %}
 
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+{% endblock %}

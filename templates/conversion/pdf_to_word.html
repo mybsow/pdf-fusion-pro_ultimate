@@ -1,34 +1,22 @@
 {% extends "conversion/conversion_base.html" %}
 
+{% block title %}PDF vers Word - Convertisseur{% endblock %}
+
 {% block converter_content %}
 <!-- Étape 1: Upload -->
 <div id="step1Content">
-    <div class="upload-zone" id="dropZone">
-        <div class="upload-icon">
-            <i class="fas fa-file-pdf"></i>
+    <div class="upload-zone-pro" id="pdfToWordUploadZone" data-info-id="pdfToWordFileInfo" data-btn-id="convertBtn">
+        <div class="upload-inner">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h4 class="upload-title">Déposez votre PDF ici</h4>
+            <p class="upload-subtitle">Glissez-déposez ou cliquez pour sélectionner</p>
+            <div class="upload-info">PDF uniquement • Taille max : 50MB</div>
         </div>
-        
-        <h3>Déposez votre PDF ici</h3>
-        <p class="text-muted mb-4">
-            Convertissez votre PDF en document Word modifiable
-        </p>
-        
-        <p class="small text-muted mb-3">
-            <i class="fas fa-info-circle me-1"></i>
-            Formats acceptés: .pdf | Taille max: 50MB
-        </p>
-        
-        <input type="file" 
-               id="fileInput" 
-               class="d-none" 
-               accept=".pdf">
-        
-        <button class="btn btn-primary btn-lg px-4 py-2"
-                onclick="document.getElementById('fileInput').click()">
-            <i class="fas fa-folder-open me-2"></i>
-            Sélectionner un PDF
-        </button>
+        <input type="file" accept=".pdf" style="display:none;">
     </div>
+    
+    <div id="pdfToWordFileInfo" class="file-list mt-3"></div>
+    <div id="pdfToWordUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
     
     <!-- Options de conversion -->
     <div class="mt-4">
@@ -60,39 +48,39 @@
                     </div>
                 </div>
                 
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="detectTables" checked>
-                    <label class="form-check-label">
-                        Détecter les tableaux
-                    </label>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="detectTables" checked>
+                            <label class="form-check-label">
+                                Détecter les tableaux
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="preserveFormatting" checked>
+                            <label class="form-check-label">
+                                Conserver la mise en forme
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="preserveFormatting" checked>
-                    <label class="form-check-label">
-                        Conserver la mise en forme
-                    </label>
+                <div class="alert alert-info mt-2">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Format Word :</strong> Compatible avec Microsoft Word 2007 et versions ultérieures (DOCX).
+                </div>
+                
+                <div class="action-buttons mt-4">
+                    <button class="btn btn-primary btn-lg" id="convertBtn" disabled>
+                        <i class="fas fa-play me-2"></i>
+                        Convertir en Word
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Informations fichier -->
-    <div id="fileInfo" class="file-info-card mt-4" style="display: none;">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <h5 class="mb-1" id="fileName"></h5>
-                <p class="text-muted mb-0 small" id="fileDetails"></p>
-            </div>
-            <button class="btn btn-sm btn-outline-danger" onclick="clearFile()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        
-        <button class="btn btn-primary w-100 py-2" id="convertBtn" onclick="startConversion()">
-            <i class="fas fa-play me-2"></i>
-            Convertir en Word
-        </button>
     </div>
 </div>
 
@@ -100,28 +88,16 @@
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
         <div class="upload-icon mb-4">
-            <i class="fas fa-sync-alt fa-spin"></i>
+            <div class="spinner-border text-primary" style="width: 5rem; height: 5rem;" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
         </div>
         
-        <h3>Extraction du texte en cours...</h3>
-        <p class="text-muted mb-4">
-            Conversion de votre PDF en document Word
-        </p>
+        <h3 class="mb-4">Conversion en cours...</h3>
+        <p class="text-muted mb-4">Transformation de votre PDF en document Word</p>
         
         <div class="progress-container">
             <div class="progress-bar" id="conversionProgress"></div>
-        </div>
-        
-        <div class="mt-4" id="conversionDetails">
-            <p class="text-muted small">
-                <i class="fas fa-spinner fa-spin me-1"></i>
-                Analyse du document PDF...
-            </p>
-        </div>
-        
-        <div class="alert alert-info mt-4" role="alert">
-            <i class="fas fa-info-circle me-2"></i>
-            L'extraction OCR peut prendre quelques instants pour les PDF scannés
         </div>
     </div>
 </div>
@@ -138,200 +114,89 @@
             Votre document Word est prêt au téléchargement
         </p>
         
-        <div class="row g-3 mb-4">
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="fas fa-file-alt fa-2x text-primary mb-3"></i>
-                        <h5>Document Word</h5>
-                        <p class="small text-muted">
-                            Document éditable avec mise en page préservée
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="fas fa-chart-bar fa-2x text-primary mb-3"></i>
-                        <h5>Statistiques</h5>
-                        <p class="small text-muted" id="statsInfo">
-                            Extraction en cours...
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
-            <button class="btn btn-success btn-lg px-4" id="downloadBtn">
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
+            <button class="btn btn-success btn-lg px-4 py-3" id="downloadBtn">
                 <i class="fas fa-download me-2"></i>
                 Télécharger Word
             </button>
             
-            <button class="btn btn-outline-primary btn-lg px-4" onclick="resetConverter()">
+            <button class="btn btn-outline-primary btn-lg px-4 py-3" onclick="resetConverter()">
                 <i class="fas fa-redo me-2"></i>
                 Nouveau PDF
             </button>
         </div>
-        
-        <div class="mt-4">
-            <a href="{{ url_for('conversion.universal_converter', conversion_type='word-en-pdf') }}" 
-               class="btn btn-link text-muted">
-                <i class="fas fa-exchange-alt me-1"></i>
-                Convertir Word en PDF
-            </a>
-        </div>
     </div>
 </div>
+
+<!-- Formulaire caché pour la soumission POST -->
+<form method="POST" 
+      action="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-word') }}"
+      enctype="multipart/form-data"
+      id="hiddenForm"
+      style="display: none;">
+    <input type="file" name="file" id="hiddenFileInput">
+</form>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 <script>
-let selectedFile = null;
-
-// Gestion du drag & drop
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, preventDefaults, false);
-});
-
-function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
-}
-
-['dragenter', 'dragover'].forEach(eventName => {
-    dropZone.addEventListener(eventName, highlight, false);
-});
-
-['dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, unhighlight, false);
-});
-
-function highlight() {
-    dropZone.classList.add('dragover');
-}
-
-function unhighlight() {
-    dropZone.classList.remove('dragover');
-}
-
-dropZone.addEventListener('drop', handleDrop, false);
-
-function handleDrop(e) {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-    handleFile(files[0]);
-}
-
-fileInput.addEventListener('change', function() {
-    if (this.files && this.files[0]) {
-        handleFile(this.files[0]);
-    }
-});
-
-function handleFile(file) {
-    if (!file) return;
+document.addEventListener('DOMContentLoaded', function() {
+    const convertBtn = document.getElementById('convertBtn');
+    const uploadManager = window.uploadManagers?.pdfToWordUploadZone;
     
-    // Vérifier l'extension
-    const ext = file.name.split('.').pop().toLowerCase();
-    if (ext !== 'pdf') {
-        showError('Veuillez sélectionner un fichier PDF');
-        return;
+    function updateButtonState() {
+        convertBtn.disabled = !uploadManager?.files?.length;
     }
     
-    // Vérifier la taille (max 50MB)
-    if (file.size > 50 * 1024 * 1024) {
-        showError('Fichier trop volumineux (max 50MB)');
-        return;
+    if (uploadManager) {
+        const originalHandleFiles = uploadManager.handleFiles;
+        uploadManager.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+        
+        const originalRemoveFile = uploadManager.removeFile;
+        uploadManager.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
     }
     
-    selectedFile = file;
-    
-    // Afficher les infos
-    document.getElementById('fileName').textContent = file.name;
-    const pageCount = Math.ceil(file.size / 50000); // Estimation
-    document.getElementById('fileDetails').textContent = 
-        `${(file.size / 1024 / 1024).toFixed(2)} MB • ${pageCount} page(s) estimée(s)`;
-    
-    document.getElementById('fileInfo').style.display = 'block';
-}
-
-function clearFile() {
-    selectedFile = null;
-    fileInput.value = '';
-    document.getElementById('fileInfo').style.display = 'none';
-}
-
-function startConversion() {
-    if (!selectedFile) return;
-    
-    updateStep(2);
-    
-    // Simuler la progression
-    let progress = 0;
-    const progressBar = document.getElementById('conversionProgress');
-    const details = document.getElementById('conversionDetails');
-    
-    const steps = [
-        { progress: 15, text: "Analyse du PDF..." },
-        { progress: 30, text: "Extraction du texte..." },
-        { progress: 50, text: "Traitement OCR..." },
-        { progress: 70, text: "Reconstruction du document..." },
-        { progress: 85, text: "Application de la mise en page..." },
-        { progress: 100, text: "Génération du fichier Word..." }
-    ];
-    
-    steps.forEach((step, index) => {
-        setTimeout(() => {
-            progressBar.style.width = step.progress + '%';
-            details.innerHTML = `
-                <p class="text-muted small">
-                    <i class="fas fa-spinner fa-spin me-1"></i>
-                    ${step.text}
-                </p>
-            `;
-            
-            if (index === steps.length - 1) {
+    convertBtn.addEventListener('click', async function() {
+        if (!uploadManager?.files?.length) {
+            alert('Veuillez sélectionner un fichier PDF');
+            return;
+        }
+        
+        const file = uploadManager.files[0];
+        document.getElementById('step1Content').style.display = 'none';
+        document.getElementById('step2Content').style.display = 'block';
+        
+        // Simuler la progression
+        const progressBar = document.getElementById('conversionProgress');
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            progressBar.style.width = progress + '%';
+            if (progress >= 100) {
+                clearInterval(interval);
                 setTimeout(() => {
-                    // Générer des statistiques aléatoires pour la démo
-                    const stats = {
-                        pages: Math.floor(Math.random() * 10) + 1,
-                        words: Math.floor(Math.random() * 5000) + 1000,
-                        tables: Math.floor(Math.random() * 5),
-                        images: Math.floor(Math.random() * 3)
-                    };
-                    
-                    document.getElementById('statsInfo').innerHTML = `
-                        ${stats.pages} page(s)<br>
-                        ${stats.words.toLocaleString()} mots<br>
-                        ${stats.tables} tableau(x) détecté(s)<br>
-                        ${stats.images} image(s)
-                    `;
-                    
-                    updateStep(3);
-                    prepareDownload();
-                }, 800);
+                    document.getElementById('step2Content').style.display = 'none';
+                    document.getElementById('step3Content').style.display = 'block';
+                }, 500);
             }
-        }, index * 1000);
-    });
-}
-
-function prepareDownload() {
-    document.getElementById('downloadBtn').onclick = async () => {
+        }, 300);
+        
+        // Préparer le téléchargement
         const formData = new FormData();
-        formData.append('file', selectedFile);
+        formData.append('file', file);
         formData.append('mode', document.getElementById('extractionMode').value);
         formData.append('language', document.getElementById('language').value);
-        formData.append('detectTables', document.getElementById('detectTables').checked);
-        formData.append('preserveFormatting', document.getElementById('preserveFormatting').checked);
+        formData.append('detect_tables', document.getElementById('detectTables').checked);
+        formData.append('preserve_formatting', document.getElementById('preserveFormatting').checked);
         
-        showLoader();
-        
-        try {
+        document.getElementById('downloadBtn').onclick = async function() {
             const response = await fetch("{{ url_for('conversion.universal_converter', conversion_type='pdf-en-word') }}", {
                 method: 'POST',
                 body: formData
@@ -342,33 +207,30 @@ function prepareDownload() {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `${selectedFile.name.replace('.pdf', '')}_converted.docx`;
+                a.download = file.name.replace('.pdf', '') + '.docx';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
-            } else {
-                const error = await response.json();
-                showError(error.error || 'Erreur lors de la conversion');
-                updateStep(1);
             }
-        } catch (error) {
-            console.error('Error:', error);
-            showError('Erreur de connexion au serveur');
-            updateStep(1);
-        } finally {
-            hideLoader();
-        }
-    };
-}
+        };
+    });
+});
 
 function resetConverter() {
-    selectedFile = null;
-    fileInput.value = '';
-    document.getElementById('fileInfo').style.display = 'none';
-    document.getElementById('statsInfo').textContent = 'Extraction en cours...';
-    updateStep(1);
+    const uploadManager = window.uploadManagers?.pdfToWordUploadZone;
+    if (uploadManager) {
+        while (uploadManager.files.length > 0) {
+            uploadManager.removeFile(0);
+        }
+    }
+    document.getElementById('step1Content').style.display = 'block';
+    document.getElementById('step2Content').style.display = 'none';
+    document.getElementById('step3Content').style.display = 'none';
 }
 </script>
 {% endblock %}
 
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+{% endblock %}
