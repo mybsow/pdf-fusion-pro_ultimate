@@ -480,3 +480,5 @@ def create_sample_spreadsheet(output_path, sheet_name="Feuille1"):
     df = pd.DataFrame(data)
     df.to_excel(output_path, sheet_name=sheet_name, index=False)
     return output_path
+
+conversion_manager = ConversionManager()

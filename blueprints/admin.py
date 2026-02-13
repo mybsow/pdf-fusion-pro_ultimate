@@ -10,9 +10,14 @@ from datetime import datetime
 from flask import Blueprint, session, request, redirect, url_for, render_template, jsonify
 
 from utils.cache import SimpleCache
-from managers.contact_manager import contact_manager
-from managers.rating_manager import rating_manager
-from managers.stats_manager import stats_manager
+from managers.contact_manager import ContactManager
+from managers.rating_manager import RatingManager
+from managers.stats_manager import StatisticsManager
+
+# Initialiser les managers
+contact_manager = ContactManager()
+rating_manager = RatingManager()
+stats_manager = StatisticsManager()
 
 # Cache avec TTL réduit pour des données plus fraîches
 cache = SimpleCache(ttl=10)  # 10 secondes au lieu de 15

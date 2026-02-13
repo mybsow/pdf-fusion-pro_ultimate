@@ -10,9 +10,13 @@ import base64
 from . import api_bp
 from blueprints.pdf.engine import PDFEngine
 from config import AppConfig
-from managers.stats_manager import stats_manager  # Importez l'instance
-from managers.rating_manager import rating_manager
-from managers.contact_manager import contact_manager
+from managers.stats_manager import StatisticsManager  # Importez l'instance
+from managers.rating_manager import RatingManager
+from managers.contact_manager import ContactManager
+
+contact_manager = ContactManager()
+rating_manager = RatingManager()
+stats_manager = StatisticsManager()
 
 
 @api_bp.route('/merge', methods=["POST"])

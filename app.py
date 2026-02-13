@@ -124,11 +124,11 @@ def create_app():
     # Import Blueprints
     # --------------------------------------------------------
     from blueprints.pdf import pdf_bp
-    from blueprints.api.routes import api_bp
-    from blueprints.stats.routes import stats_bp
+    from blueprints.api import api_bp
+    from blueprints.stats import stats_bp
     from blueprints.admin import admin_bp
     from blueprints.conversion import conversion_bp
-    from blueprints.legal.routes import legal_bp
+    from blueprints.legal import legal_bp
 
     blueprints = [
         (pdf_bp, "/pdf"),

@@ -15,6 +15,10 @@ import shutil
 import traceback
 from io import BytesIO
 import zipfile
+# Vous importez déjà ConversionManager correctement
+from managers.conversion_manager import ConversionManager
+
+conversion_manager = ConversionManager()  # Instance globale du manager de conversion
 
 # Ajouter la racine du projet au sys.path
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
