@@ -123,7 +123,7 @@ def create_app():
     # --------------------------------------------------------
     # Import Blueprints
     # --------------------------------------------------------
-    from blueprints.pdf.routes import pdf_bp
+    from blueprints.pdf import pdf_bp
     from blueprints.api.routes import api_bp
     from blueprints.stats.routes import stats_bp
     from blueprints.admin import admin_bp

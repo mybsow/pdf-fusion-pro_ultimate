@@ -1,8 +1,4 @@
-# /workspaces/pdf-fusion-pro_ultimate/blueprints/pdf/__init__.py
-"""
-Blueprint principal pour les outils PDF
-"""
-
+# blueprints/pdf/__init__.py
 from flask import Blueprint
 
 # Création du blueprint PDF
@@ -14,5 +10,5 @@ pdf_bp = Blueprint(
     url_prefix='/pdf'
 )
 
-# N'importez PAS routes ici !!!
-# from . import routes  ← SUPPRIMEZ CETTE LIGNE
+# Import des routes APRÈS création
+from . import routes

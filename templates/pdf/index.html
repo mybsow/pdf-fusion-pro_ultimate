@@ -24,27 +24,12 @@
                 <p class="text-muted mb-0">Combine plusieurs PDF en un seul document organisé</p>
             </div>
             <div class="tool-content">
-                <div class="upload-zone" id="mergeUploadZone" onclick="document.getElementById('mergeFileInput').click()">
-                    <div class="upload-icon">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </div>
-                    <div class="upload-text">
-                        <h4>Glissez-déposez vos fichiers PDF</h4>
-                        <p>ou cliquez pour sélectionner (max 10 fichiers, 50MB chacun)</p>
-                    </div>
-                    <input type="file" id="mergeFileInput" accept=".pdf" multiple style="display: none;" onchange="handleMergeFiles(this.files)">
-                </div>
-                
-                <div class="file-list" id="mergeFileList"></div>
-                
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="processMerge()" id="mergeButton" disabled>
-                        <i class="fas fa-magic me-2"></i>Fusionner les PDFs
-                    </button>
-                    <button class="btn btn-outline" onclick="clearMergeFiles()">
-                        <i class="fas fa-trash me-2"></i>Effacer la liste
-                    </button>
-                </div>
+                <a href="{{ url_for('pdf.merge') }}" class="btn btn-primary btn-lg w-100">
+                    <i class="fas fa-object-group me-2"></i>Fusionner des PDF
+                </a>
+                <p class="text-muted mt-2 mb-0 small">
+                    <i class="fas fa-arrow-right me-1"></i> Accédez à l'outil de fusion PDF
+                </p>
             </div>
         </div>
     </div>
@@ -57,53 +42,12 @@
                 <p class="text-muted mb-0">Extrayez des pages spécifiques ou divisez par plages</p>
             </div>
             <div class="tool-content">
-                <div class="upload-zone" id="splitUploadZone" onclick="document.getElementById('splitFileInput').click()">
-                    <div class="upload-icon">
-                        <i class="fas fa-file-pdf"></i>
-                    </div>
-                    <div class="upload-text">
-                        <h4>Sélectionnez un fichier PDF à diviser</h4>
-                        <p>Glissez-déposez ou cliquez pour choisir</p>
-                    </div>
-                    <input type="file" id="splitFileInput" accept=".pdf" style="display: none;" onchange="handleSplitFile(this.files)">
-                </div>
-                
-                <div class="file-list" id="splitFileInfo"></div>
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">Mode de division</label>
-                            <select class="form-select" id="splitMode" onchange="updateSplitMode()">
-                                <option value="all">Chaque page séparément</option>
-                                <option value="range">Plages de pages (ex: 1-3,5-7)</option>
-                                <option value="selected">Pages spécifiques (ex: 1,4,8)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label" id="splitArgLabel">Argument</label>
-                            <input type="text" class="form-control" id="splitArg" 
-                                   placeholder="Ex: 1-3, 5-7 ou 1,4,8">
-                            <small class="text-muted" id="splitHelpText">
-                                Laissez vide pour diviser toutes les pages
-                            </small>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="processSplit()" id="splitButton" disabled>
-                        <i class="fas fa-cut me-2"></i>Diviser le PDF
-                    </button>
-                    <button class="btn btn-success" onclick="processSplitZip()" id="splitZipButton" disabled>
-                        <i class="fas fa-file-archive me-2"></i>Télécharger en ZIP
-                    </button>
-                    <button class="btn btn-outline" onclick="generatePreview()" id="previewButton" disabled>
-                        <i class="fas fa-eye me-2"></i>Aperçu
-                    </button>
-                </div>
+                <a href="{{ url_for('pdf.split') }}" class="btn btn-primary btn-lg w-100">
+                    <i class="fas fa-cut me-2"></i>Diviser un PDF
+                </a>
+                <p class="text-muted mt-2 mb-0 small">
+                    <i class="fas fa-arrow-right me-1"></i> Accédez à l'outil de division PDF
+                </p>
             </div>
         </div>
     </div>
@@ -116,51 +60,12 @@
                 <p class="text-muted mb-0">Faites pivoter des pages spécifiques ou l'ensemble du document</p>
             </div>
             <div class="tool-content">
-                <div class="upload-zone" id="rotateUploadZone" onclick="document.getElementById('rotateFileInput').click()">
-                    <div class="upload-icon">
-                        <i class="fas fa-file-pdf"></i>
-                    </div>
-                    <div class="upload-text">
-                        <h4>Sélectionnez un fichier PDF à tourner</h4>
-                        <p>Glissez-déposez ou cliquez pour choisir</p>
-                    </div>
-                    <input type="file" id="rotateFileInput" accept=".pdf" style="display: none;" onchange="handleRotateFile(this.files)">
-                </div>
-                
-                <div class="file-list" id="rotateFileInfo"></div>
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">Pages à tourner</label>
-                            <input type="text" class="form-control" id="rotatePages" 
-                                   placeholder="Ex: 1,3-5 ou laissez 'all' pour toutes">
-                            <small class="text-muted">
-                                Format: numéros séparés par des virgules, plages avec tiret
-                            </small>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">Angle de rotation</label>
-                            <select class="form-select" id="rotateAngle">
-                                <option value="90">90° (Sens horaire)</option>
-                                <option value="180">180° (Demi-tour)</option>
-                                <option value="270">270° (Sens anti-horaire)</option>
-                                <option value="-90">-90° (Sens anti-horaire)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="processRotate()" id="rotateButton" disabled>
-                        <i class="fas fa-sync-alt me-2"></i>Tourner le PDF
-                    </button>
-                    <button class="btn btn-outline" onclick="resetRotateForm()">
-                        <i class="fas fa-redo me-2"></i>Réinitialiser
-                    </button>
-                </div>
+                <a href="{{ url_for('pdf.rotate') }}" class="btn btn-primary btn-lg w-100">
+                    <i class="fas fa-sync-alt me-2"></i>Tourner un PDF
+                </a>
+                <p class="text-muted mt-2 mb-0 small">
+                    <i class="fas fa-arrow-right me-1"></i> Accédez à l'outil de rotation PDF
+                </p>
             </div>
         </div>
     </div>
@@ -173,42 +78,88 @@
                 <p class="text-muted mb-0">Réduisez la taille de vos PDFs sans perte de qualité notable</p>
             </div>
             <div class="tool-content">
-                <div class="upload-zone" id="compressUploadZone" onclick="document.getElementById('compressFileInput').click()">
-                    <div class="upload-icon">
-                        <i class="fas fa-file-pdf"></i>
+                <a href="{{ url_for('pdf.compress') }}" class="btn btn-primary btn-lg w-100">
+                    <i class="fas fa-compress-alt me-2"></i>Compresser un PDF
+                </a>
+                <p class="text-muted mt-2 mb-0 small">
+                    <i class="fas fa-arrow-right me-1"></i> Accédez à l'outil de compression PDF
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Autres conversions -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h3><i class="fas fa-exchange-alt me-2"></i>Convertisseur universel</h3>
+                <p class="text-muted mb-0">Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et vice-versa</p>
+            </div>
+            <div class="tool-content">
+                <a href="{{ url_for('conversion.index') }}" class="btn btn-success btn-lg w-100">
+                    <i class="fas fa-exchange-alt me-2"></i>Toutes les conversions
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="tool-container bg-dark text-white">
+            <div class="tool-header">
+                <h3 class="text-white"><i class="fas fa-chart-line me-2"></i>PDF Fusion Pro en chiffres</h3>
+            </div>
+            <div class="tool-content">
+                <div class="row text-center">
+                    <div class="col-md-3 col-6 mb-3 mb-md-0">
+                        <div class="display-4 fw-bold text-primary">+10k</div>
+                        <div class="small text-uppercase text-muted">Utilisateurs</div>
                     </div>
-                    <div class="upload-text">
-                        <h4>Sélectionnez un fichier PDF à compresser</h4>
-                        <p>Glissez-déposez ou cliquez pour choisir</p>
+                    <div class="col-md-3 col-6 mb-3 mb-md-0">
+                        <div class="display-4 fw-bold text-success">+50k</div>
+                        <div class="small text-uppercase text-muted">PDF traités</div>
                     </div>
-                    <input type="file" id="compressFileInput" accept=".pdf" style="display: none;" onchange="handleCompressFile(this.files)">
-                </div>
-                
-                <div class="file-list" id="compressFileInfo"></div>
-                
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    La compression réduit la taille du fichier en optimisant les images et en supprimant les métadonnées inutiles.
-                    La qualité visuelle reste excellente pour la plupart des usages.
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="processCompress()" id="compressButton" disabled>
-                        <i class="fas fa-compress-alt me-2"></i>Compresser le PDF
-                    </button>
+                    <div class="col-md-3 col-6">
+                        <div class="display-4 fw-bold text-warning">99.9%</div>
+                        <div class="small text-uppercase text-muted">Satisfaction</div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="display-4 fw-bold text-info">24/7</div>
+                        <div class="small text-uppercase text-muted">Disponible</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Preview Container -->
-<div class="preview-container" id="splitPreview" style="display: none;">
-    <h5 class="preview-title"><i class="fas fa-eye me-2"></i>Aperçu des pages</h5>
-    <div class="preview-grid" id="splitPreviewGrid"></div>
+<!-- SEO Text -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="tool-container">
+            <div class="tool-content">
+                <h2 class="h4">Votre solution PDF tout-en-un, 100% gratuite et sécurisée</h2>
+                <p class="mb-3">
+                    PDF Fusion Pro est la plateforme idéale pour tous vos besoins en manipulation de fichiers PDF. 
+                    Que vous ayez besoin de <strong>fusionner plusieurs documents</strong>, <strong>diviser un PDF volumineux</strong>, 
+                    <strong>tourner des pages mal orientées</strong> ou <strong>compresser des fichiers pour les partager</strong>, 
+                    nos outils sont là pour vous aider.
+                </p>
+                <p class="mb-0">
+                    <i class="fas fa-check-circle text-success me-1"></i> Aucune inscription requise<br>
+                    <i class="fas fa-check-circle text-success me-1"></i> Chiffrement SSL et suppression automatique des fichiers<br>
+                    <i class="fas fa-check-circle text-success me-1"></i> Compatible avec tous les navigateurs modernes
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script defer src="{{ url_for('static', filename='js/pages/index.js') }}"></script>
+<!-- ✅ Plus de script index.js problématique -->
 {% endblock %}
