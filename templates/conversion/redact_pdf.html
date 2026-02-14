@@ -1,0 +1,655 @@
+{% extends "conversion/conversion_base.html" %}
+
+{% block title %}Caviarder PDF - {{ title }}{% endblock %}
+
+{% block converter_content %}
+<!-- Étape 1 : Upload -->
+<div id="step1Content">
+    <div class="text-center mb-4">
+        <i class="fas fa-mask upload-icon" style="color: #e67e22;"></i>
+        <h3>Téléchargez votre PDF</h3>
+        <p class="text-muted">Supprimez définitivement le contenu sensible de votre document</p>
+    </div>
+
+    <!-- Zone d'upload avec UploadManager -->
+    <div id="pdfUploadZone" 
+         class="upload-zone-pro upload-zone" 
+         data-info-id="fileInfo"
+         data-btn-id="convertBtn"
+         style="cursor: pointer;">
+        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+        <h4>Glissez-déposez votre fichier PDF ici</h4>
+        <p class="text-muted">ou</p>
+        <input type="file" class="file-input" accept=".pdf" multiple style="display: none;">
+        <p class="text-muted small mt-3">
+            <i class="fas fa-info-circle"></i> 
+            Formats acceptés : PDF (jusqu'à 100MB)
+        </p>
+    </div>
+
+    <!-- Liste des fichiers -->
+    <div id="fileInfo" class="file-list mt-4"></div>
+
+    <!-- Options de caviardage -->
+    <div class="file-info-card mt-4">
+        <h5 class="mb-3">
+            <i class="fas fa-cog me-2"></i>Options de caviardage
+        </h5>
+        
+        <!-- Type de caviardage -->
+        <div class="mb-4">
+            <label class="form-label fw-bold">Type de caviardage :</label>
+            <div class="btn-group w-100" role="group">
+                <input type="radio" class="btn-check" name="redactType" id="typeText" value="text" checked>
+                <label class="btn btn-outline-primary" for="typeText">
+                    <i class="fas fa-font me-2"></i>Texte spécifique
+                </label>
+                
+                <input type="radio" class="btn-check" name="redactType" id="typeArea" value="area">
+                <label class="btn btn-outline-primary" for="typeArea">
+                    <i class="fas fa-vector-square me-2"></i>Zone rectangulaire
+                </label>
+                
+                <input type="radio" class="btn-check" name="redactType" id="typePattern" value="pattern">
+                <label class="btn btn-outline-primary" for="typePattern">
+                    <i class="fas fa-shapes me-2"></i>Motif (email, téléphone...)
+                </label>
+            </div>
+        </div>
+
+        <!-- Section Texte spécifique -->
+        <div id="textSection" class="mb-4">
+            <label for="searchText" class="form-label fw-bold">Texte à caviarder :</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="searchText" 
+                       placeholder="Ex: nom, prénom, adresse, numéro de carte...">
+                <button class="btn btn-outline-secondary" type="button" onclick="addTextToList()">
+                    <i class="fas fa-plus"></i> Ajouter
+                </button>
+            </div>
+            
+            <!-- Liste des textes à caviarder -->
+            <div id="textList" class="mt-3">
+                <div class="badge bg-secondary me-2 mb-2 p-2" data-text="confidentiel">
+                    confidentiel <i class="fas fa-times ms-2" onclick="removeText(this)" style="cursor:pointer;"></i>
+                </div>
+                <div class="badge bg-secondary me-2 mb-2 p-2" data-text="secret">
+                    secret <i class="fas fa-times ms-2" onclick="removeText(this)" style="cursor:pointer;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Zone rectangulaire -->
+        <div id="areaSection" class="mb-4" style="display:none;">
+            <p class="text-info small">
+                <i class="fas fa-info-circle me-1"></i>
+                Après avoir chargé votre PDF, vous pourrez dessiner des zones à caviarder sur l'aperçu.
+            </p>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="areaColor" class="form-label fw-bold">Couleur :</label>
+                    <div class="d-flex">
+                        <input type="color" class="form-control form-control-color me-2" id="areaColor" value="#000000" style="width: 60px;">
+                        <select class="form-select" id="areaOpacity">
+                            <option value="100%">100% - Opaque</option>
+                            <option value="75%">75%</option>
+                            <option value="50%">50%</option>
+                            <option value="25%">25% - Transparent</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="areaBorder" class="form-label fw-bold">Bordure :</label>
+                    <select class="form-select" id="areaBorder">
+                        <option value="none">Sans bordure</option>
+                        <option value="thin">Fine</option>
+                        <option value="thick">Épaisse</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Motif -->
+        <div id="patternSection" class="mb-4" style="display:none;">
+            <label class="form-label fw-bold">Motifs à caviarder :</label>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="patternEmail" value="email" checked>
+                        <label class="form-check-label" for="patternEmail">
+                            <i class="fas fa-envelope me-1"></i>Adresses email
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="patternPhone" value="phone" checked>
+                        <label class="form-check-label" for="patternPhone">
+                            <i class="fas fa-phone me-1"></i>Numéros de téléphone
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="patternName" value="name">
+                        <label class="form-check-label" for="patternName">
+                            <i class="fas fa-user me-1"></i>Noms propres
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="patternCreditCard" value="creditcard">
+                        <label class="form-check-label" for="patternCreditCard">
+                            <i class="fas fa-credit-card me-1"></i>Numéros de carte bancaire
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="patternSsn" value="ssn">
+                        <label class="form-check-label" for="patternSsn">
+                            <i class="fas fa-id-card me-1"></i>Numéros de sécurité sociale
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="patternDate" value="date">
+                        <label class="form-check-label" for="patternDate">
+                            <i class="fas fa-calendar me-1"></i>Dates
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Pages à traiter -->
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="pages" class="form-label fw-bold">Pages à traiter :</label>
+                <select class="form-select" id="pages">
+                    <option value="all">Toutes les pages</option>
+                    <option value="range">Sélectionner des pages</option>
+                    <option value="first">Première page uniquement</option>
+                    <option value="last">Dernière page uniquement</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="pageRange" class="form-label fw-bold">Plage de pages (si sélection) :</label>
+                <input type="text" class="form-control" id="pageRange" placeholder="Ex: 1-5, 8, 11-13" disabled>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aperçu du PDF (si zone rectangulaire sélectionnée) -->
+    <div id="pdfPreview" class="mt-4" style="display:none;">
+        <h5 class="mb-3">
+            <i class="fas fa-eye me-2"></i>Aperçu du PDF - Dessinez les zones à caviarder
+        </h5>
+        <div class="border rounded p-3 bg-light">
+            <canvas id="pdfCanvas" style="width:100%; height:500px; background: #f5f5f5;"></canvas>
+            <p class="text-muted small mt-2">
+                <i class="fas fa-mouse-pointer me-1"></i>
+                Cliquez et faites glisser pour dessiner un rectangle de caviardage
+            </p>
+        </div>
+    </div>
+
+    <!-- Bouton de conversion -->
+    <div class="text-center mt-4">
+        <button class="btn btn-warning btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+            <i class="fas fa-mask me-2"></i>Caviarder le PDF
+        </button>
+        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
+            <i class="fas fa-redo me-2"></i>Réinitialiser
+        </button>
+    </div>
+</div>
+
+<!-- Étape 2 : Conversion en cours -->
+<div id="step2Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-cog fa-spin fa-4x text-warning"></i>
+        </div>
+        <h3>Caviardage en cours...</h3>
+        <p class="text-muted">Analyse et suppression du contenu sensible</p>
+        <div class="progress-container">
+            <div class="progress-bar" style="width: 0%; background: #e67e22;" id="progressBar"></div>
+        </div>
+        <p class="text-muted mt-3" id="progressMessage">Préparation...</p>
+    </div>
+</div>
+
+<!-- Étape 3 : Téléchargement -->
+<div id="step3Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="success-animation">
+            <i class="fas fa-check"></i>
+        </div>
+        <h3>Caviardage terminé !</h3>
+        <p class="text-muted">Le contenu sensible a été supprimé définitivement</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
+            <i class="fas fa-download me-2"></i>Télécharger le PDF caviardé
+        </a>
+        <div class="mt-4">
+            <button class="btn btn-outline-warning" onclick="resetConversion()">
+                <i class="fas fa-redo me-2"></i>Caviarder un autre PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let downloadUrl = null;
+let redactAreas = [];
+let pdfDocument = null;
+
+// ===== NOUVELLES VARIABLES POUR LE DESSIN DE ZONES =====
+let isDrawingArea = false;
+let startX, startY;
+let currentRect = null;
+let pdfDimensions = { width: 0, height: 0 };
+let currentPage = 1;
+let pdfImage = null;
+let canvas = null;
+let ctx = null;
+
+// ===== NOUVELLES FONCTIONS POUR LE DESSIN DE ZONES =====
+function initAreaDrawing() {
+    canvas = document.getElementById('pdfCanvas');
+    if (!canvas) return;
+    
+    ctx = canvas.getContext('2d');
+    
+    canvas.addEventListener('mousedown', startDrawArea);
+    canvas.addEventListener('mousemove', drawArea);
+    canvas.addEventListener('mouseup', endDrawArea);
+    canvas.addEventListener('mouseleave', cancelDrawArea);
+}
+
+function startDrawArea(e) {
+    if (document.querySelector('input[name="redactType"]:checked').value !== 'area') {
+        return;
+    }
+    
+    isDrawingArea = true;
+    const rect = canvas.getBoundingClientRect();
+    startX = e.clientX - rect.left;
+    startY = e.clientY - rect.top;
+    
+    // Échelle par rapport au PDF réel
+    if (pdfDimensions.width > 0 && pdfDimensions.height > 0) {
+        const scaleX = pdfDimensions.width / canvas.width;
+        const scaleY = pdfDimensions.height / canvas.height;
+        
+        currentRect = {
+            x: startX * scaleX,
+            y: startY * scaleY,
+            width: 0,
+            height: 0,
+            page: currentPage
+        };
+    }
+}
+
+function drawArea(e) {
+    if (!isDrawingArea) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const currentX = e.clientX - rect.left;
+    const currentY = e.clientY - rect.top;
+    
+    if (pdfDimensions.width > 0 && pdfDimensions.height > 0) {
+        const scaleX = pdfDimensions.width / canvas.width;
+        const scaleY = pdfDimensions.height / canvas.height;
+        
+        currentRect.width = (currentX - startX) * scaleX;
+        currentRect.height = (currentY - startY) * scaleY;
+    }
+    
+    // Redessiner le canvas avec le rectangle
+    drawCanvasWithAreas();
+}
+
+function endDrawArea() {
+    if (!isDrawingArea || !currentRect) return;
+    
+    isDrawingArea = false;
+    
+    // Ajouter la zone à la liste
+    if (Math.abs(currentRect.width) > 5 && Math.abs(currentRect.height) > 5) {
+        // Normaliser les dimensions (si dessiné de droite à gauche ou bas en haut)
+        if (currentRect.width < 0) {
+            currentRect.x += currentRect.width;
+            currentRect.width = Math.abs(currentRect.width);
+        }
+        if (currentRect.height < 0) {
+            currentRect.y += currentRect.height;
+            currentRect.height = Math.abs(currentRect.height);
+        }
+        
+        redactAreas.push({...currentRect});
+        updateAreasList();
+    }
+    
+    currentRect = null;
+    drawCanvasWithAreas();
+}
+
+function cancelDrawArea() {
+    isDrawingArea = false;
+    currentRect = null;
+    drawCanvasWithAreas();
+}
+
+function drawCanvasWithAreas() {
+    if (!ctx || !canvas) return;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Redessiner le PDF (si vous avez une image de fond)
+    if (pdfImage) {
+        ctx.drawImage(pdfImage, 0, 0, canvas.width, canvas.height);
+    }
+    
+    // Dessiner toutes les zones sauvegardées
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    redactAreas.forEach(area => {
+        if (pdfDimensions.width > 0 && pdfDimensions.height > 0) {
+            const scaleX = canvas.width / pdfDimensions.width;
+            const scaleY = canvas.height / pdfDimensions.height;
+            
+            ctx.fillRect(
+                area.x * scaleX,
+                area.y * scaleY,
+                area.width * scaleX,
+                area.height * scaleY
+            );
+        }
+    });
+    
+    // Dessiner le rectangle en cours
+    if (currentRect && pdfDimensions.width > 0 && pdfDimensions.height > 0) {
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+        const scaleX = canvas.width / pdfDimensions.width;
+        const scaleY = canvas.height / pdfDimensions.height;
+        
+        let x = currentRect.x * scaleX;
+        let y = currentRect.y * scaleY;
+        let width = currentRect.width * scaleX;
+        let height = currentRect.height * scaleY;
+        
+        // Ajuster pour les dimensions négatives
+        if (width < 0) {
+            x += width;
+            width = Math.abs(width);
+        }
+        if (height < 0) {
+            y += height;
+            height = Math.abs(height);
+        }
+        
+        ctx.fillRect(x, y, width, height);
+    }
+}
+
+function updateAreasList() {
+    // Créer un conteneur pour la liste des zones s'il n'existe pas
+    let listDiv = document.getElementById('areasList');
+    if (!listDiv) {
+        listDiv = document.createElement('div');
+        listDiv.id = 'areasList';
+        listDiv.className = 'mt-3';
+        
+        // Ajouter après le canvas
+        const previewDiv = document.querySelector('#pdfPreview .border');
+        if (previewDiv) {
+            previewDiv.appendChild(listDiv);
+        }
+    }
+    
+    listDiv.innerHTML = '<h6 class="mb-2">Zones dessinées :</h6>';
+    
+    if (redactAreas.length === 0) {
+        listDiv.innerHTML += '<p class="text-muted small">Aucune zone dessinée</p>';
+    } else {
+        redactAreas.forEach((area, index) => {
+            const div = document.createElement('div');
+            div.className = 'badge bg-secondary me-2 mb-2 p-2';
+            div.innerHTML = `
+                Zone ${index + 1} (${Math.round(area.width)}x${Math.round(area.height)})
+                <i class="fas fa-times ms-2" onclick="removeArea(${index})" style="cursor:pointer;"></i>
+            `;
+            listDiv.appendChild(div);
+        });
+    }
+}
+
+function removeArea(index) {
+    redactAreas.splice(index, 1);
+    updateAreasList();
+    drawCanvasWithAreas();
+}
+
+// ===== FONCTION POUR CHARGER L'APERÇU DU PDF =====
+async function loadPdfPreview() {
+    const uploadManager = window.uploadManagers['pdfUploadZone'];
+    if (!uploadManager || uploadManager.getFiles().length === 0) {
+        return;
+    }
+    
+    const file = uploadManager.getFiles()[0];
+    const arrayBuffer = await file.arrayBuffer();
+    
+    // Utiliser PDF.js pour charger le PDF
+    if (typeof pdfjsLib !== 'undefined') {
+        try {
+            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            pdfDocument = await loadingTask.promise;
+            
+            // Charger la première page
+            const page = await pdfDocument.getPage(1);
+            const viewport = page.getViewport({ scale: 1.5 });
+            
+            canvas = document.getElementById('pdfCanvas');
+            if (!canvas) return;
+            
+            // Définir les dimensions du canvas
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            
+            // Mettre à jour les dimensions du PDF pour l'échelle
+            pdfDimensions.width = viewport.width;
+            pdfDimensions.height = viewport.height;
+            
+            // Rendre la page sur le canvas
+            const context = canvas.getContext('2d');
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+            
+            await page.render(renderContext).promise;
+            
+            // Sauvegarder l'image pour le redessin
+            pdfImage = new Image();
+            pdfImage.src = canvas.toDataURL();
+            
+            // Initialiser le dessin
+            initAreaDrawing();
+            
+        } catch (error) {
+            console.error('Erreur chargement PDF:', error);
+            showError('Erreur lors du chargement de l\'aperçu PDF');
+        }
+    }
+}
+
+function addTextToList() {
+    const input = document.getElementById('searchText');
+    const text = input.value.trim();
+    if (text) {
+        const list = document.getElementById('textList');
+        const badge = document.createElement('div');
+        badge.className = 'badge bg-secondary me-2 mb-2 p-2';
+        badge.setAttribute('data-text', text);
+        badge.innerHTML = `${text} <i class="fas fa-times ms-2" onclick="removeText(this)" style="cursor:pointer;"></i>`;
+        list.appendChild(badge);
+        input.value = '';
+    }
+}
+
+function removeText(element) {
+    element.parentElement.remove();
+}
+
+// Gestionnaire pour le changement de type de caviardage
+document.querySelectorAll('input[name="redactType"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.getElementById('textSection').style.display = this.value === 'text' ? 'block' : 'none';
+        document.getElementById('areaSection').style.display = this.value === 'area' ? 'block' : 'none';
+        document.getElementById('pdfPreview').style.display = this.value === 'area' ? 'block' : 'none';
+        document.getElementById('patternSection').style.display = this.value === 'pattern' ? 'block' : 'none';
+        
+        // Charger l'aperçu si on passe en mode zone
+        if (this.value === 'area') {
+            setTimeout(loadPdfPreview, 500);
+        }
+    });
+});
+
+// Gestionnaire pour les pages
+document.getElementById('pages').addEventListener('change', function() {
+    document.getElementById('pageRange').disabled = this.value !== 'range';
+});
+
+function startConversion() {
+    const uploadManager = window.uploadManagers['pdfUploadZone'];
+    if (!uploadManager || uploadManager.getFiles().length === 0) {
+        showError('Veuillez sélectionner un fichier PDF');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', uploadManager.getFiles()[0]);
+    
+    // Récupérer le type de caviardage
+    const redactType = document.querySelector('input[name="redactType"]:checked').value;
+    formData.append('redact_type', redactType);
+    formData.append('redact_color', document.getElementById('areaColor')?.value || '#000000');
+    
+    // Récupérer les textes à caviarder
+    const textList = [];
+    document.querySelectorAll('#textList .badge').forEach(badge => {
+        textList.push(badge.getAttribute('data-text'));
+    });
+    formData.append('search_text', textList.join(','));
+    
+    // Récupérer les motifs
+    if (redactType === 'pattern') {
+        const patterns = [];
+        document.querySelectorAll('#patternSection input:checked').forEach(checkbox => {
+            patterns.push(checkbox.value);
+        });
+        formData.append('patterns', patterns.join(','));
+    }
+    
+    // Récupérer les pages
+    const pages = document.getElementById('pages').value;
+    formData.append('pages', pages === 'range' ? document.getElementById('pageRange').value : pages);
+    
+    // Coordonnées des zones (si dessinées)
+    if (redactAreas.length > 0) {
+        formData.append('areas', JSON.stringify(redactAreas));
+    }
+
+    // Passer à l'étape 2
+    updateStep(2);
+    
+    // Simuler la progression
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 5;
+        document.getElementById('progressBar').style.width = progress + '%';
+        if (progress < 30) {
+            document.getElementById('progressMessage').textContent = 'Analyse du document...';
+        } else if (progress < 60) {
+            document.getElementById('progressMessage').textContent = 'Recherche du contenu sensible...';
+        } else if (progress < 90) {
+            document.getElementById('progressMessage').textContent = 'Application du caviardage...';
+        }
+        if (progress >= 90) clearInterval(interval);
+    }, 300);
+
+    // Envoyer la requête
+    fetch('{{ url_for("conversion.universal_converter", conversion_type="redact-pdf") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(async response => {
+        clearInterval(interval);
+        document.getElementById('progressBar').style.width = '100%';
+        document.getElementById('progressMessage').textContent = 'Finalisation...';
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            downloadUrl = window.URL.createObjectURL(blob);
+            
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'redacted.pdf';
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (match && match[1]) {
+                    filename = match[1].replace(/['"]/g, '');
+                }
+            }
+            
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = downloadUrl;
+            downloadLink.download = filename;
+            updateStep(3);
+        } else {
+            const error = await response.text();
+            showError('Erreur lors du caviardage : ' + error);
+            updateStep(1);
+        }
+    })
+    .catch(error => {
+        clearInterval(interval);
+        showError('Erreur : ' + error.message);
+        updateStep(1);
+    });
+}
+
+function resetConversion() {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+        downloadUrl = null;
+    }
+    
+    const uploadManager = window.uploadManagers['pdfUploadZone'];
+    if (uploadManager) {
+        while (uploadManager.getFiles().length > 0) {
+            uploadManager.removeFile(0);
+        }
+    }
+    
+    redactAreas = [];
+    pdfDocument = null;
+    pdfImage = null;
+    
+    // Réinitialiser le canvas
+    canvas = document.getElementById('pdfCanvas');
+    if (canvas) {
+        ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    
+    updateStep(1);
+}
+
+window.addEventListener('beforeunload', () => {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+    }
+});
+</script>
+{% endblock %}

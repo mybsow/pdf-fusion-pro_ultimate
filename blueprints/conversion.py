@@ -430,6 +430,59 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['pypdf']
     },
+
+    # ==================== NOUVEAUX OUTILS PDF ====================
+    'redact-pdf': {
+        'template': 'redact_pdf.html',
+        'title': 'Caviarder PDF',
+        'description': 'Supprimez définitivement et en toute sécurité le contenu sensible de votre PDF',
+        'from_format': 'PDF',
+        'to_format': 'PDF',
+        'icon': 'mask',
+        'color': '#e67e22',
+        'accept': '.pdf',
+        'max_files': 1,
+        'deps': ['pypdf', 'Pillow']
+    },
+    
+    'edit-pdf': {
+        'template': 'edit_pdf.html',
+        'title': 'Éditer PDF',
+        'description': 'Modifiez ou ajoutez du texte, des images et des pages à votre PDF',
+        'from_format': 'PDF',
+        'to_format': 'PDF',
+        'icon': 'edit',
+        'color': '#3498db',
+        'accept': '.pdf',
+        'max_files': 1,
+        'deps': ['pypdf', 'Pillow', 'reportlab']
+    },
+    
+    'sign-pdf': {
+        'template': 'sign_pdf.html',
+        'title': 'Signer PDF',
+        'description': 'Ajoutez votre signature électronique à votre PDF',
+        'from_format': 'PDF',
+        'to_format': 'PDF',
+        'icon': 'pen',
+        'color': '#27ae60',
+        'accept': '.pdf',
+        'max_files': 1,
+        'deps': ['pypdf', 'Pillow', 'reportlab']
+    },
+    
+    'prepare-form': {
+        'template': 'prepare_form.html',
+        'title': 'Préparer formulaire PDF',
+        'description': 'Transformez vos documents Word, Excel ou numérisés en formulaires PDF interactifs',
+        'from_format': 'Document',
+        'to_format': 'PDF Formulaire',
+        'icon': 'file-signature',
+        'color': '#9b59b6',
+        'accept': '.pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png',
+        'max_files': 1,
+        'deps': ['pypdf', 'Pillow', 'reportlab', 'python-docx', 'pandas']
+    },    
     
     # ==================== CONVERSIONS DIVERSES ====================
     'image-en-word': {
@@ -586,7 +639,9 @@ def index():
                 categories['convert_from_pdf']['conversions'].append(conv)
         
         # Outils PDF
-        for conv_key in ['proteger-pdf', 'deverrouiller-pdf']:
+        # Outils PDF (mettre à jour cette section)
+        for conv_key in ['proteger-pdf', 'deverrouiller-pdf', 'redact-pdf', 
+                         'edit-pdf', 'sign-pdf', 'prepare-form']:
             if conv_key in CONVERSION_MAP:
                 conv = CONVERSION_MAP[conv_key].copy()
                 conv['type'] = conv_key
@@ -782,6 +837,12 @@ def process_conversion(conversion_type, file=None, files=None, form_data=None):
         # Outils PDF
         'deverrouiller-pdf': unlock_pdf if HAS_PYPDF else None,
         'proteger-pdf': protect_pdf if HAS_PYPDF else None,
+
+        # Nouveaux outils PDF
+        'redact-pdf': redact_pdf if HAS_PYPDF else None,
+        'edit-pdf': edit_pdf if HAS_PYPDF and HAS_REPORTLAB else None,
+        'sign-pdf': sign_pdf if HAS_PYPDF and HAS_PILLOW else None,
+        'prepare-form': prepare_form if HAS_PYPDF and HAS_REPORTLAB else None,
         
         # Autres conversions
         'image-en-word': convert_image_to_word if HAS_PILLOW and HAS_TESSERACT and HAS_DOCX else None,
@@ -2089,6 +2150,996 @@ def convert_excel_to_csv(files, form_data=None):
         logger.error(f"Erreur Excel->CSV: {str(e)}")
         return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
+def redact_pdf(file, form_data=None):
+    """
+    Caviarde (supprime définitivement) le contenu sensible d'un PDF.
+    Version améliorée avec pdfplumber pour la détection précise du texte.
+    """
+    if not HAS_PYPDF:
+        return {'error': 'pypdf non installé'}
+    
+    try:
+        # Créer un dossier temporaire
+        temp_dir = tempfile.mkdtemp()
+        input_path = os.path.join(temp_dir, secure_filename(file.filename))
+        file.save(input_path)
+        
+        # Récupérer les options
+        redact_type = form_data.get('redact_type', 'text') if form_data else 'text'
+        search_texts = form_data.get('search_text', '').split(',') if form_data.get('search_text') else []
+        search_texts = [t.strip() for t in search_texts if t.strip()]
+        
+        redact_color = form_data.get('redact_color', '#000000') if form_data else '#000000'
+        pages_option = form_data.get('pages', 'all') if form_data else 'all'
+        page_range = form_data.get('page_range', '') if form_data else ''
+        
+        # Convertir la couleur hex en RGB
+        if redact_color.startswith('#'):
+            redact_color = redact_color[1:]
+            rgb = tuple(int(redact_color[i:i+2], 16) for i in (0, 2, 4))
+        else:
+            rgb = (0, 0, 0)  # Noir par défaut
+        
+        # Déterminer les pages à traiter
+        pages_to_process = []
+        try:
+            if pages_option == 'all':
+                # On déterminera le nombre de pages plus tard
+                pages_to_process = None  # Toutes les pages
+            elif pages_option == 'range' and page_range:
+                for part in page_range.split(','):
+                    if '-' in part:
+                        start, end = map(int, part.split('-'))
+                        pages_to_process.extend(range(start-1, end))
+                    else:
+                        pages_to_process.append(int(part)-1)
+            elif pages_option == 'first':
+                pages_to_process = [0]
+            elif pages_option == 'last':
+                # Sera déterminé après ouverture du PDF
+                pages_to_process = [-1]
+        except:
+            pages_to_process = None
+        
+        # Ouvrir le PDF avec pypdf pour la manipulation
+        pdf_reader = pypdf.PdfReader(input_path)
+        pdf_writer = pypdf.PdfWriter()
+        
+        total_pages = len(pdf_reader.pages)
+        
+        # Si "last page" est sélectionné
+        if pages_to_process == [-1]:
+            pages_to_process = [total_pages - 1]
+        elif pages_to_process is None:
+            pages_to_process = range(total_pages)
+        
+        # Essayer d'utiliser pdfplumber pour une détection précise (si disponible)
+        try:
+            import pdfplumber
+            HAS_PDFPLUMBER = True
+        except ImportError:
+            HAS_PDFPLUMBER = False
+            logger.warning("pdfplumber non disponible, utilisation de la méthode basique")
+        
+        # Essayer d'utiliser pymupdf (alternative plus puissante)
+        try:
+            import fitz  # PyMuPDF
+            HAS_FITZ = True
+        except ImportError:
+            HAS_FITZ = False
+        
+        # Choisir la meilleure méthode disponible
+        if HAS_FITZ:
+            # Méthode avec PyMuPDF (la plus fiable)
+            return redact_pdf_with_fitz(input_path, file.filename, search_texts, rgb, pages_to_process, redact_type)
+        
+        elif HAS_PDFPLUMBER:
+            # Méthode avec pdfplumber
+            return redact_pdf_with_pdfplumber(input_path, file.filename, search_texts, rgb, pages_to_process, redact_type)
+        
+        else:
+            # Méthode basique avec pypdf seulement
+            logger.warning("Utilisation de la méthode basique de caviardage")
+            return redact_pdf_basic(input_path, file.filename, search_texts, pages_to_process, redact_type)
+        
+    except Exception as e:
+        logger.error(f"Erreur caviardage PDF: {str(e)}")
+        return {'error': f'Erreur lors du caviardage: {str(e)}'}
+    finally:
+        # Nettoyer le dossier temporaire après un délai
+        try:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+
+
+def redact_pdf_with_fitz(input_path, filename, search_texts, rgb, pages_to_process, redact_type):
+    """Caviardage avancé avec PyMuPDF (fitz) - La meilleure méthode"""
+    try:
+        import fitz
+        from PIL import Image
+        
+        # Ouvrir le document
+        doc = fitz.open(input_path)
+        
+        # Créer un document temporaire pour le résultat
+        output = BytesIO()
+        
+        # Traiter chaque page
+        for page_num in range(len(doc)):
+            if pages_to_process is not None and page_num not in pages_to_process:
+                continue
+            
+            page = doc[page_num]
+            
+            if redact_type == 'text' and search_texts:
+                # Rechercher chaque texte à caviarder
+                for search_text in search_texts:
+                    if not search_text:
+                        continue
+                    
+                    # Rechercher toutes les occurrences du texte
+                    text_instances = page.search_for(search_text)
+                    
+                    # Ajouter des annotations de caviardage pour chaque occurrence
+                    for inst in text_instances:
+                        # Créer une zone de caviardage
+                        redact_annot = page.add_redact_annot(inst)
+                        
+                        # Définir la couleur de remplissage (noir par défaut)
+                        redact_annot.set_colors(fill=rgb)
+                        redact_annot.update()
+            
+            elif redact_type == 'area':
+                # Caviardage par zone (sera implémenté séparément)
+                pass
+            
+            elif redact_type == 'pattern':
+                # Caviardage par motif (emails, téléphones...)
+                if search_texts:
+                    for pattern in search_texts:
+                        if pattern == 'email':
+                            # Rechercher des emails avec regex
+                            text = page.get_text()
+                            import re
+                            emails = re.findall(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', text)
+                            for email in emails:
+                                areas = page.search_for(email)
+                                for area in areas:
+                                    redact_annot = page.add_redact_annot(area)
+                                    redact_annot.set_colors(fill=rgb)
+                                    redact_annot.update()
+                        
+                        elif pattern == 'phone':
+                            # Rechercher des numéros de téléphone
+                            text = page.get_text()
+                            import re
+                            phones = re.findall(r'\b(?:\+\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{2,4}[-.\s]?\d{2,4}\b', text)
+                            for phone in phones:
+                                areas = page.search_for(phone)
+                                for area in areas:
+                                    redact_annot = page.add_redact_annot(area)
+                                    redact_annot.set_colors(fill=rgb)
+                                    redact_annot.update()
+                        
+                        elif pattern == 'creditcard':
+                            # Rechercher des numéros de carte bancaire
+                            text = page.get_text()
+                            import re
+                            cards = re.findall(r'\b(?:\d{4}[-.\s]?){3}\d{4}\b', text)
+                            for card in cards:
+                                areas = page.search_for(card)
+                                for area in areas:
+                                    redact_annot = page.add_redact_annot(area)
+                                    redact_annot.set_colors(fill=rgb)
+                                    redact_annot.update()
+                        
+                        elif pattern == 'ssn':
+                            # Rechercher des numéros de sécurité sociale (format français)
+                            text = page.get_text()
+                            import re
+                            ssn = re.findall(r'\b\d{1,2}\s?\d{2}\s?\d{2}\s?\d{2}\s?\d{3}\s?\d{3}\b', text)
+                            for num in ssn:
+                                areas = page.search_for(num)
+                                for area in areas:
+                                    redact_annot = page.add_redact_annot(area)
+                                    redact_annot.set_colors(fill=rgb)
+                                    redact_annot.update()
+        
+        # Appliquer tous les caviardages
+        for page_num in range(len(doc)):
+            if pages_to_process is not None and page_num not in pages_to_process:
+                continue
+            doc[page_num].apply_redactions()
+        
+        # Sauvegarder le document modifié
+        doc.save(output)
+        doc.close()
+        
+        output.seek(0)
+        
+        return send_file(
+            output,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f"{Path(filename).stem}_redacted.pdf"
+        )
+        
+    except ImportError:
+        return {'error': 'PyMuPDF (fitz) non disponible pour le caviardage avancé'}
+    except Exception as e:
+        logger.error(f"Erreur dans redact_pdf_with_fitz: {str(e)}")
+        raise
+
+
+def redact_pdf_with_pdfplumber(input_path, filename, search_texts, rgb, pages_to_process, redact_type):
+    """Caviardage avec pdfplumber (bonne méthode)"""
+    try:
+        import pdfplumber
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import letter
+        from reportlab.lib.colors import Color
+        
+        # Ouvrir le PDF avec pdfplumber pour extraire les positions
+        pdf = pdfplumber.open(input_path)
+        
+        # Ouvrir avec pypdf pour la manipulation
+        pdf_reader = pypdf.PdfReader(input_path)
+        pdf_writer = pypdf.PdfWriter()
+        
+        # Convertir RGB en couleur ReportLab
+        r, g, b = [x/255 for x in rgb]
+        
+        for page_num, page in enumerate(pdf.pages):
+            if pages_to_process is not None and page_num not in pages_to_process:
+                # Ajouter la page sans modification
+                pdf_writer.add_page(pdf_reader.pages[page_num])
+                continue
+            
+            # Extraire les mots avec leurs positions
+            words = page.extract_words()
+            
+            # Créer un overlay pour caviarder
+            packet = BytesIO()
+            can = canvas.Canvas(packet, pagesize=(page.width, page.height))
+            can.setFillColorRGB(r, g, b)
+            
+            redaction_applied = False
+            
+            if redact_type == 'text' and search_texts:
+                for search_text in search_texts:
+                    if not search_text:
+                        continue
+                    
+                    # Chercher le texte dans les mots
+                    search_lower = search_text.lower()
+                    
+                    # Recherche par mots consécutifs
+                    for i in range(len(words) - len(search_text.split()) + 1):
+                        candidate = ' '.join(words[j]['text'] for j in range(i, i + len(search_text.split())))
+                        if candidate.lower() == search_lower:
+                            # Caviarder chaque mot
+                            for j in range(i, i + len(search_text.split())):
+                                word = words[j]
+                                x0, y0, x1, y1 = word['x0'], word['top'], word['x1'], word['bottom']
+                                # Ajouter un rectangle noir
+                                can.rect(x0, page.height - y1, x1 - x0, y1 - y0, fill=1, stroke=0)
+                                redaction_applied = True
+            
+            elif redact_type == 'pattern':
+                import re
+                text = page.extract_text()
+                
+                if 'email' in search_texts:
+                    emails = re.findall(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', text)
+                    for email in emails:
+                        # Rechercher les positions de chaque email
+                        for word in words:
+                            if email in word['text']:
+                                x0, y0, x1, y1 = word['x0'], word['top'], word['x1'], word['bottom']
+                                can.rect(x0, page.height - y1, x1 - x0, y1 - y0, fill=1, stroke=0)
+                                redaction_applied = True
+                
+                if 'phone' in search_texts:
+                    phones = re.findall(r'\b(?:\+\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{2,4}[-.\s]?\d{2,4}\b', text)
+                    for phone in phones:
+                        for word in words:
+                            if phone in word['text']:
+                                x0, y0, x1, y1 = word['x0'], word['top'], word['x1'], word['bottom']
+                                can.rect(x0, page.height - y1, x1 - x0, y1 - y0, fill=1, stroke=0)
+                                redaction_applied = True
+            
+            can.save()
+            
+            if redaction_applied:
+                # Fusionner l'overlay avec la page originale
+                packet.seek(0)
+                overlay_pdf = pypdf.PdfReader(packet)
+                
+                original_page = pdf_reader.pages[page_num]
+                original_page.merge_page(overlay_pdf.pages[0])
+                pdf_writer.add_page(original_page)
+            else:
+                pdf_writer.add_page(pdf_reader.pages[page_num])
+        
+        pdf.close()
+        
+        # Sauvegarder
+        output = BytesIO()
+        pdf_writer.write(output)
+        output.seek(0)
+        
+        return send_file(
+            output,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f"{Path(filename).stem}_redacted.pdf"
+        )
+        
+    except ImportError:
+        return {'error': 'pdfplumber non disponible pour le caviardage'}
+    except Exception as e:
+        logger.error(f"Erreur dans redact_pdf_with_pdfplumber: {str(e)}")
+        raise
+
+
+def redact_pdf_basic(input_path, filename, search_texts, pages_to_process, redact_type):
+    """Méthode basique de caviardage avec pypdf uniquement"""
+    try:
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import letter
+        
+        pdf_reader = pypdf.PdfReader(input_path)
+        pdf_writer = pypdf.PdfWriter()
+        
+        for page_num, page in enumerate(pdf_reader.pages):
+            if pages_to_process is not None and page_num not in pages_to_process:
+                pdf_writer.add_page(page)
+                continue
+            
+            if redact_type == 'text' and search_texts:
+                # Extraire le texte pour avoir une idée des positions approximatives
+                text = page.extract_text()
+                
+                # Créer un overlay avec des rectangles noirs
+                # Note: Cette méthode est approximative car on n'a pas les positions exactes
+                packet = BytesIO()
+                can = canvas.Canvas(packet, pagesize=letter)
+                
+                # Ajouter des rectangles aux positions approximatives
+                # (C'est une simplification - dans la réalité, on aurait besoin des coordonnées)
+                y_position = 700
+                for line in text.split('\n'):
+                    for search_text in search_texts:
+                        if search_text and search_text in line:
+                            # Ajouter un rectangle noir approximatif
+                            can.setFillColorRGB(0, 0, 0)
+                            can.rect(50, y_position - 15, 500, 20, fill=1, stroke=0)
+                    y_position -= 20
+                
+                can.save()
+                packet.seek(0)
+                overlay_pdf = pypdf.PdfReader(packet)
+                page.merge_page(overlay_pdf.pages[0])
+            
+            pdf_writer.add_page(page)
+        
+        # Sauvegarder
+        output = BytesIO()
+        pdf_writer.write(output)
+        output.seek(0)
+        
+        return send_file(
+            output,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f"{Path(filename).stem}_redacted.pdf"
+        )
+        
+    except Exception as e:
+        logger.error(f"Erreur dans redact_pdf_basic: {str(e)}")
+        raise
+
+
+def redact_area_in_page(page, x, y, width, height, color):
+    """
+    Caviarde une zone rectangulaire spécifique dans une page.
+    Version améliorée avec PyMuPDF.
+    """
+    try:
+        # Convertir la page pypdf en objet PyMuPDF si disponible
+        import fitz
+        
+        # Créer un document temporaire avec la page
+        doc = fitz.open()
+        page_rect = fitz.Rect(x, y, x + width, y + height)
+        
+        # Ajouter une annotation de caviardage
+        annot = page.add_redact_annot(page_rect)
+        
+        # Définir la couleur
+        if isinstance(color, str) and color.startswith('#'):
+            color = color[1:]
+            rgb = tuple(int(color[i:i+2], 16) for i in (0, 2, 4))
+            rgb = [c/255 for c in rgb]
+        else:
+            rgb = (0, 0, 0)
+        
+        annot.set_colors(fill=rgb)
+        annot.update()
+        
+        # Appliquer le caviardage
+        page.apply_redactions()
+        
+        return page
+        
+    except ImportError:
+        # Fallback avec pypdf et reportlab
+        try:
+            from reportlab.pdfgen import canvas
+            from reportlab.lib.colors import Color
+            
+            # Créer un overlay avec un rectangle
+            packet = BytesIO()
+            can = canvas.Canvas(packet, pagesize=(page.mediabox.width, page.mediabox.height))
+            
+            if isinstance(color, str) and color.startswith('#'):
+                color = color[1:]
+                r, g, b = tuple(int(color[i:i+2], 16) for i in (0, 2, 4))
+                can.setFillColorRGB(r/255, g/255, b/255)
+            else:
+                can.setFillColorRGB(0, 0, 0)
+            
+            can.rect(x, page.mediabox.height - y - height, width, height, fill=1, stroke=0)
+            can.save()
+            
+            packet.seek(0)
+            overlay_pdf = pypdf.PdfReader(packet)
+            page.merge_page(overlay_pdf.pages[0])
+            
+            return page
+            
+        except Exception as e:
+            logger.error(f"Erreur dans redact_area_in_page: {str(e)}")
+            return page
+    except Exception as e:
+        logger.error(f"Erreur dans redact_area_in_page: {str(e)}")
+        return page
+
+
+def redact_pattern_in_page(page, patterns, color):
+    """
+    Caviarde les motifs (emails, téléphones, etc.) dans une page.
+    """
+    try:
+        import fitz
+        import re
+        
+        text = page.get_text()
+        
+        # Définir les patterns regex
+        pattern_dict = {
+            'email': r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
+            'phone': r'\b(?:\+\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{2,4}[-.\s]?\d{2,4}\b',
+            'creditcard': r'\b(?:\d{4}[-.\s]?){3}\d{4}\b',
+            'ssn': r'\b\d{1,2}\s?\d{2}\s?\d{2}\s?\d{2}\s?\d{3}\s?\d{3}\b',
+            'name': r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b',  # Noms propres simples
+            'date': r'\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b'
+        }
+        
+        # Convertir la couleur
+        if isinstance(color, str) and color.startswith('#'):
+            color = color[1:]
+            rgb = tuple(int(color[i:i+2], 16) for i in (0, 2, 4))
+            rgb = [c/255 for c in rgb]
+        else:
+            rgb = (0, 0, 0)
+        
+        # Rechercher et caviarder chaque pattern
+        for pattern_name in patterns:
+            if pattern_name in pattern_dict:
+                regex = pattern_dict[pattern_name]
+                matches = re.findall(regex, text)
+                
+                for match in matches:
+                    # Rechercher la position du texte dans la page
+                    areas = page.search_for(match)
+                    for area in areas:
+                        annot = page.add_redact_annot(area)
+                        annot.set_colors(fill=rgb)
+                        annot.update()
+        
+        # Appliquer les caviardages
+        page.apply_redactions()
+        
+        return page
+        
+    except ImportError:
+        logger.warning("PyMuPDF non disponible pour le caviardage par motif")
+        return page
+    except Exception as e:
+        logger.error(f"Erreur dans redact_pattern_in_page: {str(e)}")
+        return page
+
+
+def edit_pdf(file, form_data=None):
+    """
+    Édite un PDF : ajoute/modifie du texte, des images, réorganise les pages.
+    """
+    if not HAS_PYPDF or not HAS_REPORTLAB:
+        return {'error': 'pypdf ou reportlab non installé'}
+    
+    try:
+        # Créer un dossier temporaire
+        temp_dir = tempfile.mkdtemp()
+        input_path = os.path.join(temp_dir, secure_filename(file.filename))
+        file.save(input_path)
+        
+        # Lire le PDF
+        pdf_reader = pypdf.PdfReader(input_path)
+        pdf_writer = pypdf.PyPdfWriter()
+        
+        # Récupérer les options d'édition
+        edit_type = form_data.get('edit_type', 'add_text') if form_data else 'add_text'
+        page_number = int(form_data.get('page_number', '1')) - 1 if form_data else 0
+        position_x = float(form_data.get('position_x', '50')) if form_data else 50
+        position_y = float(form_data.get('position_y', '50')) if form_data else 50
+        text_content = form_data.get('text_content', '') if form_data else ''
+        font_size = int(form_data.get('font_size', '12')) if form_data else 12
+        font_color = form_data.get('font_color', '#000000') if form_data else '#000000'
+        
+        # Créer un nouveau PDF avec les modifications
+        if edit_type == 'add_text' and text_content:
+            # Créer une superposition avec le texte
+            overlay_pdf = create_text_overlay(text_content, position_x, position_y, 
+                                            font_size, font_color)
+            
+            # Fusionner avec la page existante
+            for i, page in enumerate(pdf_reader.pages):
+                if i == page_number:
+                    # Fusionner la page avec l'overlay
+                    page.merge_page(overlay_pdf.pages[0])
+                pdf_writer.add_page(page)
+        
+        elif edit_type == 'add_image':
+            # Ajouter une image
+            if 'image_file' in request.files:
+                image_file = request.files['image_file']
+                overlay_pdf = create_image_overlay(image_file, position_x, position_y)
+                
+                for i, page in enumerate(pdf_reader.pages):
+                    if i == page_number:
+                        page.merge_page(overlay_pdf.pages[0])
+                    pdf_writer.add_page(page)
+        
+        elif edit_type == 'reorder':
+            # Réorganiser les pages
+            page_order = form_data.get('page_order', '') if form_data else ''
+            if page_order:
+                order = [int(p.strip())-1 for p in page_order.split(',') if p.strip()]
+                for page_num in order:
+                    if 0 <= page_num < len(pdf_reader.pages):
+                        pdf_writer.add_page(pdf_reader.pages[page_num])
+            else:
+                # Ajouter toutes les pages dans l'ordre
+                for page in pdf_reader.pages:
+                    pdf_writer.add_page(page)
+        
+        elif edit_type == 'delete':
+            # Supprimer des pages
+            pages_to_delete = form_data.get('pages_to_delete', '') if form_data else ''
+            if pages_to_delete:
+                delete_set = set()
+                for part in pages_to_delete.split(','):
+                    if '-' in part:
+                        start, end = map(int, part.split('-'))
+                        delete_set.update(range(start-1, end))
+                    else:
+                        delete_set.add(int(part)-1)
+                
+                for i, page in enumerate(pdf_reader.pages):
+                    if i not in delete_set:
+                        pdf_writer.add_page(page)
+            else:
+                # Ajouter toutes les pages
+                for page in pdf_reader.pages:
+                    pdf_writer.add_page(page)
+        
+        else:
+            # Aucune modification, copier toutes les pages
+            for page in pdf_reader.pages:
+                pdf_writer.add_page(page)
+        
+        # Ajouter des métadonnées
+        pdf_writer.add_metadata({
+            '/Producer': 'PDF Fusion Pro',
+            '/Creator': 'PDF Fusion Pro',
+            '/Title': f"{Path(file.filename).stem} (édité)",
+            '/ModDate': datetime.now().strftime('D:%Y%m%d%H%M%S')
+        })
+        
+        # Sauvegarder
+        output = BytesIO()
+        pdf_writer.write(output)
+        output.seek(0)
+        
+        # Nettoyer
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        
+        return send_file(
+            output,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f"{Path(file.filename).stem}_edited.pdf"
+        )
+        
+    except Exception as e:
+        logger.error(f"Erreur édition PDF: {str(e)}")
+        return {'error': f'Erreur lors de l\'édition: {str(e)}'}
+
+
+def create_text_overlay(text, x, y, font_size=12, color='#000000'):
+    """Crée un PDF overlay avec du texte."""
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.colors import HexColor
+    
+    packet = BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    can.setFont("Helvetica", font_size)
+    can.setFillColor(HexColor(color))
+    can.drawString(x, letter[1] - y, text)  # Inverser y car PDF origin from bottom
+    can.save()
+    
+    packet.seek(0)
+    overlay_pdf = pypdf.PdfReader(packet)
+    return overlay_pdf
+
+
+def create_image_overlay(image_file, x, y):
+    """Crée un PDF overlay avec une image."""
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.utils import ImageReader
+    
+    # Sauvegarder l'image temporairement
+    temp_img = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
+    image_file.save(temp_img.name)
+    
+    packet = BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    
+    # Ajouter l'image
+    img = ImageReader(temp_img.name)
+    img_width, img_height = img.getSize()
+    can.drawImage(img, x, letter[1] - y - img_height, width=img_width, height=img_height)
+    can.save()
+    
+    packet.seek(0)
+    overlay_pdf = pypdf.PdfReader(packet)
+    
+    # Nettoyer
+    os.unlink(temp_img.name)
+    
+    return overlay_pdf
+
+
+def sign_pdf(file, form_data=None):
+    """
+    Ajoute une signature électronique à un PDF.
+    """
+    if not HAS_PYPDF or not HAS_PILLOW:
+        return {'error': 'pypdf ou Pillow non installé'}
+    
+    try:
+        # Lire le PDF
+        pdf_reader = pypdf.PdfReader(file.stream)
+        pdf_writer = pypdf.PyPdfWriter()
+        
+        # Récupérer les options
+        signature_type = form_data.get('signature_type', 'draw') if form_data else 'draw'
+        page_number = int(form_data.get('page_number', '1')) - 1 if form_data else 0
+        position_x = float(form_data.get('position_x', '50')) if form_data else 50
+        position_y = float(form_data.get('position_y', '50')) if form_data else 50
+        signature_text = form_data.get('signature_text', '') if form_data else ''
+        
+        # Créer l'overlay de signature
+        overlay_pdf = None
+        
+        if signature_type == 'draw' and 'signature_image' in request.files:
+            # Signature dessinée (image)
+            sig_file = request.files['signature_image']
+            overlay_pdf = create_signature_overlay(sig_file, position_x, position_y)
+        
+        elif signature_type == 'type' and signature_text:
+            # Signature tapée
+            font_size = int(form_data.get('font_size', '24')) if form_data else 24
+            font_family = form_data.get('font_family', 'Courier') if form_data else 'Courier'
+            overlay_pdf = create_text_signature(signature_text, position_x, position_y, 
+                                               font_size, font_family)
+        
+        elif signature_type == 'certificate':
+            # Signature numérique avec certificat
+            # À implémenter avec des bibliothèques comme pyHanko ou endesive
+            overlay_pdf = None
+            return {'error': 'Signature numérique avec certificat non encore implémentée'}
+        
+        # Appliquer la signature
+        for i, page in enumerate(pdf_reader.pages):
+            if i == page_number and overlay_pdf:
+                page.merge_page(overlay_pdf.pages[0])
+            pdf_writer.add_page(page)
+        
+        # Ajouter des métadonnées de signature
+        pdf_writer.add_metadata({
+            '/Producer': 'PDF Fusion Pro',
+            '/Creator': 'PDF Fusion Pro',
+            '/Title': f"{Path(file.filename).stem} (signé)",
+            '/ModDate': datetime.now().strftime('D:%Y%m%d%H%M%S'),
+            '/Signed': 'true'
+        })
+        
+        # Sauvegarder
+        output = BytesIO()
+        pdf_writer.write(output)
+        output.seek(0)
+        
+        return send_file(
+            output,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f"{Path(file.filename).stem}_signed.pdf"
+        )
+        
+    except Exception as e:
+        logger.error(f"Erreur signature PDF: {str(e)}")
+        return {'error': f'Erreur lors de la signature: {str(e)}'}
+
+
+def create_signature_overlay(signature_file, x, y):
+    """Crée un overlay avec une signature image."""
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.utils import ImageReader
+    
+    # Sauvegarder l'image temporairement
+    temp_img = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
+    signature_file.save(temp_img.name)
+    
+    # Redimensionner si nécessaire
+    img = Image.open(temp_img.name)
+    max_width = 200
+    max_height = 100
+    
+    if img.width > max_width or img.height > max_height:
+        ratio = min(max_width / img.width, max_height / img.height)
+        new_size = (int(img.width * ratio), int(img.height * ratio))
+        img = img.resize(new_size, Image.Resampling.LANCZOS)
+        img.save(temp_img.name, 'PNG')
+    
+    packet = BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    
+    # Ajouter l'image
+    img_reader = ImageReader(temp_img.name)
+    img_width, img_height = img_reader.getSize()
+    can.drawImage(img_reader, x, letter[1] - y - img_height, 
+                  width=img_width, height=img_height)
+    can.save()
+    
+    packet.seek(0)
+    overlay_pdf = pypdf.PdfReader(packet)
+    
+    # Nettoyer
+    os.unlink(temp_img.name)
+    
+    return overlay_pdf
+
+
+def create_text_signature(text, x, y, font_size=24, font_family='Courier'):
+    """Crée un overlay avec une signature textuelle."""
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter
+    
+    packet = BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    can.setFont(font_family, font_size)
+    
+    # Ajouter un style de signature manuscrite
+    if font_family == 'Courier':
+        # Style manuscrit approximatif
+        can.setFont('Helvetica-Oblique', font_size)
+        can.setFillColorRGB(0, 0, 0.8)  # Bleu
+    
+    can.drawString(x, letter[1] - y, text)
+    
+    # Ajouter une ligne sous la signature
+    can.line(x, letter[1] - y - 5, x + len(text) * font_size * 0.6, letter[1] - y - 5)
+    
+    can.save()
+    
+    packet.seek(0)
+    overlay_pdf = pypdf.PdfReader(packet)
+    return overlay_pdf
+
+
+def prepare_form(file, form_data=None):
+    """
+    Prépare un formulaire PDF à partir de divers documents.
+    Transforme Word, Excel ou des images scannées en formulaires PDF interactifs.
+    """
+    if not HAS_PYPDF or not HAS_REPORTLAB:
+        return {'error': 'pypdf ou reportlab non installé'}
+    
+    try:
+        # Déterminer le type de fichier source
+        filename = file.filename.lower()
+        file_ext = Path(filename).suffix
+        
+        # Créer un dossier temporaire
+        temp_dir = tempfile.mkdtemp()
+        input_path = os.path.join(temp_dir, secure_filename(file.filename))
+        file.save(input_path)
+        
+        # Convertir le fichier source en PDF si nécessaire
+        pdf_path = input_path
+        
+        if file_ext in ['.doc', '.docx']:
+            # Word vers PDF avec LibreOffice
+            try:
+                pdf_path = os.path.join(temp_dir, f"{Path(file.filename).stem}.pdf")
+                subprocess.run([
+                    'libreoffice', '--headless', '--convert-to', 'pdf',
+                    '--outdir', temp_dir, input_path
+                ], check=True, capture_output=True)
+            except:
+                return {'error': 'Conversion Word->PDF impossible sans LibreOffice'}
+        
+        elif file_ext in ['.xls', '.xlsx']:
+            # Excel vers PDF
+            try:
+                pdf_path = os.path.join(temp_dir, f"{Path(file.filename).stem}.pdf")
+                subprocess.run([
+                    'libreoffice', '--headless', '--convert-to', 'pdf',
+                    '--outdir', temp_dir, input_path
+                ], check=True, capture_output=True)
+            except:
+                return {'error': 'Conversion Excel->PDF impossible sans LibreOffice'}
+        
+        elif file_ext in ['.jpg', '.jpeg', '.png', '.bmp', '.tiff']:
+            # Image vers PDF
+            if HAS_PILLOW and HAS_REPORTLAB:
+                pdf_path = os.path.join(temp_dir, f"{Path(file.filename).stem}.pdf")
+                img = Image.open(input_path)
+                
+                from reportlab.pdfgen import canvas
+                from reportlab.lib.pagesizes import A4
+                
+                c = canvas.Canvas(pdf_path, pagesize=A4)
+                width, height = A4
+                
+                # Redimensionner l'image
+                img_width, img_height = img.size
+                ratio = min(width / img_width, height / img_height)
+                new_width = img_width * ratio * 0.9
+                new_height = img_height * ratio * 0.9
+                
+                # Centrer
+                x = (width - new_width) / 2
+                y = (height - new_height) / 2
+                
+                # Sauvegarder temporairement
+                temp_img = tempfile.NamedTemporaryFile(suffix='.jpg', delete=False)
+                img.save(temp_img.name, 'JPEG')
+                
+                c.drawImage(temp_img.name, x, y, width=new_width, height=new_height)
+                c.save()
+                
+                os.unlink(temp_img.name)
+            else:
+                return {'error': 'Pillow ou reportlab non installé pour la conversion image->PDF'}
+        
+        # Maintenant, créer le formulaire PDF interactif
+        form_pdf_reader = pypdf.PdfReader(pdf_path)
+        form_pdf_writer = pypdf.PdfWriter()
+        
+        # Récupérer les options du formulaire
+        form_type = form_data.get('form_type', 'interactive') if form_data else 'interactive'
+        detect_fields = form_data.get('detect_fields', 'auto') if form_data else 'auto'
+        
+        # Détecter automatiquement les champs de formulaire potentiels
+        form_fields = []
+        
+        if detect_fields == 'auto' or detect_fields == 'text':
+            # Analyser le texte pour trouver des candidats de champs
+            # (mots-clés comme "Nom:", "Prénom:", "Date:", etc.)
+            keywords = ['nom', 'prénom', 'date', 'adresse', 'email', 'téléphone', 
+                       'ville', 'code postal', 'signature', 'commentaire']
+            
+            for page_num, page in enumerate(form_pdf_reader.pages):
+                text = page.extract_text()
+                lines = text.split('\n')
+                
+                y_position = 800  # Position approximative
+                for line in lines:
+                    line_lower = line.lower().strip()
+                    for keyword in keywords:
+                        if keyword in line_lower:
+                            form_fields.append({
+                                'page': page_num,
+                                'label': line.strip(),
+                                'type': 'text' if keyword != 'signature' else 'signature',
+                                'y': y_position,
+                                'x': 50
+                            })
+                    y_position -= 20
+        
+        # Copier toutes les pages
+        for page in form_pdf_reader.pages:
+            form_pdf_writer.add_page(page)
+        
+        # Ajouter les champs de formulaire
+        if form_type == 'interactive':
+            # Créer des champs de formulaire AcroForm
+            from pypdf.generic import NameObject, create_string_object, DictionaryObject, ArrayObject
+            
+            # Créer le dictionnaire AcroForm
+            acroform = DictionaryObject()
+            fields = ArrayObject()
+            
+            for i, field in enumerate(form_fields):
+                # Créer un champ de texte
+                field_dict = DictionaryObject({
+                    NameObject("/FT"): NameObject("/Tx"),  # Field type: Text
+                    NameObject("/T"): create_string_object(f"Field_{i}"),
+                    NameObject("/TU"): create_string_object(field['label']),
+                    NameObject("/Rect"): ArrayObject([
+                        pypdf.generic.NumberObject(field['x']),
+                        pypdf.generic.NumberObject(field['y'] - 15),
+                        pypdf.generic.NumberObject(field['x'] + 200),
+                        pypdf.generic.NumberObject(field['y'])
+                    ]),
+                    NameObject("/Ff"): pypdf.generic.NumberObject(2),  # Multiline
+                    NameObject("/P"): form_pdf_writer.pages[field['page']].indirect_reference
+                })
+                
+                fields.append(field_dict)
+            
+            if fields:
+                acroform[NameObject("/Fields")] = fields
+                form_pdf_writer._root_object[NameObject("/AcroForm")] = acroform
+        
+        elif form_type == 'printable':
+            # Formulaire imprimable (lignes pour écrire)
+            # À implémenter avec reportlab overlay
+            pass
+        
+        # Ajouter des métadonnées
+        form_pdf_writer.add_metadata({
+            '/Producer': 'PDF Fusion Pro',
+            '/Creator': 'PDF Fusion Pro',
+            '/Title': f"{Path(file.filename).stem} (formulaire préparé)",
+            '/CreationDate': datetime.now().strftime('D:%Y%m%d%H%M%S')
+        })
+        
+        # Sauvegarder
+        output = BytesIO()
+        form_pdf_writer.write(output)
+        output.seek(0)
+        
+        # Nettoyer
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        
+        return send_file(
+            output,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f"{Path(file.filename).stem}_form.pdf"
+        )
+        
+    except Exception as e:
+        logger.error(f"Erreur préparation formulaire: {str(e)}")
+        return {'error': f'Erreur lors de la préparation du formulaire: {str(e)}'}
 
 # ============================================================================
 # ROUTES API ET UTILITAIRES

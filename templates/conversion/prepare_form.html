@@ -1,0 +1,424 @@
+{% extends "conversion/conversion_base.html" %}
+
+{% block title %}Préparer formulaire PDF - {{ title }}{% endblock %}
+
+{% block converter_content %}
+<!-- Étape 1 : Upload -->
+<div id="step1Content">
+    <div class="text-center mb-4">
+        <i class="fas fa-file-signature upload-icon" style="color: #9b59b6;"></i>
+        <h3>Téléchargez votre document</h3>
+        <p class="text-muted">Transformez vos documents en formulaires PDF interactifs</p>
+    </div>
+
+    <!-- Zone d'upload avec UploadManager -->
+    <div id="docUploadZone" 
+         class="upload-zone-pro upload-zone" 
+         data-info-id="fileInfo"
+         data-btn-id="convertBtn"
+         style="cursor: pointer;">
+        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+        <h4>Glissez-déposez votre document ici</h4>
+        <p class="text-muted">ou</p>
+        <input type="file" class="file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" multiple style="display: none;">
+        <p class="text-muted small mt-3">
+            <i class="fas fa-info-circle"></i> 
+            Formats acceptés : PDF, Word, Excel, Images (jusqu'à 50MB)
+        </p>
+    </div>
+
+    <!-- Liste des fichiers -->
+    <div id="fileInfo" class="file-list mt-4"></div>
+
+    <!-- Options du formulaire -->
+    <div class="file-info-card mt-4">
+        <h5 class="mb-3">
+            <i class="fas fa-cog me-2"></i>Configuration du formulaire
+        </h5>
+
+        <!-- Type de formulaire -->
+        <div class="mb-4">
+            <label class="form-label fw-bold">Type de formulaire :</label>
+            <div class="btn-group w-100" role="group">
+                <input type="radio" class="btn-check" name="formType" id="formInteractive" value="interactive" checked>
+                <label class="btn btn-outline-primary" for="formInteractive">
+                    <i class="fas fa-mouse-pointer me-2"></i>Interactif (champs remplissables)
+                </label>
+                
+                <input type="radio" class="btn-check" name="formType" id="formPrintable" value="printable">
+                <label class="btn btn-outline-primary" for="formPrintable">
+                    <i class="fas fa-print me-2"></i>Imprimable (lignes pour écrire)
+                </label>
+            </div>
+        </div>
+
+        <!-- Détection automatique des champs -->
+        <div class="mb-4">
+            <label class="form-label fw-bold">Détection des champs :</label>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <select class="form-select" id="detectFields">
+                        <option value="auto">Automatique (recommendé)</option>
+                        <option value="text">Texte uniquement</option>
+                        <option value="checkbox">Cases à cocher</option>
+                        <option value="signature">Emplacements signature</option>
+                        <option value="manual">Manuel (je définis les champs)</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-outline-secondary w-100" type="button" onclick="detectFields()">
+                        <i class="fas fa-search me-2"></i>Détecter les champs
+                    </button>
+                </div>
+            </div>
+            <p class="text-muted small mt-2">
+                <i class="fas fa-info-circle me-1"></i>
+                La détection automatique identifie les zones de texte, cases à cocher et emplacements de signature
+            </p>
+        </div>
+
+        <!-- Aperçu avec champs détectés -->
+        <div id="formPreview" class="mt-4" style="display:none;">
+            <h6 class="mb-3">Aperçu du formulaire - Cliquez sur les champs pour les configurer</h6>
+            <div class="border rounded p-3 bg-light" style="min-height: 300px;">
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-file-pdf fa-3x mb-3"></i>
+                    <p>Aperçu du document avec les champs détectés</p>
+                    <button class="btn btn-sm btn-primary" onclick="loadPreview()">
+                        <i class="fas fa-eye me-2"></i>Charger l'aperçu
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration des champs -->
+        <div class="mt-4">
+            <h6 class="mb-3">Champs détectés</h6>
+            <div class="table-responsive">
+                <table class="table table-sm" id="fieldsTable">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Étiquette</th>
+                            <th>Page</th>
+                            <th>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="text-muted">
+                            <td colspan="4" class="text-center">
+                                Lancez la détection pour voir les champs
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Options supplémentaires -->
+        <div class="row g-3 mt-3">
+            <div class="col-md-4">
+                <label for="formLanguage" class="form-label fw-bold">Langue du formulaire :</label>
+                <select class="form-select" id="formLanguage">
+                    <option value="fr">Français</option>
+                    <option value="en">Anglais</option>
+                    <option value="de">Allemand</option>
+                    <option value="es">Espagnol</option>
+                    <option value="it">Italien</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="formColor" class="form-label fw-bold">Couleur des champs :</label>
+                <input type="color" class="form-control form-control-color" id="formColor" value="#9b59b6">
+            </div>
+            <div class="col-md-4">
+                <label for="formBorder" class="form-label fw-bold">Style des champs :</label>
+                <select class="form-select" id="formBorder">
+                    <option value="underline">Souligné</option>
+                    <option value="border">Encadré</option>
+                    <option value="background">Fond coloré</option>
+                    <option value="none">Invisible</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="addPlaceholders" checked>
+                <label class="form-check-label" for="addPlaceholders">
+                    Ajouter des textes indicatifs (ex: "Nom", "Prénom"...)
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="makeRequired" checked>
+                <label class="form-check-label" for="makeRequired">
+                    Marquer les champs obligatoires (avec *)
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="addSubmitButton">
+                <label class="form-check-label" for="addSubmitButton">
+                    Ajouter un bouton de soumission
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bouton de conversion -->
+    <div class="text-center mt-4">
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+            <i class="fas fa-file-signature me-2"></i>Créer le formulaire PDF
+        </button>
+        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
+            <i class="fas fa-redo me-2"></i>Réinitialiser
+        </button>
+    </div>
+</div>
+
+<!-- Étape 2 : Conversion en cours -->
+<div id="step2Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
+        </div>
+        <h3>Création du formulaire...</h3>
+        <p class="text-muted">Analyse du document et création des champs interactifs</p>
+        <div class="progress-container">
+            <div class="progress-bar" style="width: 0%; background: #9b59b6;" id="progressBar"></div>
+        </div>
+        <p class="text-muted mt-3" id="progressMessage">Analyse du document source...</p>
+    </div>
+</div>
+
+<!-- Étape 3 : Téléchargement -->
+<div id="step3Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="success-animation">
+            <i class="fas fa-check"></i>
+        </div>
+        <h3>Formulaire créé !</h3>
+        <p class="text-muted">Votre formulaire PDF interactif est prêt</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
+            <i class="fas fa-download me-2"></i>Télécharger le formulaire
+        </a>
+        <div class="mt-4">
+            <button class="btn btn-outline-primary" onclick="resetConversion()">
+                <i class="fas fa-redo me-2"></i>Créer un autre formulaire
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let downloadUrl = null;
+let detectedFields = [];
+
+function detectFields() {
+    const uploadManager = window.uploadManagers['docUploadZone'];
+    if (!uploadManager || uploadManager.getFiles().length === 0) {
+        showError('Veuillez d\'abord télécharger un document');
+        return;
+    }
+
+    // Simuler la détection de champs
+    showLoader();
+    
+    setTimeout(() => {
+        // Exemple de champs détectés
+        detectedFields = [
+            { type: 'text', label: 'Nom complet', page: 1, required: true },
+            { type: 'text', label: 'Prénom', page: 1, required: true },
+            { type: 'text', label: 'Adresse', page: 1, required: false },
+            { type: 'text', label: 'Code postal', page: 1, required: false },
+            { type: 'text', label: 'Ville', page: 1, required: false },
+            { type: 'email', label: 'Email', page: 1, required: true },
+            { type: 'tel', label: 'Téléphone', page: 1, required: false },
+            { type: 'checkbox', label: "J'accepte les conditions", page: 2, required: true },
+            { type: 'signature', label: 'Signature', page: 2, required: true },
+            { type: 'date', label: 'Date', page: 2, required: true }
+        ];
+        
+        updateFieldsTable();
+        document.getElementById('formPreview').style.display = 'block';
+        hideLoader();
+    }, 2000);
+}
+
+function updateFieldsTable() {
+    const tbody = document.querySelector('#fieldsTable tbody');
+    tbody.innerHTML = '';
+    
+    detectedFields.forEach((field, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <span class="badge bg-secondary">
+                    <i class="fas fa-${getFieldIcon(field.type)} me-1"></i>
+                    ${field.type}
+                </span>
+            </td>
+            <td>${field.label}</td>
+            <td>${field.page}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="editField(${index})">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteField(${index})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function getFieldIcon(type) {
+    const icons = {
+        'text': 'font',
+        'email': 'envelope',
+        'tel': 'phone',
+        'checkbox': 'check-square',
+        'signature': 'pen',
+        'date': 'calendar',
+        'number': 'hashtag'
+    };
+    return icons[type] || 'font';
+}
+
+function editField(index) {
+    // Ouvrir modal d'édition
+    alert('Édition du champ - À implémenter');
+}
+
+function deleteField(index) {
+    detectedFields.splice(index, 1);
+    updateFieldsTable();
+}
+
+function loadPreview() {
+    // Charger l'aperçu du document
+    alert('Chargement de l\'aperçu - À implémenter avec PDF.js');
+}
+
+function startConversion() {
+    const uploadManager = window.uploadManagers['docUploadZone'];
+    if (!uploadManager || uploadManager.getFiles().length === 0) {
+        showError('Veuillez sélectionner un document');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', uploadManager.getFiles()[0]);
+    
+    formData.append('form_type', document.querySelector('input[name="formType"]:checked').value);
+    formData.append('detect_fields', document.getElementById('detectFields').value);
+    formData.append('language', document.getElementById('formLanguage').value);
+    formData.append('color', document.getElementById('formColor').value);
+    formData.append('border_style', document.getElementById('formBorder').value);
+    formData.append('add_placeholders', document.getElementById('addPlaceholders').checked ? 'true' : 'false');
+    formData.append('make_required', document.getElementById('makeRequired').checked ? 'true' : 'false');
+    formData.append('add_submit', document.getElementById('addSubmitButton').checked ? 'true' : 'false');
+    
+    // Ajouter les champs détectés
+    formData.append('fields', JSON.stringify(detectedFields));
+
+    // Passer à l'étape 2
+    updateStep(2);
+    
+    // Simuler la progression
+    let progress = 0;
+    const messages = [
+        'Analyse du document source...',
+        'Conversion en PDF...',
+        'Détection des champs...',
+        'Création des champs interactifs...',
+        'Ajout des propriétés du formulaire...',
+        'Finalisation...'
+    ];
+    let msgIndex = 0;
+    
+    const interval = setInterval(() => {
+        progress += 2;
+        document.getElementById('progressBar').style.width = progress + '%';
+        
+        if (progress % 16 === 0 && msgIndex < messages.length - 1) {
+            msgIndex++;
+            document.getElementById('progressMessage').textContent = messages[msgIndex];
+        }
+        
+        if (progress >= 90) clearInterval(interval);
+    }, 200);
+
+    // Envoyer la requête
+    fetch('{{ url_for("conversion.universal_converter", conversion_type="prepare-form") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(async response => {
+        clearInterval(interval);
+        document.getElementById('progressBar').style.width = '100%';
+        document.getElementById('progressMessage').textContent = 'Terminé !';
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            downloadUrl = window.URL.createObjectURL(blob);
+            
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'formulaire.pdf';
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (match && match[1]) {
+                    filename = match[1].replace(/['"]/g, '');
+                }
+            }
+            
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = downloadUrl;
+            downloadLink.download = filename;
+            updateStep(3);
+        } else {
+            const error = await response.text();
+            showError('Erreur lors de la création du formulaire : ' + error);
+            updateStep(1);
+        }
+    })
+    .catch(error => {
+        clearInterval(interval);
+        showError('Erreur : ' + error.message);
+        updateStep(1);
+    });
+}
+
+function resetConversion() {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+        downloadUrl = null;
+    }
+    
+    const uploadManager = window.uploadManagers['docUploadZone'];
+    if (uploadManager) {
+        while (uploadManager.getFiles().length > 0) {
+            uploadManager.removeFile(0);
+        }
+    }
+    
+    detectedFields = [];
+    document.querySelector('#fieldsTable tbody').innerHTML = `
+        <tr class="text-muted">
+            <td colspan="4" class="text-center">
+                Lancez la détection pour voir les champs
+            </td>
+        </tr>
+    `;
+    document.getElementById('formPreview').style.display = 'none';
+    
+    updateStep(1);
+}
+
+window.addEventListener('beforeunload', () => {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+    }
+});
+</script>
+{% endblock %}

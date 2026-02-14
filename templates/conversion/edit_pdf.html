@@ -1,0 +1,400 @@
+{% extends "conversion/conversion_base.html" %}
+
+{% block title %}Éditer PDF - {{ title }}{% endblock %}
+
+{% block converter_content %}
+<!-- Étape 1 : Upload -->
+<div id="step1Content">
+    <div class="text-center mb-4">
+        <i class="fas fa-edit upload-icon" style="color: #3498db;"></i>
+        <h3>Téléchargez votre PDF</h3>
+        <p class="text-muted">Modifiez, ajoutez du texte ou des images à votre document</p>
+    </div>
+
+    <!-- Zone d'upload avec UploadManager -->
+    <div id="pdfUploadZone" 
+         class="upload-zone-pro upload-zone" 
+         data-info-id="fileInfo"
+         data-btn-id="convertBtn"
+         style="cursor: pointer;">
+        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+        <h4>Glissez-déposez votre fichier PDF ici</h4>
+        <p class="text-muted">ou</p>
+        <input type="file" class="file-input" accept=".pdf" multiple style="display: none;">
+        <p class="text-muted small mt-3">
+            <i class="fas fa-info-circle"></i> 
+            Formats acceptés : PDF (jusqu'à 100MB)
+        </p>
+    </div>
+
+    <!-- Liste des fichiers -->
+    <div id="fileInfo" class="file-list mt-4"></div>
+
+    <!-- Onglets d'édition -->
+    <div class="file-info-card mt-4">
+        <ul class="nav nav-tabs" id="editTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button" role="tab">
+                    <i class="fas fa-font me-2"></i>Ajouter du texte
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="image-tab" data-bs-toggle="tab" data-bs-target="#image" type="button" role="tab">
+                    <i class="fas fa-image me-2"></i>Ajouter une image
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pages-tab" data-bs-toggle="tab" data-bs-target="#pages" type="button" role="tab">
+                    <i class="fas fa-copy me-2"></i>Gérer les pages
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content p-3" id="editTabsContent">
+            <!-- Onglet Texte -->
+            <div class="tab-pane fade show active" id="text" role="tabpanel">
+                <h6 class="mb-3">Ajouter du texte au PDF</h6>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="textContent" class="form-label fw-bold">Texte à ajouter :</label>
+                        <textarea class="form-control" id="textContent" rows="3" placeholder="Saisissez votre texte ici..."></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="textPage" class="form-label fw-bold">Page d'insertion :</label>
+                        <input type="number" class="form-control" id="textPage" min="1" value="1">
+                        
+                        <label for="textPosition" class="form-label fw-bold mt-3">Position :</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <input type="number" class="form-control" id="textX" placeholder="X" value="50">
+                            </div>
+                            <div class="col-6">
+                                <input type="number" class="form-control" id="textY" placeholder="Y" value="50">
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <label for="textSize" class="form-label fw-bold">Taille :</label>
+                                <select class="form-select" id="textSize">
+                                    <option value="10">10 px</option>
+                                    <option value="12" selected>12 px</option>
+                                    <option value="14">14 px</option>
+                                    <option value="16">16 px</option>
+                                    <option value="18">18 px</option>
+                                    <option value="24">24 px</option>
+                                    <option value="36">36 px</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="textColor" class="form-label fw-bold">Couleur :</label>
+                                <input type="color" class="form-control form-control-color" id="textColor" value="#000000">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <label for="textFont" class="form-label fw-bold">Police :</label>
+                            <select class="form-select" id="textFont">
+                                <option value="Helvetica">Helvetica</option>
+                                <option value="Times-Roman">Times New Roman</option>
+                                <option value="Courier">Courier</option>
+                                <option value="Helvetica-Bold">Helvetica Gras</option>
+                                <option value="Helvetica-Oblique">Helvetica Italique</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Onglet Image -->
+            <div class="tab-pane fade" id="image" role="tabpanel">
+                <h6 class="mb-3">Ajouter une image au PDF</h6>
+                <div class="upload-zone-pro upload-zone small-zone mb-3" id="imageUploadZone">
+                    <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                    <p>Glissez-déposez votre image ici</p>
+                    <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.gif,.bmp" style="display: none;">
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="imagePage" class="form-label fw-bold">Page d'insertion :</label>
+                        <input type="number" class="form-control" id="imagePage" min="1" value="1">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="imageSize" class="form-label fw-bold">Taille :</label>
+                        <select class="form-select" id="imageSize">
+                            <option value="original">Taille originale</option>
+                            <option value="fit">Ajuster à la page</option>
+                            <option value="custom">Personnalisée</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label for="imageX" class="form-label fw-bold">Position X :</label>
+                        <input type="number" class="form-control" id="imageX" value="50">
+                    </div>
+                    <div class="col-6">
+                        <label for="imageY" class="form-label fw-bold">Position Y :</label>
+                        <input type="number" class="form-control" id="imageY" value="50">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Onglet Pages -->
+            <div class="tab-pane fade" id="pages" role="tabpanel">
+                <h6 class="mb-3">Gestion des pages</h6>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Action :</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="pageAction" id="actionReorder" value="reorder" checked>
+                        <label class="btn btn-outline-primary" for="actionReorder">
+                            <i class="fas fa-sort me-2"></i>Réorganiser
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="pageAction" id="actionDelete" value="delete">
+                        <label class="btn btn-outline-primary" for="actionDelete">
+                            <i class="fas fa-trash me-2"></i>Supprimer
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="pageAction" id="actionRotate" value="rotate">
+                        <label class="btn btn-outline-primary" for="actionRotate">
+                            <i class="fas fa-sync-alt me-2"></i>Rotation
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="reorderSection">
+                    <p class="text-info small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Faites glisser les pages pour les réorganiser
+                    </p>
+                    <div class="row" id="pageThumbnails">
+                        <!-- Les miniatures seront générées ici -->
+                        <div class="col-3 mb-3">
+                            <div class="border rounded p-2 text-center bg-light">
+                                <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                                <p class="small mb-0">Page 1</p>
+                            </div>
+                        </div>
+                        <div class="col-3 mb-3">
+                            <div class="border rounded p-2 text-center bg-light">
+                                <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                                <p class="small mb-0">Page 2</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="deleteSection" style="display:none;">
+                    <label for="pagesToDelete" class="form-label fw-bold">Pages à supprimer :</label>
+                    <input type="text" class="form-control" id="pagesToDelete" 
+                           placeholder="Ex: 1-3, 5, 7-9">
+                    <p class="text-muted small mt-2">
+                        <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                        Attention : La suppression est définitive
+                    </p>
+                </div>
+                
+                <div id="rotateSection" style="display:none;">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="rotatePages" class="form-label fw-bold">Pages à tourner :</label>
+                            <input type="text" class="form-control" id="rotatePages" 
+                                   placeholder="Ex: 1-3, 5, 7-9">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="rotateAngle" class="form-label fw-bold">Angle :</label>
+                            <select class="form-select" id="rotateAngle">
+                                <option value="90">90° horaire</option>
+                                <option value="180">180°</option>
+                                <option value="270">90° antihoraire</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bouton de conversion -->
+    <div class="text-center mt-4">
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+            <i class="fas fa-edit me-2"></i>Appliquer les modifications
+        </button>
+        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
+            <i class="fas fa-redo me-2"></i>Réinitialiser
+        </button>
+    </div>
+</div>
+
+<!-- Étape 2 : Conversion en cours -->
+<div id="step2Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
+        </div>
+        <h3>Édition en cours...</h3>
+        <p class="text-muted">Application des modifications au document</p>
+        <div class="progress-container">
+            <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Étape 3 : Téléchargement -->
+<div id="step3Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="success-animation">
+            <i class="fas fa-check"></i>
+        </div>
+        <h3>Édition terminée !</h3>
+        <p class="text-muted">Votre PDF modifié est prêt à être téléchargé</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
+            <i class="fas fa-download me-2"></i>Télécharger le PDF modifié
+        </a>
+        <div class="mt-4">
+            <button class="btn btn-outline-primary" onclick="resetConversion()">
+                <i class="fas fa-redo me-2"></i>Éditer un autre PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let downloadUrl = null;
+
+// Gestionnaire pour les actions sur les pages
+document.querySelectorAll('input[name="pageAction"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.getElementById('reorderSection').style.display = this.value === 'reorder' ? 'block' : 'none';
+        document.getElementById('deleteSection').style.display = this.value === 'delete' ? 'block' : 'none';
+        document.getElementById('rotateSection').style.display = this.value === 'rotate' ? 'block' : 'none';
+    });
+});
+
+function startConversion() {
+    const uploadManager = window.uploadManagers['pdfUploadZone'];
+    if (!uploadManager || uploadManager.getFiles().length === 0) {
+        showError('Veuillez sélectionner un fichier PDF');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', uploadManager.getFiles()[0]);
+    
+    // Déterminer le type d'édition
+    const activeTab = document.querySelector('#editTabs .nav-link.active').id;
+    
+    if (activeTab === 'text-tab') {
+        formData.append('edit_type', 'add_text');
+        formData.append('text_content', document.getElementById('textContent').value);
+        formData.append('page_number', document.getElementById('textPage').value);
+        formData.append('position_x', document.getElementById('textX').value);
+        formData.append('position_y', document.getElementById('textY').value);
+        formData.append('font_size', document.getElementById('textSize').value);
+        formData.append('font_color', document.getElementById('textColor').value);
+        formData.append('font_family', document.getElementById('textFont').value);
+    }
+    else if (activeTab === 'image-tab') {
+        const imageManager = window.uploadManagers['imageUploadZone'];
+        if (imageManager && imageManager.getFiles().length > 0) {
+            formData.append('edit_type', 'add_image');
+            formData.append('image_file', imageManager.getFiles()[0]);
+            formData.append('page_number', document.getElementById('imagePage').value);
+            formData.append('position_x', document.getElementById('imageX').value);
+            formData.append('position_y', document.getElementById('imageY').value);
+            formData.append('image_size', document.getElementById('imageSize').value);
+        }
+    }
+    else if (activeTab === 'pages-tab') {
+        const pageAction = document.querySelector('input[name="pageAction"]:checked').value;
+        formData.append('edit_type', pageAction);
+        
+        if (pageAction === 'delete') {
+            formData.append('pages_to_delete', document.getElementById('pagesToDelete').value);
+        } else if (pageAction === 'rotate') {
+            formData.append('pages_to_rotate', document.getElementById('rotatePages').value);
+            formData.append('rotate_angle', document.getElementById('rotateAngle').value);
+        } else if (pageAction === 'reorder') {
+            // Récupérer l'ordre des pages depuis l'interface
+            const order = [];
+            document.querySelectorAll('#pageThumbnails .col-3').forEach((el, index) => {
+                order.push(index + 1);
+            });
+            formData.append('page_order', order.join(','));
+        }
+    }
+
+    // Passer à l'étape 2
+    updateStep(2);
+    
+    // Simuler la progression
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 10;
+        document.getElementById('progressBar').style.width = progress + '%';
+        if (progress >= 90) clearInterval(interval);
+    }, 500);
+
+    // Envoyer la requête
+    fetch('{{ url_for("conversion.universal_converter", conversion_type="edit-pdf") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(async response => {
+        clearInterval(interval);
+        document.getElementById('progressBar').style.width = '100%';
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            downloadUrl = window.URL.createObjectURL(blob);
+            
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'edited.pdf';
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (match && match[1]) {
+                    filename = match[1].replace(/['"]/g, '');
+                }
+            }
+            
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = downloadUrl;
+            downloadLink.download = filename;
+            updateStep(3);
+        } else {
+            const error = await response.text();
+            showError('Erreur lors de l\'édition : ' + error);
+            updateStep(1);
+        }
+    })
+    .catch(error => {
+        clearInterval(interval);
+        showError('Erreur : ' + error.message);
+        updateStep(1);
+    });
+}
+
+function resetConversion() {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+        downloadUrl = null;
+    }
+    
+    const uploadManager = window.uploadManagers['pdfUploadZone'];
+    if (uploadManager) {
+        while (uploadManager.getFiles().length > 0) {
+            uploadManager.removeFile(0);
+        }
+    }
+    
+    updateStep(1);
+}
+
+window.addEventListener('beforeunload', () => {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+    }
+});
+</script>
+{% endblock %}

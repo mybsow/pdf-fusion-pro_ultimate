@@ -1,0 +1,466 @@
+{% extends "conversion/conversion_base.html" %}
+
+{% block title %}Signer PDF - {{ title }}{% endblock %}
+
+{% block converter_content %}
+<!-- Étape 1 : Upload -->
+<div id="step1Content">
+    <div class="text-center mb-4">
+        <i class="fas fa-pen upload-icon" style="color: #27ae60;"></i>
+        <h3>Téléchargez votre PDF</h3>
+        <p class="text-muted">Ajoutez votre signature électronique au document</p>
+    </div>
+
+    <!-- Zone d'upload avec UploadManager -->
+    <div id="pdfUploadZone" 
+         class="upload-zone-pro upload-zone" 
+         data-info-id="fileInfo"
+         data-btn-id="convertBtn"
+         style="cursor: pointer;">
+        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+        <h4>Glissez-déposez votre fichier PDF ici</h4>
+        <p class="text-muted">ou</p>
+        <input type="file" class="file-input" accept=".pdf" multiple style="display: none;">
+        <p class="text-muted small mt-3">
+            <i class="fas fa-info-circle"></i> 
+            Formats acceptés : PDF (jusqu'à 100MB)
+        </p>
+    </div>
+
+    <!-- Liste des fichiers -->
+    <div id="fileInfo" class="file-list mt-4"></div>
+
+    <!-- Options de signature -->
+    <div class="file-info-card mt-4">
+        <h5 class="mb-3">
+            <i class="fas fa-cog me-2"></i>Options de signature
+        </h5>
+        
+        <!-- Type de signature -->
+        <div class="mb-4">
+            <label class="form-label fw-bold">Type de signature :</label>
+            <div class="btn-group w-100" role="group">
+                <input type="radio" class="btn-check" name="signatureType" id="typeDraw" value="draw" checked>
+                <label class="btn btn-outline-success" for="typeDraw">
+                    <i class="fas fa-paint-brush me-2"></i>Dessiner
+                </label>
+                
+                <input type="radio" class="btn-check" name="signatureType" id="typeType" value="type">
+                <label class="btn btn-outline-success" for="typeType">
+                    <i class="fas fa-font me-2"></i>Taper
+                </label>
+                
+                <input type="radio" class="btn-check" name="signatureType" id="typeUpload" value="upload">
+                <label class="btn btn-outline-success" for="typeUpload">
+                    <i class="fas fa-upload me-2"></i>Télécharger
+                </label>
+            </div>
+        </div>
+
+        <!-- Section Dessiner -->
+        <div id="drawSection" class="mb-4">
+            <label class="form-label fw-bold">Dessinez votre signature :</label>
+            <div class="border rounded p-3 bg-light text-center">
+                <canvas id="signatureCanvas" width="400" height="200" 
+                        style="border:2px solid #dee2e6; background:white; cursor:crosshair; touch-action: none;"></canvas>
+                <div class="mt-3">
+                    <button class="btn btn-sm btn-outline-secondary" type="button" onclick="clearSignature()">
+                        <i class="fas fa-undo me-1"></i>Effacer
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" type="button" onclick="setPenSize(2)">
+                        <i class="fas fa-circle me-1"></i>Fin
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" type="button" onclick="setPenSize(5)">
+                        <i class="fas fa-circle me-1" style="font-size:1.2em;"></i>Moyen
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" type="button" onclick="setPenSize(8)">
+                        <i class="fas fa-circle me-1" style="font-size:1.5em;"></i>Épais
+                    </button>
+                    <select class="form-select d-inline-block w-auto ms-2" id="penColor" onchange="setPenColor(this.value)">
+                        <option value="#000000">Noir</option>
+                        <option value="#0000FF">Bleu</option>
+                        <option value="#FF0000">Rouge</option>
+                        <option value="#008000">Vert</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Taper -->
+        <div id="typeSection" class="mb-4" style="display:none;">
+            <label for="typedSignature" class="form-label fw-bold">Tapez votre signature :</label>
+            <input type="text" class="form-control" id="typedSignature" 
+                   placeholder="Ex: Jean Dupont" value="Jean Dupont">
+            
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label for="signatureFont" class="form-label fw-bold">Style :</label>
+                    <select class="form-select" id="signatureFont">
+                        <option value="Courier" style="font-family:Courier;">Script simple</option>
+                        <option value="Helvetica" style="font-family:Helvetica;">Standard</option>
+                        <option value="Times-Roman" style="font-family:Times New Roman;">Élégant</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="signatureSize" class="form-label fw-bold">Taille :</label>
+                    <select class="form-select" id="signatureSize">
+                        <option value="18">Petite</option>
+                        <option value="24" selected>Moyenne</option>
+                        <option value="32">Grande</option>
+                        <option value="48">Très grande</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Upload -->
+        <div id="uploadSection" class="mb-4" style="display:none;">
+            <label class="form-label fw-bold">Téléchargez une image de signature :</label>
+            <div id="signatureUploadZone" 
+                 class="upload-zone-pro upload-zone small-zone" 
+                 style="cursor: pointer; padding: 1.5rem;">
+                <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                <p>Glissez-déposez votre signature ici</p>
+                <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.gif" style="display: none;">
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-info-circle"></i>
+                    Formats acceptés : PNG, JPG, GIF (fond transparent recommandé)
+                </p>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Position de la signature -->
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label for="signaturePage" class="form-label fw-bold">Page :</label>
+                <input type="number" class="form-control" id="signaturePage" min="1" value="1">
+            </div>
+            <div class="col-md-4">
+                <label for="signatureX" class="form-label fw-bold">Position X :</label>
+                <input type="number" class="form-control" id="signatureX" value="50">
+            </div>
+            <div class="col-md-4">
+                <label for="signatureY" class="form-label fw-bold">Position Y :</label>
+                <input type="number" class="form-control" id="signatureY" value="50">
+            </div>
+        </div>
+
+        <!-- Aperçu de la signature -->
+        <div class="mt-4" id="previewSection" style="display:none;">
+            <h6 class="mb-2">Aperçu de la signature :</h6>
+            <div class="border rounded p-3 bg-light">
+                <div id="signaturePreview" style="min-height: 50px;"></div>
+            </div>
+        </div>
+
+        <!-- Options supplémentaires -->
+        <div class="mt-4">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="addDate" checked>
+                <label class="form-check-label" for="addDate">
+                    Ajouter la date automatiquement
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="addReason">
+                <label class="form-check-label" for="addReason">
+                    Ajouter un motif de signature
+                </label>
+            </div>
+            <div id="reasonInput" style="display:none;" class="mt-2">
+                <input type="text" class="form-control" id="signatureReason" 
+                       placeholder="Ex: Approbation, Accord, Certificat...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Bouton de conversion -->
+    <div class="text-center mt-4">
+        <button class="btn btn-success btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+            <i class="fas fa-pen me-2"></i>Signer le PDF
+        </button>
+        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
+            <i class="fas fa-redo me-2"></i>Réinitialiser
+        </button>
+    </div>
+</div>
+
+<!-- Étape 2 : Conversion en cours -->
+<div id="step2Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-cog fa-spin fa-4x text-success"></i>
+        </div>
+        <h3>Signature en cours...</h3>
+        <p class="text-muted">Ajout de la signature au document</p>
+        <div class="progress-container">
+            <div class="progress-bar" style="width: 0%; background: #27ae60;" id="progressBar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Étape 3 : Téléchargement -->
+<div id="step3Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="success-animation">
+            <i class="fas fa-check"></i>
+        </div>
+        <h3>Signature terminée !</h3>
+        <p class="text-muted">Votre PDF signé est prêt à être téléchargé</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
+            <i class="fas fa-download me-2"></i>Télécharger le PDF signé
+        </a>
+        <div class="mt-4">
+            <button class="btn btn-outline-success" onclick="resetConversion()">
+                <i class="fas fa-redo me-2"></i>Signer un autre PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let downloadUrl = null;
+let signatureCanvas = null;
+let ctx = null;
+let isDrawing = false;
+let penSize = 2;
+let penColor = '#000000';
+
+// Initialisation du canvas de signature
+document.addEventListener('DOMContentLoaded', () => {
+    signatureCanvas = document.getElementById('signatureCanvas');
+    if (signatureCanvas) {
+        ctx = signatureCanvas.getContext('2d');
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = penColor;
+        ctx.lineWidth = penSize;
+        
+        signatureCanvas.addEventListener('mousedown', startDrawing);
+        signatureCanvas.addEventListener('mousemove', draw);
+        signatureCanvas.addEventListener('mouseup', stopDrawing);
+        signatureCanvas.addEventListener('mouseleave', stopDrawing);
+        
+        // Support tactile
+        signatureCanvas.addEventListener('touchstart', startDrawingTouch);
+        signatureCanvas.addEventListener('touchmove', drawTouch);
+        signatureCanvas.addEventListener('touchend', stopDrawing);
+    }
+});
+
+function startDrawing(e) {
+    isDrawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+}
+
+function draw(e) {
+    if (!isDrawing) return;
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+}
+
+function startDrawingTouch(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = signatureCanvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    isDrawing = true;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+}
+
+function drawTouch(e) {
+    e.preventDefault();
+    if (!isDrawing) return;
+    
+    const touch = e.touches[0];
+    const rect = signatureCanvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    ctx.lineTo(x, y);
+    ctx.stroke();
+}
+
+function stopDrawing() {
+    isDrawing = false;
+}
+
+function clearSignature() {
+    if (ctx && signatureCanvas) {
+        ctx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+    }
+}
+
+function setPenSize(size) {
+    penSize = size;
+    if (ctx) {
+        ctx.lineWidth = size;
+    }
+}
+
+function setPenColor(color) {
+    penColor = color;
+    if (ctx) {
+        ctx.strokeStyle = color;
+    }
+}
+
+// Gestionnaire pour le type de signature
+document.querySelectorAll('input[name="signatureType"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.getElementById('drawSection').style.display = this.value === 'draw' ? 'block' : 'none';
+        document.getElementById('typeSection').style.display = this.value === 'type' ? 'block' : 'none';
+        document.getElementById('uploadSection').style.display = this.value === 'upload' ? 'block' : 'none';
+        
+        // Afficher l'aperçu pour le type "taper"
+        if (this.value === 'type') {
+            updateTypePreview();
+        }
+    });
+});
+
+// Gestionnaire pour la date et le motif
+document.getElementById('addReason').addEventListener('change', function() {
+    document.getElementById('reasonInput').style.display = this.checked ? 'block' : 'none';
+});
+
+function updateTypePreview() {
+    const text = document.getElementById('typedSignature').value;
+    const font = document.getElementById('signatureFont').value;
+    const size = document.getElementById('signatureSize').value;
+    
+    document.getElementById('previewSection').style.display = 'block';
+    document.getElementById('signaturePreview').innerHTML = 
+        `<span style="font-family:${font}; font-size:${size}px; color:#0000FF;">${text}</span>`;
+}
+
+document.getElementById('typedSignature').addEventListener('input', updateTypePreview);
+document.getElementById('signatureFont').addEventListener('change', updateTypePreview);
+document.getElementById('signatureSize').addEventListener('change', updateTypePreview);
+
+function startConversion() {
+    const uploadManager = window.uploadManagers['pdfUploadZone'];
+    if (!uploadManager || uploadManager.getFiles().length === 0) {
+        showError('Veuillez sélectionner un fichier PDF');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', uploadManager.getFiles()[0]);
+    
+    const signatureType = document.querySelector('input[name="signatureType"]:checked').value;
+    formData.append('signature_type', signatureType);
+    formData.append('page_number', document.getElementById('signaturePage').value);
+    formData.append('position_x', document.getElementById('signatureX').value);
+    formData.append('position_y', document.getElementById('signatureY').value);
+    
+    if (signatureType === 'draw') {
+        // Convertir le canvas en image
+        const canvas = document.getElementById('signatureCanvas');
+        canvas.toBlob(blob => {
+            formData.append('signature_image', blob, 'signature.png');
+            sendConversion(formData);
+        }, 'image/png');
+        return;
+    } else if (signatureType === 'type') {
+        formData.append('signature_text', document.getElementById('typedSignature').value);
+        formData.append('font_family', document.getElementById('signatureFont').value);
+        formData.append('font_size', document.getElementById('signatureSize').value);
+    } else if (signatureType === 'upload') {
+        const sigManager = window.uploadManagers['signatureUploadZone'];
+        if (sigManager && sigManager.getFiles().length > 0) {
+            formData.append('signature_image', sigManager.getFiles()[0]);
+        } else {
+            showError('Veuillez télécharger une image de signature');
+            return;
+        }
+    }
+    
+    formData.append('add_date', document.getElementById('addDate').checked ? 'true' : 'false');
+    formData.append('add_reason', document.getElementById('addReason').checked ? 'true' : 'false');
+    formData.append('signature_reason', document.getElementById('signatureReason')?.value || '');
+    
+    sendConversion(formData);
+}
+
+function sendConversion(formData) {
+    // Passer à l'étape 2
+    updateStep(2);
+    
+    // Simuler la progression
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 10;
+        document.getElementById('progressBar').style.width = progress + '%';
+        if (progress >= 90) clearInterval(interval);
+    }, 500);
+
+    // Envoyer la requête
+    fetch('{{ url_for("conversion.universal_converter", conversion_type="sign-pdf") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(async response => {
+        clearInterval(interval);
+        document.getElementById('progressBar').style.width = '100%';
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            downloadUrl = window.URL.createObjectURL(blob);
+            
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'signed.pdf';
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (match && match[1]) {
+                    filename = match[1].replace(/['"]/g, '');
+                }
+            }
+            
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = downloadUrl;
+            downloadLink.download = filename;
+            updateStep(3);
+        } else {
+            const error = await response.text();
+            showError('Erreur lors de la signature : ' + error);
+            updateStep(1);
+        }
+    })
+    .catch(error => {
+        clearInterval(interval);
+        showError('Erreur : ' + error.message);
+        updateStep(1);
+    });
+}
+
+function resetConversion() {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+        downloadUrl = null;
+    }
+    
+    const uploadManager = window.uploadManagers['pdfUploadZone'];
+    if (uploadManager) {
+        while (uploadManager.getFiles().length > 0) {
+            uploadManager.removeFile(0);
+        }
+    }
+    
+    clearSignature();
+    updateStep(1);
+}
+
+window.addEventListener('beforeunload', () => {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+    }
+});
+</script>
+{% endblock %}
