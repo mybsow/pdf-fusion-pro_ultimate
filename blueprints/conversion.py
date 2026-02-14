@@ -839,6 +839,20 @@ def convert_word_to_pdf(file, form_data=None):
         input_path = os.path.join(temp_dir, secure_filename(file.filename))
         file.save(input_path)
         
+        # Récupérer les options du formulaire
+        page_format = form_data.get('page_format', 'A4') if form_data else 'A4'
+        orientation = form_data.get('orientation', 'portrait') if form_data else 'portrait'
+        margins = form_data.get('margins', 'normal') if form_data else 'normal'
+        quality = form_data.get('quality', 'standard') if form_data else 'standard'
+        
+        # Définir la taille de page
+        if page_format == 'A4':
+            pagesize = A4
+        elif page_format == 'Letter':
+            pagesize = letter
+        else:
+            pagesize = A4
+        
         # Utiliser LibreOffice pour la conversion si disponible
         try:
             output_path = os.path.join(temp_dir, f"{Path(file.filename).stem}.pdf")
@@ -859,19 +873,26 @@ def convert_word_to_pdf(file, form_data=None):
         
         # Fallback: création basique avec reportlab
         output = BytesIO()
-        c = canvas.Canvas(output, pagesize=A4)
-        width, height = A4
+        c = canvas.Canvas(output, pagesize=pagesize)
+        width, height = pagesize
+        
+        # Ajuster les marges
+        margin_size = 50  # Normal
+        if margins == 'narrow':
+            margin_size = 25
+        elif margins == 'wide':
+            margin_size = 100
         
         # Lire le contenu du fichier Word (simplifié)
         if file.filename.endswith('.docx') and HAS_DOCX:
             doc = Document(input_path)
-            y = height - 50
+            y = height - margin_size
             for para in doc.paragraphs:
-                if y < 50:
+                if y < margin_size:
                     c.showPage()
-                    y = height - 50
+                    y = height - margin_size
                 c.setFont("Helvetica", 11)
-                c.drawString(50, y, para.text[:80])
+                c.drawString(margin_size, y, para.text[:80])
                 y -= 15
         
         c.save()
@@ -930,7 +951,44 @@ def convert_excel_to_pdf(file, form_data=None):
 
 def convert_powerpoint_to_pdf(file, form_data=None):
     """Convertit PowerPoint en PDF."""
-    return convert_excel_to_pdf(file, form_data)
+    if not HAS_REPORTLAB:
+        return {'error': 'reportlab non installé'}
+    
+    try:
+        # Sauvegarder le fichier temporairement
+        temp_dir = tempfile.mkdtemp()
+        input_path = os.path.join(temp_dir, secure_filename(file.filename))
+        file.save(input_path)
+        
+        # Récupérer les options
+        include_notes = form_data.get('include_notes', 'true') if form_data else 'true'
+        include_comments = form_data.get('include_comments', 'false') if form_data else 'false'
+        quality = form_data.get('quality', 'medium') if form_data else 'medium'
+        merge = form_data.get('merge', 'false') if form_data else 'false'
+        
+        # Utiliser LibreOffice pour la conversion
+        try:
+            output_path = os.path.join(temp_dir, f"{Path(file.filename).stem}.pdf")
+            subprocess.run([
+                'libreoffice', '--headless', '--convert-to', 'pdf',
+                '--outdir', temp_dir, input_path
+            ], check=True, capture_output=True)
+            
+            if os.path.exists(output_path):
+                return send_file(
+                    output_path,
+                    mimetype='application/pdf',
+                    as_attachment=True,
+                    download_name=f"{Path(file.filename).stem}.pdf"
+                )
+        except:
+            pass
+        
+        return {'error': 'Conversion PowerPoint->PDF non disponible sans LibreOffice'}
+        
+    except Exception as e:
+        logger.error(f"Erreur PowerPoint->PDF: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_images_to_pdf(files, form_data=None):
@@ -942,6 +1000,16 @@ def convert_images_to_pdf(files, form_data=None):
         output = BytesIO()
         c = canvas.Canvas(output, pagesize=A4)
         width, height = A4
+        
+        # Récupérer les options
+        orientation = form_data.get('orientation', 'auto') if form_data else 'auto'
+        quality = form_data.get('quality', 'medium') if form_data else 'medium'
+        page_size = form_data.get('pageSize', 'A4') if form_data else 'A4'
+        merge_files = form_data.get('merge', 'true') if form_data else 'true'
+        
+        # Ajuster l'orientation si nécessaire
+        if orientation == 'landscape':
+            width, height = height, width
         
         for file in files:
             # Ouvrir l'image
@@ -959,7 +1027,7 @@ def convert_images_to_pdf(files, form_data=None):
             
             # Sauvegarder temporairement
             temp_img = tempfile.NamedTemporaryFile(suffix='.jpg', delete=False)
-            img.save(temp_img.name, 'JPEG')
+            img.save(temp_img.name, 'JPEG', quality=90 if quality == 'high' else 75)
             
             # Ajouter au PDF
             c.drawImage(temp_img.name, x, y, width=new_width, height=new_height)
@@ -992,13 +1060,24 @@ def convert_pdf_to_word(file, form_data=None):
         # Lire le PDF
         pdf_reader = pypdf.PdfReader(file.stream)
         
+        # Récupérer les options
+        mode = form_data.get('mode', 'layout') if form_data else 'layout'
+        language = form_data.get('language', 'fra') if form_data else 'fra'
+        detect_tables = form_data.get('detect_tables', 'true') if form_data else 'true'
+        preserve_formatting = form_data.get('preserve_formatting', 'true') if form_data else 'true'
+        
         # Créer un document Word
         doc = Document()
+        
+        # Ajouter un titre
+        doc.add_heading(f'Conversion de {Path(file.filename).stem}', 0)
         
         # Extraire le texte de chaque page
         for page_num, page in enumerate(pdf_reader.pages):
             if page_num > 0:
                 doc.add_page_break()
+            
+            doc.add_heading(f'Page {page_num + 1}', 1)
             
             text = page.extract_text()
             if text.strip():
@@ -1037,23 +1116,84 @@ def convert_pdf_to_excel(file_storage, form_data=None):
         pdf_path = os.path.join(temp_dir, secure_filename(file_storage.filename))
         file_storage.save(pdf_path)
         
+        # Récupérer les options
+        mode = form_data.get('mode', 'tables') if form_data else 'tables'
+        language = form_data.get('language', 'fra') if form_data else 'fra'
+        ocr_enabled = form_data.get('ocr_enabled', 'true') if form_data else 'true'
+        preserve_formatting = form_data.get('preserve_formatting', 'true') if form_data else 'true'
+        
         # Convertir PDF en images
         images = convert_from_path(pdf_path)
         
-        # Extraire le texte de chaque image avec OCR
-        all_text = []
-        for img in images:
-            text = pytesseract.image_to_string(img, lang='fra+eng')
-            all_text.append(text)
+        # Langue pour l'OCR
+        lang_map = {
+            'fra': 'fra',
+            'eng': 'eng',
+            'deu': 'deu',
+            'spa': 'spa',
+            'ita': 'ita'
+        }
+        ocr_lang = lang_map.get(language, 'fra+eng')
         
-        # Créer un DataFrame
-        df = pd.DataFrame({'Page': range(1, len(all_text) + 1),
-                          'Contenu': all_text})
+        # Extraire le texte de chaque image avec OCR
+        all_data = []
+        for i, img in enumerate(images):
+            if ocr_enabled == 'true':
+                # OCR avec détection de tableaux
+                data = pytesseract.image_to_data(img, lang=ocr_lang, output_type=Output.DICT)
+                
+                # Organiser les données en lignes
+                rows = []
+                current_row = []
+                last_top = 0
+                
+                for j, text in enumerate(data['text']):
+                    if text.strip():
+                        top = data['top'][j]
+                        if abs(top - last_top) > 20:  # Nouvelle ligne
+                            if current_row:
+                                rows.append(current_row)
+                                current_row = []
+                            last_top = top
+                        current_row.append(text.strip())
+                
+                if current_row:
+                    rows.append(current_row)
+                
+                # Ajouter au DataFrame
+                if rows:
+                    df_page = pd.DataFrame(rows)
+                    df_page.insert(0, 'Page', i+1)
+                    all_data.append(df_page)
+            else:
+                # Texte simple sans mise en page
+                text = pytesseract.image_to_string(img, lang=ocr_lang)
+                df_page = pd.DataFrame({'Page': [i+1], 'Contenu': [text]})
+                all_data.append(df_page)
+        
+        # Combiner toutes les pages
+        if all_data:
+            df = pd.concat(all_data, ignore_index=True)
+        else:
+            df = pd.DataFrame({'Page': range(1, len(images)+1), 'Contenu': [''] * len(images)})
         
         # Sauvegarder en Excel
         output = BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name='PDF_Extrait')
+            df.to_excel(writer, index=False, sheet_name='PDF_Extraction')
+            
+            # Ajouter une feuille de résumé
+            summary_df = pd.DataFrame({
+                'Propriété': ['Fichier source', 'Pages totales', 'OCR activé', 'Langue', 'Date'],
+                'Valeur': [
+                    Path(file_storage.filename).name,
+                    len(images),
+                    'Oui' if ocr_enabled == 'true' else 'Non',
+                    language.upper(),
+                    datetime.now().strftime('%d/%m/%Y %H:%M')
+                ]
+            })
+            summary_df.to_excel(writer, sheet_name='Résumé', index=False)
         
         output.seek(0)
         
@@ -1083,12 +1223,33 @@ def convert_pdf_to_ppt(file, form_data=None):
         input_path = os.path.join(temp_dir, secure_filename(file.filename))
         file.save(input_path)
         
+        # Récupérer les options
+        layout = form_data.get('layout', 'single') if form_data else 'single'
+        slide_size = form_data.get('slide_size', 'widescreen') if form_data else 'widescreen'
+        include_images = form_data.get('include_images', 'true') if form_data else 'true'
+        editable_text = form_data.get('editable_text', 'true') if form_data else 'true'
+        
         # Convertir PDF en images
         images = convert_from_path(input_path)
         
         # Créer une présentation PowerPoint
         prs = Presentation()
         
+        # Définir la taille des diapositives
+        if slide_size == 'widescreen':
+            prs.slide_width = 9144000  # 10 pouces en EMU
+            prs.slide_height = 5143500  # 5.625 pouces
+        elif slide_size == 'standard':
+            prs.slide_width = 9144000
+            prs.slide_height = 6858000
+        elif slide_size == 'a4':
+            prs.slide_width = 8268000
+            prs.slide_height = 11693000
+        elif slide_size == 'letter':
+            prs.slide_width = 9144000
+            prs.slide_height = 11811000
+        
+        # Ajouter une diapositive par image
         for i, image in enumerate(images):
             # Ajouter une diapositive
             slide_layout = prs.slide_layouts[6]  # Layout vierge
@@ -1102,6 +1263,11 @@ def convert_pdf_to_ppt(file, form_data=None):
             left = top = Inches(0.5)
             slide.shapes.add_picture(img_path, left, top, 
                                     height=prs.slide_height - Inches(1))
+            
+            # Ajouter le numéro de page
+            txBox = slide.shapes.add_textbox(Inches(0.5), prs.slide_height - Inches(1), Inches(1), Inches(0.5))
+            tf = txBox.text_frame
+            tf.text = f"Page {i+1}"
         
         # Sauvegarder la présentation
         output = BytesIO()
@@ -1134,17 +1300,35 @@ def convert_pdf_to_images(file, form_data=None):
         pdf_path = os.path.join(temp_dir, secure_filename(file.filename))
         file.save(pdf_path)
         
-        # Convertir en images
-        images = convert_from_path(pdf_path)
+        # Récupérer les options
+        image_format = form_data.get('format', 'png') if form_data else 'png'
+        quality = form_data.get('quality', 'medium') if form_data else 'medium'
+        dpi = int(form_data.get('dpi', '150')) if form_data else 150
+        pages = form_data.get('pages', 'all') if form_data else 'all'
+        merge_single = form_data.get('merge_single', 'true') if form_data else 'true'
+        
+        # Convertir en images avec la résolution spécifiée
+        if pages == 'all':
+            images = convert_from_path(pdf_path, dpi=dpi)
+        else:
+            # Parser la sélection de pages (ex: "1,3-5")
+            # Version simplifiée - à améliorer selon les besoins
+            images = convert_from_path(pdf_path, dpi=dpi, first_page=1, last_page=5)
         
         # Créer un fichier ZIP
         zip_buffer = BytesIO()
         with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
             for i, img in enumerate(images):
                 img_buffer = BytesIO()
-                img.save(img_buffer, format='PNG')
+                if image_format == 'png':
+                    img.save(img_buffer, format='PNG', optimize=True)
+                else:
+                    # JPG avec qualité ajustée
+                    quality_val = 95 if quality == 'high' else 75 if quality == 'medium' else 50
+                    img.save(img_buffer, format='JPEG', quality=quality_val, optimize=True)
+                
                 img_buffer.seek(0)
-                zip_file.writestr(f"page_{i+1}.png", img_buffer.getvalue())
+                zip_file.writestr(f"page_{i+1}.{image_format}", img_buffer.getvalue())
         
         zip_buffer.seek(0)
         
@@ -1173,16 +1357,36 @@ def convert_pdf_to_pdfa(file, form_data=None):
         pdf_reader = pypdf.PdfReader(file.stream)
         pdf_writer = pypdf.PdfWriter()
         
+        # Récupérer la version PDF/A
+        version = form_data.get('version', '2b') if form_data else '2b'
+        
         # Copier toutes les pages
         for page in pdf_reader.pages:
             pdf_writer.add_page(page)
         
-        # Ajouter des métadonnées PDF/A (simplifié)
+        # Mapper les versions PDF/A
+        version_map = {
+            '1a': 'PDF/A-1a:2005',
+            '1b': 'PDF/A-1b:2005',
+            '2a': 'PDF/A-2a:2011',
+            '2b': 'PDF/A-2b:2011',
+            '2u': 'PDF/A-2u:2011',
+            '3a': 'PDF/A-3a:2012',
+            '3b': 'PDF/A-3b:2012',
+            '3u': 'PDF/A-3u:2012'
+        }
+        
+        pdfa_version = version_map.get(version, 'PDF/A-2b:2011')
+        
+        # Ajouter des métadonnées PDF/A
         pdf_writer.add_metadata({
             '/Producer': 'PDF Fusion Pro',
             '/Creator': 'PDF Fusion Pro',
             '/Title': Path(file.filename).stem,
-            '/CreationDate': datetime.now().strftime('D:%Y%m%d%H%M%S')
+            '/CreationDate': datetime.now().strftime('D:%Y%m%d%H%M%S'),
+            '/GTS_PDFA1Version': pdfa_version,
+            '/PDFA_ID': f'PDF/A-{version}',
+            '/ModDate': datetime.now().strftime('D:%Y%m%d%H%M%S')
         })
         
         # Sauvegarder
@@ -1211,19 +1415,32 @@ def convert_pdf_to_html(file, form_data=None):
         # Lire le PDF
         pdf_reader = pypdf.PdfReader(file.stream)
         
+        # Récupérer les options
+        output_format = form_data.get('outputFormat', 'single') if form_data else 'single'
+        encoding = form_data.get('encoding', 'utf-8') if form_data else 'utf-8'
+        include_styles = form_data.get('includeStyles', 'true') if form_data else 'true'
+        preserve_images = form_data.get('preserveImages', 'true') if form_data else 'true'
+        
         # Créer le HTML
-        html_content = """<!DOCTYPE html>
+        html_content = f"""<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>PDF vers HTML</title>
+    <meta charset="{encoding}">
+    <title>PDF vers HTML - {Path(file.filename).stem}</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .page { margin-bottom: 30px; page-break-after: always; }
-        .page-number { color: #666; font-size: 12px; margin-top: 10px; }
+        body {{ font-family: Arial, sans-serif; margin: 40px; }}
+        .page {{ margin-bottom: 30px; page-break-after: always; }}
+        .page-number {{ color: #666; font-size: 12px; margin-top: 10px; text-align: center; }}
+        .content {{ line-height: 1.6; }}
+        table {{ border-collapse: collapse; width: 100%; margin: 15px 0; }}
+        th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+        th {{ background-color: #f2f2f2; }}
     </style>
 </head>
 <body>
+    <h1>Conversion de {Path(file.filename).name}</h1>
+    <p><em>Généré le {datetime.now().strftime('%d/%m/%Y à %H:%M')}</em></p>
+    <hr>
 """
         
         for page_num, page in enumerate(pdf_reader.pages, 1):
@@ -1235,7 +1452,11 @@ def convert_pdf_to_html(file, form_data=None):
             if text:
                 # Échapper le texte pour HTML
                 text = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-                html_content += f'<p>{text.replace(chr(10), "<br>")}</p>\n'
+                # Convertir les retours à la ligne en <br>
+                paragraphs = text.split('\n\n')
+                for para in paragraphs:
+                    if para.strip():
+                        html_content += f'<p>{para.replace(chr(10), "<br>")}</p>\n'
             
             html_content += f'</div>\n'
             html_content += f'<div class="page-number">Page {page_num}</div>\n'
@@ -1243,16 +1464,29 @@ def convert_pdf_to_html(file, form_data=None):
         
         html_content += "</body>\n</html>"
         
-        # Créer le fichier ZIP
-        output = BytesIO()
-        output.write(html_content.encode('utf-8'))
-        output.seek(0)
+        # Créer le fichier HTML ou ZIP selon le format demandé
+        if output_format == 'single' or output_format == 'multiple':
+            output = BytesIO()
+            output.write(html_content.encode(encoding))
+            output.seek(0)
+            
+            mimetype = 'text/html'
+            download_name = f"{Path(file.filename).stem}.html"
+        else:
+            # Créer un ZIP
+            output = BytesIO()
+            with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                zip_file.writestr(f"{Path(file.filename).stem}.html", html_content.encode(encoding))
+            
+            output.seek(0)
+            mimetype = 'application/zip'
+            download_name = f"{Path(file.filename).stem}_html.zip"
         
         return send_file(
             output,
-            mimetype='text/html',
+            mimetype=mimetype,
             as_attachment=True,
-            download_name=f"{Path(file.filename).stem}.html"
+            download_name=download_name
         )
         
     except Exception as e:
@@ -1269,16 +1503,39 @@ def convert_pdf_to_txt(file, form_data=None):
         # Lire le PDF
         pdf_reader = pypdf.PdfReader(file.stream)
         
+        # Récupérer les options
+        encoding = form_data.get('encoding', 'utf-8') if form_data else 'utf-8'
+        preserve_layout = form_data.get('preserveLayout', 'false') if form_data else 'false'
+        add_page_markers = form_data.get('addPageMarkers', 'true') if form_data else 'true'
+        extract_all_pages = form_data.get('extractAllPages', 'true') if form_data else 'true'
+        
         # Extraire le texte
         text_content = ""
+        
+        if add_page_markers == 'true':
+            text_content += f"=== EXTRACTION DU PDF : {Path(file.filename).name} ===\n"
+            text_content += f"Date : {datetime.now().strftime('%d/%m/%Y %H:%M')}\n"
+            text_content += "=" * 60 + "\n\n"
+        
         for page_num, page in enumerate(pdf_reader.pages, 1):
-            text_content += f"\n--- Page {page_num} ---\n\n"
-            text_content += page.extract_text() or "[Aucun texte extrait]"
+            if add_page_markers == 'true':
+                text_content += f"\n--- Page {page_num} ---\n\n"
+            
+            page_text = page.extract_text()
+            if page_text:
+                text_content += page_text
+            else:
+                text_content += "[Aucun texte trouvé sur cette page]"
+            
             text_content += "\n\n"
+        
+        if add_page_markers == 'true':
+            text_content += "=" * 60 + "\n"
+            text_content += f"Fin du document - {page_num} pages\n"
         
         # Créer le fichier texte
         output = BytesIO()
-        output.write(text_content.encode('utf-8'))
+        output.write(text_content.encode(encoding))
         output.seek(0)
         
         return send_file(
@@ -1302,10 +1559,36 @@ def convert_html_to_pdf(file, form_data=None):
         # Lire le contenu HTML
         html_content = file.read().decode('utf-8')
         
+        # Récupérer les options
+        page_size = form_data.get('pageSize', 'A4') if form_data else 'A4'
+        orientation = form_data.get('orientation', 'portrait') if form_data else 'portrait'
+        margin = int(form_data.get('margin', '20')) if form_data else 20
+        include_images = form_data.get('includeImages', 'true') if form_data else 'true'
+        enable_javascript = form_data.get('enableJavascript', 'false') if form_data else 'false'
+        
+        # Options pour pdfkit
+        options = {
+            'page-size': page_size,
+            'orientation': orientation,
+            'margin-top': f'{margin}mm',
+            'margin-right': f'{margin}mm',
+            'margin-bottom': f'{margin}mm',
+            'margin-left': f'{margin}mm',
+            'encoding': 'UTF-8',
+            'no-outline': None,
+            'enable-local-file-access': None
+        }
+        
+        if enable_javascript == 'true':
+            options['enable-javascript'] = None
+        
+        if include_images == 'false':
+            options['no-images'] = None
+        
         # Utiliser pdfkit (wkhtmltopdf) si disponible
         if HAS_PDFKIT:
             try:
-                pdf = pdfkit.from_string(html_content, False)
+                pdf = pdfkit.from_string(html_content, False, options=options)
                 output = BytesIO(pdf)
             except Exception as e:
                 logger.warning(f"pdfkit échoué, tentative avec weasyprint: {e}")
@@ -1343,25 +1626,67 @@ def convert_txt_to_pdf(file, form_data=None):
         # Lire le contenu texte
         text_content = file.read().decode('utf-8')
         
+        # Récupérer les options
+        page_size = form_data.get('pageSize', 'A4') if form_data else 'A4'
+        font_family = form_data.get('fontFamily', 'Helvetica') if form_data else 'Helvetica'
+        font_size = int(form_data.get('fontSize', '12')) if form_data else 12
+        line_spacing = float(form_data.get('lineSpacing', '1.5')) if form_data else 1.5
+        add_page_numbers = form_data.get('addPageNumbers', 'true') if form_data else 'true'
+        
+        # Définir la taille de page
+        if page_size == 'A4':
+            pagesize = A4
+        elif page_size == 'letter':
+            pagesize = letter
+        else:
+            pagesize = A4
+        
         # Créer le PDF
         output = BytesIO()
-        c = canvas.Canvas(output, pagesize=A4)
-        width, height = A4
+        c = canvas.Canvas(output, pagesize=pagesize)
+        width, height = pagesize
         
         # Paramètres
         margin = 50
         y = height - margin
-        line_height = 14
+        line_height = font_size * line_spacing
+        page_num = 1
         
         # Écrire le texte
-        for line in text_content.split('\n'):
+        lines = text_content.split('\n')
+        for line in lines:
+            # Vérifier si besoin d'une nouvelle page
             if y < margin:
+                if add_page_numbers == 'true':
+                    c.setFont("Helvetica", 8)
+                    c.drawString(width - 50, 30, f"Page {page_num}")
                 c.showPage()
                 y = height - margin
+                page_num += 1
+                c.setFont(font_family, font_size)
             
-            c.setFont("Helvetica", 10)
-            c.drawString(margin, y, line[:80])  # Limiter à 80 caractères
+            c.setFont(font_family, font_size)
+            # Gérer les lignes trop longues
+            while len(line) > 80:
+                c.drawString(margin, y, line[:80])
+                line = line[80:]
+                y -= line_height
+                if y < margin:
+                    if add_page_numbers == 'true':
+                        c.setFont("Helvetica", 8)
+                        c.drawString(width - 50, 30, f"Page {page_num}")
+                    c.showPage()
+                    y = height - margin
+                    page_num += 1
+                    c.setFont(font_family, font_size)
+            
+            c.drawString(margin, y, line)
             y -= line_height
+        
+        # Ajouter le numéro de la dernière page
+        if add_page_numbers == 'true':
+            c.setFont("Helvetica", 8)
+            c.drawString(width - 50, 30, f"Page {page_num}")
         
         c.save()
         output.seek(0)
@@ -1402,6 +1727,14 @@ def unlock_pdf(file, form_data=None):
         for page in pdf_reader.pages:
             pdf_writer.add_page(page)
         
+        # Ajouter des métadonnées
+        pdf_writer.add_metadata({
+            '/Producer': 'PDF Fusion Pro',
+            '/Creator': 'PDF Fusion Pro',
+            '/Title': f"{Path(file.filename).stem} (déverrouillé)",
+            '/CreationDate': datetime.now().strftime('D:%Y%m%d%H%M%S')
+        })
+        
         # Sauvegarder
         output = BytesIO()
         pdf_writer.write(output)
@@ -1432,6 +1765,12 @@ def protect_pdf(file, form_data=None):
         if not user_password:
             return {'error': 'Mot de passe requis'}
         
+        if len(user_password) < 6:
+            return {'error': 'Le mot de passe doit contenir au moins 6 caractères'}
+        
+        # Récupérer les permissions
+        permissions = form_data.get('permissions', 'view') if form_data else 'view'
+        
         # Lire le PDF
         pdf_reader = pypdf.PdfReader(file.stream)
         
@@ -1439,6 +1778,14 @@ def protect_pdf(file, form_data=None):
         pdf_writer = pypdf.PdfWriter()
         for page in pdf_reader.pages:
             pdf_writer.add_page(page)
+        
+        # Ajouter des métadonnées
+        pdf_writer.add_metadata({
+            '/Producer': 'PDF Fusion Pro',
+            '/Creator': 'PDF Fusion Pro',
+            '/Title': f"{Path(file.filename).stem} (protégé)",
+            '/CreationDate': datetime.now().strftime('D:%Y%m%d%H%M%S')
+        })
         
         # Ajouter la protection
         pdf_writer.encrypt(user_password, owner_password)
@@ -1469,13 +1816,32 @@ def convert_image_to_word(file, form_data=None):
         # Ouvrir l'image
         img = Image.open(file.stream)
         
+        # Récupérer les options
+        language = form_data.get('language', 'fra') if form_data else 'fra'
+        
+        # Langue pour l'OCR
+        lang_map = {
+            'fra': 'fra',
+            'eng': 'eng',
+            'deu': 'deu',
+            'spa': 'spa',
+            'ita': 'ita'
+        }
+        ocr_lang = lang_map.get(language, 'fra+eng')
+        
         # OCR
-        text = pytesseract.image_to_string(img, lang='fra+eng')
+        text = pytesseract.image_to_string(img, lang=ocr_lang)
         
         # Créer un document Word
         doc = Document()
         doc.add_heading('Texte extrait de l\'image', 0)
         doc.add_paragraph(text)
+        
+        # Ajouter l'image originale
+        img_buffer = BytesIO()
+        img.save(img_buffer, format='PNG')
+        img_buffer.seek(0)
+        doc.add_picture(img_buffer, width=Inches(6))
         
         # Sauvegarder
         output = BytesIO()
@@ -1503,34 +1869,66 @@ def convert_image_to_excel(file_storage, form_data=None):
         # Ouvrir l'image
         img = Image.open(file_storage.stream)
         
-        # OCR pour obtenir des lignes de texte
-        data = pytesseract.image_to_data(img, lang='fra+eng', output_type=Output.DICT)
+        # Récupérer les options
+        language = form_data.get('language', 'fra') if form_data else 'fra'
+        detect_tables = form_data.get('detect_tables', 'true') if form_data else 'true'
         
-        # Organiser les données
-        rows = []
-        current_row = []
-        last_top = 0
+        # Langue pour l'OCR
+        lang_map = {
+            'fra': 'fra',
+            'eng': 'eng',
+            'deu': 'deu',
+            'spa': 'spa',
+            'ita': 'ita'
+        }
+        ocr_lang = lang_map.get(language, 'fra+eng')
         
-        for i, text in enumerate(data['text']):
-            if text.strip():
-                top = data['top'][i]
-                if abs(top - last_top) > 20:  # Nouvelle ligne
-                    if current_row:
-                        rows.append(current_row)
-                        current_row = []
-                    last_top = top
-                current_row.append(text.strip())
-        
-        if current_row:
-            rows.append(current_row)
-        
-        # Créer un DataFrame
-        df = pd.DataFrame(rows)
+        if detect_tables == 'true':
+            # OCR avec détection de tableaux
+            data = pytesseract.image_to_data(img, lang=ocr_lang, output_type=Output.DICT)
+            
+            # Organiser les données en lignes
+            rows = []
+            current_row = []
+            last_top = 0
+            
+            for i, text in enumerate(data['text']):
+                if text.strip():
+                    top = data['top'][i]
+                    if abs(top - last_top) > 20:  # Nouvelle ligne
+                        if current_row:
+                            rows.append(current_row)
+                            current_row = []
+                        last_top = top
+                    current_row.append(text.strip())
+            
+            if current_row:
+                rows.append(current_row)
+            
+            # Créer un DataFrame
+            df = pd.DataFrame(rows)
+        else:
+            # Texte simple
+            text = pytesseract.image_to_string(img, lang=ocr_lang)
+            lines = [line.strip() for line in text.split('\n') if line.strip()]
+            df = pd.DataFrame({'Texte extrait': lines})
         
         # Sauvegarder en Excel
         output = BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             df.to_excel(writer, index=False, sheet_name='Image_OCR')
+            
+            # Ajouter l'image (comme commentaire)
+            summary_df = pd.DataFrame({
+                'Information': ['Fichier source', 'Langue OCR', 'Détection tableaux', 'Date'],
+                'Valeur': [
+                    Path(file_storage.filename).name,
+                    language.upper(),
+                    'Oui' if detect_tables == 'true' else 'Non',
+                    datetime.now().strftime('%d/%m/%Y %H:%M')
+                ]
+            })
+            summary_df.to_excel(writer, sheet_name='Résumé', index=False)
         
         output.seek(0)
         
@@ -1552,13 +1950,31 @@ def convert_csv_to_excel(files, form_data=None):
         return {'error': 'pandas non installé'}
     
     try:
+        # Récupérer les options
+        delimiter = form_data.get('delimiter', 'auto') if form_data else 'auto'
+        encoding = form_data.get('encoding', 'utf-8') if form_data else 'utf-8'
+        has_header = form_data.get('has_header', 'true') if form_data else 'true'
+        
         # Si plusieurs fichiers, créer un classeur avec plusieurs feuilles
         if len(files) > 1:
             output = BytesIO()
             with pd.ExcelWriter(output, engine='openpyxl') as writer:
                 for file in files:
+                    # Déterminer le délimiteur
+                    sep = ','
+                    if delimiter == 'auto':
+                        # Détection basique
+                        sample = file.read(1024).decode(encoding)
+                        file.seek(0)
+                        if ';' in sample:
+                            sep = ';'
+                        elif '\t' in sample:
+                            sep = '\t'
+                    
                     # Lire le CSV
-                    df = pd.read_csv(file.stream)
+                    header = 0 if has_header == 'true' else None
+                    df = pd.read_csv(file.stream, sep=sep, encoding=encoding, header=header)
+                    
                     # Écrire dans une feuille
                     sheet_name = Path(file.filename).stem[:31]  # Max 31 caractères
                     df.to_excel(writer, sheet_name=sheet_name, index=False)
@@ -1573,7 +1989,19 @@ def convert_csv_to_excel(files, form_data=None):
         else:
             # Un seul fichier
             file = files[0]
-            df = pd.read_csv(file.stream)
+            
+            # Déterminer le délimiteur
+            sep = ','
+            if delimiter == 'auto':
+                sample = file.read(1024).decode(encoding)
+                file.seek(0)
+                if ';' in sample:
+                    sep = ';'
+                elif '\t' in sample:
+                    sep = '\t'
+            
+            header = 0 if has_header == 'true' else None
+            df = pd.read_csv(file.stream, sep=sep, encoding=encoding, header=header)
             
             output = BytesIO()
             with pd.ExcelWriter(output, engine='openpyxl') as writer:
@@ -1598,16 +2026,30 @@ def convert_excel_to_csv(files, form_data=None):
         return {'error': 'pandas non installé'}
     
     try:
+        # Récupérer les options
+        delimiter = form_data.get('delimiter', ',') if form_data else ','
+        encoding = form_data.get('encoding', 'utf-8') if form_data else 'utf-8'
+        sheet_name = form_data.get('sheet_name', '0') if form_data else '0'
+        include_header = form_data.get('include_header', 'true') if form_data else 'true'
+        
         if len(files) > 1:
             # Plusieurs fichiers -> ZIP
             zip_buffer = BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
                 for file in files:
                     # Lire l'Excel
-                    df = pd.read_excel(file.stream)
+                    if sheet_name == '0':
+                        df = pd.read_excel(file.stream, sheet_name=0)
+                    else:
+                        try:
+                            df = pd.read_excel(file.stream, sheet_name=sheet_name)
+                        except:
+                            df = pd.read_excel(file.stream, sheet_name=0)
+                    
                     # Convertir en CSV
                     csv_buffer = BytesIO()
-                    df.to_csv(csv_buffer, index=False, encoding='utf-8')
+                    df.to_csv(csv_buffer, sep=delimiter, index=False, 
+                            encoding=encoding, header=include_header == 'true')
                     csv_buffer.seek(0)
                     zip_file.writestr(f"{Path(file.filename).stem}.csv", csv_buffer.getvalue())
             
@@ -1621,10 +2063,19 @@ def convert_excel_to_csv(files, form_data=None):
         else:
             # Un seul fichier
             file = files[0]
-            df = pd.read_excel(file.stream)
+            
+            # Lire l'Excel
+            if sheet_name == '0':
+                df = pd.read_excel(file.stream, sheet_name=0)
+            else:
+                try:
+                    df = pd.read_excel(file.stream, sheet_name=sheet_name)
+                except:
+                    df = pd.read_excel(file.stream, sheet_name=0)
             
             output = BytesIO()
-            df.to_csv(output, index=False, encoding='utf-8')
+            df.to_csv(output, sep=delimiter, index=False, 
+                     encoding=encoding, header=include_header == 'true')
             output.seek(0)
             
             return send_file(
