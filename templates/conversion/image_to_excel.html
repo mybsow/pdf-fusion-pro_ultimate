@@ -5,277 +5,170 @@
 {% block converter_content %}
 <!-- Étape 1: Upload -->
 <div id="step1Content">
+    <div class="text-center mb-4">
+        <i class="fas fa-image upload-icon" style="color: #217346;"></i>
+        <h3>Téléchargez votre image ou PDF</h3>
+        <p class="text-muted">Extrayez les tableaux de vos documents en feuilles Excel</p>
+    </div>
+
     <!-- Zone d'upload avec UploadManager -->
-    <div class="upload-zone-pro" id="imageToExcelUploadZone" data-info-id="imageToExcelFileInfo" data-btn-id="convertBtn">
-        <div class="upload-inner">
-            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-            <h4 class="upload-title">Extrayez les tableaux de vos images</h4>
-            <p class="upload-subtitle">Glissez-déposez ou cliquez pour sélectionner</p>
-            <div class="upload-info mb-4">
-                <span class="badge bg-success me-2">
-                    <i class="fas fa-image me-1"></i>Images
-                </span>
-                <span class="badge bg-danger me-2">
-                    <i class="fas fa-file-pdf me-1"></i>PDF
-                </span>
-                <span class="badge bg-primary me-2">
-                    <i class="fas fa-table me-1"></i>Tableaux
-                </span>
-                <span class="badge bg-warning text-dark">
-                    <i class="fas fa-weight-hanging me-1"></i>Max 50MB
-                </span>
-            </div>
-        </div>
-        <input type="file" accept=".jpg,.jpeg,.png,.bmp,.tiff,.tif,.webp,.pdf" style="display:none;">
+    <div id="imageExcelUploadZone" 
+         class="upload-zone-pro upload-zone" 
+         data-info-id="fileInfo"
+         data-btn-id="convertBtn"
+         style="cursor: pointer;">
+        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+        <h4>Glissez-déposez votre fichier ici</h4>
+        <p class="text-muted">ou</p>
+        <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.bmp,.tiff,.tif,.webp,.pdf" style="display: none;">
+        <p class="text-muted small mt-3">
+            <i class="fas fa-info-circle"></i> 
+            Formats acceptés : JPG, PNG, BMP, TIFF, WEBP, PDF (jusqu'à 50MB)
+        </p>
     </div>
-    
-    <div id="imageToExcelFileInfo" class="file-list mt-3"></div>
-    <div id="imageToExcelUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
-    
+
+    <!-- Liste des fichiers -->
+    <div id="fileInfo" class="file-list mt-4"></div>
+    <div id="imageExcelUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
+
     <!-- Options de détection de tableaux -->
-    <div class="mt-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title mb-4">
-                    <i class="fas fa-table me-2"></i>Paramètres d'extraction de tableaux
-                </h5>
+    <div class="file-info-card mt-4">
+        <h5 class="mb-3">
+            <i class="fas fa-cog me-2"></i>Options d'extraction
+        </h5>
+        
+        <div class="row g-4">
+            <div class="col-md-6">
+                <label class="form-label fw-bold mb-3">
+                    <i class="fas fa-cogs me-1"></i>Mode d'extraction
+                </label>
                 
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label class="form-label fw-bold mb-3">
-                            <i class="fas fa-cogs me-1"></i>Mode d'extraction
-                        </label>
-                        
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" 
-                                   name="extractionMode" 
-                                   id="mode_auto" 
-                                   value="auto" 
-                                   checked>
-                            <label class="form-check-label" for="mode_auto">
-                                <strong>Automatique</strong>
-                                <small class="d-block text-muted">Détection intelligente des tableaux (recommandé)</small>
-                            </label>
-                        </div>
-                        
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" 
-                                   name="extractionMode" 
-                                   id="mode_manual" 
-                                   value="manual">
-                            <label class="form-check-label" for="mode_manual">
-                                <strong>Manuel</strong>
-                                <small class="d-block text-muted">Sélectionnez manuellement les zones à extraire</small>
-                            </label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" 
-                                   name="extractionMode" 
-                                   id="mode_grid" 
-                                   value="grid">
-                            <label class="form-check-label" for="mode_grid">
-                                <strong>Grille</strong>
-                                <small class="d-block text-muted">Extraction par grille fixe</small>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 mb-4">
-                        <label class="form-label fw-bold mb-3">
-                            <i class="fas fa-filter me-1"></i>Filtres d'extraction
-                        </label>
-                        
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" 
-                                   id="detectHeaders" 
-                                   name="detect_headers" 
-                                   value="1" 
-                                   checked>
-                            <label class="form-check-label" for="detectHeaders">
-                                <strong>Détecter les en-têtes</strong>
-                                <small class="d-block text-muted">Identifie automatiquement les titres de colonnes</small>
-                            </label>
-                        </div>
-                        
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" 
-                                   id="mergeCells" 
-                                   name="merge_cells" 
-                                   value="1" 
-                                   checked>
-                            <label class="form-check-label" for="mergeCells">
-                                <strong>Fusionner les cellules</strong>
-                                <small class="d-block text-muted">Conserve les cellules fusionnées du tableau original</small>
-                            </label>
-                        </div>
-                        
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" 
-                                   id="detectFormulas" 
-                                   name="detect_formulas" 
-                                   value="1">
-                            <label class="form-check-label" for="detectFormulas">
-                                <strong>Détecter les formules</strong>
-                                <small class="d-block text-muted">Essaye d'identifier les formules mathématiques</small>
-                            </label>
-                        </div>
-                    </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" 
+                           name="extractionMode" 
+                           id="mode_auto" 
+                           value="auto" 
+                           checked>
+                    <label class="form-check-label" for="mode_auto">
+                        <strong>Automatique</strong>
+                        <small class="d-block text-muted">Détection intelligente des tableaux</small>
+                    </label>
                 </div>
                 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="outputFormat" class="form-label">Format de sortie</label>
-                        <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" 
-                                   name="outputFormat" 
-                                   id="format_xlsx" 
-                                   value="xlsx" 
-                                   checked>
-                            <label class="btn btn-outline-success" for="format_xlsx">
-                                <i class="fas fa-file-excel me-1"></i>XLSX
-                            </label>
-                            
-                            <input type="radio" class="btn-check" 
-                                   name="outputFormat" 
-                                   id="format_csv" 
-                                   value="csv">
-                            <label class="btn btn-outline-success" for="format_csv">
-                                <i class="fas fa-file-csv me-1"></i>CSV
-                            </label>
-                            
-                            <input type="radio" class="btn-check" 
-                                   name="outputFormat" 
-                                   id="format_json" 
-                                   value="json">
-                            <label class="btn btn-outline-success" for="format_json">
-                                <i class="fas fa-file-code me-1"></i>JSON
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 mb-3">
-                        <label for="ocrAccuracy" class="form-label">Précision OCR</label>
-                        <select class="form-select" id="ocrAccuracy" name="ocr_accuracy">
-                            <option value="high" selected>Haute (lent)</option>
-                            <option value="medium">Moyenne (équilibré)</option>
-                            <option value="low">Basse (rapide)</option>
-                        </select>
-                    </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" 
+                           name="extractionMode" 
+                           id="mode_grid" 
+                           value="grid">
+                    <label class="form-check-label" for="mode_grid">
+                        <strong>Grille</strong>
+                        <small class="d-block text-muted">Extraction par grille fixe</small>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label fw-bold mb-3">
+                    <i class="fas fa-filter me-1"></i>Options
+                </label>
+                
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" 
+                           id="detectHeaders" 
+                           checked>
+                    <label class="form-check-label" for="detectHeaders">
+                        <strong>Détecter les en-têtes</strong>
+                    </label>
                 </div>
                 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="numberFormat" class="form-label">Traitement des nombres</label>
-                        <select class="form-select" id="numberFormat" name="number_format">
-                            <option value="auto" selected>Détection automatique</option>
-                            <option value="decimal">Décimal (point)</option>
-                            <option value="comma">Décimal (virgule)</option>
-                            <option value="currency">Monétaire</option>
-                            <option value="percentage">Pourcentage</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-6 mb-3">
-                        <label for="dateFormat" class="form-label">Gestion des dates</label>
-                        <select class="form-select" id="dateFormat" name="date_format">
-                            <option value="auto" selected>Détection automatique</option>
-                            <option value="dd/mm/yyyy">JJ/MM/AAAA</option>
-                            <option value="mm/dd/yyyy">MM/JJ/AAAA</option>
-                            <option value="yyyy-mm-dd">AAAA-MM-JJ</option>
-                        </select>
-                    </div>
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" 
+                           id="mergeCells" 
+                           checked>
+                    <label class="form-check-label" for="mergeCells">
+                        <strong>Fusionner les cellules</strong>
+                    </label>
                 </div>
-                
-                <div class="action-buttons mt-4">
-                    <button class="btn btn-primary btn-lg" id="convertBtn" disabled>
-                        <i class="fas fa-search me-2"></i>
-                        Détecter et extraire les tableaux
-                    </button>
-                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label for="ocrAccuracy" class="form-label fw-bold">Précision OCR</label>
+                <select class="form-select" id="ocrAccuracy">
+                    <option value="high">Haute (plus lent)</option>
+                    <option value="medium" selected>Moyenne (équilibré)</option>
+                    <option value="low">Basse (plus rapide)</option>
+                </select>
+            </div>
+            
+            <div class="col-md-6">
+                <label for="outputFormat" class="form-label fw-bold">Format de sortie</label>
+                <select class="form-select" id="outputFormat">
+                    <option value="xlsx">Excel (XLSX)</option>
+                    <option value="csv">CSV</option>
+                    <option value="json">JSON</option>
+                </select>
             </div>
         </div>
     </div>
-    
-    <!-- Statistiques de détection -->
-    <div id="tableStats" class="mt-3 p-3 bg-light rounded" style="display: none;">
-        <div class="row text-center">
-            <div class="col-md-3">
-                <div class="display-6 text-primary" id="tablesCount">0</div>
-                <small class="text-muted">Tableau(x)</small>
-            </div>
-            <div class="col-md-3">
-                <div class="display-6 text-success" id="rowsCount">0</div>
-                <small class="text-muted">Ligne(s)</small>
-            </div>
-            <div class="col-md-3">
-                <div class="display-6 text-warning" id="columnsCount">0</div>
-                <small class="text-muted">Colonne(s)</small>
-            </div>
-            <div class="col-md-3">
-                <div class="display-6 text-info" id="cellsCount">0</div>
-                <small class="text-muted">Cellule(s)</small>
-            </div>
+
+    <!-- Statistiques de détection (affichées après upload) -->
+    <div id="tableStats" class="alert alert-info mt-4" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div><i class="fas fa-table me-2"></i><span id="tablesCount">0</span> tableau(x) détecté(s)</div>
+            <div><i class="fas fa-th me-2"></i><span id="cellsCount">0</span> cellule(s)</div>
+            <div><i class="fas fa-check-circle me-2"></i>Prêt pour extraction</div>
         </div>
+    </div>
+
+    <!-- Bouton de conversion -->
+    <div class="text-center mt-4">
+        <button class="btn btn-success btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+            <i class="fas fa-search me-2"></i>Extraire les tableaux
+        </button>
+        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
+            <i class="fas fa-redo me-2"></i>Réinitialiser
+        </button>
     </div>
 </div>
 
-<!-- Étape 2: Analyse -->
+<!-- Étape 2: Analyse en cours -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="upload-icon mb-4">
-            <div class="spinner-border text-success" style="width: 5rem; height: 5rem;" role="status">
-                <span class="visually-hidden">Chargement...</span>
-            </div>
+        <div class="mb-4">
+            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
         
         <h3 class="mb-4">Analyse des tableaux en cours</h3>
-        <p class="text-muted mb-4">
-            Notre IA détecte et extrait les données tabulaires de votre document
+        <p class="text-muted mb-4" id="analysisMessage">
+            Détection des structures tabulaires...
         </p>
         
-        <div class="progress-container">
-            <div class="progress-bar" id="analysisProgress"></div>
+        <div class="progress-container mx-auto" style="max-width: 500px;">
+            <div class="progress-bar" id="analysisProgress" style="width: 0%;"></div>
         </div>
         
-        <div class="mt-4" id="analysisDetails">
-            <p class="text-muted small">
-                <i class="fas fa-sync-alt fa-spin me-1"></i>
-                Chargement et analyse du document...
-            </p>
-        </div>
-        
-        <!-- Statistiques d'extraction -->
-        <div class="row mt-4">
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm h-100">
+        <div class="row mt-5 g-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6><i class="fas fa-table me-1"></i>Tableaux</h6>
-                        <p class="small text-muted mb-0" id="detectedTables">0 détecté(s)</p>
+                        <h6 class="text-muted">Tableaux détectés</h6>
+                        <div class="display-6 text-primary" id="detectedTables">0</div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm h-100">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6><i class="fas fa-th me-1"></i>Cellules</h6>
-                        <p class="small text-muted mb-0" id="detectedCells">0 détectée(s)</p>
+                        <h6 class="text-muted">Cellules extraites</h6>
+                        <div class="display-6 text-success" id="detectedCells">0</div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm h-100">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6><i class="fas fa-percentage me-1"></i>Confiance</h6>
-                        <p class="small text-muted mb-0" id="detectionConfidence">0%</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h6><i class="fas fa-clock me-1"></i>Temps restant</h6>
-                        <p class="small text-muted mb-0" id="timeRemaining">30s</p>
+                        <h6 class="text-muted">Confiance</h6>
+                        <div class="display-6 text-warning" id="detectionConfidence">0%</div>
                     </div>
                 </div>
             </div>
@@ -283,22 +176,22 @@
     </div>
 </div>
 
-<!-- Étape 3: Configuration -->
+<!-- Étape 3: Résultat et téléchargement -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="upload-icon mb-4">
-            <i class="fas fa-check-circle text-success fa-3x"></i>
+        <div class="success-animation">
+            <i class="fas fa-file-excel"></i>
         </div>
         
-        <h3 class="mb-3">Tableaux détectés !</h3>
+        <h3 class="mb-3">Extraction terminée !</h3>
         <p class="text-muted mb-4">
-            Configurez l'export de vos données vers Excel
+            Votre fichier Excel est prêt à être téléchargé
         </p>
         
         <!-- Aperçu des données -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-                <h6 class="mb-3"><i class="fas fa-table me-1"></i>Aperçu des données extraites</h6>
+                <h6 class="mb-3"><i class="fas fa-table me-1"></i>Aperçu des données</h6>
                 <div class="table-responsive">
                     <table class="table table-hover table-sm" id="dataPreview">
                         <thead id="previewHeader"></thead>
@@ -306,466 +199,204 @@
                     </table>
                 </div>
                 <div class="mt-3 text-end">
-                    <small class="text-muted">
-                        Affichage des 10 premières lignes - <span id="totalRows">0</span> lignes au total
-                    </small>
+                    <small class="text-muted" id="totalRows">0 lignes extraites</small>
                 </div>
             </div>
-        </div>
-        
-        <!-- Options d'export -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="mb-3"><i class="fas fa-file-export me-2"></i>Format d'export</h5>
-                        
-                        <div class="mb-3">
-                            <label for="exportFilename" class="form-label">Nom du fichier</label>
-                            <input type="text" class="form-control" id="exportFilename" 
-                                   value="tableaux_extraits.xlsx">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="mergeSheets" class="form-label">Fusionner les feuilles</label>
-                            <select class="form-select" id="mergeSheets">
-                                <option value="separate">Feuilles séparées</option>
-                                <option value="single" selected>Feuille unique</option>
-                                <option value="workbook">Classeur complet</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="includeFormats" checked>
-                            <label class="form-check-label" for="includeFormats">
-                                Inclure la mise en forme
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Traitement des données</h5>
-                        
-                        <div class="mb-3">
-                            <label for="dataCleaning" class="form-label">Nettoyage automatique</label>
-                            <select class="form-select" id="dataCleaning">
-                                <option value="none">Aucun</option>
-                                <option value="basic" selected>Basique (espaces, doublons)</option>
-                                <option value="advanced">Avancé (valeurs manquantes)</option>
-                                <option value="full">Complet (tout nettoyer)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="encoding" class="form-label">Encodage</label>
-                            <select class="form-select" id="encoding">
-                                <option value="utf-8" selected>UTF-8</option>
-                                <option value="iso-8859-1">ISO-8859-1</option>
-                                <option value="windows-1252">Windows-1252</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="addHeaders" checked>
-                            <label class="form-check-label" for="addHeaders">
-                                Ajouter les en-têtes détectés
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <button class="btn btn-success btn-lg px-4 py-3" id="exportBtn" onclick="exportData()">
-            <i class="fas fa-file-excel me-2"></i>
-            Générer le fichier Excel
-        </button>
-    </div>
-</div>
-
-<!-- Étape 4: Téléchargement -->
-<div id="step4Content" style="display: none;">
-    <div class="text-center py-5">
-        <div class="success-animation">
-            <i class="fas fa-file-excel"></i>
-        </div>
-        
-        <h3 class="mb-3">Export réussi !</h3>
-        <p class="text-muted mb-4">
-            Votre fichier Excel est prêt au téléchargement
-        </p>
-        
-        <div class="row g-4 mb-4">
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="fas fa-file-excel fa-2x text-success mb-3"></i>
-                        <h5 id="excelFileName">tableaux_extraits.xlsx</h5>
-                        <p class="small text-muted" id="excelFileInfo">
-                            Taille: 0 MB | Feuilles: 1 | Lignes: 0
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="fas fa-chart-bar fa-2x text-primary mb-3"></i>
-                        <h5>Statistiques</h5>
-                        <p class="small text-muted" id="exportStats">
-                            Tableaux: 0<br>
-                            Cellules: 0<br>
-                            Précision: 0%
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="alert alert-success mt-4" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
-            <strong>Extraction de haute qualité !</strong> Les données ont été correctement structurées.
         </div>
         
         <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
-            <button class="btn btn-success btn-lg px-4 py-3" id="downloadBtn">
-                <i class="fas fa-download me-2"></i>
-                Télécharger Excel
-            </button>
+            <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
+                <i class="fas fa-download me-2"></i>Télécharger Excel
+            </a>
             
-            <button class="btn btn-outline-primary btn-lg px-4 py-3" onclick="resetConverter()">
-                <i class="fas fa-redo me-2"></i>
-                Nouvelle extraction
+            <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
+                <i class="fas fa-redo me-2"></i>Nouvelle extraction
             </button>
-        </div>
-        
-        <div class="mt-4">
-            <div class="btn-group" role="group">
-                <button class="btn btn-outline-secondary" onclick="updateStep(3)">
-                    <i class="fas fa-edit me-1"></i>
-                    Modifier l'export
-                </button>
-            </div>
         </div>
     </div>
 </div>
 
-<!-- Formulaire simple pour téléchargement direct -->
-<form method="POST" 
-      action="{{ url_for('conversion.universal_converter', conversion_type='image-en-excel') }}"
-      enctype="multipart/form-data"
-      id="simpleForm"
-      style="display: none;">
-    <input type="file" name="file" id="simpleFileInput">
-</form>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const convertBtn = document.getElementById('convertBtn');
-    const uploadManager = window.uploadManagers?.imageToExcelUploadZone;
+let downloadUrl = null;
+
+function startConversion() {
+    const uploadManager = window.uploadManagers['imageExcelUploadZone'];
+    if (!uploadManager || uploadManager.getFiles().length === 0) {
+        showError('Veuillez sélectionner un fichier');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', uploadManager.getFiles()[0]);
+    formData.append('extractionMode', document.querySelector('input[name="extractionMode"]:checked').value);
+    formData.append('detectHeaders', document.getElementById('detectHeaders').checked);
+    formData.append('mergeCells', document.getElementById('mergeCells').checked);
+    formData.append('ocrAccuracy', document.getElementById('ocrAccuracy').value);
+    formData.append('outputFormat', document.getElementById('outputFormat').value);
+
+    // Passer à l'étape 2
+    updateStep(2);
     
-    function updateButtonState() {
-        convertBtn.disabled = !uploadManager?.files?.length;
-        
-        // Afficher les statistiques simulées quand un fichier est sélectionné
-        if (uploadManager?.files?.length > 0) {
-            simulateQuickDetection(uploadManager.files[0]);
-            document.getElementById('tableStats').style.display = 'block';
+    // Simuler la progression de l'analyse
+    simulateAnalysis();
+    
+    // Envoyer la requête
+    fetch('{{ url_for("conversion.universal_converter", conversion_type="image-en-excel") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(async response => {
+        if (response.ok) {
+            const blob = await response.blob();
+            downloadUrl = window.URL.createObjectURL(blob);
+            
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'extraction.xlsx';
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (match && match[1]) {
+                    filename = match[1].replace(/['"]/g, '');
+                }
+            }
+            
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = downloadUrl;
+            downloadLink.download = filename;
+            
+            // Simuler l'aperçu des données
+            simulateDataPreview();
+            
+            updateStep(3);
         } else {
-            document.getElementById('tableStats').style.display = 'none';
+            const error = await response.text();
+            showError('Erreur lors de l\'extraction : ' + error);
+            updateStep(1);
+        }
+    })
+    .catch(error => {
+        showError('Erreur : ' + error.message);
+        updateStep(1);
+    });
+}
+
+function simulateAnalysis() {
+    let progress = 0;
+    const progressBar = document.getElementById('analysisProgress');
+    const analysisMessage = document.getElementById('analysisMessage');
+    const detectedTables = document.getElementById('detectedTables');
+    const detectedCells = document.getElementById('detectedCells');
+    const detectionConfidence = document.getElementById('detectionConfidence');
+    
+    const steps = [
+        { percent: 20, message: "Prétraitement de l'image...", tables: 0, cells: 0, confidence: 10 },
+        { percent: 40, message: "Détection des contours...", tables: 1, cells: 50, confidence: 30 },
+        { percent: 60, message: "Identification des lignes...", tables: 1, cells: 120, confidence: 50 },
+        { percent: 80, message: "Extraction du contenu...", tables: 2, cells: 250, confidence: 70 },
+        { percent: 95, message: "Structuration des données...", tables: 3, cells: 450, confidence: 85 },
+        { percent: 100, message: "Finalisation...", tables: 3, cells: 520, confidence: 92 }
+    ];
+    
+    let stepIndex = 0;
+    
+    function updateProgress() {
+        if (stepIndex < steps.length) {
+            const step = steps[stepIndex];
+            progressBar.style.width = step.percent + '%';
+            analysisMessage.textContent = step.message;
+            detectedTables.textContent = step.tables;
+            detectedCells.textContent = step.cells;
+            detectionConfidence.textContent = step.confidence + '%';
+            
+            stepIndex++;
+            setTimeout(updateProgress, 800);
         }
     }
+    
+    updateProgress();
+}
+
+function simulateDataPreview() {
+    const sampleData = {
+        headers: ['Nom', 'Prénom', 'Email', 'Téléphone', 'Ville'],
+        rows: [
+            ['Martin', 'Jean', 'jean.martin@email.com', '01 23 45 67 89', 'Paris'],
+            ['Dubois', 'Marie', 'marie.dubois@email.com', '06 12 34 56 78', 'Lyon'],
+            ['Lambert', 'Pierre', 'pierre.lambert@email.com', '07 89 01 23 45', 'Marseille'],
+            ['Bernard', 'Sophie', 'sophie.bernard@email.com', '02 34 56 78 90', 'Toulouse'],
+            ['Petit', 'Thomas', 'thomas.petit@email.com', '03 45 67 89 01', 'Nice']
+        ]
+    };
+    
+    const header = document.getElementById('previewHeader');
+    const body = document.getElementById('previewBody');
+    const totalRows = document.getElementById('totalRows');
+    
+    header.innerHTML = '<tr>' + sampleData.headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+    body.innerHTML = sampleData.rows.map(row => 
+        '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>'
+    ).join('');
+    
+    totalRows.textContent = '25 lignes extraites';
+}
+
+function resetConversion() {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+        downloadUrl = null;
+    }
+    
+    const uploadManager = window.uploadManagers['imageExcelUploadZone'];
+    if (uploadManager) {
+        while (uploadManager.getFiles().length > 0) {
+            uploadManager.removeFile(0);
+        }
+    }
+    
+    document.getElementById('tableStats').style.display = 'none';
+    updateStep(1);
+}
+
+// Mise à jour du bouton et des stats quand un fichier est sélectionné
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadManager = window.uploadManagers?.['imageExcelUploadZone'];
     
     if (uploadManager) {
         const originalHandleFiles = uploadManager.handleFiles;
         uploadManager.handleFiles = function(fileList) {
             originalHandleFiles.call(this, fileList);
-            updateButtonState();
+            const convertBtn = document.getElementById('convertBtn');
+            convertBtn.disabled = this.getFiles().length === 0;
+            
+            // Afficher les stats simulées
+            if (this.getFiles().length > 0) {
+                document.getElementById('tableStats').style.display = 'block';
+                const file = this.getFiles()[0];
+                const tables = Math.floor(file.size / (1024 * 1024)) + 1;
+                const cells = tables * 50;
+                document.getElementById('tablesCount').textContent = tables;
+                document.getElementById('cellsCount').textContent = cells;
+            } else {
+                document.getElementById('tableStats').style.display = 'none';
+            }
         };
         
         const originalRemoveFile = uploadManager.removeFile;
         uploadManager.removeFile = function(index) {
             originalRemoveFile.call(this, index);
-            updateButtonState();
+            const convertBtn = document.getElementById('convertBtn');
+            convertBtn.disabled = this.getFiles().length === 0;
+            
+            if (this.getFiles().length === 0) {
+                document.getElementById('tableStats').style.display = 'none';
+            }
         };
     }
-    
-    function simulateQuickDetection(file) {
-        // Statistiques simulées basées sur la taille du fichier
-        const tables = Math.max(1, Math.floor(file.size / (5 * 1024 * 1024)));
-        const rows = tables * 10;
-        const columns = 5;
-        const cells = rows * columns;
-        
-        document.getElementById('tablesCount').textContent = tables;
-        document.getElementById('rowsCount').textContent = rows;
-        document.getElementById('columnsCount').textContent = columns;
-        document.getElementById('cellsCount').textContent = cells;
-    }
-    
-    convertBtn.addEventListener('click', async function() {
-        if (!uploadManager?.files?.length) {
-            alert('Veuillez sélectionner un fichier');
-            return;
-        }
-        
-        const file = uploadManager.files[0];
-        document.getElementById('step1Content').style.display = 'none';
-        document.getElementById('step2Content').style.display = 'block';
-        
-        // Simuler la progression
-        const progressBar = document.getElementById('analysisProgress');
-        const details = document.getElementById('analysisDetails');
-        const detectedTables = document.getElementById('detectedTables');
-        const detectedCells = document.getElementById('detectedCells');
-        const detectionConfidence = document.getElementById('detectionConfidence');
-        const timeRemaining = document.getElementById('timeRemaining');
-        
-        const steps = [
-            { percent: 15, message: "Prétraitement de l'image...", tables: 0, cells: 0, confidence: 10, time: 25 },
-            { percent: 30, message: "Détection des contours...", tables: 1, cells: 50, confidence: 25, time: 20 },
-            { percent: 45, message: "Identification des lignes...", tables: 1, cells: 120, confidence: 40, time: 15 },
-            { percent: 60, message: "Détection des colonnes...", tables: 2, cells: 250, confidence: 60, time: 10 },
-            { percent: 75, message: "Extraction du contenu...", tables: 2, cells: 400, confidence: 75, time: 5 },
-            { percent: 90, message: "Structuration des données...", tables: 3, cells: 550, confidence: 85, time: 2 },
-            { percent: 100, message: "Validation des résultats...", tables: 3, cells: 720, confidence: 95, time: 0 }
-        ];
-        
-        let currentStep = 0;
-        
-        function nextStep() {
-            if (currentStep < steps.length) {
-                const step = steps[currentStep];
-                progressBar.style.width = step.percent + '%';
-                details.innerHTML = `<p class="text-muted small">
-                    <i class="fas fa-sync-alt fa-spin me-1"></i>
-                    ${step.message}
-                </p>`;
-                
-                detectedTables.textContent = `${step.tables} détecté(s)`;
-                detectedCells.textContent = `${step.cells} détectée(s)`;
-                detectionConfidence.textContent = `${step.confidence}%`;
-                timeRemaining.textContent = `${step.time}s`;
-                
-                currentStep++;
-                
-                const interval = currentStep === steps.length - 1 ? 1500 : 1000;
-                setTimeout(nextStep, interval);
-            } else {
-                setTimeout(completeDetectionSimulation, 1000);
-            }
-        }
-        
-        setTimeout(nextStep, 500);
-        
-        // Soumettre le formulaire directement
-        setTimeout(() => {
-            const simpleForm = document.getElementById('simpleForm');
-            const simpleFileInput = document.getElementById('simpleFileInput');
-            
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-            simpleFileInput.files = dataTransfer.files;
-            
-            simpleForm.submit();
-        }, 500);
-    });
-    
-    function completeDetectionSimulation() {
-        updateStep(3);
-        
-        // Préparer les données pour l'aperçu
-        const sampleData = {
-            headers: ['Nom', 'Email', 'Téléphone', 'Ville', 'Code Postal'],
-            rows: [
-                ['Jean Martin', 'jean.martin@exemple.com', '01 23 45 67 89', 'Paris', '75001'],
-                ['Marie Dubois', 'marie.dubois@exemple.com', '06 12 34 56 78', 'Lyon', '69001'],
-                ['Pierre Lambert', 'pierre.lambert@exemple.com', '07 89 01 23 45', 'Marseille', '13001'],
-                ['Sophie Bernard', 'sophie.bernard@exemple.com', '02 34 56 78 90', 'Toulouse', '31000'],
-                ['Thomas Petit', 'thomas.petit@exemple.com', '03 45 67 89 01', 'Nice', '06000'],
-                ['Julie Robert', 'julie.robert@exemple.com', '04 56 78 90 12', 'Nantes', '44000'],
-                ['Nicolas Richard', 'nicolas.richard@exemple.com', '05 67 89 01 23', 'Strasbourg', '67000'],
-                ['Isabelle Durand', 'isabelle.durand@exemple.com', '01 78 90 12 34', 'Montpellier', '34000'],
-                ['François Moreau', 'francois.moreau@exemple.com', '06 89 01 23 45', 'Bordeaux', '33000'],
-                ['Catherine Simon', 'catherine.simon@exemple.com', '07 90 12 34 56', 'Lille', '59000']
-            ]
-        };
-        
-        // Afficher l'aperçu
-        const header = document.getElementById('previewHeader');
-        const body = document.getElementById('previewBody');
-        const totalRows = document.getElementById('totalRows');
-        
-        header.innerHTML = '<tr>' + sampleData.headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
-        body.innerHTML = sampleData.rows.map(row => 
-            '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>'
-        ).join('');
-        
-        totalRows.textContent = '25'; // Données simulées
-        
-        if (uploadManager?.files?.length > 0) {
-            const file = uploadManager.files[0];
-            document.getElementById('exportFilename').value = 
-                file.name.replace(/\.[^/.]+$/, "") + '_tableaux.xlsx';
-        }
-    }
-    
-    window.exportData = function() {
-        updateStep(4);
-        
-        const filename = document.getElementById('exportFilename').value;
-        const mergeSheets = document.getElementById('mergeSheets').value;
-        
-        // Simuler la génération du fichier
-        setTimeout(() => {
-            const stats = {
-                tables: 3,
-                rows: 25,
-                columns: 5,
-                cells: 125,
-                accuracy: 92,
-                size: 0.45
-            };
-            
-            document.getElementById('excelFileName').textContent = filename;
-            document.getElementById('excelFileInfo').textContent = 
-                `Taille: ${stats.size} MB | Feuilles: ${mergeSheets === 'single' ? 1 : stats.tables} | Lignes: ${stats.rows}`;
-            
-            document.getElementById('exportStats').innerHTML = 
-                `Tableaux: ${stats.tables}<br>
-                 Cellules: ${stats.cells}<br>
-                 Précision: ${stats.accuracy}%`;
-            
-            const downloadBtn = document.getElementById('downloadBtn');
-            downloadBtn.onclick = function() {
-                // Créer un blob de démonstration
-                const blob = new Blob(['Fichier Excel simulé'], { 
-                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
-                });
-                
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                downloadBtn.innerHTML = '<i class="fas fa-check me-2"></i>Téléchargé !';
-                downloadBtn.classList.remove('btn-success');
-                downloadBtn.classList.add('btn-secondary');
-                
-                setTimeout(() => {
-                    downloadBtn.innerHTML = '<i class="fas fa-download me-2"></i>Télécharger Excel';
-                    downloadBtn.classList.remove('btn-secondary');
-                    downloadBtn.classList.add('btn-success');
-                }, 2000);
-            };
-        }, 1000);
-    };
-    
-    window.resetConverter = function() {
-        if (uploadManager) {
-            while (uploadManager.files.length > 0) {
-                uploadManager.removeFile(0);
-            }
-        }
-        updateStep(1);
-    };
-    
-    window.updateStep = function(stepNumber) {
-        document.getElementById('step1Content').style.display = 'none';
-        document.getElementById('step2Content').style.display = 'none';
-        document.getElementById('step3Content').style.display = 'none';
-        document.getElementById('step4Content').style.display = 'none';
-        
-        document.getElementById('step1Content').style.display = stepNumber === 1 ? 'block' : 'none';
-        document.getElementById('step2Content').style.display = stepNumber === 2 ? 'block' : 'none';
-        document.getElementById('step3Content').style.display = stepNumber === 3 ? 'block' : 'none';
-        document.getElementById('step4Content').style.display = stepNumber === 4 ? 'block' : 'none';
-        
-        document.querySelectorAll('.step').forEach((step, index) => {
-            step.classList.remove('active', 'completed');
-            if (index + 1 < stepNumber) {
-                step.classList.add('completed');
-            } else if (index + 1 === stepNumber) {
-                step.classList.add('active');
-            }
-        });
-    };
-    
-    function showError(message) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        alertDiv.innerHTML = `
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        
-        const container = document.querySelector('.container');
-        container.insertBefore(alertDiv, container.firstChild);
-        
-        setTimeout(() => {
-            if (alertDiv.parentNode) alertDiv.remove();
-        }, 5000);
+});
+
+window.addEventListener('beforeunload', () => {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
     }
 });
 </script>
-
-<style>
-.progress-container {
-    height: 8px;
-    background-color: #e9ecef;
-    border-radius: 4px;
-    overflow: hidden;
-    margin: 20px auto;
-    max-width: 500px;
-}
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
-    width: 0%;
-    transition: width 0.5s ease;
-    border-radius: 4px;
-}
-
-.success-animation {
-    width: 100px;
-    height: 100px;
-    background: #198754;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 2rem;
-    color: white;
-    font-size: 2.5rem;
-    animation: bounceIn 0.6s;
-}
-
-@keyframes bounceIn {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.table-responsive {
-    max-height: 300px;
-    overflow-y: auto;
-}
-</style>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 {% endblock %}

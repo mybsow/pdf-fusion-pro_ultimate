@@ -1,87 +1,212 @@
-{% extends "base.html" %}
+{% extends "conversion/conversion_base.html" %}
 
 {% block title %}PDF vers Image - {{ title }}{% endblock %}
 
-{% block content %}
-<div class="container py-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card shadow-sm">
-                <div class="card-header" style="background-color: #e74c3c; color: white;">
-                    <h4 class="mb-0"><i class="fas fa-file-image me-2"></i>{{ title }}</h4>
+{% block converter_content %}
+<!-- Étape 1: Upload -->
+<div id="step1Content">
+    <div class="text-center mb-4">
+        <i class="fas fa-file-image upload-icon" style="color: #e74c3c;"></i>
+        <h3>Convertissez votre PDF en images</h3>
+        <p class="text-muted">Transformez chaque page de votre PDF en image (PNG ou JPG)</p>
+    </div>
+
+    <!-- Zone d'upload avec UploadManager -->
+    <div id="pdfImageUploadZone" 
+         class="upload-zone-pro upload-zone" 
+         data-info-id="fileInfo"
+         data-btn-id="convertBtn"
+         style="cursor: pointer;">
+        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+        <h4>Glissez-déposez votre fichier PDF ici</h4>
+        <p class="text-muted">ou</p>
+        <input type="file" class="file-input" accept=".pdf" style="display: none;">
+        <p class="text-muted small mt-3">
+            <i class="fas fa-info-circle"></i> 
+            Format accepté : PDF (jusqu'à 50MB)
+        </p>
+    </div>
+
+    <!-- Liste des fichiers et miniatures -->
+    <div id="fileInfo" class="file-list mt-4"></div>
+    <div id="pdfImageUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
+
+    <!-- Options de conversion -->
+    <div class="file-info-card mt-4">
+        <h5 class="mb-4">
+            <i class="fas fa-cog me-2"></i>Options de conversion
+        </h5>
+        
+        <div class="row g-4">
+            <div class="col-md-6">
+                <label for="imageFormat" class="form-label fw-bold">Format d'image</label>
+                <select class="form-select" id="imageFormat">
+                    <option value="png">PNG (qualité supérieure, sans perte)</option>
+                    <option value="jpg">JPG (taille réduite, compression)</option>
+                </select>
+                <small class="text-muted">Le PNG préserve la qualité, le JPG est plus léger</small>
+            </div>
+            
+            <div class="col-md-6">
+                <label for="dpi" class="form-label fw-bold">Résolution (DPI)</label>
+                <select class="form-select" id="dpi">
+                    <option value="72">72 DPI (web, léger)</option>
+                    <option value="150" selected>150 DPI (standard)</option>
+                    <option value="300">300 DPI (haute qualité, impression)</option>
+                    <option value="600">600 DPI (très haute qualité)</option>
+                </select>
+                <small class="text-muted">Plus de DPI = meilleure qualité, fichier plus gros</small>
+            </div>
+
+            <div class="col-md-6">
+                <label for="quality" class="form-label fw-bold">Qualité (pour JPG)</label>
+                <select class="form-select" id="quality" disabled>
+                    <option value="high">Haute (90-100%)</option>
+                    <option value="medium" selected>Moyenne (70-80%)</option>
+                    <option value="low">Basse (50-60%)</option>
+                </select>
+                <small class="text-muted">Uniquement pour le format JPG</small>
+            </div>
+            
+            <div class="col-md-6">
+                <label for="pages" class="form-label fw-bold">Pages à convertir</label>
+                <input type="text" class="form-control" id="pages" placeholder="Ex: 1,3-5 ou laisser vide pour toutes">
+                <small class="text-muted">Exemples : "1,3-5,7" ou "all" pour toutes les pages</small>
+            </div>
+
+            <div class="col-12">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="mergeSingle" checked>
+                    <label class="form-check-label" for="mergeSingle">
+                        <strong>Fichier ZIP unique</strong>
+                        <small class="d-block text-muted">Regroupe toutes les images dans une archive ZIP</small>
+                    </label>
                 </div>
-                <div class="card-body">
-                    <p class="lead">{{ description }}</p>
-                    
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Convertissez chaque page de votre PDF en image (format PNG ou JPG).
+            </div>
+        </div>
+    </div>
+
+    <!-- Bouton de conversion -->
+    <div class="text-center mt-4">
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+            <i class="fas fa-sync-alt me-2"></i>Convertir en images
+        </button>
+        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
+            <i class="fas fa-redo me-2"></i>Réinitialiser
+        </button>
+    </div>
+</div>
+
+<!-- Étape 2: Conversion en cours -->
+<div id="step2Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
+        </div>
+        
+        <h3 class="mb-4">Conversion en cours...</h3>
+        <p class="text-muted mb-4" id="conversionMessage">
+            Analyse et conversion des pages...
+        </p>
+        
+        <div class="progress-container mx-auto" style="max-width: 500px;">
+            <div class="progress-bar" id="conversionProgress" style="width: 0%;"></div>
+        </div>
+        
+        <div class="row mt-5 g-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Pages totales</h6>
+                        <div class="display-6 text-primary" id="totalPages">0</div>
                     </div>
-                    
-                    <!-- Zone d'upload -->
-                    <div class="upload-zone-pro mb-4" id="pdfToImageUploadZone" data-info-id="pdfToImageFileInfo" data-btn-id="pdfToImageButton">
-                        <div class="upload-inner">
-                            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                            <h4 class="upload-title">Déposez votre PDF ici</h4>
-                            <p class="upload-subtitle">Glissez-déposez ou cliquez pour sélectionner</p>
-                            <div class="upload-info">PDF uniquement • Taille max: 50MB</div>
-                        </div>
-                        <input type="file" accept=".pdf" style="display:none;">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Pages converties</h6>
+                        <div class="display-6 text-success" id="convertedPages">0</div>
                     </div>
-                    
-                    <div id="pdfToImageFileInfo" class="file-list mt-3"></div>
-                    <div id="pdfToImageUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
-                    
-                    <!-- Options -->
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label fw-bold">Format d'image</label>
-                                <select class="form-select" id="imageFormat">
-                                    <option value="png">PNG (qualité supérieure)</option>
-                                    <option value="jpg">JPG (taille réduite)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label fw-bold">Qualité (pour JPG)</label>
-                                <select class="form-select" id="quality" disabled>
-                                    <option value="high">Haute</option>
-                                    <option value="medium" selected>Moyenne</option>
-                                    <option value="low">Basse</option>
-                                </select>
-                            </div>
-                        </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Taille estimée</h6>
+                        <div class="display-6 text-warning" id="estimatedSize">0 MB</div>
                     </div>
-                    
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label fw-bold">Pages à convertir</label>
-                                <input type="text" class="form-control" id="pages" placeholder="Ex: 1,3-5 ou 'all' pour toutes">
-                                <small class="text-muted">Laissez vide pour toutes les pages</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label fw-bold">DPI (résolution)</label>
-                                <select class="form-select" id="dpi">
-                                    <option value="150">150 DPI (standard)</option>
-                                    <option value="300">300 DPI (haute qualité)</option>
-                                    <option value="72">72 DPI (web)</option>
-                                </select>
-                            </div>
-                        </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-muted small" id="conversionDetails">
+            <i class="fas fa-file-pdf me-1"></i> Chargement du PDF...
+        </div>
+    </div>
+</div>
+
+<!-- Étape 3: Téléchargement -->
+<div id="step3Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="success-animation">
+            <i class="fas fa-file-image"></i>
+        </div>
+        
+        <h3 class="mb-3">Conversion réussie !</h3>
+        <p class="text-muted mb-4">
+            Vos images sont prêtes au téléchargement
+        </p>
+        
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
+            <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
+                <i class="fas fa-download me-2"></i>Télécharger les images
+            </a>
+            
+            <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
+                <i class="fas fa-redo me-2"></i>Nouvelle conversion
+            </button>
+        </div>
+
+        <!-- Aperçu des images -->
+        <div class="mt-5">
+            <h5 class="mb-4">Aperçu des images générées</h5>
+            <div class="row g-3" id="imagePreview">
+                <!-- Les miniatures seront ajoutées ici par JavaScript -->
+            </div>
+        </div>
+
+        <!-- Résumé de la conversion -->
+        <div class="row mt-5 g-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Pages converties</h6>
+                        <div class="display-6 text-primary" id="finalPages">0</div>
                     </div>
-                    
-                    <div class="action-buttons mt-4">
-                        <button class="btn btn-primary btn-lg" id="pdfToImageButton" disabled>
-                            <i class="fas fa-file-image me-2"></i>Convertir en images
-                        </button>
-                        <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.pdfToImageUploadZone.removeFile(0)">
-                            <i class="fas fa-redo me-2"></i>Réinitialiser
-                        </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Format</h6>
+                        <div class="display-6 text-success" id="finalFormat">PNG</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Résolution</h6>
+                        <div class="display-6 text-warning" id="finalDpi">150 DPI</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Taille totale</h6>
+                        <div class="display-6 text-info" id="finalTotalSize">0 MB</div>
                     </div>
                 </div>
             </div>
@@ -90,8 +215,164 @@
 </div>
 
 <script>
+let downloadUrl = null;
+
+function startConversion() {
+    const uploadManager = window.uploadManagers['pdfImageUploadZone'];
+    if (!uploadManager || uploadManager.getFiles().length === 0) {
+        showError('Veuillez sélectionner un fichier PDF');
+        return;
+    }
+
+    const file = uploadManager.getFiles()[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('format', document.getElementById('imageFormat').value);
+    formData.append('quality', document.getElementById('quality').value);
+    formData.append('pages', document.getElementById('pages').value || 'all');
+    formData.append('dpi', document.getElementById('dpi').value);
+    formData.append('merge_single', document.getElementById('mergeSingle').checked);
+
+    // Passer à l'étape 2
+    updateStep(2);
+    
+    // Estimer le nombre de pages basé sur la taille du fichier
+    const estimatedPages = Math.max(1, Math.floor(file.size / (200 * 1024)));
+    document.getElementById('totalPages').textContent = estimatedPages;
+    
+    // Simuler la progression
+    simulateConversion(estimatedPages, file.size);
+    
+    // Envoyer la requête
+    fetch('{{ url_for("conversion.universal_converter", conversion_type="pdf-en-image") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(async response => {
+        if (response.ok) {
+            const blob = await response.blob();
+            downloadUrl = window.URL.createObjectURL(blob);
+            
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = file.name.replace('.pdf', '') + '_images.zip';
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (match && match[1]) {
+                    filename = match[1].replace(/['"]/g, '');
+                }
+            }
+            
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = downloadUrl;
+            downloadLink.download = filename;
+            
+            // Simuler l'aperçu et les statistiques finales
+            simulatePreview(estimatedPages);
+            simulateFinalStats(estimatedPages, file.size);
+            
+            updateStep(3);
+        } else {
+            const error = await response.text();
+            showError('Erreur lors de la conversion : ' + error);
+            updateStep(1);
+        }
+    })
+    .catch(error => {
+        showError('Erreur : ' + error.message);
+        updateStep(1);
+    });
+}
+
+function simulateConversion(totalPages, fileSize) {
+    const progressBar = document.getElementById('conversionProgress');
+    const conversionMessage = document.getElementById('conversionMessage');
+    const conversionDetails = document.getElementById('conversionDetails');
+    const convertedPages = document.getElementById('convertedPages');
+    const estimatedSize = document.getElementById('estimatedSize');
+    
+    const format = document.getElementById('imageFormat').value;
+    const dpi = parseInt(document.getElementById('dpi').value);
+    
+    // Estimation de la taille par page basée sur le DPI et le format
+    const sizePerPage = (dpi * dpi * 3) / (1024 * 1024); // Estimation approximative
+    const totalSize = (totalPages * sizePerPage).toFixed(1);
+    
+    let currentPage = 0;
+    
+    function updateProgress() {
+        if (currentPage <= totalPages) {
+            const percent = Math.floor((currentPage / totalPages) * 100);
+            progressBar.style.width = percent + '%';
+            convertedPages.textContent = currentPage;
+            estimatedSize.textContent = (currentPage * sizePerPage).toFixed(1) + ' MB';
+            
+            if (currentPage === 0) {
+                conversionMessage.textContent = "Préparation de la conversion...";
+                conversionDetails.innerHTML = '<i class="fas fa-cog fa-spin me-1"></i> Analyse du PDF';
+            } else if (currentPage < totalPages) {
+                conversionMessage.textContent = `Conversion de la page ${currentPage + 1}/${totalPages}`;
+                conversionDetails.innerHTML = `<i class="fas fa-image me-1"></i> Page ${currentPage + 1} convertie en ${format.toUpperCase()}`;
+            }
+            
+            currentPage++;
+            
+            if (currentPage <= totalPages) {
+                setTimeout(updateProgress, 500);
+            } else {
+                conversionMessage.textContent = "Finalisation...";
+                conversionDetails.innerHTML = '<i class="fas fa-archive me-1"></i> Création de l\'archive ZIP';
+            }
+        }
+    }
+    
+    updateProgress();
+}
+
+function simulatePreview(totalPages) {
+    const preview = document.getElementById('imagePreview');
+    preview.innerHTML = '';
+    
+    // Créer des miniatures simulées pour les premières pages
+    const pagesToShow = Math.min(totalPages, 6);
+    
+    for (let i = 1; i <= pagesToShow; i++) {
+        const col = document.createElement('div');
+        col.className = 'col-6 col-md-4 col-lg-2';
+        
+        col.innerHTML = `
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center p-2">
+                    <div class="bg-light rounded p-3 mb-2" style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-file-image fa-3x text-secondary"></i>
+                    </div>
+                    <small class="text-muted">Page ${i}</small>
+                </div>
+            </div>
+        `;
+        
+        preview.appendChild(col);
+    }
+}
+
+function simulateFinalStats(totalPages, fileSize) {
+    const format = document.getElementById('imageFormat').value.toUpperCase();
+    const dpi = document.getElementById('dpi').value;
+    const quality = document.getElementById('quality').value;
+    const mergeSingle = document.getElementById('mergeSingle').checked;
+    
+    // Calculer la taille totale estimée
+    const dpiNum = parseInt(dpi);
+    const sizePerPage = (dpiNum * dpiNum * 3) / (1024 * 1024) * (quality === 'high' ? 1.5 : quality === 'low' ? 0.7 : 1);
+    const totalSize = (totalPages * sizePerPage).toFixed(1);
+    
+    document.getElementById('finalPages').textContent = totalPages;
+    document.getElementById('finalFormat').textContent = format;
+    document.getElementById('finalDpi').textContent = dpi + ' DPI';
+    document.getElementById('finalTotalSize').textContent = totalSize + ' MB';
+}
+
+// Gestionnaire pour activer/désactiver la qualité JPG
 document.addEventListener('DOMContentLoaded', function() {
-    const button = document.getElementById('pdfToImageButton');
     const formatSelect = document.getElementById('imageFormat');
     const qualitySelect = document.getElementById('quality');
     
@@ -99,75 +380,43 @@ document.addEventListener('DOMContentLoaded', function() {
         qualitySelect.disabled = this.value !== 'jpg';
     });
     
-    function updateButtonState() {
-        const manager = window.uploadManagers?.pdfToImageUploadZone;
-        button.disabled = !manager?.files?.length;
-    }
-    
-    const originalHandleFiles = window.uploadManagers?.pdfToImageUploadZone?.handleFiles;
-    if (originalHandleFiles) {
-        window.uploadManagers.pdfToImageUploadZone.handleFiles = function(fileList) {
+    // Activer/désactiver le bouton selon la sélection de fichier
+    const uploadManager = window.uploadManagers?.['pdfImageUploadZone'];
+    if (uploadManager) {
+        const originalHandleFiles = uploadManager.handleFiles;
+        uploadManager.handleFiles = function(fileList) {
             originalHandleFiles.call(this, fileList);
-            updateButtonState();
+            document.getElementById('convertBtn').disabled = this.getFiles().length === 0;
         };
-    }
-    
-    const originalRemoveFile = window.uploadManagers?.pdfToImageUploadZone?.removeFile;
-    if (originalRemoveFile) {
-        window.uploadManagers.pdfToImageUploadZone.removeFile = function(index) {
+        
+        const originalRemoveFile = uploadManager.removeFile;
+        uploadManager.removeFile = function(index) {
             originalRemoveFile.call(this, index);
-            updateButtonState();
+            document.getElementById('convertBtn').disabled = this.getFiles().length === 0;
         };
     }
+});
+
+function resetConversion() {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+        downloadUrl = null;
+    }
     
-    button.addEventListener('click', async function(e) {
-        e.preventDefault();
-        
-        const manager = window.uploadManagers?.pdfToImageUploadZone;
-        if (!manager?.files?.length) {
-            alert('Veuillez sélectionner un fichier PDF');
-            return;
+    const uploadManager = window.uploadManagers['pdfImageUploadZone'];
+    if (uploadManager) {
+        while (uploadManager.getFiles().length > 0) {
+            uploadManager.removeFile(0);
         }
-        
-        const loader = document.getElementById('loaderOverlay');
-        if (loader) loader.style.display = 'flex';
-        
-        const formData = new FormData();
-        formData.append('file', manager.files[0]);
-        formData.append('format', formatSelect.value);
-        formData.append('quality', qualitySelect.value);
-        formData.append('pages', document.getElementById('pages').value || 'all');
-        formData.append('dpi', document.getElementById('dpi').value);
-        
-        try {
-            const response = await fetch('/conversion/pdf-en-image', {
-                method: 'POST',
-                body: formData
-            });
-            
-            if (!response.ok) throw new Error(`Erreur ${response.status}`);
-            
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'images.zip';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            
-        } catch (error) {
-            console.error('Erreur:', error);
-            alert('Erreur lors de la conversion: ' + error.message);
-        } finally {
-            if (loader) loader.style.display = 'none';
-        }
-    });
+    }
+    
+    updateStep(1);
+}
+
+window.addEventListener('beforeunload', () => {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+    }
 });
 </script>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 {% endblock %}

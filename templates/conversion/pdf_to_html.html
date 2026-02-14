@@ -1,29 +1,29 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}Excel vers PDF - {{ title }}{% endblock %}
+{% block title %}PDF en HTML - Convertisseur de documents{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
-        <i class="fas fa-file-excel upload-icon" style="color: #217346;"></i>
-        <h3>Téléchargez vos fichiers Excel</h3>
-        <p class="text-muted">Sélectionnez les fichiers à convertir en PDF</p>
+        <i class="fas fa-file-pdf upload-icon"></i>
+        <h3>Téléchargez votre fichier PDF</h3>
+        <p class="text-muted">Sélectionnez le PDF à convertir en HTML</p>
     </div>
 
-    <!-- Zone d'upload avec UploadManager -->
-    <div id="excelUploadZone" 
+    <!-- Upload Zone avec UploadManager -->
+    <div id="pdfUploadZone" 
          class="upload-zone-pro upload-zone" 
          data-info-id="fileInfo"
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez vos fichiers Excel ici</h4>
+        <h4>Glissez-déposez votre fichier PDF ici</h4>
         <p class="text-muted">ou</p>
-        <input type="file" class="file-input" accept=".xls,.xlsx,.xlsm" multiple style="display: none;">
+        <input type="file" class="file-input" accept=".pdf" style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Formats acceptés : XLS, XLSX, XLSM (jusqu'à 50MB par fichier)
+            Format accepté : PDF
         </p>
     </div>
 
@@ -37,30 +37,44 @@
         </h5>
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="orientation" class="form-label fw-bold">Orientation :</label>
-                <select class="form-select" id="orientation">
-                    <option value="portrait">Portrait</option>
-                    <option value="landscape">Paysage</option>
+                <label for="outputFormat" class="form-label">Format de sortie :</label>
+                <select id="outputFormat" class="form-select">
+                    <option value="single">Un seul fichier HTML</option>
+                    <option value="multiple">Plusieurs fichiers (une par page)</option>
+                    <option value="zip">Archive ZIP</option>
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="pageSize" class="form-label fw-bold">Format de page :</label>
-                <select class="form-select" id="pageSize">
-                    <option value="A4">A4</option>
-                    <option value="Letter">Letter</option>
-                    <option value="Legal">Legal</option>
+                <label for="encoding" class="form-label">Encodage :</label>
+                <select id="encoding" class="form-select">
+                    <option value="utf-8">UTF-8</option>
+                    <option value="iso-8859-1">ISO-8859-1</option>
+                    <option value="windows-1252">Windows-1252</option>
                 </select>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="includeStyles" checked>
+                    <label class="form-check-label" for="includeStyles">
+                        Inclure les styles CSS
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="preserveImages" checked>
+                    <label class="form-check-label" for="preserveImages">
+                        Conserver les images
+                    </label>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-success btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-file-pdf me-2"></i>Convertir en PDF
-        </button>
-        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+            <i class="fas fa-sync-alt me-2"></i>Convertir en HTML
         </button>
     </div>
 </div>
@@ -72,7 +86,7 @@
             <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
         <h3>Conversion en cours...</h3>
-        <p class="text-muted">Veuillez patienter pendant le traitement de vos fichiers</p>
+        <p class="text-muted">Veuillez patienter pendant le traitement de votre PDF</p>
         <div class="progress-container">
             <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
         </div>
@@ -86,13 +100,13 @@
             <i class="fas fa-check"></i>
         </div>
         <h3>Conversion terminée !</h3>
-        <p class="text-muted">Vos fichiers PDF sont prêts à être téléchargés</p>
+        <p class="text-muted">Votre fichier HTML est prêt à être téléchargé</p>
         <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
             <i class="fas fa-download me-2"></i>Télécharger
         </a>
         <div class="mt-4">
             <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Convertir d'autres fichiers
+                <i class="fas fa-redo me-2"></i>Convertir un autre PDF
             </button>
         </div>
     </div>
@@ -102,24 +116,21 @@
 let downloadUrl = null;
 
 function startConversion() {
-    const uploadManager = window.uploadManagers['excelUploadZone'];
+    const uploadManager = window.uploadManagers['pdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner au moins un fichier Excel');
+        showError('Veuillez sélectionner un fichier');
         return;
     }
 
     const formData = new FormData();
-    uploadManager.getFiles().forEach(file => {
-        formData.append('files', file);
-    });
-    
-    formData.append('orientation', document.getElementById('orientation').value);
-    formData.append('pageSize', document.getElementById('pageSize').value);
+    formData.append('file', uploadManager.getFiles()[0]);
+    formData.append('outputFormat', document.getElementById('outputFormat').value);
+    formData.append('encoding', document.getElementById('encoding').value);
+    formData.append('includeStyles', document.getElementById('includeStyles').checked);
+    formData.append('preserveImages', document.getElementById('preserveImages').checked);
 
-    // Passer à l'étape 2
     updateStep(2);
     
-    // Simuler la progression
     let progress = 0;
     const interval = setInterval(() => {
         progress += 10;
@@ -127,8 +138,7 @@ function startConversion() {
         if (progress >= 90) clearInterval(interval);
     }, 500);
 
-    // Envoyer la requête
-    fetch('{{ url_for("conversion.universal_converter", conversion_type="excel-en-pdf") }}', {
+    fetch('{{ url_for("conversion.universal_converter", conversion_type="pdf-en-html") }}', {
         method: 'POST',
         body: formData
     })
@@ -139,25 +149,7 @@ function startConversion() {
         if (response.ok) {
             const blob = await response.blob();
             downloadUrl = window.URL.createObjectURL(blob);
-            
-            // Récupérer le nom du fichier depuis l'en-tête Content-Disposition
-            const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = 'converted.pdf';
-            if (contentDisposition) {
-                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-                if (match && match[1]) {
-                    filename = match[1].replace(/['"]/g, '');
-                }
-            }
-            
-            // Si plusieurs fichiers ont été convertis, le nom peut être différent
-            if (uploadManager.getFiles().length > 1) {
-                filename = 'excel_converted.zip';
-            }
-            
-            const downloadLink = document.getElementById('downloadLink');
-            downloadLink.href = downloadUrl;
-            downloadLink.download = filename;
+            document.getElementById('downloadLink').href = downloadUrl;
             updateStep(3);
         } else {
             const error = await response.text();
@@ -173,25 +165,21 @@ function startConversion() {
 }
 
 function resetConversion() {
-    // Nettoyer l'URL de téléchargement
     if (downloadUrl) {
         window.URL.revokeObjectURL(downloadUrl);
         downloadUrl = null;
     }
     
-    // Vider les fichiers de l'upload manager
-    const uploadManager = window.uploadManagers['excelUploadZone'];
+    const uploadManager = window.uploadManagers['pdfUploadZone'];
     if (uploadManager) {
         while (uploadManager.getFiles().length > 0) {
             uploadManager.removeFile(0);
         }
     }
     
-    // Retourner à l'étape 1
     updateStep(1);
 }
 
-// Nettoyage à la fermeture de la page
 window.addEventListener('beforeunload', () => {
     if (downloadUrl) {
         window.URL.revokeObjectURL(downloadUrl);

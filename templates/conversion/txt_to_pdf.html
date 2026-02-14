@@ -1,0 +1,233 @@
+{% extends "conversion/conversion_base.html" %}
+
+{% block title %}TXT en PDF - Convertisseur de texte{% endblock %}
+
+{% block converter_content %}
+<!-- Étape 1 : Upload -->
+<div id="step1Content">
+    <div class="text-center mb-4">
+        <i class="fas fa-file-alt upload-icon"></i>
+        <h3>Téléchargez votre fichier texte</h3>
+        <p class="text-muted">ou collez votre texte directement</p>
+    </div>
+
+    <!-- Upload Zone avec UploadManager -->
+    <div id="txtUploadZone" 
+         class="upload-zone-pro upload-zone" 
+         data-info-id="fileInfo"
+         data-btn-id="convertBtn"
+         style="cursor: pointer;">
+        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+        <h4>Glissez-déposez votre fichier texte ici</h4>
+        <p class="text-muted">ou</p>
+        <input type="file" class="file-input" accept=".txt" style="display: none;">
+        <p class="text-muted small mt-3">
+            <i class="fas fa-info-circle"></i> 
+            Format accepté : TXT
+        </p>
+    </div>
+
+    <!-- Liste des fichiers -->
+    <div id="fileInfo" class="file-list mt-4"></div>
+
+    <!-- Text Editor -->
+    <div class="mt-4">
+        <label class="form-label fw-bold">Ou collez votre texte :</label>
+        <textarea id="textContent" class="form-control" rows="8" 
+                  placeholder="Collez votre texte ici..."></textarea>
+    </div>
+
+    <!-- Options de formatage -->
+    <div class="file-info-card mt-4">
+        <h5 class="mb-3">
+            <i class="fas fa-cog me-2"></i>Options de formatage
+        </h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="pageSize" class="form-label">Format de page :</label>
+                <select id="pageSize" class="form-select">
+                    <option value="A4">A4</option>
+                    <option value="letter">Lettre</option>
+                    <option value="legal">Legal</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="fontFamily" class="form-label">Police :</label>
+                <select id="fontFamily" class="form-select">
+                    <option value="Helvetica">Helvetica</option>
+                    <option value="Times-Roman">Times New Roman</option>
+                    <option value="Courier">Courier</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="fontSize" class="form-label">Taille :</label>
+                <select id="fontSize" class="form-select">
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12" selected>12</option>
+                    <option value="14">14</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="lineSpacing" class="form-label">Interligne :</label>
+                <select id="lineSpacing" class="form-select">
+                    <option value="1">Simple</option>
+                    <option value="1.5">1,5</option>
+                    <option value="2">Double</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="addPageNumbers" checked>
+                    <label class="form-check-label" for="addPageNumbers">
+                        Numéros de page
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bouton de conversion -->
+    <div class="text-center mt-4">
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+            <i class="fas fa-sync-alt me-2"></i>Convertir en PDF
+        </button>
+    </div>
+</div>
+
+<!-- Étape 2 : Conversion en cours -->
+<div id="step2Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
+        </div>
+        <h3>Conversion en cours...</h3>
+        <p class="text-muted">Veuillez patienter pendant le traitement de votre texte</p>
+        <div class="progress-container">
+            <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Étape 3 : Téléchargement -->
+<div id="step3Content" style="display: none;">
+    <div class="text-center py-5">
+        <div class="success-animation">
+            <i class="fas fa-check"></i>
+        </div>
+        <h3>Conversion terminée !</h3>
+        <p class="text-muted">Votre PDF est prêt à être téléchargé</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
+            <i class="fas fa-download me-2"></i>Télécharger le PDF
+        </a>
+        <div class="mt-4">
+            <button class="btn btn-outline-primary" onclick="resetConversion()">
+                <i class="fas fa-redo me-2"></i>Convertir un autre texte
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let downloadUrl = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const textContent = document.getElementById('textContent');
+    
+    textContent.addEventListener('input', updateConvertButton);
+});
+
+function updateConvertButton() {
+    const uploadManager = window.uploadManagers['txtUploadZone'];
+    const textContent = document.getElementById('textContent');
+    const convertBtn = document.getElementById('convertBtn');
+    
+    const hasFile = uploadManager && uploadManager.getFiles().length > 0;
+    const hasText = textContent.value.trim().length > 0;
+    
+    convertBtn.disabled = !(hasFile || hasText);
+}
+
+function startConversion() {
+    const uploadManager = window.uploadManagers['txtUploadZone'];
+    const textContent = document.getElementById('textContent');
+    const files = uploadManager ? uploadManager.getFiles() : [];
+    
+    const formData = new FormData();
+    
+    if (files.length > 0) {
+        formData.append('file', files[0]);
+    } else if (textContent.value.trim()) {
+        const blob = new Blob([textContent.value], { type: 'text/plain' });
+        formData.append('file', blob, 'document.txt');
+    } else {
+        showError('Veuillez saisir du texte ou sélectionner un fichier');
+        return;
+    }
+
+    formData.append('pageSize', document.getElementById('pageSize').value);
+    formData.append('fontFamily', document.getElementById('fontFamily').value);
+    formData.append('fontSize', document.getElementById('fontSize').value);
+    formData.append('lineSpacing', document.getElementById('lineSpacing').value);
+    formData.append('addPageNumbers', document.getElementById('addPageNumbers').checked);
+
+    updateStep(2);
+    
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 10;
+        document.getElementById('progressBar').style.width = progress + '%';
+        if (progress >= 90) clearInterval(interval);
+    }, 500);
+
+    fetch('{{ url_for("conversion.universal_converter", conversion_type="txt-en-pdf") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(async response => {
+        clearInterval(interval);
+        document.getElementById('progressBar').style.width = '100%';
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            downloadUrl = window.URL.createObjectURL(blob);
+            document.getElementById('downloadLink').href = downloadUrl;
+            updateStep(3);
+        } else {
+            const error = await response.text();
+            showError('Erreur lors de la conversion : ' + error);
+            updateStep(1);
+        }
+    })
+    .catch(error => {
+        clearInterval(interval);
+        showError('Erreur : ' + error.message);
+        updateStep(1);
+    });
+}
+
+function resetConversion() {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+        downloadUrl = null;
+    }
+    
+    const uploadManager = window.uploadManagers['txtUploadZone'];
+    if (uploadManager) {
+        while (uploadManager.getFiles().length > 0) {
+            uploadManager.removeFile(0);
+        }
+    }
+    
+    document.getElementById('textContent').value = '';
+    updateStep(1);
+    updateConvertButton();
+}
+
+window.addEventListener('beforeunload', () => {
+    if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+    }
+});
+</script>
+{% endblock %}
