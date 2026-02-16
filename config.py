@@ -23,7 +23,7 @@ class AppConfig:
 
     _raw_domain = os.environ.get(
         "APP_DOMAIN",
-        "pdf-fusion-pro-ultimate.onrender.com"
+        "pdf-fusion-pro-ultimate-ltd.onrender.com"
     )
 
     DOMAIN = _raw_domain.replace("https://", "").replace("http://", "").rstrip("/")
@@ -279,7 +279,7 @@ class AppConfig:
     MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", "true").lower() == "true"
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "")
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "")
-    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", "noreply@pdf-fusion-pro.com")
+    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", "banousow@gmail.com")
 
     # ============================================================
     # LOGGING

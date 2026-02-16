@@ -3,9 +3,9 @@ Configuration SEO pour PDF Fusion Pro
 """
 
 SEO_CONFIG = {
-    "canonical_base": "https://pdf-fusion-pro-ultimate.onrender.com",
-    "og_image": "https://pdf-fusion-pro-ultimate.onrender.com/static/og-image.jpg",
-    "twitter_image": "https://pdf-fusion-pro-ultimate.onrender.com/static/twitter-card.jpg",
+    "canonical_base": "https://pdf-fusion-pro-ultimate-ltd.onrender.com",
+    "og_image": "https://pdf-fusion-pro-ultimate-ltd.onrender.com/static/og-image.jpg",
+    "twitter_image": "https://pdf-fusion-pro-ultimate-ltd.onrender.com/static/twitter-card.jpg",
     
     "meta_descriptions": {
         "home": "Outil PDF en ligne 100% gratuit. Fusionnez, divisez, tournez et compressez vos fichiers PDF sans inscription. Traitement sécurisé dans votre navigateur.",

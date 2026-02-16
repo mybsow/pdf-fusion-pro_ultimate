@@ -285,15 +285,55 @@ def create_app():
 
     @app.route('/sitemap.xml')
     def sitemap():
+        """Génère le sitemap.xml avec hiérarchisation des priorités"""
         domain = AppConfig.DOMAIN.rstrip("/")
         base_url = f"https://{domain}"
         today = datetime.now().strftime('%Y-%m-%d')
-        pages = ["/", "/pdf", "/contact", "/about", "/privacy", "/terms", "/legal", "/conversion/", "/test-ocr", "/force-install-ocr"]
-        xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-        for p in pages:
-            xml.append(f"<url><loc>{base_url}{p}</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>")
+        
+        # Structure : (chemin, fréquence, priorité, description)
+        pages = [
+            ("/", "daily", "1.0"),           # Page d'accueil - priorité max
+            ("/pdf", "weekly", "0.9"),        # Fonctionnalité principale
+            ("/conversion/", "weekly", "0.8"), # Outil de conversion
+            ("/test-ocr", "weekly", "0.8"),    # Test OCR
+            ("/force-install-ocr", "weekly", "0.8"), # Installation OCR
+            ("/contact", "monthly", "0.7"),    # Contact
+            ("/about", "monthly", "0.6"),      # À propos
+            ("/legal", "yearly", "0.4"),       # Mentions légales
+            ("/privacy", "yearly", "0.4"),     # Politique confidentialité
+            ("/terms", "yearly", "0.4"),       # Conditions utilisation
+        ]
+        
+        # Construction du XML
+        xml = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        ]
+        
+        for path, freq, priority in pages:
+            # Nettoyer le chemin pour éviter les doubles slashes
+            clean_path = path if path.startswith('/') else f"/{path}"
+            url = f"{base_url}{clean_path}"
+            
+            xml.append(
+                f"  <url>"
+                f"<loc>{url}</loc>"
+                f"<lastmod>{today}</lastmod>"
+                f"<changefreq>{freq}</changefreq>"
+                f"<priority>{priority}</priority>"
+                f"</url>"
+            )
+        
         xml.append('</urlset>')
-        return Response("\n".join(xml), mimetype="application/xml", headers={"Cache-Control": "public, max-age=3600"})
+        
+        return Response(
+            "\n".join(xml), 
+            mimetype="application/xml",
+            headers={
+                "Cache-Control": "public, max-age=3600",
+                "X-Content-Type-Options": "nosniff"
+            }
+        )
 
     @app.route('/health')
     def health():
