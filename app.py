@@ -282,6 +282,14 @@ def create_app():
     def robots():
         domain = AppConfig.DOMAIN.rstrip("/")
         return Response(f"User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: https://{domain}/sitemap.xml\n", mimetype="text/plain")
+    
+    @app.route('/google6f0d847067bbd18a.html')
+    def google_verification():
+        """Retourne directement le contenu de vérification"""
+        return Response(
+            "google-site-verification: google6f0d847067bbd18a.html", 
+            mimetype="text/html"
+        )
 
     @app.route('/sitemap.xml')
     def sitemap():
