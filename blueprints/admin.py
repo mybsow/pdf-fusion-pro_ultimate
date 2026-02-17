@@ -15,16 +15,6 @@ from managers.rating_manager import RatingManager
 from managers.stats_manager import StatisticsManager
 from flask_babel import _
 
-# Pour les textes statiques
-flash(_('Votre fichier a été converti avec succès'))
-
-# Pour les textes avec variables
-flash(_('Bienvenue %(username)s', username=user.name))
-
-# Pour les formulaires (évaluation tardive)
-class ContactForm(FlaskForm):
-    name = StringField(_l('Nom'), validators=[DataRequired()])
-    email = StringField(_l('Email'), validators=[DataRequired(), Email()])
 
 # Initialiser les managers
 contact_manager = ContactManager()
