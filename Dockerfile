@@ -13,6 +13,8 @@ ENV LC_ALL=C.UTF-8
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
 ENV PORT=10000
 ENV BABEL_TRANSLATION_DIRECTORIES=./translations
+ENV FLASK_ENV=production
+ENV FLASK_DEBUG=0
 
 # -----------------------------
 # Installer les dépendances système
@@ -38,6 +40,9 @@ RUN apt-get update && \
         fonts-dejavu-core \
         ghostscript \
         gettext \
+        git \
+        curl \
+        wget \
     && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------
@@ -50,9 +55,9 @@ WORKDIR /app
 # -----------------------------
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir unoconv && \
+    pip install --no-cache-dir unoconv Flask-Babel Babel && \
     ln -sf /usr/bin/python3 /usr/bin/python
 
 # -----------------------------
@@ -64,25 +69,28 @@ COPY babel.cfg .
 # Initialiser les traductions
 # -----------------------------
 RUN mkdir -p translations && \
-    # Extraire les textes
-    echo "📤 Extraction des textes à traduire..." && \
-    pybabel extract -F babel.cfg -o messages.pot . || true && \
-    # Liste des langues supportées
+    echo "🔧 ÉTAPE 1: Extraction des textes à traduire..." && \
+    pybabel extract -F babel.cfg -o messages.pot . 2>/dev/null || echo "⚠️  Aucun nouveau texte extrait" && \
+    echo "" && \
+    echo "🔧 ÉTApE 2: Création/Mise à jour des catalogues de langue..." && \
     LANGUAGES="en es de it pt ar zh ja ru nl" && \
     for lang in $LANGUAGES; do \
         if [ ! -d "translations/$lang" ]; then \
-            echo "🌍 Création de la langue: $lang" && \
-            pybabel init -i messages.pot -d translations -l $lang || true; \
+            echo "   🌍 Création de la langue: $lang"; \
+            pybabel init -i messages.pot -d translations -l $lang 2>/dev/null || echo "   ⚠️  Échec création $lang"; \
         else \
-            echo "🔄 Mise à jour de: $lang" && \
-            pybabel update -i messages.pot -d translations -l $lang || true; \
+            echo "   🔄 Mise à jour de: $lang"; \
+            pybabel update -i messages.pot -d translations -l $lang 2>/dev/null || echo "   ⚠️  Échec mise à jour $lang"; \
         fi \
     done && \
-    # Compiler les traductions
-    echo "🔨 Compilation des traductions..." && \
-    pybabel compile -d translations || true && \
-    # Afficher le résultat
-    echo "✅ Traductions initialisées !"
+    echo "" && \
+    echo "🔧 ÉTAPE 3: Compilation des traductions..." && \
+    pybabel compile -d translations 2>/dev/null || echo "⚠️  Aucune traduction à compiler" && \
+    echo "" && \
+    echo "🔧 ÉTAPE 4: Vérification des fichiers compilés..." && \
+    find translations -name "*.mo" -exec ls -la {} \; || echo "⚠️  Aucun fichier .mo trouvé" && \
+    echo "" && \
+    echo "✅ Initialisation des traductions terminée !"
 
 # -----------------------------
 # Copier l’application
@@ -92,14 +100,24 @@ COPY . .
 # -----------------------------
 # Rendre les scripts exécutables
 # -----------------------------
-RUN chmod +x scripts/*.sh 2>/dev/null || true
+RUN chmod +x scripts/*.sh 2>/dev/null || echo "⚠️  Aucun script trouvé"
 
 # -----------------------------
-# Créer dossier temporaire pour AppConfig
+# Créer les dossiers temporaires
 # -----------------------------
 RUN mkdir -p /tmp/pdf_fusion_pro/conversion_temp \
     /tmp/pdf_fusion_pro/uploads \
-    /tmp/pdf_fusion_pro/logs
+    /tmp/pdf_fusion_pro/logs \
+    /app/data/contacts \
+    /app/data/ratings \
+    /app/data/logs \
+    /app/uploads \
+    /app/temp
+
+# -----------------------------
+# Définir les permissions
+# -----------------------------
+RUN chmod -R 755 /app/data /app/uploads /app/temp /tmp/pdf_fusion_pro
 
 # -----------------------------
 # Exposer le port
@@ -107,6 +125,12 @@ RUN mkdir -p /tmp/pdf_fusion_pro/conversion_temp \
 EXPOSE 10000
 
 # -----------------------------
+# Health check
+# -----------------------------
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:10000/health || exit 1
+
+# -----------------------------
 # Commande de lancement Gunicorn
 # -----------------------------
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000", "--workers", "4", "--threads", "8", "--timeout", "300", "--worker-class", "gthread"]
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000", "--workers", "4", "--threads", "8", "--timeout", "300", "--worker-class", "gthread", "--access-logfile", "-", "--error-logfile", "-"]
