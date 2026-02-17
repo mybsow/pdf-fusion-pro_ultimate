@@ -11,19 +11,13 @@ from . import legal_bp
 from config import AppConfig
 from managers.contact_manager import contact_manager
 from flask_babel import _, lazy_gettext as _l
-
-from . import legal_bp
-from config import AppConfig
-from managers.contact_manager import contact_manager
-from flask_babel import _, lazy_gettext as _l
-from flask_wtf import FlaskForm  # <-- À AJOUTER
-from wtforms import StringField, TextAreaField  # <-- À AJOUTER
-from wtforms.validators import DataRequired, Email  # <-- À AJOUTER
+from flask_wtf import FlaskForm
+from wtforms import StringField, TextAreaField
+from wtforms.validators import DataRequired, Email
 
 # ============================================================
 # FORMULAIRES
 # ============================================================
-# Pour les formulaires (évaluation tardive)
 class ContactForm(FlaskForm):
     """Formulaire de contact avec WTForms"""
     name = StringField(_l('Nom complet'), validators=[DataRequired()])
@@ -68,7 +62,6 @@ def send_discord_notification(form_data):
         return True
 
     except Exception:
-        # Discord ne doit JAMAIS bloquer le formulaire
         return True
 
 # ============================================================
@@ -81,13 +74,13 @@ def contact():
     success = False
     error = None
 
-    if form.validate_on_submit():  # WTForms gère la validation
+    if form.validate_on_submit():
         form_data = {
             "first_name": form.name.data.split()[0] if form.name.data else "",
             "last_name": " ".join(form.name.data.split()[1:]) if form.name.data and len(form.name.data.split()) > 1 else "",
             "email": form.email.data.lower(),
-            "phone": request.form.get("phone", "").strip(),  # Optionnel
-            "subject": "contact",  # Valeur par défaut
+            "phone": request.form.get("phone", "").strip(),
+            "subject": "contact",
             "message": form.message.data,
         }
 
@@ -98,11 +91,10 @@ def contact():
             if saved:
                 success = True
                 flash(_('Votre message a été envoyé avec succès !'), 'success')
-                # Réinitialiser le formulaire
                 form = ContactForm()
             else:
                 error = _('Une erreur technique est survenue. Veuillez réessayer.')
-        except Exception as e:
+        except Exception:
             error = _('Une erreur technique est survenue. Veuillez réessayer.')
 
     return render_template(
@@ -110,7 +102,7 @@ def contact():
         title=_("Contact"),
         badge=_("Formulaire de contact"),
         subtitle=_("Contactez-nous via notre formulaire"),
-        form=form,  # Passer le formulaire au template
+        form=form,
         success=success,
         error=error,
         current_year=datetime.now().year,
@@ -123,9 +115,9 @@ def contact():
 def legal():
     return render_template(
         "legal/legal.html",
-        title="Mentions Légales",
-        badge="Information légale",
-        subtitle="Informations légales concernant l'utilisation du service PDF Fusion Pro",
+        title=_("Mentions Légales"),
+        badge=_("Information légale"),
+        subtitle=_("Informations légales concernant l'utilisation du service PDF Fusion Pro"),
         current_year=datetime.now().year,
         config=AppConfig,
         datetime=datetime
@@ -136,9 +128,9 @@ def legal():
 def privacy():
     return render_template(
         "legal/privacy.html",
-        title="Politique de Confidentialité",
-        badge="Protection des données",
-        subtitle="Comment nous protégeons et utilisons vos données",
+        title=_("Politique de Confidentialité"),
+        badge=_("Protection des données"),
+        subtitle=_("Comment nous protégeons et utilisons vos données"),
         current_year=datetime.now().year,
         config=AppConfig,
         datetime=datetime
@@ -149,9 +141,9 @@ def privacy():
 def terms():
     return render_template(
         "legal/terms.html",
-        title="Conditions d'Utilisation",
-        badge="Règles d'usage",
-        subtitle="Règles et conditions d'utilisation du service PDF Fusion Pro",
+        title=_("Conditions d'Utilisation"),
+        badge=_("Règles d'usage"),
+        subtitle=_("Règles et conditions d'utilisation du service PDF Fusion Pro"),
         current_year=datetime.now().year,
         config=AppConfig,
         datetime=datetime
@@ -162,9 +154,9 @@ def terms():
 def about():
     return render_template(
         "legal/about.html",
-        title="À Propos",
-        badge="Notre histoire",
-        subtitle="Découvrez PDF Fusion Pro, notre mission et nos valeurs",
+        title=_("À Propos"),
+        badge=_("Notre histoire"),
+        subtitle=_("Découvrez PDF Fusion Pro, notre mission et nos valeurs"),
         current_year=datetime.now().year,
         config=AppConfig,
         datetime=datetime
@@ -172,25 +164,21 @@ def about():
 
 
 # ============================================================
-# ROUTES DE REDIRECTION (pour garder la compatibilité)
+# ROUTES DE REDIRECTION
 # ============================================================
 
 @legal_bp.route('/mentions-legales')
 def redirect_legal():
-    """Redirige l'ancienne URL vers la nouvelle."""
     return redirect(url_for('legal.legal'), code=301)
 
 @legal_bp.route('/politique-confidentialite')
 def redirect_privacy():
-    """Redirige l'ancienne URL vers la nouvelle."""
     return redirect(url_for('legal.privacy'), code=301)
 
 @legal_bp.route('/conditions-utilisation')
 def redirect_terms():
-    """Redirige l'ancienne URL vers la nouvelle."""
     return redirect(url_for('legal.terms'), code=301)
 
 @legal_bp.route('/a-propos')
 def redirect_about():
-    """Redirige l'ancienne URL vers la nouvelle."""
     return redirect(url_for('legal.about'), code=301)
