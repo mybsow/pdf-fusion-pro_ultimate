@@ -12,6 +12,7 @@ ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
 ENV PORT=10000
+ENV BABEL_TRANSLATION_DIRECTORIES=./translations
 
 # -----------------------------
 # Installer les dépendances système
@@ -36,6 +37,7 @@ RUN apt-get update && \
         libgl1 \
         fonts-dejavu-core \
         ghostscript \
+        gettext \                    # ← AJOUTÉ : nécessaire pour pybabel
     && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------
@@ -50,13 +52,42 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir unoconv &&\
+    pip install --no-cache-dir unoconv && \
     ln -sf /usr/bin/python3 /usr/bin/python
+
+# -----------------------------
+# Initialiser les traductions
+# -----------------------------
+COPY babel.cfg .
+RUN mkdir -p translations && \
+    # Extraire les textes (ignorer les erreurs s'il n'y a pas de nouveaux textes)
+    pybabel extract -F babel.cfg -o messages.pot . 2>/dev/null || true && \
+    # Compiler les traductions si elles existent
+    if [ -d "translations" ] && [ "$(ls -A translations)" ]; then \
+        pybabel compile -d translations; \
+    else \
+        echo "⚠️  Aucune traduction trouvée, création des dossiers..."; \
+        mkdir -p translations/en/LC_MESSAGES \
+                 translations/es/LC_MESSAGES \
+                 translations/de/LC_MESSAGES \
+                 translations/it/LC_MESSAGES \
+                 translations/pt/LC_MESSAGES \
+                 translations/ar/LC_MESSAGES \
+                 translations/zh/LC_MESSAGES \
+                 translations/ja/LC_MESSAGES \
+                 translations/ru/LC_MESSAGES \
+                 translations/nl/LC_MESSAGES; \
+    fi
 
 # -----------------------------
 # Copier l’application
 # -----------------------------
 COPY . .
+
+# -----------------------------
+# Rendre les scripts exécutables
+# -----------------------------
+RUN chmod +x scripts/*.sh 2>/dev/null || true
 
 # -----------------------------
 # Créer dossier temporaire pour AppConfig
