@@ -185,7 +185,10 @@ def create_app():
     # --------------------------------------------------------
     @app.context_processor
     def inject_config():
-        return dict(config=app.config)
+        return dict(
+            config=app.config,
+            languages=app.config.get('LANGUAGES', {})
+        )
 
     # --------------------------------------------------------
     # Security headers
