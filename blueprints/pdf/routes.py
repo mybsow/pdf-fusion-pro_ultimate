@@ -2,7 +2,7 @@
 Routes pour les outils PDF
 Version ULTRA ROBUSTE — Production Ready
 """
-
+from flask import flash
 import io
 import json
 import uuid
@@ -14,21 +14,26 @@ from flask import (
     request,
     jsonify,
     send_file,
+    flash,
+    redirect,
+    url_for,
     after_this_request,
     current_app
 )
+
+from flask_babel import _, lazy_gettext as _l
+import os
+import tempfile
+from . import pdf_bp
 
 from config import AppConfig
 from pypdf import PdfReader, PdfWriter
 
 from managers import stats_manager
-from . import pdf_bp
 from .engine import PDFEngine
 
 # Initialiser dossiers
 AppConfig.initialize()
-
-from flask_babel import _, lazy_gettext as _l
 
 # Pour les textes statiques
 flash(_('Votre fichier a été converti avec succès'))
