@@ -295,15 +295,15 @@
     <div class="step-tracker">
         <div class="step active" id="step1">
             <div class="step-number">1</div>
-            <div class="step-label">Télécharger</div>
+            <div class="step-label">{{ _('Télécharger') }}</div>
         </div>
         <div class="step" id="step2">
             <div class="step-number">2</div>
-            <div class="step-label">Convertir</div>
+            <div class="step-label">{{ _('Convertir') }}</div>
         </div>
         <div class="step" id="step3">
             <div class="step-number">3</div>
-            <div class="step-label">Télécharger</div>
+            <div class="step-label">{{ _('Télécharger') }}</div>
         </div>
     </div>
     
@@ -320,32 +320,32 @@
             <div class="feature-icon">
                 <i class="fas fa-shield-alt"></i>
             </div>
-            <h5>Sécurisé</h5>
-            <p class="text-muted small mb-0">Vos fichiers sont supprimés après conversion</p>
+            <h5>{{ _('Sécurisé') }}</h5>
+            <p class="text-muted small mb-0">{{ _('Vos fichiers sont supprimés après conversion') }}</p>
         </div>
         
         <div class="feature-item">
             <div class="feature-icon">
                 <i class="fas fa-bolt"></i>
             </div>
-            <h5>Rapide</h5>
-            <p class="text-muted small mb-0">Conversion en quelques secondes</p>
+            <h5>{{ _('Rapide') }}</h5>
+            <p class="text-muted small mb-0">{{ _('Conversion en quelques secondes') }}</p>
         </div>
         
         <div class="feature-item">
             <div class="feature-icon">
                 <i class="fas fa-lock"></i>
             </div>
-            <h5>Confidentiel</h5>
-            <p class="text-muted small mb-0">Personne n'accède à vos fichiers</p>
+            <h5>{{ _('Confidentiel') }}</h5>
+            <p class="text-muted small mb-0">{{ _('Personne n\'accède à vos fichiers') }}</p>
         </div>
         
         <div class="feature-item">
             <div class="feature-icon">
                 <i class="fas fa-globe"></i>
             </div>
-            <h5>Accessible</h5>
-            <p class="text-muted small mb-0">Utilisez depuis n'importe où</p>
+            <h5>{{ _('Accessible') }}</h5>
+            <p class="text-muted small mb-0">{{ _('Utilisez depuis n\'importe où') }}</p>
         </div>
     </div>
     
@@ -354,11 +354,11 @@
         <div class="d-flex align-items-center">
             <i class="fas fa-info-circle fa-2x me-3"></i>
             <div>
-                <h6 class="mb-1">Comment ça marche ?</h6>
+                <h6 class="mb-1">{{ _('Comment ça marche ?') }}</h6>
                 <p class="mb-0 small">
-                    1. Téléchargez votre fichier {{ from_format }}<br>
-                    2. Notre système le convertit en {{ to_format }}<br>
-                    3. Téléchargez votre fichier converti
+                    {{ _('1. Téléchargez votre fichier %(from_format)s', from_format=from_format) }}<br>
+                    {{ _('2. Notre système le convertit en %(to_format)s', to_format=to_format) }}<br>
+                    {{ _('3. Téléchargez votre fichier converti') }}
                 </p>
             </div>
         </div>

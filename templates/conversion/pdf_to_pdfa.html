@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}PDF vers PDF/A - {{ title }}{% endblock %}
+{% block title %}{{ _('PDF vers PDF/A - %(title)s', title=title) }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1: Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-archive upload-icon" style="color: #e74c3c;"></i>
-        <h3>Convertissez votre PDF en format d'archivage</h3>
-        <p class="text-muted">Le format PDF/A garantit la pérennité de vos documents pour l'archivage à long terme</p>
+        <h3>{{ _('Convertissez votre PDF en format d\'archivage') }}</h3>
+        <p class="text-muted">{{ _('Le format PDF/A garantit la pérennité de vos documents pour l\'archivage à long terme') }}</p>
     </div>
 
     <!-- Zone d'upload avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez votre fichier PDF ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".pdf" style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Format accepté : PDF (jusqu'à 50MB)
+            {{ _('Format accepté : PDF (jusqu\'à 50MB)') }}
         </p>
     </div>
 
@@ -34,23 +34,23 @@
     <!-- Options de conversion -->
     <div class="file-info-card mt-4">
         <h5 class="mb-4">
-            <i class="fas fa-cog me-2"></i>Options de conversion PDF/A
+            <i class="fas fa-cog me-2"></i>{{ _('Options de conversion PDF/A') }}
         </h5>
         
         <div class="row g-4">
             <div class="col-md-12">
-                <label for="pdfaVersion" class="form-label fw-bold">Version PDF/A</label>
+                <label for="pdfaVersion" class="form-label fw-bold">{{ _('Version PDF/A') }}</label>
                 <select class="form-select" id="pdfaVersion">
-                    <option value="1b">PDF/A-1b (2005) - Niveau B (basique)</option>
-                    <option value="1a">PDF/A-1a (2005) - Niveau A (accessible)</option>
-                    <option value="2b" selected>PDF/A-2b (2011) - Niveau B (recommandé)</option>
-                    <option value="2u">PDF/A-2u (2011) - Unicode</option>
-                    <option value="3b">PDF/A-3b (2012) - Niveau B</option>
-                    <option value="3u">PDF/A-3u (2012) - Unicode</option>
+                    <option value="1b">{{ _('PDF/A-1b (2005) - Niveau B (basique)') }}</option>
+                    <option value="1a">{{ _('PDF/A-1a (2005) - Niveau A (accessible)') }}</option>
+                    <option value="2b" selected>{{ _('PDF/A-2b (2011) - Niveau B (recommandé)') }}</option>
+                    <option value="2u">{{ _('PDF/A-2u (2011) - Unicode') }}</option>
+                    <option value="3b">{{ _('PDF/A-3b (2012) - Niveau B') }}</option>
+                    <option value="3u">{{ _('PDF/A-3u (2012) - Unicode') }}</option>
                 </select>
                 <small class="text-muted d-block mt-1">
-                    <strong>PDF/A-2</strong> est recommandé pour la plupart des usages. 
-                    <strong>PDF/A-3</strong> permet d'incorporer des fichiers non-PDF/A.
+                    <strong>{{ _('PDF/A-2') }}</strong> {{ _('est recommandé pour la plupart des usages.') }}
+                    <strong>{{ _('PDF/A-3') }}</strong> {{ _('permet d\'incorporer des fichiers non-PDF/A.') }}
                 </small>
             </div>
         </div>
@@ -59,15 +59,15 @@
             <div class="d-flex">
                 <i class="fas fa-info-circle fa-2x me-3"></i>
                 <div>
-                    <strong>Qu'est-ce que le format PDF/A ?</strong>
-                    <p class="mb-0 small mt-1">Le PDF/A est une version standardisée du PDF conçue pour l'archivage à long terme. Il garantit que votre document sera exactement le même dans 10, 20 ou 50 ans, indépendamment des logiciels utilisés.</p>
+                    <strong>{{ _('Qu\'est-ce que le format PDF/A ?') }}</strong>
+                    <p class="mb-0 small mt-1">{{ _('Le PDF/A est une version standardisée du PDF conçue pour l\'archivage à long terme. Il garantit que votre document sera exactement le même dans 10, 20 ou 50 ans, indépendamment des logiciels utilisés.') }}</p>
                 </div>
             </div>
         </div>
 
         <div class="alert alert-warning mt-3">
             <i class="fas fa-exclamation-triangle me-2"></i>
-            <strong>Attention :</strong> La conversion en PDF/A peut modifier légèrement l'apparence du document pour garantir sa pérennité. Les fonctionnalités interactives (formulaires, JavaScript) seront supprimées.
+            <strong>{{ _('Attention :') }}</strong> {{ _('La conversion en PDF/A peut modifier légèrement l\'apparence du document pour garantir sa pérennité. Les fonctionnalités interactives (formulaires, JavaScript) seront supprimées.') }}
         </div>
     </div>
 
@@ -77,8 +77,8 @@
             <div class="card border-0 shadow-sm text-center">
                 <div class="card-body">
                     <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
-                    <h6>Auto-contenu</h6>
-                    <small class="text-muted">Toutes les polices sont incorporées</small>
+                    <h6>{{ _('Auto-contenu') }}</h6>
+                    <small class="text-muted">{{ _('Toutes les polices sont incorporées') }}</small>
                 </div>
             </div>
         </div>
@@ -86,8 +86,8 @@
             <div class="card border-0 shadow-sm text-center">
                 <div class="card-body">
                     <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
-                    <h6>Sans dépendance</h6>
-                    <small class="text-muted">Pas de liens externes</small>
+                    <h6>{{ _('Sans dépendance') }}</h6>
+                    <small class="text-muted">{{ _('Pas de liens externes') }}</small>
                 </div>
             </div>
         </div>
@@ -95,8 +95,8 @@
             <div class="card border-0 shadow-sm text-center">
                 <div class="card-body">
                     <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
-                    <h6>Métadonnées</h6>
-                    <small class="text-muted">Informations d'archivage</small>
+                    <h6>{{ _('Métadonnées') }}</h6>
+                    <small class="text-muted">{{ _('Informations d\'archivage') }}</small>
                 </div>
             </div>
         </div>
@@ -104,8 +104,8 @@
             <div class="card border-0 shadow-sm text-center">
                 <div class="card-body">
                     <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
-                    <h6>Standardisé</h6>
-                    <small class="text-muted">ISO 19005</small>
+                    <h6>{{ _('Standardisé') }}</h6>
+                    <small class="text-muted">{{ _('ISO 19005') }}</small>
                 </div>
             </div>
         </div>
@@ -114,10 +114,10 @@
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-archive me-2"></i>Convertir en PDF/A
+            <i class="fas fa-archive me-2"></i>{{ _('Convertir en PDF/A') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -129,9 +129,9 @@
             <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
         
-        <h3 class="mb-4">Conversion en PDF/A en cours...</h3>
+        <h3 class="mb-4">{{ _('Conversion en PDF/A en cours...') }}</h3>
         <p class="text-muted mb-4" id="conversionMessage">
-            Analyse et conversion du document...
+            {{ _('Analyse et conversion du document...') }}
         </p>
         
         <div class="progress-container mx-auto" style="max-width: 500px;">
@@ -142,7 +142,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Pages traitées</h6>
+                        <h6 class="text-muted">{{ _('Pages traitées') }}</h6>
                         <div class="display-6 text-primary" id="processedPages">0</div>
                     </div>
                 </div>
@@ -150,7 +150,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Polices incorporées</h6>
+                        <h6 class="text-muted">{{ _('Polices incorporées') }}</h6>
                         <div class="display-6 text-success" id="embeddedFonts">0</div>
                     </div>
                 </div>
@@ -158,7 +158,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Conformité</h6>
+                        <h6 class="text-muted">{{ _('Conformité') }}</h6>
                         <div class="display-6 text-warning" id="compliance">0%</div>
                     </div>
                 </div>
@@ -166,7 +166,7 @@
         </div>
         
         <div class="mt-4 text-muted small" id="conversionDetails">
-            <i class="fas fa-file-pdf me-1"></i> Vérification de la conformité PDF/A...
+            <i class="fas fa-file-pdf me-1"></i> {{ _('Vérification de la conformité PDF/A...') }}
         </div>
     </div>
 </div>
@@ -178,18 +178,18 @@
             <i class="fas fa-archive"></i>
         </div>
         
-        <h3 class="mb-3">Conversion réussie !</h3>
+        <h3 class="mb-3">{{ _('Conversion réussie !') }}</h3>
         <p class="text-muted mb-4">
-            Votre document PDF/A est prêt pour l'archivage
+            {{ _('Votre document PDF/A est prêt pour l\'archivage') }}
         </p>
         
         <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
             <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-                <i class="fas fa-download me-2"></i>Télécharger PDF/A
+                <i class="fas fa-download me-2"></i>{{ _('Télécharger PDF/A') }}
             </a>
             
             <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Nouvelle conversion
+                <i class="fas fa-redo me-2"></i>{{ _('Nouvelle conversion') }}
             </button>
         </div>
 
@@ -199,13 +199,13 @@
                 <div class="d-flex align-items-center">
                     <i class="fas fa-certificate text-success fa-3x me-3"></i>
                     <div class="text-start">
-                        <h5 class="mb-1">Document certifié PDF/A</h5>
+                        <h5 class="mb-1">{{ _('Document certifié PDF/A') }}</h5>
                         <p class="text-muted small mb-0" id="certificateInfo">
-                            Version: PDF/A-2b • Pages: 0 • Date: {{ now().strftime('%d/%m/%Y') }}
+                            {{ _('Version: PDF/A-2b • Pages: 0 • Date:') }} {{ now().strftime('%d/%m/%Y') }}
                         </p>
                         <p class="text-muted small mb-0 mt-2">
                             <i class="fas fa-check-circle text-success me-1"></i>
-                            Conforme à la norme ISO 19005 pour l'archivage électronique
+                            {{ _('Conforme à la norme ISO 19005 pour l\'archivage électronique') }}
                         </p>
                     </div>
                 </div>
@@ -217,7 +217,7 @@
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Taille originale</h6>
+                        <h6 class="text-muted">{{ _('Taille originale') }}</h6>
                         <div class="h4" id="originalSize">0 MB</div>
                     </div>
                 </div>
@@ -225,7 +225,7 @@
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Taille PDF/A</h6>
+                        <h6 class="text-muted">{{ _('Taille PDF/A') }}</h6>
                         <div class="h4" id="pdfaSize">0 MB</div>
                     </div>
                 </div>
@@ -240,7 +240,7 @@ let downloadUrl = null;
 function startConversion() {
     const uploadManager = window.uploadManagers['pdfPdfaUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner un fichier PDF');
+        showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
         return;
     }
 
@@ -287,12 +287,12 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de la conversion : ' + error);
+            showError('{{ _("Erreur lors de la conversion :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }
@@ -331,11 +331,11 @@ function simulateConversion(totalPages) {
             compliance.textContent = Math.min(percent + 10, 100) + '%';
             
             if (currentPage === 0) {
-                conversionMessage.textContent = "Analyse du document...";
-                conversionDetails.innerHTML = '<i class="fas fa-search me-1"></i> Vérification de la structure PDF';
+                conversionMessage.textContent = '{{ _("Analyse du document...") }}';
+                conversionDetails.innerHTML = '<i class="fas fa-search me-1"></i> {{ _("Vérification de la structure PDF") }}';
             } else if (currentPage < totalPages) {
-                conversionMessage.textContent = `Conversion ${versionNames[version]}`;
-                conversionDetails.innerHTML = `<i class="fas fa-font me-1"></i> Incorporation des polices - Page ${currentPage}/${totalPages}`;
+                conversionMessage.textContent = `{{ _("Conversion") }} ${versionNames[version]}`;
+                conversionDetails.innerHTML = `<i class="fas fa-font me-1"></i> {{ _("Incorporation des polices - Page") }} ${currentPage}/${totalPages}`;
             }
             
             currentPage++;
@@ -343,8 +343,8 @@ function simulateConversion(totalPages) {
             if (currentPage <= totalPages) {
                 setTimeout(updateProgress, 400);
             } else {
-                conversionMessage.textContent = "Validation de la conformité...";
-                conversionDetails.innerHTML = '<i class="fas fa-check-circle me-1"></i> Vérification finale PDF/A';
+                conversionMessage.textContent = '{{ _("Validation de la conformité...") }}';
+                conversionDetails.innerHTML = '<i class="fas fa-check-circle me-1"></i> {{ _("Vérification finale PDF/A") }}';
                 embeddedFonts.textContent = fontsFound + Math.floor(Math.random() * 3) + 2;
                 compliance.textContent = '100%';
             }
@@ -369,7 +369,7 @@ function simulateFinalStats(file, pages) {
     const dateStr = today.toLocaleDateString('fr-FR');
     
     document.getElementById('certificateInfo').innerHTML = `
-        Version: ${versionText} • Pages: ${pages} • Date: ${dateStr}
+        {{ _('Version:') }} ${versionText} • {{ _('Pages:') }} ${pages} • {{ _('Date:') }} ${dateStr}
     `;
 }
 

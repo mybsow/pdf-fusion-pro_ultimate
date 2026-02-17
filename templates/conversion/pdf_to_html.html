@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}PDF en HTML - Convertisseur de documents{% endblock %}
+{% block title %}{{ _('PDF en HTML - Convertisseur de documents') }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-file-pdf upload-icon"></i>
-        <h3>Téléchargez votre fichier PDF</h3>
-        <p class="text-muted">Sélectionnez le PDF à convertir en HTML</p>
+        <h3>{{ _('Téléchargez votre fichier PDF') }}</h3>
+        <p class="text-muted">{{ _('Sélectionnez le PDF à convertir en HTML') }}</p>
     </div>
 
     <!-- Upload Zone avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez votre fichier PDF ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".pdf" style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Format accepté : PDF
+            {{ _('Format accepté : PDF') }}
         </p>
     </div>
 
@@ -33,19 +33,19 @@
     <!-- Options de conversion -->
     <div class="file-info-card mt-4">
         <h5 class="mb-3">
-            <i class="fas fa-cog me-2"></i>Options de conversion
+            <i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}
         </h5>
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="outputFormat" class="form-label">Format de sortie :</label>
+                <label for="outputFormat" class="form-label">{{ _('Format de sortie :') }}</label>
                 <select id="outputFormat" class="form-select">
-                    <option value="single">Un seul fichier HTML</option>
-                    <option value="multiple">Plusieurs fichiers (une par page)</option>
-                    <option value="zip">Archive ZIP</option>
+                    <option value="single">{{ _('Un seul fichier HTML') }}</option>
+                    <option value="multiple">{{ _('Plusieurs fichiers (une par page)') }}</option>
+                    <option value="zip">{{ _('Archive ZIP') }}</option>
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="encoding" class="form-label">Encodage :</label>
+                <label for="encoding" class="form-label">{{ _('Encodage :') }}</label>
                 <select id="encoding" class="form-select">
                     <option value="utf-8">UTF-8</option>
                     <option value="iso-8859-1">ISO-8859-1</option>
@@ -56,7 +56,7 @@
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="includeStyles" checked>
                     <label class="form-check-label" for="includeStyles">
-                        Inclure les styles CSS
+                        {{ _('Inclure les styles CSS') }}
                     </label>
                 </div>
             </div>
@@ -64,7 +64,7 @@
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="preserveImages" checked>
                     <label class="form-check-label" for="preserveImages">
-                        Conserver les images
+                        {{ _('Conserver les images') }}
                     </label>
                 </div>
             </div>
@@ -74,7 +74,7 @@
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-sync-alt me-2"></i>Convertir en HTML
+            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en HTML') }}
         </button>
     </div>
 </div>
@@ -85,8 +85,8 @@
         <div class="mb-4">
             <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
-        <h3>Conversion en cours...</h3>
-        <p class="text-muted">Veuillez patienter pendant le traitement de votre PDF</p>
+        <h3>{{ _('Conversion en cours...') }}</h3>
+        <p class="text-muted">{{ _('Veuillez patienter pendant le traitement de votre PDF') }}</p>
         <div class="progress-container">
             <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
         </div>
@@ -99,14 +99,14 @@
         <div class="success-animation">
             <i class="fas fa-check"></i>
         </div>
-        <h3>Conversion terminée !</h3>
-        <p class="text-muted">Votre fichier HTML est prêt à être téléchargé</p>
+        <h3>{{ _('Conversion terminée !') }}</h3>
+        <p class="text-muted">{{ _('Votre fichier HTML est prêt à être téléchargé') }}</p>
         <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>Télécharger
+            <i class="fas fa-download me-2"></i>{{ _('Télécharger') }}
         </a>
         <div class="mt-4">
             <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Convertir un autre PDF
+                <i class="fas fa-redo me-2"></i>{{ _('Convertir un autre PDF') }}
             </button>
         </div>
     </div>
@@ -118,7 +118,7 @@ let downloadUrl = null;
 function startConversion() {
     const uploadManager = window.uploadManagers['pdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner un fichier');
+        showError('{{ _("Veuillez sélectionner un fichier") }}');
         return;
     }
 
@@ -153,13 +153,13 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de la conversion : ' + error);
+            showError('{{ _("Erreur lors de la conversion :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
         clearInterval(interval);
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Protéger PDF - {{ title }}{% endblock %}
+{% block title %}{{ _('Protéger PDF - %(title)s', title=title) }}{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -15,16 +15,16 @@
                     
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        Protégez votre PDF avec un mot de passe pour empêcher toute ouverture ou modification non autorisée.
+                        {{ _('Protégez votre PDF avec un mot de passe pour empêcher toute ouverture ou modification non autorisée.') }}
                     </div>
                     
                     <!-- Zone d'upload -->
                     <div class="upload-zone-pro mb-4" id="protectUploadZone" data-info-id="protectFileInfo" data-btn-id="protectButton">
                         <div class="upload-inner">
                             <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                            <h4 class="upload-title">Déposez votre PDF ici</h4>
-                            <p class="upload-subtitle">Glissez-déposez ou cliquez pour sélectionner</p>
-                            <div class="upload-info">PDF uniquement • Taille max : 50MB</div>
+                            <h4 class="upload-title">{{ _('Déposez votre PDF ici') }}</h4>
+                            <p class="upload-subtitle">{{ _('Glissez-déposez ou cliquez pour sélectionner') }}</p>
+                            <div class="upload-info">{{ _('PDF uniquement • Taille max : 50MB') }}</div>
                         </div>
                         <input type="file" accept=".pdf" style="display:none;">
                     </div>
@@ -36,15 +36,15 @@
                     <div class="row mt-4">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="form-label fw-bold">Mot de passe d'ouverture</label>
-                                <input type="password" class="form-control" id="password" placeholder="Entrez un mot de passe">
-                                <small class="text-muted">Le fichier nécessitera ce mot de passe pour être ouvert</small>
+                                <label class="form-label fw-bold">{{ _('Mot de passe d\'ouverture') }}</label>
+                                <input type="password" class="form-control" id="password" placeholder="{{ _('Entrez un mot de passe') }}">
+                                <small class="text-muted">{{ _('Le fichier nécessitera ce mot de passe pour être ouvert') }}</small>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="form-label fw-bold">Confirmer le mot de passe</label>
-                                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirmez le mot de passe">
+                                <label class="form-label fw-bold">{{ _('Confirmer le mot de passe') }}</label>
+                                <input type="password" class="form-control" id="confirmPassword" placeholder="{{ _('Confirmez le mot de passe') }}">
                             </div>
                         </div>
                     </div>
@@ -52,19 +52,19 @@
                     <div class="row mt-3">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="form-label fw-bold">Mot de passe de modification (optionnel)</label>
-                                <input type="password" class="form-control" id="ownerPassword" placeholder="Mot de passe propriétaire">
-                                <small class="text-muted">Permet de restreindre la modification</small>
+                                <label class="form-label fw-bold">{{ _('Mot de passe de modification (optionnel)') }}</label>
+                                <input type="password" class="form-control" id="ownerPassword" placeholder="{{ _('Mot de passe propriétaire') }}">
+                                <small class="text-muted">{{ _('Permet de restreindre la modification') }}</small>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="form-label fw-bold">Permissions</label>
+                                <label class="form-label fw-bold">{{ _('Permissions') }}</label>
                                 <select class="form-select" id="permissions">
-                                    <option value="none">Aucune restriction</option>
-                                    <option value="print">Impression uniquement</option>
-                                    <option value="modify">Modification uniquement</option>
-                                    <option value="all">Impression et modification</option>
+                                    <option value="none">{{ _('Aucune restriction') }}</option>
+                                    <option value="print">{{ _('Impression uniquement') }}</option>
+                                    <option value="modify">{{ _('Modification uniquement') }}</option>
+                                    <option value="all">{{ _('Impression et modification') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -72,15 +72,16 @@
                     
                     <div class="alert alert-warning mt-3">
                         <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Important :</strong> Notez bien votre mot de passe. Il n'y a aucun moyen de le récupérer en cas d'oubli.
+                        <strong>{{ _('Important :') }}</strong> 
+                        {{ _('Notez bien votre mot de passe. Il n\'y a aucun moyen de le récupérer en cas d\'oubli.') }}
                     </div>
                     
                     <div class="action-buttons mt-4">
                         <button class="btn btn-primary btn-lg" id="protectButton" disabled>
-                            <i class="fas fa-lock me-2"></i>Protéger le PDF
+                            <i class="fas fa-lock me-2"></i>{{ _('Protéger le PDF') }}
                         </button>
                         <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.protectUploadZone.removeFile(0)">
-                            <i class="fas fa-redo me-2"></i>Réinitialiser
+                            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
                         </button>
                     </div>
                 </div>
@@ -137,17 +138,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const manager = window.uploadManagers?.protectUploadZone;
         if (!manager?.files?.length) {
-            alert('Veuillez sélectionner un fichier PDF');
+            alert('{{ _("Veuillez sélectionner un fichier PDF") }}');
             return;
         }
         
         if (password.value !== confirmPassword.value) {
-            alert('Les mots de passe ne correspondent pas');
+            alert('{{ _("Les mots de passe ne correspondent pas") }}');
             return;
         }
         
         if (!password.value) {
-            alert('Veuillez entrer un mot de passe');
+            alert('{{ _("Veuillez entrer un mot de passe") }}');
             return;
         }
         
@@ -169,22 +170,33 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             if (!response.ok) {
-                throw new Error(`Erreur ${response.status}`);
+                throw new Error(`{{ _("Erreur") }} ${response.status}`);
             }
             
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'document_protege.pdf';
+            
+            // Extraire le nom du fichier de l'en-tête Content-Disposition
+            let filename = '{{ _("document_protege.pdf") }}';
+            const contentDisposition = response.headers.get('Content-Disposition');
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (match && match[1]) {
+                    filename = match[1].replace(/['"]/g, '');
+                }
+            }
+            
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
             
         } catch (error) {
-            console.error('Erreur:', error);
-            alert('Erreur lors de la protection du PDF: ' + error.message);
+            console.error('{{ _("Erreur:") }}', error);
+            alert('{{ _("Erreur lors de la protection du PDF:") }} ' + error.message);
         } finally {
             if (loader) loader.style.display = 'none';
         }

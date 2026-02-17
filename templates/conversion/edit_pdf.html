@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}Éditer PDF - {{ title }}{% endblock %}
+{% block title %}{{ _('Éditer PDF - %(title)s', title=title) }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-edit upload-icon" style="color: #3498db;"></i>
-        <h3>Téléchargez votre PDF</h3>
-        <p class="text-muted">Modifiez, ajoutez du texte ou des images à votre document</p>
+        <h3>{{ _('Téléchargez votre PDF') }}</h3>
+        <p class="text-muted">{{ _('Modifiez, ajoutez du texte ou des images à votre document') }}</p>
     </div>
 
     <!-- Zone d'upload avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez votre fichier PDF ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".pdf" multiple style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Formats acceptés : PDF (jusqu'à 100MB)
+            {{ _('Formats acceptés : PDF (jusqu\'à 100MB)') }}
         </p>
     </div>
 
@@ -35,17 +35,17 @@
         <ul class="nav nav-tabs" id="editTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button" role="tab">
-                    <i class="fas fa-font me-2"></i>Ajouter du texte
+                    <i class="fas fa-font me-2"></i>{{ _('Ajouter du texte') }}
                 </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="image-tab" data-bs-toggle="tab" data-bs-target="#image" type="button" role="tab">
-                    <i class="fas fa-image me-2"></i>Ajouter une image
+                    <i class="fas fa-image me-2"></i>{{ _('Ajouter une image') }}
                 </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="pages-tab" data-bs-toggle="tab" data-bs-target="#pages" type="button" role="tab">
-                    <i class="fas fa-copy me-2"></i>Gérer les pages
+                    <i class="fas fa-copy me-2"></i>{{ _('Gérer les pages') }}
                 </button>
             </li>
         </ul>
@@ -53,17 +53,17 @@
         <div class="tab-content p-3" id="editTabsContent">
             <!-- Onglet Texte -->
             <div class="tab-pane fade show active" id="text" role="tabpanel">
-                <h6 class="mb-3">Ajouter du texte au PDF</h6>
+                <h6 class="mb-3">{{ _('Ajouter du texte au PDF') }}</h6>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label for="textContent" class="form-label fw-bold">Texte à ajouter :</label>
-                        <textarea class="form-control" id="textContent" rows="3" placeholder="Saisissez votre texte ici..."></textarea>
+                        <label for="textContent" class="form-label fw-bold">{{ _('Texte à ajouter :') }}</label>
+                        <textarea class="form-control" id="textContent" rows="3" placeholder="{{ _('Saisissez votre texte ici...') }}"></textarea>
                     </div>
                     <div class="col-md-6">
-                        <label for="textPage" class="form-label fw-bold">Page d'insertion :</label>
+                        <label for="textPage" class="form-label fw-bold">{{ _('Page d\'insertion :') }}</label>
                         <input type="number" class="form-control" id="textPage" min="1" value="1">
                         
-                        <label for="textPosition" class="form-label fw-bold mt-3">Position :</label>
+                        <label for="textPosition" class="form-label fw-bold mt-3">{{ _('Position :') }}</label>
                         <div class="row">
                             <div class="col-6">
                                 <input type="number" class="form-control" id="textX" placeholder="X" value="50">
@@ -75,7 +75,7 @@
                         
                         <div class="row mt-3">
                             <div class="col-6">
-                                <label for="textSize" class="form-label fw-bold">Taille :</label>
+                                <label for="textSize" class="form-label fw-bold">{{ _('Taille :') }}</label>
                                 <select class="form-select" id="textSize">
                                     <option value="10">10 px</option>
                                     <option value="12" selected>12 px</option>
@@ -87,19 +87,19 @@
                                 </select>
                             </div>
                             <div class="col-6">
-                                <label for="textColor" class="form-label fw-bold">Couleur :</label>
+                                <label for="textColor" class="form-label fw-bold">{{ _('Couleur :') }}</label>
                                 <input type="color" class="form-control form-control-color" id="textColor" value="#000000">
                             </div>
                         </div>
                         
                         <div class="mt-3">
-                            <label for="textFont" class="form-label fw-bold">Police :</label>
+                            <label for="textFont" class="form-label fw-bold">{{ _('Police :') }}</label>
                             <select class="form-select" id="textFont">
                                 <option value="Helvetica">Helvetica</option>
-                                <option value="Times-Roman">Times New Roman</option>
+                                <option value="Times-Roman">{{ _('Times New Roman') }}</option>
                                 <option value="Courier">Courier</option>
-                                <option value="Helvetica-Bold">Helvetica Gras</option>
-                                <option value="Helvetica-Oblique">Helvetica Italique</option>
+                                <option value="Helvetica-Bold">{{ _('Helvetica Gras') }}</option>
+                                <option value="Helvetica-Oblique">{{ _('Helvetica Italique') }}</option>
                             </select>
                         </div>
                     </div>
@@ -108,32 +108,32 @@
             
             <!-- Onglet Image -->
             <div class="tab-pane fade" id="image" role="tabpanel">
-                <h6 class="mb-3">Ajouter une image au PDF</h6>
+                <h6 class="mb-3">{{ _('Ajouter une image au PDF') }}</h6>
                 <div class="upload-zone-pro upload-zone small-zone mb-3" id="imageUploadZone">
                     <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
-                    <p>Glissez-déposez votre image ici</p>
+                    <p>{{ _('Glissez-déposez votre image ici') }}</p>
                     <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.gif,.bmp" style="display: none;">
                 </div>
                 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label for="imagePage" class="form-label fw-bold">Page d'insertion :</label>
+                        <label for="imagePage" class="form-label fw-bold">{{ _('Page d\'insertion :') }}</label>
                         <input type="number" class="form-control" id="imagePage" min="1" value="1">
                     </div>
                     <div class="col-md-6">
-                        <label for="imageSize" class="form-label fw-bold">Taille :</label>
+                        <label for="imageSize" class="form-label fw-bold">{{ _('Taille :') }}</label>
                         <select class="form-select" id="imageSize">
-                            <option value="original">Taille originale</option>
-                            <option value="fit">Ajuster à la page</option>
-                            <option value="custom">Personnalisée</option>
+                            <option value="original">{{ _('Taille originale') }}</option>
+                            <option value="fit">{{ _('Ajuster à la page') }}</option>
+                            <option value="custom">{{ _('Personnalisée') }}</option>
                         </select>
                     </div>
                     <div class="col-6">
-                        <label for="imageX" class="form-label fw-bold">Position X :</label>
+                        <label for="imageX" class="form-label fw-bold">{{ _('Position X :') }}</label>
                         <input type="number" class="form-control" id="imageX" value="50">
                     </div>
                     <div class="col-6">
-                        <label for="imageY" class="form-label fw-bold">Position Y :</label>
+                        <label for="imageY" class="form-label fw-bold">{{ _('Position Y :') }}</label>
                         <input type="number" class="form-control" id="imageY" value="50">
                     </div>
                 </div>
@@ -141,24 +141,24 @@
             
             <!-- Onglet Pages -->
             <div class="tab-pane fade" id="pages" role="tabpanel">
-                <h6 class="mb-3">Gestion des pages</h6>
+                <h6 class="mb-3">{{ _('Gestion des pages') }}</h6>
                 
                 <div class="mb-4">
-                    <label class="form-label fw-bold">Action :</label>
+                    <label class="form-label fw-bold">{{ _('Action :') }}</label>
                     <div class="btn-group w-100" role="group">
                         <input type="radio" class="btn-check" name="pageAction" id="actionReorder" value="reorder" checked>
                         <label class="btn btn-outline-primary" for="actionReorder">
-                            <i class="fas fa-sort me-2"></i>Réorganiser
+                            <i class="fas fa-sort me-2"></i>{{ _('Réorganiser') }}
                         </label>
                         
                         <input type="radio" class="btn-check" name="pageAction" id="actionDelete" value="delete">
                         <label class="btn btn-outline-primary" for="actionDelete">
-                            <i class="fas fa-trash me-2"></i>Supprimer
+                            <i class="fas fa-trash me-2"></i>{{ _('Supprimer') }}
                         </label>
                         
                         <input type="radio" class="btn-check" name="pageAction" id="actionRotate" value="rotate">
                         <label class="btn btn-outline-primary" for="actionRotate">
-                            <i class="fas fa-sync-alt me-2"></i>Rotation
+                            <i class="fas fa-sync-alt me-2"></i>{{ _('Rotation') }}
                         </label>
                     </div>
                 </div>
@@ -166,48 +166,48 @@
                 <div id="reorderSection">
                     <p class="text-info small">
                         <i class="fas fa-info-circle me-1"></i>
-                        Faites glisser les pages pour les réorganiser
+                        {{ _('Faites glisser les pages pour les réorganiser') }}
                     </p>
                     <div class="row" id="pageThumbnails">
                         <!-- Les miniatures seront générées ici -->
                         <div class="col-3 mb-3">
                             <div class="border rounded p-2 text-center bg-light">
                                 <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
-                                <p class="small mb-0">Page 1</p>
+                                <p class="small mb-0">{{ _('Page') }} 1</p>
                             </div>
                         </div>
                         <div class="col-3 mb-3">
                             <div class="border rounded p-2 text-center bg-light">
                                 <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
-                                <p class="small mb-0">Page 2</p>
+                                <p class="small mb-0">{{ _('Page') }} 2</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <div id="deleteSection" style="display:none;">
-                    <label for="pagesToDelete" class="form-label fw-bold">Pages à supprimer :</label>
+                    <label for="pagesToDelete" class="form-label fw-bold">{{ _('Pages à supprimer :') }}</label>
                     <input type="text" class="form-control" id="pagesToDelete" 
-                           placeholder="Ex: 1-3, 5, 7-9">
+                           placeholder="{{ _('Ex: 1-3, 5, 7-9') }}">
                     <p class="text-muted small mt-2">
                         <i class="fas fa-exclamation-triangle text-warning me-1"></i>
-                        Attention : La suppression est définitive
+                        {{ _('Attention : La suppression est définitive') }}
                     </p>
                 </div>
                 
                 <div id="rotateSection" style="display:none;">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="rotatePages" class="form-label fw-bold">Pages à tourner :</label>
+                            <label for="rotatePages" class="form-label fw-bold">{{ _('Pages à tourner :') }}</label>
                             <input type="text" class="form-control" id="rotatePages" 
-                                   placeholder="Ex: 1-3, 5, 7-9">
+                                   placeholder="{{ _('Ex: 1-3, 5, 7-9') }}">
                         </div>
                         <div class="col-md-6">
-                            <label for="rotateAngle" class="form-label fw-bold">Angle :</label>
+                            <label for="rotateAngle" class="form-label fw-bold">{{ _('Angle :') }}</label>
                             <select class="form-select" id="rotateAngle">
-                                <option value="90">90° horaire</option>
+                                <option value="90">90° {{ _('horaire') }}</option>
                                 <option value="180">180°</option>
-                                <option value="270">90° antihoraire</option>
+                                <option value="270">90° {{ _('antihoraire') }}</option>
                             </select>
                         </div>
                     </div>
@@ -219,10 +219,10 @@
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-edit me-2"></i>Appliquer les modifications
+            <i class="fas fa-edit me-2"></i>{{ _('Appliquer les modifications') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -233,8 +233,8 @@
         <div class="mb-4">
             <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
-        <h3>Édition en cours...</h3>
-        <p class="text-muted">Application des modifications au document</p>
+        <h3>{{ _('Édition en cours...') }}</h3>
+        <p class="text-muted">{{ _('Application des modifications au document') }}</p>
         <div class="progress-container">
             <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
         </div>
@@ -247,14 +247,14 @@
         <div class="success-animation">
             <i class="fas fa-check"></i>
         </div>
-        <h3>Édition terminée !</h3>
-        <p class="text-muted">Votre PDF modifié est prêt à être téléchargé</p>
+        <h3>{{ _('Édition terminée !') }}</h3>
+        <p class="text-muted">{{ _('Votre PDF modifié est prêt à être téléchargé') }}</p>
         <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>Télécharger le PDF modifié
+            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF modifié') }}
         </a>
         <div class="mt-4">
             <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Éditer un autre PDF
+                <i class="fas fa-redo me-2"></i>{{ _('Éditer un autre PDF') }}
             </button>
         </div>
     </div>
@@ -275,7 +275,7 @@ document.querySelectorAll('input[name="pageAction"]').forEach(radio => {
 function startConversion() {
     const uploadManager = window.uploadManagers['pdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner un fichier PDF');
+        showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
         return;
     }
 
@@ -350,7 +350,7 @@ function startConversion() {
             downloadUrl = window.URL.createObjectURL(blob);
             
             const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = 'edited.pdf';
+            let filename = '{{ _("edited.pdf") }}';
             if (contentDisposition) {
                 const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
                 if (match && match[1]) {
@@ -364,13 +364,13 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de l\'édition : ' + error);
+            showError('{{ _("Erreur lors de l\'édition :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
         clearInterval(interval);
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }

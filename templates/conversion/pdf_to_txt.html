@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}PDF en TXT - Extracteur de texte{% endblock %}
+{% block title %}{{ _('PDF en TXT - Extracteur de texte') }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-file-pdf upload-icon"></i>
-        <h3>Téléchargez votre fichier PDF</h3>
-        <p class="text-muted">Sélectionnez le PDF dont vous voulez extraire le texte</p>
+        <h3>{{ _('Téléchargez votre fichier PDF') }}</h3>
+        <p class="text-muted">{{ _('Sélectionnez le PDF dont vous voulez extraire le texte') }}</p>
     </div>
 
     <!-- Upload Zone avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez votre fichier PDF ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".pdf" style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Format accepté : PDF
+            {{ _('Format accepté : PDF') }}
         </p>
     </div>
 
@@ -33,11 +33,11 @@
     <!-- Options d'extraction -->
     <div class="file-info-card mt-4">
         <h5 class="mb-3">
-            <i class="fas fa-cog me-2"></i>Options d'extraction
+            <i class="fas fa-cog me-2"></i>{{ _('Options d\'extraction') }}
         </h5>
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="encoding" class="form-label">Encodage :</label>
+                <label for="encoding" class="form-label">{{ _('Encodage :') }}</label>
                 <select id="encoding" class="form-select">
                     <option value="utf-8">UTF-8</option>
                     <option value="iso-8859-1">ISO-8859-1</option>
@@ -48,13 +48,13 @@
                 <div class="form-check mt-4">
                     <input class="form-check-input" type="checkbox" id="preserveLayout">
                     <label class="form-check-label" for="preserveLayout">
-                        Conserver la mise en page
+                        {{ _('Conserver la mise en page') }}
                     </label>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="addPageMarkers" checked>
                     <label class="form-check-label" for="addPageMarkers">
-                        Ajouter des marqueurs de page
+                        {{ _('Ajouter des marqueurs de page') }}
                     </label>
                 </div>
             </div>
@@ -62,16 +62,16 @@
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="extractAllPages" checked>
                     <label class="form-check-label" for="extractAllPages">
-                        Extraire toutes les pages
+                        {{ _('Extraire toutes les pages') }}
                     </label>
                 </div>
             </div>
             <div class="col-12" id="pageRangeGroup" style="display: none;">
-                <label for="pageRange" class="form-label">Pages à extraire :</label>
+                <label for="pageRange" class="form-label">{{ _('Pages à extraire :') }}</label>
                 <input type="text" id="pageRange" class="form-control" 
-                       placeholder="Exemple: 1-5,8,11-13">
+                       placeholder="{{ _('Exemple: 1-5,8,11-13') }}">
                 <div class="form-text">
-                    Spécifiez les pages à extraire (ex: 1-3,5,7-9)
+                    {{ _('Spécifiez les pages à extraire (ex: 1-3,5,7-9)') }}
                 </div>
             </div>
         </div>
@@ -80,7 +80,7 @@
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-sync-alt me-2"></i>Extraire le texte
+            <i class="fas fa-sync-alt me-2"></i>{{ _('Extraire le texte') }}
         </button>
     </div>
 </div>
@@ -91,8 +91,8 @@
         <div class="mb-4">
             <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
-        <h3>Extraction en cours...</h3>
-        <p class="text-muted">Veuillez patienter pendant l'extraction du texte</p>
+        <h3>{{ _('Extraction en cours...') }}</h3>
+        <p class="text-muted">{{ _('Veuillez patienter pendant l\'extraction du texte') }}</p>
         <div class="progress-container">
             <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
         </div>
@@ -105,14 +105,14 @@
         <div class="success-animation">
             <i class="fas fa-check"></i>
         </div>
-        <h3>Extraction terminée !</h3>
-        <p class="text-muted">Votre fichier texte est prêt à être téléchargé</p>
+        <h3>{{ _('Extraction terminée !') }}</h3>
+        <p class="text-muted">{{ _('Votre fichier texte est prêt à être téléchargé') }}</p>
         <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>Télécharger le texte
+            <i class="fas fa-download me-2"></i>{{ _('Télécharger le texte') }}
         </a>
         <div class="mt-4">
             <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Extraire un autre PDF
+                <i class="fas fa-redo me-2"></i>{{ _('Extraire un autre PDF') }}
             </button>
         </div>
     </div>
@@ -139,18 +139,18 @@ function validatePageRange(range) {
 function startConversion() {
     const uploadManager = window.uploadManagers['pdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner un fichier');
+        showError('{{ _("Veuillez sélectionner un fichier") }}');
         return;
     }
 
     if (!document.getElementById('extractAllPages').checked) {
         const pageRange = document.getElementById('pageRange').value.trim();
         if (!pageRange) {
-            showError('Veuillez spécifier les pages à extraire');
+            showError('{{ _("Veuillez spécifier les pages à extraire") }}');
             return;
         }
         if (!validatePageRange(pageRange)) {
-            showError('Format de pages invalide. Utilisez le format: 1-5,8,11-13');
+            showError('{{ _("Format de pages invalide. Utilisez le format: 1-5,8,11-13") }}');
             return;
         }
     }
@@ -190,13 +190,13 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de l\'extraction : ' + error);
+            showError('{{ _("Erreur lors de l\'extraction :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
         clearInterval(interval);
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }

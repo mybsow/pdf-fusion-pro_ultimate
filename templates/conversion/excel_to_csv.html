@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}Excel vers CSV - {{ title }}{% endblock %}
+{% block title %}{{ _('Excel vers CSV - %(title)s', title=title) }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-file-excel upload-icon" style="color: #217346;"></i>
-        <h3>Téléchargez vos fichiers Excel</h3>
-        <p class="text-muted">Sélectionnez les fichiers à convertir en CSV</p>
+        <h3>{{ _('Téléchargez vos fichiers Excel') }}</h3>
+        <p class="text-muted">{{ _('Sélectionnez les fichiers à convertir en CSV') }}</p>
     </div>
 
     <!-- Zone d'upload avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez vos fichiers Excel ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez vos fichiers Excel ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".xls,.xlsx,.xlsm" multiple style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Formats acceptés : XLS, XLSX (jusqu'à 50MB par fichier)
+            {{ _('Formats acceptés : XLS, XLSX (jusqu\'à 50MB par fichier)') }}
         </p>
     </div>
 
@@ -33,30 +33,30 @@
     <!-- Options de conversion -->
     <div class="file-info-card mt-4">
         <h5 class="mb-3">
-            <i class="fas fa-cog me-2"></i>Options de conversion
+            <i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}
         </h5>
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="separator" class="form-label fw-bold">Séparateur :</label>
+                <label for="separator" class="form-label fw-bold">{{ _('Séparateur :') }}</label>
                 <select class="form-select" id="separator">
-                    <option value=",">Virgule (,)</option>
-                    <option value=";">Point-virgule (;)</option>
-                    <option value="\t">Tabulation</option>
-                    <option value="|">Pipe (|)</option>
+                    <option value=",">{{ _('Virgule (,)') }}</option>
+                    <option value=";">{{ _('Point-virgule (;)') }}</option>
+                    <option value="\t">{{ _('Tabulation') }}</option>
+                    <option value="|">{{ _('Pipe (|)') }}</option>
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="sheet" class="form-label fw-bold">Feuille à exporter :</label>
+                <label for="sheet" class="form-label fw-bold">{{ _('Feuille à exporter :') }}</label>
                 <select class="form-select" id="sheet">
-                    <option value="0">Première feuille</option>
-                    <option value="all">Toutes les feuilles (archive ZIP)</option>
+                    <option value="0">{{ _('Première feuille') }}</option>
+                    <option value="all">{{ _('Toutes les feuilles (archive ZIP)') }}</option>
                 </select>
             </div>
             <div class="col-md-6">
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="includeHeader" checked>
                     <label class="form-check-label" for="includeHeader">
-                        Inclure les en-têtes
+                        {{ _('Inclure les en-têtes') }}
                     </label>
                 </div>
             </div>
@@ -64,7 +64,7 @@
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="utf8Bom" checked>
                     <label class="form-check-label" for="utf8Bom">
-                        Ajouter BOM UTF-8 (compatible Excel)
+                        {{ _('Ajouter BOM UTF-8 (compatible Excel)') }}
                     </label>
                 </div>
             </div>
@@ -74,10 +74,10 @@
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-success btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-file-csv me-2"></i>Convertir en CSV
+            <i class="fas fa-file-csv me-2"></i>{{ _('Convertir en CSV') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -88,8 +88,8 @@
         <div class="mb-4">
             <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
-        <h3>Conversion en cours...</h3>
-        <p class="text-muted">Veuillez patienter pendant le traitement de vos fichiers</p>
+        <h3>{{ _('Conversion en cours...') }}</h3>
+        <p class="text-muted">{{ _('Veuillez patienter pendant le traitement de vos fichiers') }}</p>
         <div class="progress-container">
             <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
         </div>
@@ -102,14 +102,14 @@
         <div class="success-animation">
             <i class="fas fa-check"></i>
         </div>
-        <h3>Conversion terminée !</h3>
-        <p class="text-muted">Vos fichiers CSV sont prêts à être téléchargés</p>
+        <h3>{{ _('Conversion terminée !') }}</h3>
+        <p class="text-muted">{{ _('Vos fichiers CSV sont prêts à être téléchargés') }}</p>
         <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>Télécharger
+            <i class="fas fa-download me-2"></i>{{ _('Télécharger') }}
         </a>
         <div class="mt-4">
             <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Convertir d'autres fichiers
+                <i class="fas fa-redo me-2"></i>{{ _('Convertir d\'autres fichiers') }}
             </button>
         </div>
     </div>
@@ -121,7 +121,7 @@ let downloadUrl = null;
 function startConversion() {
     const uploadManager = window.uploadManagers['excelUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner au moins un fichier Excel');
+        showError('{{ _("Veuillez sélectionner au moins un fichier Excel") }}');
         return;
     }
 
@@ -161,7 +161,7 @@ function startConversion() {
             
             // Récupérer le nom du fichier depuis l'en-tête Content-Disposition
             const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = 'converted.zip';
+            let filename = '{{ _("converted.zip") }}';
             if (contentDisposition) {
                 const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
                 if (match && match[1]) {
@@ -175,13 +175,13 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de la conversion : ' + error);
+            showError('{{ _("Erreur lors de la conversion :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
         clearInterval(interval);
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }

@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}PDF vers Excel - Convertisseur{% endblock %}
+{% block title %}{{ _('PDF vers Excel - Convertisseur') }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1: Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-file-excel upload-icon" style="color: #217346;"></i>
-        <h3>Extrayez les tableaux de votre PDF</h3>
-        <p class="text-muted">Convertissez vos tableaux PDF en feuilles de calcul Excel</p>
+        <h3>{{ _('Extrayez les tableaux de votre PDF') }}</h3>
+        <p class="text-muted">{{ _('Convertissez vos tableaux PDF en feuilles de calcul Excel') }}</p>
     </div>
 
     <!-- Zone d'upload avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez votre fichier PDF ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".pdf" style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Format accepté : PDF (jusqu'à 50MB)
+            {{ _('Format accepté : PDF (jusqu\'à 50MB)') }}
         </p>
     </div>
 
@@ -34,38 +34,38 @@
     <!-- Options d'extraction -->
     <div class="file-info-card mt-4">
         <h5 class="mb-4">
-            <i class="fas fa-cog me-2"></i>Options d'extraction
+            <i class="fas fa-cog me-2"></i>{{ _('Options d\'extraction') }}
         </h5>
         
         <div class="row g-4">
             <div class="col-md-6">
-                <label for="extractionMode" class="form-label fw-bold">Mode d'extraction</label>
+                <label for="extractionMode" class="form-label fw-bold">{{ _('Mode d\'extraction') }}</label>
                 <select class="form-select" id="extractionMode">
-                    <option value="tables" selected>Extraire les tableaux uniquement</option>
-                    <option value="all">Extraire tout le texte</option>
-                    <option value="smart">Détection intelligente</option>
+                    <option value="tables" selected>{{ _('Extraire les tableaux uniquement') }}</option>
+                    <option value="all">{{ _('Extraire tout le texte') }}</option>
+                    <option value="smart">{{ _('Détection intelligente') }}</option>
                 </select>
-                <small class="text-muted">Choisissez comment extraire les données</small>
+                <small class="text-muted">{{ _('Choisissez comment extraire les données') }}</small>
             </div>
             
             <div class="col-md-6">
-                <label for="language" class="form-label fw-bold">Langue du document</label>
+                <label for="language" class="form-label fw-bold">{{ _('Langue du document') }}</label>
                 <select class="form-select" id="language">
-                    <option value="fra" selected>Français</option>
-                    <option value="eng">Anglais</option>
-                    <option value="deu">Allemand</option>
-                    <option value="spa">Espagnol</option>
-                    <option value="ita">Italien</option>
+                    <option value="fra" selected>{{ _('Français') }}</option>
+                    <option value="eng">{{ _('Anglais') }}</option>
+                    <option value="deu">{{ _('Allemand') }}</option>
+                    <option value="spa">{{ _('Espagnol') }}</option>
+                    <option value="ita">{{ _('Italien') }}</option>
                 </select>
-                <small class="text-muted">Améliore la reconnaissance OCR</small>
+                <small class="text-muted">{{ _('Améliore la reconnaissance OCR') }}</small>
             </div>
 
             <div class="col-md-6">
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="ocrEnabled" checked>
                     <label class="form-check-label" for="ocrEnabled">
-                        <strong>Activer l'OCR</strong>
-                        <small class="d-block text-muted">Pour les PDF scannés ou les images</small>
+                        <strong>{{ _('Activer l\'OCR') }}</strong>
+                        <small class="d-block text-muted">{{ _('Pour les PDF scannés ou les images') }}</small>
                     </label>
                 </div>
             </div>
@@ -74,8 +74,8 @@
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="preserveFormatting" checked>
                     <label class="form-check-label" for="preserveFormatting">
-                        <strong>Conserver la mise en forme</strong>
-                        <small class="d-block text-muted">Maintient les styles et couleurs</small>
+                        <strong>{{ _('Conserver la mise en forme') }}</strong>
+                        <small class="d-block text-muted">{{ _('Maintient les styles et couleurs') }}</small>
                     </label>
                 </div>
             </div>
@@ -83,17 +83,17 @@
 
         <div class="alert alert-info mt-4">
             <i class="fas fa-info-circle me-2"></i>
-            <strong>Extraction intelligente :</strong> Les tableaux seront automatiquement détectés et convertis en feuilles Excel. L'OCR permet de reconnaître le texte dans les documents scannés.
+            <strong>{{ _('Extraction intelligente :') }}</strong> {{ _('Les tableaux seront automatiquement détectés et convertis en feuilles Excel. L\'OCR permet de reconnaître le texte dans les documents scannés.') }}
         </div>
     </div>
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-success btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-sync-alt me-2"></i>Extraire vers Excel
+            <i class="fas fa-sync-alt me-2"></i>{{ _('Extraire vers Excel') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -105,9 +105,9 @@
             <i class="fas fa-cog fa-spin fa-4x text-success"></i>
         </div>
         
-        <h3 class="mb-4">Extraction en cours...</h3>
+        <h3 class="mb-4">{{ _('Extraction en cours...') }}</h3>
         <p class="text-muted mb-4" id="extractionMessage">
-            Analyse et extraction des données...
+            {{ _('Analyse et extraction des données...') }}
         </p>
         
         <div class="progress-container mx-auto" style="max-width: 500px;">
@@ -118,7 +118,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Tableaux détectés</h6>
+                        <h6 class="text-muted">{{ _('Tableaux détectés') }}</h6>
                         <div class="display-6 text-primary" id="detectedTables">0</div>
                     </div>
                 </div>
@@ -126,7 +126,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Lignes extraites</h6>
+                        <h6 class="text-muted">{{ _('Lignes extraites') }}</h6>
                         <div class="display-6 text-success" id="extractedRows">0</div>
                     </div>
                 </div>
@@ -134,7 +134,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Colonnes</h6>
+                        <h6 class="text-muted">{{ _('Colonnes') }}</h6>
                         <div class="display-6 text-warning" id="detectedColumns">0</div>
                     </div>
                 </div>
@@ -142,7 +142,7 @@
         </div>
         
         <div class="mt-4 text-muted small" id="extractionDetails">
-            <i class="fas fa-search me-1"></i> Recherche de tableaux dans le document...
+            <i class="fas fa-search me-1"></i> {{ _('Recherche de tableaux dans le document...') }}
         </div>
     </div>
 </div>
@@ -154,18 +154,18 @@
             <i class="fas fa-file-excel"></i>
         </div>
         
-        <h3 class="mb-3">Extraction réussie !</h3>
+        <h3 class="mb-3">{{ _('Extraction réussie !') }}</h3>
         <p class="text-muted mb-4">
-            Votre fichier Excel est prêt au téléchargement
+            {{ _('Votre fichier Excel est prêt au téléchargement') }}
         </p>
         
         <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
             <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-                <i class="fas fa-download me-2"></i>Télécharger Excel
+                <i class="fas fa-download me-2"></i>{{ _('Télécharger Excel') }}
             </a>
             
             <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Nouvelle extraction
+                <i class="fas fa-redo me-2"></i>{{ _('Nouvelle extraction') }}
             </button>
         </div>
 
@@ -174,7 +174,7 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Tableaux</h6>
+                        <h6 class="text-muted">{{ _('Tableaux') }}</h6>
                         <div class="display-6 text-primary" id="finalTables">0</div>
                     </div>
                 </div>
@@ -182,7 +182,7 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Lignes</h6>
+                        <h6 class="text-muted">{{ _('Lignes') }}</h6>
                         <div class="display-6 text-success" id="finalRows">0</div>
                     </div>
                 </div>
@@ -190,7 +190,7 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Cellules</h6>
+                        <h6 class="text-muted">{{ _('Cellules') }}</h6>
                         <div class="display-6 text-warning" id="finalCells">0</div>
                     </div>
                 </div>
@@ -198,7 +198,7 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Feuilles</h6>
+                        <h6 class="text-muted">{{ _('Feuilles') }}</h6>
                         <div class="display-6 text-info" id="finalSheets">0</div>
                     </div>
                 </div>
@@ -213,7 +213,7 @@ let downloadUrl = null;
 function startConversion() {
     const uploadManager = window.uploadManagers['pdfExcelUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner un fichier PDF');
+        showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
         return;
     }
 
@@ -260,12 +260,12 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de l\'extraction : ' + error);
+            showError('{{ _("Erreur lors de l\'extraction :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }
@@ -284,48 +284,48 @@ function simulateExtraction(fileSize) {
     const steps = [
         { 
             percent: 15, 
-            message: "Analyse du document...", 
-            detail: "Détection des zones de texte",
+            message: '{{ _("Analyse du document...") }}', 
+            detail: '{{ _("Détection des zones de texte") }}',
             tables: 0,
             rows: 0,
             cols: 0
         },
         { 
             percent: 30, 
-            message: "Recherche de tableaux...", 
-            detail: "Identification des structures tabulaires",
+            message: '{{ _("Recherche de tableaux...") }}', 
+            detail: '{{ _("Identification des structures tabulaires") }}',
             tables: Math.floor(pages * 0.5),
             rows: pages * 5,
             cols: 3
         },
         { 
             percent: 50, 
-            message: "Extraction des données...", 
-            detail: "Récupération du contenu des cellules",
+            message: '{{ _("Extraction des données...") }}', 
+            detail: '{{ _("Récupération du contenu des cellules") }}',
             tables: Math.floor(pages * 0.8),
             rows: pages * 12,
             cols: 5
         },
         { 
             percent: 70, 
-            message: "Traitement OCR...", 
-            detail: "Reconnaissance de texte dans les images",
+            message: '{{ _("Traitement OCR...") }}', 
+            detail: '{{ _("Reconnaissance de texte dans les images") }}',
             tables: pages,
             rows: pages * 20,
             cols: 6
         },
         { 
             percent: 90, 
-            message: "Structuration des données...", 
-            detail: "Organisation en feuilles Excel",
+            message: '{{ _("Structuration des données...") }}', 
+            detail: '{{ _("Organisation en feuilles Excel") }}',
             tables: pages,
             rows: pages * 25,
             cols: 8
         },
         { 
             percent: 100, 
-            message: "Extraction terminée !", 
-            detail: "Préparation du téléchargement",
+            message: '{{ _("Extraction terminée !") }}', 
+            detail: '{{ _("Préparation du téléchargement") }}',
             tables: pages,
             rows: pages * 30,
             cols: 10
@@ -348,7 +348,7 @@ function simulateExtraction(fileSize) {
             stepIndex++;
             setTimeout(updateProgress, 1000);
         } else {
-            extractionDetails.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i> Extraction terminée !';
+            extractionDetails.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i> {{ _("Extraction terminée !") }}';
         }
     }
     

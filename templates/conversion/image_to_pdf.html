@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}Image vers PDF - {{ title }}{% endblock %}
+{% block title %}{{ _('Image vers PDF - %(title)s', title=title) }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-file-image upload-icon" style="color: #e74c3c;"></i>
-        <h3>Téléchargez vos images</h3>
-        <p class="text-muted">Sélectionnez les images à convertir en PDF</p>
+        <h3>{{ _('Téléchargez vos images') }}</h3>
+        <p class="text-muted">{{ _('Sélectionnez les images à convertir en PDF') }}</p>
     </div>
 
     <!-- Zone d'upload avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez vos images ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez vos images ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.bmp,.gif,.tiff,.webp" multiple style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par fichier)
+            {{ _('Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu\'à 50MB par fichier)') }}
         </p>
     </div>
 
@@ -34,39 +34,39 @@
     <!-- Options de conversion -->
     <div class="file-info-card mt-4">
         <h5 class="mb-3">
-            <i class="fas fa-cog me-2"></i>Options de conversion
+            <i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}
         </h5>
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="orientation" class="form-label fw-bold">Orientation :</label>
+                <label for="orientation" class="form-label fw-bold">{{ _('Orientation :') }}</label>
                 <select class="form-select" id="orientation">
-                    <option value="portrait">Portrait</option>
-                    <option value="landscape">Paysage</option>
-                    <option value="auto">Automatique</option>
+                    <option value="portrait">{{ _('Portrait') }}</option>
+                    <option value="landscape">{{ _('Paysage') }}</option>
+                    <option value="auto">{{ _('Automatique') }}</option>
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="quality" class="form-label fw-bold">Qualité :</label>
+                <label for="quality" class="form-label fw-bold">{{ _('Qualité :') }}</label>
                 <select class="form-select" id="quality">
-                    <option value="high">Haute (fichier plus gros)</option>
-                    <option value="medium" selected>Moyenne</option>
-                    <option value="low">Basse (fichier plus petit)</option>
+                    <option value="high">{{ _('Haute (fichier plus gros)') }}</option>
+                    <option value="medium" selected>{{ _('Moyenne') }}</option>
+                    <option value="low">{{ _('Basse (fichier plus petit)') }}</option>
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="pageSize" class="form-label fw-bold">Format de page :</label>
+                <label for="pageSize" class="form-label fw-bold">{{ _('Format de page :') }}</label>
                 <select class="form-select" id="pageSize">
                     <option value="A4">A4</option>
-                    <option value="letter">Letter</option>
+                    <option value="letter">{{ _('Letter') }}</option>
                     <option value="legal">Legal</option>
-                    <option value="original">Taille originale</option>
+                    <option value="original">{{ _('Taille originale') }}</option>
                 </select>
             </div>
             <div class="col-md-6">
                 <div class="form-check mt-4">
                     <input class="form-check-input" type="checkbox" id="mergeFiles" checked>
                     <label class="form-check-label" for="mergeFiles">
-                        Fusionner toutes les images en un seul PDF
+                        {{ _('Fusionner toutes les images en un seul PDF') }}
                     </label>
                 </div>
             </div>
@@ -76,10 +76,10 @@
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-file-pdf me-2"></i>Convertir en PDF
+            <i class="fas fa-file-pdf me-2"></i>{{ _('Convertir en PDF') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -90,13 +90,13 @@
         <div class="mb-4">
             <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
-        <h3>Conversion en cours...</h3>
-        <p class="text-muted">Veuillez patienter pendant le traitement de vos images</p>
+        <h3>{{ _('Conversion en cours...') }}</h3>
+        <p class="text-muted">{{ _('Veuillez patienter pendant le traitement de vos images') }}</p>
         <div class="progress-container">
             <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
         </div>
         <p class="text-muted small mt-3" id="progressStatus">
-            Traitement de 0/{total} images...
+            {{ _('Traitement de 0/{total} images...') }}
         </p>
     </div>
 </div>
@@ -107,14 +107,14 @@
         <div class="success-animation">
             <i class="fas fa-check"></i>
         </div>
-        <h3>Conversion terminée !</h3>
-        <p class="text-muted">Votre PDF est prêt à être téléchargé</p>
+        <h3>{{ _('Conversion terminée !') }}</h3>
+        <p class="text-muted">{{ _('Votre PDF est prêt à être téléchargé') }}</p>
         <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>Télécharger
+            <i class="fas fa-download me-2"></i>{{ _('Télécharger') }}
         </a>
         <div class="mt-4">
             <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Convertir d'autres images
+                <i class="fas fa-redo me-2"></i>{{ _('Convertir d\'autres images') }}
             </button>
         </div>
     </div>
@@ -126,7 +126,7 @@ let downloadUrl = null;
 function startConversion() {
     const uploadManager = window.uploadManagers['imageUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner au moins une image');
+        showError('{{ _("Veuillez sélectionner au moins une image") }}');
         return;
     }
 
@@ -154,7 +154,7 @@ function startConversion() {
         document.getElementById('progressBar').style.width = progress + '%';
         
         const processed = Math.floor(progress * totalFiles / 100);
-        progressStatus.textContent = `Traitement de ${processed}/${totalFiles} images...`;
+        progressStatus.textContent = `{{ _("Traitement de") }} ${processed}/${totalFiles} {{ _("images...") }}`;
         
         if (progress >= 90) clearInterval(interval);
     }, 500);
@@ -167,7 +167,7 @@ function startConversion() {
     .then(async response => {
         clearInterval(interval);
         document.getElementById('progressBar').style.width = '100%';
-        progressStatus.textContent = `Traitement de ${totalFiles}/${totalFiles} images terminé`;
+        progressStatus.textContent = `{{ _("Traitement de") }} ${totalFiles}/${totalFiles} {{ _("images terminé") }}`;
         
         if (response.ok) {
             const blob = await response.blob();
@@ -175,7 +175,7 @@ function startConversion() {
             
             // Récupérer le nom du fichier depuis l'en-tête Content-Disposition
             const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = 'images.pdf';
+            let filename = '{{ _("images.pdf") }}';
             if (contentDisposition) {
                 const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
                 if (match && match[1]) {
@@ -189,13 +189,13 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de la conversion : ' + error);
+            showError('{{ _("Erreur lors de la conversion :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
         clearInterval(interval);
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }

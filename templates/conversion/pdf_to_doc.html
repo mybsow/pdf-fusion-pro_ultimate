@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}PDF vers DOC - Convertisseur{% endblock %}
+{% block title %}{{ _('PDF vers DOC - Convertisseur') }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1: Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-file-word upload-icon" style="color: #2b579a;"></i>
-        <h3>Convertissez votre PDF en DOC</h3>
-        <p class="text-muted">Transformez vos documents PDF en format Word compatible avec les anciennes versions</p>
+        <h3>{{ _('Convertissez votre PDF en DOC') }}</h3>
+        <p class="text-muted">{{ _('Transformez vos documents PDF en format Word compatible avec les anciennes versions') }}</p>
     </div>
 
     <!-- Zone d'upload avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez votre fichier PDF ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".pdf" style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Format accepté : PDF (jusqu'à 50MB)
+            {{ _('Format accepté : PDF (jusqu\'à 50MB)') }}
         </p>
     </div>
 
@@ -34,30 +34,30 @@
     <!-- Options de conversion -->
     <div class="file-info-card mt-4">
         <h5 class="mb-4">
-            <i class="fas fa-cog me-2"></i>Options de conversion
+            <i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}
         </h5>
         
         <div class="row g-4">
             <div class="col-md-6">
-                <label for="extractionMode" class="form-label fw-bold">Mode d'extraction</label>
+                <label for="extractionMode" class="form-label fw-bold">{{ _('Mode d\'extraction') }}</label>
                 <select class="form-select" id="extractionMode">
-                    <option value="text">Texte uniquement</option>
-                    <option value="layout" selected>Conserver la mise en page</option>
-                    <option value="full">Texte et images</option>
+                    <option value="text">{{ _('Texte uniquement') }}</option>
+                    <option value="layout" selected>{{ _('Conserver la mise en page') }}</option>
+                    <option value="full">{{ _('Texte et images') }}</option>
                 </select>
-                <small class="text-muted">Choisissez le niveau de détail à conserver</small>
+                <small class="text-muted">{{ _('Choisissez le niveau de détail à conserver') }}</small>
             </div>
             
             <div class="col-md-6">
-                <label for="language" class="form-label fw-bold">Langue du document</label>
+                <label for="language" class="form-label fw-bold">{{ _('Langue du document') }}</label>
                 <select class="form-select" id="language">
-                    <option value="fra" selected>Français</option>
-                    <option value="eng">Anglais</option>
-                    <option value="deu">Allemand</option>
-                    <option value="spa">Espagnol</option>
-                    <option value="ita">Italien</option>
+                    <option value="fra" selected>{{ _('Français') }}</option>
+                    <option value="eng">{{ _('Anglais') }}</option>
+                    <option value="deu">{{ _('Allemand') }}</option>
+                    <option value="spa">{{ _('Espagnol') }}</option>
+                    <option value="ita">{{ _('Italien') }}</option>
                 </select>
-                <small class="text-muted">Améliore la reconnaissance du texte</small>
+                <small class="text-muted">{{ _('Améliore la reconnaissance du texte') }}</small>
             </div>
 
             <div class="col-12">
@@ -66,8 +66,8 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="detectTables" checked>
                             <label class="form-check-label" for="detectTables">
-                                <strong>Détecter les tableaux</strong>
-                                <small class="d-block text-muted">Convertit automatiquement les tableaux en format Word</small>
+                                <strong>{{ _('Détecter les tableaux') }}</strong>
+                                <small class="d-block text-muted">{{ _('Convertit automatiquement les tableaux en format Word') }}</small>
                             </label>
                         </div>
                     </div>
@@ -76,8 +76,8 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="preserveFormatting" checked>
                             <label class="form-check-label" for="preserveFormatting">
-                                <strong>Conserver la mise en forme</strong>
-                                <small class="d-block text-muted">Maintient les polices, tailles et styles</small>
+                                <strong>{{ _('Conserver la mise en forme') }}</strong>
+                                <small class="d-block text-muted">{{ _('Maintient les polices, tailles et styles') }}</small>
                             </label>
                         </div>
                     </div>
@@ -87,18 +87,18 @@
 
         <div class="alert alert-info mt-4">
             <i class="fas fa-info-circle me-2"></i>
-            <strong>Format DOC :</strong> Compatible avec Microsoft Word 97-2003 et les anciennes versions.
-            Pour un format plus récent, utilisez <a href="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-word') }}">PDF vers DOCX</a>.
+            <strong>{{ _('Format DOC :') }}</strong> {{ _('Compatible avec Microsoft Word 97-2003 et les anciennes versions.') }}
+            {{ _('Pour un format plus récent, utilisez') }} <a href="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-word') }}">{{ _('PDF vers DOCX') }}</a>.
         </div>
     </div>
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-sync-alt me-2"></i>Convertir en DOC
+            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en DOC') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -110,9 +110,9 @@
             <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
         
-        <h3 class="mb-4">Conversion en cours...</h3>
+        <h3 class="mb-4">{{ _('Conversion en cours...') }}</h3>
         <p class="text-muted mb-4" id="conversionMessage">
-            Analyse et conversion de votre PDF...
+            {{ _('Analyse et conversion de votre PDF...') }}
         </p>
         
         <div class="progress-container mx-auto" style="max-width: 500px;">
@@ -120,7 +120,7 @@
         </div>
         
         <div class="mt-4 text-muted small" id="conversionDetails">
-            <i class="fas fa-file-pdf me-1"></i> Extraction du texte...
+            <i class="fas fa-file-pdf me-1"></i> {{ _('Extraction du texte...') }}
         </div>
     </div>
 </div>
@@ -132,18 +132,18 @@
             <i class="fas fa-file-word"></i>
         </div>
         
-        <h3 class="mb-3">Conversion réussie !</h3>
+        <h3 class="mb-3">{{ _('Conversion réussie !') }}</h3>
         <p class="text-muted mb-4">
-            Votre document DOC est prêt au téléchargement
+            {{ _('Votre document DOC est prêt au téléchargement') }}
         </p>
         
         <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
             <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-                <i class="fas fa-download me-2"></i>Télécharger DOC
+                <i class="fas fa-download me-2"></i>{{ _('Télécharger DOC') }}
             </a>
             
             <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Nouvelle conversion
+                <i class="fas fa-redo me-2"></i>{{ _('Nouvelle conversion') }}
             </button>
         </div>
 
@@ -152,7 +152,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Pages traitées</h6>
+                        <h6 class="text-muted">{{ _('Pages traitées') }}</h6>
                         <div class="display-6 text-primary" id="statsPages">0</div>
                     </div>
                 </div>
@@ -160,7 +160,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Taille du fichier</h6>
+                        <h6 class="text-muted">{{ _('Taille du fichier') }}</h6>
                         <div class="display-6 text-success" id="statsSize">0 MB</div>
                     </div>
                 </div>
@@ -168,7 +168,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Format</h6>
+                        <h6 class="text-muted">{{ _('Format') }}</h6>
                         <div class="display-6 text-info">DOC</div>
                     </div>
                 </div>
@@ -183,7 +183,7 @@ let downloadUrl = null;
 function startConversion() {
     const uploadManager = window.uploadManagers['pdfDocUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner un fichier PDF');
+        showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
         return;
     }
 
@@ -231,12 +231,12 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de la conversion : ' + error);
+            showError('{{ _("Erreur lors de la conversion :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }
@@ -250,12 +250,12 @@ function simulateConversion(fileSize) {
     const estimatedPages = Math.max(1, Math.floor(fileSize / (200 * 1024)));
     
     const steps = [
-        { percent: 20, message: "Analyse du PDF...", detail: "Lecture de la structure du document" },
-        { percent: 40, message: "Extraction du texte...", detail: "Récupération du contenu textuel" },
-        { percent: 60, message: "Conservation de la mise en page...", detail: "Préservation des paragraphes et styles" },
-        { percent: 80, message: "Traitement des tableaux...", detail: "Conversion des structures tabulaires" },
-        { percent: 95, message: "Génération du document...", detail: "Création du fichier DOC" },
-        { percent: 100, message: "Conversion terminée !", detail: "Préparation du téléchargement" }
+        { percent: 20, message: '{{ _("Analyse du PDF...") }}', detail: '{{ _("Lecture de la structure du document") }}' },
+        { percent: 40, message: '{{ _("Extraction du texte...") }}', detail: '{{ _("Récupération du contenu textuel") }}' },
+        { percent: 60, message: '{{ _("Conservation de la mise en page...") }}', detail: '{{ _("Préservation des paragraphes et styles") }}' },
+        { percent: 80, message: '{{ _("Traitement des tableaux...") }}', detail: '{{ _("Conversion des structures tabulaires") }}' },
+        { percent: 95, message: '{{ _("Génération du document...") }}', detail: '{{ _("Création du fichier DOC") }}' },
+        { percent: 100, message: '{{ _("Conversion terminée !") }}', detail: '{{ _("Préparation du téléchargement") }}' }
     ];
     
     let stepIndex = 0;
@@ -270,7 +270,7 @@ function simulateConversion(fileSize) {
             stepIndex++;
             setTimeout(updateProgress, 800);
         } else {
-            conversionDetails.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i> Conversion terminée !';
+            conversionDetails.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i> {{ _("Conversion terminée !") }}';
         }
     }
     

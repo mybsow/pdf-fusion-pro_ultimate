@@ -6,6 +6,13 @@ gunicorn==21.2.0
 Werkzeug==3.0.1
 
 # ==============================================
+# INTERNATIONALIZATION & TRANSLATION
+# ==============================================
+Flask-Babel==3.1.0          # Support multilingue
+Babel==2.14.0               # Outils d'internationalisation
+pytz==2023.3                # Gestion des fuseaux horaires
+
+# ==============================================
 # OCR & IMAGE PROCESSING
 # ==============================================
 pytesseract==0.3.10
@@ -45,5 +52,4 @@ python-dotenv==1.0.0
 # ==============================================
 # BLUEPRINTS DEPENDENCIES
 # ==============================================
-# Ajoutez ici d'autres packages manquants
 pypdf==4.0.1

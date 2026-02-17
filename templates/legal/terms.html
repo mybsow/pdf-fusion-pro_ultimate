@@ -1,58 +1,61 @@
 {% extends "base_legal.html" %}
 
 {% block content %}
-<h2>Acceptation des conditions</h2>
-<p>En utilisant le service <strong>{{ config.NAME }}</strong>, vous acceptez pleinement et sans réserve les présentes conditions d'utilisation.</p>
+<h2>{{ _('Acceptation des conditions') }}</h2>
+<p>{{ _('En utilisant le service %(app_name)s, vous acceptez pleinement et sans réserve les présentes conditions d\'utilisation.', 
+      app_name=config.NAME) }}</p>
 
 <div class="info-box">
     <i class="fas fa-exclamation-triangle me-2"></i>
-    <strong>Avertissement important :</strong> Ce service est fourni "tel quel". 
-    Nous déclinons toute responsabilité concernant les fichiers traités par l'utilisateur.
+    <strong>{{ _('Avertissement important :') }}</strong> 
+    {{ _('Ce service est fourni "tel quel". Nous déclinons toute responsabilité concernant les fichiers traités par l\'utilisateur.') }}
 </div>
 
-<h2>Usage autorisé</h2>
-<p>Vous vous engagez à utiliser le service de manière responsable et légale :</p>
+<h2>{{ _('Usage autorisé') }}</h2>
+<p>{{ _('Vous vous engagez à utiliser le service de manière responsable et légale :') }}</p>
 
-<h3>Interdictions</h3>
+<h3>{{ _('Interdictions') }}</h3>
 <ul>
-    <li>Téléverser des fichiers contenant des données illicites ou protégés par des droits d'auteur sans autorisation</li>
-    <li>Utiliser le service pour des activités frauduleuses ou malveillantes</li>
-    <li>Tenter de contourner les mesures de sécurité du service</li>
-    <li>Surcharger délibérément le service (attaques DoS/DDoS)</li>
-    <li>Réutiliser le contenu du service à des fins commerciales sans autorisation</li>
+    <li>{{ _('Téléverser des fichiers contenant des données illicites ou protégés par des droits d\'auteur sans autorisation') }}</li>
+    <li>{{ _('Utiliser le service pour des activités frauduleuses ou malveillantes') }}</li>
+    <li>{{ _('Tenter de contourner les mesures de sécurité du service') }}</li>
+    <li>{{ _('Surcharger délibérément le service (attaques DoS/DDoS)') }}</li>
+    <li>{{ _('Réutiliser le contenu du service à des fins commerciales sans autorisation') }}</li>
 </ul>
 
-<h3>Obligations</h3>
+<h3>{{ _('Obligations') }}</h3>
 <ul>
-    <li>Respecter les droits de propriété intellectuelle des documents traités</li>
-    <li>Assurer la confidentialité de vos propres fichiers</li>
-    <li>Utiliser le service conformément à sa destination première</li>
+    <li>{{ _('Respecter les droits de propriété intellectuelle des documents traités') }}</li>
+    <li>{{ _('Assurer la confidentialité de vos propres fichiers') }}</li>
+    <li>{{ _('Utiliser le service conformément à sa destination première') }}</li>
 </ul>
 
-<h2>Limitation de responsabilité</h2>
-<p>Le service est fourni sans aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande, d'adéquation à un usage particulier et de non-contrefaçon.</p>
+<h2>{{ _('Limitation de responsabilité') }}</h2>
+<p>{{ _('Le service est fourni sans aucune garantie, expresse ou implicite, y compris, mais sans s\'y limiter, les garanties de qualité marchande, d\'adéquation à un usage particulier et de non-contrefaçon.') }}</p>
 
-<p>En aucun cas, <strong>{{ config.DEVELOPER_NAME }}</strong> ne pourra être tenu responsable :</p>
+<p>{{ _('En aucun cas, %(developer_name)s ne pourra être tenu responsable :', 
+      developer_name=config.DEVELOPER_NAME) }}</p>
 <ul>
-    <li>Des dommages directs ou indirects résultant de l'utilisation ou de l'impossibilité d'utiliser le service</li>
-    <li>De la perte ou de l'altération des fichiers PDF traités</li>
-    <li>Des conséquences de l'utilisation des fichiers générés par le service</li>
+    <li>{{ _('Des dommages directs ou indirects résultant de l\'utilisation ou de l\'impossibilité d\'utiliser le service') }}</li>
+    <li>{{ _('De la perte ou de l\'altération des fichiers PDF traités') }}</li>
+    <li>{{ _('Des conséquences de l\'utilisation des fichiers générés par le service') }}</li>
 </ul>
 
-<h2>Modifications des conditions</h2>
-<p>Nous nous réservons le droit de modifier ces conditions d'utilisation à tout moment.</p>
-<p>Les utilisateurs seront informés des changements significatifs via une notification sur le site.</p>
+<h2>{{ _('Modifications des conditions') }}</h2>
+<p>{{ _('Nous nous réservons le droit de modifier ces conditions d\'utilisation à tout moment.') }}</p>
+<p>{{ _('Les utilisateurs seront informés des changements significatifs via une notification sur le site.') }}</p>
 
-<h2>Propriété intellectuelle</h2>
-<p>Le service, son code source, son design et son contenu sont la propriété exclusive de <strong>{{ config.DEVELOPER_NAME }}</strong>.</p>
-<p>Toute reproduction, même partielle, est interdite sans autorisation préalable écrite.</p>
+<h2>{{ _('Propriété intellectuelle') }}</h2>
+<p>{{ _('Le service, son code source, son design et son contenu sont la propriété exclusive de %(developer_name)s.', 
+      developer_name=config.DEVELOPER_NAME) }}</p>
+<p>{{ _('Toute reproduction, même partielle, est interdite sans autorisation préalable écrite.') }}</p>
 
 <div class="alert alert-info mt-4">
     <i class="fas fa-info-circle me-2"></i>
-    <strong>Pour toute question concernant ces conditions :</strong>
+    <strong>{{ _('Pour toute question concernant ces conditions :') }}</strong>
     <div class="mt-2">
         <a href="/contact" class="btn btn-outline-primary">
-            <i class="fas fa-envelope me-1"></i> Nous contacter via le formulaire
+            <i class="fas fa-envelope me-1"></i> {{ _('Nous contacter via le formulaire') }}
         </a>
     </div>
 </div>

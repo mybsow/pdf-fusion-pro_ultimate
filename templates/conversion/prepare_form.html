@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}Préparer formulaire PDF - {{ title }}{% endblock %}
+{% block title %}{{ _('Préparer formulaire PDF - %(title)s', title=title) }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-file-signature upload-icon" style="color: #9b59b6;"></i>
-        <h3>Téléchargez votre document</h3>
-        <p class="text-muted">Transformez vos documents en formulaires PDF interactifs</p>
+        <h3>{{ _('Téléchargez votre document') }}</h3>
+        <p class="text-muted">{{ _('Transformez vos documents en formulaires PDF interactifs') }}</p>
     </div>
 
     <!-- Zone d'upload avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez votre document ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez votre document ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" multiple style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Formats acceptés : PDF, Word, Excel, Images (jusqu'à 50MB)
+            {{ _('Formats acceptés : PDF, Word, Excel, Images (jusqu\'à 50MB)') }}
         </p>
     </div>
 
@@ -33,59 +33,59 @@
     <!-- Options du formulaire -->
     <div class="file-info-card mt-4">
         <h5 class="mb-3">
-            <i class="fas fa-cog me-2"></i>Configuration du formulaire
+            <i class="fas fa-cog me-2"></i>{{ _('Configuration du formulaire') }}
         </h5>
 
         <!-- Type de formulaire -->
         <div class="mb-4">
-            <label class="form-label fw-bold">Type de formulaire :</label>
+            <label class="form-label fw-bold">{{ _('Type de formulaire :') }}</label>
             <div class="btn-group w-100" role="group">
                 <input type="radio" class="btn-check" name="formType" id="formInteractive" value="interactive" checked>
                 <label class="btn btn-outline-primary" for="formInteractive">
-                    <i class="fas fa-mouse-pointer me-2"></i>Interactif (champs remplissables)
+                    <i class="fas fa-mouse-pointer me-2"></i>{{ _('Interactif (champs remplissables)') }}
                 </label>
                 
                 <input type="radio" class="btn-check" name="formType" id="formPrintable" value="printable">
                 <label class="btn btn-outline-primary" for="formPrintable">
-                    <i class="fas fa-print me-2"></i>Imprimable (lignes pour écrire)
+                    <i class="fas fa-print me-2"></i>{{ _('Imprimable (lignes pour écrire)') }}
                 </label>
             </div>
         </div>
 
         <!-- Détection automatique des champs -->
         <div class="mb-4">
-            <label class="form-label fw-bold">Détection des champs :</label>
+            <label class="form-label fw-bold">{{ _('Détection des champs :') }}</label>
             <div class="row g-3">
                 <div class="col-md-6">
                     <select class="form-select" id="detectFields">
-                        <option value="auto">Automatique (recommendé)</option>
-                        <option value="text">Texte uniquement</option>
-                        <option value="checkbox">Cases à cocher</option>
-                        <option value="signature">Emplacements signature</option>
-                        <option value="manual">Manuel (je définis les champs)</option>
+                        <option value="auto">{{ _('Automatique (recommandé)') }}</option>
+                        <option value="text">{{ _('Texte uniquement') }}</option>
+                        <option value="checkbox">{{ _('Cases à cocher') }}</option>
+                        <option value="signature">{{ _('Emplacements signature') }}</option>
+                        <option value="manual">{{ _('Manuel (je définis les champs)') }}</option>
                     </select>
                 </div>
                 <div class="col-md-6">
                     <button class="btn btn-outline-secondary w-100" type="button" onclick="detectFields()">
-                        <i class="fas fa-search me-2"></i>Détecter les champs
+                        <i class="fas fa-search me-2"></i>{{ _('Détecter les champs') }}
                     </button>
                 </div>
             </div>
             <p class="text-muted small mt-2">
                 <i class="fas fa-info-circle me-1"></i>
-                La détection automatique identifie les zones de texte, cases à cocher et emplacements de signature
+                {{ _('La détection automatique identifie les zones de texte, cases à cocher et emplacements de signature') }}
             </p>
         </div>
 
         <!-- Aperçu avec champs détectés -->
         <div id="formPreview" class="mt-4" style="display:none;">
-            <h6 class="mb-3">Aperçu du formulaire - Cliquez sur les champs pour les configurer</h6>
+            <h6 class="mb-3">{{ _('Aperçu du formulaire - Cliquez sur les champs pour les configurer') }}</h6>
             <div class="border rounded p-3 bg-light" style="min-height: 300px;">
                 <div class="text-center text-muted py-5">
                     <i class="fas fa-file-pdf fa-3x mb-3"></i>
-                    <p>Aperçu du document avec les champs détectés</p>
+                    <p>{{ _('Aperçu du document avec les champs détectés') }}</p>
                     <button class="btn btn-sm btn-primary" onclick="loadPreview()">
-                        <i class="fas fa-eye me-2"></i>Charger l'aperçu
+                        <i class="fas fa-eye me-2"></i>{{ _('Charger l\'aperçu') }}
                     </button>
                 </div>
             </div>
@@ -93,21 +93,21 @@
 
         <!-- Configuration des champs -->
         <div class="mt-4">
-            <h6 class="mb-3">Champs détectés</h6>
+            <h6 class="mb-3">{{ _('Champs détectés') }}</h6>
             <div class="table-responsive">
                 <table class="table table-sm" id="fieldsTable">
                     <thead>
                         <tr>
-                            <th>Type</th>
-                            <th>Étiquette</th>
-                            <th>Page</th>
-                            <th>Options</th>
+                            <th>{{ _('Type') }}</th>
+                            <th>{{ _('Étiquette') }}</th>
+                            <th>{{ _('Page') }}</th>
+                            <th>{{ _('Options') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="text-muted">
                             <td colspan="4" class="text-center">
-                                Lancez la détection pour voir les champs
+                                {{ _('Lancez la détection pour voir les champs') }}
                             </td>
                         </tr>
                     </tbody>
@@ -118,26 +118,26 @@
         <!-- Options supplémentaires -->
         <div class="row g-3 mt-3">
             <div class="col-md-4">
-                <label for="formLanguage" class="form-label fw-bold">Langue du formulaire :</label>
+                <label for="formLanguage" class="form-label fw-bold">{{ _('Langue du formulaire :') }}</label>
                 <select class="form-select" id="formLanguage">
-                    <option value="fr">Français</option>
-                    <option value="en">Anglais</option>
-                    <option value="de">Allemand</option>
-                    <option value="es">Espagnol</option>
-                    <option value="it">Italien</option>
+                    <option value="fr">{{ _('Français') }}</option>
+                    <option value="en">{{ _('Anglais') }}</option>
+                    <option value="de">{{ _('Allemand') }}</option>
+                    <option value="es">{{ _('Espagnol') }}</option>
+                    <option value="it">{{ _('Italien') }}</option>
                 </select>
             </div>
             <div class="col-md-4">
-                <label for="formColor" class="form-label fw-bold">Couleur des champs :</label>
+                <label for="formColor" class="form-label fw-bold">{{ _('Couleur des champs :') }}</label>
                 <input type="color" class="form-control form-control-color" id="formColor" value="#9b59b6">
             </div>
             <div class="col-md-4">
-                <label for="formBorder" class="form-label fw-bold">Style des champs :</label>
+                <label for="formBorder" class="form-label fw-bold">{{ _('Style des champs :') }}</label>
                 <select class="form-select" id="formBorder">
-                    <option value="underline">Souligné</option>
-                    <option value="border">Encadré</option>
-                    <option value="background">Fond coloré</option>
-                    <option value="none">Invisible</option>
+                    <option value="underline">{{ _('Souligné') }}</option>
+                    <option value="border">{{ _('Encadré') }}</option>
+                    <option value="background">{{ _('Fond coloré') }}</option>
+                    <option value="none">{{ _('Invisible') }}</option>
                 </select>
             </div>
         </div>
@@ -146,19 +146,19 @@
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="addPlaceholders" checked>
                 <label class="form-check-label" for="addPlaceholders">
-                    Ajouter des textes indicatifs (ex: "Nom", "Prénom"...)
+                    {{ _('Ajouter des textes indicatifs (ex: "Nom", "Prénom"...)') }}
                 </label>
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="makeRequired" checked>
                 <label class="form-check-label" for="makeRequired">
-                    Marquer les champs obligatoires (avec *)
+                    {{ _('Marquer les champs obligatoires (avec *)') }}
                 </label>
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="addSubmitButton">
                 <label class="form-check-label" for="addSubmitButton">
-                    Ajouter un bouton de soumission
+                    {{ _('Ajouter un bouton de soumission') }}
                 </label>
             </div>
         </div>
@@ -167,10 +167,10 @@
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-file-signature me-2"></i>Créer le formulaire PDF
+            <i class="fas fa-file-signature me-2"></i>{{ _('Créer le formulaire PDF') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -181,12 +181,12 @@
         <div class="mb-4">
             <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
-        <h3>Création du formulaire...</h3>
-        <p class="text-muted">Analyse du document et création des champs interactifs</p>
+        <h3>{{ _('Création du formulaire...') }}</h3>
+        <p class="text-muted">{{ _('Analyse du document et création des champs interactifs') }}</p>
         <div class="progress-container">
             <div class="progress-bar" style="width: 0%; background: #9b59b6;" id="progressBar"></div>
         </div>
-        <p class="text-muted mt-3" id="progressMessage">Analyse du document source...</p>
+        <p class="text-muted mt-3" id="progressMessage">{{ _('Analyse du document source...') }}</p>
     </div>
 </div>
 
@@ -196,14 +196,14 @@
         <div class="success-animation">
             <i class="fas fa-check"></i>
         </div>
-        <h3>Formulaire créé !</h3>
-        <p class="text-muted">Votre formulaire PDF interactif est prêt</p>
+        <h3>{{ _('Formulaire créé !') }}</h3>
+        <p class="text-muted">{{ _('Votre formulaire PDF interactif est prêt') }}</p>
         <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>Télécharger le formulaire
+            <i class="fas fa-download me-2"></i>{{ _('Télécharger le formulaire') }}
         </a>
         <div class="mt-4">
             <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Créer un autre formulaire
+                <i class="fas fa-redo me-2"></i>{{ _('Créer un autre formulaire') }}
             </button>
         </div>
     </div>
@@ -216,7 +216,7 @@ let detectedFields = [];
 function detectFields() {
     const uploadManager = window.uploadManagers['docUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez d\'abord télécharger un document');
+        showError('{{ _("Veuillez d\'abord télécharger un document") }}');
         return;
     }
 
@@ -226,16 +226,16 @@ function detectFields() {
     setTimeout(() => {
         // Exemple de champs détectés
         detectedFields = [
-            { type: 'text', label: 'Nom complet', page: 1, required: true },
-            { type: 'text', label: 'Prénom', page: 1, required: true },
-            { type: 'text', label: 'Adresse', page: 1, required: false },
-            { type: 'text', label: 'Code postal', page: 1, required: false },
-            { type: 'text', label: 'Ville', page: 1, required: false },
-            { type: 'email', label: 'Email', page: 1, required: true },
-            { type: 'tel', label: 'Téléphone', page: 1, required: false },
-            { type: 'checkbox', label: "J'accepte les conditions", page: 2, required: true },
-            { type: 'signature', label: 'Signature', page: 2, required: true },
-            { type: 'date', label: 'Date', page: 2, required: true }
+            { type: 'text', label: '{{ _("Nom complet") }}', page: 1, required: true },
+            { type: 'text', label: '{{ _("Prénom") }}', page: 1, required: true },
+            { type: 'text', label: '{{ _("Adresse") }}', page: 1, required: false },
+            { type: 'text', label: '{{ _("Code postal") }}', page: 1, required: false },
+            { type: 'text', label: '{{ _("Ville") }}', page: 1, required: false },
+            { type: 'email', label: '{{ _("Email") }}', page: 1, required: true },
+            { type: 'tel', label: '{{ _("Téléphone") }}', page: 1, required: false },
+            { type: 'checkbox', label: '{{ _("J\'accepte les conditions") }}', page: 2, required: true },
+            { type: 'signature', label: '{{ _("Signature") }}', page: 2, required: true },
+            { type: 'date', label: '{{ _("Date") }}', page: 2, required: true }
         ];
         
         updateFieldsTable();
@@ -287,7 +287,7 @@ function getFieldIcon(type) {
 
 function editField(index) {
     // Ouvrir modal d'édition
-    alert('Édition du champ - À implémenter');
+    alert('{{ _("Édition du champ - À implémenter") }}');
 }
 
 function deleteField(index) {
@@ -297,13 +297,13 @@ function deleteField(index) {
 
 function loadPreview() {
     // Charger l'aperçu du document
-    alert('Chargement de l\'aperçu - À implémenter avec PDF.js');
+    alert('{{ _("Chargement de l\'aperçu - À implémenter avec PDF.js") }}');
 }
 
 function startConversion() {
     const uploadManager = window.uploadManagers['docUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner un document');
+        showError('{{ _("Veuillez sélectionner un document") }}');
         return;
     }
 
@@ -328,12 +328,12 @@ function startConversion() {
     // Simuler la progression
     let progress = 0;
     const messages = [
-        'Analyse du document source...',
-        'Conversion en PDF...',
-        'Détection des champs...',
-        'Création des champs interactifs...',
-        'Ajout des propriétés du formulaire...',
-        'Finalisation...'
+        '{{ _("Analyse du document source...") }}',
+        '{{ _("Conversion en PDF...") }}',
+        '{{ _("Détection des champs...") }}',
+        '{{ _("Création des champs interactifs...") }}',
+        '{{ _("Ajout des propriétés du formulaire...") }}',
+        '{{ _("Finalisation...") }}'
     ];
     let msgIndex = 0;
     
@@ -357,14 +357,14 @@ function startConversion() {
     .then(async response => {
         clearInterval(interval);
         document.getElementById('progressBar').style.width = '100%';
-        document.getElementById('progressMessage').textContent = 'Terminé !';
+        document.getElementById('progressMessage').textContent = '{{ _("Terminé !") }}';
         
         if (response.ok) {
             const blob = await response.blob();
             downloadUrl = window.URL.createObjectURL(blob);
             
             const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = 'formulaire.pdf';
+            let filename = '{{ _("formulaire.pdf") }}';
             if (contentDisposition) {
                 const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
                 if (match && match[1]) {
@@ -378,13 +378,13 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de la création du formulaire : ' + error);
+            showError('{{ _("Erreur lors de la création du formulaire :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
         clearInterval(interval);
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }
@@ -406,7 +406,7 @@ function resetConversion() {
     document.querySelector('#fieldsTable tbody').innerHTML = `
         <tr class="text-muted">
             <td colspan="4" class="text-center">
-                Lancez la détection pour voir les champs
+                {{ _('Lancez la détection pour voir les champs') }}
             </td>
         </tr>
     `;

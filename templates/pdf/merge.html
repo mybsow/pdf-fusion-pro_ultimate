@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}Fusionner PDF - PDF Fusion Pro{% endblock %}
-{% block description %}Fusionnez plusieurs fichiers PDF en un seul document, facilement et rapidement.{% endblock %}
+{% block title %}{{ _('Fusionner PDF - PDF Fusion Pro') }}{% endblock %}
+{% block description %}{{ _('Fusionnez plusieurs fichiers PDF en un seul document, facilement et rapidement.') }}{% endblock %}
 
 {% block content %}
 <section class="hero-section text-center">
-    <h1>Fusionner plusieurs PDF</h1>
-    <p>Déposez vos fichiers PDF et obtenez un document unique fusionné.</p>
+    <h1>{{ _('Fusionner plusieurs PDF') }}</h1>
+    <p>{{ _('Déposez vos fichiers PDF et obtenez un document unique fusionné.') }}</p>
 </section>
 
 <div class="tool-container">
     <div class="upload-zone-pro" id="mergeUploadZone" data-info-id="mergeFileInfo" data-btn-id="mergeButton">
         <div class="upload-inner">
             <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-            <h4 class="upload-title">Déposez vos PDF ici</h4>
-            <p class="upload-subtitle">Glissez-déposez vos fichiers ou cliquez pour parcourir</p>
-            <div class="upload-info">PDF uniquement • Taille max : 50MB</div>
+            <h4 class="upload-title">{{ _('Déposez vos PDF ici') }}</h4>
+            <p class="upload-subtitle">{{ _('Glissez-déposez vos fichiers ou cliquez pour parcourir') }}</p>
+            <div class="upload-info">{{ _('PDF uniquement • Taille max : 50MB') }}</div>
         </div>
         <input type="file" accept=".pdf" multiple style="display:none;">
     </div>
@@ -25,10 +25,10 @@
 
     <div class="action-buttons mt-4">
         <button class="btn btn-primary btn-lg" id="mergeButton" disabled>
-            <i class="fas fa-object-group me-2"></i>Fusionner les PDF
+            <i class="fas fa-object-group me-2"></i>{{ _('Fusionner les PDF') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.mergeUploadZone.removeFile(0)">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>

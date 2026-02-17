@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}PowerPoint vers PDF - {{ title }}{% endblock %}
+{% block title %}{{ _('PowerPoint vers PDF - %(title)s', title=title) }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1: Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-file-powerpoint upload-icon" style="color: #d24726;"></i>
-        <h3>Convertissez vos présentations PowerPoint en PDF</h3>
-        <p class="text-muted">Transformez vos fichiers PPT/PPTX en documents PDF faciles à partager</p>
+        <h3>{{ _('Convertissez vos présentations PowerPoint en PDF') }}</h3>
+        <p class="text-muted">{{ _('Transformez vos fichiers PPT/PPTX en documents PDF faciles à partager') }}</p>
     </div>
 
     <!-- Zone d'upload avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez vos fichiers PowerPoint ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez vos fichiers PowerPoint ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".ppt,.pptx" multiple style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Formats acceptés : PPT, PPTX (jusqu'à 50MB par fichier, 5 fichiers max)
+            {{ _('Formats acceptés : PPT, PPTX (jusqu\'à 50MB par fichier, 5 fichiers max)') }}
         </p>
     </div>
 
@@ -34,7 +34,7 @@
     <!-- Options de conversion -->
     <div class="file-info-card mt-4">
         <h5 class="mb-4">
-            <i class="fas fa-cog me-2"></i>Options de conversion
+            <i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}
         </h5>
         
         <div class="row g-4">
@@ -42,8 +42,8 @@
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="includeNotes" checked>
                     <label class="form-check-label" for="includeNotes">
-                        <strong>Inclure les notes</strong>
-                        <small class="d-block text-muted">Les notes du présentateur seront incluses</small>
+                        <strong>{{ _('Inclure les notes') }}</strong>
+                        <small class="d-block text-muted">{{ _('Les notes du présentateur seront incluses') }}</small>
                     </label>
                 </div>
             </div>
@@ -52,45 +52,45 @@
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="includeComments">
                     <label class="form-check-label" for="includeComments">
-                        <strong>Inclure les commentaires</strong>
-                        <small class="d-block text-muted">Les commentaires seront visibles</small>
+                        <strong>{{ _('Inclure les commentaires') }}</strong>
+                        <small class="d-block text-muted">{{ _('Les commentaires seront visibles') }}</small>
                     </label>
                 </div>
             </div>
 
             <div class="col-md-6">
-                <label for="pdfQuality" class="form-label fw-bold">Qualité du PDF</label>
+                <label for="pdfQuality" class="form-label fw-bold">{{ _('Qualité du PDF') }}</label>
                 <select class="form-select" id="pdfQuality">
-                    <option value="high">Haute (pour impression)</option>
-                    <option value="medium" selected>Moyenne (pour partage)</option>
-                    <option value="low">Basse (pour email)</option>
+                    <option value="high">{{ _('Haute (pour impression)') }}</option>
+                    <option value="medium" selected>{{ _('Moyenne (pour partage)') }}</option>
+                    <option value="low">{{ _('Basse (pour email)') }}</option>
                 </select>
-                <small class="text-muted">Influence la taille et la qualité</small>
+                <small class="text-muted">{{ _('Influence la taille et la qualité') }}</small>
             </div>
             
             <div class="col-md-6">
-                <label for="mergeFiles" class="form-label fw-bold">Fichiers multiples</label>
+                <label for="mergeFiles" class="form-label fw-bold">{{ _('Fichiers multiples') }}</label>
                 <select class="form-select" id="mergeFiles">
-                    <option value="separate" selected>PDF séparés (ZIP)</option>
-                    <option value="merge">Fusionner en un seul PDF</option>
+                    <option value="separate" selected>{{ _('PDF séparés (ZIP)') }}</option>
+                    <option value="merge">{{ _('Fusionner en un seul PDF') }}</option>
                 </select>
-                <small class="text-muted">Choisissez comment traiter plusieurs fichiers</small>
+                <small class="text-muted">{{ _('Choisissez comment traiter plusieurs fichiers') }}</small>
             </div>
         </div>
 
         <div class="alert alert-info mt-4">
             <i class="fas fa-info-circle me-2"></i>
-            <strong>Format PDF :</strong> Compatible avec tous les lecteurs PDF. Les animations et transitions ne sont pas conservées dans le PDF.
+            <strong>{{ _('Format PDF :') }}</strong> {{ _('Compatible avec tous les lecteurs PDF. Les animations et transitions ne sont pas conservées dans le PDF.') }}
         </div>
     </div>
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-danger btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-sync-alt me-2"></i>Convertir en PDF
+            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PDF') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -102,9 +102,9 @@
             <i class="fas fa-cog fa-spin fa-4x text-danger"></i>
         </div>
         
-        <h3 class="mb-4">Conversion en cours...</h3>
+        <h3 class="mb-4">{{ _('Conversion en cours...') }}</h3>
         <p class="text-muted mb-4" id="conversionMessage">
-            Analyse et conversion de vos présentations...
+            {{ _('Analyse et conversion de vos présentations...') }}
         </p>
         
         <div class="progress-container mx-auto" style="max-width: 500px;">
@@ -115,7 +115,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Fichiers traités</h6>
+                        <h6 class="text-muted">{{ _('Fichiers traités') }}</h6>
                         <div class="display-6 text-primary" id="processedFiles">0</div>
                     </div>
                 </div>
@@ -123,7 +123,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Diapositives</h6>
+                        <h6 class="text-muted">{{ _('Diapositives') }}</h6>
                         <div class="display-6 text-success" id="processedSlides">0</div>
                     </div>
                 </div>
@@ -131,7 +131,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Images intégrées</h6>
+                        <h6 class="text-muted">{{ _('Images intégrées') }}</h6>
                         <div class="display-6 text-warning" id="embeddedImages">0</div>
                     </div>
                 </div>
@@ -139,7 +139,7 @@
         </div>
         
         <div class="mt-4 text-muted small" id="conversionDetails">
-            <i class="fas fa-file-powerpoint me-1"></i> Chargement des fichiers...
+            <i class="fas fa-file-powerpoint me-1"></i> {{ _('Chargement des fichiers...') }}
         </div>
     </div>
 </div>
@@ -151,18 +151,18 @@
             <i class="fas fa-file-pdf"></i>
         </div>
         
-        <h3 class="mb-3">Conversion réussie !</h3>
+        <h3 class="mb-3">{{ _('Conversion réussie !') }}</h3>
         <p class="text-muted mb-4">
-            Vos fichiers PDF sont prêts
+            {{ _('Vos fichiers PDF sont prêts') }}
         </p>
         
         <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
             <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-                <i class="fas fa-download me-2"></i>Télécharger
+                <i class="fas fa-download me-2"></i>{{ _('Télécharger') }}
             </a>
             
             <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Nouvelle conversion
+                <i class="fas fa-redo me-2"></i>{{ _('Nouvelle conversion') }}
             </button>
         </div>
 
@@ -171,7 +171,7 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Fichiers convertis</h6>
+                        <h6 class="text-muted">{{ _('Fichiers convertis') }}</h6>
                         <div class="display-6 text-primary" id="finalFiles">0</div>
                     </div>
                 </div>
@@ -179,7 +179,7 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Diapositives</h6>
+                        <h6 class="text-muted">{{ _('Diapositives') }}</h6>
                         <div class="display-6 text-success" id="finalSlides">0</div>
                     </div>
                 </div>
@@ -187,7 +187,7 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Taille totale</h6>
+                        <h6 class="text-muted">{{ _('Taille totale') }}</h6>
                         <div class="display-6 text-warning" id="finalTotalSize">0 MB</div>
                     </div>
                 </div>
@@ -195,8 +195,8 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Format</h6>
-                        <div class="display-6 text-info" id="finalFormat">PDF</div>
+                        <h6 class="text-muted">{{ _('Format') }}</h6>
+                        <div class="display-6 text-info" id="finalFormat">{{ _('PDF') }}</div>
                     </div>
                 </div>
             </div>
@@ -204,7 +204,7 @@
 
         <!-- Aperçu des fichiers -->
         <div class="mt-5">
-            <h5 class="mb-4">Fichiers convertis</h5>
+            <h5 class="mb-4">{{ _('Fichiers convertis') }}</h5>
             <div class="row g-3" id="filesPreview">
                 <!-- Les miniatures seront ajoutées ici -->
             </div>
@@ -218,7 +218,7 @@ let downloadUrl = null;
 function startConversion() {
     const uploadManager = window.uploadManagers['pptPdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner au moins un fichier PowerPoint');
+        showError('{{ _("Veuillez sélectionner au moins un fichier PowerPoint") }}');
         return;
     }
 
@@ -251,7 +251,7 @@ function startConversion() {
             downloadUrl = window.URL.createObjectURL(blob);
             
             const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = 'presentations_converted';
+            let filename = '{{ _("presentations_converted") }}';
             if (totalFiles > 1) {
                 filename += '.zip';
             } else {
@@ -275,12 +275,12 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de la conversion : ' + error);
+            showError('{{ _("Erreur lors de la conversion :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }
@@ -315,14 +315,14 @@ function simulateConversion(totalFiles, totalSlides) {
             }
             
             if (currentFile === 0) {
-                conversionMessage.textContent = "Préparation de la conversion...";
-                conversionDetails.innerHTML = '<i class="fas fa-search me-1"></i> Analyse des fichiers PowerPoint';
+                conversionMessage.textContent = '{{ _("Préparation de la conversion...") }}';
+                conversionDetails.innerHTML = '<i class="fas fa-search me-1"></i> {{ _("Analyse des fichiers PowerPoint") }}';
             } else if (currentFile < totalFiles) {
-                conversionMessage.textContent = `Conversion du fichier ${currentFile}/${totalFiles}`;
-                conversionDetails.innerHTML = `<i class="fas fa-file-powerpoint me-1"></i> Traitement de la présentation ${currentFile}`;
+                conversionMessage.textContent = `{{ _("Conversion du fichier") }} ${currentFile}/${totalFiles}`;
+                conversionDetails.innerHTML = `<i class="fas fa-file-powerpoint me-1"></i> {{ _("Traitement de la présentation") }} ${currentFile}`;
             } else {
-                conversionMessage.textContent = "Génération du PDF...";
-                conversionDetails.innerHTML = '<i class="fas fa-file-pdf me-1"></i> Création du fichier final';
+                conversionMessage.textContent = '{{ _("Génération du PDF...") }}';
+                conversionDetails.innerHTML = '<i class="fas fa-file-pdf me-1"></i> {{ _("Création du fichier final") }}';
             }
             
             currentFile++;
@@ -342,7 +342,7 @@ function simulateFinalStats(files, slides) {
     
     document.getElementById('finalFiles').textContent = totalFiles;
     document.getElementById('finalSlides').textContent = slides;
-    document.getElementById('finalFormat').textContent = mergeOption === 'merge' ? 'PDF unique' : 'PDFs (ZIP)';
+    document.getElementById('finalFormat').textContent = mergeOption === 'merge' ? '{{ _("PDF unique") }}' : '{{ _("PDFs (ZIP)") }}';
     
     // Calculer la taille estimée
     let totalSize = 0;

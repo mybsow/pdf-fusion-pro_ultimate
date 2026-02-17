@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}Caviarder PDF - {{ title }}{% endblock %}
+{% block title %}{{ _('Caviarder PDF - %(title)s', title=title) }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-mask upload-icon" style="color: #e67e22;"></i>
-        <h3>Téléchargez votre PDF</h3>
-        <p class="text-muted">Supprimez définitivement le contenu sensible de votre document</p>
+        <h3>{{ _('Téléchargez votre PDF') }}</h3>
+        <p class="text-muted">{{ _('Supprimez définitivement le contenu sensible de votre document') }}</p>
     </div>
 
     <!-- Zone d'upload avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez votre fichier PDF ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".pdf" multiple style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Formats acceptés : PDF (jusqu'à 100MB)
+            {{ _('Formats acceptés : PDF (jusqu\'à 100MB)') }}
         </p>
     </div>
 
@@ -33,49 +33,49 @@
     <!-- Options de caviardage -->
     <div class="file-info-card mt-4">
         <h5 class="mb-3">
-            <i class="fas fa-cog me-2"></i>Options de caviardage
+            <i class="fas fa-cog me-2"></i>{{ _('Options de caviardage') }}
         </h5>
         
         <!-- Type de caviardage -->
         <div class="mb-4">
-            <label class="form-label fw-bold">Type de caviardage :</label>
+            <label class="form-label fw-bold">{{ _('Type de caviardage :') }}</label>
             <div class="btn-group w-100" role="group">
                 <input type="radio" class="btn-check" name="redactType" id="typeText" value="text" checked>
                 <label class="btn btn-outline-primary" for="typeText">
-                    <i class="fas fa-font me-2"></i>Texte spécifique
+                    <i class="fas fa-font me-2"></i>{{ _('Texte spécifique') }}
                 </label>
                 
                 <input type="radio" class="btn-check" name="redactType" id="typeArea" value="area">
                 <label class="btn btn-outline-primary" for="typeArea">
-                    <i class="fas fa-vector-square me-2"></i>Zone rectangulaire
+                    <i class="fas fa-vector-square me-2"></i>{{ _('Zone rectangulaire') }}
                 </label>
                 
                 <input type="radio" class="btn-check" name="redactType" id="typePattern" value="pattern">
                 <label class="btn btn-outline-primary" for="typePattern">
-                    <i class="fas fa-shapes me-2"></i>Motif (email, téléphone...)
+                    <i class="fas fa-shapes me-2"></i>{{ _('Motif (email, téléphone...)') }}
                 </label>
             </div>
         </div>
 
         <!-- Section Texte spécifique -->
         <div id="textSection" class="mb-4">
-            <label for="searchText" class="form-label fw-bold">Texte à caviarder :</label>
+            <label for="searchText" class="form-label fw-bold">{{ _('Texte à caviarder :') }}</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-search"></i></span>
                 <input type="text" class="form-control" id="searchText" 
-                       placeholder="Ex: nom, prénom, adresse, numéro de carte...">
+                       placeholder="{{ _('Ex: nom, prénom, adresse, numéro de carte...') }}">
                 <button class="btn btn-outline-secondary" type="button" onclick="addTextToList()">
-                    <i class="fas fa-plus"></i> Ajouter
+                    <i class="fas fa-plus"></i> {{ _('Ajouter') }}
                 </button>
             </div>
             
             <!-- Liste des textes à caviarder -->
             <div id="textList" class="mt-3">
                 <div class="badge bg-secondary me-2 mb-2 p-2" data-text="confidentiel">
-                    confidentiel <i class="fas fa-times ms-2" onclick="removeText(this)" style="cursor:pointer;"></i>
+                    {{ _('confidentiel') }} <i class="fas fa-times ms-2" onclick="removeText(this)" style="cursor:pointer;"></i>
                 </div>
                 <div class="badge bg-secondary me-2 mb-2 p-2" data-text="secret">
-                    secret <i class="fas fa-times ms-2" onclick="removeText(this)" style="cursor:pointer;"></i>
+                    {{ _('secret') }} <i class="fas fa-times ms-2" onclick="removeText(this)" style="cursor:pointer;"></i>
                 </div>
             </div>
         </div>
@@ -84,28 +84,28 @@
         <div id="areaSection" class="mb-4" style="display:none;">
             <p class="text-info small">
                 <i class="fas fa-info-circle me-1"></i>
-                Après avoir chargé votre PDF, vous pourrez dessiner des zones à caviarder sur l'aperçu.
+                {{ _('Après avoir chargé votre PDF, vous pourrez dessiner des zones à caviarder sur l\'aperçu.') }}
             </p>
             
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label for="areaColor" class="form-label fw-bold">Couleur :</label>
+                    <label for="areaColor" class="form-label fw-bold">{{ _('Couleur :') }}</label>
                     <div class="d-flex">
                         <input type="color" class="form-control form-control-color me-2" id="areaColor" value="#000000" style="width: 60px;">
                         <select class="form-select" id="areaOpacity">
-                            <option value="100%">100% - Opaque</option>
+                            <option value="100%">100% - {{ _('Opaque') }}</option>
                             <option value="75%">75%</option>
                             <option value="50%">50%</option>
-                            <option value="25%">25% - Transparent</option>
+                            <option value="25%">25% - {{ _('Transparent') }}</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label for="areaBorder" class="form-label fw-bold">Bordure :</label>
+                    <label for="areaBorder" class="form-label fw-bold">{{ _('Bordure :') }}</label>
                     <select class="form-select" id="areaBorder">
-                        <option value="none">Sans bordure</option>
-                        <option value="thin">Fine</option>
-                        <option value="thick">Épaisse</option>
+                        <option value="none">{{ _('Sans bordure') }}</option>
+                        <option value="thin">{{ _('Fine') }}</option>
+                        <option value="thick">{{ _('Épaisse') }}</option>
                     </select>
                 </div>
             </div>
@@ -113,25 +113,25 @@
 
         <!-- Section Motif -->
         <div id="patternSection" class="mb-4" style="display:none;">
-            <label class="form-label fw-bold">Motifs à caviarder :</label>
+            <label class="form-label fw-bold">{{ _('Motifs à caviarder :') }}</label>
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="patternEmail" value="email" checked>
                         <label class="form-check-label" for="patternEmail">
-                            <i class="fas fa-envelope me-1"></i>Adresses email
+                            <i class="fas fa-envelope me-1"></i>{{ _('Adresses email') }}
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="patternPhone" value="phone" checked>
                         <label class="form-check-label" for="patternPhone">
-                            <i class="fas fa-phone me-1"></i>Numéros de téléphone
+                            <i class="fas fa-phone me-1"></i>{{ _('Numéros de téléphone') }}
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="patternName" value="name">
                         <label class="form-check-label" for="patternName">
-                            <i class="fas fa-user me-1"></i>Noms propres
+                            <i class="fas fa-user me-1"></i>{{ _('Noms propres') }}
                         </label>
                     </div>
                 </div>
@@ -139,19 +139,19 @@
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="patternCreditCard" value="creditcard">
                         <label class="form-check-label" for="patternCreditCard">
-                            <i class="fas fa-credit-card me-1"></i>Numéros de carte bancaire
+                            <i class="fas fa-credit-card me-1"></i>{{ _('Numéros de carte bancaire') }}
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="patternSsn" value="ssn">
                         <label class="form-check-label" for="patternSsn">
-                            <i class="fas fa-id-card me-1"></i>Numéros de sécurité sociale
+                            <i class="fas fa-id-card me-1"></i>{{ _('Numéros de sécurité sociale') }}
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="patternDate" value="date">
                         <label class="form-check-label" for="patternDate">
-                            <i class="fas fa-calendar me-1"></i>Dates
+                            <i class="fas fa-calendar me-1"></i>{{ _('Dates') }}
                         </label>
                     </div>
                 </div>
@@ -163,17 +163,17 @@
         <!-- Pages à traiter -->
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="pages" class="form-label fw-bold">Pages à traiter :</label>
+                <label for="pages" class="form-label fw-bold">{{ _('Pages à traiter :') }}</label>
                 <select class="form-select" id="pages">
-                    <option value="all">Toutes les pages</option>
-                    <option value="range">Sélectionner des pages</option>
-                    <option value="first">Première page uniquement</option>
-                    <option value="last">Dernière page uniquement</option>
+                    <option value="all">{{ _('Toutes les pages') }}</option>
+                    <option value="range">{{ _('Sélectionner des pages') }}</option>
+                    <option value="first">{{ _('Première page uniquement') }}</option>
+                    <option value="last">{{ _('Dernière page uniquement') }}</option>
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="pageRange" class="form-label fw-bold">Plage de pages (si sélection) :</label>
-                <input type="text" class="form-control" id="pageRange" placeholder="Ex: 1-5, 8, 11-13" disabled>
+                <label for="pageRange" class="form-label fw-bold">{{ _('Plage de pages (si sélection) :') }}</label>
+                <input type="text" class="form-control" id="pageRange" placeholder="{{ _('Ex: 1-5, 8, 11-13') }}" disabled>
             </div>
         </div>
     </div>
@@ -181,13 +181,13 @@
     <!-- Aperçu du PDF (si zone rectangulaire sélectionnée) -->
     <div id="pdfPreview" class="mt-4" style="display:none;">
         <h5 class="mb-3">
-            <i class="fas fa-eye me-2"></i>Aperçu du PDF - Dessinez les zones à caviarder
+            <i class="fas fa-eye me-2"></i>{{ _('Aperçu du PDF - Dessinez les zones à caviarder') }}
         </h5>
         <div class="border rounded p-3 bg-light">
             <canvas id="pdfCanvas" style="width:100%; height:500px; background: #f5f5f5;"></canvas>
             <p class="text-muted small mt-2">
                 <i class="fas fa-mouse-pointer me-1"></i>
-                Cliquez et faites glisser pour dessiner un rectangle de caviardage
+                {{ _('Cliquez et faites glisser pour dessiner un rectangle de caviardage') }}
             </p>
         </div>
     </div>
@@ -195,10 +195,10 @@
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-warning btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-mask me-2"></i>Caviarder le PDF
+            <i class="fas fa-mask me-2"></i>{{ _('Caviarder le PDF') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -209,12 +209,12 @@
         <div class="mb-4">
             <i class="fas fa-cog fa-spin fa-4x text-warning"></i>
         </div>
-        <h3>Caviardage en cours...</h3>
-        <p class="text-muted">Analyse et suppression du contenu sensible</p>
+        <h3>{{ _('Caviardage en cours...') }}</h3>
+        <p class="text-muted">{{ _('Analyse et suppression du contenu sensible') }}</p>
         <div class="progress-container">
             <div class="progress-bar" style="width: 0%; background: #e67e22;" id="progressBar"></div>
         </div>
-        <p class="text-muted mt-3" id="progressMessage">Préparation...</p>
+        <p class="text-muted mt-3" id="progressMessage">{{ _('Préparation...') }}</p>
     </div>
 </div>
 
@@ -224,14 +224,14 @@
         <div class="success-animation">
             <i class="fas fa-check"></i>
         </div>
-        <h3>Caviardage terminé !</h3>
-        <p class="text-muted">Le contenu sensible a été supprimé définitivement</p>
+        <h3>{{ _('Caviardage terminé !') }}</h3>
+        <p class="text-muted">{{ _('Le contenu sensible a été supprimé définitivement') }}</p>
         <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>Télécharger le PDF caviardé
+            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF caviardé') }}
         </a>
         <div class="mt-4">
             <button class="btn btn-outline-warning" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Caviarder un autre PDF
+                <i class="fas fa-redo me-2"></i>{{ _('Caviarder un autre PDF') }}
             </button>
         </div>
     </div>
@@ -242,7 +242,7 @@ let downloadUrl = null;
 let redactAreas = [];
 let pdfDocument = null;
 
-// ===== NOUVELLES VARIABLES POUR LE DESSIN DE ZONES =====
+// ===== VARIABLES POUR LE DESSIN DE ZONES =====
 let isDrawingArea = false;
 let startX, startY;
 let currentRect = null;
@@ -252,7 +252,7 @@ let pdfImage = null;
 let canvas = null;
 let ctx = null;
 
-// ===== NOUVELLES FONCTIONS POUR LE DESSIN DE ZONES =====
+// ===== FONCTIONS POUR LE DESSIN DE ZONES =====
 function initAreaDrawing() {
     canvas = document.getElementById('pdfCanvas');
     if (!canvas) return;
@@ -345,7 +345,7 @@ function drawCanvasWithAreas() {
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Redessiner le PDF (si vous avez une image de fond)
+    // Redessiner le PDF
     if (pdfImage) {
         ctx.drawImage(pdfImage, 0, 0, canvas.width, canvas.height);
     }
@@ -406,16 +406,16 @@ function updateAreasList() {
         }
     }
     
-    listDiv.innerHTML = '<h6 class="mb-2">Zones dessinées :</h6>';
+    listDiv.innerHTML = '<h6 class="mb-2">{{ _("Zones dessinées :") }}</h6>';
     
     if (redactAreas.length === 0) {
-        listDiv.innerHTML += '<p class="text-muted small">Aucune zone dessinée</p>';
+        listDiv.innerHTML += '<p class="text-muted small">{{ _("Aucune zone dessinée") }}</p>';
     } else {
         redactAreas.forEach((area, index) => {
             const div = document.createElement('div');
             div.className = 'badge bg-secondary me-2 mb-2 p-2';
             div.innerHTML = `
-                Zone ${index + 1} (${Math.round(area.width)}x${Math.round(area.height)})
+                {{ _('Zone') }} ${index + 1} (${Math.round(area.width)}x${Math.round(area.height)})
                 <i class="fas fa-times ms-2" onclick="removeArea(${index})" style="cursor:pointer;"></i>
             `;
             listDiv.appendChild(div);
@@ -478,7 +478,7 @@ async function loadPdfPreview() {
             
         } catch (error) {
             console.error('Erreur chargement PDF:', error);
-            showError('Erreur lors du chargement de l\'aperçu PDF');
+            showError('{{ _("Erreur lors du chargement de l\'aperçu PDF") }}');
         }
     }
 }
@@ -524,7 +524,7 @@ document.getElementById('pages').addEventListener('change', function() {
 function startConversion() {
     const uploadManager = window.uploadManagers['pdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner un fichier PDF');
+        showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
         return;
     }
 
@@ -570,11 +570,11 @@ function startConversion() {
         progress += 5;
         document.getElementById('progressBar').style.width = progress + '%';
         if (progress < 30) {
-            document.getElementById('progressMessage').textContent = 'Analyse du document...';
+            document.getElementById('progressMessage').textContent = '{{ _("Analyse du document...") }}';
         } else if (progress < 60) {
-            document.getElementById('progressMessage').textContent = 'Recherche du contenu sensible...';
+            document.getElementById('progressMessage').textContent = '{{ _("Recherche du contenu sensible...") }}';
         } else if (progress < 90) {
-            document.getElementById('progressMessage').textContent = 'Application du caviardage...';
+            document.getElementById('progressMessage').textContent = '{{ _("Application du caviardage...") }}';
         }
         if (progress >= 90) clearInterval(interval);
     }, 300);
@@ -587,14 +587,14 @@ function startConversion() {
     .then(async response => {
         clearInterval(interval);
         document.getElementById('progressBar').style.width = '100%';
-        document.getElementById('progressMessage').textContent = 'Finalisation...';
+        document.getElementById('progressMessage').textContent = '{{ _("Finalisation...") }}';
         
         if (response.ok) {
             const blob = await response.blob();
             downloadUrl = window.URL.createObjectURL(blob);
             
             const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = 'redacted.pdf';
+            let filename = '{{ _("redacted.pdf") }}';
             if (contentDisposition) {
                 const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
                 if (match && match[1]) {
@@ -608,13 +608,13 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors du caviardage : ' + error);
+            showError('{{ _("Erreur lors du caviardage :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
         clearInterval(interval);
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }

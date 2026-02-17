@@ -1,19 +1,19 @@
 {% extends "base_legal.html" %}
 
 {% block content %}
-<h2>À propos de PDF Fusion Pro</h2>
+<h2>{{ _('À propos de PDF Fusion Pro') }}</h2>
 
 <div class="contact-info">
     <div class="contact-icon">
         <i class="fas fa-rocket"></i>
     </div>
     <div>
-        <h3 class="h5 mb-1">Notre mission</h3>
-        <p>Offrir un outil PDF en ligne performant, intuitif et respectueux de votre vie privée.</p>
+        <h3 class="h5 mb-1">{{ _('Notre mission') }}</h3>
+        <p>{{ _('Offrir un outil PDF en ligne performant, intuitif et respectueux de votre vie privée.') }}</p>
     </div>
 </div>
 
-<h2 class="mt-4">Caractéristiques principales</h2>
+<h2 class="mt-4">{{ _('Caractéristiques principales') }}</h2>
 
 <div class="row mt-3">
     <div class="col-md-6 mb-3">
@@ -21,9 +21,9 @@
             <div class="card-body">
                 <h4 class="card-title h5">
                     <i class="fas fa-object-group text-primary me-2"></i>
-                    Fusion PDF
+                    {{ _('Fusion PDF') }}
                 </h4>
-                <p class="card-text">Combine plusieurs fichiers PDF en un seul document organisé.</p>
+                <p class="card-text">{{ _('Combine plusieurs fichiers PDF en un seul document organisé.') }}</p>
             </div>
         </div>
     </div>
@@ -33,9 +33,9 @@
             <div class="card-body">
                 <h4 class="card-title h5">
                     <i class="fas fa-cut text-success me-2"></i>
-                    Division PDF
+                    {{ _('Division PDF') }}
                 </h4>
-                <p class="card-text">Divisez vos PDF par page, par plage ou selon des pages spécifiques.</p>
+                <p class="card-text">{{ _('Divisez vos PDF par page, par plage ou selon des pages spécifiques.') }}</p>
             </div>
         </div>
     </div>
@@ -45,9 +45,9 @@
             <div class="card-body">
                 <h4 class="card-title h5">
                     <i class="fas fa-sync-alt text-warning me-2"></i>
-                    Rotation PDF
+                    {{ _('Rotation PDF') }}
                 </h4>
-                <p class="card-text">Faites pivoter des pages spécifiques ou l'ensemble du document.</p>
+                <p class="card-text">{{ _('Faites pivoter des pages spécifiques ou l\'ensemble du document.') }}</p>
             </div>
         </div>
     </div>
@@ -57,45 +57,46 @@
             <div class="card-body">
                 <h4 class="card-title h5">
                     <i class="fas fa-compress-alt text-danger me-2"></i>
-                    Compression PDF
+                    {{ _('Compression PDF') }}
                 </h4>
-                <p class="card-text">Réduisez la taille de vos fichiers PDF sans perte de qualité notable.</p>
+                <p class="card-text">{{ _('Réduisez la taille de vos fichiers PDF sans perte de qualité notable.') }}</p>
             </div>
         </div>
     </div>
 </div>
 
-<h2 class="mt-4">Nos engagements</h2>
+<h2 class="mt-4">{{ _('Nos engagements') }}</h2>
 
-<h3><i class="fas fa-lock text-success me-2"></i> Sécurité</h3>
-<p>Tous les traitements sont effectués en mémoire. Aucun fichier n'est stocké sur nos serveurs.</p>
+<h3><i class="fas fa-lock text-success me-2"></i> {{ _('Sécurité') }}</h3>
+<p>{{ _('Tous les traitements sont effectués en mémoire. Aucun fichier n\'est stocké sur nos serveurs.') }}</p>
 
-<h3><i class="fas fa-tachometer-alt text-primary me-2"></i> Performance</h3>
-<p>Interface optimisée pour une expérience utilisateur fluide et rapide.</p>
+<h3><i class="fas fa-tachometer-alt text-primary me-2"></i> {{ _('Performance') }}</h3>
+<p>{{ _('Interface optimisée pour une expérience utilisateur fluide et rapide.') }}</p>
 
-<h3><i class="fas fa-eye-slash text-info me-2"></i> Confidentialité</h3>
-<p>Nous ne collectons pas de données personnelles liées au contenu de vos fichiers.</p>
+<h3><i class="fas fa-eye-slash text-info me-2"></i> {{ _('Confidentialité') }}</h3>
+<p>{{ _('Nous ne collectons pas de données personnelles liées au contenu de vos fichiers.') }}</p>
 
-<h3><i class="fas fa-dollar-sign text-warning me-2"></i> Gratuité</h3>
-<p>Service entièrement gratuit, financé par des publicités discrètes et non intrusives.</p>
+<h3><i class="fas fa-dollar-sign text-warning me-2"></i> {{ _('Gratuité') }}</h3>
+<p>{{ _('Service entièrement gratuit, financé par des publicités discrètes et non intrusives.') }}</p>
 
-<h2>Développeur</h2>
-<p><strong>{{ config.NAME }}</strong> est développé et maintenu par <strong>{{ config.DEVELOPER_NAME }}</strong>, un développeur passionné par la création d'outils web utiles et accessibles.</p>
+<h2>{{ _('Développeur') }}</h2>
+<p>{{ _('%(app_name)s est développé et maintenu par %(developer_name)s, un développeur passionné par la création d\'outils web utiles et accessibles.', 
+      app_name=config.NAME, developer_name=config.DEVELOPER_NAME) }}</p>
 
 <div class="info-box mt-4">
     <i class="fas fa-code me-2"></i>
-    <strong>Technologies utilisées :</strong> Python, Flask, PyPDF2, Bootstrap 5, JavaScript moderne.
+    <strong>{{ _('Technologies utilisées :') }}</strong> {{ _('Python, Flask, PyPDF2, Bootstrap 5, JavaScript moderne.') }}
 </div>
 
 <div class="card border-primary mt-4">
     <div class="card-body">
         <h4 class="card-title">
             <i class="fas fa-comments text-primary me-2"></i>
-            Une question ou suggestion ?
+            {{ _('Une question ou suggestion ?') }}
         </h4>
-        <p class="card-text">Nous sommes à votre écoute pour améliorer le service.</p>
+        <p class="card-text">{{ _('Nous sommes à votre écoute pour améliorer le service.') }}</p>
         <a href="/contact" class="btn btn-primary">
-            <i class="fas fa-paper-plane me-1"></i> Utiliser le formulaire de contact
+            <i class="fas fa-paper-plane me-1"></i> {{ _('Utiliser le formulaire de contact') }}
         </a>
     </div>
 </div>

@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}Image vers Excel - Convertisseur{% endblock %}
+{% block title %}{{ _('Image vers Excel - Convertisseur') }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1: Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-image upload-icon" style="color: #217346;"></i>
-        <h3>Téléchargez votre image ou PDF</h3>
-        <p class="text-muted">Extrayez les tableaux de vos documents en feuilles Excel</p>
+        <h3>{{ _('Téléchargez votre image ou PDF') }}</h3>
+        <p class="text-muted">{{ _('Extrayez les tableaux de vos documents en feuilles Excel') }}</p>
     </div>
 
     <!-- Zone d'upload avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez votre fichier ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez votre fichier ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.bmp,.tiff,.tif,.webp,.pdf" style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Formats acceptés : JPG, PNG, BMP, TIFF, WEBP, PDF (jusqu'à 50MB)
+            {{ _('Formats acceptés : JPG, PNG, BMP, TIFF, WEBP, PDF (jusqu\'à 50MB)') }}
         </p>
     </div>
 
@@ -34,13 +34,13 @@
     <!-- Options de détection de tableaux -->
     <div class="file-info-card mt-4">
         <h5 class="mb-3">
-            <i class="fas fa-cog me-2"></i>Options d'extraction
+            <i class="fas fa-cog me-2"></i>{{ _('Options d\'extraction') }}
         </h5>
         
         <div class="row g-4">
             <div class="col-md-6">
                 <label class="form-label fw-bold mb-3">
-                    <i class="fas fa-cogs me-1"></i>Mode d'extraction
+                    <i class="fas fa-cogs me-1"></i>{{ _('Mode d\'extraction') }}
                 </label>
                 
                 <div class="form-check mb-2">
@@ -50,8 +50,8 @@
                            value="auto" 
                            checked>
                     <label class="form-check-label" for="mode_auto">
-                        <strong>Automatique</strong>
-                        <small class="d-block text-muted">Détection intelligente des tableaux</small>
+                        <strong>{{ _('Automatique') }}</strong>
+                        <small class="d-block text-muted">{{ _('Détection intelligente des tableaux') }}</small>
                     </label>
                 </div>
                 
@@ -61,15 +61,15 @@
                            id="mode_grid" 
                            value="grid">
                     <label class="form-check-label" for="mode_grid">
-                        <strong>Grille</strong>
-                        <small class="d-block text-muted">Extraction par grille fixe</small>
+                        <strong>{{ _('Grille') }}</strong>
+                        <small class="d-block text-muted">{{ _('Extraction par grille fixe') }}</small>
                     </label>
                 </div>
             </div>
             
             <div class="col-md-6">
                 <label class="form-label fw-bold mb-3">
-                    <i class="fas fa-filter me-1"></i>Options
+                    <i class="fas fa-filter me-1"></i>{{ _('Options') }}
                 </label>
                 
                 <div class="form-check form-switch mb-2">
@@ -77,7 +77,7 @@
                            id="detectHeaders" 
                            checked>
                     <label class="form-check-label" for="detectHeaders">
-                        <strong>Détecter les en-têtes</strong>
+                        <strong>{{ _('Détecter les en-têtes') }}</strong>
                     </label>
                 </div>
                 
@@ -86,24 +86,24 @@
                            id="mergeCells" 
                            checked>
                     <label class="form-check-label" for="mergeCells">
-                        <strong>Fusionner les cellules</strong>
+                        <strong>{{ _('Fusionner les cellules') }}</strong>
                     </label>
                 </div>
             </div>
 
             <div class="col-md-6">
-                <label for="ocrAccuracy" class="form-label fw-bold">Précision OCR</label>
+                <label for="ocrAccuracy" class="form-label fw-bold">{{ _('Précision OCR') }}</label>
                 <select class="form-select" id="ocrAccuracy">
-                    <option value="high">Haute (plus lent)</option>
-                    <option value="medium" selected>Moyenne (équilibré)</option>
-                    <option value="low">Basse (plus rapide)</option>
+                    <option value="high">{{ _('Haute (plus lent)') }}</option>
+                    <option value="medium" selected>{{ _('Moyenne (équilibré)') }}</option>
+                    <option value="low">{{ _('Basse (plus rapide)') }}</option>
                 </select>
             </div>
             
             <div class="col-md-6">
-                <label for="outputFormat" class="form-label fw-bold">Format de sortie</label>
+                <label for="outputFormat" class="form-label fw-bold">{{ _('Format de sortie') }}</label>
                 <select class="form-select" id="outputFormat">
-                    <option value="xlsx">Excel (XLSX)</option>
+                    <option value="xlsx">{{ _('Excel (XLSX)') }}</option>
                     <option value="csv">CSV</option>
                     <option value="json">JSON</option>
                 </select>
@@ -114,19 +114,19 @@
     <!-- Statistiques de détection (affichées après upload) -->
     <div id="tableStats" class="alert alert-info mt-4" style="display: none;">
         <div class="d-flex justify-content-between align-items-center">
-            <div><i class="fas fa-table me-2"></i><span id="tablesCount">0</span> tableau(x) détecté(s)</div>
-            <div><i class="fas fa-th me-2"></i><span id="cellsCount">0</span> cellule(s)</div>
-            <div><i class="fas fa-check-circle me-2"></i>Prêt pour extraction</div>
+            <div><i class="fas fa-table me-2"></i><span id="tablesCount">0</span> {{ _('tableau(x) détecté(s)') }}</div>
+            <div><i class="fas fa-th me-2"></i><span id="cellsCount">0</span> {{ _('cellule(s)') }}</div>
+            <div><i class="fas fa-check-circle me-2"></i>{{ _('Prêt pour extraction') }}</div>
         </div>
     </div>
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-success btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-search me-2"></i>Extraire les tableaux
+            <i class="fas fa-search me-2"></i>{{ _('Extraire les tableaux') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -138,9 +138,9 @@
             <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
         
-        <h3 class="mb-4">Analyse des tableaux en cours</h3>
+        <h3 class="mb-4">{{ _('Analyse des tableaux en cours') }}</h3>
         <p class="text-muted mb-4" id="analysisMessage">
-            Détection des structures tabulaires...
+            {{ _('Détection des structures tabulaires...') }}
         </p>
         
         <div class="progress-container mx-auto" style="max-width: 500px;">
@@ -151,7 +151,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Tableaux détectés</h6>
+                        <h6 class="text-muted">{{ _('Tableaux détectés') }}</h6>
                         <div class="display-6 text-primary" id="detectedTables">0</div>
                     </div>
                 </div>
@@ -159,7 +159,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Cellules extraites</h6>
+                        <h6 class="text-muted">{{ _('Cellules extraites') }}</h6>
                         <div class="display-6 text-success" id="detectedCells">0</div>
                     </div>
                 </div>
@@ -167,7 +167,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Confiance</h6>
+                        <h6 class="text-muted">{{ _('Confiance') }}</h6>
                         <div class="display-6 text-warning" id="detectionConfidence">0%</div>
                     </div>
                 </div>
@@ -183,15 +183,15 @@
             <i class="fas fa-file-excel"></i>
         </div>
         
-        <h3 class="mb-3">Extraction terminée !</h3>
+        <h3 class="mb-3">{{ _('Extraction terminée !') }}</h3>
         <p class="text-muted mb-4">
-            Votre fichier Excel est prêt à être téléchargé
+            {{ _('Votre fichier Excel est prêt à être téléchargé') }}
         </p>
         
         <!-- Aperçu des données -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-                <h6 class="mb-3"><i class="fas fa-table me-1"></i>Aperçu des données</h6>
+                <h6 class="mb-3"><i class="fas fa-table me-1"></i>{{ _('Aperçu des données') }}</h6>
                 <div class="table-responsive">
                     <table class="table table-hover table-sm" id="dataPreview">
                         <thead id="previewHeader"></thead>
@@ -199,18 +199,18 @@
                     </table>
                 </div>
                 <div class="mt-3 text-end">
-                    <small class="text-muted" id="totalRows">0 lignes extraites</small>
+                    <small class="text-muted" id="totalRows">0 {{ _('lignes extraites') }}</small>
                 </div>
             </div>
         </div>
         
         <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
             <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-                <i class="fas fa-download me-2"></i>Télécharger Excel
+                <i class="fas fa-download me-2"></i>{{ _('Télécharger Excel') }}
             </a>
             
             <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Nouvelle extraction
+                <i class="fas fa-redo me-2"></i>{{ _('Nouvelle extraction') }}
             </button>
         </div>
     </div>
@@ -222,7 +222,7 @@ let downloadUrl = null;
 function startConversion() {
     const uploadManager = window.uploadManagers['imageExcelUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner un fichier');
+        showError('{{ _("Veuillez sélectionner un fichier") }}');
         return;
     }
 
@@ -251,7 +251,7 @@ function startConversion() {
             downloadUrl = window.URL.createObjectURL(blob);
             
             const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = 'extraction.xlsx';
+            let filename = '{{ _("extraction.xlsx") }}';
             if (contentDisposition) {
                 const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
                 if (match && match[1]) {
@@ -269,12 +269,12 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de l\'extraction : ' + error);
+            showError('{{ _("Erreur lors de l\'extraction :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }
@@ -288,12 +288,12 @@ function simulateAnalysis() {
     const detectionConfidence = document.getElementById('detectionConfidence');
     
     const steps = [
-        { percent: 20, message: "Prétraitement de l'image...", tables: 0, cells: 0, confidence: 10 },
-        { percent: 40, message: "Détection des contours...", tables: 1, cells: 50, confidence: 30 },
-        { percent: 60, message: "Identification des lignes...", tables: 1, cells: 120, confidence: 50 },
-        { percent: 80, message: "Extraction du contenu...", tables: 2, cells: 250, confidence: 70 },
-        { percent: 95, message: "Structuration des données...", tables: 3, cells: 450, confidence: 85 },
-        { percent: 100, message: "Finalisation...", tables: 3, cells: 520, confidence: 92 }
+        { percent: 20, message: '{{ _("Prétraitement de l\'image...") }}', tables: 0, cells: 0, confidence: 10 },
+        { percent: 40, message: '{{ _("Détection des contours...") }}', tables: 1, cells: 50, confidence: 30 },
+        { percent: 60, message: '{{ _("Identification des lignes...") }}', tables: 1, cells: 120, confidence: 50 },
+        { percent: 80, message: '{{ _("Extraction du contenu...") }}', tables: 2, cells: 250, confidence: 70 },
+        { percent: 95, message: '{{ _("Structuration des données...") }}', tables: 3, cells: 450, confidence: 85 },
+        { percent: 100, message: '{{ _("Finalisation...") }}', tables: 3, cells: 520, confidence: 92 }
     ];
     
     let stepIndex = 0;
@@ -317,7 +317,7 @@ function simulateAnalysis() {
 
 function simulateDataPreview() {
     const sampleData = {
-        headers: ['Nom', 'Prénom', 'Email', 'Téléphone', 'Ville'],
+        headers: ['{{ _("Nom") }}', '{{ _("Prénom") }}', '{{ _("Email") }}', '{{ _("Téléphone") }}', '{{ _("Ville") }}'],
         rows: [
             ['Martin', 'Jean', 'jean.martin@email.com', '01 23 45 67 89', 'Paris'],
             ['Dubois', 'Marie', 'marie.dubois@email.com', '06 12 34 56 78', 'Lyon'],
@@ -336,7 +336,7 @@ function simulateDataPreview() {
         '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>'
     ).join('');
     
-    totalRows.textContent = '25 lignes extraites';
+    totalRows.textContent = '25 {{ _("lignes extraites") }}';
 }
 
 function resetConversion() {

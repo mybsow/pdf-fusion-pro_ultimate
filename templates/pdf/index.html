@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}Accueil - PDF Fusion Pro – Outils PDF Gratuits{% endblock %}
+{% block title %}{{ _('Accueil - PDF Fusion Pro – Outils PDF Gratuits') }}{% endblock %}
 
-{% block description %}Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, compresser et convertir des fichiers PDF. 100% gratuit, sécurisé et sans inscription.{% endblock %}
+{% block description %}{{ _('Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, compresser et convertir des fichiers PDF. 100% gratuit, sécurisé et sans inscription.') }}{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
 <section class="hero-section">
-    <h1 class="hero-title">Transformez vos PDFs en toute simplicité</h1>
+    <h1 class="hero-title">{{ _('Transformez vos PDFs en toute simplicité') }}</h1>
     <p class="hero-subtitle">
-        Outil PDF tout-en-un : fusion, division, rotation, compression et conversion. Rapide, sécurisé et 100% gratuit.
-        <br>Aucune inscription requise – vos fichiers ne quittent jamais votre navigateur.
+        {{ _('Outil PDF tout-en-un : fusion, division, rotation, compression et conversion. Rapide, sécurisé et 100% gratuit.') }}
+        <br>{{ _('Aucune inscription requise – vos fichiers ne quittent jamais votre navigateur.') }}
     </p>
 </section>
 
@@ -20,15 +20,15 @@
     <div class="col-lg-6">
         <div class="tool-container active">
             <div class="tool-header">
-                <h3><i class="fas fa-object-group me-2"></i>Fusionner des fichiers PDF</h3>
-                <p class="text-muted mb-0">Combine plusieurs PDF en un seul document organisé</p>
+                <h3><i class="fas fa-object-group me-2"></i>{{ _('Fusionner des fichiers PDF') }}</h3>
+                <p class="text-muted mb-0">{{ _('Combine plusieurs PDF en un seul document organisé') }}</p>
             </div>
             <div class="tool-content">
                 <a href="{{ url_for('pdf.merge') }}" class="btn btn-primary btn-lg w-100">
-                    <i class="fas fa-object-group me-2"></i>Fusionner des PDF
+                    <i class="fas fa-object-group me-2"></i>{{ _('Fusionner des PDF') }}
                 </a>
                 <p class="text-muted mt-2 mb-0 small">
-                    <i class="fas fa-arrow-right me-1"></i> Accédez à l'outil de fusion PDF
+                    <i class="fas fa-arrow-right me-1"></i> {{ _('Accédez à l\'outil de fusion PDF') }}
                 </p>
             </div>
         </div>
@@ -38,15 +38,15 @@
     <div class="col-lg-6">
         <div class="tool-container">
             <div class="tool-header">
-                <h3><i class="fas fa-cut me-2"></i>Diviser un fichier PDF</h3>
-                <p class="text-muted mb-0">Extrayez des pages spécifiques ou divisez par plages</p>
+                <h3><i class="fas fa-cut me-2"></i>{{ _('Diviser un fichier PDF') }}</h3>
+                <p class="text-muted mb-0">{{ _('Extrayez des pages spécifiques ou divisez par plages') }}</p>
             </div>
             <div class="tool-content">
                 <a href="{{ url_for('pdf.split') }}" class="btn btn-primary btn-lg w-100">
-                    <i class="fas fa-cut me-2"></i>Diviser un PDF
+                    <i class="fas fa-cut me-2"></i>{{ _('Diviser un PDF') }}
                 </a>
                 <p class="text-muted mt-2 mb-0 small">
-                    <i class="fas fa-arrow-right me-1"></i> Accédez à l'outil de division PDF
+                    <i class="fas fa-arrow-right me-1"></i> {{ _('Accédez à l\'outil de division PDF') }}
                 </p>
             </div>
         </div>
@@ -56,15 +56,15 @@
     <div class="col-lg-6">
         <div class="tool-container">
             <div class="tool-header">
-                <h3><i class="fas fa-sync-alt me-2"></i>Tourner un fichier PDF</h3>
-                <p class="text-muted mb-0">Faites pivoter des pages spécifiques ou l'ensemble du document</p>
+                <h3><i class="fas fa-sync-alt me-2"></i>{{ _('Tourner un fichier PDF') }}</h3>
+                <p class="text-muted mb-0">{{ _('Faites pivoter des pages spécifiques ou l\'ensemble du document') }}</p>
             </div>
             <div class="tool-content">
                 <a href="{{ url_for('pdf.rotate') }}" class="btn btn-primary btn-lg w-100">
-                    <i class="fas fa-sync-alt me-2"></i>Tourner un PDF
+                    <i class="fas fa-sync-alt me-2"></i>{{ _('Tourner un PDF') }}
                 </a>
                 <p class="text-muted mt-2 mb-0 small">
-                    <i class="fas fa-arrow-right me-1"></i> Accédez à l'outil de rotation PDF
+                    <i class="fas fa-arrow-right me-1"></i> {{ _('Accédez à l\'outil de rotation PDF') }}
                 </p>
             </div>
         </div>
@@ -74,15 +74,15 @@
     <div class="col-lg-6">
         <div class="tool-container">
             <div class="tool-header">
-                <h3><i class="fas fa-compress-alt me-2"></i>Compresser un fichier PDF</h3>
-                <p class="text-muted mb-0">Réduisez la taille de vos PDFs sans perte de qualité notable</p>
+                <h3><i class="fas fa-compress-alt me-2"></i>{{ _('Compresser un fichier PDF') }}</h3>
+                <p class="text-muted mb-0">{{ _('Réduisez la taille de vos PDFs sans perte de qualité notable') }}</p>
             </div>
             <div class="tool-content">
                 <a href="{{ url_for('pdf.compress') }}" class="btn btn-primary btn-lg w-100">
-                    <i class="fas fa-compress-alt me-2"></i>Compresser un PDF
+                    <i class="fas fa-compress-alt me-2"></i>{{ _('Compresser un PDF') }}
                 </a>
                 <p class="text-muted mt-2 mb-0 small">
-                    <i class="fas fa-arrow-right me-1"></i> Accédez à l'outil de compression PDF
+                    <i class="fas fa-arrow-right me-1"></i> {{ _('Accédez à l\'outil de compression PDF') }}
                 </p>
             </div>
         </div>
@@ -94,12 +94,12 @@
     <div class="col-12">
         <div class="tool-container">
             <div class="tool-header">
-                <h3><i class="fas fa-exchange-alt me-2"></i>Convertisseur universel</h3>
-                <p class="text-muted mb-0">Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et vice-versa</p>
+                <h3><i class="fas fa-exchange-alt me-2"></i>{{ _('Convertisseur universel') }}</h3>
+                <p class="text-muted mb-0">{{ _('Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et vice-versa') }}</p>
             </div>
             <div class="tool-content">
                 <a href="{{ url_for('conversion.index') }}" class="btn btn-success btn-lg w-100">
-                    <i class="fas fa-exchange-alt me-2"></i>Toutes les conversions
+                    <i class="fas fa-exchange-alt me-2"></i>{{ _('Toutes les conversions') }}
                 </a>
             </div>
         </div>
@@ -111,25 +111,25 @@
     <div class="col-12">
         <div class="tool-container bg-dark text-white">
             <div class="tool-header">
-                <h3 class="text-white"><i class="fas fa-chart-line me-2"></i>PDF Fusion Pro en chiffres</h3>
+                <h3 class="text-white"><i class="fas fa-chart-line me-2"></i>{{ _('PDF Fusion Pro en chiffres') }}</h3>
             </div>
             <div class="tool-content">
                 <div class="row text-center">
                     <div class="col-md-3 col-6 mb-3 mb-md-0">
                         <div class="display-4 fw-bold text-primary">+10k</div>
-                        <div class="small text-uppercase text-muted">Utilisateurs</div>
+                        <div class="small text-uppercase text-muted">{{ _('Utilisateurs') }}</div>
                     </div>
                     <div class="col-md-3 col-6 mb-3 mb-md-0">
                         <div class="display-4 fw-bold text-success">+50k</div>
-                        <div class="small text-uppercase text-muted">PDF traités</div>
+                        <div class="small text-uppercase text-muted">{{ _('PDF traités') }}</div>
                     </div>
                     <div class="col-md-3 col-6">
                         <div class="display-4 fw-bold text-warning">99.9%</div>
-                        <div class="small text-uppercase text-muted">Satisfaction</div>
+                        <div class="small text-uppercase text-muted">{{ _('Satisfaction') }}</div>
                     </div>
                     <div class="col-md-3 col-6">
                         <div class="display-4 fw-bold text-info">24/7</div>
-                        <div class="small text-uppercase text-muted">Disponible</div>
+                        <div class="small text-uppercase text-muted">{{ _('Disponible') }}</div>
                     </div>
                 </div>
             </div>
@@ -142,17 +142,14 @@
     <div class="col-12">
         <div class="tool-container">
             <div class="tool-content">
-                <h2 class="h4">Votre solution PDF tout-en-un, 100% gratuite et sécurisée</h2>
+                <h2 class="h4">{{ _('Votre solution PDF tout-en-un, 100%% gratuite et sécurisée') }}</h2>
                 <p class="mb-3">
-                    PDF Fusion Pro est la plateforme idéale pour tous vos besoins en manipulation de fichiers PDF. 
-                    Que vous ayez besoin de <strong>fusionner plusieurs documents</strong>, <strong>diviser un PDF volumineux</strong>, 
-                    <strong>tourner des pages mal orientées</strong> ou <strong>compresser des fichiers pour les partager</strong>, 
-                    nos outils sont là pour vous aider.
+                    {{ _('PDF Fusion Pro est la plateforme idéale pour tous vos besoins en manipulation de fichiers PDF. Que vous ayez besoin de <strong>fusionner plusieurs documents</strong>, <strong>diviser un PDF volumineux</strong>, <strong>tourner des pages mal orientées</strong> ou <strong>compresser des fichiers pour les partager</strong>, nos outils sont là pour vous aider.') | safe }}
                 </p>
                 <p class="mb-0">
-                    <i class="fas fa-check-circle text-success me-1"></i> Aucune inscription requise<br>
-                    <i class="fas fa-check-circle text-success me-1"></i> Chiffrement SSL et suppression automatique des fichiers<br>
-                    <i class="fas fa-check-circle text-success me-1"></i> Compatible avec tous les navigateurs modernes
+                    <i class="fas fa-check-circle text-success me-1"></i> {{ _('Aucune inscription requise') }}<br>
+                    <i class="fas fa-check-circle text-success me-1"></i> {{ _('Chiffrement SSL et suppression automatique des fichiers') }}<br>
+                    <i class="fas fa-check-circle text-success me-1"></i> {{ _('Compatible avec tous les navigateurs modernes') }}
                 </p>
             </div>
         </div>

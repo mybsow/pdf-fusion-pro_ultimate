@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}PNG en PDF - Convertisseur d'images en PDF{% endblock %}
+{% block title %}{{ _('PNG en PDF - Convertisseur d\'images en PDF') }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-image upload-icon"></i>
-        <h3>Téléchargez vos images PNG</h3>
-        <p class="text-muted">Sélectionnez les images à convertir en PDF</p>
+        <h3>{{ _('Téléchargez vos images PNG') }}</h3>
+        <p class="text-muted">{{ _('Sélectionnez les images à convertir en PDF') }}</p>
     </div>
 
     <!-- Upload Zone avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez vos images ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez vos images ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".png" multiple style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Format accepté : PNG (jusqu'à 20 fichiers)
+            {{ _('Format accepté : PNG (jusqu\'à 20 fichiers)') }}
         </p>
     </div>
 
@@ -33,31 +33,31 @@
     <!-- Options de conversion -->
     <div class="file-info-card mt-4">
         <h5 class="mb-3">
-            <i class="fas fa-cog me-2"></i>Options de conversion
+            <i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}
         </h5>
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="pageSize" class="form-label">Format de page :</label>
+                <label for="pageSize" class="form-label">{{ _('Format de page :') }}</label>
                 <select id="pageSize" class="form-select">
-                    <option value="A4">A4 (21 x 29,7 cm)</option>
-                    <option value="letter">Lettre (21,6 x 27,9 cm)</option>
-                    <option value="legal">Legal (21,6 x 35,6 cm)</option>
-                    <option value="original">Taille originale</option>
+                    <option value="A4">{{ _('A4 (21 x 29,7 cm)') }}</option>
+                    <option value="letter">{{ _('Lettre (21,6 x 27,9 cm)') }}</option>
+                    <option value="legal">{{ _('Legal (21,6 x 35,6 cm)') }}</option>
+                    <option value="original">{{ _('Taille originale') }}</option>
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="orientation" class="form-label">Orientation :</label>
+                <label for="orientation" class="form-label">{{ _('Orientation :') }}</label>
                 <select id="orientation" class="form-select">
-                    <option value="auto">Automatique</option>
-                    <option value="portrait">Portrait</option>
-                    <option value="landscape">Paysage</option>
+                    <option value="auto">{{ _('Automatique') }}</option>
+                    <option value="portrait">{{ _('Portrait') }}</option>
+                    <option value="landscape">{{ _('Paysage') }}</option>
                 </select>
             </div>
             <div class="col-md-6">
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="preserveTransparency" checked>
                     <label class="form-check-label" for="preserveTransparency">
-                        Conserver la transparence
+                        {{ _('Conserver la transparence') }}
                     </label>
                 </div>
             </div>
@@ -65,7 +65,7 @@
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="mergeFiles" checked>
                     <label class="form-check-label" for="mergeFiles">
-                        Fusionner toutes les images en un seul PDF
+                        {{ _('Fusionner toutes les images en un seul PDF') }}
                     </label>
                 </div>
             </div>
@@ -75,7 +75,7 @@
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-sync-alt me-2"></i>Convertir en PDF
+            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PDF') }}
         </button>
     </div>
 </div>
@@ -86,8 +86,8 @@
         <div class="mb-4">
             <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
-        <h3>Conversion en cours...</h3>
-        <p class="text-muted">Veuillez patienter pendant le traitement de vos images</p>
+        <h3>{{ _('Conversion en cours...') }}</h3>
+        <p class="text-muted">{{ _('Veuillez patienter pendant le traitement de vos images') }}</p>
         <div class="progress-container">
             <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
         </div>
@@ -100,14 +100,14 @@
         <div class="success-animation">
             <i class="fas fa-check"></i>
         </div>
-        <h3>Conversion terminée !</h3>
-        <p class="text-muted">Votre PDF est prêt à être téléchargé</p>
+        <h3>{{ _('Conversion terminée !') }}</h3>
+        <p class="text-muted">{{ _('Votre PDF est prêt à être téléchargé') }}</p>
         <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>Télécharger le PDF
+            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF') }}
         </a>
         <div class="mt-4">
             <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Convertir d'autres images
+                <i class="fas fa-redo me-2"></i>{{ _('Convertir d\'autres images') }}
             </button>
         </div>
     </div>
@@ -119,7 +119,7 @@ let downloadUrl = null;
 function startConversion() {
     const uploadManager = window.uploadManagers['pngUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner des fichiers');
+        showError('{{ _("Veuillez sélectionner des fichiers") }}');
         return;
     }
 
@@ -158,13 +158,13 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de la conversion : ' + error);
+            showError('{{ _("Erreur lors de la conversion :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
         clearInterval(interval);
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }

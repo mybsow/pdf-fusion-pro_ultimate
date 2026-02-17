@@ -145,16 +145,16 @@
     <!-- Hero Section -->
     <div class="hero-section text-center">
         <div class="position-relative">
-            <h1 class="display-4 mb-3"><i class="fas fa-exchange-alt me-2"></i>Convertisseur de fichiers</h1>
-            <p class="lead mb-4">Transformez vos documents en tous formats, gratuitement et en ligne</p>
+            <h1 class="display-4 mb-3"><i class="fas fa-exchange-alt me-2"></i>{{ _('Convertisseur de fichiers') }}</h1>
+            <p class="lead mb-4">{{ _('Transformez vos documents en tous formats, gratuitement et en ligne') }}</p>
             <div class="row justify-content-center">
                 <div class="col-md-8">
-                    <p class="mb-4">Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple, rapide et sécurisé.</p>
+                    <p class="mb-4">{{ _('Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple, rapide et sécurisé.') }}</p>
                 </div>
             </div>
             <div class="mt-4">
                 <a href="#conversions" class="btn btn-light btn-lg">
-                    <i class="fas fa-arrow-down me-2"></i>Découvrir les outils
+                    <i class="fas fa-arrow-down me-2"></i>{{ _('Découvrir les outils') }}
                 </a>
             </div>
         </div>
@@ -165,25 +165,25 @@
         <div class="col-md-3 mb-4">
             <div class="stats-card">
                 <div class="stats-number">{{ all_conversions|length }}</div>
-                <p class="text-muted mb-0">Outils de conversion</p>
+                <p class="text-muted mb-0">{{ _('Outils de conversion') }}</p>
             </div>
         </div>
         <div class="col-md-3 mb-4">
             <div class="stats-card">
                 <div class="stats-number">100%</div>
-                <p class="text-muted mb-0">Gratuit</p>
+                <p class="text-muted mb-0">{{ _('Gratuit') }}</p>
             </div>
         </div>
         <div class="col-md-3 mb-4">
             <div class="stats-card">
                 <div class="stats-number">50MB</div>
-                <p class="text-muted mb-0">Max par fichier</p>
+                <p class="text-muted mb-0">{{ _('Max par fichier') }}</p>
             </div>
         </div>
         <div class="col-md-3 mb-4">
             <div class="stats-card">
                 <div class="stats-number">∞</div>
-                <p class="text-muted mb-0">Conversions illimitées</p>
+                <p class="text-muted mb-0">{{ _('Conversions illimitées') }}</p>
             </div>
         </div>
     </div>
@@ -197,7 +197,7 @@
                     <i class="fas fa-{{ category.icon }} me-2"></i>
                     {{ category.title }}
                 </h2>
-                <p class="text-muted mb-0 mt-2">{{ category.conversions|length }} outils disponibles</p>
+                <p class="text-muted mb-0 mt-2">{{ category.conversions|length }} {{ _('outils disponibles') }}</p>
             </div>
             
             <div class="row">
@@ -234,30 +234,30 @@
     <div class="features-grid">
         <div class="feature-item">
             <i class="fas fa-shield-alt" style="font-size: 2.5rem; color: #667eea;"></i>
-            <h4>Sécurisé</h4>
-            <p class="mb-0">Fichiers traités localement et supprimés après conversion</p>
+            <h4>{{ _('Sécurisé') }}</h4>
+            <p class="mb-0">{{ _('Fichiers traités localement et supprimés après conversion') }}</p>
         </div>
         <div class="feature-item">
             <i class="fas fa-bolt" style="font-size: 2.5rem; color: #667eea;"></i>
-            <h4>Rapide</h4>
-            <p class="mb-0">Conversion en quelques secondes, sans attente</p>
+            <h4>{{ _('Rapide') }}</h4>
+            <p class="mb-0">{{ _('Conversion en quelques secondes, sans attente') }}</p>
         </div>
         <div class="feature-item">
             <i class="fas fa-laptop" style="font-size: 2.5rem; color: #667eea;"></i>
-            <h4>Multiplateforme</h4>
-            <p class="mb-0">Compatible avec tous les navigateurs modernes</p>
+            <h4>{{ _('Multiplateforme') }}</h4>
+            <p class="mb-0">{{ _('Compatible avec tous les navigateurs modernes') }}</p>
         </div>
         <div class="feature-item">
             <i class="fas fa-infinity" style="font-size: 2.5rem; color: #667eea;"></i>
-            <h4>Illimité</h4>
-            <p class="mb-0">Aucune limite sur le nombre de conversions</p>
+            <h4>{{ _('Illimité') }}</h4>
+            <p class="mb-0">{{ _('Aucune limite sur le nombre de conversions') }}</p>
         </div>
     </div>
 
     <!-- Toutes les conversions -->
     <div class="row mt-5">
         <div class="col-md-8">
-            <h3 class="mb-4"><i class="fas fa-list-alt me-2"></i>Toutes les conversions disponibles</h3>
+            <h3 class="mb-4"><i class="fas fa-list-alt me-2"></i>{{ _('Toutes les conversions disponibles') }}</h3>
             <div class="row">
                 {% for key, conversion in all_conversions.items() %}
                 <div class="col-md-6 mb-3">
@@ -272,7 +272,7 @@
                         <div>
                             <a href="{{ url_for('conversion.universal_converter', conversion_type=key) }}" 
                                class="btn btn-sm btn-outline-primary">
-                                Utiliser
+                                {{ _('Utiliser') }}
                             </a>
                         </div>
                     </div>
@@ -284,18 +284,18 @@
         <div class="col-md-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-question-circle me-2"></i>Comment ça marche ?</h5>
+                    <h5 class="card-title"><i class="fas fa-question-circle me-2"></i>{{ _('Comment ça marche ?') }}</h5>
                     <ol class="mt-3 ps-3">
-                        <li class="mb-2">Choisissez votre outil de conversion</li>
-                        <li class="mb-2">Téléchargez votre fichier source</li>
-                        <li class="mb-2">Configurez les options (si besoin)</li>
-                        <li class="mb-2">Lancez la conversion</li>
-                        <li>Téléchargez votre fichier converti</li>
+                        <li class="mb-2">{{ _('Choisissez votre outil de conversion') }}</li>
+                        <li class="mb-2">{{ _('Téléchargez votre fichier source') }}</li>
+                        <li class="mb-2">{{ _('Configurez les options (si besoin)') }}</li>
+                        <li class="mb-2">{{ _('Lancez la conversion') }}</li>
+                        <li>{{ _('Téléchargez votre fichier converti') }}</li>
                     </ol>
                     
                     <div class="alert alert-info mt-3 mb-0">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Important :</strong> Les fichiers sont automatiquement supprimés après 1 heure
+                        <strong>{{ _('Important :') }}</strong> {{ _('Les fichiers sont automatiquement supprimés après 1 heure') }}
                     </div>
                 </div>
             </div>
@@ -303,16 +303,16 @@
             <!-- Liens rapides -->
             <div class="card border-0 shadow-sm mt-3">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-link me-2"></i>Liens rapides</h5>
+                    <h5 class="card-title"><i class="fas fa-link me-2"></i>{{ _('Liens rapides') }}</h5>
                     <div class="list-group list-group-flush">
                         <a href="{{ url_for('conversion.dependencies_page') }}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-cogs me-2"></i>Dépendances système
+                            <i class="fas fa-cogs me-2"></i>{{ _('Dépendances système') }}
                         </a>
                         <a href="{{ url_for('conversion.clean_temp') }}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-trash me-2"></i>Nettoyer fichiers temporaires
+                            <i class="fas fa-trash me-2"></i>{{ _('Nettoyer fichiers temporaires') }}
                         </a>
                         <a href="{{ url_for('conversion.api_health') }}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-heartbeat me-2"></i>Vérifier l'état du service
+                            <i class="fas fa-heartbeat me-2"></i>{{ _('Vérifier l\'état du service') }}
                         </a>
                     </div>
                 </div>
@@ -322,18 +322,17 @@
 
     <!-- FAQ -->
     <div class="mt-5 pt-4">
-        <h3 class="text-center mb-4"><i class="fas fa-question-circle me-2"></i>Questions fréquentes</h3>
+        <h3 class="text-center mb-4"><i class="fas fa-question-circle me-2"></i>{{ _('Questions fréquentes') }}</h3>
         <div class="row">
             <div class="col-md-6 mb-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="fas fa-shield-alt text-primary me-2"></i>
-                            Les fichiers sont-ils sécurisés ?
+                            {{ _('Les fichiers sont-ils sécurisés ?') }}
                         </h5>
                         <p class="card-text">
-                            Oui, tous les fichiers sont traités localement et automatiquement supprimés après 1 heure. 
-                            Nous ne stockons jamais vos documents sur nos serveurs.
+                            {{ _('Oui, tous les fichiers sont traités localement et automatiquement supprimés après 1 heure. Nous ne stockons jamais vos documents sur nos serveurs.') }}
                         </p>
                     </div>
                 </div>
@@ -344,11 +343,10 @@
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="fas fa-weight-hanging text-primary me-2"></i>
-                            Quelles sont les limites de taille ?
+                            {{ _('Quelles sont les limites de taille ?') }}
                         </h5>
                         <p class="card-text">
-                            Taille maximale par fichier : 50MB. 
-                            Nombre maximum de fichiers par conversion : variable selon l'outil (de 1 à 20).
+                            {{ _('Taille maximale par fichier : 50MB. Nombre maximum de fichiers par conversion : variable selon l\'outil (de 1 à 20).') }}
                         </p>
                     </div>
                 </div>
@@ -359,11 +357,10 @@
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="fas fa-clock text-primary me-2"></i>
-                            Combien de temps dure une conversion ?
+                            {{ _('Combien de temps dure une conversion ?') }}
                         </h5>
                         <p class="card-text">
-                            La plupart des conversions prennent moins de 30 secondes. 
-                            Pour les gros fichiers ou les conversions complexes (OCR), comptez 1 à 2 minutes.
+                            {{ _('La plupart des conversions prennent moins de 30 secondes. Pour les gros fichiers ou les conversions complexes (OCR), comptez 1 à 2 minutes.') }}
                         </p>
                     </div>
                 </div>
@@ -374,11 +371,10 @@
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="fas fa-file text-primary me-2"></i>
-                            Quels formats sont supportés ?
+                            {{ _('Quels formats sont supportés ?') }}
                         </h5>
                         <p class="card-text">
-                            Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, 
-                            JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore.
+                            {{ _('Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore.') }}
                         </p>
                     </div>
                 </div>

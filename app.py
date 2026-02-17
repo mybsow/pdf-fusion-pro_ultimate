@@ -11,6 +11,8 @@ import tempfile
 import os
 import logging
 from pathlib import Path
+from flask_babel import Babel, _
+from flask import request, session
 
 # ============================================================
 # Création de l'app Flask
@@ -69,6 +71,35 @@ app.wsgi_app = ProxyFix(
     x_host=1,
     x_port=1
 )
+
+# Configuration des langues supportées
+app.config['BABEL_DEFAULT_LOCALE'] = 'fr'  # Langue par défaut
+app.config['BABEL_TRANSLATION_DIRECTORIES'] = './translations'
+app.config['LANGUAGES'] = {
+    'fr': {'name': 'Français', 'flag': 'fr'},
+    'en': {'name': 'English', 'flag': 'gb'},
+    'es': {'name': 'Español', 'flag': 'es'},
+    'de': {'name': 'Deutsch', 'flag': 'de'},
+    'it': {'name': 'Italiano', 'flag': 'it'},
+    'pt': {'name': 'Português', 'flag': 'pt'},
+    'nl': {'name': 'Nederlands', 'flag': 'nl'},
+    'ar': {'name': 'العربية', 'flag': 'sa'},
+    'zh': {'name': '中文', 'flag': 'cn'},
+    'ja': {'name': '日本語', 'flag': 'jp'},
+    'ru': {'name': 'Русский', 'flag': 'ru'},
+}
+# ============================================================
+# Fonction pour déterminer la langue
+# ============================================================
+def get_locale():
+    # 1. Vérifier si l'utilisateur a choisi une langue en session
+    if 'language' in session:
+        return session['language']
+    # 2. Sinon, utiliser la langue du navigateur
+    return request.accept_languages.best_match(app.config['LANGUAGES'].keys())
+
+# Initialiser Babel
+babel = Babel(app, locale_selector=get_locale)
 
 # ============================================================
 # Fonctions d'initialisation
@@ -272,6 +303,13 @@ def create_app():
     @app.route("/pdf")
     def redirect_pdf():
         return redirect("/pdf/", code=301)
+    
+    # Route pour changer de langue
+    @app.route('/language/<language>')
+    def set_language(language):
+        if language in app.config['LANGUAGES']:
+            session['language'] = language
+        return redirect(request.referrer or url_for('pdf.pdf_index'))
 
 
     @app.route('/ads.txt')

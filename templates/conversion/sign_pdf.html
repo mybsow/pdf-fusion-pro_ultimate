@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}Signer PDF - {{ title }}{% endblock %}
+{% block title %}{{ _('Signer PDF - %(title)s', title=title) }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-pen upload-icon" style="color: #27ae60;"></i>
-        <h3>Téléchargez votre PDF</h3>
-        <p class="text-muted">Ajoutez votre signature électronique au document</p>
+        <h3>{{ _('Téléchargez votre PDF') }}</h3>
+        <p class="text-muted">{{ _('Ajoutez votre signature électronique au document') }}</p>
     </div>
 
     <!-- Zone d'upload avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez votre fichier PDF ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".pdf" multiple style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Formats acceptés : PDF (jusqu'à 100MB)
+            {{ _('Formats acceptés : PDF (jusqu\'à 100MB)') }}
         </p>
     </div>
 
@@ -33,54 +33,54 @@
     <!-- Options de signature -->
     <div class="file-info-card mt-4">
         <h5 class="mb-3">
-            <i class="fas fa-cog me-2"></i>Options de signature
+            <i class="fas fa-cog me-2"></i>{{ _('Options de signature') }}
         </h5>
         
         <!-- Type de signature -->
         <div class="mb-4">
-            <label class="form-label fw-bold">Type de signature :</label>
+            <label class="form-label fw-bold">{{ _('Type de signature :') }}</label>
             <div class="btn-group w-100" role="group">
                 <input type="radio" class="btn-check" name="signatureType" id="typeDraw" value="draw" checked>
                 <label class="btn btn-outline-success" for="typeDraw">
-                    <i class="fas fa-paint-brush me-2"></i>Dessiner
+                    <i class="fas fa-paint-brush me-2"></i>{{ _('Dessiner') }}
                 </label>
                 
                 <input type="radio" class="btn-check" name="signatureType" id="typeType" value="type">
                 <label class="btn btn-outline-success" for="typeType">
-                    <i class="fas fa-font me-2"></i>Taper
+                    <i class="fas fa-font me-2"></i>{{ _('Taper') }}
                 </label>
                 
                 <input type="radio" class="btn-check" name="signatureType" id="typeUpload" value="upload">
                 <label class="btn btn-outline-success" for="typeUpload">
-                    <i class="fas fa-upload me-2"></i>Télécharger
+                    <i class="fas fa-upload me-2"></i>{{ _('Télécharger') }}
                 </label>
             </div>
         </div>
 
         <!-- Section Dessiner -->
         <div id="drawSection" class="mb-4">
-            <label class="form-label fw-bold">Dessinez votre signature :</label>
+            <label class="form-label fw-bold">{{ _('Dessinez votre signature :') }}</label>
             <div class="border rounded p-3 bg-light text-center">
                 <canvas id="signatureCanvas" width="400" height="200" 
                         style="border:2px solid #dee2e6; background:white; cursor:crosshair; touch-action: none;"></canvas>
                 <div class="mt-3">
                     <button class="btn btn-sm btn-outline-secondary" type="button" onclick="clearSignature()">
-                        <i class="fas fa-undo me-1"></i>Effacer
+                        <i class="fas fa-undo me-1"></i>{{ _('Effacer') }}
                     </button>
                     <button class="btn btn-sm btn-outline-primary" type="button" onclick="setPenSize(2)">
-                        <i class="fas fa-circle me-1"></i>Fin
+                        <i class="fas fa-circle me-1"></i>{{ _('Fin') }}
                     </button>
                     <button class="btn btn-sm btn-outline-primary" type="button" onclick="setPenSize(5)">
-                        <i class="fas fa-circle me-1" style="font-size:1.2em;"></i>Moyen
+                        <i class="fas fa-circle me-1" style="font-size:1.2em;"></i>{{ _('Moyen') }}
                     </button>
                     <button class="btn btn-sm btn-outline-primary" type="button" onclick="setPenSize(8)">
-                        <i class="fas fa-circle me-1" style="font-size:1.5em;"></i>Épais
+                        <i class="fas fa-circle me-1" style="font-size:1.5em;"></i>{{ _('Épais') }}
                     </button>
                     <select class="form-select d-inline-block w-auto ms-2" id="penColor" onchange="setPenColor(this.value)">
-                        <option value="#000000">Noir</option>
-                        <option value="#0000FF">Bleu</option>
-                        <option value="#FF0000">Rouge</option>
-                        <option value="#008000">Vert</option>
+                        <option value="#000000">{{ _('Noir') }}</option>
+                        <option value="#0000FF">{{ _('Bleu') }}</option>
+                        <option value="#FF0000">{{ _('Rouge') }}</option>
+                        <option value="#008000">{{ _('Vert') }}</option>
                     </select>
                 </div>
             </div>
@@ -88,26 +88,26 @@
 
         <!-- Section Taper -->
         <div id="typeSection" class="mb-4" style="display:none;">
-            <label for="typedSignature" class="form-label fw-bold">Tapez votre signature :</label>
+            <label for="typedSignature" class="form-label fw-bold">{{ _('Tapez votre signature :') }}</label>
             <input type="text" class="form-control" id="typedSignature" 
-                   placeholder="Ex: Jean Dupont" value="Jean Dupont">
+                   placeholder="{{ _('Ex: Jean Dupont') }}" value="{{ _('Jean Dupont') }}">
             
             <div class="row mt-3">
                 <div class="col-md-6">
-                    <label for="signatureFont" class="form-label fw-bold">Style :</label>
+                    <label for="signatureFont" class="form-label fw-bold">{{ _('Style :') }}</label>
                     <select class="form-select" id="signatureFont">
-                        <option value="Courier" style="font-family:Courier;">Script simple</option>
-                        <option value="Helvetica" style="font-family:Helvetica;">Standard</option>
-                        <option value="Times-Roman" style="font-family:Times New Roman;">Élégant</option>
+                        <option value="Courier" style="font-family:Courier;">{{ _('Script simple') }}</option>
+                        <option value="Helvetica" style="font-family:Helvetica;">{{ _('Standard') }}</option>
+                        <option value="Times-Roman" style="font-family:Times New Roman;">{{ _('Élégant') }}</option>
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <label for="signatureSize" class="form-label fw-bold">Taille :</label>
+                    <label for="signatureSize" class="form-label fw-bold">{{ _('Taille :') }}</label>
                     <select class="form-select" id="signatureSize">
-                        <option value="18">Petite</option>
-                        <option value="24" selected>Moyenne</option>
-                        <option value="32">Grande</option>
-                        <option value="48">Très grande</option>
+                        <option value="18">{{ _('Petite') }}</option>
+                        <option value="24" selected>{{ _('Moyenne') }}</option>
+                        <option value="32">{{ _('Grande') }}</option>
+                        <option value="48">{{ _('Très grande') }}</option>
                     </select>
                 </div>
             </div>
@@ -115,16 +115,16 @@
 
         <!-- Section Upload -->
         <div id="uploadSection" class="mb-4" style="display:none;">
-            <label class="form-label fw-bold">Téléchargez une image de signature :</label>
+            <label class="form-label fw-bold">{{ _('Téléchargez une image de signature :') }}</label>
             <div id="signatureUploadZone" 
                  class="upload-zone-pro upload-zone small-zone" 
                  style="cursor: pointer; padding: 1.5rem;">
                 <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
-                <p>Glissez-déposez votre signature ici</p>
+                <p>{{ _('Glissez-déposez votre signature ici') }}</p>
                 <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.gif" style="display: none;">
                 <p class="text-muted small mb-0">
                     <i class="fas fa-info-circle"></i>
-                    Formats acceptés : PNG, JPG, GIF (fond transparent recommandé)
+                    {{ _('Formats acceptés : PNG, JPG, GIF (fond transparent recommandé)') }}
                 </p>
             </div>
         </div>
@@ -134,22 +134,22 @@
         <!-- Position de la signature -->
         <div class="row g-3">
             <div class="col-md-4">
-                <label for="signaturePage" class="form-label fw-bold">Page :</label>
+                <label for="signaturePage" class="form-label fw-bold">{{ _('Page :') }}</label>
                 <input type="number" class="form-control" id="signaturePage" min="1" value="1">
             </div>
             <div class="col-md-4">
-                <label for="signatureX" class="form-label fw-bold">Position X :</label>
+                <label for="signatureX" class="form-label fw-bold">{{ _('Position X :') }}</label>
                 <input type="number" class="form-control" id="signatureX" value="50">
             </div>
             <div class="col-md-4">
-                <label for="signatureY" class="form-label fw-bold">Position Y :</label>
+                <label for="signatureY" class="form-label fw-bold">{{ _('Position Y :') }}</label>
                 <input type="number" class="form-control" id="signatureY" value="50">
             </div>
         </div>
 
         <!-- Aperçu de la signature -->
         <div class="mt-4" id="previewSection" style="display:none;">
-            <h6 class="mb-2">Aperçu de la signature :</h6>
+            <h6 class="mb-2">{{ _('Aperçu de la signature :') }}</h6>
             <div class="border rounded p-3 bg-light">
                 <div id="signaturePreview" style="min-height: 50px;"></div>
             </div>
@@ -160,18 +160,18 @@
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="addDate" checked>
                 <label class="form-check-label" for="addDate">
-                    Ajouter la date automatiquement
+                    {{ _('Ajouter la date automatiquement') }}
                 </label>
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="addReason">
                 <label class="form-check-label" for="addReason">
-                    Ajouter un motif de signature
+                    {{ _('Ajouter un motif de signature') }}
                 </label>
             </div>
             <div id="reasonInput" style="display:none;" class="mt-2">
                 <input type="text" class="form-control" id="signatureReason" 
-                       placeholder="Ex: Approbation, Accord, Certificat...">
+                       placeholder="{{ _('Ex: Approbation, Accord, Certificat...') }}">
             </div>
         </div>
     </div>
@@ -179,10 +179,10 @@
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-success btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-pen me-2"></i>Signer le PDF
+            <i class="fas fa-pen me-2"></i>{{ _('Signer le PDF') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -193,8 +193,8 @@
         <div class="mb-4">
             <i class="fas fa-cog fa-spin fa-4x text-success"></i>
         </div>
-        <h3>Signature en cours...</h3>
-        <p class="text-muted">Ajout de la signature au document</p>
+        <h3>{{ _('Signature en cours...') }}</h3>
+        <p class="text-muted">{{ _('Ajout de la signature au document') }}</p>
         <div class="progress-container">
             <div class="progress-bar" style="width: 0%; background: #27ae60;" id="progressBar"></div>
         </div>
@@ -207,14 +207,14 @@
         <div class="success-animation">
             <i class="fas fa-check"></i>
         </div>
-        <h3>Signature terminée !</h3>
-        <p class="text-muted">Votre PDF signé est prêt à être téléchargé</p>
+        <h3>{{ _('Signature terminée !') }}</h3>
+        <p class="text-muted">{{ _('Votre PDF signé est prêt à être téléchargé') }}</p>
         <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>Télécharger le PDF signé
+            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF signé') }}
         </a>
         <div class="mt-4">
             <button class="btn btn-outline-success" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Signer un autre PDF
+                <i class="fas fa-redo me-2"></i>{{ _('Signer un autre PDF') }}
             </button>
         </div>
     </div>
@@ -347,7 +347,7 @@ document.getElementById('signatureSize').addEventListener('change', updateTypePr
 function startConversion() {
     const uploadManager = window.uploadManagers['pdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner un fichier PDF');
+        showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
         return;
     }
 
@@ -377,7 +377,7 @@ function startConversion() {
         if (sigManager && sigManager.getFiles().length > 0) {
             formData.append('signature_image', sigManager.getFiles()[0]);
         } else {
-            showError('Veuillez télécharger une image de signature');
+            showError('{{ _("Veuillez télécharger une image de signature") }}');
             return;
         }
     }
@@ -415,7 +415,7 @@ function sendConversion(formData) {
             downloadUrl = window.URL.createObjectURL(blob);
             
             const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = 'signed.pdf';
+            let filename = '{{ _("signed.pdf") }}';
             if (contentDisposition) {
                 const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
                 if (match && match[1]) {
@@ -429,13 +429,13 @@ function sendConversion(formData) {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de la signature : ' + error);
+            showError('{{ _("Erreur lors de la signature :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
         clearInterval(interval);
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }

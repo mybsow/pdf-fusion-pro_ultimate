@@ -3,39 +3,41 @@
 {% block content %}
 <div class="info-box">
     <i class="fas fa-info-circle me-2"></i>
-    <strong>Information importante :</strong> Cette application traite vos fichiers PDF uniquement en mémoire.
-    Aucun fichier n'est stocké de manière permanente sur nos serveurs.
+    <strong>{{ _('Information importante :') }}</strong> 
+    {{ _('Cette application traite vos fichiers PDF uniquement en mémoire. Aucun fichier n\'est stocké de manière permanente sur nos serveurs.') }}
 </div>
 
-<h2>Éditeur du service</h2>
-<p>Le service <strong>{{ config.NAME }}</strong> est développé et maintenu par <strong>{{ config.DEVELOPER_NAME }}</strong>.</p>
+<h2>{{ _('Éditeur du service') }}</h2>
+<p>{{ _('Le service %(app_name)s est développé et maintenu par %(developer_name)s.', 
+      app_name=config.NAME, developer_name=config.DEVELOPER_NAME) }}</p>
 
 <div class="contact-info">
     <div class="contact-icon">
         <i class="fas fa-user-tie"></i>
     </div>
     <div>
-        <h4 class="h5 mb-2">Pour nous contacter :</h4>
-        <p>Utilisez notre <a href="/contact" class="btn btn-outline-primary btn-sm">
-            <i class="fas fa-envelope me-1"></i> Formulaire de contact
+        <h4 class="h5 mb-2">{{ _('Pour nous contacter :') }}</h4>
+        <p>{{ _('Utilisez notre') }} <a href="/contact" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-envelope me-1"></i> {{ _('Formulaire de contact') }}
         </a></p>
-        <p class="small text-muted">Nous répondons généralement dans les 48 heures.</p>
+        <p class="small text-muted">{{ _('Nous répondons généralement dans les 48 heures.') }}</p>
     </div>
 </div>
 
-<h2>Hébergement</h2>
-<p>Ce service est hébergé sur la plateforme <strong>{{ config.HOSTING }}</strong> (<a href="https://{{ config.DOMAIN }}" target="_blank">{{ config.DOMAIN }}</a>).</p>
-<p>Les serveurs sont localisés dans des centres de données sécurisés et conformes aux normes européennes de protection des données.</p>
+<h2>{{ _('Hébergement') }}</h2>
+<p>{{ _('Ce service est hébergé sur la plateforme %(hosting)s (<a href="https://%(domain)s" target="_blank">%(domain)s</a>).', 
+      hosting=config.HOSTING, domain=config.DOMAIN) | safe }}</p>
+<p>{{ _('Les serveurs sont localisés dans des centres de données sécurisés et conformes aux normes européennes de protection des données.') }}</p>
 
-<h2>Propriété intellectuelle</h2>
-<p>L'ensemble des contenus présents sur ce site (design, code source, interfaces, textes, graphismes) est protégé par les lois relatives à la propriété intellectuelle.</p>
-<p>Toute reproduction, modification, distribution ou exploitation non autorisée est strictement interdite.</p>
+<h2>{{ _('Propriété intellectuelle') }}</h2>
+<p>{{ _('L\'ensemble des contenus présents sur ce site (design, code source, interfaces, textes, graphismes) est protégé par les lois relatives à la propriété intellectuelle.') }}</p>
+<p>{{ _('Toute reproduction, modification, distribution ou exploitation non autorisée est strictement interdite.') }}</p>
 
-<h2>Responsabilité</h2>
-<p>L'utilisateur reste l'unique responsable des fichiers PDF qu'il téléverse et traite via ce service.</p>
-<p>Il s'engage à ne pas utiliser le service pour des contenus illicites ou protégés par des droits d'auteur sans autorisation.</p>
+<h2>{{ _('Responsabilité') }}</h2>
+<p>{{ _('L\'utilisateur reste l\'unique responsable des fichiers PDF qu\'il téléverse et traite via ce service.') }}</p>
+<p>{{ _('Il s\'engage à ne pas utiliser le service pour des contenus illicites ou protégés par des droits d\'auteur sans autorisation.') }}</p>
 
-<h2>Disponibilité du service</h2>
-<p>Nous nous efforçons d'assurer une disponibilité continu du service, mais ne pouvons garantir un fonctionnement ininterrompu.</p>
-<p>Des périodes de maintenance technique peuvent être nécessaires pour améliorer le service.</p>
+<h2>{{ _('Disponibilité du service') }}</h2>
+<p>{{ _('Nous nous efforçons d\'assurer une disponibilité continue du service, mais ne pouvons garantir un fonctionnement ininterrompu.') }}</p>
+<p>{{ _('Des périodes de maintenance technique peuvent être nécessaires pour améliorer le service.') }}</p>
 {% endblock %}

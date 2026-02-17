@@ -1,14 +1,14 @@
 {% extends "conversion/conversion_base.html" %}
 
-{% block title %}PDF vers PowerPoint - Convertisseur{% endblock %}
+{% block title %}{{ _('PDF vers PowerPoint - Convertisseur') }}{% endblock %}
 
 {% block converter_content %}
 <!-- Étape 1: Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-file-powerpoint upload-icon" style="color: #d24726;"></i>
-        <h3>Convertissez votre PDF en présentation PowerPoint</h3>
-        <p class="text-muted">Transformez chaque page de votre PDF en diapositives modifiables</p>
+        <h3>{{ _('Convertissez votre PDF en présentation PowerPoint') }}</h3>
+        <p class="text-muted">{{ _('Transformez chaque page de votre PDF en diapositives modifiables') }}</p>
     </div>
 
     <!-- Zone d'upload avec UploadManager -->
@@ -18,12 +18,12 @@
          data-btn-id="convertBtn"
          style="cursor: pointer;">
         <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>Glissez-déposez votre fichier PDF ici</h4>
-        <p class="text-muted">ou</p>
+        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
+        <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".pdf" style="display: none;">
         <p class="text-muted small mt-3">
             <i class="fas fa-info-circle"></i> 
-            Format accepté : PDF (jusqu'à 50MB)
+            {{ _('Format accepté : PDF (jusqu\'à 50MB)') }}
         </p>
     </div>
 
@@ -34,29 +34,29 @@
     <!-- Options de conversion -->
     <div class="file-info-card mt-4">
         <h5 class="mb-4">
-            <i class="fas fa-cog me-2"></i>Options de conversion
+            <i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}
         </h5>
         
         <div class="row g-4">
             <div class="col-md-6">
-                <label for="layoutStyle" class="form-label fw-bold">Mise en page</label>
+                <label for="layoutStyle" class="form-label fw-bold">{{ _('Mise en page') }}</label>
                 <select class="form-select" id="layoutStyle">
-                    <option value="single" selected>Une page par diapositive</option>
-                    <option value="multiple">Plusieurs pages par diapositive</option>
-                    <option value="handouts">Document de distribution (2 pages/feuille)</option>
+                    <option value="single" selected>{{ _('Une page par diapositive') }}</option>
+                    <option value="multiple">{{ _('Plusieurs pages par diapositive') }}</option>
+                    <option value="handouts">{{ _('Document de distribution (2 pages/feuille)') }}</option>
                 </select>
-                <small class="text-muted">Choisissez comment organiser vos pages</small>
+                <small class="text-muted">{{ _('Choisissez comment organiser vos pages') }}</small>
             </div>
             
             <div class="col-md-6">
-                <label for="slideSize" class="form-label fw-bold">Format de diapositive</label>
+                <label for="slideSize" class="form-label fw-bold">{{ _('Format de diapositive') }}</label>
                 <select class="form-select" id="slideSize">
-                    <option value="standard" selected>Standard (4:3) - Écrans classiques</option>
-                    <option value="widescreen">Widescreen (16:9) - Écrans larges</option>
-                    <option value="letter">Letter (21,6 x 27,9 cm)</option>
-                    <option value="a4">A4 (21 x 29,7 cm)</option>
+                    <option value="standard" selected>{{ _('Standard (4:3) - Écrans classiques') }}</option>
+                    <option value="widescreen">{{ _('Widescreen (16:9) - Écrans larges') }}</option>
+                    <option value="letter">{{ _('Letter (21,6 x 27,9 cm)') }}</option>
+                    <option value="a4">{{ _('A4 (21 x 29,7 cm)') }}</option>
                 </select>
-                <small class="text-muted">Adapté à votre support de projection</small>
+                <small class="text-muted">{{ _('Adapté à votre support de projection') }}</small>
             </div>
 
             <div class="col-12">
@@ -65,8 +65,8 @@
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="includeImages" checked>
                             <label class="form-check-label" for="includeImages">
-                                <strong>Inclure les images</strong>
-                                <small class="d-block text-muted">Les images du PDF seront intégrées à la présentation</small>
+                                <strong>{{ _('Inclure les images') }}</strong>
+                                <small class="d-block text-muted">{{ _('Les images du PDF seront intégrées à la présentation') }}</small>
                             </label>
                         </div>
                     </div>
@@ -75,8 +75,8 @@
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="editableText" checked>
                             <label class="form-check-label" for="editableText">
-                                <strong>Texte éditable</strong>
-                                <small class="d-block text-muted">Le texte pourra être modifié dans PowerPoint</small>
+                                <strong>{{ _('Texte éditable') }}</strong>
+                                <small class="d-block text-muted">{{ _('Le texte pourra être modifié dans PowerPoint') }}</small>
                             </label>
                         </div>
                     </div>
@@ -86,17 +86,17 @@
 
         <div class="alert alert-info mt-4">
             <i class="fas fa-info-circle me-2"></i>
-            <strong>Format PowerPoint :</strong> Le fichier généré est au format PPTX, compatible avec PowerPoint 2007 et versions ultérieures, ainsi qu'avec LibreOffice et Google Slides.
+            <strong>{{ _('Format PowerPoint :') }}</strong> {{ _('Le fichier généré est au format PPTX, compatible avec PowerPoint 2007 et versions ultérieures, ainsi qu\'avec LibreOffice et Google Slides.') }}
         </div>
     </div>
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
         <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
-            <i class="fas fa-sync-alt me-2"></i>Convertir en PowerPoint
+            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PowerPoint') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -108,9 +108,9 @@
             <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
         
-        <h3 class="mb-4">Conversion en cours...</h3>
+        <h3 class="mb-4">{{ _('Conversion en cours...') }}</h3>
         <p class="text-muted mb-4" id="conversionMessage">
-            Création de votre présentation PowerPoint...
+            {{ _('Création de votre présentation PowerPoint...') }}
         </p>
         
         <div class="progress-container mx-auto" style="max-width: 500px;">
@@ -121,7 +121,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Pages traitées</h6>
+                        <h6 class="text-muted">{{ _('Pages traitées') }}</h6>
                         <div class="display-6 text-primary" id="processedPages">0</div>
                     </div>
                 </div>
@@ -129,7 +129,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Diapositives</h6>
+                        <h6 class="text-muted">{{ _('Diapositives') }}</h6>
                         <div class="display-6 text-success" id="createdSlides">0</div>
                     </div>
                 </div>
@@ -137,7 +137,7 @@
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Images intégrées</h6>
+                        <h6 class="text-muted">{{ _('Images intégrées') }}</h6>
                         <div class="display-6 text-warning" id="embeddedImages">0</div>
                     </div>
                 </div>
@@ -145,7 +145,7 @@
         </div>
         
         <div class="mt-4 text-muted small" id="conversionDetails">
-            <i class="fas fa-file-pdf me-1"></i> Analyse du PDF...
+            <i class="fas fa-file-pdf me-1"></i> {{ _('Analyse du PDF...') }}
         </div>
     </div>
 </div>
@@ -157,18 +157,18 @@
             <i class="fas fa-file-powerpoint"></i>
         </div>
         
-        <h3 class="mb-3">Conversion réussie !</h3>
+        <h3 class="mb-3">{{ _('Conversion réussie !') }}</h3>
         <p class="text-muted mb-4">
-            Votre présentation PowerPoint est prête
+            {{ _('Votre présentation PowerPoint est prête') }}
         </p>
         
         <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
             <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-                <i class="fas fa-download me-2"></i>Télécharger PowerPoint
+                <i class="fas fa-download me-2"></i>{{ _('Télécharger PowerPoint') }}
             </a>
             
             <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>Nouvelle conversion
+                <i class="fas fa-redo me-2"></i>{{ _('Nouvelle conversion') }}
             </button>
         </div>
 
@@ -177,7 +177,7 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Diapositives</h6>
+                        <h6 class="text-muted">{{ _('Diapositives') }}</h6>
                         <div class="display-6 text-primary" id="finalSlides">0</div>
                     </div>
                 </div>
@@ -185,7 +185,7 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Format</h6>
+                        <h6 class="text-muted">{{ _('Format') }}</h6>
                         <div class="display-6 text-success" id="finalFormat">16:9</div>
                     </div>
                 </div>
@@ -193,7 +193,7 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Taille</h6>
+                        <h6 class="text-muted">{{ _('Taille') }}</h6>
                         <div class="display-6 text-warning" id="finalSize">0 MB</div>
                     </div>
                 </div>
@@ -201,8 +201,8 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Mode</h6>
-                        <div class="display-6 text-info" id="finalLayout">1 page/diapo</div>
+                        <h6 class="text-muted">{{ _('Mode') }}</h6>
+                        <div class="display-6 text-info" id="finalLayout">{{ _('1 page/diapo') }}</div>
                     </div>
                 </div>
             </div>
@@ -210,7 +210,7 @@
 
         <!-- Aperçu des diapositives -->
         <div class="mt-5">
-            <h5 class="mb-4">Aperçu des premières diapositives</h5>
+            <h5 class="mb-4">{{ _('Aperçu des premières diapositives') }}</h5>
             <div class="row g-3" id="slidePreview">
                 <!-- Les miniatures seront ajoutées ici -->
             </div>
@@ -224,7 +224,7 @@ let downloadUrl = null;
 function startConversion() {
     const uploadManager = window.uploadManagers['pdfPptUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('Veuillez sélectionner un fichier PDF');
+        showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
         return;
     }
 
@@ -274,12 +274,12 @@ function startConversion() {
             updateStep(3);
         } else {
             const error = await response.text();
-            showError('Erreur lors de la conversion : ' + error);
+            showError('{{ _("Erreur lors de la conversion :") }} ' + error);
             updateStep(1);
         }
     })
     .catch(error => {
-        showError('Erreur : ' + error.message);
+        showError('{{ _("Erreur :") }} ' + error.message);
         updateStep(1);
     });
 }
@@ -313,14 +313,14 @@ function simulateConversion(totalPages) {
             }
             
             if (currentPage === 0) {
-                conversionMessage.textContent = "Analyse du PDF...";
-                conversionDetails.innerHTML = '<i class="fas fa-search me-1"></i> Extraction des pages';
+                conversionMessage.textContent = '{{ _("Analyse du PDF...") }}';
+                conversionDetails.innerHTML = '<i class="fas fa-search me-1"></i> {{ _("Extraction des pages") }}';
             } else if (currentPage < totalPages) {
-                conversionMessage.textContent = `Création des diapositives (page ${currentPage}/${totalPages})`;
-                conversionDetails.innerHTML = `<i class="fas fa-image me-1"></i> Traitement de la page ${currentPage}`;
+                conversionMessage.textContent = `{{ _("Création des diapositives (page") }} ${currentPage}/${totalPages})`;
+                conversionDetails.innerHTML = `<i class="fas fa-image me-1"></i> {{ _("Traitement de la page") }} ${currentPage}`;
             } else {
-                conversionMessage.textContent = "Génération du fichier PowerPoint...";
-                conversionDetails.innerHTML = '<i class="fas fa-file-powerpoint me-1"></i> Finalisation de la présentation';
+                conversionMessage.textContent = '{{ _("Génération du fichier PowerPoint...") }}';
+                conversionDetails.innerHTML = '<i class="fas fa-file-powerpoint me-1"></i> {{ _("Finalisation de la présentation") }}';
             }
             
             currentPage++;
@@ -349,9 +349,9 @@ function simulateFinalStats(file, pages) {
     };
     
     const layoutLabels = {
-        'single': '1 page/diapo',
-        'multiple': '2 pages/diapo',
-        'handouts': 'Document'
+        'single': '{{ _("1 page/diapo") }}',
+        'multiple': '{{ _("2 pages/diapo") }}',
+        'handouts': '{{ _("Document") }}'
     };
     
     document.getElementById('finalSlides').textContent = totalSlides;
@@ -377,7 +377,7 @@ function createSlidePreview(count) {
                     <div class="bg-light rounded p-3 mb-2" style="height: 100px; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-file-powerpoint fa-3x text-secondary"></i>
                     </div>
-                    <small class="text-muted">Diapo ${i}</small>
+                    <small class="text-muted">{{ _('Diapo') }} ${i}</small>
                 </div>
             </div>
         `;

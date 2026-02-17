@@ -5,18 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
     <!-- SEO -->
-    <title>{% block title %}PDF Fusion Pro - Outils PDF Gratuits{% endblock %}</title>
+    <title>{% block title %}{{ _('PDF Fusion Pro - Outils PDF Gratuits') }}{% endblock %}</title>
     <meta name="description" 
-          content="Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos fichiers en ligne. Rapide, sécurisé et sans installation.">
+          content="{{ _('Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos fichiers en ligne. Rapide, sécurisé et sans installation.') }}">
     <meta name="keywords" 
-          content="PDF, convertisseur, fusionner, diviser, compresser, OCR, Word, Excel, PowerPoint, image">
+          content="{{ _('PDF, convertisseur, fusionner, diviser, compresser, OCR, Word, Excel, PowerPoint, image') }}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ config.DOMAIN }}{{ request.path }}">
 
     
     <!-- Open Graph -->
-    <meta property="og:title" content="PDF Fusion Pro - Convertisseur de fichiers">
-    <meta property="og:description" content="Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne">
+    <meta property="og:title" content="{{ _('PDF Fusion Pro - Convertisseur de fichiers') }}">
+    <meta property="og:description" content="{{ _('Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne') }}">
     <meta property="og:type" content="website">
     
     <!-- Favicon -->
@@ -42,6 +42,8 @@
     <link rel="stylesheet"
         href="{{ url_for('static', filename='css/components/upload.css') }}">
 
+    <!-- Flag Icons CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
     
     <!-- Styles spécifiques par page -->
     {% block extra_css %}{% endblock %}
@@ -237,7 +239,7 @@
         <!-- Logo -->
         <a class="navbar-brand d-flex align-items-center" href="{{ url_for('pdf.pdf_index') }}">
             <i class="fas fa-file-pdf me-2"></i>
-            <span>PDF Fusion Pro</span>
+            <span>{{ _('PDF Fusion Pro') }}</span>
         </a>
 
         <!-- Bouton mobile -->
@@ -256,7 +258,7 @@
                 <li class="nav-item">
                     <a class="nav-link {% if request.endpoint == 'pdf.pdf_index' %}active{% endif %}" 
                        href="{{ url_for('pdf.pdf_index') }}">
-                        <i class="fas fa-home me-1"></i>Accueil
+                        <i class="fas fa-home me-1"></i>{{ _('Accueil') }}
                     </a>
                 </li>
 
@@ -266,106 +268,106 @@
                        href="#" 
                        role="button" 
                        data-bs-toggle="dropdown">
-                        <i class="fas fa-exchange-alt me-1"></i>Convertir
+                        <i class="fas fa-exchange-alt me-1"></i>{{ _('Convertir') }}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
                         
                         <!-- Convertir EN PDF -->
                         <li><h6 class="dropdown-header">
-                            <i class="fas fa-file-pdf me-2"></i>Convertir en PDF
+                            <i class="fas fa-file-pdf me-2"></i>{{ _('Convertir en PDF') }}
                         </h6></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='word-en-pdf') }}">
-                            <i class="fas fa-file-word me-2"></i>Word en PDF
+                            <i class="fas fa-file-word me-2"></i>{{ _('Word en PDF') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='excel-en-pdf') }}">
-                            <i class="fas fa-file-excel me-2"></i>Excel en PDF
+                            <i class="fas fa-file-excel me-2"></i>{{ _('Excel en PDF') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='powerpoint-en-pdf') }}">
-                            <i class="fas fa-file-powerpoint me-2"></i>PowerPoint en PDF
+                            <i class="fas fa-file-powerpoint me-2"></i>{{ _('PowerPoint en PDF') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='image-en-pdf') }}">
-                            <i class="fas fa-image me-2"></i>Image en PDF
+                            <i class="fas fa-image me-2"></i>{{ _('Image en PDF') }}
                         </a></li>
                         
                         <li><hr class="dropdown-divider"></li>
                         
                         <!-- Convertir DEPUIS PDF -->
                         <li><h6 class="dropdown-header">
-                            <i class="fas fa-file-pdf me-2"></i>Convertir depuis PDF
+                            <i class="fas fa-file-pdf me-2"></i>{{ _('Convertir depuis PDF') }}
                         </h6></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-word') }}">
-                            <i class="fas fa-file-word me-2"></i>PDF en Word
+                            <i class="fas fa-file-word me-2"></i>{{ _('PDF en Word') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-excel') }}">
-                            <i class="fas fa-file-excel me-2"></i>PDF en Excel
+                            <i class="fas fa-file-excel me-2"></i>{{ _('PDF en Excel') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-image') }}">
-                            <i class="fas fa-image me-2"></i>PDF en Image
+                            <i class="fas fa-image me-2"></i>{{ _('PDF en Image') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-pdfa') }}">
-                            <i class="fas fa-archive me-2"></i>PDF en PDF/A
+                            <i class="fas fa-archive me-2"></i>{{ _('PDF en PDF/A') }}
                         </a></li>
                         
                         <li><hr class="dropdown-divider"></li>
                         
                         <!-- Outils PDF -->
                         <li><h6 class="dropdown-header">
-                            <i class="fas fa-tools me-2"></i>Outils PDF
+                            <i class="fas fa-tools me-2"></i>{{ _('Outils PDF') }}
                         </h6></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='fusionner-pdf') }}">
-                            <i class="fas fa-object-group me-2"></i>Fusionner PDF
+                            <i class="fas fa-object-group me-2"></i>{{ _('Fusionner PDF') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='diviser-pdf') }}">
-                            <i class="fas fa-cut me-2"></i>Diviser PDF
+                            <i class="fas fa-cut me-2"></i>{{ _('Diviser PDF') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='compresser-pdf') }}">
-                            <i class="fas fa-compress me-2"></i>Compresser PDF
+                            <i class="fas fa-compress me-2"></i>{{ _('Compresser PDF') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='rotation-pdf') }}">
-                            <i class="fas fa-sync-alt me-2"></i>Rotation PDF
+                            <i class="fas fa-sync-alt me-2"></i>{{ _('Rotation PDF') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='proteger-pdf') }}">
-                            <i class="fas fa-lock me-2"></i>Protéger PDF
+                            <i class="fas fa-lock me-2"></i>{{ _('Protéger PDF') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='deverrouiller-pdf') }}">
-                            <i class="fas fa-unlock me-2"></i>Déverrouiller PDF
+                            <i class="fas fa-unlock me-2"></i>{{ _('Déverrouiller PDF') }}
                         </a></li>
                         
                         <li><hr class="dropdown-divider"></li>
                         
                         <!-- Autres conversions -->
                         <li><h6 class="dropdown-header">
-                            <i class="fas fa-exchange-alt me-2"></i>Autres conversions
+                            <i class="fas fa-exchange-alt me-2"></i>{{ _('Autres conversions') }}
                         </h6></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='image-en-word') }}">
-                            <i class="fas fa-image me-2"></i>Image en Word
+                            <i class="fas fa-image me-2"></i>{{ _('Image en Word') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='image-en-excel') }}">
-                            <i class="fas fa-image me-2"></i>Image en Excel
+                            <i class="fas fa-image me-2"></i>{{ _('Image en Excel') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='csv-en-excel') }}">
-                            <i class="fas fa-file-csv me-2"></i>CSV en Excel
+                            <i class="fas fa-file-csv me-2"></i>{{ _('CSV en Excel') }}
                         </a></li>
                         <li><a class="dropdown-item" 
                                href="{{ url_for('conversion.universal_converter', conversion_type='excel-en-csv') }}">
-                            <i class="fas fa-file-excel me-2"></i>Excel en CSV
+                            <i class="fas fa-file-excel me-2"></i>{{ _('Excel en CSV') }}
                         </a></li>
                         
                         <li><hr class="dropdown-divider"></li>
@@ -373,7 +375,7 @@
                         <!-- Toutes les conversions -->
                         <li><a class="dropdown-item text-center" 
                                href="{{ url_for('conversion.index') }}">
-                            <i class="fas fa-list me-2"></i>Toutes les conversions
+                            <i class="fas fa-list me-2"></i>{{ _('Toutes les conversions') }}
                         </a></li>
                     </ul>
                 </li>
@@ -382,28 +384,28 @@
                 <li class="nav-item">
                     <a class="nav-link {% if request.endpoint == 'pdf.merge' %}active{% endif %}" 
                        href="{{ url_for('pdf.merge') }}">
-                        Fusionner
+                        {{ _('Fusionner') }}
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link {% if request.endpoint == 'pdf.split' %}active{% endif %}" 
                        href="{{ url_for('pdf.split') }}">
-                        Diviser
+                        {{ _('Diviser') }}
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link {% if request.endpoint == 'pdf.rotate' %}active{% endif %}" 
                        href="{{ url_for('pdf.rotate') }}">
-                        Tourner
+                        {{ _('Tourner') }}
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link {% if request.endpoint == 'pdf.compress' %}active{% endif %}" 
                        href="{{ url_for('pdf.compress') }}">
-                        Compresser
+                        {{ _('Compresser') }}
                     </a>
                 </li>
 
@@ -411,20 +413,47 @@
                 <li class="nav-item">
                     <a class="nav-link {% if request.endpoint == 'legal.contact' %}active{% endif %}" 
                        href="{{ url_for('legal.contact') }}">
-                        <i class="fas fa-envelope me-1"></i>Contact
+                        <i class="fas fa-envelope me-1"></i>{{ _('Contact') }}
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link {% if request.endpoint == 'legal.about' %}active{% endif %}" 
                        href="{{ url_for('legal.about') }}">
-                        <i class="fas fa-info-circle me-1"></i>À propos
+                        <i class="fas fa-info-circle me-1"></i>{{ _('À propos') }}
                     </a>
                 </li>
 
             </ul>
 
             <!-- Menu utilisateur -->
+            <!-- Dans la navbar, après le menu utilisateur ou avant -->
+            <div class="navbar-nav ms-2">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-globe me-1"></i>
+                        {% set current_lang = session.get('language', 'fr') %}
+                        {% for code, lang in config.LANGUAGES.items() %}
+                            {% if code == current_lang %}
+                                <span class="flag-icon flag-icon-{{ lang.flag }} me-1"></span>
+                                {{ lang.name }}
+                            {% endif %}
+                        {% endfor %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {% for code, lang in config.LANGUAGES.items() %}
+                        <li>
+                            <a class="dropdown-item {% if code == session.get('language', 'fr') %}active{% endif %}" 
+                            href="{{ url_for('set_language', language=code) }}">
+                                <span class="flag-icon flag-icon-{{ lang.flag }} me-2"></span>
+                                {{ lang.name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
             {% if current_user and current_user.is_authenticated %}
             <div class="navbar-nav">
                 <div class="nav-item dropdown">
@@ -434,11 +463,11 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="{{ url_for('admin.admin_dashboard') }}">
-                            <i class="fas fa-cog me-2"></i>Administration
+                            <i class="fas fa-cog me-2"></i>{{ _('Administration') }}
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{{ url_for('admin.admin_logout') }}">
-                            <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                            <i class="fas fa-sign-out-alt me-2"></i>{{ _('Déconnexion') }}
                         </a></li>
                     </ul>
                 </div>
@@ -446,7 +475,7 @@
             {% else %}
             <div class="navbar-nav">
                 <a class="nav-link" href="{{ url_for('admin.admin_login') }}">
-                    <i class="fas fa-sign-in-alt me-1"></i>Connexion
+                    <i class="fas fa-sign-in-alt me-1"></i>{{ _('Connexion') }}
                 </a>
             </div>
             {% endif %}
@@ -488,61 +517,70 @@
 <footer class="bg-dark text-white mt-5 py-4">
     <div class="container">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <h5 class="mb-3">
-                    <i class="fas fa-file-pdf me-2"></i>PDF Fusion Pro
+                    <i class="fas fa-file-pdf me-2"></i>{{ _('PDF Fusion Pro') }}
                 </h5>
                 <p class="text-muted small mb-0">
-                    Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et compressez vos fichiers PDF.
+                    {{ _('Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et compressez vos fichiers PDF.') }}
                 </p>
                 <p class="text-muted small mt-2">
                     <i class="fas fa-shield-alt me-1"></i>
-                    Vos fichiers sont traités de manière sécurisée et supprimés automatiquement.
+                    {{ _('Vos fichiers sont traités de manière sécurisée et supprimés automatiquement.') }}
                 </p>
             </div>
             
-            <div class="col-md-3">
-                <h6 class="mb-3">Outils</h6>
+            <div class="col-md-4">
+                <h6 class="mb-3">
+                    <i class="fas fa-tools me-2"></i>{{ _('Outils') }}
+                </h6>
                 <ul class="list-unstyled">
                     <li class="mb-2">
                         <a href="{{ url_for('pdf.merge') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-object-group me-1"></i>Fusionner PDF
+                            <i class="fas fa-object-group me-1"></i>{{ _('Fusionner PDF') }}
                         </a>
                     </li>
                     <li class="mb-2">
                         <a href="{{ url_for('pdf.split') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-cut me-1"></i>Diviser PDF
+                            <i class="fas fa-cut me-1"></i>{{ _('Diviser PDF') }}
                         </a>
                     </li>
                     <li class="mb-2">
                         <a href="{{ url_for('pdf.rotate') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-rotate me-1"></i>Tourner PDF
+                            <i class="fas fa-rotate me-1"></i>{{ _('Tourner PDF') }}
                         </a>
                     </li>
                     <li class="mb-2">
                         <a href="{{ url_for('pdf.compress') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-compress me-1"></i>Compresser PDF
+                            <i class="fas fa-compress me-1"></i>{{ _('Compresser PDF') }}
                         </a>
                     </li>
                 </ul>
             </div>
             
-            <div class="col-md-3">
-                <h6 class="mb-3">Informations</h6>
+            <div class="col-md-4">
+                <h6 class="mb-3">
+                    <i class="fas fa-info-circle me-2"></i>{{ _('À propos') }}
+                </h6>
                 <ul class="list-unstyled">
                     <li class="mb-2">
                         <a href="{{ url_for('legal.about') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-info-circle me-1"></i>À propos
+                            <i class="fas fa-info-circle me-1"></i>{{ _('À propos') }}
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="{{ url_for('legal.contact') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-envelope me-1"></i>Contact
+                        <a href="{{ url_for('legal.legal') }}" class="text-muted small text-decoration-none">
+                            <i class="fas fa-gavel me-1"></i>{{ _('Mentions légales') }}
                         </a>
                     </li>
                     <li class="mb-2">
                         <a href="{{ url_for('legal.privacy') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-lock me-1"></i>Confidentialité
+                            <i class="fas fa-lock me-1"></i>{{ _('Confidentialité') }}
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{{ url_for('legal.terms') }}" class="text-muted small text-decoration-none">
+                            <i class="fas fa-file-contract me-1"></i>{{ _('Conditions d\'utilisation') }}
                         </a>
                     </li>
                 </ul>
@@ -551,18 +589,14 @@
         
         <hr class="bg-secondary my-4">
         
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <small class="text-muted">
-                    &copy; <span id="currentYear"></span> PDF Fusion Pro.
-                    Version {{ config.VERSION if config else '6.1' }}
+        <div class="row">
+            <div class="col-12 text-center">
+                <small class="text-muted d-block mb-2">
+                    <i class="fas fa-copyright me-1"></i> 2025 {{ _('PDF Fusion Pro') }}. {{ _('Tous droits réservés.') }}
                 </small>
-            </div>
-            
-            <div class="col-md-6 text-md-end">
                 <small class="text-muted">
-                    <i class="fas fa-server me-1"></i>
-                    Hébergé sur Render
+                    {{ _('Version') }} {{ config.VERSION if config else '6.1' }} | 
+                    <i class="fas fa-server me-1"></i>{{ _('Hébergé sur Render') }}
                 </small>
             </div>
         </div>
@@ -573,8 +607,8 @@
 <div class="loader-overlay" id="loaderOverlay" style="display:none;">
     <div class="loader text-center">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-        <p class="mt-3 mb-0">Traitement en cours...</p>
-        <small class="text-muted">Veuillez patienter</small>
+        <p class="mt-3 mb-0">{{ _('Traitement en cours...') }}</p>
+        <small class="text-muted">{{ _('Veuillez patienter') }}</small>
     </div>
 </div>
 

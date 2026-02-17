@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Déverrouiller PDF - {{ title }}{% endblock %}
+{% block title %}{{ _('Déverrouiller PDF - %(title)s', title=title) }}{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -15,16 +15,16 @@
                     
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        Retirez la protection par mot de passe de vos fichiers PDF.
+                        {{ _('Retirez la protection par mot de passe de vos fichiers PDF.') }}
                     </div>
                     
                     <!-- Zone d'upload -->
                     <div class="upload-zone-pro mb-4" id="unlockUploadZone" data-info-id="unlockFileInfo" data-btn-id="unlockButton">
                         <div class="upload-inner">
                             <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                            <h4 class="upload-title">Déposez votre PDF protégé ici</h4>
-                            <p class="upload-subtitle">Glissez-déposez ou cliquez pour sélectionner</p>
-                            <div class="upload-info">PDF uniquement • Taille max : 50MB</div>
+                            <h4 class="upload-title">{{ _('Déposez votre PDF protégé ici') }}</h4>
+                            <p class="upload-subtitle">{{ _('Glissez-déposez ou cliquez pour sélectionner') }}</p>
+                            <div class="upload-info">{{ _('PDF uniquement • Taille max : 50MB') }}</div>
                         </div>
                         <input type="file" accept=".pdf" style="display:none;">
                     </div>
@@ -36,24 +36,24 @@
                     <div class="row mt-4">
                         <div class="col-md-8 mx-auto">
                             <div class="form-group">
-                                <label class="form-label fw-bold">Mot de passe du PDF</label>
-                                <input type="password" class="form-control" id="password" placeholder="Entrez le mot de passe si le PDF est protégé">
-                                <small class="text-muted">Laissez vide si le PDF n'a pas de mot de passe</small>
+                                <label class="form-label fw-bold">{{ _('Mot de passe du PDF') }}</label>
+                                <input type="password" class="form-control" id="password" placeholder="{{ _('Entrez le mot de passe si le PDF est protégé') }}">
+                                <small class="text-muted">{{ _('Laissez vide si le PDF n\'a pas de mot de passe') }}</small>
                             </div>
                         </div>
                     </div>
                     
                     <div class="alert alert-warning mt-3">
                         <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Note :</strong> Cette opération ne fonctionne que si vous connaissez le mot de passe du PDF.
+                        <strong>{{ _('Note :') }}</strong> {{ _('Cette opération ne fonctionne que si vous connaissez le mot de passe du PDF.') }}
                     </div>
                     
                     <div class="action-buttons mt-4">
                         <button class="btn btn-success btn-lg" id="unlockButton" disabled>
-                            <i class="fas fa-unlock me-2"></i>Déverrouiller le PDF
+                            <i class="fas fa-unlock me-2"></i>{{ _('Déverrouiller le PDF') }}
                         </button>
                         <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.unlockUploadZone.removeFile(0)">
-                            <i class="fas fa-redo me-2"></i>Réinitialiser
+                            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
                         </button>
                     </div>
                 </div>
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const manager = window.uploadManagers?.unlockUploadZone;
         if (!manager?.files?.length) {
-            alert('Veuillez sélectionner un fichier PDF');
+            alert('{{ _("Veuillez sélectionner un fichier PDF") }}');
             return;
         }
         
@@ -116,22 +116,33 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!response.ok) {
                 const error = await response.text();
-                throw new Error(error || 'Erreur lors du déverrouillage');
+                throw new Error(error || '{{ _("Erreur lors du déverrouillage") }}');
             }
             
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'document_deverrouille.pdf';
+            
+            // Extraire le nom du fichier de l'en-tête Content-Disposition
+            let filename = '{{ _("document_deverrouille.pdf") }}';
+            const contentDisposition = response.headers.get('Content-Disposition');
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (match && match[1]) {
+                    filename = match[1].replace(/['"]/g, '');
+                }
+            }
+            
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
             
         } catch (error) {
-            console.error('Erreur:', error);
-            alert('Erreur: ' + error.message);
+            console.error('{{ _("Erreur:") }}', error);
+            alert('{{ _("Erreur:") }} ' + error.message);
         } finally {
             if (loader) loader.style.display = 'none';
         }

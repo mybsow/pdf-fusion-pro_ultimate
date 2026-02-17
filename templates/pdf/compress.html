@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}Compresser PDF - PDF Fusion Pro{% endblock %}
-{% block description %}Réduisez la taille de vos fichiers PDF tout en conservant la qualité.{% endblock %}
+{% block title %}{{ _('Compresser PDF - PDF Fusion Pro') }}{% endblock %}
+{% block description %}{{ _('Réduisez la taille de vos fichiers PDF tout en conservant la qualité.') }}{% endblock %}
 
 {% block content %}
 <section class="hero-section text-center">
-    <h1>Compresser un PDF</h1>
-    <p>Déposez votre fichier PDF et obtenez une version plus légère.</p>
+    <h1>{{ _('Compresser un PDF') }}</h1>
+    <p>{{ _('Déposez votre fichier PDF et obtenez une version plus légère.') }}</p>
 </section>
 
 <div class="tool-container">
     <div class="upload-zone-pro" id="compressUploadZone" data-info-id="compressFileInfo" data-btn-id="compressButton">
         <div class="upload-inner">
             <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-            <h4 class="upload-title">Déposez votre PDF ici</h4>
-            <p class="upload-subtitle">Glissez-déposez votre fichier ou cliquez pour parcourir</p>
-            <div class="upload-info">PDF uniquement • Taille max : 50MB</div>
+            <h4 class="upload-title">{{ _('Déposez votre PDF ici') }}</h4>
+            <p class="upload-subtitle">{{ _('Glissez-déposez votre fichier ou cliquez pour parcourir') }}</p>
+            <div class="upload-info">{{ _('PDF uniquement • Taille max : 50MB') }}</div>
         </div>
         <input type="file" accept=".pdf" style="display:none;">
     </div>
@@ -25,25 +25,25 @@
 
     <div class="row mt-4">
         <div class="col-md-8 mx-auto">
-            <label class="form-label fw-bold">Niveau de compression</label>
+            <label class="form-label fw-bold">{{ _('Niveau de compression') }}</label>
             <div class="btn-group w-100" role="group">
                 <input type="radio" class="btn-check" name="compressionLevel" id="low" value="low">
-                <label class="btn btn-outline-primary" for="low">Faible</label>
+                <label class="btn btn-outline-primary" for="low">{{ _('Faible') }}</label>
                 <input type="radio" class="btn-check" name="compressionLevel" id="medium" value="medium" checked>
-                <label class="btn btn-outline-primary" for="medium">Moyen</label>
+                <label class="btn btn-outline-primary" for="medium">{{ _('Moyen') }}</label>
                 <input type="radio" class="btn-check" name="compressionLevel" id="high" value="high">
-                <label class="btn btn-outline-primary" for="high">Fort</label>
+                <label class="btn btn-outline-primary" for="high">{{ _('Fort') }}</label>
             </div>
-            <small class="text-muted d-block mt-2">Compression plus forte = fichier plus petit, qualité réduite</small>
+            <small class="text-muted d-block mt-2">{{ _('Compression plus forte = fichier plus petit, qualité réduite') }}</small>
         </div>
     </div>
 
     <div class="action-buttons mt-4">
         <button class="btn btn-primary btn-lg" id="compressButton" disabled>
-            <i class="fas fa-compress me-2"></i>Compresser le PDF
+            <i class="fas fa-compress me-2"></i>{{ _('Compresser le PDF') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.compressUploadZone.removeFile(0)">
-            <i class="fas fa-redo me-2"></i>Réinitialiser
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>

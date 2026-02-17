@@ -1,9 +1,147 @@
 <!DOCTYPE html>
-<html>
-<head><title>errors/413.html</title></head>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Fichier trop volumineux - PDF Fusion Pro') }}</title>
+    
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .error-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            color: #f5576c;
+            line-height: 1;
+            margin-bottom: 1rem;
+            text-shadow: 5px 5px 0 rgba(245, 87, 108, 0.2);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+        .error-icon {
+            font-size: 4rem;
+            color: #f5576c;
+            margin-bottom: 1rem;
+        }
+        .file-size {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 2rem 0;
+            border-left: 5px solid #f5576c;
+        }
+        .file-size strong {
+            color: #f5576c;
+            font-size: 1.2rem;
+        }
+        ul {
+            text-align: left;
+            margin-top: 1rem;
+            color: #666;
+        }
+        ul li {
+            margin-bottom: 0.5rem;
+        }
+        .btn-home {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+            color: white;
+        }
+        .btn-home i {
+            font-size: 1.2rem;
+        }
+        .limit-badge {
+            display: inline-block;
+            background: #f5576c;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
 <body>
-    <h1>errors/413.html</h1>
-    <p>Page en développement</p>
-    <a href="/">← Retour à l'accueil</a>
+    <div class="error-container">
+        <div class="error-icon">
+            <i class="fas fa-weight-hanging"></i>
+        </div>
+        <div class="error-code">413</div>
+        <h1><i class="fas fa-exclamation-triangle me-2" style="color: #f5576c;"></i>{{ _('Fichier trop volumineux') }}</h1>
+        <p>{{ _('Le fichier que vous avez tenté de télécharger dépasse la limite autorisée.') }}</p>
+        
+        <div class="file-size">
+            <i class="fas fa-database me-2"></i>
+            <strong>{{ _('Limite : 50 Mo maximum') }}</strong>
+        </div>
+        
+        <div class="text-start">
+            <h5 class="mb-3">{{ _('Suggestions :') }}</h5>
+            <ul>
+                <li>
+                    <i class="fas fa-compress-alt text-success me-2"></i>
+                    {{ _('Compressez votre fichier avant de le télécharger') }}
+                </li>
+                <li>
+                    <i class="fas fa-cut text-warning me-2"></i>
+                    {{ _('Divisez votre fichier en plusieurs parties plus petites') }}
+                </li>
+                <li>
+                    <i class="fas fa-file-pdf text-danger me-2"></i>
+                    {{ _('Vérifiez que votre fichier ne dépasse pas 50 Mo') }}
+                </li>
+            </ul>
+        </div>
+        
+        <a href="/" class="btn-home mt-3">
+            <i class="fas fa-arrow-left"></i>
+            {{ _('Retour à l\'accueil') }}
+        </a>
+        
+        <div class="limit-badge">
+            <i class="fas fa-info-circle me-1"></i>
+            {{ _('Taille max : 50 Mo') }}
+        </div>
+    </div>
 </body>
 </html>

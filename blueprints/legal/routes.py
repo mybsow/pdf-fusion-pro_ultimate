@@ -10,6 +10,25 @@ import requests
 from . import legal_bp
 from config import AppConfig
 from managers.contact_manager import contact_manager
+from flask_babel import _, lazy_gettext as _l
+
+from . import legal_bp
+from config import AppConfig
+from managers.contact_manager import contact_manager
+from flask_babel import _, lazy_gettext as _l
+from flask_wtf import FlaskForm  # <-- À AJOUTER
+from wtforms import StringField, TextAreaField  # <-- À AJOUTER
+from wtforms.validators import DataRequired, Email  # <-- À AJOUTER
+
+# ============================================================
+# FORMULAIRES
+# ============================================================
+# Pour les formulaires (évaluation tardive)
+class ContactForm(FlaskForm):
+    """Formulaire de contact avec WTForms"""
+    name = StringField(_l('Nom complet'), validators=[DataRequired()])
+    email = StringField(_l('Email'), validators=[DataRequired(), Email()])
+    message = TextAreaField(_l('Message'), validators=[DataRequired()])
 
 # ============================================================
 # NOTIFICATIONS
@@ -52,64 +71,48 @@ def send_discord_notification(form_data):
         # Discord ne doit JAMAIS bloquer le formulaire
         return True
 
-
 # ============================================================
 # ROUTE CONTACT
 # ============================================================
 
 @legal_bp.route("/contact", methods=["GET", "POST"])
 def contact():
+    form = ContactForm()
     success = False
     error = None
 
-    if request.method == "POST":
+    if form.validate_on_submit():  # WTForms gère la validation
         form_data = {
-            "first_name": request.form.get("first_name", "").strip(),
-            "last_name": request.form.get("last_name", "").strip(),
-            "email": request.form.get("email", "").strip().lower(),
-            "phone": request.form.get("phone", "").strip(),
-            "subject": request.form.get("subject", "").strip(),
-            "message": request.form.get("message", "").strip(),
+            "first_name": form.name.data.split()[0] if form.name.data else "",
+            "last_name": " ".join(form.name.data.split()[1:]) if form.name.data and len(form.name.data.split()) > 1 else "",
+            "email": form.email.data.lower(),
+            "phone": request.form.get("phone", "").strip(),  # Optionnel
+            "subject": "contact",  # Valeur par défaut
+            "message": form.message.data,
         }
 
-        # =====================
-        # VALIDATION
-        # =====================
-        if not all([
-            form_data["first_name"],
-            form_data["last_name"],
-            form_data["email"],
-            form_data["subject"],
-            form_data["message"],
-        ]):
-            error = "Veuillez remplir tous les champs obligatoires."
-        elif len(form_data["message"]) > 2000:
-            error = "Le message ne doit pas dépasser 2000 caractères."
-        elif "@" not in form_data["email"]:
-            error = "Adresse email invalide."
-        else:
-            try:
-                # =====================
-                # TRAITEMENT FIABLE
-                # =====================
-                saved = contact_manager.save_message(**form_data)
-                send_discord_notification(form_data)
-                
-                if saved:
-                    success = True
-                else:
-                    error = "Une erreur technique est survenue. Veuillez réessayer."
-            except Exception:
-                error = "Une erreur technique est survenue. Veuillez réessayer."
+        try:
+            saved = contact_manager.save_message(**form_data)
+            send_discord_notification(form_data)
+            
+            if saved:
+                success = True
+                flash(_('Votre message a été envoyé avec succès !'), 'success')
+                # Réinitialiser le formulaire
+                form = ContactForm()
+            else:
+                error = _('Une erreur technique est survenue. Veuillez réessayer.')
+        except Exception as e:
+            error = _('Une erreur technique est survenue. Veuillez réessayer.')
 
     return render_template(
         "legal/contact.html",
-        title="Contact",
-        badge="Formulaire de contact",
-        subtitle="Contactez-nous via notre formulaire",
+        title=_("Contact"),
+        badge=_("Formulaire de contact"),
+        subtitle=_("Contactez-nous via notre formulaire"),
+        form=form,  # Passer le formulaire au template
         success=success,
         error=error,
-        form_data=request.form if request.method == "POST" else {},
         current_year=datetime.now().year,
         config=AppConfig,
         datetime=datetime
