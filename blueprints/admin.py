@@ -7,7 +7,7 @@ import os
 import json
 from functools import wraps
 from datetime import datetime
-from flask import Blueprint, session, request, redirect, url_for, render_template, jsonify
+from flask import Blueprint, session, request, flash, redirect, url_for, render_template, current_app, jsonify
 
 from utils.cache import SimpleCache
 from managers.contact_manager import ContactManager
