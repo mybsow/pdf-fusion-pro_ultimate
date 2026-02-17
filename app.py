@@ -427,6 +427,30 @@ def create_app():
         except Exception as e:
             cmd_test = {'error': str(e)}
         return jsonify({'system_checks': checks,'command_test': cmd_test})
+
+    @app.route('/debug-config')
+    def debug_config():
+        """Route de diagnostic pour vérifier la configuration"""
+        from flask_babel import get_locale
+        
+        return jsonify({
+            'session_language': session.get('language', 'fr'),
+            'current_locale': str(get_locale()),
+            'languages_in_config': list(app.config.get('LANGUAGES', {}).keys()),
+            'config_keys': list(app.config.keys()),
+            'has_config_processor': 'config' in dict(app.context_processor(lambda: {})())
+        })
+
+    @app.route('/debug-languages')
+    def debug_languages():
+        """Vérifie la configuration des langues"""
+        return jsonify({
+            'session_language': session.get('language', 'fr'),
+            'languages_in_config': list(app.config.get('LANGUAGES', {}).keys()),
+            'config_keys': list(app.config.keys()),
+            'has_languages': 'LANGUAGES' in app.config
+        })
+    
     
 
 # Ajoutez ceci DANS votre app.py (après les autres routes)
