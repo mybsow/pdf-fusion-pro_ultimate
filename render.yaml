@@ -13,4 +13,8 @@ services:
         value: "10000"
       - key: OCR_ENABLED
         value: "true"
+      - key: BABEL_DEFAULT_LOCALE
+        value: "fr"
+      - key: LANGUAGES
+        value: "fr,en,es,de,it,pt,ar,zh,ja,ru,nl"
     healthCheckPath: /health
