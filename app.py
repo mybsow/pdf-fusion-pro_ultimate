@@ -450,6 +450,41 @@ def create_app():
             'config_keys': list(app.config.keys()),
             'has_languages': 'LANGUAGES' in app.config
         })
+
+    @app.route('/debug-translations')
+    def debug_translations():
+        """Vérifie l'état des traductions"""
+        import os
+        from pathlib import Path
+        from flask_babel import get_locale, gettext
+        
+        trans_dir = Path('translations')
+        result = {
+            'current_locale': str(get_locale()),
+            'session_language': session.get('language', 'fr'),
+            'babel_default': app.config.get('BABEL_DEFAULT_LOCALE', 'fr'),
+            'translations_dir_exists': trans_dir.exists(),
+            'languages': [],
+            'test_translations': {
+                'fr': gettext('PDF Fusion Pro - Outils PDF Gratuits'),
+                'en': gettext('PDF Fusion Pro - Outils PDF Gratuits'),  # Même chaîne pour test
+            }
+        }
+        
+        if trans_dir.exists():
+            for lang_dir in trans_dir.iterdir():
+                if lang_dir.is_dir():
+                    mo_file = lang_dir / 'LC_MESSAGES' / 'messages.mo'
+                    po_file = lang_dir / 'LC_MESSAGES' / 'messages.po'
+                    result['languages'].append({
+                        'lang': lang_dir.name,
+                        'mo_exists': mo_file.exists(),
+                        'mo_size': mo_file.stat().st_size if mo_file.exists() else 0,
+                        'po_exists': po_file.exists(),
+                        'po_size': po_file.stat().st_size if po_file.exists() else 0
+                    })
+        
+        return jsonify(result)
     
     
 
