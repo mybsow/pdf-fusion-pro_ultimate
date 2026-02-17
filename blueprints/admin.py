@@ -13,7 +13,7 @@ from utils.cache import SimpleCache
 from managers.contact_manager import ContactManager
 from managers.rating_manager import RatingManager
 from managers.stats_manager import StatisticsManager
-from flask_babel import _, lazy_gettext as _l
+from flask_babel import _
 
 # Pour les textes statiques
 flash(_('Votre fichier a été converti avec succès'))
