@@ -1,43 +1,43 @@
 # ==============================================
 # CORE FRAMEWORK
 # ==============================================
-Flask==3.0.0
-gunicorn==21.2.0
-Werkzeug==3.0.1
+Flask==3.0.0                # Compatible Python 3.8+
+gunicorn==21.2.0            # WSGI HTTP Server
+Werkzeug==3.0.1             # WSGI utilities
 
 # ==============================================
 # INTERNATIONALIZATION & TRANSLATION
 # ==============================================
-Flask-Babel==3.1.0          # Support multilingue
+Flask-Babel==4.0.0          # Compatible Flask 3.x et Python 3.11
 Babel==2.14.0               # Outils d'internationalisation
-pytz==2023.3                # Gestion des fuseaux horaires
+pytz==2024.1                # Fuseaux horaires (version plus récente)
 
 # ==============================================
 # OCR & IMAGE PROCESSING
 # ==============================================
 pytesseract==0.3.10
 pdf2image==1.16.3
-Pillow==10.0.0
-opencv-python-headless==4.8.1.78
-scikit-learn
-pandas==2.1.4
-numpy==1.24.4
+Pillow==10.2.0              # Version plus récente compatible
+opencv-python-headless==4.9.0.80  # Version compatible Python 3.11
+scikit-learn==1.4.0         # Version plus récente
+pandas==2.2.0               # Version compatible Python 3.11
+numpy==1.26.3               # Version compatible Python 3.11
 
 # ==============================================
 # PDF PROCESSING
 # ==============================================
-PyMuPDF==1.23.8
-reportlab==4.0.4
-img2pdf==0.4.4
-pdfplumber==0.10.3
+PyMuPDF==1.24.0
+reportlab==4.1.0
+img2pdf==0.4.9
+pdfplumber==0.10.4
 pymupdf==1.23.8  # Alternative plus puissante
 
 # ==============================================
 # DOCUMENT PROCESSING
 # ==============================================
-python-docx==1.1.0
-openpyxl==3.1.2
-XlsxWriter==3.1.9
+python-docx==1.1.2          # Version récente
+openpyxl==3.1.4             # Version récente
+XlsxWriter==3.2.0           # Version récente
 
 # ==============================================
 # UTILITIES
@@ -47,9 +47,9 @@ Flask-Mail==0.9.1
 Flask-WTF==1.2.1
 WTForms==3.1.2
 python-magic==0.4.27
-python-dotenv==1.0.0
+python-dotenv==1.0.1
 
 # ==============================================
 # BLUEPRINTS DEPENDENCIES
 # ==============================================
-pypdf==4.0.1
+pypdf==4.1.0
