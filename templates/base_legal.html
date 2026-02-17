@@ -190,45 +190,69 @@
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-globe me-1"></i>
                         {% set current_lang = session.get('language', 'fr') %}
-                        {% for code, lang in config.LANGUAGES.items() %}
-                            {% if code == current_lang %}
-                                <span class="flag-icon flag-icon-{{ lang.flag }} me-1"></span>
-                                {{ lang.name }}
+                        
+                        {# Affichage sécurisé de la langue courante #}
+                        {% if config and config.LANGUAGES and config.LANGUAGES.get(current_lang) %}
+                            <span class="flag-icon flag-icon-{{ config.LANGUAGES[current_lang].flag }} me-1"></span>
+                            {{ config.LANGUAGES[current_lang].name }}
+                        {% else %}
+                            {# Fallback si la config n'est pas accessible #}
+                            {% if current_lang == 'fr' %}
+                                <span class="flag-icon flag-icon-fr me-1"></span>Français
+                            {% elif current_lang == 'en' %}
+                                <span class="flag-icon flag-icon-gb me-1"></span>English
+                            {% elif current_lang == 'es' %}
+                                <span class="flag-icon flag-icon-es me-1"></span>Español
+                            {% elif current_lang == 'de' %}
+                                <span class="flag-icon flag-icon-de me-1"></span>Deutsch
+                            {% elif current_lang == 'it' %}
+                                <span class="flag-icon flag-icon-it me-1"></span>Italiano
+                            {% elif current_lang == 'pt' %}
+                                <span class="flag-icon flag-icon-pt me-1"></span>Português
+                            {% elif current_lang == 'ar' %}
+                                <span class="flag-icon flag-icon-sa me-1"></span>العربية
+                            {% elif current_lang == 'zh' %}
+                                <span class="flag-icon flag-icon-cn me-1"></span>中文
+                            {% elif current_lang == 'ja' %}
+                                <span class="flag-icon flag-icon-jp me-1"></span>日本語
+                            {% elif current_lang == 'ru' %}
+                                <span class="flag-icon flag-icon-ru me-1"></span>Русский
+                            {% elif current_lang == 'nl' %}
+                                <span class="flag-icon flag-icon-nl me-1"></span>Nederlands
+                            {% else %}
+                                <span class="flag-icon flag-icon-fr me-1"></span>Français
                             {% endif %}
-                        {% endfor %}
+                        {% endif %}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        {% for code, lang in config.LANGUAGES.items() %}
-                        <li>
-                            <a class="dropdown-item {% if code == session.get('language', 'fr') %}active{% endif %}" 
-                               href="{{ url_for('set_language', language=code) }}">
-                                <span class="flag-icon flag-icon-{{ lang.flag }} me-2"></span>
-                                {{ lang.name }}
-                            </a>
-                        </li>
-                        {% endfor %}
+                        {% if config and config.LANGUAGES %}
+                            {# Utilisation de la config si disponible #}
+                            {% for code, lang in config.LANGUAGES.items() %}
+                            <li>
+                                <a class="dropdown-item {% if code == session.get('language', 'fr') %}active{% endif %}" 
+                                   href="{{ url_for('set_language', language=code) }}">
+                                    <span class="flag-icon flag-icon-{{ lang.flag }} me-2"></span>
+                                    {{ lang.name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        {% else %}
+                            {# Fallback manuel #}
+                            <li><a class="dropdown-item {% if session.get('language') == 'fr' %}active{% endif %}" href="{{ url_for('set_language', language='fr') }}"><span class="flag-icon flag-icon-fr me-2"></span>Français</a></li>
+                            <li><a class="dropdown-item {% if session.get('language') == 'en' %}active{% endif %}" href="{{ url_for('set_language', language='en') }}"><span class="flag-icon flag-icon-gb me-2"></span>English</a></li>
+                            <li><a class="dropdown-item {% if session.get('language') == 'es' %}active{% endif %}" href="{{ url_for('set_language', language='es') }}"><span class="flag-icon flag-icon-es me-2"></span>Español</a></li>
+                            <li><a class="dropdown-item {% if session.get('language') == 'de' %}active{% endif %}" href="{{ url_for('set_language', language='de') }}"><span class="flag-icon flag-icon-de me-2"></span>Deutsch</a></li>
+                            <li><a class="dropdown-item {% if session.get('language') == 'it' %}active{% endif %}" href="{{ url_for('set_language', language='it') }}"><span class="flag-icon flag-icon-it me-2"></span>Italiano</a></li>
+                            <li><a class="dropdown-item {% if session.get('language') == 'pt' %}active{% endif %}" href="{{ url_for('set_language', language='pt') }}"><span class="flag-icon flag-icon-pt me-2"></span>Português</a></li>
+                            <li><a class="dropdown-item {% if session.get('language') == 'ar' %}active{% endif %}" href="{{ url_for('set_language', language='ar') }}"><span class="flag-icon flag-icon-sa me-2"></span>العربية</a></li>
+                            <li><a class="dropdown-item {% if session.get('language') == 'zh' %}active{% endif %}" href="{{ url_for('set_language', language='zh') }}"><span class="flag-icon flag-icon-cn me-2"></span>中文</a></li>
+                            <li><a class="dropdown-item {% if session.get('language') == 'ja' %}active{% endif %}" href="{{ url_for('set_language', language='ja') }}"><span class="flag-icon flag-icon-jp me-2"></span>日本語</a></li>
+                            <li><a class="dropdown-item {% if session.get('language') == 'ru' %}active{% endif %}" href="{{ url_for('set_language', language='ru') }}"><span class="flag-icon flag-icon-ru me-2"></span>Русский</a></li>
+                            <li><a class="dropdown-item {% if session.get('language') == 'nl' %}active{% endif %}" href="{{ url_for('set_language', language='nl') }}"><span class="flag-icon flag-icon-nl me-2"></span>Nederlands</a></li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
-
-            {% if current_user and current_user.is_authenticated %}
-            <div class="navbar-nav">
-                <a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}">
-                    <i class="fas fa-cog me-1"></i>{{ _('Admin') }}
-                </a>
-                <a class="nav-link" href="{{ url_for('admin.admin_logout') }}">
-                    <i class="fas fa-sign-out-alt me-1"></i>{{ _('Déconnexion') }}
-                </a>
-            </div>
-            {% else %}
-            <div class="navbar-nav">
-                <a class="nav-link" href="{{ url_for('admin.admin_login') }}">
-                    <i class="fas fa-sign-in-alt me-1"></i>{{ _('Connexion') }}
-                </a>
-            </div>
-            {% endif %}
-        </div>
-    </div>
 </nav>
 
 <!-- ================= FLASH MESSAGES ================= -->
