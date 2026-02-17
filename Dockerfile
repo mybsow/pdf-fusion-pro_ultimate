@@ -37,7 +37,7 @@ RUN apt-get update && \
         libgl1 \
         fonts-dejavu-core \
         ghostscript \
-        gettext \                    # ← AJOUTÉ : nécessaire pour pybabel
+        gettext \
     && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------
