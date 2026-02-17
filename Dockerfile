@@ -56,28 +56,33 @@ RUN pip install --no-cache-dir --upgrade pip && \
     ln -sf /usr/bin/python3 /usr/bin/python
 
 # -----------------------------
-# Initialiser les traductions
+# Copier la configuration Babel
 # -----------------------------
 COPY babel.cfg .
+
+# -----------------------------
+# Initialiser les traductions
+# -----------------------------
 RUN mkdir -p translations && \
-    # Extraire les textes (ignorer les erreurs s'il n'y a pas de nouveaux textes)
-    pybabel extract -F babel.cfg -o messages.pot . 2>/dev/null || true && \
-    # Compiler les traductions si elles existent
-    if [ -d "translations" ] && [ "$(ls -A translations)" ]; then \
-        pybabel compile -d translations; \
-    else \
-        echo "⚠️  Aucune traduction trouvée, création des dossiers..."; \
-        mkdir -p translations/en/LC_MESSAGES \
-                 translations/es/LC_MESSAGES \
-                 translations/de/LC_MESSAGES \
-                 translations/it/LC_MESSAGES \
-                 translations/pt/LC_MESSAGES \
-                 translations/ar/LC_MESSAGES \
-                 translations/zh/LC_MESSAGES \
-                 translations/ja/LC_MESSAGES \
-                 translations/ru/LC_MESSAGES \
-                 translations/nl/LC_MESSAGES; \
-    fi
+    # Extraire les textes
+    echo "📤 Extraction des textes à traduire..." && \
+    pybabel extract -F babel.cfg -o messages.pot . || true && \
+    # Liste des langues supportées
+    LANGUAGES="en es de it pt ar zh ja ru nl" && \
+    for lang in $LANGUAGES; do \
+        if [ ! -d "translations/$lang" ]; then \
+            echo "🌍 Création de la langue: $lang" && \
+            pybabel init -i messages.pot -d translations -l $lang || true; \
+        else \
+            echo "🔄 Mise à jour de: $lang" && \
+            pybabel update -i messages.pot -d translations -l $lang || true; \
+        fi \
+    done && \
+    # Compiler les traductions
+    echo "🔨 Compilation des traductions..." && \
+    pybabel compile -d translations || true && \
+    # Afficher le résultat
+    echo "✅ Traductions initialisées !"
 
 # -----------------------------
 # Copier l’application
