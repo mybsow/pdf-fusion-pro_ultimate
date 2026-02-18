@@ -318,7 +318,26 @@ def create_app():
     def set_language(language):
         if language in app.config['LANGUAGES']:
             session['language'] = language
+            print(f"Langue changée pour: {language}")  # Log pour déboguer
         return redirect(request.referrer or url_for('pdf.pdf_index'))
+
+    @app.route('/test-translation/<word>')
+    def test_translation(word):
+        """Teste la traduction d'un mot"""
+        from flask_babel import gettext
+        translations = {}
+        for lang in app.config['LANGUAGES'].keys():
+            try:
+                # Simuler le changement de langue
+                session['language'] = lang
+                translations[lang] = gettext(word)
+            except:
+                translations[lang] = "ERROR"
+        return jsonify({
+            'word': word,
+            'translations': translations,
+            'current_session': session.get('language', 'fr')
+        })
 
 
     @app.route('/ads.txt')
