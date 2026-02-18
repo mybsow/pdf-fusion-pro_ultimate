@@ -1,45 +1,56 @@
 # ==============================================
 # CORE FRAMEWORK
 # ==============================================
-Flask==3.0.0                # Compatible Python 3.8+
-gunicorn==21.2.0            # WSGI HTTP Server
-Werkzeug==3.0.1             # WSGI utilities
+Flask==3.0.0
+gunicorn==21.2.0
+Werkzeug==3.0.1
+
+# Dépendances explicites Flask (évite les surprises Docker / pip)
+Jinja2==3.1.3
+MarkupSafe==2.1.5
+click==8.1.7
+itsdangerous==2.1.2
+blinker==1.7.0
 
 # ==============================================
-# INTERNATIONALIZATION & TRANSLATION
+# INTERNATIONALIZATION
 # ==============================================
-Flask-Babel==4.0.0          # Compatible Flask 3.x et Python 3.11
-Babel==2.14.0               # Outils d'internationalisation
-pytz==2024.1                # Fuseaux horaires (version plus récente)
+Flask-Babel==4.0.0
+Babel==2.14.0
+pytz==2024.1
 
 # ==============================================
 # OCR & IMAGE PROCESSING
 # ==============================================
 pytesseract==0.3.10
 pdf2image==1.16.3
-Pillow==10.2.0              # Version plus récente compatible
-opencv-python-headless==4.9.0.80  # Version compatible Python 3.11
-scikit-learn==1.4.0         # Version plus récente
-pandas==2.2.0               # Version compatible Python 3.11
-numpy==1.26.3               # Version compatible Python 3.11
+Pillow==10.2.0
+opencv-python-headless==4.9.0.80
+
+# ⚠️ IMPORTANT : éviter les wheels instables
+numpy==1.26.4
+pandas==2.2.1
+scikit-learn==1.4.1.post1
 
 # ==============================================
 # PDF PROCESSING
 # ==============================================
-PyMuPDF==1.24.0             # UNE SEULE VERSION ! (la plus récente)
+PyMuPDF==1.24.0
 reportlab==4.1.0
-img2pdf==0.5.1              # ← CORRIGÉ : version compatible Python 3.11
+img2pdf==0.5.1
 pdfplumber==0.10.4
+pypdf==4.1.0
 
 # ==============================================
 # DOCUMENT PROCESSING
 # ==============================================
-python-docx==1.1.2          # Version récente
-openpyxl==3.1.4             # Version récente
-XlsxWriter==3.2.0           # Version récente
-pdfkit==1.0.0               # Pour les conversions HTML->PDF
-weasyprint==60.2            # Pour les conversions HTML->PDF
-python-pptx==0.6.21         # Pour les conversions PowerPoint
+python-docx==1.1.2
+openpyxl==3.1.4
+XlsxWriter==3.2.0
+python-pptx==0.6.23   # ⚠️ ta version était vieille
+
+pdfkit==1.0.0
+weasyprint==60.2
 
 # ==============================================
 # UTILITIES
@@ -50,8 +61,3 @@ Flask-WTF==1.2.1
 WTForms==3.1.2
 python-magic==0.4.27
 python-dotenv==1.0.1
-
-# ==============================================
-# BLUEPRINTS DEPENDENCIES
-# ==============================================
-pypdf==4.1.0
