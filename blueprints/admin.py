@@ -33,7 +33,7 @@ ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 def time_ago(date_obj):
     """Convertit une date en format 'il y a...'"""
     if not date_obj:
-        return "Date inconnue"
+        return _("Date inconnue")
     
     if isinstance(date_obj, str):
         try:
@@ -46,19 +46,19 @@ def time_ago(date_obj):
     
     if diff.days > 365:
         years = diff.days // 365
-        return f"il y a {years} an{'s' if years > 1 else ''}"
+        return _(f"il y a {years} an{'s' if years > 1 else ''}")
     if diff.days > 30:
         months = diff.days // 30
-        return f"il y a {months} mois"
+        return _(f"il y a {months} mois")
     if diff.days > 0:
-        return f"il y a {diff.days} jour{'s' if diff.days > 1 else ''}"
+        return _(f"il y a {diff.days} jour{'s' if diff.days > 1 else ''}")
     if diff.seconds > 3600:
         hours = diff.seconds // 3600
-        return f"il y a {hours} heure{'s' if hours > 1 else ''}"
+        return _(f"il y a {hours} heure{'s' if hours > 1 else ''}")
     if diff.seconds > 60:
         minutes = diff.seconds // 60
-        return f"il y a {minutes} minute{'s' if minutes > 1 else ''}"
-    return "à l'instant"
+        return _(f"il y a {minutes} minute{'s' if minutes > 1 else ''}")
+    return _("à l'instant")
 
 def format_timestamp(timestamp_str):
     """Formate un timestamp ISO en date lisible"""
@@ -93,7 +93,7 @@ def admin_login():
             session["admin_logged"] = True
             session["admin_login_time"] = datetime.now().isoformat()
             return redirect(url_for("admin.admin_dashboard"))
-        return render_template("admin/login.html", error="Mot de passe incorrect")
+        return render_template("admin/login.html", error=_("Mot de passe incorrect"))
     return render_template("admin/login.html")
 
 @admin_bp.route("/logout")
@@ -116,7 +116,7 @@ def admin_dashboard():
     cached_stats = cache.get("dashboard_stats")
     
     if not cached_stats or force_refresh:
-        print("🔄 Régénération des stats du dashboard...")
+        print(_("🔄 Régénération des stats du dashboard..."))
         
         try:
             # =========================
@@ -138,9 +138,9 @@ def admin_dashboard():
             # Force le rafraîchissement si demandé
             # Par (pour plus de debug) :
             all_ratings = rating_manager.get_all_ratings(force_refresh=True)
-            print(f"📊 Ratings chargés: {len(all_ratings)}")
+            print(f"📊 {_('Ratings chargés')}: {len(all_ratings)}")
             if all_ratings:
-                print(f"📊 Exemple rating: {all_ratings[0]}")
+                print(f"📊 {_('Exemple rating')}: {all_ratings[0]}")
             
             # Formater les ratings pour l'affichage
             formatted_ratings = []
@@ -154,15 +154,15 @@ def admin_dashboard():
                 # Page simplifiée
                 page = rating.get("page", "/")
                 if page == "/":
-                    r_copy["page_name"] = "Accueil"
+                    r_copy["page_name"] = _("Accueil")
                 elif "fusion" in page:
-                    r_copy["page_name"] = "Fusion PDF"
+                    r_copy["page_name"] = _("Fusion PDF")
                 elif "division" in page:
-                    r_copy["page_name"] = "Division PDF"
+                    r_copy["page_name"] = _("Division PDF")
                 elif "rotation" in page:
-                    r_copy["page_name"] = "Rotation PDF"
+                    r_copy["page_name"] = _("Rotation PDF")
                 elif "compress" in page:
-                    r_copy["page_name"] = "Compression PDF"
+                    r_copy["page_name"] = _("Compression PDF")
                 else:
                     r_copy["page_name"] = page
                 
@@ -171,9 +171,9 @@ def admin_dashboard():
             # Stats de ratings
             rating_stats = rating_manager.get_stats()
             # Dans admin_dashboard(), après avoir chargé les ratings :
-            print(f"📊 DEBUG - Nombre de ratings: {len(all_ratings)}")
-            print(f"📊 DEBUG - Répertoire ratings: {rating_manager.ratings_dir}")
-            print(f"📊 DEBUG - Fichiers dans ratings: {list(rating_manager.ratings_dir.glob('*.json'))}")
+            print(f"📊 {_('DEBUG - Nombre de ratings')}: {len(all_ratings)}")
+            print(f"📊 {_('DEBUG - Répertoire ratings')}: {rating_manager.ratings_dir}")
+            print(f"📊 {_('DEBUG - Fichiers dans ratings')}: {list(rating_manager.ratings_dir.glob('*.json'))}")
             
             # =========================
             # Statistiques d'utilisation
@@ -225,10 +225,10 @@ def admin_dashboard():
             cache.set("dashboard_stats", stats)
             cached_stats = stats
             
-            print(f"✅ Stats régénérées: {len(all_messages)} messages, {len(all_ratings)} ratings")
+            print(f"✅ {_('Stats régénérées')}: {len(all_messages)} {_('messages')}, {len(all_ratings)} {_('ratings')}")
             
         except Exception as e:
-            print(f"❌ Erreur lors de la génération des stats: {e}")
+            print(f"❌ {_('Erreur lors de la génération des stats')}: {e}")
             # Fallback avec des données minimales
             cached_stats = {
                 "total_messages": 0,
@@ -357,10 +357,10 @@ def admin_messages():
         # Pour l'instant, on filtre depuis tous les messages
         all_messages = contact_manager.get_all_sorted()
         messages = [m for m in all_messages if m.get("archived", False)]
-        page_title = "Messages Archivés"
+        page_title = _("Messages Archivés")
     else:
         messages = contact_manager.get_all_sorted()
-        page_title = "Messages de Contact"
+        page_title = _("Messages de Contact")
     
     # Formater les dates
     for msg in messages:
@@ -416,7 +416,7 @@ def view_message(message_id):
     message = next((m for m in all_messages if m.get("id") == message_id), None)
     
     if not message:
-        return "Message non trouvé", 404
+        return _("Message non trouvé"), 404
     
     # Marquer comme lu quand on le consulte
     contact_manager.mark_seen(message_id)
@@ -442,10 +442,10 @@ def admin_ratings():
     # Filtrer si nécessaire
     if show_unseen:
         ratings = [r for r in all_ratings if not r.get("seen", False)]
-        page_title = "Évaluations Non Vues"
+        page_title = _("Évaluations Non Vues")
     else:
         ratings = all_ratings
-        page_title = "Toutes les Évaluations"
+        page_title = _("Toutes les Évaluations")
     
     # Formater les données pour l'affichage
     formatted_ratings = []
@@ -458,15 +458,15 @@ def admin_ratings():
         # Page simplifiée
         page = rating.get("page", "/")
         if page == "/":
-            r_copy["page_name"] = "Accueil"
+            r_copy["page_name"] = _("Accueil")
         elif "fusion" in page:
-            r_copy["page_name"] = "Fusion PDF"
+            r_copy["page_name"] = _("Fusion PDF")
         elif "division" in page:
-            r_copy["page_name"] = "Division PDF"
+            r_copy["page_name"] = _("Division PDF")
         elif "rotation" in page:
-            r_copy["page_name"] = "Rotation PDF"
+            r_copy["page_name"] = _("Rotation PDF")
         elif "compress" in page:
-            r_copy["page_name"] = "Compression PDF"
+            r_copy["page_name"] = _("Compression PDF")
         else:
             r_copy["page_name"] = page
         
@@ -639,12 +639,12 @@ def repair_contacts():
             if content.strip():
                 # Essayer de parser le JSON
                 json.loads(content)
-                return "✅ Fichier contacts.json est valide", 200
+                return _("✅ Fichier contacts.json est valide"), 200
             else:
                 # Fichier vide, le réinitialiser
                 with open(contacts_file, "w", encoding="utf-8") as f:
                     f.write("[]")
-                return "✅ Fichier contacts.json réinitialisé (était vide)", 200
+                return _("✅ Fichier contacts.json réinitialisé (était vide)"), 200
                 
         except json.JSONDecodeError:
             # Fichier invalide, créer une sauvegarde et réinitialiser
@@ -654,14 +654,14 @@ def repair_contacts():
             with open(contacts_file, "w", encoding="utf-8") as f:
                 f.write("[]")
             
-            return f"✅ Fichier contacts.json réparé. Backup créé: {backup.name}", 200
+            return _(f"✅ Fichier contacts.json réparé. Backup créé: {backup.name}"), 200
             
     else:
         # Créer le fichier s'il n'existe pas
         contacts_file.parent.mkdir(exist_ok=True)
         with open(contacts_file, "w", encoding="utf-8") as f:
             f.write("[]")
-        return "✅ Fichier contacts.json créé", 200
+        return _("✅ Fichier contacts.json créé"), 200
 
 @admin_bp.route("/debug/clear-cache")
 @admin_required
