@@ -18,37 +18,6 @@ from flask import request, session
 import polib, re
 
 
-@app.route("/fix_translations")
-def fix_translations():
-    translations_dir = Path("translations")
-    placeholder_pattern = re.compile(r"{\w+}|%[sd]")
-
-    def extract_placeholders(text):
-        return sorted(placeholder_pattern.findall(text))
-
-    fixed_files = []
-    for po_file in translations_dir.rglob("*.po"):
-        po = polib.pofile(str(po_file))
-        modified = False
-        for entry in po:
-            if entry.msgstr.strip() == "":
-                continue
-            msgid_ph = extract_placeholders(entry.msgid)
-            msgstr_ph = extract_placeholders(entry.msgstr)
-            if msgid_ph != msgstr_ph:
-                # ajoute les placeholders manquants à la fin du msgstr
-                corrected = entry.msgstr
-                for ph in msgid_ph:
-                    if ph not in msgstr_ph:
-                        corrected += f" {ph}"
-                        modified = True
-                entry.msgstr = corrected.strip()
-        if modified:
-            po.save()
-            fixed_files.append(str(po_file))
-    return {"fixed_files": fixed_files, "message": "Placeholders corrigés"}
-
-
 
 # ============================================================
 # Création de l'app Flask
@@ -216,6 +185,38 @@ def create_app():
             app.register_blueprint(bp, url_prefix=prefix)
         else:
             app.register_blueprint(bp)
+
+
+    @app.route("/fix_translations")
+    def fix_translations():
+        translations_dir = Path("translations")
+        placeholder_pattern = re.compile(r"{\w+}|%[sd]")
+    
+        def extract_placeholders(text):
+            return sorted(placeholder_pattern.findall(text))
+    
+        fixed_files = []
+        for po_file in translations_dir.rglob("*.po"):
+            po = polib.pofile(str(po_file))
+            modified = False
+            for entry in po:
+                if entry.msgstr.strip() == "":
+                    continue
+                msgid_ph = extract_placeholders(entry.msgid)
+                msgstr_ph = extract_placeholders(entry.msgstr)
+                if msgid_ph != msgstr_ph:
+                    # ajoute les placeholders manquants à la fin du msgstr
+                    corrected = entry.msgstr
+                    for ph in msgid_ph:
+                        if ph not in msgstr_ph:
+                            corrected += f" {ph}"
+                            modified = True
+                    entry.msgstr = corrected.strip()
+            if modified:
+                po.save()
+                fixed_files.append(str(po_file))
+        return {"fixed_files": fixed_files, "message": "Placeholders corrigés"}
+    
 
     # Redirection /conversion vers /conversion/
     @app.route('/conversion')
