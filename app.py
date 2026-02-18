@@ -216,7 +216,38 @@ def create_app():
                 po.save()
                 fixed_files.append(str(po_file))
         return {"fixed_files": fixed_files, "message": "Placeholders corrigés"}
+
+    @app.route("/list_placeholder_errors")
+    def list_placeholder_errors():
+        from pathlib import Path
+        import polib, re
     
+        translations_dir = Path("translations")
+        placeholder_pattern = re.compile(r"{\w+}|%[sd]")
+    
+        def extract_placeholders(text):
+            return sorted(placeholder_pattern.findall(text))
+    
+        errors = []
+        for po_file in translations_dir.rglob("*.po"):
+            po = polib.pofile(str(po_file))
+            for entry in po:
+                if not entry.msgstr.strip():
+                    continue
+                msgid_ph = extract_placeholders(entry.msgid)
+                msgstr_ph = extract_placeholders(entry.msgstr)
+                if msgid_ph != msgstr_ph:
+                    errors.append({
+                        "file": str(po_file),
+                        "line": entry.lineno,
+                        "msgid": entry.msgid,
+                        "msgstr": entry.msgstr,
+                        "placeholders_msgid": msgid_ph,
+                        "placeholders_msgstr": msgstr_ph
+                    })
+        if not errors:
+            return {"errors": [], "message": "Aucune incompatibilité de placeholders détectée"}
+        return {"errors": errors}
 
     # Redirection /conversion vers /conversion/
     @app.route('/conversion')
