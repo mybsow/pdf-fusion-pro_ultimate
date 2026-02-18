@@ -121,16 +121,20 @@ def check_and_create_templates():
         path = Path('templates') / template
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
-            # CORRECTION DÉFINITIVE : Pas de backslash dans une f-string
-            html_content = '<!DOCTYPE html>\n'
-            html_content += '<html>\n'
-            html_content += f'<head><title>{template}</title></head>\n'
-            html_content += '<body>\n'
-            html_content += f'    <h1>{template}</h1>\n'
-            html_content += f'    <p>{_("Page en développement")}</p>\n'
-            html_content += f'    <a href="/">← {_("Retour à l\'accueil")}</a>\n'
-            html_content += '</body>\n'
-            html_content += '</html>'
+            # SOLUTION ULTIME : Utiliser des variables intermédiaires et format()
+            page_title = template
+            dev_text = _("Page en développement")
+            back_text = _("Retour à l'accueil")  # Note: pas de backslash ici !
+            
+            html_content = f"""<!DOCTYPE html>
+<html>
+<head><title>{page_title}</title></head>
+<body>
+    <h1>{page_title}</h1>
+    <p>{dev_text}</p>
+    <a href="/">← {back_text}</a>
+</body>
+</html>"""
             path.write_text(html_content)
             logger.info(f"✅ {_('Template créé')}: {template}")
 
