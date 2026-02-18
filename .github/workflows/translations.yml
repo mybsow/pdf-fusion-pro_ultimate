@@ -44,7 +44,7 @@ jobs:
         
     - name: 📤 Extraction des textes
       run: |
-        pybabel extract -F babel.cfg -o messages.pot .
+        pybabel extract -F babel_new.cfg -o messages.pot .
         
     - name: 🔄 Mise à jour des traductions
       run: |
