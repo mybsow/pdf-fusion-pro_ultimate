@@ -275,6 +275,35 @@ def create_app():
     
         return {"results": results}
 
+    
+    @app.route("/fix_duplicate_messages")
+    def fix_duplicate_messages():
+        import polib
+        from pathlib import Path
+    
+        translations_dir = Path("translations")
+        fixed_files = []
+    
+        for po_file in translations_dir.rglob("*.po"):
+            po = polib.pofile(str(po_file))
+            seen = {}
+            modified = False
+            new_entries = []
+    
+            for entry in po:
+                if entry.msgid not in seen:
+                    seen[entry.msgid] = entry
+                    new_entries.append(entry)
+                else:
+                    modified = True
+    
+            if modified:
+                po._entries = new_entries
+                po.save()
+                fixed_files.append(str(po_file))
+    
+        return {"fixed_files": fixed_files, "message": "Doublons supprimés"}
+
 
     # Redirection /conversion vers /conversion/
     @app.route('/conversion')
