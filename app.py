@@ -106,6 +106,26 @@ def get_locale():
 # Initialiser Babel
 babel = Babel(app, locale_selector=get_locale)
 
+def compile_all_translations(translations_dir="translations"):
+    translations_path = Path(translations_dir)
+    fixed_count = 0
+
+    for po_file in translations_path.rglob("*.po"):
+        mo_file = po_file.with_suffix(".mo")
+        try:
+            po = polib.pofile(str(po_file))
+            po.save_as_mofile(str(mo_file))
+            fixed_count += 1
+            print(f"✅ Compilé: {po_file} → {mo_file}")
+        except Exception as e:
+            print(f"❌ Erreur compilation {po_file}: {e}")
+
+    print(f"\nTotal fichiers compilés: {fixed_count}")
+
+# Exécution directe
+if __name__ == "__main__":
+    compile_all_translations()
+
 # ============================================================
 # Fonctions d'initialisation
 # ============================================================
