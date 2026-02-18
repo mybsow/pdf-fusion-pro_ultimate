@@ -121,7 +121,8 @@ def check_and_create_templates():
         path = Path('templates') / template
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(f"""<!DOCTYPE html>
+            # SOLUTION: Utiliser des guillemets doubles à l'intérieur
+            html_content = f"""<!DOCTYPE html>
 <html>
 <head><title>{template}</title></head>
 <body>
@@ -129,7 +130,8 @@ def check_and_create_templates():
     <p>{_('Page en développement')}</p>
     <a href="/">← {_('Retour à l\'accueil')}</a>
 </body>
-</html>""")
+</html>"""
+            path.write_text(html_content)
             logger.info(f"✅ {_('Template créé')}: {template}")
 
 def init_app_dirs():
