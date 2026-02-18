@@ -63,14 +63,14 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 # -----------------------------
 # Copier la configuration Babel
 # -----------------------------
-COPY babel.cfg .
+COPY babel_new.cfg .
 
 # -----------------------------
 # Initialiser les traductions
 # -----------------------------
 RUN mkdir -p translations && \
     echo "🔧 ÉTAPE 1: Extraction des textes à traduire..." && \
-    pybabel extract -F babel.cfg -o messages.pot . 2>/dev/null || echo "⚠️  Aucun nouveau texte extrait" && \
+    pybabel extract -F babel_new.cfg -o messages.pot . 2>/dev/null || echo "⚠️  Aucun nouveau texte extrait" && \
     echo "" && \
     echo "🔧 ÉTApE 2: Création/Mise à jour des catalogues de langue..." && \
     LANGUAGES="en es de it pt ar zh ja ru nl" && \
@@ -83,14 +83,7 @@ RUN mkdir -p translations && \
             pybabel update -i messages.pot -d translations -l $lang 2>/dev/null || echo "   ⚠️  Échec mise à jour $lang"; \
         fi \
     done && \
-    echo "" && \
-    echo "🔧 ÉTAPE 3: Compilation des traductions..." && \
-    pybabel compile -d translations 2>/dev/null || echo "⚠️  Aucune traduction à compiler" && \
-    echo "" && \
-    echo "🔧 ÉTAPE 4: Vérification des fichiers compilés..." && \
-    find translations -name "*.mo" -exec ls -la {} \; || echo "⚠️  Aucun fichier .mo trouvé" && \
-    echo "" && \
-    echo "✅ Initialisation des traductions terminée !"
+    echo ""
 
 # -----------------------------
 # Copier l’application
@@ -101,6 +94,33 @@ COPY . .
 # Rendre les scripts exécutables
 # -----------------------------
 RUN chmod +x scripts/*.sh 2>/dev/null || echo "⚠️  Aucun script trouvé"
+
+# ========== AJOUTÉ : Correction des pourcentages ==========
+# -----------------------------
+# Corriger les pourcentages dans les traductions
+# -----------------------------
+RUN echo "🔧 ÉTAPE 3: Correction des pourcentages dans les fichiers .po..." && \
+    if [ -d "translations" ]; then \
+        python scripts/fix_percent.py; \
+    else \
+        echo "⚠️  Dossier translations introuvable"; \
+    fi
+
+# ========== AJOUTÉ : Compilation finale ==========
+# -----------------------------
+# Compiler les traductions
+# -----------------------------
+RUN echo "🔧 ÉTAPE 4: Compilation finale des traductions..." && \
+    if [ -d "translations" ] && [ "$(ls -A translations)" ]; then \
+        pybabel compile -d translations; \
+    else \
+        echo "⚠️  Aucune traduction à compiler"; \
+    fi && \
+    echo "" && \
+    echo "🔧 ÉTAPE 5: Vérification des fichiers compilés..." && \
+    find translations -name "*.mo" -exec ls -la {} \; || echo "⚠️  Aucun fichier .mo trouvé" && \
+    echo "" && \
+    echo "✅ Initialisation des traductions terminée !"
 
 # -----------------------------
 # Créer les dossiers temporaires
