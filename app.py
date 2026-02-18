@@ -249,6 +249,33 @@ def create_app():
             return {"errors": [], "message": "Aucune incompatibilité de placeholders détectée"}
         return {"errors": errors}
 
+    @app.route("/po_syntax_check")
+    def po_syntax_check():
+        import subprocess, os
+        from pathlib import Path
+    
+        translations_dir = Path("translations")
+        results = []
+    
+        for po_file in translations_dir.rglob("*.po"):
+            cmd = ["msgfmt", "-c", "--statistics", "-o", "/dev/null", str(po_file)]
+            try:
+                proc = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+                results.append({
+                    "file": str(po_file),
+                    "returncode": proc.returncode,
+                    "stderr": proc.stderr.strip(),
+                    "stdout": proc.stdout.strip(),
+                })
+            except Exception as e:
+                results.append({
+                    "file": str(po_file),
+                    "error": str(e)
+                })
+    
+        return {"results": results}
+
+
     # Redirection /conversion vers /conversion/
     @app.route('/conversion')
     def redirect_conversion():
