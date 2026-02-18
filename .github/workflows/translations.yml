@@ -37,7 +37,7 @@ jobs:
         
     - name: 🔍 Vérification de babel.cfg
       run: |
-        if [ ! -f babel.cfg ]; then
+        if [ ! -f babel_new.cfg ]; then
           echo "❌ Fichier babel.cfg manquant!"
           exit 1
         fi
