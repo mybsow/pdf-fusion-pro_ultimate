@@ -69,7 +69,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 COPY babel_new.cfg .
 
 # -----------------------------
-# Initialiser les traductions
+# Initialiser les traductions (première passe)
 # -----------------------------
 RUN mkdir -p translations && \
     echo "🔧 ÉTAPE 1: Extraction des textes à traduire..." && \
@@ -98,7 +98,7 @@ COPY . .
 # -----------------------------
 RUN chmod +x scripts/*.sh 2>/dev/null || echo "⚠️  Aucun script trouvé"
 
-# ========== AJOUTÉ : Correction des pourcentages ==========
+# ========== CORRECTION DES POURCENTAGES ==========
 # -----------------------------
 # Corriger les pourcentages dans les traductions
 # -----------------------------
@@ -109,19 +109,44 @@ RUN echo "🔧 ÉTAPE 3: Correction des pourcentages dans les fichiers .po..." &
         echo "⚠️  Dossier translations introuvable"; \
     fi
 
-# ========== AJOUTÉ : Compilation finale ==========
+# ========== MISE À JOUR FORCÉE DES TRADUCTIONS ==========
+# -----------------------------
+# EXTRAIRE À NOUVEAU APRÈS AVOIR COPIÉ TOUS LES TEMPLATES
+# -----------------------------
+RUN echo "🔧 ÉTAPE 4: Extraction forcée de TOUS les textes des templates..." && \
+    pybabel extract -F babel_new.cfg -o messages.pot . && \
+    echo "" && \
+    echo "🔧 ÉTAPE 5: Mise à jour forcée de toutes les langues..." && \
+    LANGUAGES="en es de it pt ar zh ja ru nl" && \
+    for lang in $LANGUAGES; do \
+        echo "   🔄 Mise à jour forcée de: $lang"; \
+        pybabel update -i messages.pot -d translations -l $lang; \
+    done && \
+    echo ""
+
+# ========== COMPILATION FINALE ==========
 # -----------------------------
 # Compiler les traductions
 # -----------------------------
-RUN echo "🔧 ÉTAPE 4: Compilation finale des traductions..." && \
+RUN echo "🔧 ÉTAPE 6: Compilation finale des traductions..." && \
     if [ -d "translations" ] && [ "$(ls -A translations)" ]; then \
         pybabel compile -d translations; \
     else \
         echo "⚠️  Aucune traduction à compiler"; \
     fi && \
     echo "" && \
-    echo "🔧 ÉTAPE 5: Vérification des fichiers compilés..." && \
-    find translations -name "*.mo" -exec ls -la {} \; || echo "⚠️  Aucun fichier .mo trouvé" && \
+    echo "🔧 ÉTAPE 7: Vérification des fichiers compilés..." && \
+    find translations -name "*.mo" -exec ls -la {} \; && \
+    echo "" && \
+    echo "📊 STATISTIQUES DES TRADUCTIONS" && \
+    echo "================================" && \
+    for lang in $LANGUAGES; do \
+        if [ -f "translations/$lang/LC_MESSAGES/messages.po" ]; then \
+            total=$(grep -c "msgid" "translations/$lang/LC_MESSAGES/messages.po" 2>/dev/null || echo "0"); \
+            translated=$(grep -c "msgstr" "translations/$lang/LC_MESSAGES/messages.po" 2>/dev/null || echo "0"); \
+            echo "   🌍 $lang : $total messages, $translated traduits"; \
+        fi \
+    done && \
     echo "" && \
     echo "✅ Initialisation des traductions terminée !"
 
