@@ -76,17 +76,17 @@ app.wsgi_app = ProxyFix(
 app.config['BABEL_DEFAULT_LOCALE'] = 'fr'  # Langue par défaut
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = './translations'
 app.config['LANGUAGES'] = {
-    'fr': {'name': 'Français', 'flag': 'fr'},
-    'en': {'name': 'English', 'flag': 'gb'},
-    'es': {'name': 'Español', 'flag': 'es'},
-    'de': {'name': 'Deutsch', 'flag': 'de'},
-    'it': {'name': 'Italiano', 'flag': 'it'},
-    'pt': {'name': 'Português', 'flag': 'pt'},
-    'nl': {'name': 'Nederlands', 'flag': 'nl'},
-    'ar': {'name': 'العربية', 'flag': 'sa'},
-    'zh': {'name': '中文', 'flag': 'cn'},
-    'ja': {'name': '日本語', 'flag': 'jp'},
-    'ru': {'name': 'Русский', 'flag': 'ru'},
+    'fr': {'name': _('Français'), 'flag': 'fr'},
+    'en': {'name': _('English'), 'flag': 'gb'},
+    'es': {'name': _('Español'), 'flag': 'es'},
+    'de': {'name': _('Deutsch'), 'flag': 'de'},
+    'it': {'name': _('Italiano'), 'flag': 'it'},
+    'pt': {'name': _('Português'), 'flag': 'pt'},
+    'nl': {'name': _('Nederlands'), 'flag': 'nl'},
+    'ar': {'name': _('العربية'), 'flag': 'sa'},
+    'zh': {'name': _('中文'), 'flag': 'cn'},
+    'ja': {'name': _('日本語'), 'flag': 'jp'},
+    'ru': {'name': _('Русский'), 'flag': 'ru'},
 }
 # ============================================================
 # Fonction pour déterminer la langue
@@ -126,11 +126,11 @@ def check_and_create_templates():
 <head><title>{template}</title></head>
 <body>
     <h1>{template}</h1>
-    <p>Page en développement</p>
-    <a href="/">← Retour à l'accueil</a>
+    <p>{_('Page en développement')}</p>
+    <a href="/">← {_('Retour à l\'accueil')}</a>
 </body>
 </html>""")
-            logger.info(f"✅ Template créé: {template}")
+            logger.info(f"✅ {_('Template créé')}: {template}")
 
 def init_app_dirs():
     base_dir = Path(__file__).parent
@@ -146,7 +146,7 @@ def init_app_dirs():
 # Create App complet
 # ============================================================
 def create_app():
-    logger.info("🚀 Initialisation Flask...")
+    logger.info(_("🚀 Initialisation Flask..."))
     AppConfig.initialize()
     init_app_dirs()
     check_and_create_templates()
@@ -268,10 +268,10 @@ def create_app():
     def test_tesseract():
         try:
             if not PYTESSERACT_AVAILABLE:
-                return jsonify({"error": "pytesseract non disponible", "installed": False}), 500
+                return jsonify({"error": _("pytesseract non disponible"), "installed": False}), 500
             tesseract_cmd = next((p for p in ['/usr/bin/tesseract','/usr/local/bin/tesseract','/bin/tesseract'] if os.path.exists(p)), None)
             if not tesseract_cmd:
-                return jsonify({"error": "Tesseract non trouvé", "python_package": True}), 500
+                return jsonify({"error": _("Tesseract non trouvé"), "python_package": True}), 500
             pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
             version = pytesseract.get_tesseract_version()
             langs = pytesseract.get_languages(config='') if PYTESSERACT_AVAILABLE else []
@@ -289,11 +289,11 @@ def create_app():
                 cmd = [sys.executable, "-m", "pip", "install", package]
                 result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
                 if result.returncode == 0:
-                    results.append(f"✅ {package} installé")
+                    results.append(f"✅ {package} {_('installé')}")
                 else:
-                    results.append(f"❌ {package} erreur: {result.stderr[:200]}")
+                    results.append(f"❌ {package} {_('erreur')}: {result.stderr[:200]}")
             except Exception as e:
-                results.append(f"❌ {package} exception: {str(e)}")
+                results.append(f"❌ {package} {_('exception')}: {str(e)}")
         return jsonify({"installation_results": results})
 
     # ============================================================
@@ -410,7 +410,7 @@ def create_app():
                     scan_dir(item, f"{prefix}/{item.name}" if prefix else item.name)
         if base_dir.exists():
             scan_dir(base_dir)
-        html = "<h1>Fichiers statiques disponibles</h1><ul>"
+        html = f"<h1>{_('Fichiers statiques disponibles')}</h1><ul>"
         for file in sorted(files):
             html += f'<li><a href="/static/{file}">{file}</a></li>'
         html += "</ul>"
@@ -530,25 +530,25 @@ def create_app():
         try:
             return render_template("errors/404.html"), 404
         except:
-            return "<h1>Erreur 404</h1>", 404
+            return f"<h1>{_('Erreur 404')}</h1>", 404
 
     @app.errorhandler(413)
     def too_large(e):
         try:
             return render_template("errors/413.html"), 413
         except:
-            return "<h1>Erreur 413 - Fichier trop volumineux</h1>", 413
+            return f"<h1>{_('Erreur 413 - Fichier trop volumineux')}</h1>", 413
 
     @app.errorhandler(500)
     def server_error(e):
         try:
             return render_template("errors/500.html"), 500
         except:
-            return "<h1>Erreur 500</h1>", 500
+            return f"<h1>{_('Erreur 500')}</h1>", 500
 
     @app.template_filter('filesize')
     def filesize(value):
-        for unit in ['B','KB','MB','GB']:
+        for unit in [_('B'), _('KB'), _('MB'), _('GB')]:
             if value < 1024:
                 return f"{value:.1f} {unit}"
             value /= 1024
