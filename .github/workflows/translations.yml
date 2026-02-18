@@ -1,4 +1,4 @@
-name: Gestion des traductions
+name: Update Translations
 
 on:
   push:
@@ -8,9 +8,11 @@ on:
       - 'blueprints/**/*.py'
       - 'app.py'
       - 'babel.cfg'
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:  # Permet d'exécuter manuellement
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   update-translations:
@@ -18,12 +20,13 @@ jobs:
     
     steps:
     - name: 📥 Checkout du code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        token: ${{ secrets.PAT_TOKEN }}  # ← VOTRE TOKEN EST ICI
         
     - name: 🐍 Configuration Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         
@@ -31,7 +34,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install Flask-Babel Babel
-        pip install -r requirements.txt
         
     - name: 🔍 Vérification de babel.cfg
       run: |
@@ -46,16 +48,14 @@ jobs:
         
     - name: 🔄 Mise à jour des traductions
       run: |
-        # Liste des langues supportées
         languages=("en" "es" "de" "it" "pt" "ar" "zh" "ja" "ru" "nl")
-        
         for lang in "${languages[@]}"; do
           if [ -d "translations/$lang" ]; then
             echo "🔄 Mise à jour de $lang..."
-            pybabel update -i messages.pot -d translations -l $lang
+            pybabel update -i messages.pot -d translations -l $lang || true
           else
             echo "🌍 Création de $lang..."
-            pybabel init -i messages.pot -d translations -l $lang
+            pybabel init -i messages.pot -d translations -l $lang || true
           fi
         done
         
@@ -63,22 +63,13 @@ jobs:
       run: |
         pybabel compile -d translations
         
-    - name: 📊 Statistiques des traductions
-      run: |
-        echo "📊 Statistiques de traduction :"
-        for lang in translations/*/; do
-          if [ -d "$lang" ]; then
-            lang_code=$(basename $lang)
-            total=$(grep -c "msgid" "$lang/LC_MESSAGES/messages.po" 2>/dev/null || echo "0")
-            translated=$(grep -c "msgstr" "$lang/LC_MESSAGES/messages.po" 2>/dev/null || echo "0")
-            echo "🌍 $lang_code : $total messages, $translated traduits"
-          fi
-        done
-        
     - name: 📝 Commit des changements
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
         git add translations/ messages.pot
         git diff --quiet && git diff --staged --quiet || git commit -m "🔄 Mise à jour automatique des traductions"
-        git push
+        
+    - name: 🚀 Push des changements
+      run: |
+        git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
