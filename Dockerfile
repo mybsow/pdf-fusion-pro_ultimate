@@ -43,6 +43,9 @@ RUN apt-get update && \
         git \
         curl \
         wget \
+        libgpg-error-l10n \
+        fonts-droid-fallback \
+        gstreamer1.0-plugins-base \
     && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------
