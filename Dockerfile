@@ -65,14 +65,14 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 # -----------------------------
 # Copier la configuration Babel
 # -----------------------------
-COPY babel_new.cfg .
+COPY babel.cfg .
 
 # -----------------------------
 # Initialiser les traductions (première passe)
 # -----------------------------
 RUN mkdir -p translations && \
     echo "🔧 ÉTAPE 1: Extraction des textes à traduire..." && \
-    pybabel extract -F babel_new.cfg -o messages.pot . 2>/dev/null || echo "⚠️  Aucun nouveau texte extrait" && \
+    pybabel extract -F babel.cfg -o messages.pot . 2>/dev/null || echo "⚠️  Aucun nouveau texte extrait" && \
     echo "" && \
     echo "🔧 ÉTApE 2: Création/Mise à jour des catalogues de langue..." && \
     LANGUAGES="en es de it pt ar zh ja ru nl" && \
