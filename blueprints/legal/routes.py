@@ -2,7 +2,7 @@
 Routes pour les pages légales
 """
 
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, current_app
 from datetime import datetime
 import os
 import requests
@@ -12,7 +12,7 @@ from config import AppConfig
 from managers.contact_manager import contact_manager
 from flask_babel import _, lazy_gettext as _l
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField
+from wtforms import StringField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, Email
 
 # ============================================================
@@ -22,6 +22,12 @@ class ContactForm(FlaskForm):
     """Formulaire de contact avec WTForms"""
     name = StringField(_l('Nom complet'), validators=[DataRequired()])
     email = StringField(_l('Email'), validators=[DataRequired(), Email()])
+    subject = SelectField(_l('Sujet'), choices=[
+        ('bug', _l('Signaler un bug ou un problème technique')),
+        ('improvement', _l('Proposer une amélioration fonctionnelle')),
+        ('partnership', _l('Demande de partenariat')),
+        ('other', _l('Autre demande'))
+    ], validators=[DataRequired()])
     message = TextAreaField(_l('Message'), validators=[DataRequired()])
 
 # ============================================================
@@ -62,6 +68,7 @@ def send_discord_notification(form_data):
         return True
 
     except Exception:
+        current_app.logger.exception("Erreur envoi notification Discord")
         return True
 
 # ============================================================
@@ -74,28 +81,49 @@ def contact():
     success = False
     error = None
 
-    if form.validate_on_submit():
-        name_parts = (form.name.data or "").strip().split()
-        form_data = {
-            "first_name": name_parts[0] if len(name_parts) > 0 else "",
-            "last_name": " ".join(name_parts[1:]) if len(name_parts) > 1 else "",
-            "email": (form.email.data or "").lower(),
-            "phone": request.form.get("phone", "").strip(),
-            "subject": "contact",
-            "message": form.message.data,
-        }
+    # Initialiser form_data pour le template
+    form_data = {
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "phone": "",
+        "subject": "",
+        "message": ""
+    }
 
+    if form.validate_on_submit():
         try:
+            # Séparer prénom / nom
+            name_parts = (form.name.data or "").strip().split()
+            form_data.update({
+                "first_name": name_parts[0] if len(name_parts) > 0 else "",
+                "last_name": " ".join(name_parts[1:]) if len(name_parts) > 1 else "",
+                "email": form.email.data.lower(),
+                "phone": request.form.get("phone", "").strip(),
+                "subject": request.form.get("subject", "contact"),
+                "message": form.message.data
+            })
+
+            # Sauvegarde et notification
             saved = contact_manager.save_message(**form_data)
             send_discord_notification(form_data)
 
             if saved:
                 success = True
                 flash(_('Votre message a été envoyé avec succès !'), 'success')
-                form = ContactForm()
+                form = ContactForm()  # reset form
+                form_data = {
+                    "first_name": "",
+                    "last_name": "",
+                    "email": "",
+                    "phone": "",
+                    "subject": "",
+                    "message": ""
+                }
             else:
                 error = _('Une erreur technique est survenue. Veuillez réessayer.')
-        except Exception as e:
+
+        except Exception:
             current_app.logger.exception("Erreur lors de l'envoi du formulaire de contact")
             error = _('Une erreur technique est survenue. Veuillez réessayer.')
 
@@ -105,6 +133,7 @@ def contact():
         badge=_("Formulaire de contact"),
         subtitle=_("Contactez-nous via notre formulaire"),
         form=form,
+        form_data=form_data,  # <-- essentiel
         success=success,
         error=error,
         current_year=datetime.now().year,
@@ -112,8 +141,9 @@ def contact():
         datetime=datetime
     )
 
-
-
+# ============================================================
+# AUTRES ROUTES LEGALES
+# ============================================================
 @legal_bp.route('/legal')
 def legal():
     return render_template(
@@ -125,7 +155,6 @@ def legal():
         config=AppConfig,
         datetime=datetime
     )
-
 
 @legal_bp.route('/privacy')
 def privacy():
@@ -139,7 +168,6 @@ def privacy():
         datetime=datetime
     )
 
-
 @legal_bp.route('/terms')
 def terms():
     return render_template(
@@ -152,7 +180,6 @@ def terms():
         datetime=datetime
     )
 
-
 @legal_bp.route('/about')
 def about():
     return render_template(
@@ -164,7 +191,6 @@ def about():
         config=AppConfig,
         datetime=datetime
     )
-
 
 # ============================================================
 # ROUTES DE REDIRECTION
