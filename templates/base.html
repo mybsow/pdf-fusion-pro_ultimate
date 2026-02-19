@@ -441,7 +441,7 @@
                         {# Affichage sécurisé de la langue courante #}
                         {% if config and config.LANGUAGES and config.LANGUAGES.get(current_lang) %}
                             <span class="flag-icon flag-icon-{{ config.LANGUAGES[current_lang].flag }} me-1"></span>
-                            {{ config.LANGUAGES[current_lang].name }}
+                            {{ _(config.LANGUAGES[current_lang].name) }}
                         {% else %}
                             {# Fallback si la config n'est pas accessible #}
                             {% if current_lang == 'fr' %}
@@ -464,7 +464,7 @@
                                 <a class="dropdown-item {% if code == session.get('language', 'fr') %}active{% endif %}" 
                                    href="{{ url_for('set_language', language=code) }}">
                                     <span class="flag-icon flag-icon-{{ lang.flag }} me-2"></span>
-                                    {{ lang.name }}
+                                    {{ _(lang.name) }}
                                 </a>
                             </li>
                             {% endfor %}
