@@ -11,9 +11,10 @@ import tempfile
 import os
 import logging
 from pathlib import Path
-from flask_babel import Babel, _, refresh
+from flask_babel import Babel, _, refresh, get_locale
 from flask import request, session
 
+babel = Babel()
 
 import polib, re
 from flask_wtf import CSRFProtect
