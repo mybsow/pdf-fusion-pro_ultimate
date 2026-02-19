@@ -46,6 +46,7 @@ RUN apt-get update && \
         libgpg-error-l10n \
         fonts-droid-fallback \
         gstreamer1.0-plugins-base \
+        md5sum \
     && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------
@@ -54,7 +55,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 # -----------------------------
-# Copier requirements et installer Python packages
+# Installer requirements
 # -----------------------------
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
@@ -62,21 +63,25 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     ln -sf /usr/bin/python3 /usr/bin/python
 
 # -----------------------------
-# Copier babel.cfg avant le reste pour cache Docker
+# Copier babel.cfg et scripts avant le reste
 # -----------------------------
 COPY babel.cfg .
+COPY scripts ./scripts
 
 # -----------------------------
-# Copier le projet
+# Copier tout le projet
 # -----------------------------
 COPY . .
 
 # -----------------------------
-# Générer les traductions uniquement si fichiers ont changé
+# Génération intelligente des traductions
 # -----------------------------
 RUN mkdir -p translations && \
-    if [ ! -f translations/.built ]; then \
-        echo "🔧 Extraction et compilation des traductions..." && \
+    echo "🔧 Vérification des fichiers pour Babel..." && \
+    # Calculer un hash des fichiers sources .py, .html et babel.cfg
+    find . -type f \( -name "*.py" -o -name "*.html" \) -o -name "babel.cfg" | sort | xargs md5sum > .sources.md5 && \
+    if [ ! -f translations/.sources.md5 ] || ! cmp -s .sources.md5 translations/.sources.md5; then \
+        echo "🌍 Changements détectés : extraction et mise à jour des traductions"; \
         pybabel extract -F babel.cfg -o messages.pot . 2>/dev/null || echo "⚠️ Aucun texte extrait"; \
         LANGUAGES="en es de it pt ar zh ja ru nl"; \
         for lang in $LANGUAGES; do \
@@ -87,9 +92,9 @@ RUN mkdir -p translations && \
             fi; \
         done; \
         pybabel compile -d translations; \
-        touch translations/.built; \
+        cp .sources.md5 translations/.sources.md5; \
     else \
-        echo "✅ Traductions déjà compilées, utilisation du cache"; \
+        echo "✅ Traductions déjà à jour, utilisation du cache"; \
     fi
 
 # -----------------------------
