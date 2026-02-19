@@ -54,7 +54,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 # -----------------------------
-# Copier et installer requirements
+# Copier requirements
 # -----------------------------
 COPY requirements.txt .
 
@@ -63,51 +63,43 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     ln -sf /usr/bin/python3 /usr/bin/python
 
 # -----------------------------
-# Copier la configuration Babel
-# -----------------------------
-COPY babel.cfg .
-
-# -----------------------------
-# Initialiser les traductions (première passe)
-# -----------------------------
-RUN mkdir -p translations && \
-    echo "🔧 ÉTAPE 1: Extraction des textes à traduire..." && \
-    pybabel extract -F babel.cfg -o messages.pot . 2>/dev/null || echo "⚠️  Aucun nouveau texte extrait" && \
-    echo "" && \
-    echo "🔧 ÉTApE 2: Création/Mise à jour des catalogues de langue..." && \
-    LANGUAGES="en es de it pt ar zh ja ru nl" && \
-    for lang in $LANGUAGES; do \
-        if [ ! -d "translations/$lang" ]; then \
-            echo "   🌍 Création de la langue: $lang"; \
-            pybabel init -i messages.pot -d translations -l $lang 2>/dev/null || echo "   ⚠️  Échec création $lang"; \
-        else \
-            echo "   🔄 Mise à jour de: $lang"; \
-            pybabel update -i messages.pot -d translations -l $lang 2>/dev/null || echo "   ⚠️  Échec mise à jour $lang"; \
-        fi \
-    done && \
-    echo ""
-
-# -----------------------------
-# Copier l’application
+# Copier tout le projet
 # -----------------------------
 COPY . .
 
 # -----------------------------
+# Initialiser / mettre à jour les traductions Babel
+# -----------------------------
+RUN echo "🔧 Extraction et mise à jour des traductions..." && \
+    mkdir -p translations && \
+    pybabel extract -F babel.cfg -o messages.pot . 2>/dev/null || echo "⚠️ Aucun texte extrait" && \
+    LANGUAGES="en es de it pt ar zh ja ru nl" && \
+    for lang in $LANGUAGES; do \
+        if [ ! -d "translations/$lang/LC_MESSAGES" ]; then \
+            echo "🌍 Création de la langue: $lang"; \
+            pybabel init -i messages.pot -d translations -l $lang 2>/dev/null || echo "⚠️ Échec création $lang"; \
+        else \
+            echo "🔄 Mise à jour de: $lang"; \
+            pybabel update -i messages.pot -d translations -l $lang 2>/dev/null || echo "⚠️ Échec mise à jour $lang"; \
+        fi; \
+    done && \
+    echo "✅ Compilation des fichiers .po en .mo..." && \
+    pybabel compile -d translations
+
+# -----------------------------
 # Rendre les scripts exécutables
 # -----------------------------
-RUN chmod +x scripts/*.sh 2>/dev/null || echo "⚠️  Aucun script trouvé"
+RUN chmod +x scripts/*.sh 2>/dev/null || echo "⚠️ Aucun script trouvé"
 
-# ========== CORRECTION DES POURCENTAGES ==========
 # -----------------------------
-# Corriger les pourcentages dans les traductions
+# Correction des pourcentages
 # -----------------------------
-RUN echo "🔧 ÉTAPE 3: Correction des pourcentages dans les fichiers .po..." && \
+RUN echo "🔧 Correction des pourcentages dans les .po..." && \
     if [ -d "translations" ]; then \
         python scripts/fix_percent.py; \
     else \
-        echo "⚠️  Dossier translations introuvable"; \
+        echo "⚠️ Dossier translations introuvable"; \
     fi
-
 
 # -----------------------------
 # Créer les dossiers temporaires
