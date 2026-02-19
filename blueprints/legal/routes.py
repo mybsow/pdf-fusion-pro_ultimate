@@ -1,5 +1,5 @@
 """
-Routes pour les pages légales
+Routes pour les pages légales (Contact finalisé)
 """
 
 from flask import render_template, request, redirect, url_for, flash, current_app
@@ -19,16 +19,22 @@ from wtforms.validators import DataRequired, Email
 # FORMULAIRES
 # ============================================================
 class ContactForm(FlaskForm):
-    """Formulaire de contact avec WTForms"""
-    name = StringField(_l('Nom complet'), validators=[DataRequired()])
+    """Formulaire de contact finalisé avec Nom complet"""
+    full_name = StringField(_l('Nom complet'), validators=[DataRequired()])
     email = StringField(_l('Email'), validators=[DataRequired(), Email()])
-    subject = SelectField(_l('Sujet'), choices=[
-        ('bug', _l('Signaler un bug ou un problème technique')),
-        ('improvement', _l('Proposer une amélioration fonctionnelle')),
-        ('partnership', _l('Demande de partenariat')),
-        ('other', _l('Autre demande'))
-    ], validators=[DataRequired()])
+    phone = StringField(_l('Téléphone (optionnel)'))
+    subject = SelectField(
+        _l('Sujet'),
+        choices=[
+            ('bug', '🚨 ' + _l('Signaler un bug ou un problème technique')),
+            ('improvement', '💡 ' + _l('Proposer une amélioration fonctionnelle')),
+            ('partnership', '🤝 ' + _l('Demande de partenariat')),
+            ('other', '❓ ' + _l('Autre demande')),
+        ],
+        validators=[DataRequired()]
+    )
     message = TextAreaField(_l('Message'), validators=[DataRequired()])
+
 
 # ============================================================
 # NOTIFICATIONS
@@ -46,11 +52,14 @@ def send_discord_notification(form_data):
             "other": "❓ Autre"
         }
 
+        first_name, *last_name_parts = form_data['full_name'].strip().split()
+        last_name = " ".join(last_name_parts) if last_name_parts else ""
+
         embed = {
             "title": "📨 Nouveau message de contact",
             "color": 0x4361EE,
             "fields": [
-                {"name": "Nom", "value": f"{form_data['first_name']} {form_data['last_name']}", "inline": True},
+                {"name": "Nom", "value": f"{first_name} {last_name}", "inline": True},
                 {"name": "Email", "value": form_data["email"], "inline": True},
                 {"name": "Sujet", "value": subject_map.get(form_data["subject"], form_data["subject"]), "inline": False},
                 {"name": "Message", "value": form_data["message"][:1000], "inline": False},
@@ -68,64 +77,62 @@ def send_discord_notification(form_data):
         return True
 
     except Exception:
-        current_app.logger.exception("Erreur envoi notification Discord")
         return True
+
 
 # ============================================================
 # ROUTE CONTACT
 # ============================================================
-
 @legal_bp.route("/contact", methods=["GET", "POST"])
 def contact():
     form = ContactForm()
     success = False
     error = None
-
-    # Initialiser form_data pour le template
-    form_data = {
-        "first_name": "",
-        "last_name": "",
-        "email": "",
-        "phone": "",
-        "subject": "",
-        "message": ""
-    }
+    form_data = {}
 
     if form.validate_on_submit():
-        try:
-            # Séparer prénom / nom
-            name_parts = (form.name.data or "").strip().split()
-            form_data.update({
-                "first_name": name_parts[0] if len(name_parts) > 0 else "",
-                "last_name": " ".join(name_parts[1:]) if len(name_parts) > 1 else "",
-                "email": form.email.data.lower(),
-                "phone": request.form.get("phone", "").strip(),
-                "subject": request.form.get("subject", "contact"),
-                "message": form.message.data
-            })
+        form_data = {
+            "full_name": form.full_name.data.strip(),
+            "email": form.email.data.lower(),
+            "phone": form.phone.data.strip() if form.phone.data else "",
+            "subject": form.subject.data,
+            "message": form.message.data.strip(),
+        }
 
-            # Sauvegarde et notification
-            saved = contact_manager.save_message(**form_data)
+        try:
+            saved = contact_manager.save_message(
+                first_name=form_data["full_name"].split()[0],
+                last_name=" ".join(form_data["full_name"].split()[1:]) if len(form_data["full_name"].split()) > 1 else "",
+                email=form_data["email"],
+                phone=form_data["phone"],
+                subject=form_data["subject"],
+                message=form_data["message"],
+            )
+
             send_discord_notification(form_data)
 
             if saved:
                 success = True
                 flash(_('Votre message a été envoyé avec succès !'), 'success')
-                form = ContactForm()  # reset form
-                form_data = {
-                    "first_name": "",
-                    "last_name": "",
-                    "email": "",
-                    "phone": "",
-                    "subject": "",
-                    "message": ""
-                }
+                form = ContactForm()  # Reset form
+                form_data = {}
             else:
                 error = _('Une erreur technique est survenue. Veuillez réessayer.')
 
-        except Exception:
-            current_app.logger.exception("Erreur lors de l'envoi du formulaire de contact")
+        except Exception as e:
+            current_app.logger.exception("Erreur sauvegarde formulaire de contact")
             error = _('Une erreur technique est survenue. Veuillez réessayer.')
+
+    else:
+        # Si POST mais invalid, conserver les valeurs
+        if request.method == "POST":
+            form_data = {
+                "full_name": request.form.get("full_name", ""),
+                "email": request.form.get("email", ""),
+                "phone": request.form.get("phone", ""),
+                "subject": request.form.get("subject", ""),
+                "message": request.form.get("message", ""),
+            }
 
     return render_template(
         "legal/contact.html",
@@ -133,7 +140,7 @@ def contact():
         badge=_("Formulaire de contact"),
         subtitle=_("Contactez-nous via notre formulaire"),
         form=form,
-        form_data=form_data,  # <-- essentiel
+        form_data=form_data,
         success=success,
         error=error,
         current_year=datetime.now().year,
@@ -141,8 +148,9 @@ def contact():
         datetime=datetime
     )
 
+
 # ============================================================
-# AUTRES ROUTES LEGALES
+# AUTRES PAGES LÉGALES
 # ============================================================
 @legal_bp.route('/legal')
 def legal():
@@ -156,6 +164,7 @@ def legal():
         datetime=datetime
     )
 
+
 @legal_bp.route('/privacy')
 def privacy():
     return render_template(
@@ -167,6 +176,7 @@ def privacy():
         config=AppConfig,
         datetime=datetime
     )
+
 
 @legal_bp.route('/terms')
 def terms():
@@ -180,6 +190,7 @@ def terms():
         datetime=datetime
     )
 
+
 @legal_bp.route('/about')
 def about():
     return render_template(
@@ -192,10 +203,10 @@ def about():
         datetime=datetime
     )
 
-# ============================================================
-# ROUTES DE REDIRECTION
-# ============================================================
 
+# ============================================================
+# REDIRECTIONS
+# ============================================================
 @legal_bp.route('/mentions-legales')
 def redirect_legal():
     return redirect(url_for('legal.legal'), code=301)
