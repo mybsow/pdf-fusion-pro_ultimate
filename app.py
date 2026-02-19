@@ -16,6 +16,7 @@ from flask import request, session
 
 
 import polib, re
+from flask_wtf import CSRFProtect
 
 
 
@@ -62,6 +63,8 @@ logger = logging.getLogger(__name__)
 # Configuration Flask
 # ============================================================
 app.config.from_object(AppConfig)
+# ⚡ Activer CSRF protection
+csrf = CSRFProtect(app)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", AppConfig.SECRET_KEY)
 app.config["UPLOAD_FOLDER"] = tempfile.gettempdir()
 app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
