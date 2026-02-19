@@ -81,17 +81,17 @@ app.wsgi_app = ProxyFix(
 app.config['BABEL_DEFAULT_LOCALE'] = 'fr'  # Langue par défaut
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = './translations'
 app.config['LANGUAGES'] = {
-    'fr': {'name': _('Français'), 'flag': 'fr'},
-    'en': {'name': _('English'), 'flag': 'gb'},
-    'es': {'name': _('Español'), 'flag': 'es'},
-    'de': {'name': _('Deutsch'), 'flag': 'de'},
-    'it': {'name': _('Italiano'), 'flag': 'it'},
-    'pt': {'name': _('Português'), 'flag': 'pt'},
-    'nl': {'name': _('Nederlands'), 'flag': 'nl'},
-    'ar': {'name': _('العربية'), 'flag': 'sa'},
-    'zh': {'name': _('中文'), 'flag': 'cn'},
-    'ja': {'name': _('日本語'), 'flag': 'jp'},
-    'ru': {'name': _('Русский'), 'flag': 'ru'},
+    'fr': {'name': 'Français', 'flag': 'fr'},
+    'en': {'name': 'English', 'flag': 'gb'},
+    'es': {'name': 'Español', 'flag': 'es'},
+    'de': {'name': 'Deutsch', 'flag': 'de'},
+    'it': {'name': 'Italiano', 'flag': 'it'},
+    'pt': {'name': 'Português', 'flag': 'pt'},
+    'nl': {'name': 'Nederlands', 'flag': 'nl'},
+    'ar': {'name': 'العربية', 'flag': 'sa'},
+    'zh': {'name': '中文', 'flag': 'cn'},
+    'ja': {'name': '日本語', 'flag': 'jp'},
+    'ru': {'name': 'Русский', 'flag': 'ru'},
 }
 # ============================================================
 # Fonction pour déterminer la langue
