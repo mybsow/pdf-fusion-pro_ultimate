@@ -36,27 +36,19 @@
     
     <div class="contact-form-container">
         <form method="POST" action="/contact">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="first_name" class="form-label">{{ _('Prénom') }} *</label>
-                    <input type="text" class="form-control" id="first_name" name="first_name" 
-                           placeholder="{{ _('Votre prénom') }}" required
-                           value="{{ form_data.get('first_name', '') }}"
-                           minlength="2" maxlength="50">
-                </div>
-                
-                <div class="col-md-6 mb-3">
-                    <label for="last_name" class="form-label">{{ _('Nom') }} *</label>
-                    <input type="text" class="form-control" id="last_name" name="last_name" 
-                           placeholder="{{ _('Votre nom') }}" required
-                           value="{{ form_data.get('last_name', '') }}"
-                           minlength="2" maxlength="50">
-                </div>
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-3">
+                <label for="full_name" class="form-label">{{ _('Nom complet') }} *</label>
+                <input type="text" class="form-control" id="full_name" name="full_name" 
+                       placeholder="{{ _('Votre prénom et nom') }}" required
+                       value="{{ form_data.get('full_name', '') }}"
+                       minlength="2" maxlength="100">
             </div>
             
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="email" class="form-label">{{ _('Adresse email (optionnel)') }} </label>
+                    <label for="email" class="form-label">{{ _('Adresse email') }} *</label>
                     <input type="email" class="form-control" id="email" name="email" 
                            placeholder="votre@email.com" required
                            value="{{ form_data.get('email', '') }}">
@@ -75,7 +67,9 @@
             <div class="mb-3">
                 <label for="subject" class="form-label">{{ _('Sujet de votre message') }} *</label>
                 <select class="form-select" id="subject" name="subject" required>
-                    <option value="" disabled selected>{{ _('Sélectionnez un sujet') }}</option>
+                    <option value="" disabled {% if not form_data.get('subject') %}selected{% endif %}>
+                        {{ _('Sélectionnez un sujet') }}
+                    </option>
                     <option value="bug" {% if form_data.get('subject') == 'bug' %}selected{% endif %}>🚨 {{ _('Signaler un bug ou un problème technique') }}</option>
                     <option value="improvement" {% if form_data.get('subject') == 'improvement' %}selected{% endif %}>💡 {{ _('Proposer une amélioration fonctionnelle') }}</option>
                     <option value="partnership" {% if form_data.get('subject') == 'partnership' %}selected{% endif %}>🤝 {{ _('Demande de partenariat') }}</option>
@@ -99,87 +93,33 @@
             </div>
         </form>
     </div>
-    
-    <h3 class="mt-5">{{ _('Types de demandes') }}</h3>
-    <p>{{ _('Voici les différents types de demandes que vous pouvez nous soumettre :') }}</p>
-    
-    <div class="contact-types-grid">
-        <div class="contact-type-card">
-            <div class="contact-type-icon">
-                <i class="fas fa-bug"></i>
-            </div>
-            <h4>{{ _('Support technique') }}</h4>
-            <p>{{ _('Pour signaler un bug, un problème technique ou une difficulté d\'utilisation du service.') }}</p>
-        </div>
-        
-        <div class="contact-type-card">
-            <div class="contact-type-icon">
-                <i class="fas fa-lightbulb"></i>
-            </div>
-            <h4>{{ _('Améliorations') }}</h4>
-            <p>{{ _('Pour proposer une nouvelle fonctionnalité ou suggérer une amélioration du service.') }}</p>
-        </div>
-        
-        <div class="contact-type-card">
-            <div class="contact-type-icon">
-                <i class="fas fa-handshake"></i>
-            </div>
-            <h4>{{ _('Partenariats') }}</h4>
-            <p>{{ _('Pour discuter d\'opportunités de collaboration, d\'intégration ou de partenariat.') }}</p>
-        </div>
-        
-        <div class="contact-type-card">
-            <div class="contact-type-icon">
-                <i class="fas fa-question-circle"></i>
-            </div>
-            <h4>{{ _('Autres demandes') }}</h4>
-            <p>{{ _('Pour toute autre question concernant le service, la confidentialité ou les conditions d\'utilisation.') }}</p>
-        </div>
-    </div>
-    
-    <div class="info-box mt-4">
-        <i class="fas fa-clock me-2"></i>
-        <strong>{{ _('Temps de réponse :') }}</strong> 
-        {{ _('Nous nous efforçons de répondre à tous les messages dans un délai de 48 heures. Pour les urgences techniques, précisez-le dans votre message.') }}
-    </div>
-    
-    <div class="alert alert-warning mt-4">
-        <i class="fas fa-exclamation-circle me-2"></i>
-        <strong>{{ _('Note importante :') }}</strong> 
-        {{ _('Pour des raisons de sécurité et de confidentialité, nous ne traitons pas les demandes concernant des fichiers PDF spécifiques via ce formulaire. Tous les traitements de fichiers doivent être effectués directement via l\'interface web.') }}
-    </div>
 {% endif %}
 {% endblock %}
 
 {% block scripts %}
 <script>
-    // Thème sombre/clair automatique
+document.addEventListener('DOMContentLoaded', function() {
+    // === Thème sombre/clair automatique ===
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.setAttribute('data-bs-theme', 'dark');
     }
+
+    // === Compteur de caractères ===
+    const messageTextarea = document.getElementById('message');
+    const charCount = document.getElementById('charCount');
     
-    // Gestion du compteur de caractères
-    document.addEventListener('DOMContentLoaded', function() {
-        const messageTextarea = document.getElementById('message');
-        const charCount = document.getElementById('charCount');
-        
-        if (messageTextarea && charCount) {
-            function updateCharCount() {
-                const length = messageTextarea.value.length;
-                charCount.textContent = `${length} / 2000 {{ _('caractères') }}`;
-                
-                charCount.classList.remove('warning', 'danger');
-                if (length > 1500) {
-                    charCount.classList.add('warning');
-                }
-                if (length > 1900) {
-                    charCount.classList.add('danger');
-                }
-            }
+    if (messageTextarea && charCount) {
+        function updateCharCount() {
+            const length = messageTextarea.value.length;
+            charCount.textContent = `${length} / 2000 {{ _('caractères') }}`;
             
-            messageTextarea.addEventListener('input', updateCharCount);
-            updateCharCount(); // Initial call
+            charCount.classList.remove('warning', 'danger');
+            if (length > 1500) charCount.classList.add('warning');
+            if (length > 1900) charCount.classList.add('danger');
         }
-    });
+        messageTextarea.addEventListener('input', updateCharCount);
+        updateCharCount();
+    }
+});
 </script>
 {% endblock %}
