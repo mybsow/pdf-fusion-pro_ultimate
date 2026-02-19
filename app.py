@@ -349,7 +349,7 @@ def create_app():
     def inject_config():
         return dict(
             config=app.config,
-            languages=app.config.get('LANGUAGES', {})
+            languages=app.config.get('LANGUAGES', {}),
             get_locale=get_locale  # ✅ AJOUT CRUCIAL
         )
 
