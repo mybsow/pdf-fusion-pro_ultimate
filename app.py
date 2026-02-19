@@ -11,7 +11,7 @@ import tempfile
 import os
 import logging
 from pathlib import Path
-from flask_babel import Babel, _
+from flask_babel import Babel, _, refresh
 from flask import request, session
 
 
@@ -181,6 +181,8 @@ def create_app():
     AppConfig.initialize()
     init_app_dirs()
     check_and_create_templates()
+    compile_all_translations()  # <-- obligatoire
+    babel = Babel(app, locale_selector=get_locale)
 
     # --------------------------------------------------------
     # Import Blueprints
@@ -236,6 +238,12 @@ def create_app():
                 po.save()
                 fixed_files.append(str(po_file))
         return {"fixed_files": fixed_files, "message": "Placeholders corrigés"}
+
+    @app.before_request
+    def set_locale():
+        locale = session.get('language') or request.accept_languages.best_match(app.config['LANGUAGES'].keys())
+        session['language'] = locale
+        refresh()  # Force Flask-Babel à appliquer la locale
 
     @app.route("/list_placeholder_errors")
     def list_placeholder_errors():
