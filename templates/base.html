@@ -445,13 +445,13 @@
                         {% else %}
                             {# Fallback si la config n'est pas accessible #}
                             {% if current_lang == 'fr' %}
-                                <span class="flag-icon flag-icon-fr me-1"></span>Français
+                                <span class="flag-icon flag-icon-fr me-1"></span>{{ _('Français') }}
                             {% elif current_lang == 'en' %}
                                 <span class="flag-icon flag-icon-gb me-1"></span>English
                             {% elif current_lang == 'es' %}
                                 <span class="flag-icon flag-icon-es me-1"></span>Español
                             {% else %}
-                                <span class="flag-icon flag-icon-fr me-1"></span>Français
+                                <span class="flag-icon flag-icon-fr me-1"></span>{{ _('Français') }}
                             {% endif %}
                         {% endif %}
                     </a>
