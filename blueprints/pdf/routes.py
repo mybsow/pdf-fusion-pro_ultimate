@@ -84,7 +84,7 @@ def validate_pdf(path: Path):
 
     if header != b"%PDF":
         path.unlink(missing_ok=True)
-        raise ValueError("_("Fichier corrompu ou non-PDF")")
+        raise ValueError(_("Fichier corrompu ou non-PDF"))
 
 
 def cleanup_files(paths):
