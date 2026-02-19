@@ -13,16 +13,23 @@ from managers.contact_manager import contact_manager
 from flask_babel import _, lazy_gettext as _l
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SelectField
-from wtforms.validators import DataRequired, Email
+from wtforms.validators import DataRequired, Optional, Email, Length
 
 # ============================================================
 # FORMULAIRES
 # ============================================================
 class ContactForm(FlaskForm):
     """Formulaire de contact finalisé avec Nom complet"""
-    full_name = StringField(_l('Nom complet'), validators=[DataRequired()])
-    email = StringField(_l('Email'), validators=[DataRequired(), Email()])
-    phone = StringField(_l('Téléphone (optionnel)'))
+
+    full_name = StringField(
+        _l('Nom complet'),
+        validators=[DataRequired(), Length(min=2, max=100)]
+    )
+    email = StringField(
+        _l('Email'),
+        validators=[Optional(), Email()]
+    )
+    phone = StringField(_l('Téléphone (optionnel)'), validators=[Optional()])
     subject = SelectField(
         _l('Sujet'),
         choices=[
@@ -33,8 +40,10 @@ class ContactForm(FlaskForm):
         ],
         validators=[DataRequired()]
     )
-    message = TextAreaField(_l('Message'), validators=[DataRequired()])
-
+    message = TextAreaField(
+        _l('Message'),
+        validators=[DataRequired(), Length(max=2000)]
+    )
 
 # ============================================================
 # NOTIFICATIONS
