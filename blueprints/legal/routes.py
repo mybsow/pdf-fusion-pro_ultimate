@@ -75,10 +75,11 @@ def contact():
     error = None
 
     if form.validate_on_submit():
+        name_parts = (form.name.data or "").strip().split()
         form_data = {
-            "first_name": form.name.data.split()[0] if form.name.data else "",
-            "last_name": " ".join(form.name.data.split()[1:]) if form.name.data and len(form.name.data.split()) > 1 else "",
-            "email": form.email.data.lower(),
+            "first_name": name_parts[0] if len(name_parts) > 0 else "",
+            "last_name": " ".join(name_parts[1:]) if len(name_parts) > 1 else "",
+            "email": (form.email.data or "").lower(),
             "phone": request.form.get("phone", "").strip(),
             "subject": "contact",
             "message": form.message.data,
@@ -87,14 +88,15 @@ def contact():
         try:
             saved = contact_manager.save_message(**form_data)
             send_discord_notification(form_data)
-            
+
             if saved:
                 success = True
                 flash(_('Votre message a été envoyé avec succès !'), 'success')
                 form = ContactForm()
             else:
                 error = _('Une erreur technique est survenue. Veuillez réessayer.')
-        except Exception:
+        except Exception as e:
+            current_app.logger.exception("Erreur lors de l'envoi du formulaire de contact")
             error = _('Une erreur technique est survenue. Veuillez réessayer.')
 
     return render_template(
@@ -109,6 +111,7 @@ def contact():
         config=AppConfig,
         datetime=datetime
     )
+
 
 
 @legal_bp.route('/legal')
