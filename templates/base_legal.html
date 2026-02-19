@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" data-bs-theme="light">
+<html lang="{{ get_locale() }}" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -193,43 +193,43 @@
                         
                         {# Fallback simple et sûr #}
                         {% if current_lang == 'fr' %}
-                            <span class="flag-icon flag-icon-fr me-1"></span>Français
+                            <span class="flag-icon flag-icon-fr me-1"></span>{{ _('Français') }}
                         {% elif current_lang == 'en' %}
-                            <span class="flag-icon flag-icon-gb me-1"></span>English
+                            <span class="flag-icon flag-icon-gb me-1"></span>{{ _('English') }}
                         {% elif current_lang == 'es' %}
-                            <span class="flag-icon flag-icon-es me-1"></span>Español
+                            <span class="flag-icon flag-icon-es me-1"></span>{{ _('Español') }}
                         {% elif current_lang == 'de' %}
-                            <span class="flag-icon flag-icon-de me-1"></span>Deutsch
+                            <span class="flag-icon flag-icon-de me-1"></span>{{ _('Deutsch') }}
                         {% elif current_lang == 'it' %}
-                            <span class="flag-icon flag-icon-it me-1"></span>Italiano
+                            <span class="flag-icon flag-icon-it me-1"></span>{{ _('Italiano') }}
                         {% elif current_lang == 'pt' %}
-                            <span class="flag-icon flag-icon-pt me-1"></span>Português
+                            <span class="flag-icon flag-icon-pt me-1"></span>{{ _('Português') }}
                         {% elif current_lang == 'ar' %}
-                            <span class="flag-icon flag-icon-sa me-1"></span>العربية
+                            <span class="flag-icon flag-icon-sa me-1"></span>{{ _('العربية') }}
                         {% elif current_lang == 'zh' %}
-                            <span class="flag-icon flag-icon-cn me-1"></span>中文
+                            <span class="flag-icon flag-icon-cn me-1"></span>{{ _('中文') }}
                         {% elif current_lang == 'ja' %}
-                            <span class="flag-icon flag-icon-jp me-1"></span>日本語
+                            <span class="flag-icon flag-icon-jp me-1"></span>{{ _('日本語') }}
                         {% elif current_lang == 'ru' %}
-                            <span class="flag-icon flag-icon-ru me-1"></span>Русский
+                            <span class="flag-icon flag-icon-ru me-1"></span>{{ _('Русский') }}
                         {% elif current_lang == 'nl' %}
-                            <span class="flag-icon flag-icon-nl me-1"></span>Nederlands
+                            <span class="flag-icon flag-icon-nl me-1"></span>{{ _('Nederlands') }}
                         {% else %}
-                            <span class="flag-icon flag-icon-fr me-1"></span>Français
+                            <span class="flag-icon flag-icon-fr me-1"></span>{{ _('Français') }}
                         {% endif %}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item {% if current_lang == 'fr' %}active{% endif %}" href="{{ url_for('set_language', language='fr') }}"><span class="flag-icon flag-icon-fr me-2"></span>Français</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'en' %}active{% endif %}" href="{{ url_for('set_language', language='en') }}"><span class="flag-icon flag-icon-gb me-2"></span>English</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'es' %}active{% endif %}" href="{{ url_for('set_language', language='es') }}"><span class="flag-icon flag-icon-es me-2"></span>Español</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'de' %}active{% endif %}" href="{{ url_for('set_language', language='de') }}"><span class="flag-icon flag-icon-de me-2"></span>Deutsch</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'it' %}active{% endif %}" href="{{ url_for('set_language', language='it') }}"><span class="flag-icon flag-icon-it me-2"></span>Italiano</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'pt' %}active{% endif %}" href="{{ url_for('set_language', language='pt') }}"><span class="flag-icon flag-icon-pt me-2"></span>Português</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'ar' %}active{% endif %}" href="{{ url_for('set_language', language='ar') }}"><span class="flag-icon flag-icon-sa me-2"></span>العربية</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'zh' %}active{% endif %}" href="{{ url_for('set_language', language='zh') }}"><span class="flag-icon flag-icon-cn me-2"></span>中文</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'ja' %}active{% endif %}" href="{{ url_for('set_language', language='ja') }}"><span class="flag-icon flag-icon-jp me-2"></span>日本語</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'ru' %}active{% endif %}" href="{{ url_for('set_language', language='ru') }}"><span class="flag-icon flag-icon-ru me-2"></span>Русский</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'nl' %}active{% endif %}" href="{{ url_for('set_language', language='nl') }}"><span class="flag-icon flag-icon-nl me-2"></span>Nederlands</a></li>
+                        <li><a class="dropdown-item {% if current_lang == 'fr' %}active{% endif %}" href="{{ url_for('set_language', language='fr') }}"><span class="flag-icon flag-icon-fr me-2"></span>{{ _('Français') }}</a></li>
+                        <li><a class="dropdown-item {% if current_lang == 'en' %}active{% endif %}" href="{{ url_for('set_language', language='en') }}"><span class="flag-icon flag-icon-gb me-2"></span>{{ _('English') }}</a></li>
+                        <li><a class="dropdown-item {% if current_lang == 'es' %}active{% endif %}" href="{{ url_for('set_language', language='es') }}"><span class="flag-icon flag-icon-es me-2"></span>{{ _('Español') }}</a></li>
+                        <li><a class="dropdown-item {% if current_lang == 'de' %}active{% endif %}" href="{{ url_for('set_language', language='de') }}"><span class="flag-icon flag-icon-de me-2"></span>{{ _('Deutsch') }}</a></li>
+                        <li><a class="dropdown-item {% if current_lang == 'it' %}active{% endif %}" href="{{ url_for('set_language', language='it') }}"><span class="flag-icon flag-icon-it me-2"></span>{{ _('Italiano') }}</a></li>
+                        <li><a class="dropdown-item {% if current_lang == 'pt' %}active{% endif %}" href="{{ url_for('set_language', language='pt') }}"><span class="flag-icon flag-icon-pt me-2"></span>{{ _('Português') }}</a></li>
+                        <li><a class="dropdown-item {% if current_lang == 'ar' %}active{% endif %}" href="{{ url_for('set_language', language='ar') }}"><span class="flag-icon flag-icon-sa me-2"></span>{{ _('العربية') }}</a></li>
+                        <li><a class="dropdown-item {% if current_lang == 'zh' %}active{% endif %}" href="{{ url_for('set_language', language='zh') }}"><span class="flag-icon flag-icon-cn me-2"></span>{{ _('中文') }}</a></li>
+                        <li><a class="dropdown-item {% if current_lang == 'ja' %}active{% endif %}" href="{{ url_for('set_language', language='ja') }}"><span class="flag-icon flag-icon-jp me-2"></span>{{ _('日本語') }}</a></li>
+                        <li><a class="dropdown-item {% if current_lang == 'ru' %}active{% endif %}" href="{{ url_for('set_language', language='ru') }}"><span class="flag-icon flag-icon-ru me-2"></span>{{ _('Русский') }}</a></li>
+                        <li><a class="dropdown-item {% if current_lang == 'nl' %}active{% endif %}" href="{{ url_for('set_language', language='nl') }}"><span class="flag-icon flag-icon-nl me-2"></span>{{ _('Nederlands') }}</a></li>
                     </ul>
                 </div>
             </div>
