@@ -513,10 +513,11 @@ def handle_preview():
         file.stream.seek(0)
             
         if not data:
-            raise ValueError(f"{file.filename} est vide")
-
+            raise ValueError(_("%(filename)s est vide") % {"filename": file.filename})
+        
         if not data.startswith(b"%PDF"):
-            raise ValueError(f"{file.filename} est corrompu ou non-PDF")
+            raise ValueError(_("%(filename)s est corrompu ou non-PDF") % {"filename": file.filename})
+
 
         previews, total_pages = PDFEngine.preview(data)
 
