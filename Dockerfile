@@ -54,37 +54,43 @@ RUN apt-get update && \
 WORKDIR /app
 
 # -----------------------------
-# Copier requirements
+# Copier requirements et installer Python packages
 # -----------------------------
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r requirements.txt && \
     ln -sf /usr/bin/python3 /usr/bin/python
 
 # -----------------------------
-# Copier tout le projet
+# Copier babel.cfg avant le reste pour cache Docker
+# -----------------------------
+COPY babel.cfg .
+
+# -----------------------------
+# Copier le projet
 # -----------------------------
 COPY . .
 
 # -----------------------------
-# Initialiser / mettre à jour les traductions Babel
+# Générer les traductions uniquement si fichiers ont changé
 # -----------------------------
-RUN echo "🔧 Extraction et mise à jour des traductions..." && \
-    mkdir -p translations && \
-    pybabel extract -F babel.cfg -o messages.pot . 2>/dev/null || echo "⚠️ Aucun texte extrait" && \
-    LANGUAGES="en es de it pt ar zh ja ru nl" && \
-    for lang in $LANGUAGES; do \
-        if [ ! -d "translations/$lang/LC_MESSAGES" ]; then \
-            echo "🌍 Création de la langue: $lang"; \
-            pybabel init -i messages.pot -d translations -l $lang 2>/dev/null || echo "⚠️ Échec création $lang"; \
-        else \
-            echo "🔄 Mise à jour de: $lang"; \
-            pybabel update -i messages.pot -d translations -l $lang 2>/dev/null || echo "⚠️ Échec mise à jour $lang"; \
-        fi; \
-    done && \
-    echo "✅ Compilation des fichiers .po en .mo..." && \
-    pybabel compile -d translations
+RUN mkdir -p translations && \
+    if [ ! -f translations/.built ]; then \
+        echo "🔧 Extraction et compilation des traductions..." && \
+        pybabel extract -F babel.cfg -o messages.pot . 2>/dev/null || echo "⚠️ Aucun texte extrait"; \
+        LANGUAGES="en es de it pt ar zh ja ru nl"; \
+        for lang in $LANGUAGES; do \
+            if [ ! -d "translations/$lang/LC_MESSAGES" ]; then \
+                pybabel init -i messages.pot -d translations -l $lang 2>/dev/null || echo "⚠️ Init $lang échoué"; \
+            else \
+                pybabel update -i messages.pot -d translations -l $lang 2>/dev/null || echo "⚠️ Update $lang échoué"; \
+            fi; \
+        done; \
+        pybabel compile -d translations; \
+        touch translations/.built; \
+    else \
+        echo "✅ Traductions déjà compilées, utilisation du cache"; \
+    fi
 
 # -----------------------------
 # Rendre les scripts exécutables
