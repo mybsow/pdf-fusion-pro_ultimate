@@ -46,7 +46,6 @@ RUN apt-get update && \
         libgpg-error-l10n \
         fonts-droid-fallback \
         gstreamer1.0-plugins-base \
-        md5sum \
     && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------
