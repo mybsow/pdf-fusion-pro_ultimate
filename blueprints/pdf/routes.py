@@ -20,7 +20,8 @@ from flask import (
     current_app
 )
 
-from flask_babel import _, lazy_gettext as _l
+from flask_babel import _
+from flask_babel import lazy_gettext as _l
 import os
 import tempfile
 from . import pdf_bp
