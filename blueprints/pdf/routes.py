@@ -49,7 +49,7 @@ def save_temp_file(file, subfolder="general"):
     """
 
     if not file or file.filename == "":
-        raise ValueError("Fichier invalide")
+        raise ValueError(_("Fichier invalide"))
 
     # IMPORTANT: Reset stream position avant lecture
     file.stream.seek(0)
@@ -66,11 +66,11 @@ def save_temp_file(file, subfolder="general"):
 
     if size == 0:
         path.unlink(missing_ok=True)
-        raise ValueError("Fichier vide")
+        raise ValueError(_("Fichier vide"))
 
     if size > AppConfig.MAX_CONTENT_SIZE:
         path.unlink(missing_ok=True)
-        raise ValueError("Fichier trop volumineux")
+        raise ValueError(_("Fichier trop volumineux"))
 
     return path
 
@@ -84,7 +84,7 @@ def validate_pdf(path: Path):
 
     if header != b"%PDF":
         path.unlink(missing_ok=True)
-        raise ValueError("Fichier corrompu ou non-PDF")
+        raise ValueError("_("Fichier corrompu ou non-PDF")")
 
 
 def cleanup_files(paths):
@@ -110,23 +110,23 @@ def pdf_index():
 
 def read_uploaded_pdf(file):
     if not file or file.filename == "":
-        raise ValueError("Fichier invalide")
+        raise ValueError(_("Fichier invalide"))
 
     if not file.filename.lower().endswith(".pdf"):
-        raise ValueError(f"{file.filename} n'est pas un PDF")
+        raise ValueError(_("%(filename)s n'est pas un PDF") % {"filename": file.filename})
 
     # IMPORTANT: Reset stream position avant lecture
     file.stream.seek(0)
     data = file.read()
     
     if len(data) > AppConfig.MAX_CONTENT_SIZE:
-        raise ValueError("Fichier trop volumineux")
+        raise ValueError(_("Fichier trop volumineux"))
 
     if not data:
-        raise ValueError(f"{file.filename} est vide")
+        raise ValueError(_("%(filename)s est vide") % {"filename": file.filename})
 
     if not data.startswith(b"%PDF"):
-        raise ValueError(f"{file.filename} est corrompu ou non-PDF")
+        raise ValueError(_("%(filename)s est corrompu ou non-PDF") % {"filename": file.filename})
         
     # IMPORTANT: Reset stream position après lecture pour permettre save()
     file.stream.seek(0)
@@ -147,15 +147,18 @@ def merge():
 
     try:
         if "files" not in request.files:
-            return jsonify({"error": "Aucun fichier"}), 400
+            return jsonify({"error": _("Aucun fichier")}), 400
 
         files = request.files.getlist("files")
 
         if len(files) < 2:
-            return jsonify({"error": "Au moins 2 PDF requis"}), 400
+            return jsonify({"error": _("Au moins 2 PDF requis")}), 400
 
         if len(files) > AppConfig.MAX_FILES_PER_CONVERSION:
-            return jsonify({"error": f"Maximum {AppConfig.MAX_FILES_PER_CONVERSION} fichiers"}), 400
+            return jsonify({
+                "error": _("Maximum %(max)d fichiers") % {"max": AppConfig.MAX_FILES_PER_CONVERSION}
+            }), 400
+
 
         writer = PdfWriter()
         total_pages = 0
@@ -169,7 +172,7 @@ def merge():
             reader = PdfReader(str(path), strict=False)
             
             if len(reader.pages) > 500:
-                raise ValueError(f"Fichier {f.filename} contient trop de pages")
+                raise ValueError(_("Fichier %(name)s contient trop de pages") % {"name": f.filename})
 
             for page in reader.pages:
                 writer.add_page(page)
@@ -204,7 +207,7 @@ def merge():
     except Exception:
         cleanup_files(temp_paths)
         current_app.logger.exception("Merge PDF échoué")
-        return jsonify({"error": "Erreur interne serveur"}), 500
+        return jsonify({"error": _("Erreur interne serveur")}), 500
 
 
 # ============================================================
@@ -220,7 +223,7 @@ def split():
 
     try:
         if "file" not in request.files:
-            return jsonify({"error": "Aucun fichier"}), 400
+            return jsonify({"error": _("Aucun fichier")}), 400
 
         file = request.files["file"]
         
@@ -233,7 +236,7 @@ def split():
         reader = PdfReader(str(path), strict=False)
         
         if len(reader.pages) > 500:
-            raise ValueError("Fichier contient trop de pages")
+            raise ValueError(_("Fichier contient trop de pages"))
 
         output_files = []
         temp_dir = AppConfig.get_conversion_temp_dir("pdf")
@@ -287,7 +290,7 @@ def split():
     except Exception:
         cleanup_files(temp_paths)
         current_app.logger.exception("Split crash")
-        return jsonify({"error": "Erreur interne serveur"}), 500
+        return jsonify({"error": _("Erreur interne serveur")}), 500
 
 
 # ============================================================
@@ -303,7 +306,7 @@ def rotate():
 
     try:
         if "file" not in request.files:
-            return jsonify({"error": "Aucun fichier"}), 400
+            return jsonify({"error": _("Aucun fichier")}), 400
             
         file = request.files["file"]
             
@@ -318,7 +321,7 @@ def rotate():
         reader = PdfReader(str(path), strict=False)
         
         if len(reader.pages) > 500:
-            raise ValueError("Fichier contient trop de pages")
+            raise ValueError(_("Fichier contient trop de pages"))
         
         writer = PdfWriter()
 
@@ -355,7 +358,7 @@ def rotate():
     except Exception:
         cleanup_files(temp_paths)
         current_app.logger.exception("Rotate crash")
-        return jsonify({"error": "Erreur interne serveur"}), 500
+        return jsonify({"error": _("Erreur interne serveur")}), 500
 
 
 # ============================================================
@@ -371,7 +374,7 @@ def compress():
 
     try:
         if "file" not in request.files:
-            return jsonify({"error": "Aucun fichier"}), 400
+            return jsonify({"error": _("Aucun fichier")}), 400
             
         file = request.files["file"]
             
@@ -384,7 +387,7 @@ def compress():
         reader = PdfReader(str(path), strict=False)
         
         if len(reader.pages) > 500:
-            raise ValueError("Fichier contient trop de pages")
+            raise ValueError(_("Fichier contient trop de pages"))
         
         writer = PdfWriter()
 
@@ -422,7 +425,7 @@ def compress():
     except Exception:
         cleanup_files(temp_paths)
         current_app.logger.exception("Compress crash")
-        return jsonify({"error": "Erreur interne serveur"}), 500
+        return jsonify({"error": _("Erreur interne serveur")}), 500
 
 
 MAX_PAGES_PER_FILE = 500
@@ -444,14 +447,14 @@ def ocr_image():
 
     try:
         if "file" not in request.files:
-            return jsonify({"error": "Aucun fichier"}), 400
+            return jsonify({"error": _("Aucun fichier")}), 400
 
         file = request.files["file"]
 
         if not file.filename.lower().endswith(
             ('.png', '.jpg', '.jpeg', '.tiff', '.bmp')
         ):
-            return jsonify({"error": "Format non supporté"}), 400
+            return jsonify({"error": _("Format non supporté")}), 400
 
         # Reset stream avant sauvegarde
         file.stream.seek(0)
@@ -478,12 +481,12 @@ def ocr_image():
         })
 
     except pytesseract.TesseractNotFoundError:
-        return jsonify({"error": "OCR non disponible"}), 503
+        return jsonify({"error": _("OCR non disponible")}), 503
 
     except Exception:
         cleanup_files(temp_paths)
         current_app.logger.exception("OCR échoué")
-        return jsonify({"error": "Erreur interne serveur"}), 500
+        return jsonify({"error": _("Erreur interne serveur")}), 500
 
 
 # ============================================================
@@ -494,7 +497,7 @@ def handle_preview():
 
     try:
         if "file" not in request.files:
-            return jsonify({"error": "Aucun fichier"}), 400
+            return jsonify({"error": _("Aucun fichier")}), 400
             
         file = request.files["file"]
         
@@ -503,7 +506,7 @@ def handle_preview():
         data = file.read()
         
         if len(data) > AppConfig.MAX_CONTENT_SIZE:
-            raise ValueError("Fichier trop volumineux")
+            raise ValueError(_("Fichier trop volumineux"))
             
         # Reset stream pour permettre réutilisation
         file.stream.seek(0)
@@ -526,7 +529,11 @@ def handle_preview():
 
     except Exception as e:
         current_app.logger.exception("Crash /preview")
-        return jsonify({"error": str(e) if isinstance(e, ValueError) else "Erreur interne serveur"}), 500
+    if isinstance(e, ValueError):
+        return jsonify({"error": str(e)}), 400
+    
+    return jsonify({"error": _("Erreur interne serveur")}), 500
+
 
 
 # ============================================================
@@ -562,14 +569,14 @@ def api_rating():
     try:
         data = request.get_json(force=True, silent=True)
         if not data:
-            return jsonify({"error": "Données manquantes"}), 400
+            return jsonify({"error": _("Données manquantes")}), 400
         
         rating = data.get("rating", 0)
         feedback = data.get("feedback", "")
         page = data.get("page", "unknown")
         
         if not isinstance(rating, int) or rating < 1 or rating > 5:
-            return jsonify({"error": "Note invalide (1-5)"}), 400
+            return jsonify({"error": _("Note invalide (1-5)")}), 400
         
         stats_manager.increment("ratings")
         stats_manager.increment(f"rating_{rating}")
@@ -599,13 +606,13 @@ def api_rating():
         
         return jsonify({
             "success": True,
-            "message": "Merci pour votre évaluation !",
+            "message": _("Merci pour votre évaluation !"),
             "rating": rating
         })
     
     except Exception:
         current_app.logger.exception("Erreur API rating")
-        return jsonify({"error": "Erreur interne du serveur"}), 500
+        return jsonify({"error": _("Erreur interne serveur")}), 500
 
 
 # ============================================================
@@ -613,17 +620,17 @@ def api_rating():
 # ============================================================
 def get_rating_html():
     """Génère le HTML pour le système d'évaluation"""
-    return '''
+    return f'''
     <!-- Système d'évaluation -->
     <div id="ratingPopup" style="display:none;position:fixed;bottom:20px;right:20px;background:white;border-radius:12px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.15);z-index:9999;width:300px;max-width:90%;">
         <div style="position:relative">
-            <button onclick="closeRatingPopup()" style="position:absolute;top:5px;right:5px;background:none;border:none;font-size:20px;cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;" aria-label="Fermer">&times;</button>
+            <button onclick="closeRatingPopup()" style="position:absolute;top:5px;right:5px;background:none;border:none;font-size:20px;cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;" aria-label="{_('Fermer')}">&times;</button>
             
             <div id="ratingInvitation" style="text-align:center;">
                 <div style="font-size:32px;margin-bottom:10px;">★</div>
-                <h5 style="margin-bottom:8px;font-size:1.1rem;">Votre avis compte !</h5>
+                <h5 style="margin-bottom:8px;font-size:1.1rem;">{_('Votre avis compte !')}</h5>
                 <p style="font-size:0.9rem;color:#666;margin-bottom:15px;line-height:1.4;">
-                    Comment évaluez-vous votre expérience avec notre outil PDF ?
+                    {_('Comment évaluez-vous votre expérience avec notre outil PDF ?')}
                 </p>
             </div>
             
@@ -637,21 +644,21 @@ def get_rating_html():
             
             <div id="feedbackSection" style="display:none">
                 <p style="font-size:0.9rem;color:#666;margin-bottom:10px;">
-                    Merci ! Avez-vous des suggestions d'amélioration ?
+                    {_('Merci ! Avez-vous des suggestions d\'amélioration ?')}
                 </p>
-                <textarea id="feedback" placeholder="Vos commentaires (optionnel)" style="width:100%;margin-bottom:10px;padding:8px;border-radius:6px;border:1px solid #ddd;font-size:14px;min-height:60px;" rows="2"></textarea>
-                <button onclick="submitRating()" style="background:#4361ee;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;width:100%;font-size:14px;">Envoyer mon évaluation</button>
+                <textarea id="feedback" placeholder="{_('Vos commentaires (optionnel)')}" style="width:100%;margin-bottom:10px;padding:8px;border-radius:6px;border:1px solid #ddd;font-size:14px;min-height:60px;" rows="2"></textarea>
+                <button onclick="submitRating()" style="background:#4361ee;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;width:100%;font-size:14px;">{_('Envoyer mon évaluation')}</button>
             </div>
             
             <div id="skipSection" style="text-align:center;margin-top:10px;">
                 <button onclick="skipRating()" style="background:none;border:none;color:#888;font-size:0.85rem;cursor:pointer;text-decoration:underline;">
-                    Peut-être plus tard
+                    {_('Peut-être plus tard')}
                 </button>
             </div>
         </div>
     </div>
     
-    <div id="ratingTrigger" style="position:fixed;bottom:20px;right:20px;background:#4361ee;color:white;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(67,97,238,0.3);" onclick="showRating()" aria-label="Évaluer l'application" title="Donnez votre avis">
+    <div id="ratingTrigger" style="position:fixed;bottom:20px;right:20px;background:#4361ee;color:white;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(67,97,238,0.3);" onclick="showRating()" aria-label="{_('Évaluer l\'application')}" title="{_('Donnez votre avis')}">
         ★
         <div style="position:absolute;top:-5px;right:-5px;background:#ff4757;color:white;font-size:0.7rem;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;">
             !
@@ -661,40 +668,40 @@ def get_rating_html():
     <script>
     let selectedRating = 0;
     
-    function showRating() {
+    function showRating() {{
         document.getElementById("ratingPopup").style.display = "block";
         document.getElementById("ratingTrigger").style.display = "none";
         resetRatingPopup();
-    }
+    }}
     
-    function resetRatingPopup() {
+    function resetRatingPopup() {{
         const stars = document.querySelectorAll("#starsContainer span");
-        stars.forEach(star => {
+        stars.forEach(star => {{
             star.textContent = "☆";
             star.style.color = "#ccc";
-        });
+        }});
         
         document.getElementById("ratingInvitation").style.display = "block";
         document.getElementById("feedbackSection").style.display = "none";
         document.getElementById("skipSection").style.display = "block";
         document.getElementById("feedback").value = "";
         selectedRating = 0;
-    }
+    }}
     
-    function closeRatingPopup() {
+    function closeRatingPopup() {{
         document.getElementById("ratingPopup").style.display = "none";
         document.getElementById("ratingTrigger").style.display = "flex";
-    }
+    }}
     
-    function highlightStars(num) {
+    function highlightStars(num) {{
         const stars = document.querySelectorAll("#starsContainer span");
-        stars.forEach((star, index) => {
+        stars.forEach((star, index) => {{
             star.textContent = index < num ? "★" : "☆";
             star.style.color = index < num ? "#ffc107" : "#ccc";
-        });
-    }
+        }});
+    }}
     
-    function rate(num) {
+    function rate(num) {{
         selectedRating = num;
         highlightStars(num);
         
@@ -702,65 +709,65 @@ def get_rating_html():
         document.getElementById("feedbackSection").style.display = "block";
         document.getElementById("skipSection").style.display = "none";
         
-        setTimeout(() => {
+        setTimeout(() => {{
             document.getElementById("feedback").focus();
-        }, 100);
-    }
+        }}, 100);
+    }}
     
-    function skipRating() {
+    function skipRating() {{
         closeRatingPopup();
         const date = new Date();
         date.setDate(date.getDate() + 7);
         localStorage.setItem("ratingSkippedUntil", date.toISOString());
-    }
+    }}
     
-    function submitRating() {
+    function submitRating() {{
         const feedback = document.getElementById("feedback").value;
         
-        fetch("/api/rating", {
+        fetch("/api/rating", {{
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({rating: selectedRating, feedback: feedback, page: window.location.pathname})
-        })
+            headers: {{"Content-Type": "application/json"}},
+            body: JSON.stringify({{rating: selectedRating, feedback: feedback, page: window.location.pathname}})
+        }})
         .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById("ratingPopup").innerHTML = '<div style="text-align:center;padding:20px"><div style="color:#4CAF50;font-size:40px;margin-bottom:15px;">✓</div><h5 style="margin-bottom:10px;">Merci pour votre retour !</h5><p style="color:#666;font-size:0.9rem;">Votre évaluation nous aide à améliorer notre service.</p></div>';
+        .then(data => {{
+            if (data.success) {{
+                document.getElementById("ratingPopup").innerHTML = '<div style="text-align:center;padding:20px"><div style="color:#4CAF50;font-size:40px;margin-bottom:15px;">✓</div><h5 style="margin-bottom:10px;">{_('Merci pour votre retour !')}</h5><p style="color:#666;font-size:0.9rem;">{_('Votre évaluation nous aide à améliorer notre service.')}</p></div>';
                 
                 localStorage.setItem("hasRated", "true");
                 
-                setTimeout(() => {
+                setTimeout(() => {{
                     closeRatingPopup();
-                }, 3000);
-            }
-        })
-        .catch(error => {
+                }}, 3000);
+            }}
+        }})
+        .catch(error => {{
             console.error("Erreur:", error);
-            alert("Une erreur est survenue. Veuillez réessayer.");
-        });
-    }
+            alert("{_('Une erreur est survenue. Veuillez réessayer.')}");
+        }});
+    }}
     
-    function shouldShowRating() {
-        if (localStorage.getItem("hasRated")) {
+    function shouldShowRating() {{
+        if (localStorage.getItem("hasRated")) {{
             return false;
-        }
+        }}
         
         const skippedUntil = localStorage.getItem("ratingSkippedUntil");
-        if (skippedUntil) {
+        if (skippedUntil) {{
             const skipDate = new Date(skippedUntil);
-            if (new Date() < skipDate) {
+            if (new Date() < skipDate) {{
                 return false;
-            }
-        }
+            }}
+        }}
         
         return true;
-    }
+    }}
     
-    setTimeout(() => {
-        if (shouldShowRating()) {
+    setTimeout(() => {{
+        if (shouldShowRating()) {{
             showRating();
-        }
-    }, 30000);
+        }}
+    }}, 30000);
     
     window.showRating = showRating;
     window.closeRatingPopup = closeRatingPopup;
