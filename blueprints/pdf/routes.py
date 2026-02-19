@@ -646,9 +646,9 @@ def get_rating_html():
             
             <div id="feedbackSection" style="display:none">
                 <p style="font-size:0.9rem;color:#666;margin-bottom:10px;">
-                    {_('Merci ! Avez-vous des suggestions d\'amélioration ?')}
+                    {_('Merci ! Avez-vous des suggestions d'amélioration ?')}
                 </p>
-                <textarea id="feedback" placeholder="{_('Vos commentaires (optionnel)')}" style="width:100%;margin-bottom:10px;padding:8px;border-radius:6px;border:1px solid #ddd;font-size:14px;min-height:60px;" rows="2"></textarea>
+                <textarea id="feedback" placeholder="{{ _('Vos commentaires (optionnel)') }}" style="width:100%;margin-bottom:10px;padding:8px;border-radius:6px;border:1px solid #ddd;font-size:14px;min-height:60px;" rows="2"></textarea>
                 <button onclick="submitRating()" style="background:#4361ee;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;width:100%;font-size:14px;">{_('Envoyer mon évaluation')}</button>
             </div>
             
