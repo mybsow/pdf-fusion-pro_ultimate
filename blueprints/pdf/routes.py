@@ -646,7 +646,7 @@ def get_rating_html():
             
             <div id="feedbackSection" style="display:none">
                 <p style="font-size:0.9rem;color:#666;margin-bottom:10px;">
-                    {_('Merci ! Avez-vous des suggestions d'amélioration ?')}
+                    {_('Merci ! Avez-vous des suggestions d’amélioration ?')}
                 </p>
                 <textarea id="feedback" placeholder="{{ _('Vos commentaires (optionnel)') }}" style="width:100%;margin-bottom:10px;padding:8px;border-radius:6px;border:1px solid #ddd;font-size:14px;min-height:60px;" rows="2"></textarea>
                 <button onclick="submitRating()" style="background:#4361ee;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;width:100%;font-size:14px;">{_('Envoyer mon évaluation')}</button>
@@ -660,13 +660,12 @@ def get_rating_html():
         </div>
     </div>
     
-    <div id="ratingTrigger" style="position:fixed;bottom:20px;right:20px;background:#4361ee;color:white;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(67,97,238,0.3);" onclick="showRating()" aria-label="{_('Évaluer l\'application')}" title="{_('Donnez votre avis')}">
+    <div id="ratingTrigger" style="position:fixed;bottom:20px;right:20px;background:#4361ee;color:white;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(67,97,238,0.3);" onclick="showRating()" aria-label="{_('Évaluer l’application')}" title="{_('Donnez votre avis')}">
         ★
         <div style="position:absolute;top:-5px;right:-5px;background:#ff4757;color:white;font-size:0.7rem;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;">
             !
         </div>
     </div>
-    
     <script>
     let selectedRating = 0;
     
