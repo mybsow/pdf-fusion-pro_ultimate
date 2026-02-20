@@ -121,22 +121,33 @@ def check_and_create_templates():
         'errors/413.html',
         'errors/500.html'
     ]
+
     for template in required:
         path = Path('templates') / template
+
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
+
+            title = template
+            dev_text = _("Page en développement")
+            back_text = _("Retour à l'accueil")
+
             html_content = f"""<!DOCTYPE html>
-html_content = f"""<!DOCTYPE html>
 <html>
-<head><title>{template}</title></head>
+<head>
+    <meta charset="utf-8">
+    <title>{title}</title>
+</head>
 <body>
-    <h1>{template}</h1>
-    <p>{_('Page en développement')}</p>
-    <a href="/">{_("Retour à l'accueil")}</a>
+    <h1>{title}</h1>
+    <p>{dev_text}</p>
+    <a href="/">{back_text}</a>
 </body>
 </html>"""
-            path.write_text(html_content)
-            logger.info(f"✅ {_('Template créé')}: {template}")
+
+            path.write_text(html_content, encoding="utf-8")
+            logger.info(f"Template créé: {template}")
+
 
 # ============================================================
 # Routes principales
