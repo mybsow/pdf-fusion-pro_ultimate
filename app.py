@@ -1,50 +1,41 @@
 #!/usr/bin/env python3
 """
-PDF Fusion Pro Ultimate - Application principale
-Version production ultra-stable (Render / Gunicorn ready)
+PDF Fusion Pro Ultimate - App principale
+i18n ultra-rapide + OCR + routes SEO / santé
 """
 
+import os
+import tempfile
+import logging
+from pathlib import Path
+from datetime import datetime
 from flask import Flask, redirect, Response, request, render_template, session, jsonify, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
-from datetime import datetime
-from datetime import timedelta
-from pathlib import Path
-import tempfile
-import os
-import logging
-import polib, re
-from flask_wtf import CSRFProtect
-from flask_babel import Babel, gettext
-from flask_babel import _
+from flask_babel import Babel
+import subprocess
+import shutil
 
 # ============================================================
-# Création de l'app Flask
+# Logging
+# ============================================================
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
+
+# ============================================================
+# Création app
 # ============================================================
 app = Flask(__name__)
-
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
-app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=30)
-
-# Langues supportées
-LANGUAGES = ["fr", "en"]
-app.config["LANGUAGES"] = LANGUAGES
-
-# ============================================================
-# Configuration
-# ============================================================
 from config import AppConfig
-
 app.config.from_object(AppConfig)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", AppConfig.SECRET_KEY)
 app.config["UPLOAD_FOLDER"] = tempfile.gettempdir()
 app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
-app.config['PREFERRED_URL_SCHEME'] = 'https'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000
-
-# Proxy reverse
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 
-# Configuration Babel
+# ============================================================
+# Langues
+# ============================================================
 app.config['BABEL_DEFAULT_LOCALE'] = 'fr'
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = './translations'
 app.config['LANGUAGES'] = {
@@ -61,197 +52,246 @@ app.config['LANGUAGES'] = {
     'ru': {'name': 'Русский', 'flag': 'ru'},
 }
 
-
-# ============================================================
-# Logging
-# ============================================================
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-logger = logging.getLogger(__name__)
-
-# ============================================================
-# BABEL (Flask-Babel >= 3.x compatible)
-# ============================================================
-
 def get_locale():
-    return session.get("language", "fr")
+    if 'language' in session:
+        return session['language']
+    return request.accept_languages.best_match(app.config['LANGUAGES'].keys())
 
 babel = Babel(app, locale_selector=get_locale)
 
 # ============================================================
-# CSRF PROTECTION
+# i18n préchargé
 # ============================================================
+import gettext
+translations_cache = {}
 
-csrf = CSRFProtect(app)
+def load_translations():
+    base = Path(app.config['BABEL_TRANSLATION_DIRECTORIES'])
+    for lang_dir in base.iterdir():
+        if lang_dir.is_dir():
+            mo_file = lang_dir / 'LC_MESSAGES' / 'messages.mo'
+            if mo_file.exists():
+                try:
+                    translations_cache[lang_dir.name] = gettext.GNUTranslations(open(mo_file, 'rb'))
+                    logger.info(f"✅ Traductions {lang_dir.name} chargées en mémoire")
+                except Exception as e:
+                    logger.error(f"Erreur traduction {lang_dir.name}: {e}")
 
-# ============================================================
-# BLUEPRINTS
-# ============================================================
+load_translations()
 
-# Import ici pour éviter les imports circulaires
-from blueprints.legal.routes import legal_bp
-from blueprints.pdf.routes import pdf_bp
-from blueprints.conversion import conversion_bp
-from blueprints.admin import admin_bp
-from blueprints.api.routes import api_bp
-
-app.register_blueprint(legal_bp)
-app.register_blueprint(pdf_bp)
-app.register_blueprint(conversion_bp)
-app.register_blueprint(admin_bp)
-
-# -----------------------------
-# Blueprints — API
-# -----------------------------
-# Toutes les routes JSON/API sous /api
-# Evite le conflit avec /pdf ou /admin
-app.register_blueprint(api_bp, url_prefix="/api")        
-
+def _(message):
+    lang = get_locale()
+    t = translations_cache.get(lang)
+    if t:
+        return t.gettext(message)
+    return message
 
 # ============================================================
-# Fonctions utilitaires
+# OCR
 # ============================================================
-def compile_all_translations(translations_dir="translations"):
-    translations_path = Path(translations_dir)
-    fixed_count = 0
+try:
+    import pytesseract
+    PYTESSERACT_AVAILABLE = True
+except ImportError:
+    PYTESSERACT_AVAILABLE = False
+    pytesseract = None
 
-    for po_file in translations_path.rglob("*.po"):
-        lang_dir = po_file.parent.parent  # remonte à <lang>
-        mo_file = lang_dir / "LC_MESSAGES" / "messages.mo"
-        mo_file.parent.mkdir(parents=True, exist_ok=True)
+try:
+    import cv2
+    OPENCV_AVAILABLE = True
+    cv2.setNumThreads(0)
+except ImportError:
+    OPENCV_AVAILABLE = False
+
+try:
+    from pdf2image import convert_from_path
+    PDF2IMAGE_AVAILABLE = True
+except ImportError:
+    PDF2IMAGE_AVAILABLE = False
+
+def _ocr_probe():
+    status = {
+        "enabled": AppConfig.OCR_ENABLED,
+        "tesseract": None,
+        "poppler": None,
+        "lang_fra": None,
+        "python_packages": {
+            "pytesseract": PYTESSERACT_AVAILABLE,
+            "Pillow": False,
+            "pdf2image": PDF2IMAGE_AVAILABLE,
+            "opencv-python": OPENCV_AVAILABLE
+        },
+        "errors": []
+    }
+    try:
+        from PIL import Image
+        status["python_packages"]["Pillow"] = True
+    except ImportError:
+        status["python_packages"]["Pillow"] = False
+
+    if not AppConfig.OCR_ENABLED:
+        return status
+
+    possible_paths = ['/usr/bin/tesseract', '/usr/local/bin/tesseract', '/bin/tesseract', shutil.which("tesseract")]
+    tesseract_path = next((p for p in possible_paths if p and os.path.exists(p)), None)
+    status["tesseract"] = tesseract_path
+    status["poppler"] = shutil.which("pdftoppm") or '/usr/bin/pdftoppm'
+
+    if tesseract_path and PYTESSERACT_AVAILABLE:
+        pytesseract.pytesseract.tesseract_cmd = tesseract_path
         try:
-            po = polib.pofile(str(po_file))
-            po.save_as_mofile(str(mo_file))
-            fixed_count += 1
-            print(f"✅ Compilé: {po_file} → {mo_file}")
+            version = pytesseract.get_tesseract_version()
+            status["tesseract"] = f"{tesseract_path} (v{version})"
+            langs = pytesseract.get_languages(config='') if PYTESSERACT_AVAILABLE else []
+            status["lang_fra"] = "fra" in langs
         except Exception as e:
-            print(f"❌ Erreur compilation {po_file}: {e}")
-    print(f"Total fichiers compilés: {fixed_count}")
+            status["errors"].append(str(e))
 
+    return status
+
+# ============================================================
+# Initialisation dossiers/templates
+# ============================================================
 def init_app_dirs():
     base_dir = Path(__file__).parent
-    dirs = ['data/contacts', 'data/ratings', 'uploads', 'temp', 'logs']
-    for d in dirs:
-        path = base_dir / d
-        path.mkdir(parents=True, exist_ok=True)
+    for d in ['data/contacts', 'data/ratings', 'uploads', 'temp', 'logs']:
+        (base_dir / d).mkdir(parents=True, exist_ok=True)
     contacts_file = base_dir / 'data' / 'contacts.json'
     if not contacts_file.exists():
         contacts_file.write_text('[]', encoding='utf-8')
 
-
 # ============================================================
-# Routes principales
-# ============================================================
-@app.route('/')
-def index():
-    return redirect('/pdf')
-
-@app.route("/pdf")
-def redirect_pdf():
-    return redirect("/pdf/", code=301)
-
-@app.route('/conversion')
-def redirect_conversion():
-    return redirect('/conversion/', code=301)
-
-@app.route('/language/<language>')
-def set_language(language):
-    if language in app.config['LANGUAGES']:
-        session['language'] = language
-        logger.info(f"Langue changée pour: {language}")
-    return redirect(request.referrer or url_for('index'))
-
-@app.route('/test-translation/<word>')
-def test_translation(word):
-    translations = {}
-    for lang in app.config['LANGUAGES'].keys():
-        session['language'] = lang
-        translations[lang] = gettext(word)
-    return jsonify({
-        'word': word,
-        'translations': translations,
-        'current_session': session.get('language', 'fr')
-    })
-
-@app.route('/ads.txt')
-def ads():
-    return Response("google.com, pub-8967416460526921, DIRECT, f08c47fec0942fa0", mimetype="text/plain")
-
-@app.route('/robots.txt')
-def robots():
-    domain = AppConfig.DOMAIN.rstrip("/")
-    return Response(f"User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: https://{domain}/sitemap.xml\n", mimetype="text/plain")
-
-@app.route('/sitemap.xml')
-def sitemap():
-    domain = AppConfig.DOMAIN.rstrip("/")
-    base_url = f"https://{domain}"
-    today = datetime.now().strftime('%Y-%m-%d')
-    pages = [
-        ("/", "daily", "1.0"),
-        ("/pdf", "weekly", "0.9"),
-        ("/conversion/", "weekly", "0.8"),
-        ("/test-ocr", "weekly", "0.8"),
-        ("/force-install-ocr", "weekly", "0.8"),
-        ("/contact", "monthly", "0.7"),
-        ("/about", "monthly", "0.6"),
-        ("/legal", "yearly", "0.4"),
-        ("/privacy", "yearly", "0.4"),
-        ("/terms", "yearly", "0.4"),
-    ]
-    xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-    for path, freq, priority in pages:
-        clean_path = path if path.startswith('/') else f"/{path}"
-        url = f"{base_url}{clean_path}"
-        xml.append(f"  <url><loc>{url}</loc><lastmod>{today}</lastmod><changefreq>{freq}</changefreq><priority>{priority}</priority></url>")
-    xml.append('</urlset>')
-    return Response("\n".join(xml), mimetype="application/xml", headers={"Cache-Control": "public, max-age=3600"})
-
-# ============================================================
-# Template filters et erreurs
-# ============================================================
-@app.template_filter('filesize')
-def filesize(value):
-    for unit in [_('B'), _('KB'), _('MB'), _('GB')]:
-        if value < 1024:
-            return f"{value:.1f} {unit}"
-        value /= 1024
-
-@app.errorhandler(404)
-def not_found(e):
-    try:
-        return render_template("errors/404.html"), 404
-    except:
-        return f"<h1>{_('Erreur 404')}</h1>", 404
-
-@app.errorhandler(413)
-def too_large(e):
-    try:
-        return render_template("errors/413.html"), 413
-    except:
-        return f"<h1>{_('Erreur 413 - Fichier trop volumineux')}</h1>", 413
-
-@app.errorhandler(500)
-def server_error(e):
-    try:
-        return render_template("errors/500.html"), 500
-    except:
-        return f"<h1>{_('Erreur 500')}</h1>", 500
-
-# ============================================================
-# Initialisation
+# Création app complète
 # ============================================================
 def create_app():
-    logger.info(_("🚀 Initialisation Flask..."))
+    logger.info("🚀 Initialisation Flask...")
     AppConfig.initialize()
     init_app_dirs()
-    compile_all_translations()
-    return app
+    check_and_create_templates()
 
-app = create_app()
+    # ------------------- Blueprints -------------------
+    from blueprints.pdf import pdf_bp
+    from blueprints.api import api_bp
+    from blueprints.stats import stats_bp
+    from blueprints.admin import admin_bp
+    from blueprints.conversion import conversion_bp
+    from blueprints.legal import legal_bp
+
+    for bp, prefix in [
+        (pdf_bp, "/pdf"),
+        (api_bp, "/api"),
+        (legal_bp, None),
+        (stats_bp, None),
+        (admin_bp, "/admin"),
+        (conversion_bp, "/conversion")
+    ]:
+        if prefix:
+            app.register_blueprint(bp, url_prefix=prefix)
+        else:
+            app.register_blueprint(bp)
+
+    # ------------------- Routes -------------------
+    @app.route('/')
+    def index():
+        return redirect('/pdf')
+
+    @app.route('/conversion')
+    def redirect_conversion():
+        return redirect('/conversion/', code=301)
+
+    @app.route("/pdf")
+    def redirect_pdf():
+        return redirect("/pdf/", code=301)
+
+    @app.route('/language/<language>')
+    def set_language(language):
+        if language in app.config['LANGUAGES']:
+            session['language'] = language
+        return redirect(request.referrer or url_for('pdf.pdf_index'))
+
+    # ------------------- SEO / sitemap -------------------
+    @app.route('/ads.txt')
+    def ads():
+        return Response("google.com, pub-8967416460526921, DIRECT, f08c47fec0942fa0", mimetype="text/plain")
+
+    @app.route('/robots.txt')
+    def robots():
+        domain = AppConfig.DOMAIN.rstrip("/")
+        return Response(f"User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: https://{domain}/sitemap.xml\n",
+                        mimetype="text/plain")
+
+    @app.route('/sitemap.xml')
+    def sitemap():
+        domain = AppConfig.DOMAIN.rstrip("/")
+        base_url = f"https://{domain}"
+        today = datetime.now().strftime('%Y-%m-%d')
+        pages = [
+            ("/", "daily", "1.0"),
+            ("/pdf", "weekly", "0.9"),
+            ("/conversion/", "weekly", "0.8"),
+            ("/test-ocr", "weekly", "0.8"),
+            ("/contact", "monthly", "0.7"),
+            ("/about", "monthly", "0.6"),
+            ("/legal", "yearly", "0.4"),
+            ("/privacy", "yearly", "0.4"),
+            ("/terms", "yearly", "0.4"),
+        ]
+        xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+        for path, freq, priority in pages:
+            clean_path = path if path.startswith('/') else f"/{path}"
+            url = f"{base_url}{clean_path}"
+            xml.append(f"  <url><loc>{url}</loc><lastmod>{today}</lastmod><changefreq>{freq}</changefreq><priority>{priority}</priority></url>")
+        xml.append('</urlset>')
+        return Response("\n".join(xml), mimetype="application/xml", headers={"Cache-Control": "public, max-age=3600"})
+
+    # ------------------- Health check -------------------
+    @app.route('/health')
+    def health():
+        probe = _ocr_probe()
+        return jsonify({
+            "status": "healthy",
+            "ocr_available": bool(probe["enabled"] and probe["tesseract"] and probe["poppler"]),
+            "tesseract": probe["tesseract"],
+            "poppler": probe["poppler"],
+            "lang_fra": probe["lang_fra"]
+        })
+
+    # ------------------- Context processor -------------------
+    @app.context_processor
+    def inject_config():
+        return dict(config=app.config, languages=app.config.get('LANGUAGES', {}), _=_)
+
+    # ------------------- Filters -------------------
+    @app.template_filter('filesize')
+    def filesize(value):
+        for unit in ['B','KB','MB','GB','TB']:
+            if value < 1024:
+                return f"{value:.1f} {unit}"
+            value /= 1024
+
+    # ------------------- Error handlers -------------------
+    @app.errorhandler(404)
+    def not_found(e):
+        return render_template("errors/404.html"), 404
+
+    @app.errorhandler(413)
+    def too_large(e):
+        return render_template("errors/413.html"), 413
+
+    @app.errorhandler(500)
+    def server_error(e):
+        return render_template("errors/500.html"), 500
+
+    # ------------------- Routes OCR debug -------------------
+    @app.route('/test-ocr')
+    def test_ocr():
+        return jsonify(_ocr_probe())
 
 # ============================================================
 # Entrypoint
 # ============================================================
+app = create_app()
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
