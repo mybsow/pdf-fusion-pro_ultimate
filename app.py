@@ -92,11 +92,19 @@ from blueprints.legal.routes import legal_bp
 from blueprints.pdf.routes import pdf_bp
 from blueprints.conversion import conversion_bp
 from blueprints.admin import admin_bp
+from blueprints.api.routes import api_bp
 
 app.register_blueprint(legal_bp)
 app.register_blueprint(pdf_bp)
 app.register_blueprint(conversion_bp)
 app.register_blueprint(admin_bp)
+
+# -----------------------------
+# Blueprints — API
+# -----------------------------
+# Toutes les routes JSON/API sous /api
+# Evite le conflit avec /pdf ou /admin
+app.register_blueprint(api_bp, url_prefix="/api")        
 
 
 # ============================================================
