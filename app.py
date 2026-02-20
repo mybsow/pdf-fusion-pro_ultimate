@@ -236,7 +236,11 @@ def create_app():
     # ------------------- Context Jinja -------------------
     @app.context_processor
     def inject_globals():
-        return dict(languages=app.config["LANGUAGES"], _=_)
+        return dict(
+            languages=app.config["LANGUAGES"], 
+            _=_,
+            get_locale=get_locale  # AJOUTEZ CETTE LIGNE
+        )
 
     # ------------------- Filters -------------------
     @app.template_filter('filesize')
