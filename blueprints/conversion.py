@@ -17,7 +17,8 @@ from io import BytesIO
 import zipfile
 import logging
 
-from flask_babel import _, lazy_gettext as _l
+from flask_babel import _,
+from flask_babel import lazy_gettext as _l
 
 # Configuration du logging
 logger = logging.getLogger(__name__)
@@ -187,7 +188,7 @@ print(f"📊 {_('État des dépendances')}: {DEPS_STATUS}")
 TEMPLATES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 
 conversion_bp = Blueprint('conversion', __name__,
-                          template_folder=TEMPLATES_DIR,
+                          template_folder=''../templates',  # ← Plus simple !
                           static_folder='../static/conversion',
                           url_prefix='/conversion')
 
@@ -3141,6 +3142,16 @@ def prepare_form(file, form_data=None):
     except Exception as e:
         logger.error(f"{_('Erreur préparation formulaire')}: {str(e)}")
         return {'error': _(f'Erreur lors de la préparation du formulaire: {str(e)}')}
+
+@conversion_bp.route('/debug-path')
+def debug_path():
+    import os
+    return jsonify({
+        'blueprint_path': os.path.dirname(__file__),
+        'template_folder': conversion_bp.template_folder,
+        'full_path': os.path.join(os.path.dirname(__file__), conversion_bp.template_folder),
+        'templates_exist': os.path.exists(os.path.join(os.path.dirname(__file__), conversion_bp.template_folder, 'conversion', 'word_to_pdf.html'))
+    })
 
 # ============================================================================
 # ROUTES API ET UTILITAIRES
