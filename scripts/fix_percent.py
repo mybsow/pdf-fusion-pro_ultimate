@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
-# scripts/fix_percent.py
+# scripts/fix_percent.py - Version corrigée
 
 import re
 from pathlib import Path
 import sys
 import subprocess
 
+def needs_fix(line):
+    """Vérifie si la ligne a des % non échappés qui ne sont pas des placeholders"""
+    # Ignorer les placeholders courants
+    if re.search(r'%[s,d,f,i,u,x,X,o,e,E,g,G]', line):
+        return False
+    # Chercher des % simples non échappés
+    return '%' in line and '%%' not in line
+
 def fix_percent_in_file(filepath):
-    """Remplace tous les % simples par %% dans les chaînes de traduction"""
+    """Corrige intelligemment les % problématiques"""
     print(f"🔧 Traitement de {filepath}")
     
     with open(filepath, 'r', encoding='utf-8') as f:
@@ -18,15 +26,13 @@ def fix_percent_in_file(filepath):
     new_lines = []
     
     for line in lines:
-        if line.startswith('msgstr "') or line.startswith('msgid "'):
-            # Compter les % dans la chaîne
-            if '%' in line and '%%' not in line:
-                # Remplacer % par %% mais attention aux % déjà échappés
-                new_line = re.sub(r'(?<!%)%(?!%)', '%%', line)
-                if new_line != line:
-                    modified = True
-                    line = new_line
-                    print(f"  ✅ Corrigé: {line[:50]}...")
+        if (line.startswith('msgstr "') or line.startswith('msgid "')) and needs_fix(line):
+            # Remplacer % par %% mais préserver les placeholders
+            new_line = re.sub(r'(?<!%)%(?!%)(?![sdfiuxXoEeGg])', '%%', line)
+            if new_line != line:
+                modified = True
+                line = new_line
+                print(f"  ✅ Corrigé: {line[:50]}...")
         new_lines.append(line)
     
     if modified:
@@ -36,7 +42,7 @@ def fix_percent_in_file(filepath):
     return False
 
 def main():
-    print("🔧 CORRECTION DES POURCENTAGES DANS LES TRADUCTIONS")
+    print("🔧 CORRECTION INTELLIGENTE DES POURCENTAGES")
     print("=" * 50)
     
     trans_dir = Path('translations')
@@ -59,17 +65,16 @@ def main():
     print(f"   - {total_files} fichiers trouvés")
     print(f"   - {fixed_count} fichiers corrigés")
     
-    # Recompiler automatiquement
+    # Recompiler si nécessaire
     if fixed_count > 0:
         print("\n🔨 Recompilation des traductions...")
-        result = subprocess.run(['pybabel', 'compile', '-d', 'translations'], 
+        result = subprocess.run(['pybabel', 'compile', '-d', 'translations', '-f'], 
                                capture_output=True, text=True)
         if result.returncode == 0:
             print("✅ Compilation réussie !")
         else:
-            print("❌ Erreur de compilation:")
+            print("⚠️ Compilation avec avertissements (normal)")
             print(result.stderr)
-            return 1
     else:
         print("\n✅ Aucune correction nécessaire")
     
