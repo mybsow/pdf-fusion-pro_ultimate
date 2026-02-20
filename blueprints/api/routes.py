@@ -22,8 +22,6 @@ rating_manager = RatingManager()
 stats_manager = StatisticsManager()
 
 
-api_bp = Blueprint("api_bp", __name__)
-
 # ============================
 # UTILITAIRES
 # ============================
