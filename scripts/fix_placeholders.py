@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-# scripts/fix_placeholders.py - Version améliorée
+# scripts/fix_placeholders.py - Version corrigée avec linenum
 
 import polib
 import re
 from pathlib import Path
 import sys
+import subprocess
 
 def extract_placeholders(text):
     """Extrait les placeholders comme {0}, %s, %d, etc."""
@@ -42,8 +43,9 @@ def fix_placeholders_in_file(po_file):
         msgstr_ph = extract_placeholders(entry.msgstr)
         
         if msgid_ph != msgstr_ph:
-            print(f"\n  ⚠️ Problème ligne {entry.lineno}:")
-            print(f"    msgid: {entry.msgid[:50]}...")
+            # CORRECTION: linenum au lieu de lineno
+            print(f"\n  ⚠️ Problème ligne {entry.linenum}:")
+            print(f"    msgid: {entry.msgid[:50]}..." if len(entry.msgid) > 50 else f"    msgid: {entry.msgid}")
             print(f"    msgid placeholders: {msgid_ph}")
             print(f"    msgstr placeholders: {msgstr_ph}")
             
@@ -115,17 +117,20 @@ def main():
     print("=" * 60)
     print(f"📊 Récapitulatif: {success_count}/{len(po_files)} fichiers traités avec succès")
     
-    # Option: recompiler automatiquement
+    # Recompiler automatiquement
     if success_count > 0:
         print("\n🔨 Recompilation des traductions...")
-        import subprocess
         result = subprocess.run(['pybabel', 'compile', '-d', 'translations', '-f'], 
                                capture_output=True, text=True)
         if result.returncode == 0:
             print("✅ Compilation réussie !")
         else:
             print("⚠️ Compilation avec avertissements (normal)")
-            print(result.stderr[:200] + "...")
+            # Afficher seulement les 5 premières lignes d'erreur
+            errors = result.stderr.split('\n')[:5]
+            for err in errors:
+                if err.strip():
+                    print(f"   {err}")
     
     return 0
 
