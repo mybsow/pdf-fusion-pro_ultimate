@@ -123,16 +123,6 @@ def create_app():
         if 'language' in session:
             return session['language']
         return request.accept_languages.best_match(app.config['LANGUAGES'].keys())
-    
-    def _(message):
-        lang = get_locale()
-        t = translations_cache.get(lang)
-        if t:
-            return t.gettext(message)
-        return message
-
-    # Initialisation Babel
-    babel = Babel(app, locale_selector=get_locale)
 
     def load_translations():
         base = Path(app.config['BABEL_TRANSLATION_DIRECTORIES'])
@@ -146,10 +136,21 @@ def create_app():
                     except Exception as e:
                         logger.error(f"Erreur traduction {lang_dir.name}: {e}")
 
+    def _(message):
+        lang = get_locale()
+        t = translations_cache.get(lang)
+        if t:
+            return t.gettext(message)
+        return message
+
+    # Initialisation Babel
+    babel = Babel(app, locale_selector=get_locale)
+    load_translations()
+
     # Initialisation des dossiers et configurations
     AppConfig.initialize()
     init_app_dirs()
-    load_translations()
+
 
     # ------------------- Blueprints -------------------
     from blueprints.pdf import pdf_bp
