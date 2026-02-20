@@ -10,7 +10,8 @@ import requests
 from . import legal_bp
 from config import AppConfig
 from managers.contact_manager import contact_manager
-from flask_babel import _, lazy_gettext as _l
+from flask_babel import _
+from flask_babel import lazy_gettext as _l
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, Optional, Email, Length
