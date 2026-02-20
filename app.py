@@ -39,27 +39,6 @@ def get_locale():
 # i18n préchargé
 # ============================================================
 import gettext
-translations_cache = {}
-
-def load_translations():
-    base = Path(app.config['BABEL_TRANSLATION_DIRECTORIES'])
-    for lang_dir in base.iterdir():
-        if lang_dir.is_dir():
-            mo_file = lang_dir / 'LC_MESSAGES' / 'messages.mo'
-            if mo_file.exists():
-                try:
-                    translations_cache[lang_dir.name] = gettext.GNUTranslations(open(mo_file, 'rb'))
-                    logger.info(f"✅ Traductions {lang_dir.name} chargées en mémoire")
-                except Exception as e:
-                    logger.error(f"Erreur traduction {lang_dir.name}: {e}")
-
-
-def _(message):
-    lang = get_locale()
-    t = translations_cache.get(lang)
-    if t:
-        return t.gettext(message)
-    return message
 
 # ============================================================
 # OCR
@@ -136,6 +115,28 @@ def create_app():
         'ja': {'name': '日本語', 'flag': 'jp'},
         'ru': {'name': 'Русский', 'flag': 'ru'},
     }
+
+    # ------------------- i18n (DÉPLACÉ ICI) -------------------
+    translations_cache = {}
+    
+    def load_translations():
+        base = Path(app.config['BABEL_TRANSLATION_DIRECTORIES'])
+        for lang_dir in base.iterdir():
+            if lang_dir.is_dir():
+                mo_file = lang_dir / 'LC_MESSAGES' / 'messages.mo'
+                if mo_file.exists():
+                    try:
+                        translations_cache[lang_dir.name] = gettext.GNUTranslations(open(mo_file, 'rb'))
+                        logger.info(f"✅ Traductions {lang_dir.name} chargées en mémoire")
+                    except Exception as e:
+                        logger.error(f"Erreur traduction {lang_dir.name}: {e}")
+    
+    def _(message):
+        lang = get_locale()
+        t = translations_cache.get(lang)
+        if t:
+            return t.gettext(message)
+        return message
 
     # Initialisation Babel
     babel = Babel(app, locale_selector=get_locale)
