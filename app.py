@@ -138,7 +138,7 @@ def create_app():
     init_app_dirs()
     # Charger traductions ici
     load_translations()
-    check_and_create_templates()
+    #check_and_create_templates()
 
     # ------------------- Blueprints -------------------
     from blueprints.pdf import pdf_bp
