@@ -13,7 +13,8 @@ import os
 import logging
 import polib, re
 from flask_wtf import CSRFProtect
-from flask_babel import Babel, _, gettext
+from flask_babel import Babel, gettext
+from flask_babel import _
 
 # ============================================================
 # Création de l'app Flask
@@ -125,12 +126,13 @@ def check_and_create_templates():
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
             html_content = f"""<!DOCTYPE html>
+html_content = f"""<!DOCTYPE html>
 <html>
 <head><title>{template}</title></head>
 <body>
     <h1>{template}</h1>
     <p>{_('Page en développement')}</p>
-    <a href="/">← {_('Retour à l\'accueil')}</a>
+    <a href="/">{_("Retour à l'accueil")}</a>
 </body>
 </html>"""
             path.write_text(html_content)
