@@ -77,7 +77,6 @@ def load_translations():
                 except Exception as e:
                     logger.error(f"Erreur traduction {lang_dir.name}: {e}")
 
-load_translations()
 
 def _(message):
     lang = get_locale()
@@ -137,6 +136,8 @@ def create_app():
     logger.info("🚀 Initialisation Flask...")
     AppConfig.initialize()
     init_app_dirs()
+    # Charger traductions ici
+    load_translations()
     check_and_create_templates()
 
     # ------------------- Blueprints -------------------
