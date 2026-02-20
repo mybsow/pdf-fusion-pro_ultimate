@@ -73,7 +73,7 @@ logger = logging.getLogger(__name__)
 # ============================================================
 
 def get_locale():
-    return session.get("lang", "fr")
+    return session.get("language", "fr")
 
 babel = Babel(app, locale_selector=get_locale)
 
