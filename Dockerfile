@@ -115,6 +115,9 @@ RUN mkdir -p translations && \
         echo "✅ Traductions déjà à jour, compilation simple..."; \
         pybabel compile -d translations -f 2>&1 || true; \
     fi
+# Correction intelligente des placeholders
+RUN echo "🔧 Correction des placeholders dans les traductions..." && \
+    python scripts/fix_placeholders.py
 # -----------------------------
 # Rendre les scripts exécutables
 # -----------------------------
