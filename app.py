@@ -88,7 +88,7 @@ csrf = CSRFProtect(app)
 # ============================================================
 
 # Import ici pour éviter les imports circulaires
-from legal.routes import pdf_bp
+from pdf.routes import pdf_bp
 from conversion.routes import conversion_bp
 from legal.routes import legal_bp
 
