@@ -81,21 +81,39 @@ RUN mkdir -p translations && \
     find . -type f \( -name "*.py" -o -name "*.html" \) -o -name "babel.cfg" | sort | xargs md5sum > .sources.md5 && \
     if [ ! -f translations/.sources.md5 ] || ! cmp -s .sources.md5 translations/.sources.md5; then \
         echo "🌍 Changements détectés : extraction et mise à jour des traductions"; \
-        pybabel extract -F babel.cfg -o messages.pot . 2>/dev/null || echo "⚠️ Aucun texte extrait"; \
-        LANGUAGES="en es de it pt ar zh ja ru nl"; \
-        for lang in $LANGUAGES; do \
-            if [ ! -d "translations/$lang/LC_MESSAGES" ]; then \
-                pybabel init -i messages.pot -d translations -l $lang 2>/dev/null || echo "⚠️ Init $lang échoué"; \
-            else \
-                pybabel update -i messages.pot -d translations -l $lang 2>/dev/null || echo "⚠️ Update $lang échoué"; \
-            fi; \
-        done; \
-        # ✅ SOLUTION : Forcer la compilation ET ignorer le code de retour
-        echo "🔧 Compilation des traductions (les erreurs sont ignorées)..." && \
-        pybabel compile -d translations -f 2>&1 || true; \
+        echo "🔍 Extraction des chaînes avec babel.cfg..."; \
+        # Afficher les erreurs pour diagnostic
+        pybabel extract -F babel.cfg -o messages.pot . || echo "⚠️ Échec de l'extraction - mais on continue"; \
+        \
+        # Vérifier si messages.pot a été créé
+        if [ -f messages.pot ]; then \
+            echo "✅ Fichier messages.pot créé avec succès"; \
+            wc -l messages.pot; \
+            \
+            LANGUAGES="en es de it pt ar zh ja ru nl"; \
+            for lang in $LANGUAGES; do \
+                echo "🔄 Traitement de $lang..."; \
+                if [ ! -d "translations/$lang/LC_MESSAGES" ]; then \
+                    echo "   Initialisation de $lang..."; \
+                    pybabel init -i messages.pot -d translations -l $lang 2>&1 || echo "⚠️ Init $lang échoué"; \
+                else \
+                    echo "   Mise à jour de $lang..."; \
+                    pybabel update -i messages.pot -d translations -l $lang 2>&1 || echo "⚠️ Update $lang échoué"; \
+                fi; \
+            done; \
+            \
+            echo "🔧 Compilation des traductions (les erreurs sont ignorées)..."; \
+            pybabel compile -d translations -f 2>&1 || true; \
+        else \
+            echo "⚠️ messages.pot non créé - utilisation des fichiers existants"; \
+            # Compiler quand même les fichiers existants
+            pybabel compile -d translations -f 2>&1 || true; \
+        fi; \
+        \
         cp .sources.md5 translations/.sources.md5; \
     else \
-        echo "✅ Traductions déjà à jour, utilisation du cache"; \
+        echo "✅ Traductions déjà à jour, compilation simple..."; \
+        pybabel compile -d translations -f 2>&1 || true; \
     fi
 # -----------------------------
 # Rendre les scripts exécutables
