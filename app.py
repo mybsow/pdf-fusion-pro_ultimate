@@ -239,7 +239,8 @@ def create_app():
         return dict(
             languages=app.config["LANGUAGES"], 
             _=_,
-            get_locale=get_locale  # AJOUTEZ CETTE LIGNE
+            get_locale=get_locale,
+            config=app.config  # ← Ajoutez aussi config pour le fallback
         )
 
     # ------------------- Filters -------------------
