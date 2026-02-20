@@ -17,7 +17,7 @@ from io import BytesIO
 import zipfile
 import logging
 
-from flask_babel import _,
+from flask_babel import _
 from flask_babel import lazy_gettext as _l
 
 # Configuration du logging
