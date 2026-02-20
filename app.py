@@ -88,13 +88,15 @@ csrf = CSRFProtect(app)
 # ============================================================
 
 # Import ici pour éviter les imports circulaires
-from pdf.routes import pdf_bp
-from conversion.routes import conversion_bp
-from legal.routes import legal_bp
+from blueprints.legal.routes import legal_bp
+from blueprints.pdf.routes import pdf_bp
+from blueprints.conversion import conversion_bp
+from blueprints.admin import admin_bp
 
+app.register_blueprint(legal_bp)
 app.register_blueprint(pdf_bp)
 app.register_blueprint(conversion_bp)
-app.register_blueprint(legal_bp)
+app.register_blueprint(admin_bp)
 
 
 # ============================================================
