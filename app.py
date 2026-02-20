@@ -96,56 +96,26 @@ except ImportError:
     PYTESSERACT_AVAILABLE = False
     pytesseract = None
 
-try:
-    import cv2
-    OPENCV_AVAILABLE = True
-    cv2.setNumThreads(0)
-except ImportError:
-    OPENCV_AVAILABLE = False
-
-try:
-    from pdf2image import convert_from_path
-    PDF2IMAGE_AVAILABLE = True
-except ImportError:
-    PDF2IMAGE_AVAILABLE = False
-
 def _ocr_probe():
     status = {
         "enabled": AppConfig.OCR_ENABLED,
         "tesseract": None,
-        "poppler": None,
-        "lang_fra": None,
-        "python_packages": {
-            "pytesseract": PYTESSERACT_AVAILABLE,
-            "Pillow": False,
-            "pdf2image": PDF2IMAGE_AVAILABLE,
-            "opencv-python": OPENCV_AVAILABLE
-        },
-        "errors": []
+        "poppler": shutil.which("pdftoppm"),
+        "lang_fra": False
     }
-    try:
-        from PIL import Image
-        status["python_packages"]["Pillow"] = True
-    except ImportError:
-        status["python_packages"]["Pillow"] = False
 
     if not AppConfig.OCR_ENABLED:
         return status
 
-    possible_paths = ['/usr/bin/tesseract', '/usr/local/bin/tesseract', '/bin/tesseract', shutil.which("tesseract")]
-    tesseract_path = next((p for p in possible_paths if p and os.path.exists(p)), None)
-    status["tesseract"] = tesseract_path
-    status["poppler"] = shutil.which("pdftoppm") or '/usr/bin/pdftoppm'
-
+    tesseract_path = shutil.which("tesseract")
     if tesseract_path and PYTESSERACT_AVAILABLE:
-        pytesseract.pytesseract.tesseract_cmd = tesseract_path
         try:
-            version = pytesseract.get_tesseract_version()
-            status["tesseract"] = f"{tesseract_path} (v{version})"
-            langs = pytesseract.get_languages(config='') if PYTESSERACT_AVAILABLE else []
+            pytesseract.pytesseract.tesseract_cmd = tesseract_path
+            langs = pytesseract.get_languages(config="")
+            status["tesseract"] = tesseract_path
             status["lang_fra"] = "fra" in langs
-        except Exception as e:
-            status["errors"].append(str(e))
+        except Exception:
+            pass
 
     return status
 
@@ -256,10 +226,11 @@ def create_app():
             "lang_fra": probe["lang_fra"]
         })
 
-    # ------------------- Context processor -------------------
+
+    # ------------------- Context Jinja -------------------
     @app.context_processor
-    def inject_config():
-        return dict(config=app.config, languages=app.config.get('LANGUAGES', {}), _=_)
+    def inject_globals():
+        return dict(languages=app.config["LANGUAGES"], _=_)
 
     # ------------------- Filters -------------------
     @app.template_filter('filesize')
@@ -282,10 +253,26 @@ def create_app():
     def server_error(e):
         return render_template("errors/500.html"), 500
 
-    # ------------------- Routes OCR debug -------------------
-    @app.route('/test-ocr')
-    def test_ocr():
-        return jsonify(_ocr_probe())
+
+    # ------------------- Debug OCR (dev only) -------------------
+    if app.debug:
+
+        @app.route("/test-ocr")
+        def test_ocr():
+            return jsonify(_ocr_probe())
+
+        @app.route("/force-install-ocr")
+        def force_install_ocr():
+            import sys
+            packages = ["pytesseract", "pdf2image", "Pillow", "opencv-python-headless"]
+            results = []
+            for pkg in packages:
+                try:
+                    subprocess.run([sys.executable, "-m", "pip", "install", pkg], check=True)
+                    results.append(f"{pkg} installé")
+                except Exception as e:
+                    results.append(f"{pkg} erreur: {e}")
+            return jsonify(results)
 
 # ============================================================
 # Entrypoint
