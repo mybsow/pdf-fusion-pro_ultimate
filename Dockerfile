@@ -90,7 +90,7 @@ RUN mkdir -p translations && \
                 pybabel update -i messages.pot -d translations -l $lang 2>/dev/null || echo "⚠️ Update $lang échoué"; \
             fi; \
         done; \
-        pybabel compile -d translations; \
+        pybabel compile -d translations -f; \
         cp .sources.md5 translations/.sources.md5; \
     else \
         echo "✅ Traductions déjà à jour, utilisation du cache"; \
