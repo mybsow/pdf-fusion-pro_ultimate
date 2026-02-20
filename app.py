@@ -22,42 +22,18 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger(__name__)
 
 # ============================================================
-# Création app
+# Création app (déplacé dans create_app)
 # ============================================================
-app = Flask(__name__)
 from config import AppConfig
-app.config.from_object(AppConfig)
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", AppConfig.SECRET_KEY)
-app.config["UPLOAD_FOLDER"] = tempfile.gettempdir()
-app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 
 # ============================================================
-# Langues
+# Langues (déplacé dans create_app)
 # ============================================================
-app.config['BABEL_DEFAULT_LOCALE'] = 'fr'
-app.config['BABEL_TRANSLATION_DIRECTORIES'] = './translations'
-app.config['LANGUAGES'] = {
-    'fr': {'name': 'Français', 'flag': 'fr'},
-    'en': {'name': 'English', 'flag': 'gb'},
-    'es': {'name': 'Español', 'flag': 'es'},
-    'de': {'name': 'Deutsch', 'flag': 'de'},
-    'it': {'name': 'Italiano', 'flag': 'it'},
-    'pt': {'name': 'Português', 'flag': 'pt'},
-    'nl': {'name': 'Nederlands', 'flag': 'nl'},
-    'ar': {'name': 'العربية', 'flag': 'sa'},
-    'zh': {'name': '中文', 'flag': 'cn'},
-    'ja': {'name': '日本語', 'flag': 'jp'},
-    'ru': {'name': 'Русский', 'flag': 'ru'},
-}
 
 def get_locale():
     if 'language' in session:
         return session['language']
     return request.accept_languages.best_match(app.config['LANGUAGES'].keys())
-
-babel = Babel(app, locale_selector=get_locale)
 
 # ============================================================
 # i18n préchargé
@@ -134,11 +110,40 @@ def init_app_dirs():
 # ============================================================
 def create_app():
     logger.info("🚀 Initialisation Flask...")
+    
+    # Créer l'application Flask
+    app = Flask(__name__)
+    app.config.from_object(AppConfig)
+    app.secret_key = os.environ.get("FLASK_SECRET_KEY", AppConfig.SECRET_KEY)
+    app.config["UPLOAD_FOLDER"] = tempfile.gettempdir()
+    app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
+
+    # Configuration des langues
+    app.config['BABEL_DEFAULT_LOCALE'] = 'fr'
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = './translations'
+    app.config['LANGUAGES'] = {
+        'fr': {'name': 'Français', 'flag': 'fr'},
+        'en': {'name': 'English', 'flag': 'gb'},
+        'es': {'name': 'Español', 'flag': 'es'},
+        'de': {'name': 'Deutsch', 'flag': 'de'},
+        'it': {'name': 'Italiano', 'flag': 'it'},
+        'pt': {'name': 'Português', 'flag': 'pt'},
+        'nl': {'name': 'Nederlands', 'flag': 'nl'},
+        'ar': {'name': 'العربية', 'flag': 'sa'},
+        'zh': {'name': '中文', 'flag': 'cn'},
+        'ja': {'name': '日本語', 'flag': 'jp'},
+        'ru': {'name': 'Русский', 'flag': 'ru'},
+    }
+
+    # Initialisation Babel
+    babel = Babel(app, locale_selector=get_locale)
+
+    # Initialisation des dossiers et configurations
     AppConfig.initialize()
     init_app_dirs()
-    # Charger traductions ici
     load_translations()
-    #check_and_create_templates()
 
     # ------------------- Blueprints -------------------
     from blueprints.pdf import pdf_bp
@@ -227,7 +232,6 @@ def create_app():
             "lang_fra": probe["lang_fra"]
         })
 
-
     # ------------------- Context Jinja -------------------
     @app.context_processor
     def inject_globals():
@@ -254,10 +258,8 @@ def create_app():
     def server_error(e):
         return render_template("errors/500.html"), 500
 
-
     # ------------------- Debug OCR (dev only) -------------------
     if app.debug:
-
         @app.route("/test-ocr")
         def test_ocr():
             return jsonify(_ocr_probe())
@@ -274,6 +276,8 @@ def create_app():
                 except Exception as e:
                     results.append(f"{pkg} erreur: {e}")
             return jsonify(results)
+
+    return app
 
 # ============================================================
 # Entrypoint
