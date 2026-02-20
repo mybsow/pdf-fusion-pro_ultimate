@@ -21,6 +21,13 @@ from flask_babel import _
 # ============================================================
 app = Flask(__name__)
 
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=30)
+
+# Langues supportées
+LANGUAGES = ["fr", "en"]
+app.config["LANGUAGES"] = LANGUAGES
+
 # ============================================================
 # Configuration
 # ============================================================
@@ -53,8 +60,6 @@ app.config['LANGUAGES'] = {
     'ru': {'name': 'Русский', 'flag': 'ru'},
 }
 
-# CSRF
-csrf = CSRFProtect(app)
 
 # ============================================================
 # Logging
@@ -63,20 +68,33 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger(__name__)
 
 # ============================================================
-# Babel
+# BABEL (Flask-Babel >= 3.x compatible)
 # ============================================================
-babel = Babel(app)
 
-@babel.localeselector
 def get_locale():
-    if 'language' in session:
-        return session['language']
-    return request.accept_languages.best_match(app.config['LANGUAGES'].keys())
+    return session.get("lang", "fr")
 
-@app.before_request
-def set_default_language():
-    if 'language' not in session:
-        session['language'] = request.accept_languages.best_match(app.config['LANGUAGES'].keys())
+babel = Babel(app, locale_selector=get_locale)
+
+# ============================================================
+# CSRF PROTECTION
+# ============================================================
+
+csrf = CSRFProtect(app)
+
+# ============================================================
+# BLUEPRINTS
+# ============================================================
+
+# Import ici pour éviter les imports circulaires
+from legal.routes import pdf_bp
+from conversion.routes import conversion_bp
+from legal.routes import legal_bp
+
+app.register_blueprint(pdf_bp)
+app.register_blueprint(conversion_bp)
+app.register_blueprint(legal_bp)
+
 
 # ============================================================
 # Fonctions utilitaires
@@ -107,46 +125,6 @@ def init_app_dirs():
     contacts_file = base_dir / 'data' / 'contacts.json'
     if not contacts_file.exists():
         contacts_file.write_text('[]', encoding='utf-8')
-
-def check_and_create_templates():
-    required = [
-        'conversion/csv_to_excel.html',
-        'conversion/excel_to_csv.html',
-        'conversion/pdf_to_image.html',
-        'conversion/pdf_to_doc.html',
-        'conversion/pdf_to_excel.html',
-        'conversion/pdf_to_pdf.html',
-        'conversion/pdf_to_ppt.html',
-        'errors/404.html',
-        'errors/413.html',
-        'errors/500.html'
-    ]
-
-    for template in required:
-        path = Path('templates') / template
-
-        if not path.exists():
-            path.parent.mkdir(parents=True, exist_ok=True)
-
-            title = template
-            dev_text = _("Page en développement")
-            back_text = _("Retour à l'accueil")
-
-            html_content = f"""<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>{title}</title>
-</head>
-<body>
-    <h1>{title}</h1>
-    <p>{dev_text}</p>
-    <a href="/">{back_text}</a>
-</body>
-</html>"""
-
-            path.write_text(html_content, encoding="utf-8")
-            logger.info(f"Template créé: {template}")
 
 
 # ============================================================
@@ -255,7 +233,6 @@ def create_app():
     logger.info(_("🚀 Initialisation Flask..."))
     AppConfig.initialize()
     init_app_dirs()
-    check_and_create_templates()
     compile_all_translations()
     return app
 
