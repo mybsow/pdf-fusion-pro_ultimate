@@ -73,7 +73,7 @@ app.wsgi_app = ProxyFix(
 )
 
 # Configuration des langues supportées
-app.config['BABEL_DEFAULT_LOCALE'] = 'fr'  # Langue par défaut
+app.config['BABEL_DEFAULT_LOCALE'] = 'fr'
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = './translations'
 app.config['LANGUAGES'] = {
     'fr': {'name': 'Français', 'flag': 'fr'},
@@ -89,11 +89,9 @@ app.config['LANGUAGES'] = {
     'ru': {'name': 'Русский', 'flag': 'ru'},
 }
 
-
 # ============================================================
 # Fonction pour déterminer la langue
 # ============================================================
-@babel.localeselector
 def get_locale():
     if 'language' in session:
         return session['language']
