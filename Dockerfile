@@ -17,7 +17,7 @@ ENV FLASK_ENV=production
 ENV FLASK_DEBUG=0
 
 # -------------------------------------------------
-# Dépendances système (optimisées + WeasyPrint OK)
+# Dépendances système (WeasyPrint, LibreOffice, Tesseract, unoconv)
 # -------------------------------------------------
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -35,6 +35,7 @@ RUN apt-get update && \
         tesseract-ocr-chi-tra \
         poppler-utils \
         libreoffice \
+        unoconv \
         ghostscript \
         fonts-dejavu-core \
         fonts-droid-fallback \
@@ -65,7 +66,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 # -------------------------------------------------
 # Copier config Babel & scripts
 # -------------------------------------------------
-COPY babel.cfg .
+COPY babel.cfg . 
 COPY scripts ./scripts
 
 # -------------------------------------------------
@@ -74,42 +75,32 @@ COPY scripts ./scripts
 COPY . .
 
 # -------------------------------------------------
-# Génération intelligente des traductions
-# -------------------------------------------------
-# -------------------------------------------------
-# Génération ultra-robuste des traductions
-# -------------------------------------------------
-# -------------------------------------------------
-# Génération intelligente et tolérante des traductions
+# Génération intelligente des traductions (Babel)
 # -------------------------------------------------
 RUN mkdir -p translations && \
     echo "🔎 Vérification des sources Babel..." && \
     find . -type f \( -name "*.py" -o -name "*.html" -o -name "babel.cfg" \) -print0 \
         | sort -z | xargs -0 md5sum > .sources.md5 && \
-    LANGUAGES="en es de it pt ar zh ja ru nl"; \
-    RECOMPILE=0; \
-    for lang in $LANGUAGES; do \
-        PO_FILE="translations/$lang/LC_MESSAGES/messages.po"; \
-        if [ ! -f "$PO_FILE" ]; then \
-            echo "🌍 Initialisation de la langue $lang"; \
-            pybabel init -i messages.pot -d translations -l $lang || true; \
-            RECOMPILE=1; \
-        else \
-            echo "🔄 Mise à jour de $lang"; \
-            pybabel update -i messages.pot -d translations -l $lang || true; \
-        fi; \
-    done; \
-    echo "🔧 Correction des placeholders et %"; \
-    python scripts/fix_placeholders_report.py || true; \
-    python scripts/fix_percent.py || true; \
-    # Recompiler uniquement si modifications détectées
-    if [ ! -f translations/.sources.md5 ] || ! cmp -s .sources.md5 translations/.sources.md5 || [ "$RECOMPILE" -eq 1 ]; then \
-        echo "🔨 Compilation des traductions (tolérante aux erreurs)..."; \
-        pybabel compile -d translations -f || echo "⚠️ Erreurs de compilation ignorées"; \
+    if [ ! -f translations/.sources.md5 ] || ! cmp -s .sources.md5 translations/.sources.md5; then \
+        echo "🌍 Changements détectés → extraction traductions"; \
+        pybabel extract -F babel.cfg -o messages.pot .; \
+        LANGUAGES="en es de it pt ar zh ja ru nl"; \
+        for lang in $LANGUAGES; do \
+            if [ ! -d "translations/$lang/LC_MESSAGES" ]; then \
+                pybabel init -i messages.pot -d translations -l $lang; \
+            else \
+                pybabel update -i messages.pot -d translations -l $lang; \
+            fi; \
+        done; \
+        python scripts/fix_placeholders.py; \
+        python scripts/fix_percent.py; \
+        pybabel compile -d translations; \
         cp .sources.md5 translations/.sources.md5; \
     else \
         echo "♻️ Aucune modification → compilation uniquement"; \
-        pybabel compile -d translations -f || echo "⚠️ Erreurs de compilation ignorées"; \
+        python scripts/fix_placeholders.py; \
+        python scripts/fix_percent.py; \
+        pybabel compile -d translations; \
     fi
 
 # -------------------------------------------------
