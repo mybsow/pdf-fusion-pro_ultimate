@@ -89,8 +89,6 @@ app.config['LANGUAGES'] = {
     'ru': {'name': 'Русский', 'flag': 'ru'},
 }
 
-# Initialiser Babel (avant de définir le locale selector)
-babel = Babel(app)
 
 # ============================================================
 # Fonction pour déterminer la langue
@@ -100,6 +98,9 @@ def get_locale():
     if 'language' in session:
         return session['language']
     return request.accept_languages.best_match(app.config['LANGUAGES'].keys())
+
+# Initialiser Babel avec la fonction locale_selector
+babel = Babel(app, locale_selector=get_locale)
 
 # ============================================================
 # Fonctions d'initialisation
