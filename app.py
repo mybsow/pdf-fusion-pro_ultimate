@@ -316,6 +316,24 @@ def create_app():
                     results.append(f"{pkg} erreur: {e}")
             return jsonify(results)
 
+        @app.route('/debug-all-templates')
+        def debug_all_templates():
+            import os
+            base_dir = os.path.dirname(__file__)
+            
+            results = {
+                'current_dir': base_dir,
+                'templates_structure': {}
+            }
+            
+            # Parcourir tous les dossiers templates
+            for root, dirs, files in os.walk(base_dir):
+                if 'templates' in root.split(os.sep):
+                    rel_path = os.path.relpath(root, base_dir)
+                    results['templates_structure'][rel_path] = files
+            
+            return jsonify(results)
+
         @app.route('/debug-templates')
         def debug_templates():
             """Route de diagnostic pour voir les templates disponibles"""
