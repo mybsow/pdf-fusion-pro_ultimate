@@ -70,7 +70,9 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 # -------------------------------------------------
 # Copier config Babel & scripts
 # -------------------------------------------------
-COPY babel.cfg . 
+COPY translations ./translations
+COPY babel.cfg .
+COPY messages.pot .
 COPY scripts ./scripts
 
 # -------------------------------------------------
