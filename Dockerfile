@@ -1,24 +1,24 @@
-# -----------------------------
+# -------------------------------------------------
 # Base Python slim
-# -----------------------------
+# -------------------------------------------------
 FROM python:3.11-slim
 
-# -----------------------------
-# Variables environnementales
-# -----------------------------
+# -------------------------------------------------
+# Variables d’environnement
+# -------------------------------------------------
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
-ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
 ENV PORT=10000
 ENV BABEL_TRANSLATION_DIRECTORIES=./translations
 ENV FLASK_ENV=production
 ENV FLASK_DEBUG=0
 
-# -----------------------------
-# Installer les dépendances système
-# -----------------------------
+# -------------------------------------------------
+# Dépendances système (optimisées + WeasyPrint OK)
+# -------------------------------------------------
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         tesseract-ocr \
@@ -35,108 +35,80 @@ RUN apt-get update && \
         tesseract-ocr-chi-tra \
         poppler-utils \
         libreoffice \
+        ghostscript \
+        fonts-dejavu-core \
+        fonts-droid-fallback \
         libglib2.0-0 \
         libgl1 \
-        fonts-dejavu-core \
-        ghostscript \
+        libcairo2 \
+        libpango-1.0-0 \
+        libpangocairo-1.0-0 \
         gettext \
-        git \
         curl \
         wget \
-        libgpg-error-l10n \
-        fonts-droid-fallback \
-        gstreamer1.0-plugins-base \
+        git \
     && rm -rf /var/lib/apt/lists/*
 
-# -----------------------------
-# Créer le dossier de travail
-# -----------------------------
+# -------------------------------------------------
+# Dossier de travail
+# -------------------------------------------------
 WORKDIR /app
 
-# -----------------------------
+# -------------------------------------------------
 # Installer requirements
-# -----------------------------
+# -------------------------------------------------
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r requirements.txt && \
     ln -sf /usr/bin/python3 /usr/bin/python
 
-# -----------------------------
-# Copier babel.cfg et scripts avant le reste
-# -----------------------------
+# -------------------------------------------------
+# Copier config Babel & scripts
+# -------------------------------------------------
 COPY babel.cfg .
 COPY scripts ./scripts
 
-# -----------------------------
-# Copier tout le projet
-# -----------------------------
+# -------------------------------------------------
+# Copier le projet
+# -------------------------------------------------
 COPY . .
 
-# -----------------------------
+# -------------------------------------------------
 # Génération intelligente des traductions
-# -----------------------------
+# -------------------------------------------------
 RUN mkdir -p translations && \
     echo "🔧 Vérification des fichiers pour Babel..." && \
-    # Calculer un hash des fichiers sources .py, .html et babel.cfg
     find . -type f \( -name "*.py" -o -name "*.html" \) -o -name "babel.cfg" | sort | xargs md5sum > .sources.md5 && \
     if [ ! -f translations/.sources.md5 ] || ! cmp -s .sources.md5 translations/.sources.md5; then \
-        echo "🌍 Changements détectés : extraction et mise à jour des traductions"; \
-        echo "🔍 Extraction des chaînes avec babel.cfg..."; \
-        # Afficher les erreurs pour diagnostic
-        pybabel extract -F babel.cfg -o messages.pot . || echo "⚠️ Échec de l'extraction - mais on continue"; \
-        \
-        # Vérifier si messages.pot a été créé
+        echo "🌍 Changements détectés : extraction traductions"; \
+        pybabel extract -F babel.cfg -o messages.pot . || true; \
         if [ -f messages.pot ]; then \
-            echo "✅ Fichier messages.pot créé avec succès"; \
-            wc -l messages.pot; \
-            \
             LANGUAGES="en es de it pt ar zh ja ru nl"; \
             for lang in $LANGUAGES; do \
-                echo "🔄 Traitement de $lang..."; \
                 if [ ! -d "translations/$lang/LC_MESSAGES" ]; then \
-                    echo "   Initialisation de $lang..."; \
-                    pybabel init -i messages.pot -d translations -l $lang 2>&1 || echo "⚠️ Init $lang échoué"; \
+                    pybabel init -i messages.pot -d translations -l $lang || true; \
                 else \
-                    echo "   Mise à jour de $lang..."; \
-                    pybabel update -i messages.pot -d translations -l $lang 2>&1 || echo "⚠️ Update $lang échoué"; \
+                    pybabel update -i messages.pot -d translations -l $lang || true; \
                 fi; \
             done; \
-            \
-            echo "🔧 Compilation des traductions (les erreurs sont ignorées)..."; \
-            pybabel compile -d translations -f 2>&1 || true; \
-        else \
-            echo "⚠️ messages.pot non créé - utilisation des fichiers existants"; \
-            # Compiler quand même les fichiers existants
-            pybabel compile -d translations -f 2>&1 || true; \
+            pybabel compile -d translations -f || true; \
         fi; \
-        \
         cp .sources.md5 translations/.sources.md5; \
     else \
-        echo "✅ Traductions déjà à jour, compilation simple..."; \
-        pybabel compile -d translations -f 2>&1 || true; \
-    fi
-# Correction intelligente des placeholders
-RUN echo "🔧 Correction des placeholders dans les traductions..." && \
-    python scripts/fix_placeholders.py
-# -----------------------------
-# Rendre les scripts exécutables
-# -----------------------------
-RUN chmod +x scripts/*.sh 2>/dev/null || echo "⚠️ Aucun script trouvé"
-
-# -----------------------------
-# Correction des pourcentages
-# -----------------------------
-RUN echo "🔧 Correction des pourcentages dans les .po..." && \
-    if [ -d "translations" ]; then \
-        python scripts/fix_percent.py; \
-    else \
-        echo "⚠️ Dossier translations introuvable"; \
+        pybabel compile -d translations -f || true; \
     fi
 
-# -----------------------------
-# Créer les dossiers temporaires
-# -----------------------------
-RUN mkdir -p /tmp/pdf_fusion_pro/conversion_temp \
+# Correction placeholders
+RUN python scripts/fix_placeholders.py || true
+
+# Correction %
+RUN python scripts/fix_percent.py || true
+
+# -------------------------------------------------
+# Créer dossiers runtime
+# -------------------------------------------------
+RUN mkdir -p \
+    /tmp/pdf_fusion_pro/conversion_temp \
     /tmp/pdf_fusion_pro/uploads \
     /tmp/pdf_fusion_pro/logs \
     /app/data/contacts \
@@ -145,23 +117,20 @@ RUN mkdir -p /tmp/pdf_fusion_pro/conversion_temp \
     /app/uploads \
     /app/temp
 
-# -----------------------------
-# Définir les permissions
-# -----------------------------
-RUN chmod -R 755 /app/data /app/uploads /app/temp /tmp/pdf_fusion_pro
+RUN chmod -R 755 /app /tmp/pdf_fusion_pro
 
-# -----------------------------
-# Exposer le port
-# -----------------------------
+# -------------------------------------------------
+# Exposer port
+# -------------------------------------------------
 EXPOSE 10000
 
-# -----------------------------
-# Health check
-# -----------------------------
+# -------------------------------------------------
+# Healthcheck
+# -------------------------------------------------
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:10000/health || exit 1
 
-# -----------------------------
-# Commande de lancement Gunicorn
-# -----------------------------
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000", "--workers", "4", "--threads", "8", "--timeout", "300", "--worker-class", "gthread", "--access-logfile", "-", "--error-logfile", "-"]
+# -------------------------------------------------
+# Gunicorn (optimisé mémoire Render)
+# -------------------------------------------------
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000", "--workers", "2", "--threads", "2", "--timeout", "300", "--worker-class", "gthread", "--access-logfile", "-", "--error-logfile", "-"]
