@@ -78,8 +78,8 @@ COPY . .
 # -------------------------------------------------
 RUN mkdir -p translations && \
     echo "🔎 Vérification des sources Babel..." && \
-    find . -type f \( -name "*.py" -o -name "*.html" -o -name "babel.cfg" \) \
-        | sort | xargs md5sum > .sources.md5 && \
+    find . -type f \( -name "*.py" -o -name "*.html" -o -name "babel.cfg" \) -print0 \
+        | sort -z | xargs -0 md5sum > .sources.md5 && \
     if [ ! -f translations/.sources.md5 ] || ! cmp -s .sources.md5 translations/.sources.md5; then \
         echo "🌍 Changements détectés → extraction traductions"; \
         pybabel extract -F babel.cfg -o messages.pot .; \
