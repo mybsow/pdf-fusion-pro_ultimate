@@ -16,11 +16,13 @@ import traceback
 from io import BytesIO
 import zipfile
 import logging
+from pathlib import Path
 
 from flask_babel import _
 from flask_babel import lazy_gettext as _l
 
 # Configuration du logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Ajouter la racine du projet au sys.path
@@ -191,6 +193,26 @@ conversion_bp = Blueprint(
     url_prefix='/conversion',
     template_folder='templates/conversion'  # Chemin relatif correct
 )
+
+# IMPORTANT: Pour le débogage, ajoutez cette route
+@conversion_bp.route('/debug-templates')
+def debug_templates():
+    """Route de diagnostic pour voir les templates disponibles"""
+    import os
+    templates_path = os.path.join(PROJECT_ROOT, 'templates', 'conversion')
+    
+    result = {
+        'blueprint_name': conversion_bp.name,
+        'blueprint_template_folder': conversion_bp.template_folder,
+        'absolute_template_path': templates_path,
+        'exists': os.path.exists(templates_path),
+        'files': []
+    }
+    
+    if os.path.exists(templates_path):
+        result['files'] = os.listdir(templates_path)
+    
+    return jsonify(result)
 # ============================================================================
 # CONVERSION MAP - Configuration de toutes les conversions disponibles
 # ============================================================================
