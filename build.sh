@@ -36,6 +36,19 @@ echo "🐍 Installation Python packages..."
 pip install --upgrade pip
 pip install --no-cache-dir -r requirements.txt
 
+# Installer Babel pour les traductions
+pip install Babel
+
+# Compiler les traductions si le dossier existe
+if [ -d "translations" ]; then
+    echo "🌍 Compilation des traductions..."
+    pybabel compile -d translations
+else
+    echo "⚠️ Dossier translations non trouvé"
+fi
+
+echo "✅ Build terminé"
+
 # 5. Test Python OCR
 echo "🧪 Test Python OCR..."
 python -c "
