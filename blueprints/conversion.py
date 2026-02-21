@@ -16,13 +16,10 @@ import traceback
 from io import BytesIO
 import zipfile
 import logging
-from pathlib import Path
 
-from flask_babel import _
-from flask_babel import lazy_gettext as _l
+from flask_babel import _, lazy_gettext as _l
 
 # Configuration du logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Ajouter la racine du projet au sys.path
@@ -49,8 +46,8 @@ except ImportError:
         OCR_ENABLED = True
         NAME = "PDF Fusion Pro"
         VERSION = "1.0.0"
-        DEVELOPER_NAME = "MYBSOW"
-        DEVELOPER_EMAIL = "banousow@gmail.com"
+        DEVELOPER_NAME = "Votre Nom"
+        DEVELOPER_EMAIL = "contact@example.com"
         HOSTING = "Render"
         DOMAIN = "pdffusionpro.com"
 
@@ -186,33 +183,14 @@ DEPS_STATUS = {
 
 print(f"📊 État des dépendances: {DEPS_STATUS}")
 
-# CRÉATION DU BLUEPRINT (correction importante)
-conversion_bp = Blueprint(
-    'conversion',
-    __name__,
-    url_prefix='/conversion',
-    template_folder='templates/conversion'  # Chemin relatif correct
-)
+# Chemin absolu vers le dossier templates
+TEMPLATES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 
-# IMPORTANT: Pour le débogage, ajoutez cette route
-@conversion_bp.route('/debug-templates')
-def debug_templates():
-    """Route de diagnostic pour voir les templates disponibles"""
-    import os
-    templates_path = os.path.join(PROJECT_ROOT, 'templates', 'conversion')
-    
-    result = {
-        'blueprint_name': conversion_bp.name,
-        'blueprint_template_folder': conversion_bp.template_folder,
-        'absolute_template_path': templates_path,
-        'exists': os.path.exists(templates_path),
-        'files': []
-    }
-    
-    if os.path.exists(templates_path):
-        result['files'] = os.listdir(templates_path)
-    
-    return jsonify(result)
+conversion_bp = Blueprint('conversion', __name__,
+                          template_folder=TEMPLATES_DIR,
+                          static_folder='../static/conversion',
+                          url_prefix='/conversion')
+
 # ============================================================================
 # CONVERSION MAP - Configuration de toutes les conversions disponibles
 # ============================================================================
@@ -221,10 +199,10 @@ CONVERSION_MAP = {
     # ==================== CONVERTIR EN PDF ====================
     'word-en-pdf': {
         'template': 'word_to_pdf.html',
-        'title': _('Word vers PDF'),
-        'description': _('Convertissez vos documents Word en PDF'),
-        'from_format': _('Word'),
-        'to_format': _('PDF'),
+        'title': 'Word vers PDF',
+        'description': 'Convertissez vos documents Word en PDF',
+        'from_format': 'Word',
+        'to_format': 'PDF',
         'icon': 'file-word',
         'color': '#2b579a',
         'accept': '.doc,.docx',
@@ -234,10 +212,10 @@ CONVERSION_MAP = {
     
     'excel-en-pdf': {
         'template': 'excel_to_pdf.html',
-        'title': _('Excel vers PDF'),
-        'description': _('Convertissez vos feuilles Excel en PDF'),
-        'from_format': _('Excel'),
-        'to_format': _('PDF'),
+        'title': 'Excel vers PDF',
+        'description': 'Convertissez vos feuilles Excel en PDF',
+        'from_format': 'Excel',
+        'to_format': 'PDF',
         'icon': 'file-excel',
         'color': '#217346',
         'accept': '.xls,.xlsx,.xlsm',
@@ -247,10 +225,10 @@ CONVERSION_MAP = {
     
     'powerpoint-en-pdf': {
         'template': 'powerpoint_to_pdf.html',
-        'title': _('PowerPoint vers PDF'),
-        'description': _('Convertissez vos présentations PowerPoint en PDF'),
-        'from_format': _('PowerPoint'),
-        'to_format': _('PDF'),
+        'title': 'PowerPoint vers PDF',
+        'description': 'Convertissez vos présentations PowerPoint en PDF',
+        'from_format': 'PowerPoint',
+        'to_format': 'PDF',
         'icon': 'file-powerpoint',
         'color': '#d24726',
         'accept': '.ppt,.pptx',
@@ -260,10 +238,10 @@ CONVERSION_MAP = {
     
     'image-en-pdf': {
         'template': 'image_to_pdf.html',
-        'title': _('Image vers PDF'),
-        'description': _('Convertissez vos images en document PDF'),
-        'from_format': _('Image'),
-        'to_format': _('PDF'),
+        'title': 'Image vers PDF',
+        'description': 'Convertissez vos images en document PDF',
+        'from_format': 'Image',
+        'to_format': 'PDF',
         'icon': 'file-image',
         'color': '#e74c3c',
         'accept': '.jpg,.jpeg,.png,.bmp,.gif,.tiff,.webp',
@@ -273,10 +251,10 @@ CONVERSION_MAP = {
     
     'jpg-en-pdf': {
         'template': 'image_to_pdf.html',
-        'title': _('JPG vers PDF'),
-        'description': _('Convertissez vos images JPG en PDF'),
-        'from_format': _('JPG'),
-        'to_format': _('PDF'),
+        'title': 'JPG vers PDF',
+        'description': 'Convertissez vos images JPG en PDF',
+        'from_format': 'JPG',
+        'to_format': 'PDF',
         'icon': 'file-image',
         'color': '#e74c3c',
         'accept': '.jpg,.jpeg',
@@ -286,10 +264,10 @@ CONVERSION_MAP = {
     
     'png-en-pdf': {
         'template': 'image_to_pdf.html',
-        'title': _('PNG vers PDF'),
-        'description': _('Convertissez vos images PNG en PDF'),
-        'from_format': _('PNG'),
-        'to_format': _('PDF'),
+        'title': 'PNG vers PDF',
+        'description': 'Convertissez vos images PNG en PDF',
+        'from_format': 'PNG',
+        'to_format': 'PDF',
         'icon': 'file-image',
         'color': '#e74c3c',
         'accept': '.png',
@@ -299,10 +277,10 @@ CONVERSION_MAP = {
     
     'html-en-pdf': {
         'template': 'html_to_pdf.html',
-        'title': _('HTML vers PDF'),
-        'description': _('Convertissez vos pages HTML en PDF'),
-        'from_format': _('HTML'),
-        'to_format': _('PDF'),
+        'title': 'HTML vers PDF',
+        'description': 'Convertissez vos pages HTML en PDF',
+        'from_format': 'HTML',
+        'to_format': 'PDF',
         'icon': 'code',
         'color': '#f16529',
         'accept': '.html,.htm',
@@ -312,10 +290,10 @@ CONVERSION_MAP = {
     
     'txt-en-pdf': {
         'template': 'txt_to_pdf.html',
-        'title': _('TXT vers PDF'),
-        'description': _('Convertissez vos fichiers texte en PDF'),
-        'from_format': _('TXT'),
-        'to_format': _('PDF'),
+        'title': 'TXT vers PDF',
+        'description': 'Convertissez vos fichiers texte en PDF',
+        'from_format': 'TXT',
+        'to_format': 'PDF',
         'icon': 'file-alt',
         'color': '#3498db',
         'accept': '.txt',
@@ -326,10 +304,10 @@ CONVERSION_MAP = {
     # ==================== CONVERTIR DEPUIS PDF ====================
     'pdf-en-word': {
         'template': 'pdf_to_word.html',
-        'title': _('PDF vers Word'),
-        'description': _('Extrayez le texte de vos PDF en documents Word'),
-        'from_format': _('PDF'),
-        'to_format': _('Word'),
+        'title': 'PDF vers Word',
+        'description': 'Extrayez le texte de vos PDF en documents Word',
+        'from_format': 'PDF',
+        'to_format': 'Word',
         'icon': 'file-pdf',
         'color': '#e74c3c',
         'accept': '.pdf',
@@ -339,10 +317,10 @@ CONVERSION_MAP = {
     
     'pdf-en-doc': {
         'template': 'pdf_to_doc.html',
-        'title': _('PDF vers DOC'),
-        'description': _('Convertissez vos PDF en documents Word (format DOC)'),
-        'from_format': _('PDF'),
-        'to_format': _('DOC'),
+        'title': 'PDF vers DOC',
+        'description': 'Convertissez vos PDF en documents Word (format DOC)',
+        'from_format': 'PDF',
+        'to_format': 'DOC',
         'icon': 'file-word',
         'color': '#2b579a',
         'accept': '.pdf',
@@ -352,10 +330,10 @@ CONVERSION_MAP = {
     
     'pdf-en-excel': {
         'template': 'pdf_to_excel.html',
-        'title': _('PDF vers Excel'),
-        'description': _('Extrayez les tableaux de vos PDF en feuilles Excel'),
-        'from_format': _('PDF'),
-        'to_format': _('Excel'),
+        'title': 'PDF vers Excel',
+        'description': 'Extrayez les tableaux de vos PDF en feuilles Excel',
+        'from_format': 'PDF',
+        'to_format': 'Excel',
         'icon': 'file-pdf',
         'color': '#e74c3c',
         'accept': '.pdf',
@@ -365,10 +343,10 @@ CONVERSION_MAP = {
     
     'pdf-en-ppt': {
         'template': 'pdf_to_ppt.html',
-        'title': _('PDF vers PowerPoint'),
-        'description': _('Convertissez vos PDF en présentations PowerPoint modifiables'),
-        'from_format': _('PDF'),
-        'to_format': _('PowerPoint'),
+        'title': 'PDF vers PowerPoint',
+        'description': 'Convertissez vos PDF en présentations PowerPoint modifiables',
+        'from_format': 'PDF',
+        'to_format': 'PowerPoint',
         'icon': 'file-powerpoint',
         'color': '#d24726',
         'accept': '.pdf',
@@ -378,10 +356,10 @@ CONVERSION_MAP = {
     
     'pdf-en-image': {
         'template': 'pdf_to_image.html',
-        'title': _('PDF vers Image'),
-        'description': _('Convertissez les pages de vos PDF en images'),
-        'from_format': _('PDF'),
-        'to_format': _('Image'),
+        'title': 'PDF vers Image',
+        'description': 'Convertissez les pages de vos PDF en images',
+        'from_format': 'PDF',
+        'to_format': 'Image',
         'icon': 'file-pdf',
         'color': '#e74c3c',
         'accept': '.pdf',
@@ -391,10 +369,10 @@ CONVERSION_MAP = {
     
     'pdf-en-pdfa': {
         'template': 'pdf_to_pdfa.html',
-        'title': _('PDF vers PDF/A'),
-        'description': _('Convertissez vos PDF en format PDF/A pour l\'archivage'),
-        'from_format': _('PDF'),
-        'to_format': _('PDF/A'),
+        'title': 'PDF vers PDF/A',
+        'description': 'Convertissez vos PDF en format PDF/A pour l\'archivage',
+        'from_format': 'PDF',
+        'to_format': 'PDF/A',
         'icon': 'file-pdf',
         'color': '#e74c3c',
         'accept': '.pdf',
@@ -404,10 +382,10 @@ CONVERSION_MAP = {
     
     'pdf-en-html': {
         'template': 'pdf_to_html.html',
-        'title': _('PDF vers HTML'),
-        'description': _('Convertissez vos PDF en pages HTML'),
-        'from_format': _('PDF'),
-        'to_format': _('HTML'),
+        'title': 'PDF vers HTML',
+        'description': 'Convertissez vos PDF en pages HTML',
+        'from_format': 'PDF',
+        'to_format': 'HTML',
         'icon': 'code',
         'color': '#f16529',
         'accept': '.pdf',
@@ -417,10 +395,10 @@ CONVERSION_MAP = {
     
     'pdf-en-txt': {
         'template': 'pdf_to_txt.html',
-        'title': _('PDF vers TXT'),
-        'description': _('Extrayez le texte de vos PDF en fichiers texte'),
-        'from_format': _('PDF'),
-        'to_format': _('TXT'),
+        'title': 'PDF vers TXT',
+        'description': 'Extrayez le texte de vos PDF en fichiers texte',
+        'from_format': 'PDF',
+        'to_format': 'TXT',
         'icon': 'file-alt',
         'color': '#3498db',
         'accept': '.pdf',
@@ -431,10 +409,10 @@ CONVERSION_MAP = {
     # ==================== OUTILS PDF ====================
     'proteger-pdf': {
         'template': 'protect_pdf.html',
-        'title': _('Protéger PDF'),
-        'description': _('Ajoutez un mot de passe pour protéger vos PDF'),
-        'from_format': _('PDF'),
-        'to_format': _('PDF'),
+        'title': 'Protéger PDF',
+        'description': 'Ajoutez un mot de passe pour protéger vos PDF',
+        'from_format': 'PDF',
+        'to_format': 'PDF',
         'icon': 'lock',
         'color': '#e67e22',
         'accept': '.pdf',
@@ -444,10 +422,10 @@ CONVERSION_MAP = {
 
     'deverrouiller-pdf': {
         'template': 'unlock_pdf.html',
-        'title': _('Déverrouiller PDF'),
-        'description': _('Retirez la protection des PDF'),
-        'from_format': _('PDF'),
-        'to_format': _('PDF'),
+        'title': 'Déverrouiller PDF',
+        'description': 'Retirez la protection des PDF',
+        'from_format': 'PDF',
+        'to_format': 'PDF',
         'icon': 'unlock',
         'color': '#1abc9c',
         'accept': '.pdf',
@@ -458,10 +436,10 @@ CONVERSION_MAP = {
     # ==================== NOUVEAUX OUTILS PDF ====================
     'redact-pdf': {
         'template': 'redact_pdf.html',
-        'title': _('Caviarder PDF'),
-        'description': _('Supprimez définitivement et en toute sécurité le contenu sensible de votre PDF'),
-        'from_format': _('PDF'),
-        'to_format': _('PDF'),
+        'title': 'Caviarder PDF',
+        'description': 'Supprimez définitivement et en toute sécurité le contenu sensible de votre PDF',
+        'from_format': 'PDF',
+        'to_format': 'PDF',
         'icon': 'mask',
         'color': '#e67e22',
         'accept': '.pdf',
@@ -471,10 +449,10 @@ CONVERSION_MAP = {
     
     'edit-pdf': {
         'template': 'edit_pdf.html',
-        'title': _('Éditer PDF'),
-        'description': _('Modifiez ou ajoutez du texte, des images et des pages à votre PDF'),
-        'from_format': _('PDF'),
-        'to_format': _('PDF'),
+        'title': 'Éditer PDF',
+        'description': 'Modifiez ou ajoutez du texte, des images et des pages à votre PDF',
+        'from_format': 'PDF',
+        'to_format': 'PDF',
         'icon': 'edit',
         'color': '#3498db',
         'accept': '.pdf',
@@ -484,10 +462,10 @@ CONVERSION_MAP = {
     
     'sign-pdf': {
         'template': 'sign_pdf.html',
-        'title': _('Signer PDF'),
-        'description': _('Ajoutez votre signature électronique à votre PDF'),
-        'from_format': _('PDF'),
-        'to_format': _('PDF'),
+        'title': 'Signer PDF',
+        'description': 'Ajoutez votre signature électronique à votre PDF',
+        'from_format': 'PDF',
+        'to_format': 'PDF',
         'icon': 'pen',
         'color': '#27ae60',
         'accept': '.pdf',
@@ -497,10 +475,10 @@ CONVERSION_MAP = {
     
     'prepare-form': {
         'template': 'prepare_form.html',
-        'title': _('Préparer formulaire PDF'),
-        'description': _('Transformez vos documents Word, Excel ou numérisés en formulaires PDF interactifs'),
-        'from_format': _('Document'),
-        'to_format': _('PDF Formulaire'),
+        'title': 'Préparer formulaire PDF',
+        'description': 'Transformez vos documents Word, Excel ou numérisés en formulaires PDF interactifs',
+        'from_format': 'Document',
+        'to_format': 'PDF Formulaire',
         'icon': 'file-signature',
         'color': '#9b59b6',
         'accept': '.pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png',
@@ -511,10 +489,10 @@ CONVERSION_MAP = {
     # ==================== CONVERSIONS DIVERSES ====================
     'image-en-word': {
         'template': 'image_to_word.html',
-        'title': _('Image vers Word'),
-        'description': _('Extrayez le texte des images en documents Word'),
-        'from_format': _('Image'),
-        'to_format': _('Word'),
+        'title': 'Image vers Word',
+        'description': 'Extrayez le texte des images en documents Word',
+        'from_format': 'Image',
+        'to_format': 'Word',
         'icon': 'image',
         'color': '#2b579a',
         'accept': '.jpg,.jpeg,.png,.bmp,.tiff',
@@ -524,10 +502,10 @@ CONVERSION_MAP = {
     
     'image-en-excel': {
         'template': 'image_to_excel.html',
-        'title': _('Image vers Excel'),
-        'description': _('Extrayez les tableaux des images en Excel'),
-        'from_format': _('Image'),
-        'to_format': _('Excel'),
+        'title': 'Image vers Excel',
+        'description': 'Extrayez les tableaux des images en Excel',
+        'from_format': 'Image',
+        'to_format': 'Excel',
         'icon': 'image',
         'color': '#217346',
         'accept': '.jpg,.jpeg,.png,.bmp,.tiff,.pdf',
@@ -537,10 +515,10 @@ CONVERSION_MAP = {
     
     'csv-en-excel': {
         'template': 'csv_to_excel.html',
-        'title': _('CSV vers Excel'),
-        'description': _('Convertissez vos fichiers CSV en Excel'),
-        'from_format': _('CSV'),
-        'to_format': _('Excel'),
+        'title': 'CSV vers Excel',
+        'description': 'Convertissez vos fichiers CSV en Excel',
+        'from_format': 'CSV',
+        'to_format': 'Excel',
         'icon': 'file-csv',
         'color': '#217346',
         'accept': '.csv,.txt',
@@ -550,10 +528,10 @@ CONVERSION_MAP = {
     
     'excel-en-csv': {
         'template': 'excel_to_csv.html',
-        'title': _('Excel vers CSV'),
-        'description': _('Exportez vos feuilles Excel en CSV'),
-        'from_format': _('Excel'),
-        'to_format': _('CSV'),
+        'title': 'Excel vers CSV',
+        'description': 'Exportez vos feuilles Excel en CSV',
+        'from_format': 'Excel',
+        'to_format': 'CSV',
         'icon': 'file-excel',
         'color': '#217346',
         'accept': '.xls,.xlsx',
@@ -615,25 +593,25 @@ def index():
         # Organiser les conversions par catégorie
         categories = {
             'convert_to_pdf': {
-                'title': _('Convertir en PDF'),
+                'title': 'Convertir en PDF',
                 'icon': 'file-pdf',
                 'color': '#e74c3c',
                 'conversions': []
             },
             'convert_from_pdf': {
-                'title': _('Convertir depuis PDF'),
+                'title': 'Convertir depuis PDF',
                 'icon': 'file-pdf',
                 'color': '#3498db',
                 'conversions': []
             },
             'pdf_tools': {
-                'title': _('Outils PDF'),
+                'title': 'Outils PDF',
                 'icon': 'tools',
                 'color': '#2ecc71',
                 'conversions': []
             },
             'other_conversions': {
-                'title': _('Autres conversions'),
+                'title': 'Autres conversions',
                 'icon': 'exchange-alt',
                 'color': '#9b59b6',
                 'conversions': []
@@ -663,6 +641,7 @@ def index():
                 categories['convert_from_pdf']['conversions'].append(conv)
         
         # Outils PDF
+        # Outils PDF (mettre à jour cette section)
         for conv_key in ['proteger-pdf', 'deverrouiller-pdf', 'redact-pdf', 
                          'edit-pdf', 'sign-pdf', 'prepare-form']:
             if conv_key in CONVERSION_MAP:
@@ -683,17 +662,17 @@ def index():
                 conv['missing_deps'] = missing
                 categories['other_conversions']['conversions'].append(conv)
         
-        return render_template('index.html',
-                              title=_("Convertisseur de fichiers universel"),
+        return render_template('conversion/index.html',
+                              title="Convertisseur de fichiers universel",
                               categories=categories,
                               all_conversions=CONVERSION_MAP,
                               deps=DEPS_STATUS)
     
     except Exception as e:
-        current_app.logger.error(f"❌ {_('Erreur dans index()')}: {str(e)}")
-        flash(_("Le service de conversion est temporairement indisponible. Veuillez réessayer plus tard."), "error")
-        return render_template('index.html',
-                              title=_("Convertisseur de fichiers"),
+        current_app.logger.error(f"❌ Erreur dans index(): {str(e)}")
+        flash("Le service de conversion est temporairement indisponible. Veuillez réessayer plus tard.", "error")
+        return render_template('conversion/index.html',
+                              title="Convertisseur de fichiers",
                               categories={},
                               all_conversions={},
                               deps=DEPS_STATUS,
@@ -722,7 +701,7 @@ def universal_converter(conversion_type):
         
         # Vérifier si la conversion existe dans CONVERSION_MAP
         if conversion_type not in CONVERSION_MAP:
-            flash(_(f'Type de conversion non supporté: {conversion_type}'), 'error')
+            flash(f'Type de conversion non supporté: {conversion_type}', 'error')
             return redirect(url_for('conversion.index'))
         
         config = CONVERSION_MAP[conversion_type].copy()
@@ -731,16 +710,16 @@ def universal_converter(conversion_type):
         # Vérifier les dépendances
         available, missing = check_dependencies(config.get('deps', []))
         if not available:
-            flash(_(f"Cette conversion nécessite les dépendances suivantes: {', '.join(missing)}"), "warning")
+            flash(f"Cette conversion nécessite les dépendances suivantes: {', '.join(missing)}", "warning")
         
         if request.method == 'POST':
             if not available:
-                flash(_("Conversion non disponible - dépendances manquantes"), "error")
+                flash("Conversion non disponible - dépendances manquantes", "error")
                 return redirect(url_for('conversion.universal_converter', conversion_type=conversion_type))
             return handle_conversion_request(conversion_type, request, config)
         
         # GET request - afficher le formulaire
-        template_name = config['template']  # ✅ CORRIGÉ - juste le nom du fichier
+        template_name = f"conversion/{config['template']}"
         
         try:
             return render_template(template_name,
@@ -756,13 +735,13 @@ def universal_converter(conversion_type):
                                   available=available,
                                   missing_deps=missing)
         except Exception as e:
-            current_app.logger.error(f"{_('Template non trouvé')}: {template_name} - {str(e)}")
-            flash(_(f'Template non trouvé pour {conversion_type}'), 'error')
+            current_app.logger.error(f"Template non trouvé: {template_name} - {str(e)}")
+            flash(f'Template non trouvé pour {conversion_type}', 'error')
             return redirect(url_for('conversion.index'))
         
     except Exception as e:
-        current_app.logger.error(f"{_('Erreur dans universal_converter')}: {str(e)}")
-        flash(_(f"Erreur: {str(e)}"), "error")
+        current_app.logger.error(f"Erreur dans universal_converter: {str(e)}")
+        flash(f"Erreur: {str(e)}", "error")
         return redirect(url_for('conversion.index'))
 
 
@@ -799,25 +778,25 @@ def handle_conversion_request(conversion_type, request, config):
     try:
         # Vérifier les fichiers
         if 'file' not in request.files and 'files' not in request.files:
-            flash(_('Aucun fichier sélectionné'), 'error')
+            flash('Aucun fichier sélectionné', 'error')
             return redirect(request.url)
         
         # Récupérer les fichiers selon le type
         if config['max_files'] > 1:
             files = request.files.getlist('files')
             if not files or files[0].filename == '':
-                flash(_('Veuillez sélectionner au moins un fichier'), 'error')
+                flash('Veuillez sélectionner au moins un fichier', 'error')
                 return redirect(request.url)
             
             if len(files) > config['max_files']:
-                flash(_(f'Maximum {config["max_files"]} fichiers autorisés'), 'error')
+                flash(f'Maximum {config["max_files"]} fichiers autorisés', 'error')
                 return redirect(request.url)
             
             result = process_conversion(conversion_type, files=files, form_data=request.form)
         else:
             file = request.files['file']
             if file.filename == '':
-                flash(_('Veuillez sélectionner un fichier'), 'error')
+                flash('Veuillez sélectionner un fichier', 'error')
                 return redirect(request.url)
             
             result = process_conversion(conversion_type, file=file, form_data=request.form)
@@ -829,8 +808,8 @@ def handle_conversion_request(conversion_type, request, config):
         return result
         
     except Exception as e:
-        current_app.logger.error(f"{_('Erreur conversion')} {conversion_type}: {str(e)}\n{traceback.format_exc()}")
-        flash(_(f'Erreur lors de la conversion: {str(e)}'), 'error')
+        current_app.logger.error(f"Erreur conversion {conversion_type}: {str(e)}\n{traceback.format_exc()}")
+        flash(f'Erreur lors de la conversion: {str(e)}', 'error')
         return redirect(request.url)
 
 
@@ -875,11 +854,11 @@ def process_conversion(conversion_type, file=None, files=None, form_data=None):
     }
     
     if conversion_type not in conversion_functions:
-        return {'error': _('Type de conversion non implémenté')}
+        return {'error': 'Type de conversion non implémenté'}
     
     func = conversion_functions[conversion_type]
     if func is None:
-        return {'error': _('Cette conversion nécessite des dépendances manquantes')}
+        return {'error': 'Cette conversion nécessite des dépendances manquantes'}
     
     try:
         if files:
@@ -887,8 +866,8 @@ def process_conversion(conversion_type, file=None, files=None, form_data=None):
         else:
             return func(file, form_data)
     except Exception as e:
-        current_app.logger.error(f"{_('Exception dans')} {conversion_type}: {str(e)}")
-        return {'error': _(f'Erreur interne: {str(e)}')}
+        current_app.logger.error(f"Exception dans {conversion_type}: {str(e)}")
+        return {'error': f'Erreur interne: {str(e)}'}
 
 
 # ============================================================================
@@ -908,14 +887,14 @@ def smart_ocr(img):
                 words.append(text)
         return words
     except Exception as e:
-        print(f"[WARN] {_('OCR échoué')}: {e}")
+        print(f"[WARN] OCR échoué: {e}")
         return []
 
 
 def convert_word_to_pdf(file, form_data=None):
     """Convertit Word en PDF."""
     if not HAS_REPORTLAB:
-        return {'error': _('reportlab non installé')}
+        return {'error': 'reportlab non installé'}
     
     try:
         # Sauvegarder le fichier temporairement
@@ -993,14 +972,14 @@ def convert_word_to_pdf(file, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur Word->PDF')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur Word->PDF: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_excel_to_pdf(file, form_data=None):
     """Convertit Excel en PDF."""
     if not HAS_REPORTLAB:
-        return {'error': _('reportlab non installé')}
+        return {'error': 'reportlab non installé'}
     
     try:
         # Sauvegarder le fichier temporairement
@@ -1026,17 +1005,17 @@ def convert_excel_to_pdf(file, form_data=None):
         except:
             pass
         
-        return {'error': _('Conversion Excel->PDF non disponible sans LibreOffice')}
+        return {'error': 'Conversion Excel->PDF non disponible sans LibreOffice'}
         
     except Exception as e:
-        logger.error(f"{_('Erreur Excel->PDF')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur Excel->PDF: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_powerpoint_to_pdf(file, form_data=None):
     """Convertit PowerPoint en PDF."""
     if not HAS_REPORTLAB:
-        return {'error': _('reportlab non installé')}
+        return {'error': 'reportlab non installé'}
     
     try:
         # Sauvegarder le fichier temporairement
@@ -1068,17 +1047,17 @@ def convert_powerpoint_to_pdf(file, form_data=None):
         except:
             pass
         
-        return {'error': _('Conversion PowerPoint->PDF non disponible sans LibreOffice')}
+        return {'error': 'Conversion PowerPoint->PDF non disponible sans LibreOffice'}
         
     except Exception as e:
-        logger.error(f"{_('Erreur PowerPoint->PDF')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur PowerPoint->PDF: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_images_to_pdf(files, form_data=None):
     """Convertit des images en PDF."""
     if not HAS_PILLOW or not HAS_REPORTLAB:
-        return {'error': _('Pillow ou reportlab non installé')}
+        return {'error': 'Pillow ou reportlab non installé'}
     
     try:
         output = BytesIO()
@@ -1127,18 +1106,18 @@ def convert_images_to_pdf(files, form_data=None):
             output,
             mimetype='application/pdf',
             as_attachment=True,
-            download_name=_("images_converted.pdf")
+            download_name="images_converted.pdf"
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur Images->PDF')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur Images->PDF: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_pdf_to_word(file, form_data=None):
     """Convertit PDF en Word."""
     if not HAS_PYPDF or not HAS_DOCX:
-        return {'error': _('pypdf ou python-docx non installé')}
+        return {'error': 'pypdf ou python-docx non installé'}
     
     try:
         # Lire le PDF
@@ -1154,14 +1133,14 @@ def convert_pdf_to_word(file, form_data=None):
         doc = Document()
         
         # Ajouter un titre
-        doc.add_heading(f'{_("Conversion de")} {Path(file.filename).stem}', 0)
+        doc.add_heading(f'Conversion de {Path(file.filename).stem}', 0)
         
         # Extraire le texte de chaque page
         for page_num, page in enumerate(pdf_reader.pages):
             if page_num > 0:
                 doc.add_page_break()
             
-            doc.add_heading(f'{_("Page")} {page_num + 1}', 1)
+            doc.add_heading(f'Page {page_num + 1}', 1)
             
             text = page.extract_text()
             if text.strip():
@@ -1180,8 +1159,8 @@ def convert_pdf_to_word(file, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur PDF->Word')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur PDF->Word: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_pdf_to_doc(file, form_data=None):
@@ -1192,7 +1171,7 @@ def convert_pdf_to_doc(file, form_data=None):
 def convert_pdf_to_excel(file_storage, form_data=None):
     """Convertit un PDF en Excel avec OCR."""
     if not HAS_PDF2IMAGE or not HAS_TESSERACT or not HAS_PANDAS:
-        return {'error': _('Dépendances manquantes pour PDF->Excel')}
+        return {'error': 'Dépendances manquantes pour PDF->Excel'}
     
     try:
         # Sauvegarder le PDF temporairement
@@ -1268,16 +1247,16 @@ def convert_pdf_to_excel(file_storage, form_data=None):
             
             # Ajouter une feuille de résumé
             summary_df = pd.DataFrame({
-                _('Propriété'): [_('Fichier source'), _('Pages totales'), _('OCR activé'), _('Langue'), _('Date')],
-                _('Valeur'): [
+                'Propriété': ['Fichier source', 'Pages totales', 'OCR activé', 'Langue', 'Date'],
+                'Valeur': [
                     Path(file_storage.filename).name,
                     len(images),
-                    _('Oui') if ocr_enabled == 'true' else _('Non'),
+                    'Oui' if ocr_enabled == 'true' else 'Non',
                     language.upper(),
                     datetime.now().strftime('%d/%m/%Y %H:%M')
                 ]
             })
-            summary_df.to_excel(writer, sheet_name=_('Résumé'), index=False)
+            summary_df.to_excel(writer, sheet_name='Résumé', index=False)
         
         output.seek(0)
         
@@ -1292,14 +1271,14 @@ def convert_pdf_to_excel(file_storage, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur PDF->Excel')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur PDF->Excel: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_pdf_to_ppt(file, form_data=None):
     """Convertit PDF en PowerPoint."""
     if not HAS_PDF2IMAGE or not HAS_PILLOW or not HAS_PPTX:
-        return {'error': _('Dépendances manquantes pour PDF->PowerPoint')}
+        return {'error': 'Dépendances manquantes pour PDF->PowerPoint'}
     
     try:
         # Créer un dossier temporaire
@@ -1351,7 +1330,7 @@ def convert_pdf_to_ppt(file, form_data=None):
             # Ajouter le numéro de page
             txBox = slide.shapes.add_textbox(Inches(0.5), prs.slide_height - Inches(1), Inches(1), Inches(0.5))
             tf = txBox.text_frame
-            tf.text = f"{_('Page')} {i+1}"
+            tf.text = f"Page {i+1}"
         
         # Sauvegarder la présentation
         output = BytesIO()
@@ -1369,14 +1348,14 @@ def convert_pdf_to_ppt(file, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur PDF->PPT')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur PDF->PPT: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_pdf_to_images(file, form_data=None):
     """Convertit PDF en images."""
     if not HAS_PDF2IMAGE:
-        return {'error': _('pdf2image non installé')}
+        return {'error': 'pdf2image non installé'}
     
     try:
         # Sauvegarder le PDF temporairement
@@ -1412,7 +1391,7 @@ def convert_pdf_to_images(file, form_data=None):
                     img.save(img_buffer, format='JPEG', quality=quality_val, optimize=True)
                 
                 img_buffer.seek(0)
-                zip_file.writestr(f"{_('page')}_{i+1}.{image_format}", img_buffer.getvalue())
+                zip_file.writestr(f"page_{i+1}.{image_format}", img_buffer.getvalue())
         
         zip_buffer.seek(0)
         
@@ -1427,14 +1406,14 @@ def convert_pdf_to_images(file, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur PDF->Images')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur PDF->Images: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_pdf_to_pdfa(file, form_data=None):
     """Convertit PDF en PDF/A."""
     if not HAS_PYPDF:
-        return {'error': _('pypdf non installé')}
+        return {'error': 'pypdf non installé'}
     
     try:
         # Lire le PDF
@@ -1486,14 +1465,14 @@ def convert_pdf_to_pdfa(file, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur PDF->PDF/A')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur PDF->PDF/A: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_pdf_to_html(file, form_data=None):
     """Convertit PDF en HTML."""
     if not HAS_PYPDF:
-        return {'error': _('pypdf non installé')}
+        return {'error': 'pypdf non installé'}
     
     try:
         # Lire le PDF
@@ -1510,7 +1489,7 @@ def convert_pdf_to_html(file, form_data=None):
 <html>
 <head>
     <meta charset="{encoding}">
-    <title>{_('PDF vers HTML')} - {Path(file.filename).stem}</title>
+    <title>PDF vers HTML - {Path(file.filename).stem}</title>
     <style>
         body {{ font-family: Arial, sans-serif; margin: 40px; }}
         .page {{ margin-bottom: 30px; page-break-after: always; }}
@@ -1522,14 +1501,14 @@ def convert_pdf_to_html(file, form_data=None):
     </style>
 </head>
 <body>
-    <h1>{_('Conversion de')} {Path(file.filename).name}</h1>
-    <p><em>{_('Généré le')} {datetime.now().strftime('%d/%m/%Y %H:%M')}</em></p>
+    <h1>Conversion de {Path(file.filename).name}</h1>
+    <p><em>Généré le {datetime.now().strftime('%d/%m/%Y à %H:%M')}</em></p>
     <hr>
 """
         
         for page_num, page in enumerate(pdf_reader.pages, 1):
             html_content += f'<div class="page">\n'
-            html_content += f'<h2>{_("Page")} {page_num}</h2>\n'
+            html_content += f'<h2>Page {page_num}</h2>\n'
             html_content += f'<div class="content">\n'
             
             text = page.extract_text()
@@ -1543,7 +1522,7 @@ def convert_pdf_to_html(file, form_data=None):
                         html_content += f'<p>{para.replace(chr(10), "<br>")}</p>\n'
             
             html_content += f'</div>\n'
-            html_content += f'<div class="page-number">{_("Page")} {page_num}</div>\n'
+            html_content += f'<div class="page-number">Page {page_num}</div>\n'
             html_content += f'</div>\n'
         
         html_content += "</body>\n</html>"
@@ -1574,14 +1553,14 @@ def convert_pdf_to_html(file, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur PDF->HTML')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur PDF->HTML: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_pdf_to_txt(file, form_data=None):
     """Convertit PDF en TXT."""
     if not HAS_PYPDF:
-        return {'error': _('pypdf non installé')}
+        return {'error': 'pypdf non installé'}
     
     try:
         # Lire le PDF
@@ -1597,25 +1576,25 @@ def convert_pdf_to_txt(file, form_data=None):
         text_content = ""
         
         if add_page_markers == 'true':
-            text_content += f"=== {_('EXTRACTION DU PDF')} : {Path(file.filename).name} ===\n"
-            text_content += f"{_('Date')} : {datetime.now().strftime('%d/%m/%Y %H:%M')}\n"
+            text_content += f"=== EXTRACTION DU PDF : {Path(file.filename).name} ===\n"
+            text_content += f"Date : {datetime.now().strftime('%d/%m/%Y %H:%M')}\n"
             text_content += "=" * 60 + "\n\n"
         
         for page_num, page in enumerate(pdf_reader.pages, 1):
             if add_page_markers == 'true':
-                text_content += f"\n--- {_('Page')} {page_num} ---\n\n"
+                text_content += f"\n--- Page {page_num} ---\n\n"
             
             page_text = page.extract_text()
             if page_text:
                 text_content += page_text
             else:
-                text_content += _("[Aucun texte trouvé sur cette page]")
+                text_content += "[Aucun texte trouvé sur cette page]"
             
             text_content += "\n\n"
         
         if add_page_markers == 'true':
             text_content += "=" * 60 + "\n"
-            text_content += f"{_('Fin du document')} - {page_num} {_('pages')}\n"
+            text_content += f"Fin du document - {page_num} pages\n"
         
         # Créer le fichier texte
         output = BytesIO()
@@ -1630,14 +1609,14 @@ def convert_pdf_to_txt(file, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur PDF->TXT')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur PDF->TXT: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_html_to_pdf(file, form_data=None):
     """Convertit HTML en PDF."""
     if not HAS_PDFKIT and not HAS_WEASYPRINT:
-        return {'error': _('Aucune librairie HTML->PDF disponible')}
+        return {'error': 'Aucune librairie HTML->PDF disponible'}
     
     try:
         # Lire le contenu HTML
@@ -1675,7 +1654,7 @@ def convert_html_to_pdf(file, form_data=None):
                 pdf = pdfkit.from_string(html_content, False, options=options)
                 output = BytesIO(pdf)
             except Exception as e:
-                logger.warning(f"{_('pdfkit échoué, tentative avec weasyprint')}: {e}")
+                logger.warning(f"pdfkit échoué, tentative avec weasyprint: {e}")
                 if HAS_WEASYPRINT:
                     html_obj = weasyprint.HTML(string=html_content)
                     pdf = html_obj.write_pdf()
@@ -1697,14 +1676,14 @@ def convert_html_to_pdf(file, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur HTML->PDF')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur HTML->PDF: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_txt_to_pdf(file, form_data=None):
     """Convertit TXT en PDF."""
     if not HAS_REPORTLAB:
-        return {'error': _('reportlab non installé')}
+        return {'error': 'reportlab non installé'}
     
     try:
         # Lire le contenu texte
@@ -1743,7 +1722,7 @@ def convert_txt_to_pdf(file, form_data=None):
             if y < margin:
                 if add_page_numbers == 'true':
                     c.setFont("Helvetica", 8)
-                    c.drawString(width - 50, 30, f"{_('Page')} {page_num}")
+                    c.drawString(width - 50, 30, f"Page {page_num}")
                 c.showPage()
                 y = height - margin
                 page_num += 1
@@ -1758,7 +1737,7 @@ def convert_txt_to_pdf(file, form_data=None):
                 if y < margin:
                     if add_page_numbers == 'true':
                         c.setFont("Helvetica", 8)
-                        c.drawString(width - 50, 30, f"{_('Page')} {page_num}")
+                        c.drawString(width - 50, 30, f"Page {page_num}")
                     c.showPage()
                     y = height - margin
                     page_num += 1
@@ -1770,7 +1749,7 @@ def convert_txt_to_pdf(file, form_data=None):
         # Ajouter le numéro de la dernière page
         if add_page_numbers == 'true':
             c.setFont("Helvetica", 8)
-            c.drawString(width - 50, 30, f"{_('Page')} {page_num}")
+            c.drawString(width - 50, 30, f"Page {page_num}")
         
         c.save()
         output.seek(0)
@@ -1783,14 +1762,14 @@ def convert_txt_to_pdf(file, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur TXT->PDF')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur TXT->PDF: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def unlock_pdf(file, form_data=None):
     """Déverrouille un PDF."""
     if not HAS_PYPDF:
-        return {'error': _('pypdf non installé')}
+        return {'error': 'pypdf non installé'}
     
     try:
         # Lire le PDF avec mot de passe si fourni
@@ -1802,9 +1781,9 @@ def unlock_pdf(file, form_data=None):
                 try:
                     pdf_reader.decrypt(password)
                 except:
-                    return {'error': _('Mot de passe incorrect')}
+                    return {'error': 'Mot de passe incorrect'}
             else:
-                return {'error': _('Ce PDF est protégé par mot de passe')}
+                return {'error': 'Ce PDF est protégé par mot de passe'}
         
         # Créer un nouveau PDF sans protection
         pdf_writer = pypdf.PdfWriter()
@@ -1815,7 +1794,7 @@ def unlock_pdf(file, form_data=None):
         pdf_writer.add_metadata({
             '/Producer': 'PDF Fusion Pro',
             '/Creator': 'PDF Fusion Pro',
-            '/Title': f"{Path(file.filename).stem} ({_('déverrouillé')})",
+            '/Title': f"{Path(file.filename).stem} (déverrouillé)",
             '/CreationDate': datetime.now().strftime('D:%Y%m%d%H%M%S')
         })
         
@@ -1828,18 +1807,18 @@ def unlock_pdf(file, form_data=None):
             output,
             mimetype='application/pdf',
             as_attachment=True,
-            download_name=f"{Path(file.filename).stem}_{_('deverrouille')}.pdf"
+            download_name=f"{Path(file.filename).stem}_deverrouille.pdf"
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur déverrouillage PDF')}: {str(e)}")
-        return {'error': _(f'Erreur lors du déverrouillage: {str(e)}')}
+        logger.error(f"Erreur déverrouillage PDF: {str(e)}")
+        return {'error': f'Erreur lors du déverrouillage: {str(e)}'}
 
 
 def protect_pdf(file, form_data=None):
     """Protège un PDF avec un mot de passe."""
     if not HAS_PYPDF:
-        return {'error': _('pypdf non installé')}
+        return {'error': 'pypdf non installé'}
     
     try:
         # Récupérer les mots de passe
@@ -1847,10 +1826,10 @@ def protect_pdf(file, form_data=None):
         owner_password = form_data.get('owner_password', user_password) if form_data else ''
         
         if not user_password:
-            return {'error': _('Mot de passe requis')}
+            return {'error': 'Mot de passe requis'}
         
         if len(user_password) < 6:
-            return {'error': _('Le mot de passe doit contenir au moins 6 caractères')}
+            return {'error': 'Le mot de passe doit contenir au moins 6 caractères'}
         
         # Récupérer les permissions
         permissions = form_data.get('permissions', 'view') if form_data else 'view'
@@ -1867,7 +1846,7 @@ def protect_pdf(file, form_data=None):
         pdf_writer.add_metadata({
             '/Producer': 'PDF Fusion Pro',
             '/Creator': 'PDF Fusion Pro',
-            '/Title': f"{Path(file.filename).stem} ({_('protégé')})",
+            '/Title': f"{Path(file.filename).stem} (protégé)",
             '/CreationDate': datetime.now().strftime('D:%Y%m%d%H%M%S')
         })
         
@@ -1883,18 +1862,18 @@ def protect_pdf(file, form_data=None):
             output,
             mimetype='application/pdf',
             as_attachment=True,
-            download_name=f"{Path(file.filename).stem}_{_('protege')}.pdf"
+            download_name=f"{Path(file.filename).stem}_protege.pdf"
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur protection PDF')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la protection: {str(e)}')}
+        logger.error(f"Erreur protection PDF: {str(e)}")
+        return {'error': f'Erreur lors de la protection: {str(e)}'}
 
 
 def convert_image_to_word(file, form_data=None):
     """Convertit une image en Word avec OCR."""
     if not HAS_PILLOW or not HAS_TESSERACT or not HAS_DOCX:
-        return {'error': _('Dépendances manquantes pour Image->Word')}
+        return {'error': 'Dépendances manquantes pour Image->Word'}
     
     try:
         # Ouvrir l'image
@@ -1918,7 +1897,7 @@ def convert_image_to_word(file, form_data=None):
         
         # Créer un document Word
         doc = Document()
-        doc.add_heading(_('Texte extrait de l\'image'), 0)
+        doc.add_heading('Texte extrait de l\'image', 0)
         doc.add_paragraph(text)
         
         # Ajouter l'image originale
@@ -1940,14 +1919,14 @@ def convert_image_to_word(file, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur Image->Word')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur Image->Word: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_image_to_excel(file_storage, form_data=None):
     """Convertit une image en Excel avec OCR."""
     if not HAS_PILLOW or not HAS_TESSERACT or not HAS_PANDAS:
-        return {'error': _('Dépendances manquantes pour Image->Excel')}
+        return {'error': 'Dépendances manquantes pour Image->Excel'}
     
     try:
         # Ouvrir l'image
@@ -1995,7 +1974,7 @@ def convert_image_to_excel(file_storage, form_data=None):
             # Texte simple
             text = pytesseract.image_to_string(img, lang=ocr_lang)
             lines = [line.strip() for line in text.split('\n') if line.strip()]
-            df = pd.DataFrame({_('Texte extrait'): lines})
+            df = pd.DataFrame({'Texte extrait': lines})
         
         # Sauvegarder en Excel
         output = BytesIO()
@@ -2004,15 +1983,15 @@ def convert_image_to_excel(file_storage, form_data=None):
             
             # Ajouter l'image (comme commentaire)
             summary_df = pd.DataFrame({
-                _('Information'): [_('Fichier source'), _('Langue OCR'), _('Détection tableaux'), _('Date')],
-                _('Valeur'): [
+                'Information': ['Fichier source', 'Langue OCR', 'Détection tableaux', 'Date'],
+                'Valeur': [
                     Path(file_storage.filename).name,
                     language.upper(),
-                    _('Oui') if detect_tables == 'true' else _('Non'),
+                    'Oui' if detect_tables == 'true' else 'Non',
                     datetime.now().strftime('%d/%m/%Y %H:%M')
                 ]
             })
-            summary_df.to_excel(writer, sheet_name=_('Résumé'), index=False)
+            summary_df.to_excel(writer, sheet_name='Résumé', index=False)
         
         output.seek(0)
         
@@ -2024,14 +2003,14 @@ def convert_image_to_excel(file_storage, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur Image->Excel')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur Image->Excel: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_csv_to_excel(files, form_data=None):
     """Convertit CSV en Excel."""
     if not HAS_PANDAS:
-        return {'error': _('pandas non installé')}
+        return {'error': 'pandas non installé'}
     
     try:
         # Récupérer les options
@@ -2068,7 +2047,7 @@ def convert_csv_to_excel(files, form_data=None):
                 output,
                 mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 as_attachment=True,
-                download_name=_("csv_converted.xlsx")
+                download_name="csv_converted.xlsx"
             )
         else:
             # Un seul fichier
@@ -2100,14 +2079,14 @@ def convert_csv_to_excel(files, form_data=None):
             )
         
     except Exception as e:
-        logger.error(f"{_('Erreur CSV->Excel')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur CSV->Excel: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 
 def convert_excel_to_csv(files, form_data=None):
     """Convertit Excel en CSV."""
     if not HAS_PANDAS:
-        return {'error': _('pandas non installé')}
+        return {'error': 'pandas non installé'}
     
     try:
         # Récupérer les options
@@ -2142,7 +2121,7 @@ def convert_excel_to_csv(files, form_data=None):
                 zip_buffer,
                 mimetype='application/zip',
                 as_attachment=True,
-                download_name=_("excel_converted.zip")
+                download_name="excel_converted.zip"
             )
         else:
             # Un seul fichier
@@ -2170,8 +2149,8 @@ def convert_excel_to_csv(files, form_data=None):
             )
         
     except Exception as e:
-        logger.error(f"{_('Erreur Excel->CSV')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la conversion: {str(e)}')}
+        logger.error(f"Erreur Excel->CSV: {str(e)}")
+        return {'error': f'Erreur lors de la conversion: {str(e)}'}
 
 def redact_pdf(file, form_data=None):
     """
@@ -2179,7 +2158,7 @@ def redact_pdf(file, form_data=None):
     Version améliorée avec pdfplumber pour la détection précise du texte.
     """
     if not HAS_PYPDF:
-        return {'error': _('pypdf non installé')}
+        return {'error': 'pypdf non installé'}
     
     try:
         # Créer un dossier temporaire
@@ -2242,7 +2221,7 @@ def redact_pdf(file, form_data=None):
             HAS_PDFPLUMBER = True
         except ImportError:
             HAS_PDFPLUMBER = False
-            logger.warning(_("pdfplumber non disponible, utilisation de la méthode basique"))
+            logger.warning("pdfplumber non disponible, utilisation de la méthode basique")
         
         # Essayer d'utiliser pymupdf (alternative plus puissante)
         try:
@@ -2262,12 +2241,12 @@ def redact_pdf(file, form_data=None):
         
         else:
             # Méthode basique avec pypdf seulement
-            logger.warning(_("Utilisation de la méthode basique de caviardage"))
+            logger.warning("Utilisation de la méthode basique de caviardage")
             return redact_pdf_basic(input_path, file.filename, search_texts, pages_to_process, redact_type)
         
     except Exception as e:
-        logger.error(f"{_('Erreur caviardage PDF')}: {str(e)}")
-        return {'error': _(f'Erreur lors du caviardage: {str(e)}')}
+        logger.error(f"Erreur caviardage PDF: {str(e)}")
+        return {'error': f'Erreur lors du caviardage: {str(e)}'}
     finally:
         # Nettoyer le dossier temporaire après un délai
         try:
@@ -2389,9 +2368,9 @@ def redact_pdf_with_fitz(input_path, filename, search_texts, rgb, pages_to_proce
         )
         
     except ImportError:
-        return {'error': _('PyMuPDF (fitz) non disponible pour le caviardage avancé')}
+        return {'error': 'PyMuPDF (fitz) non disponible pour le caviardage avancé'}
     except Exception as e:
-        logger.error(f"{_('Erreur dans redact_pdf_with_fitz')}: {str(e)}")
+        logger.error(f"Erreur dans redact_pdf_with_fitz: {str(e)}")
         raise
 
 
@@ -2500,9 +2479,9 @@ def redact_pdf_with_pdfplumber(input_path, filename, search_texts, rgb, pages_to
         )
         
     except ImportError:
-        return {'error': _('pdfplumber non disponible pour le caviardage')}
+        return {'error': 'pdfplumber non disponible pour le caviardage'}
     except Exception as e:
-        logger.error(f"{_('Erreur dans redact_pdf_with_pdfplumber')}: {str(e)}")
+        logger.error(f"Erreur dans redact_pdf_with_pdfplumber: {str(e)}")
         raise
 
 
@@ -2560,7 +2539,7 @@ def redact_pdf_basic(input_path, filename, search_texts, pages_to_process, redac
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur dans redact_pdf_basic')}: {str(e)}")
+        logger.error(f"Erreur dans redact_pdf_basic: {str(e)}")
         raise
 
 
@@ -2623,10 +2602,10 @@ def redact_area_in_page(page, x, y, width, height, color):
             return page
             
         except Exception as e:
-            logger.error(f"{_('Erreur dans redact_area_in_page')}: {str(e)}")
+            logger.error(f"Erreur dans redact_area_in_page: {str(e)}")
             return page
     except Exception as e:
-        logger.error(f"{_('Erreur dans redact_area_in_page')}: {str(e)}")
+        logger.error(f"Erreur dans redact_area_in_page: {str(e)}")
         return page
 
 
@@ -2678,10 +2657,10 @@ def redact_pattern_in_page(page, patterns, color):
         return page
         
     except ImportError:
-        logger.warning(_("PyMuPDF non disponible pour le caviardage par motif"))
+        logger.warning("PyMuPDF non disponible pour le caviardage par motif")
         return page
     except Exception as e:
-        logger.error(f"{_('Erreur dans redact_pattern_in_page')}: {str(e)}")
+        logger.error(f"Erreur dans redact_pattern_in_page: {str(e)}")
         return page
 
 
@@ -2690,7 +2669,7 @@ def edit_pdf(file, form_data=None):
     Édite un PDF : ajoute/modifie du texte, des images, réorganise les pages.
     """
     if not HAS_PYPDF or not HAS_REPORTLAB:
-        return {'error': _('pypdf ou reportlab non installé')}
+        return {'error': 'pypdf ou reportlab non installé'}
     
     try:
         # Créer un dossier temporaire
@@ -2777,7 +2756,7 @@ def edit_pdf(file, form_data=None):
         pdf_writer.add_metadata({
             '/Producer': 'PDF Fusion Pro',
             '/Creator': 'PDF Fusion Pro',
-            '/Title': f"{Path(file.filename).stem} ({_('édité')})",
+            '/Title': f"{Path(file.filename).stem} (édité)",
             '/ModDate': datetime.now().strftime('D:%Y%m%d%H%M%S')
         })
         
@@ -2797,8 +2776,8 @@ def edit_pdf(file, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur édition PDF')}: {str(e)}")
-        return {'error': _(f'Erreur lors de l\'édition: {str(e)}')}
+        logger.error(f"Erreur édition PDF: {str(e)}")
+        return {'error': f'Erreur lors de l\'édition: {str(e)}'}
 
 
 def create_text_overlay(text, x, y, font_size=12, color='#000000'):
@@ -2852,7 +2831,7 @@ def sign_pdf(file, form_data=None):
     Ajoute une signature électronique à un PDF.
     """
     if not HAS_PYPDF or not HAS_PILLOW:
-        return {'error': _('pypdf ou Pillow non installé')}
+        return {'error': 'pypdf ou Pillow non installé'}
     
     try:
         # Lire le PDF
@@ -2885,7 +2864,7 @@ def sign_pdf(file, form_data=None):
             # Signature numérique avec certificat
             # À implémenter avec des bibliothèques comme pyHanko ou endesive
             overlay_pdf = None
-            return {'error': _('Signature numérique avec certificat non encore implémentée')}
+            return {'error': 'Signature numérique avec certificat non encore implémentée'}
         
         # Appliquer la signature
         for i, page in enumerate(pdf_reader.pages):
@@ -2897,7 +2876,7 @@ def sign_pdf(file, form_data=None):
         pdf_writer.add_metadata({
             '/Producer': 'PDF Fusion Pro',
             '/Creator': 'PDF Fusion Pro',
-            '/Title': f"{Path(file.filename).stem} ({_('signé')})",
+            '/Title': f"{Path(file.filename).stem} (signé)",
             '/ModDate': datetime.now().strftime('D:%Y%m%d%H%M%S'),
             '/Signed': 'true'
         })
@@ -2915,8 +2894,8 @@ def sign_pdf(file, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur signature PDF')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la signature: {str(e)}')}
+        logger.error(f"Erreur signature PDF: {str(e)}")
+        return {'error': f'Erreur lors de la signature: {str(e)}'}
 
 
 def create_signature_overlay(signature_file, x, y):
@@ -2992,7 +2971,7 @@ def prepare_form(file, form_data=None):
     Transforme Word, Excel ou des images scannées en formulaires PDF interactifs.
     """
     if not HAS_PYPDF or not HAS_REPORTLAB:
-        return {'error': _('pypdf ou reportlab non installé')}
+        return {'error': 'pypdf ou reportlab non installé'}
     
     try:
         # Déterminer le type de fichier source
@@ -3016,7 +2995,7 @@ def prepare_form(file, form_data=None):
                     '--outdir', temp_dir, input_path
                 ], check=True, capture_output=True)
             except:
-                return {'error': _('Conversion Word->PDF impossible sans LibreOffice')}
+                return {'error': 'Conversion Word->PDF impossible sans LibreOffice'}
         
         elif file_ext in ['.xls', '.xlsx']:
             # Excel vers PDF
@@ -3027,7 +3006,7 @@ def prepare_form(file, form_data=None):
                     '--outdir', temp_dir, input_path
                 ], check=True, capture_output=True)
             except:
-                return {'error': _('Conversion Excel->PDF impossible sans LibreOffice')}
+                return {'error': 'Conversion Excel->PDF impossible sans LibreOffice'}
         
         elif file_ext in ['.jpg', '.jpeg', '.png', '.bmp', '.tiff']:
             # Image vers PDF
@@ -3060,7 +3039,7 @@ def prepare_form(file, form_data=None):
                 
                 os.unlink(temp_img.name)
             else:
-                return {'error': _('Pillow ou reportlab non installé pour la conversion image->PDF')}
+                return {'error': 'Pillow ou reportlab non installé pour la conversion image->PDF'}
         
         # Maintenant, créer le formulaire PDF interactif
         form_pdf_reader = pypdf.PdfReader(pdf_path)
@@ -3141,7 +3120,7 @@ def prepare_form(file, form_data=None):
         form_pdf_writer.add_metadata({
             '/Producer': 'PDF Fusion Pro',
             '/Creator': 'PDF Fusion Pro',
-            '/Title': f"{Path(file.filename).stem} ({_('formulaire préparé')})",
+            '/Title': f"{Path(file.filename).stem} (formulaire préparé)",
             '/CreationDate': datetime.now().strftime('D:%Y%m%d%H%M%S')
         })
         
@@ -3161,18 +3140,8 @@ def prepare_form(file, form_data=None):
         )
         
     except Exception as e:
-        logger.error(f"{_('Erreur préparation formulaire')}: {str(e)}")
-        return {'error': _(f'Erreur lors de la préparation du formulaire: {str(e)}')}
-
-@conversion_bp.route('/debug-path')
-def debug_path():
-    import os
-    return jsonify({
-        'blueprint_path': os.path.dirname(__file__),
-        'template_folder': conversion_bp.template_folder,
-        'full_path': os.path.join(os.path.dirname(__file__), conversion_bp.template_folder),
-        'templates_exist': os.path.exists(os.path.join(os.path.dirname(__file__), conversion_bp.template_folder, 'conversion', 'word_to_pdf.html'))
-    })
+        logger.error(f"Erreur préparation formulaire: {str(e)}")
+        return {'error': f'Erreur lors de la préparation du formulaire: {str(e)}'}
 
 # ============================================================================
 # ROUTES API ET UTILITAIRES
@@ -3225,19 +3194,19 @@ def dependencies_page():
     """Page d'information sur les dépendances."""
     dependencies = []
     required = {
-        'pandas': _('Manipulation de données'),
-        'pypdf': _('Traitement PDF'),
-        'Pillow': _('Manipulation d\'images'),
-        'pytesseract': _('OCR (reconnaissance de texte)'),
-        'pdf2image': _('Conversion PDF vers images'),
-        'openpyxl': _('Manipulation Excel'),
-        'python-docx': _('Manipulation Word'),
-        'python-pptx': _('Manipulation PowerPoint'),
-        'reportlab': _('Génération PDF'),
-        'pdfkit': _('Conversion HTML->PDF'),
-        'weasyprint': _('Conversion HTML->PDF'),
-        'libreoffice': _('Conversion Office vers PDF (système)'),
-        'poppler': _('Conversion PDF vers images (système)')
+        'pandas': 'Manipulation de données',
+        'pypdf': 'Traitement PDF',
+        'Pillow': 'Manipulation d\'images',
+        'pytesseract': 'OCR (reconnaissance de texte)',
+        'pdf2image': 'Conversion PDF vers images',
+        'openpyxl': 'Manipulation Excel',
+        'python-docx': 'Manipulation Word',
+        'python-pptx': 'Manipulation PowerPoint',
+        'reportlab': 'Génération PDF',
+        'pdfkit': 'Conversion HTML->PDF',
+        'weasyprint': 'Conversion HTML->PDF',
+        'libreoffice': 'Conversion Office vers PDF (système)',
+        'poppler': 'Conversion PDF vers images (système)'
     }
     
     for package, description in required.items():
@@ -3259,7 +3228,7 @@ def dependencies_page():
         })
     
     return render_template('conversion/dependencies.html',
-                          title=_("Dépendances système"),
+                          title="Dépendances système",
                           dependencies=dependencies)
 
 
@@ -3295,10 +3264,10 @@ def clean_temp():
                         count += 1
                 except Exception:
                     pass
-            flash(_(f'{count} fichiers temporaires nettoyés'), 'success')
+            flash(f'{count} fichiers temporaires nettoyés', 'success')
         else:
-            flash(_('Aucun fichier temporaire à nettoyer'), 'info')
+            flash('Aucun fichier temporaire à nettoyer', 'info')
     except Exception as e:
-        flash(_(f'Erreur nettoyage: {str(e)}'), 'error')
+        flash(f'Erreur nettoyage: {str(e)}', 'error')
     
     return redirect(url_for('conversion.index'))
