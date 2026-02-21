@@ -8,6 +8,7 @@ services:
     branch: main
     autoDeploy: true
     dockerfilePath: ./Dockerfile
+    buildCommand: ./build.sh  # Ajoutez cette ligne
     envVars:
       - key: PORT
         value: "10000"
