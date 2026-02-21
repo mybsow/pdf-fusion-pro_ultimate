@@ -76,27 +76,28 @@ COPY . .
 # -------------------------------------------------
 # Génération intelligente des traductions
 # -------------------------------------------------
+# -------------------------------------------------
+# Génération ultra-robuste des traductions
+# -------------------------------------------------
 RUN mkdir -p translations && \
     echo "🔎 Vérification des sources Babel..." && \
     find . -type f \( -name "*.py" -o -name "*.html" -o -name "babel.cfg" \) -print0 \
         | sort -z | xargs -0 md5sum > .sources.md5 && \
-    if [ ! -f translations/.sources.md5 ] || ! cmp -s .sources.md5 translations/.sources.md5; then \
-        echo "🌍 Changements détectés → extraction traductions"; \
-        pybabel extract -F babel.cfg -o messages.pot .; \
-        LANGUAGES="en es de it pt ar zh ja ru nl"; \
-        for lang in $LANGUAGES; do \
-            if [ ! -d "translations/$lang/LC_MESSAGES" ]; then \
-                pybabel init -i messages.pot -d translations -l $lang; \
-            else \
-                pybabel update -i messages.pot -d translations -l $lang; \
-            fi; \
-        done; \
-    else \
-        echo "♻️ Aucune modification → compilation uniquement"; \
-    fi && \
-    echo "🔧 Fix placeholders et %"; \
+    LANGUAGES="en es de it pt ar zh ja ru nl"; \
+    for lang in $LANGUAGES; do \
+        PO_FILE="translations/$lang/LC_MESSAGES/messages.po"; \
+        if [ ! -f "$PO_FILE" ]; then \
+            echo "🌍 Initialisation de la langue $lang"; \
+            pybabel init -i messages.pot -d translations -l $lang; \
+        else \
+            echo "🔄 Mise à jour de $lang"; \
+            pybabel update -i messages.pot -d translations -l $lang; \
+        fi; \
+    done; \
+    echo "🔧 Correction des placeholders et %"; \
     python scripts/fix_placeholders.py; \
     python scripts/fix_percent.py; \
+    echo "🔨 Compilation des traductions"; \
     pybabel compile -d translations; \
     cp .sources.md5 translations/.sources.md5
 
