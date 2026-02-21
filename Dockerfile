@@ -35,7 +35,6 @@ RUN apt-get update && \
         tesseract-ocr-chi-tra \
         poppler-utils \
         libreoffice \
-        unoconv \
         ghostscript \
         fonts-dejavu-core \
         fonts-droid-fallback \
@@ -49,6 +48,11 @@ RUN apt-get update && \
         wget \
         git \
     && rm -rf /var/lib/apt/lists/*
+
+# -------------------------------------------------
+# Installer unoconv via pip
+# -------------------------------------------------
+RUN pip install --no-cache-dir unoconv
 
 # -------------------------------------------------
 # Dossier de travail
