@@ -47,8 +47,8 @@ except ImportError:
         OCR_ENABLED = True
         NAME = "PDF Fusion Pro"
         VERSION = "1.0.0"
-        DEVELOPER_NAME = "Votre Nom"
-        DEVELOPER_EMAIL = "contact@example.com"
+        DEVELOPER_NAME = "MYBSOW"
+        DEVELOPER_EMAIL = "banousow@gmail.com"
         HOSTING = "Render"
         DOMAIN = "pdffusionpro.com"
 
