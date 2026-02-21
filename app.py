@@ -90,15 +90,97 @@ app.config['LANGUAGES'] = {
 }
 
 # ============================================================
-# Fonction pour déterminer la langue
+# Configuration Babel avec système de fallback
 # ============================================================
+import gettext
+import json
+from pathlib import Path
+
+# Dictionnaire pour stocker les traductions en mémoire
+_translations_cache = {}
+_default_translations = {}
+
+def load_translations():
+    """Charge toutes les traductions en mémoire au démarrage"""
+    base_path = Path('translations')
+    if not base_path.exists():
+        logger.warning("⚠️ Dossier translations non trouvé")
+        return
+    
+    for lang_dir in base_path.iterdir():
+        if not lang_dir.is_dir():
+            continue
+        
+        lang = lang_dir.name
+        mo_file = lang_dir / 'LC_MESSAGES' / 'messages.mo'
+        
+        if mo_file.exists():
+            try:
+                with open(mo_file, 'rb') as f:
+                    _translations_cache[lang] = gettext.GNUTranslations(f)
+                logger.info(f"✅ Traductions chargées pour {lang}")
+            except Exception as e:
+                logger.error(f"❌ Erreur chargement {lang}: {e}")
+        
+        # Essayer de charger aussi le fichier JSON s'il existe
+        json_file = lang_dir / 'messages.json'
+        if json_file.exists():
+            try:
+                with open(json_file, 'r', encoding='utf-8') as f:
+                    _default_translations[lang] = json.load(f)
+                logger.info(f"✅ Traductions JSON chargées pour {lang}")
+            except Exception as e:
+                logger.error(f"❌ Erreur chargement JSON {lang}: {e}")
+
 def get_locale():
+    """Détermine la langue à utiliser"""
     if 'language' in session:
         return session['language']
-    return request.accept_languages.best_match(app.config['LANGUAGES'].keys())
+    # Vérifier l'en-tête Accept-Language
+    best_match = request.accept_languages.best_match(app.config['LANGUAGES'].keys())
+    return best_match or 'fr'
+
+def get_translation(message):
+    """Fonction de traduction personnalisée avec fallback"""
+    lang = get_locale()
+    
+    # 1. Essayer avec gettext (fichiers .mo)
+    if lang in _translations_cache:
+        try:
+            translated = _translations_cache[lang].gettext(message)
+            if translated != message:  # Si une traduction a été trouvée
+                return translated
+        except:
+            pass
+    
+    # 2. Essayer avec le fichier JSON
+    if lang in _default_translations and message in _default_translations[lang]:
+        return _default_translations[lang][message]
+    
+    # 3. Fallback: retourner le message original
+    return message
 
 # Initialiser Babel avec la fonction locale_selector
 babel = Babel(app, locale_selector=get_locale)
+
+# Charger les traductions au démarrage
+with app.app_context():
+    load_translations()
+
+# Remplacer la fonction _ par notre version personnalisée
+def _(message):
+    return get_translation(message)
+
+# Ajouter au context processor
+@app.context_processor
+def inject_globals():
+    return dict(
+        config=app.config,
+        languages=app.config.get('LANGUAGES', {}),
+        get_locale=get_locale,
+        current_lang=session.get('language', 'fr'),
+        _=_  # Notre fonction de traduction personnalisée
+    )
 
 # ============================================================
 # Fonctions d'initialisation
