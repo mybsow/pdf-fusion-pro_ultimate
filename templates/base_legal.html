@@ -17,10 +17,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
+    <!-- Flag Icons CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
+    
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-            <!-- Google AdSense -->
+    <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8967416460526921"
             crossorigin="anonymous"></script>
 
@@ -39,6 +42,8 @@
             --accent-color: #4cc9f0;
             --light-color: #f8f9fa;
             --dark-color: #212529;
+            --primary: #e74c3c;
+            --primary-dark: #c0392b;
         }
         
         .legal-container {
@@ -101,6 +106,90 @@
             border-radius: 8px;
             margin: 1.5rem 0;
         }
+
+        /* Styles pour la navbar (repris de base.html) */
+        .navbar-main {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            transform: translateY(-2px);
+        }
+        
+        .dropdown-menu {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            animation: fadeInDown 0.2s ease;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            transition: all 0.2s;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(231, 76, 60, 0.1);
+            transform: translateX(5px);
+        }
+        
+        /* Amélioration de l'affichage des drapeaux */
+        .flag-icon {
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            width: 1.2em;
+            height: 0.9em;
+        }
+
+        /* Pour les drapeaux dans le dropdown */
+        .dropdown-item .flag-icon {
+            margin-right: 0.75rem;
+            transition: transform 0.2s;
+        }
+
+        .dropdown-item:hover .flag-icon {
+            transform: scale(1.1);
+        }
+
+        /* Pour le drapeau actif dans la navbar */
+        .nav-link .flag-icon {
+            margin-right: 0.25rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Style pour la langue active dans le dropdown */
+        .dropdown-item.active {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .dropdown-item.active .flag-icon {
+            opacity: 1;
+            filter: drop-shadow(0 0 2px var(--primary));
+        }
         
         @media (max-width: 768px) {
             .legal-container {
@@ -110,6 +199,14 @@
             
             .legal-header, .legal-content {
                 padding: 1.5rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            
+            .d-none.d-md-inline {
+                display: none !important;
             }
         }
     </style>
@@ -126,7 +223,7 @@
 <!-- ================= NAVBAR ================= -->
 <nav class="navbar navbar-expand-lg navbar-dark navbar-main">
     <div class="container">
-        <a class="navbar-brand" href="{{ url_for('pdf.pdf_index') }}">
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('pdf.pdf_index') }}">
             <i class="fas fa-file-pdf me-2"></i>{{ _('PDF Fusion Pro') }}
         </a>
 
@@ -197,55 +294,156 @@
                 </li>
             </ul>
 
-            <!-- Sélecteur de langue - Version ULTRA ROBUSTE -->
+            <!-- SÉLECTEUR DE LANGUE AMÉLIORÉ AVEC DRAPEAUX -->
             <div class="navbar-nav ms-2">
                 <div class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-globe me-1"></i>
                         {% set current_lang = session.get('language', 'fr') %}
                         
-                        {# Fallback simple et sûr #}
+                        {# Affichage compact de la langue courante avec drapeau #}
                         {% if current_lang == 'fr' %}
-                            <span class="flag-icon flag-icon-fr me-1"></span>{{ _('Français') }}
+                            <span class="flag-icon flag-icon-fr me-1"></span><span class="d-none d-md-inline">{{ _('Français') }}</span>
                         {% elif current_lang == 'en' %}
-                            <span class="flag-icon flag-icon-gb me-1"></span>{{ _('English') }}
+                            <span class="flag-icon flag-icon-gb me-1"></span><span class="d-none d-md-inline">{{ _('English') }}</span>
                         {% elif current_lang == 'es' %}
-                            <span class="flag-icon flag-icon-es me-1"></span>{{ _('Español') }}
+                            <span class="flag-icon flag-icon-es me-1"></span><span class="d-none d-md-inline">{{ _('Español') }}</span>
                         {% elif current_lang == 'de' %}
-                            <span class="flag-icon flag-icon-de me-1"></span>{{ _('Deutsch') }}
+                            <span class="flag-icon flag-icon-de me-1"></span><span class="d-none d-md-inline">{{ _('Deutsch') }}</span>
                         {% elif current_lang == 'it' %}
-                            <span class="flag-icon flag-icon-it me-1"></span>{{ _('Italiano') }}
+                            <span class="flag-icon flag-icon-it me-1"></span><span class="d-none d-md-inline">{{ _('Italiano') }}</span>
                         {% elif current_lang == 'pt' %}
-                            <span class="flag-icon flag-icon-pt me-1"></span>{{ _('Português') }}
+                            <span class="flag-icon flag-icon-pt me-1"></span><span class="d-none d-md-inline">{{ _('Português') }}</span>
                         {% elif current_lang == 'ar' %}
-                            <span class="flag-icon flag-icon-sa me-1"></span>{{ _('العربية') }}
+                            <span class="flag-icon flag-icon-sa me-1"></span><span class="d-none d-md-inline">{{ _('العربية') }}</span>
                         {% elif current_lang == 'zh' %}
-                            <span class="flag-icon flag-icon-cn me-1"></span>{{ _('中文') }}
+                            <span class="flag-icon flag-icon-cn me-1"></span><span class="d-none d-md-inline">{{ _('中文') }}</span>
                         {% elif current_lang == 'ja' %}
-                            <span class="flag-icon flag-icon-jp me-1"></span>{{ _('日本語') }}
+                            <span class="flag-icon flag-icon-jp me-1"></span><span class="d-none d-md-inline">{{ _('日本語') }}</span>
                         {% elif current_lang == 'ru' %}
-                            <span class="flag-icon flag-icon-ru me-1"></span>{{ _('Русский') }}
+                            <span class="flag-icon flag-icon-ru me-1"></span><span class="d-none d-md-inline">{{ _('Русский') }}</span>
                         {% elif current_lang == 'nl' %}
-                            <span class="flag-icon flag-icon-nl me-1"></span>{{ _('Nederlands') }}
+                            <span class="flag-icon flag-icon-nl me-1"></span><span class="d-none d-md-inline">{{ _('Nederlands') }}</span>
                         {% else %}
-                            <span class="flag-icon flag-icon-fr me-1"></span>{{ _('Français') }}
+                            <span class="flag-icon flag-icon-fr me-1"></span><span class="d-none d-md-inline">{{ _('Français') }}</span>
                         {% endif %}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item {% if current_lang == 'fr' %}active{% endif %}" href="{{ url_for('set_language', language='fr') }}"><span class="flag-icon flag-icon-fr me-2"></span>{{ _('Français') }}</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'en' %}active{% endif %}" href="{{ url_for('set_language', language='en') }}"><span class="flag-icon flag-icon-gb me-2"></span>{{ _('English') }}</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'es' %}active{% endif %}" href="{{ url_for('set_language', language='es') }}"><span class="flag-icon flag-icon-es me-2"></span>{{ _('Español') }}</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'de' %}active{% endif %}" href="{{ url_for('set_language', language='de') }}"><span class="flag-icon flag-icon-de me-2"></span>{{ _('Deutsch') }}</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'it' %}active{% endif %}" href="{{ url_for('set_language', language='it') }}"><span class="flag-icon flag-icon-it me-2"></span>{{ _('Italiano') }}</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'pt' %}active{% endif %}" href="{{ url_for('set_language', language='pt') }}"><span class="flag-icon flag-icon-pt me-2"></span>{{ _('Português') }}</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'ar' %}active{% endif %}" href="{{ url_for('set_language', language='ar') }}"><span class="flag-icon flag-icon-sa me-2"></span>{{ _('العربية') }}</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'zh' %}active{% endif %}" href="{{ url_for('set_language', language='zh') }}"><span class="flag-icon flag-icon-cn me-2"></span>{{ _('中文') }}</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'ja' %}active{% endif %}" href="{{ url_for('set_language', language='ja') }}"><span class="flag-icon flag-icon-jp me-2"></span>{{ _('日本語') }}</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'ru' %}active{% endif %}" href="{{ url_for('set_language', language='ru') }}"><span class="flag-icon flag-icon-ru me-2"></span>{{ _('Русский') }}</a></li>
-                        <li><a class="dropdown-item {% if current_lang == 'nl' %}active{% endif %}" href="{{ url_for('set_language', language='nl') }}"><span class="flag-icon flag-icon-nl me-2"></span>{{ _('Nederlands') }}</a></li>
+                        <li>
+                            <a class="dropdown-item {% if current_lang == 'fr' %}active{% endif %} d-flex align-items-center" 
+                               href="{{ url_for('set_language', language='fr') }}">
+                                <span class="flag-icon flag-icon-fr me-2"></span>
+                                <span>{{ _('Français') }}</span>
+                                {% if current_lang == 'fr' %}
+                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if current_lang == 'en' %}active{% endif %} d-flex align-items-center" 
+                               href="{{ url_for('set_language', language='en') }}">
+                                <span class="flag-icon flag-icon-gb me-2"></span>
+                                <span>{{ _('English') }}</span>
+                                {% if current_lang == 'en' %}
+                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if current_lang == 'es' %}active{% endif %} d-flex align-items-center" 
+                               href="{{ url_for('set_language', language='es') }}">
+                                <span class="flag-icon flag-icon-es me-2"></span>
+                                <span>{{ _('Español') }}</span>
+                                {% if current_lang == 'es' %}
+                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if current_lang == 'de' %}active{% endif %} d-flex align-items-center" 
+                               href="{{ url_for('set_language', language='de') }}">
+                                <span class="flag-icon flag-icon-de me-2"></span>
+                                <span>{{ _('Deutsch') }}</span>
+                                {% if current_lang == 'de' %}
+                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if current_lang == 'it' %}active{% endif %} d-flex align-items-center" 
+                               href="{{ url_for('set_language', language='it') }}">
+                                <span class="flag-icon flag-icon-it me-2"></span>
+                                <span>{{ _('Italiano') }}</span>
+                                {% if current_lang == 'it' %}
+                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if current_lang == 'pt' %}active{% endif %} d-flex align-items-center" 
+                               href="{{ url_for('set_language', language='pt') }}">
+                                <span class="flag-icon flag-icon-pt me-2"></span>
+                                <span>{{ _('Português') }}</span>
+                                {% if current_lang == 'pt' %}
+                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if current_lang == 'ar' %}active{% endif %} d-flex align-items-center" 
+                               href="{{ url_for('set_language', language='ar') }}">
+                                <span class="flag-icon flag-icon-sa me-2"></span>
+                                <span>{{ _('العربية') }}</span>
+                                {% if current_lang == 'ar' %}
+                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if current_lang == 'zh' %}active{% endif %} d-flex align-items-center" 
+                               href="{{ url_for('set_language', language='zh') }}">
+                                <span class="flag-icon flag-icon-cn me-2"></span>
+                                <span>{{ _('中文') }}</span>
+                                {% if current_lang == 'zh' %}
+                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if current_lang == 'ja' %}active{% endif %} d-flex align-items-center" 
+                               href="{{ url_for('set_language', language='ja') }}">
+                                <span class="flag-icon flag-icon-jp me-2"></span>
+                                <span>{{ _('日本語') }}</span>
+                                {% if current_lang == 'ja' %}
+                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if current_lang == 'ru' %}active{% endif %} d-flex align-items-center" 
+                               href="{{ url_for('set_language', language='ru') }}">
+                                <span class="flag-icon flag-icon-ru me-2"></span>
+                                <span>{{ _('Русский') }}</span>
+                                {% if current_lang == 'ru' %}
+                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if current_lang == 'nl' %}active{% endif %} d-flex align-items-center" 
+                               href="{{ url_for('set_language', language='nl') }}">
+                                <span class="flag-icon flag-icon-nl me-2"></span>
+                                <span>{{ _('Nederlands') }}</span>
+                                {% if current_lang == 'nl' %}
+                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% endif %}
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
+        </div>
+    </div>
 </nav>
 
 <!-- ================= FLASH MESSAGES ================= -->
@@ -313,9 +511,6 @@
 <!-- ================= SCRIPTS ================= -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Flag Icons CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     // Mettre à jour l'année dans le footer
@@ -326,6 +521,33 @@ document.addEventListener('DOMContentLoaded', () => {
             el.textContent = currentYear;
         });
     }
+    
+    // Gestionnaire pour les changements de langue
+    const languageLinks = document.querySelectorAll('.dropdown-item[href*="set_language"]');
+    languageLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Changer le texte du bouton pour feedback
+            const langButton = document.querySelector('.nav-link.dropdown-toggle');
+            if (langButton) {
+                const flagIcon = this.querySelector('.flag-icon').cloneNode(true);
+                const langName = this.querySelector('span:not(.flag-icon)').textContent;
+                const globeIcon = langButton.querySelector('.fa-globe');
+                
+                // Reconstruire le contenu du bouton
+                langButton.innerHTML = '';
+                langButton.appendChild(globeIcon.cloneNode(true));
+                langButton.appendChild(document.createTextNode(' '));
+                langButton.appendChild(flagIcon);
+                langButton.appendChild(document.createTextNode(' '));
+                
+                // Ajouter le nom (caché sur mobile)
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'd-none d-md-inline';
+                nameSpan.textContent = ' ' + langName;
+                langButton.appendChild(nameSpan);
+            }
+        });
+    });
 });
 </script>
 
