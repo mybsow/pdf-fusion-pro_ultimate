@@ -185,33 +185,6 @@ def inject_globals():
 # ============================================================
 # Fonctions d'initialisation
 # ============================================================
-def check_and_create_templates():
-    required = [
-        'conversion/csv_to_excel.html',
-        'conversion/excel_to_csv.html',
-        'conversion/pdf_to_image.html',
-        'conversion/pdf_to_doc.html',
-        'conversion/pdf_to_excel.html',
-        'conversion/pdf_to_pdf.html',
-        'conversion/pdf_to_ppt.html',
-        'errors/404.html',
-        'errors/413.html',
-        'errors/500.html'
-    ]
-    for template in required:
-        path = Path('templates') / template
-        if not path.exists():
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(f"""<!DOCTYPE html>
-<html>
-<head><title>{template}</title></head>
-<body>
-    <h1>{template}</h1>
-    <p>Page en développement</p>
-    <a href="/">← Retour à l'accueil</a>
-</body>
-</html>""")
-            logger.info(f"✅ Template créé: {template}")
 
 def init_app_dirs():
     base_dir = Path(__file__).parent
@@ -230,7 +203,6 @@ def create_app():
     logger.info("🚀 Initialisation Flask...")
     AppConfig.initialize()
     init_app_dirs()
-    check_and_create_templates()
 
     # --------------------------------------------------------
     # Import Blueprints
