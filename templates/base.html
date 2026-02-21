@@ -45,7 +45,7 @@
     <!-- Flag Icons CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
 
-        <!-- Google AdSense -->
+    <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8967416460526921"
             crossorigin="anonymous"></script>
 
@@ -100,6 +100,18 @@
             border-radius: 10px;
             border: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            animation: fadeInDown 0.2s ease;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .dropdown-item {
@@ -115,6 +127,47 @@
         .dropdown-header {
             font-weight: 600;
             color: var(--primary);
+        }
+        
+        /* Amélioration de l'affichage des drapeaux */
+        .flag-icon {
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            width: 1.2em;
+            height: 0.9em;
+        }
+
+        /* Pour les drapeaux dans le dropdown */
+        .dropdown-item .flag-icon {
+            margin-right: 0.75rem;
+            transition: transform 0.2s;
+        }
+
+        .dropdown-item:hover .flag-icon {
+            transform: scale(1.1);
+        }
+
+        /* Pour le drapeau actif dans la navbar */
+        .nav-link .flag-icon {
+            margin-right: 0.25rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Style pour la langue active dans le dropdown */
+        .dropdown-item.active {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .dropdown-item.active .flag-icon {
+            opacity: 1;
+            filter: drop-shadow(0 0 2px var(--primary));
+        }
+
+        /* Style pour la coche de sélection */
+        .dropdown-item .fa-check {
+            opacity: 0.8;
         }
         
         main {
@@ -230,6 +283,10 @@
             
             .navbar-brand {
                 font-size: 1.2rem;
+            }
+            
+            .d-none.d-md-inline {
+                display: none !important;
             }
         }
     </style>
@@ -439,77 +496,67 @@
 
             </ul>
 
-            <!-- Menu utilisateur -->
-            <!-- Dans la navbar, après le menu utilisateur ou avant -->
+            <!-- SÉLECTEUR DE LANGUE AMÉLIORÉ AVEC DRAPEAUX -->
             <div class="navbar-nav ms-2">
                 <div class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-globe me-1"></i>
                         {% set current_lang = session.get('language', 'fr') %}
                         
-                        {# Affichage sécurisé de la langue courante #}
-                        {% if config and config.LANGUAGES and config.LANGUAGES.get(current_lang) %}
-                            <span class="flag-icon flag-icon-{{ config.LANGUAGES[current_lang].flag }} me-1"></span>
-                            {{ _(config.LANGUAGES[current_lang].name) }}
-                        {% else %}
-                            {# Fallback si la config n'est pas accessible #}
-                            {% if current_lang == 'fr' %}
-                            <span class="flag-icon flag-icon-fr me-1"></span>{{ _('Français') }}
-                        {% elif current_lang == 'en' %}
-                            <span class="flag-icon flag-icon-gb me-1"></span>{{ _('English') }}
-                        {% elif current_lang == 'es' %}
-                            <span class="flag-icon flag-icon-es me-1"></span>{{ _('Español') }}
-                        {% elif current_lang == 'de' %}
-                            <span class="flag-icon flag-icon-de me-1"></span>{{ _('Deutsch') }}
-                        {% elif current_lang == 'it' %}
-                            <span class="flag-icon flag-icon-it me-1"></span>{{ _('Italiano') }}
-                        {% elif current_lang == 'pt' %}
-                            <span class="flag-icon flag-icon-pt me-1"></span>{{ _('Português') }}
-                        {% elif current_lang == 'ar' %}
-                            <span class="flag-icon flag-icon-sa me-1"></span>{{ _('العربية') }}
-                        {% elif current_lang == 'zh' %}
-                            <span class="flag-icon flag-icon-cn me-1"></span>{{ _('中文') }}
-                        {% elif current_lang == 'ja' %}
-                            <span class="flag-icon flag-icon-jp me-1"></span>{{ _('日本語') }}
-                        {% elif current_lang == 'ru' %}
-                            <span class="flag-icon flag-icon-ru me-1"></span>{{ _('Русский') }}
-                        {% elif current_lang == 'nl' %}
-                            <span class="flag-icon flag-icon-nl me-1"></span>{{ _('Nederlands') }}
-                        {% else %}
-                            <span class="flag-icon flag-icon-fr me-1"></span>{{ _('Français') }}
-                            {% endif %}
-                        {% endif %}
+                        {# Affichage compact de la langue courante #}
+                        <span class="flag-icon flag-icon-{{ languages[current_lang].flag if languages and languages.get(current_lang) else 'fr' }} me-1"></span>
+                        <span class="d-none d-md-inline">
+                            {{ languages[current_lang].name if languages and languages.get(current_lang) else 'Français' }}
+                        </span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        {# Liste complète des langues avec fallback #}
-                        {% if config and config.LANGUAGES %}
-                            {# Utilisation de la config si disponible #}
-                            {% for code, lang in config.LANGUAGES.items() %}
+                        {% if languages %}
+                            {# Affichage des langues depuis la config #}
+                            {% for code, lang in languages.items() %}
                             <li>
-                                <a class="dropdown-item {% if code == session.get('language', 'fr') %}active{% endif %}" 
+                                <a class="dropdown-item {% if code == current_lang %}active{% endif %} d-flex align-items-center" 
                                    href="{{ url_for('set_language', language=code) }}">
                                     <span class="flag-icon flag-icon-{{ lang.flag }} me-2"></span>
-                                    {{ _(lang.name) }}
+                                    <span>{{ lang.name }}</span>
+                                    {% if code == current_lang %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
+                                    {% endif %}
                                 </a>
                             </li>
                             {% endfor %}
                         {% else %}
-                            {# Fallback manuel si la config n'est pas accessible #}
-                            <li><a class="dropdown-item {% if session.get('language') == 'fr' %}active{% endif %}" href="{{ url_for('set_language', language='fr') }}"><span class="flag-icon flag-icon-fr me-2"></span>{{ _('Français') }}</a></li>
-                            <li><a class="dropdown-item {% if session.get('language') == 'en' %}active{% endif %}" href="{{ url_for('set_language', language='en') }}"><span class="flag-icon flag-icon-gb me-2"></span>{{ _('English') }}</a></li>
-                            <li><a class="dropdown-item {% if session.get('language') == 'es' %}active{% endif %}" href="{{ url_for('set_language', language='es') }}"><span class="flag-icon flag-icon-es me-2"></span>{{ _('Español') }}</a></li>
-                            <li><a class="dropdown-item {% if session.get('language') == 'de' %}active{% endif %}" href="{{ url_for('set_language', language='de') }}"><span class="flag-icon flag-icon-de me-2"></span>{{ _('Deutsch') }}</a></li>
-                            <li><a class="dropdown-item {% if session.get('language') == 'it' %}active{% endif %}" href="{{ url_for('set_language', language='it') }}"><span class="flag-icon flag-icon-it me-2"></span>{{ _('Italiano') }}</a></li>
-                            <li><a class="dropdown-item {% if session.get('language') == 'pt' %}active{% endif %}" href="{{ url_for('set_language', language='pt') }}"><span class="flag-icon flag-icon-pt me-2"></span>{{ _('Português') }}</a></li>
-                            <li><a class="dropdown-item {% if session.get('language') == 'ar' %}active{% endif %}" href="{{ url_for('set_language', language='ar') }}"><span class="flag-icon flag-icon-sa me-2"></span>{{ _('العربية') }}</a></li>
-                            <li><a class="dropdown-item {% if session.get('language') == 'zh' %}active{% endif %}" href="{{ url_for('set_language', language='zh') }}"><span class="flag-icon flag-icon-cn me-2"></span>{{ _('中文') }}</a></li>
-                            <li><a class="dropdown-item {% if session.get('language') == 'ja' %}active{% endif %}" href="{{ url_for('set_language', language='ja') }}"><span class="flag-icon flag-icon-jp me-2"></span>{{ _('日本語') }}</a></li>
-                            <li><a class="dropdown-item {% if session.get('language') == 'ru' %}active{% endif %}" href="{{ url_for('set_language', language='ru') }}"><span class="flag-icon flag-icon-ru me-2"></span>{{ _('Русский') }}</a></li>
-                            <li><a class="dropdown-item {% if session.get('language') == 'nl' %}active{% endif %}" href="{{ url_for('set_language', language='nl') }}"><span class="flag-icon flag-icon-nl me-2"></span>{{ _('Nederlands') }}</a></li>
+                            {# Fallback si la config n'est pas accessible #}
+                            {% set fallback_languages = {
+                                'fr': {'name': 'Français', 'flag': 'fr'},
+                                'en': {'name': 'English', 'flag': 'gb'},
+                                'es': {'name': 'Español', 'flag': 'es'},
+                                'de': {'name': 'Deutsch', 'flag': 'de'},
+                                'it': {'name': 'Italiano', 'flag': 'it'},
+                                'pt': {'name': 'Português', 'flag': 'pt'},
+                                'nl': {'name': 'Nederlands', 'flag': 'nl'},
+                                'ar': {'name': 'العربية', 'flag': 'sa'},
+                                'zh': {'name': '中文', 'flag': 'cn'},
+                                'ja': {'name': '日本語', 'flag': 'jp'},
+                                'ru': {'name': 'Русский', 'flag': 'ru'}
+                            } %}
+                            {% for code, lang in fallback_languages.items() %}
+                            <li>
+                                <a class="dropdown-item {% if code == current_lang %}active{% endif %} d-flex align-items-center" 
+                                   href="{{ url_for('set_language', language=code) }}">
+                                    <span class="flag-icon flag-icon-{{ lang.flag }} me-2"></span>
+                                    <span>{{ lang.name }}</span>
+                                    {% if code == current_lang %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            {% endfor %}
                         {% endif %}
                     </ul>
                 </div>
             </div>
+        </div>
+    </div>
 </nav>
 
 <!-- ================= MESSAGES FLASH ================= -->
@@ -691,6 +738,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 loader.style.display = 'flex';
             }
         }
+    });
+    
+    // Gestionnaire pour les changements de langue
+    const languageLinks = document.querySelectorAll('.dropdown-item[href*="set_language"]');
+    languageLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Afficher un indicateur de chargement
+            const loader = document.getElementById('loaderOverlay');
+            if (loader) {
+                loader.style.display = 'flex';
+            }
+            
+            // Changer le texte du bouton pour feedback
+            const langButton = document.querySelector('.nav-link.dropdown-toggle .flag-icon + span');
+            if (langButton) {
+                const flagIcon = this.querySelector('.flag-icon').cloneNode(true);
+                const langName = this.querySelector('span:not(.flag-icon)').textContent;
+                langButton.innerHTML = '';
+                langButton.appendChild(flagIcon);
+                langButton.appendChild(document.createTextNode(' ' + langName));
+            }
+        });
     });
     
     // Affichage automatique des tooltips Bootstrap
