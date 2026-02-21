@@ -187,10 +187,11 @@ print(f"📊 {_('État des dépendances')}: {DEPS_STATUS}")
 # Chemin absolu vers le dossier templates
 TEMPLATES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 
-conversion_bp = Blueprint('conversion', __name__,
-                          template_folder='../templates',  # ← Plus simple !
-                          static_folder='../static/conversion',
-                          url_prefix='/conversion')
+conversion_bp = Blueprint(
+    'conversion',
+    __name__,
+    url_prefix='/conversion'
+)
 
 # ============================================================================
 # CONVERSION MAP - Configuration de toutes les conversions disponibles
