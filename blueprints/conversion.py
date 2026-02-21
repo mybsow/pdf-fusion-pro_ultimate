@@ -683,7 +683,7 @@ def index():
                 conv['missing_deps'] = missing
                 categories['other_conversions']['conversions'].append(conv)
         
-        return render_template('conversion/index.html',
+        return render_template('index.html',
                               title=_("Convertisseur de fichiers universel"),
                               categories=categories,
                               all_conversions=CONVERSION_MAP,
@@ -692,7 +692,7 @@ def index():
     except Exception as e:
         current_app.logger.error(f"❌ {_('Erreur dans index()')}: {str(e)}")
         flash(_("Le service de conversion est temporairement indisponible. Veuillez réessayer plus tard."), "error")
-        return render_template('conversion/index.html',
+        return render_template('index.html',
                               title=_("Convertisseur de fichiers"),
                               categories={},
                               all_conversions={},
@@ -740,7 +740,7 @@ def universal_converter(conversion_type):
             return handle_conversion_request(conversion_type, request, config)
         
         # GET request - afficher le formulaire
-        template_name = f"conversion/{config['template']}"
+        template_name = config['template']  # ✅ CORRIGÉ - juste le nom du fichier
         
         try:
             return render_template(template_name,
