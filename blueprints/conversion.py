@@ -189,9 +189,8 @@ conversion_bp = Blueprint(
     'conversion',
     __name__,
     url_prefix='/conversion',
-    template_folder='../templates/conversion'  # Chemin corrigé !
+    template_folder='templates/conversion'  # Chemin relatif correct
 )
-
 # ============================================================================
 # CONVERSION MAP - Configuration de toutes les conversions disponibles
 # ============================================================================
