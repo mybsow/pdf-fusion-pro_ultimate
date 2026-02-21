@@ -36,7 +36,7 @@ try:
 except ImportError:
     conversion_manager = None
     HAS_CONVERSION_MANAGER = False
-    logger.warning(_("⚠️ ConversionManager non disponible"))
+    logger.warning("⚠️ ConversionManager non disponible")
 
 # Import de la configuration
 try:
@@ -63,7 +63,7 @@ try:
 except ImportError:
     pd = None
     HAS_PANDAS = False
-    logger.warning(_("[WARN] pandas non installé, conversions CSV/Excel désactivées"))
+    logger.warning("[WARN] pandas non installé, conversions CSV/Excel désactivées")
 
 try:
     from PIL import Image, ImageEnhance
@@ -71,7 +71,7 @@ try:
 except ImportError:
     Image = ImageEnhance = None
     HAS_PILLOW = False
-    logger.warning(_("[WARN] PIL/Pillow non installé, conversions images désactivées"))
+    logger.warning("[WARN] PIL/Pillow non installé, conversions images désactivées")
 
 try:
     from reportlab.pdfgen import canvas
@@ -83,7 +83,7 @@ except ImportError:
     letter = A4 = None
     ImageReader = None
     HAS_REPORTLAB = False
-    logger.warning(_("[WARN] reportlab non installé, génération PDF désactivée"))
+    logger.warning("[WARN] reportlab non installé, génération PDF désactivée")
 
 try:
     from docx import Document
@@ -93,7 +93,7 @@ except ImportError:
     Document = None
     Inches = None
     HAS_DOCX = False
-    logger.warning(_("[WARN] python-docx non installé, conversions Word désactivées"))
+    logger.warning("[WARN] python-docx non installé, conversions Word désactivées")
 
 try:
     import pypdf
@@ -101,7 +101,7 @@ try:
 except ImportError:
     pypdf = None
     HAS_PYPDF = False
-    logger.warning(_("[WARN] pypdf non installé, manipulations PDF désactivées"))
+    logger.warning("[WARN] pypdf non installé, manipulations PDF désactivées")
 
 try:
     import numpy as np
@@ -109,7 +109,7 @@ try:
 except ImportError:
     np = None
     HAS_NUMPY = False
-    logger.warning(_("[WARN] numpy non installé, certains traitements désactivés"))
+    logger.warning("[WARN] numpy non installé, certains traitements désactivés")
 
 # OCR avec Tesseract
 try:
@@ -121,7 +121,7 @@ except ImportError:
     pytesseract = None
     Output = None
     HAS_TESSERACT = False
-    logger.warning(_("[WARN] pytesseract non installé, OCR désactivé"))
+    logger.warning("[WARN] pytesseract non installé, OCR désactivé")
 
 # PDF -> images
 try:
@@ -133,7 +133,7 @@ except ImportError:
     convert_from_path = None
     pdfinfo_from_path = None
     HAS_PDF2IMAGE = False
-    logger.warning(_("[WARN] pdf2image non installé, conversion PDF impossible"))
+    logger.warning("[WARN] pdf2image non installé, conversion PDF impossible")
 
 # HTML to PDF
 try:
@@ -142,7 +142,7 @@ try:
 except ImportError:
     pdfkit = None
     HAS_PDFKIT = False
-    logger.warning(_("[WARN] pdfkit non installé, conversions HTML->PDF désactivées"))
+    logger.warning("[WARN] pdfkit non installé, conversions HTML->PDF désactivées")
 
 try:
     import weasyprint
@@ -150,7 +150,7 @@ try:
 except ImportError:
     weasyprint = None
     HAS_WEASYPRINT = False
-    logger.warning(_("[WARN] weasyprint non installé, conversions HTML->PDF désactivées"))
+    logger.warning("[WARN] weasyprint non installé, conversions HTML->PDF désactivées")
 
 # PowerPoint
 try:
@@ -161,7 +161,7 @@ except ImportError:
     Presentation = None
     Inches = None
     HAS_PPTX = False
-    logger.warning(_("[WARN] python-pptx non installé, conversions PowerPoint désactivées"))
+    logger.warning("[WARN] python-pptx non installé, conversions PowerPoint désactivées")
 
 # Word / Excel / PPT -> PDF via LibreOffice
 import subprocess
@@ -182,15 +182,14 @@ DEPS_STATUS = {
     'conversion_manager': HAS_CONVERSION_MANAGER
 }
 
-print(f"📊 {_('État des dépendances')}: {DEPS_STATUS}")
+print(f"📊 État des dépendances: {DEPS_STATUS}")
 
-# Chemin absolu vers le dossier templates
-TEMPLATES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
-
+# CRÉATION DU BLUEPRINT (correction importante)
 conversion_bp = Blueprint(
     'conversion',
     __name__,
-    url_prefix='/conversion'
+    url_prefix='/conversion',
+    template_folder='../templates/conversion'  # Chemin corrigé !
 )
 
 # ============================================================================
