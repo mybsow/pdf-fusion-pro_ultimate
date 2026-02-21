@@ -27,15 +27,6 @@ logger = logging.getLogger(__name__)
 from config import AppConfig
 
 # ============================================================
-# Langues (déplacé dans create_app)
-# ============================================================
-
-def get_locale():
-    if 'language' in session:
-        return session['language']
-    return request.accept_languages.best_match(app.config['LANGUAGES'].keys())
-
-# ============================================================
 # i18n préchargé
 # ============================================================
 import gettext
@@ -91,7 +82,9 @@ def create_app():
     logger.info("🚀 Initialisation Flask...")
     
     # Créer l'application Flask
-    app = Flask(__name__)
+    app = Flask(__name__,
+                template_folder='templates',
+                static_folder='static')
     app.config.from_object(AppConfig)
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", AppConfig.SECRET_KEY)
     app.config["UPLOAD_FOLDER"] = tempfile.gettempdir()
@@ -126,6 +119,9 @@ def create_app():
 
     def load_translations():
         base = Path(app.config['BABEL_TRANSLATION_DIRECTORIES'])
+        if not base.exists():
+            logger.warning(f"⚠️ Dossier de traductions {base} non trouvé")
+            return
         for lang_dir in base.iterdir():
             if lang_dir.is_dir():
                 mo_file = lang_dir / 'LC_MESSAGES' / 'messages.mo'
@@ -151,27 +147,48 @@ def create_app():
     AppConfig.initialize()
     init_app_dirs()
 
-
     # ------------------- Blueprints -------------------
-    from blueprints.pdf import pdf_bp
-    from blueprints.api import api_bp
-    from blueprints.stats import stats_bp
-    from blueprints.admin import admin_bp
-    from blueprints.conversion import conversion_bp
-    from blueprints.legal import legal_bp
+    try:
+        from blueprints.pdf.routes import pdf_bp
+        app.register_blueprint(pdf_bp, url_prefix='/pdf')
+        logger.info("✅ Blueprint PDF enregistré")
+    except ImportError as e:
+        logger.error(f"❌ Erreur import PDF blueprint: {e}")
 
-    for bp, prefix in [
-        (pdf_bp, "/pdf"),
-        (api_bp, "/api"),
-        (legal_bp, None),
-        (stats_bp, None),
-        (admin_bp, "/admin"),
-        (conversion_bp, "/conversion")
-    ]:
-        if prefix:
-            app.register_blueprint(bp, url_prefix=prefix)
-        else:
-            app.register_blueprint(bp)
+    try:
+        from blueprints.api.routes import api_bp
+        app.register_blueprint(api_bp, url_prefix='/api')
+        logger.info("✅ Blueprint API enregistré")
+    except ImportError as e:
+        logger.error(f"❌ Erreur import API blueprint: {e}")
+
+    try:
+        from blueprints.legal.routes import legal_bp
+        app.register_blueprint(legal_bp, url_prefix='/legal')
+        logger.info("✅ Blueprint Legal enregistré")
+    except ImportError as e:
+        logger.error(f"❌ Erreur import Legal blueprint: {e}")
+
+    try:
+        from blueprints.stats.routes import stats_bp
+        app.register_blueprint(stats_bp, url_prefix='/stats')
+        logger.info("✅ Blueprint Stats enregistré")
+    except ImportError as e:
+        logger.error(f"❌ Erreur import Stats blueprint: {e}")
+
+    try:
+        from blueprints.admin import admin_bp
+        app.register_blueprint(admin_bp, url_prefix='/admin')
+        logger.info("✅ Blueprint Admin enregistré")
+    except ImportError as e:
+        logger.error(f"❌ Erreur import Admin blueprint: {e}")
+
+    try:
+        from blueprints.conversion import conversion_bp
+        app.register_blueprint(conversion_bp)  # Déjà préfixé dans le blueprint
+        logger.info("✅ Blueprint Conversion enregistré")
+    except ImportError as e:
+        logger.error(f"❌ Erreur import Conversion blueprint: {e}")
 
     # ------------------- Routes -------------------
     @app.route('/')
@@ -195,13 +212,12 @@ def create_app():
     # ------------------- SEO / sitemap -------------------
     @app.route('/ads.txt')
     def ads():
-        return Response("google.com, pub-8967416460526921, DIRECT, f08c47fec0942fa0", mimetype="text/plain")
+        return send_from_directory('.', 'ads.txt')
 
+    # Route pour robots.txt à la racine du projet
     @app.route('/robots.txt')
     def robots():
-        domain = AppConfig.DOMAIN.rstrip("/")
-        return Response(f"User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: https://{domain}/sitemap.xml\n",
-                        mimetype="text/plain")
+        return send_from_directory('.', 'robots.txt')
 
     @app.route('/sitemap.xml')
     def sitemap():
@@ -281,7 +297,7 @@ def create_app():
     def server_error(e):
         return render_template("errors/500.html"), 500
 
-    # ------------------- Debug OCR (dev only) -------------------
+    # ------------------- Debug routes -------------------
     if app.debug:
         @app.route("/test-ocr")
         def test_ocr():
@@ -299,6 +315,28 @@ def create_app():
                 except Exception as e:
                     results.append(f"{pkg} erreur: {e}")
             return jsonify(results)
+
+        @app.route('/debug-templates')
+        def debug_templates():
+            """Route de diagnostic pour voir les templates disponibles"""
+            templates_path = os.path.join(os.path.dirname(__file__), 'templates')
+            conversion_path = os.path.join(templates_path, 'conversion')
+            
+            result = {
+                'templates_dir_exists': os.path.exists(templates_path),
+                'conversion_dir_exists': os.path.exists(conversion_path),
+                'templates_dir': templates_path,
+                'conversion_dir': conversion_path,
+                'templates_list': [],
+                'blueprints': [bp.name for bp in app.blueprints.values()],
+                'languages': app.config['LANGUAGES'],
+                'current_locale': get_locale()
+            }
+            
+            if os.path.exists(conversion_path):
+                result['templates_list'] = os.listdir(conversion_path)
+            
+            return jsonify(result)
 
     return app
 
