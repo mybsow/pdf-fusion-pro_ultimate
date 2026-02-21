@@ -91,20 +91,14 @@ RUN mkdir -p translations && \
                 pybabel update -i messages.pot -d translations -l $lang; \
             fi; \
         done; \
-        python scripts/fix_placeholders.py; \
-        pybabel compile -d translations; \
-        cp .sources.md5 translations/.sources.md5; \
     else \
         echo "♻️ Aucune modification → compilation uniquement"; \
-        python scripts/fix_placeholders.py; \
-        pybabel compile -d translations; \
-    fi
-
-# Correction placeholders
-RUN python scripts/fix_placeholders.py || true
-
-# Correction %
-RUN python scripts/fix_percent.py || true
+    fi && \
+    echo "🔧 Fix placeholders et %"; \
+    python scripts/fix_placeholders.py; \
+    python scripts/fix_percent.py; \
+    pybabel compile -d translations; \
+    cp .sources.md5 translations/.sources.md5
 
 # -------------------------------------------------
 # Créer dossiers runtime
@@ -117,9 +111,8 @@ RUN mkdir -p \
     /app/data/ratings \
     /app/data/logs \
     /app/uploads \
-    /app/temp
-
-RUN chmod -R 755 /app /tmp/pdf_fusion_pro
+    /app/temp && \
+    chmod -R 755 /app /tmp/pdf_fusion_pro
 
 # -------------------------------------------------
 # Exposer port
