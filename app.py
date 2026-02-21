@@ -4,7 +4,7 @@ PDF Fusion Pro Ultimate - Application principale
 Version production ultra-stable (Render / Gunicorn ready)
 """
 
-from flask import Flask, redirect, Response, request, render_template, send_from_directory, jsonify
+from flask import Flask, redirect, Response, request, render_template, send_from_directory, jsonify, session, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
 import tempfile
@@ -88,18 +88,18 @@ app.config['LANGUAGES'] = {
     'ja': {'name': '日本語', 'flag': 'jp'},
     'ru': {'name': 'Русский', 'flag': 'ru'},
 }
+
+# Initialiser Babel (avant de définir le locale selector)
+babel = Babel(app)
+
 # ============================================================
 # Fonction pour déterminer la langue
 # ============================================================
+@babel.localeselector
 def get_locale():
-    # 1. Vérifier si l'utilisateur a choisi une langue en session
     if 'language' in session:
         return session['language']
-    # 2. Sinon, utiliser la langue du navigateur
     return request.accept_languages.best_match(app.config['LANGUAGES'].keys())
-
-# Initialiser Babel
-babel = Babel(app, locale_selector=get_locale)
 
 # ============================================================
 # Fonctions d'initialisation
@@ -181,13 +181,17 @@ def create_app():
         return redirect('/conversion/', code=301)
 
     # --------------------------------------------------------
-    # Context processor pour config
+    # Context processor pour config et fonctions
     # --------------------------------------------------------
     @app.context_processor
-    def inject_config():
+    def inject_globals():
+        """Injecte les variables globales dans tous les templates"""
         return dict(
             config=app.config,
-            languages=app.config.get('LANGUAGES', {})
+            languages=app.config.get('LANGUAGES', {}),
+            get_locale=get_locale,  # ✅ CORRIGÉ: injection de la fonction
+            current_lang=session.get('language', 'fr'),  # ✅ Ajout pour faciliter l'accès
+            _=_  # ✅ Injection de la fonction de traduction
         )
 
     # --------------------------------------------------------
@@ -404,11 +408,11 @@ def create_app():
     @app.route('/debug-config')
     def debug_config():
         """Route de diagnostic pour vérifier la configuration"""
-        from flask_babel import get_locale
+        from flask_babel import get_locale as babel_get_locale
         
         return jsonify({
             'session_language': session.get('language', 'fr'),
-            'current_locale': str(get_locale()),
+            'current_locale': str(babel_get_locale()),
             'languages_in_config': list(app.config.get('LANGUAGES', {}).keys()),
             'config_keys': list(app.config.keys()),
             'has_config_processor': 'config' in dict(app.context_processor(lambda: {})())
@@ -429,11 +433,11 @@ def create_app():
         """Vérifie l'état des traductions"""
         import os
         from pathlib import Path
-        from flask_babel import get_locale, gettext
+        from flask_babel import get_locale as babel_get_locale, gettext
         
         trans_dir = Path('translations')
         result = {
-            'current_locale': str(get_locale()),
+            'current_locale': str(babel_get_locale()),
             'session_language': session.get('language', 'fr'),
             'babel_default': app.config.get('BABEL_DEFAULT_LOCALE', 'fr'),
             'translations_dir_exists': trans_dir.exists(),
