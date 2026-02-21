@@ -1,86 +1,59 @@
 #!/usr/bin/env python3
-# scripts/fix_placeholders.py
-# Version robuste compatible Babel production
+# Correction avancée Babel placeholders + flags python-format
 
 import polib
 import re
 from pathlib import Path
 import sys
 
-# Support :
-# %(name)s
-# %s %d %f
-# {0} {name}
-PLACEHOLDER_PATTERN = re.compile(
-    r"%\([^)]+\)[sdifeEgGxX]|%[sdifeEgGxX]|\{[^}]+\}"
-)
+PERCENT_PATTERN = re.compile(r"%\([^)]+\)[sdifeEgGxX]|%[sdifeEgGxX]")
+BRACE_PATTERN = re.compile(r"\{[^}]+\}")
 
-def extract_placeholders(text):
-    return sorted(PLACEHOLDER_PATTERN.findall(text or ""))
+def extract_percent(text):
+    return PERCENT_PATTERN.findall(text or "")
 
-def fix_placeholders_in_file(po_file):
-    print(f"🔧 Traitement de {po_file}...")
+def extract_brace(text):
+    return BRACE_PATTERN.findall(text or "")
 
-    try:
-        po = polib.pofile(str(po_file))
-    except Exception as e:
-        print(f"  ❌ Erreur lecture: {e}")
-        return False
-
+def fix_file(po_path):
+    print(f"🔧 {po_path}")
+    po = polib.pofile(str(po_path))
     modified = False
-    checked = 0
-    fixed = 0
 
     for entry in po:
         if not entry.msgid:
             continue
 
-        checked += 1
+        id_percent = extract_percent(entry.msgid)
+        str_percent = extract_percent(entry.msgstr)
 
-        msgid_ph = extract_placeholders(entry.msgid)
-        msgstr_ph = extract_placeholders(entry.msgstr)
+        id_brace = extract_brace(entry.msgid)
+        str_brace = extract_brace(entry.msgstr)
 
-        if msgid_ph != msgstr_ph:
-            print(f"  ⚠️ Incompatibilité ligne {entry.linenum}")
-            print(f"     msgid placeholders : {msgid_ph}")
-            print(f"     msgstr placeholders: {msgstr_ph}")
-
-            # Correction radicale et sûre
+        # 1️⃣ Corriger incompatibilités
+        if id_percent != str_percent or id_brace != str_brace:
+            print(f"  ⚠️ Correction placeholders ligne {entry.linenum}")
             entry.msgstr = entry.msgid
             modified = True
-            fixed += 1
+
+        # 2️⃣ Corriger flag python-format incohérent
+        if "python-format" in entry.flags:
+            if not id_percent:
+                entry.flags.remove("python-format")
+                modified = True
 
     if modified:
         po.save()
-        print(f"  ✅ {fixed}/{checked} entrées corrigées")
+        print("  ✅ Corrigé")
     else:
-        print(f"  ✅ OK ({checked} entrées vérifiées)")
-
-    return True
+        print("  ✅ OK")
 
 def main():
-    print("🔍 Vérification des placeholders Babel")
-    print("=" * 60)
+    translations = Path("translations")
+    for po in translations.rglob("*.po"):
+        fix_file(po)
 
-    translations_dir = Path("translations")
-    if not translations_dir.exists():
-        print("❌ Dossier translations introuvable")
-        return 1
-
-    po_files = list(translations_dir.rglob("*.po"))
-    if not po_files:
-        print("❌ Aucun fichier .po trouvé")
-        return 1
-
-    success = 0
-    for po_file in po_files:
-        if fix_placeholders_in_file(po_file):
-            success += 1
-        print()
-
-    print("=" * 60)
-    print(f"📊 {success}/{len(po_files)} fichiers traités")
-
+    print("✅ Nettoyage terminé")
     return 0
 
 if __name__ == "__main__":
