@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    
+
     <!-- SEO -->
     <title>{% block title %}{{ _('PDF Fusion Pro - Outils PDF Gratuits') }}{% endblock %}</title>
     <meta name="description" 
@@ -13,49 +13,39 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ config.DOMAIN }}{{ request.path }}">
 
-    
     <!-- Open Graph -->
     <meta property="og:title" content="{{ _('PDF Fusion Pro - Convertisseur de fichiers') }}">
     <meta property="og:description" content="{{ _('Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne') }}">
     <meta property="og:type" content="website">
-    
+
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8967416460526921"
+            crossorigin="anonymous"></script>
+    <script async custom-element="amp-auto-ads"
+            src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js"></script>
+
     <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
+
     <!-- Font Awesome -->
-    <link rel="stylesheet" 
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" 
-          rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- CSS principal -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <!-- Composants UI -->
-    <link rel="stylesheet"
-        href="{{ url_for('static', filename='css/components/upload.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/upload.css') }}">
 
     <!-- Flag Icons CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
 
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8967416460526921"
-            crossorigin="anonymous"></script>
-
-    <script async custom-element="amp-auto-ads"
-            src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
-    </script>
-    
-    <!-- Styles spécifiques par page -->
-    {% block extra_css %}{% endblock %}
-    
     <style>
         :root {
             --primary: #e74c3c;
@@ -68,7 +58,7 @@
             --dark: #2c3e50;
             --gray: #95a5a6;
         }
-        
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #f8f9fa;
@@ -76,610 +66,91 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .navbar-main {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             box-shadow: 0 2px 15px rgba(0,0,0,0.1);
         }
-        
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-        
-        .nav-link {
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .nav-link:hover {
-            transform: translateY(-2px);
-        }
-        
+
+        .navbar-brand { font-weight: 700; font-size: 1.5rem; }
+        .nav-link { font-weight: 500; transition: all 0.3s; }
+        .nav-link:hover { transform: translateY(-2px); }
         .dropdown-menu {
             border-radius: 10px;
             border: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             animation: fadeInDown 0.2s ease;
         }
-        
+
         @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
-        .dropdown-item {
-            padding: 0.5rem 1rem;
-            transition: all 0.2s;
-        }
-        
-        .dropdown-item:hover {
-            background-color: rgba(231, 76, 60, 0.1);
-            transform: translateX(5px);
-        }
-        
-        .dropdown-header {
-            font-weight: 600;
-            color: var(--primary);
-        }
-        
-        /* Amélioration de l'affichage des drapeaux */
+
+        .dropdown-item { padding: 0.5rem 1rem; transition: all 0.2s; }
+        .dropdown-item:hover { background-color: rgba(231, 76, 60, 0.1); transform: translateX(5px); }
+        .dropdown-header { font-weight: 600; color: var(--primary); }
+
         .flag-icon {
             border-radius: 3px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            width: 1.2em;
-            height: 0.9em;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+            width: 1.3em;
+            height: 1em;
+            object-fit: cover;
         }
+        .dropdown-item .flag-icon { margin-right: 0.75rem; transition: transform 0.2s; }
+        .dropdown-item:hover .flag-icon { transform: scale(1.15); }
+        .dropdown-item.active .flag-icon { filter: drop-shadow(0 0 2px var(--primary)); opacity: 1; }
+        .nav-link.dropdown-toggle .flag-icon { margin-right: 0.35rem; border: 1px solid rgba(255,255,255,0.2); vertical-align: middle; }
+        .nav-link.dropdown-toggle span { vertical-align: middle; }
+        .dropdown-item.active { background-color: rgba(231,76,60,0.1); color: var(--primary); font-weight: 500; }
+        .dropdown-item .fa-check { opacity: 0.8; margin-left: auto; }
 
-        /* Pour les drapeaux dans le dropdown */
-        .dropdown-item .flag-icon {
-            margin-right: 0.75rem;
-            transition: transform 0.2s;
-        }
+        main { flex: 1; }
+        footer { margin-top: auto; }
 
-        .dropdown-item:hover .flag-icon {
-            transform: scale(1.1);
-        }
-
-        /* Pour le drapeau actif dans la navbar */
-        .nav-link .flag-icon {
-            margin-right: 0.25rem;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        /* Style pour la langue active dans le dropdown */
-        .dropdown-item.active {
-            background-color: rgba(231, 76, 60, 0.1);
-            color: var(--primary);
-            font-weight: 500;
-        }
-
-        .dropdown-item.active .flag-icon {
-            opacity: 1;
-            filter: drop-shadow(0 0 2px var(--primary));
-        }
-
-        /* Style pour la coche de sélection */
-        .dropdown-item .fa-check {
-            opacity: 0.8;
-        }
-        
-        main {
-            flex: 1;
-        }
-        
-        footer {
-            margin-top: auto;
-        }
-        
+        /* Loader */
         .loader-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             z-index: 9999;
         }
-        
         .loader {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
+            background: white; padding: 2rem; border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        
+
+        /* Conversion cards */
         .conversion-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
             margin: 2rem 0;
         }
-        
         .conversion-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            transition: all 0.3s;
-            border: 1px solid #e9ecef;
-            position: relative;
-            overflow: hidden;
+            background: white; border-radius: 15px; padding: 1.5rem;
+            text-decoration: none; color: inherit; display: block;
+            transition: all 0.3s; border: 1px solid #e9ecef; position: relative; overflow: hidden;
         }
-        
-        .conversion-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            text-decoration: none;
-            color: inherit;
-        }
-        
+        .conversion-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         .conversion-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
             background: linear-gradient(90deg, var(--primary), var(--secondary));
         }
-        
-        .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .alert {
-            border-radius: 10px;
-            border: none;
-        }
+        .card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
 
-        /* Style pour les miniatures PDF */
-        .thumb-container {
-            transition: all 0.2s ease;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        
-        .thumb-container:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        
-        .pdf-thumb {
-            background: #2c3e50;
-            color: white;
-            font-size: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .trash-btn {
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-        
-        .thumb-container:hover .trash-btn {
-            opacity: 1;
-        }
-        
         @media (max-width: 768px) {
-            .conversion-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .navbar-brand {
-                font-size: 1.2rem;
-            }
-            
-            .d-none.d-md-inline {
-                display: none !important;
-            }
+            .conversion-grid { grid-template-columns: 1fr; }
+            .navbar-brand { font-size: 1.2rem; }
+            .d-none.d-md-inline { display: none !important; }
         }
     </style>
-
-    <meta name="google-site-verification" content="ZOyISj54SOvEHTNjlW5WKG152esMn4a5OAfN4iiG-s0" />
-    <meta name="google-adsense-account" content="ca-pub-8967416460526921">
-
 </head>
 
 <body class="d-flex flex-column min-vh-100">
 
-<!-- ================= ANNONCES AUTO AMP ================= -->
-<amp-auto-ads type="adsense"
-        data-ad-client="ca-pub-8967416460526921">
-</amp-auto-ads>
-
-<!-- ================= NAVBAR ================= -->
-<nav class="navbar navbar-expand-lg navbar-dark navbar-main sticky-top">
-    <div class="container">
-        <!-- Logo -->
-        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('pdf.pdf_index') }}">
-            <i class="fas fa-file-pdf me-2"></i>
-            <span>{{ _('PDF Fusion Pro') }}</span>
-        </a>
-
-        <!-- Bouton mobile -->
-        <button class="navbar-toggler" 
-                type="button" 
-                data-bs-toggle="collapse" 
-                data-bs-target="#mainNavbar">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- Menu principal -->
-        <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                
-                <!-- Accueil -->
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'pdf.pdf_index' %}active{% endif %}" 
-                       href="{{ url_for('pdf.pdf_index') }}">
-                        <i class="fas fa-home me-1"></i>{{ _('Accueil') }}
-                    </a>
-                </li>
-
-                <!-- Dropdown Toutes les conversions -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {% if request.endpoint and 'conversion' in request.endpoint %}active{% endif %}" 
-                       href="#" 
-                       role="button" 
-                       data-bs-toggle="dropdown">
-                        <i class="fas fa-exchange-alt me-1"></i>{{ _('Convertir') }}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark">
-                        
-                        <!-- Convertir EN PDF -->
-                        <li><h6 class="dropdown-header">
-                            <i class="fas fa-file-pdf me-2"></i>{{ _('Convertir en PDF') }}
-                        </h6></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='word-en-pdf') }}">
-                            <i class="fas fa-file-word me-2"></i>{{ _('Word en PDF') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='excel-en-pdf') }}">
-                            <i class="fas fa-file-excel me-2"></i>{{ _('Excel en PDF') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='powerpoint-en-pdf') }}">
-                            <i class="fas fa-file-powerpoint me-2"></i>{{ _('PowerPoint en PDF') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='image-en-pdf') }}">
-                            <i class="fas fa-image me-2"></i>{{ _('Image en PDF') }}
-                        </a></li>
-                        
-                        <li><hr class="dropdown-divider"></li>
-                        
-                        <!-- Convertir DEPUIS PDF -->
-                        <li><h6 class="dropdown-header">
-                            <i class="fas fa-file-pdf me-2"></i>{{ _('Convertir depuis PDF') }}
-                        </h6></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-word') }}">
-                            <i class="fas fa-file-word me-2"></i>{{ _('PDF en Word') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-excel') }}">
-                            <i class="fas fa-file-excel me-2"></i>{{ _('PDF en Excel') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-image') }}">
-                            <i class="fas fa-image me-2"></i>{{ _('PDF en Image') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-pdfa') }}">
-                            <i class="fas fa-archive me-2"></i>{{ _('PDF en PDF/A') }}
-                        </a></li>
-                        
-                        <li><hr class="dropdown-divider"></li>
-                        
-                        <!-- Outils PDF -->
-                        <li><h6 class="dropdown-header">
-                            <i class="fas fa-tools me-2"></i>{{ _('Outils PDF') }}
-                        </h6></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='fusionner-pdf') }}">
-                            <i class="fas fa-object-group me-2"></i>{{ _('Fusionner PDF') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='diviser-pdf') }}">
-                            <i class="fas fa-cut me-2"></i>{{ _('Diviser PDF') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='compresser-pdf') }}">
-                            <i class="fas fa-compress me-2"></i>{{ _('Compresser PDF') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='rotation-pdf') }}">
-                            <i class="fas fa-sync-alt me-2"></i>{{ _('Rotation PDF') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='proteger-pdf') }}">
-                            <i class="fas fa-lock me-2"></i>{{ _('Protéger PDF') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='deverrouiller-pdf') }}">
-                            <i class="fas fa-unlock me-2"></i>{{ _('Déverrouiller PDF') }}
-                        </a></li>
-                        
-                        <li><hr class="dropdown-divider"></li>
-                        
-                        <!-- Autres conversions -->
-                        <li><h6 class="dropdown-header">
-                            <i class="fas fa-exchange-alt me-2"></i>{{ _('Autres conversions') }}
-                        </h6></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='image-en-word') }}">
-                            <i class="fas fa-image me-2"></i>{{ _('Image en Word') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='image-en-excel') }}">
-                            <i class="fas fa-image me-2"></i>{{ _('Image en Excel') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='csv-en-excel') }}">
-                            <i class="fas fa-file-csv me-2"></i>{{ _('CSV en Excel') }}
-                        </a></li>
-                        <li><a class="dropdown-item" 
-                               href="{{ url_for('conversion.universal_converter', conversion_type='excel-en-csv') }}">
-                            <i class="fas fa-file-excel me-2"></i>{{ _('Excel en CSV') }}
-                        </a></li>
-                        
-                        <li><hr class="dropdown-divider"></li>
-                        
-                        <!-- Toutes les conversions -->
-                        <li><a class="dropdown-item text-center" 
-                               href="{{ url_for('conversion.index') }}">
-                            <i class="fas fa-list me-2"></i>{{ _('Toutes les conversions') }}
-                        </a></li>
-                    </ul>
-                </li>
-
-                <!-- Outils PDF (liens directs) -->
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'pdf.merge' %}active{% endif %}" 
-                       href="{{ url_for('pdf.merge') }}">
-                        {{ _('Fusionner') }}
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'pdf.split' %}active{% endif %}" 
-                       href="{{ url_for('pdf.split') }}">
-                        {{ _('Diviser') }}
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'pdf.rotate' %}active{% endif %}" 
-                       href="{{ url_for('pdf.rotate') }}">
-                        {{ _('Tourner') }}
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'pdf.compress' %}active{% endif %}" 
-                       href="{{ url_for('pdf.compress') }}">
-                        {{ _('Compresser') }}
-                    </a>
-                </li>
-
-                <!-- Pages d'information -->
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'legal.contact' %}active{% endif %}" 
-                       href="{{ url_for('legal.contact') }}">
-                        <i class="fas fa-envelope me-1"></i>{{ _('Contact') }}
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'legal.about' %}active{% endif %}" 
-                       href="{{ url_for('legal.about') }}">
-                        <i class="fas fa-info-circle me-1"></i>{{ _('À propos') }}
-                    </a>
-                </li>
-
-            </ul>
-
-            <!-- SÉLECTEUR DE LANGUE AMÉLIORÉ AVEC DRAPEAUX -->
-            <div class="navbar-nav ms-2">
-                <div class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-globe me-1"></i>
-                        {% set current_lang = session.get('language', 'fr') %}
-                        
-                        {# Affichage compact de la langue courante #}
-                        <span class="flag-icon flag-icon-{{ languages[current_lang].flag if languages and languages.get(current_lang) else 'fr' }} me-1"></span>
-                        <span class="d-none d-md-inline">
-                            {{ languages[current_lang].name if languages and languages.get(current_lang) else 'Français' }}
-                        </span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        {% if languages %}
-                            {# Affichage des langues depuis la config #}
-                            {% for code, lang in languages.items() %}
-                            <li>
-                                <a class="dropdown-item {% if code == current_lang %}active{% endif %} d-flex align-items-center" 
-                                   href="{{ url_for('set_language', language=code) }}">
-                                    <span class="flag-icon flag-icon-{{ lang.flag }} me-2"></span>
-                                    <span>{{ lang.name }}</span>
-                                    {% if code == current_lang %}
-                                    <i class="fas fa-check ms-auto text-success"></i>
-                                    {% endif %}
-                                </a>
-                            </li>
-                            {% endfor %}
-                        {% else %}
-                            {# Fallback si la config n'est pas accessible #}
-                            {% set fallback_languages = {
-                                'fr': {'name': 'Français', 'flag': 'fr'},
-                                'en': {'name': 'English', 'flag': 'gb'},
-                                'es': {'name': 'Español', 'flag': 'es'},
-                                'de': {'name': 'Deutsch', 'flag': 'de'},
-                                'it': {'name': 'Italiano', 'flag': 'it'},
-                                'pt': {'name': 'Português', 'flag': 'pt'},
-                                'nl': {'name': 'Nederlands', 'flag': 'nl'},
-                                'ar': {'name': 'العربية', 'flag': 'sa'},
-                                'zh': {'name': '中文', 'flag': 'cn'},
-                                'ja': {'name': '日本語', 'flag': 'jp'},
-                                'ru': {'name': 'Русский', 'flag': 'ru'}
-                            } %}
-                            {% for code, lang in fallback_languages.items() %}
-                            <li>
-                                <a class="dropdown-item {% if code == current_lang %}active{% endif %} d-flex align-items-center" 
-                                   href="{{ url_for('set_language', language=code) }}">
-                                    <span class="flag-icon flag-icon-{{ lang.flag }} me-2"></span>
-                                    <span>{{ lang.name }}</span>
-                                    {% if code == current_lang %}
-                                    <i class="fas fa-check ms-auto text-success"></i>
-                                    {% endif %}
-                                </a>
-                            </li>
-                            {% endfor %}
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</nav>
-
-<!-- ================= MESSAGES FLASH ================= -->
-<div class="container mt-3">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ 'danger' if category == 'error' else category }} 
-                            alert-dismissible fade show shadow-sm" 
-                     role="alert">
-                    {% if category == 'success' %}
-                        <i class="fas fa-check-circle me-2"></i>
-                    {% elif category == 'error' %}
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                    {% elif category == 'warning' %}
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                    {% elif category == 'info' %}
-                        <i class="fas fa-info-circle me-2"></i>
-                    {% endif %}
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-</div>
-
-<!-- ================= CONTENU PRINCIPAL ================= -->
-<main class="container py-4 flex-grow-1">
-    {% block content %}{% endblock %}
-</main>
-
-<!-- ================= FOOTER ================= -->
-<footer class="bg-dark text-white mt-5 py-4">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-                <h5 class="mb-3">
-                    <i class="fas fa-file-pdf me-2"></i>{{ _('PDF Fusion Pro') }}
-                </h5>
-                <p class="text-muted small mb-0">
-                    {{ _('Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et compressez vos fichiers PDF.') }}
-                </p>
-                <p class="text-muted small mt-2">
-                    <i class="fas fa-shield-alt me-1"></i>
-                    {{ _('Vos fichiers sont traités de manière sécurisée et supprimés automatiquement.') }}
-                </p>
-            </div>
-            
-            <div class="col-md-4">
-                <h6 class="mb-3">
-                    <i class="fas fa-tools me-2"></i>{{ _('Outils') }}
-                </h6>
-                <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <a href="{{ url_for('pdf.merge') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-object-group me-1"></i>{{ _('Fusionner PDF') }}
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="{{ url_for('pdf.split') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-cut me-1"></i>{{ _('Diviser PDF') }}
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="{{ url_for('pdf.rotate') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-rotate me-1"></i>{{ _('Tourner PDF') }}
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="{{ url_for('pdf.compress') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-compress me-1"></i>{{ _('Compresser PDF') }}
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            
-            <div class="col-md-4">
-                <h6 class="mb-3">
-                    <i class="fas fa-info-circle me-2"></i>{{ _('À propos') }}
-                </h6>
-                <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <a href="{{ url_for('legal.about') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-info-circle me-1"></i>{{ _('À propos') }}
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="{{ url_for('legal.legal') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-gavel me-1"></i>{{ _('Mentions légales') }}
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="{{ url_for('legal.privacy') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-lock me-1"></i>{{ _('Confidentialité') }}
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="{{ url_for('legal.terms') }}" class="text-muted small text-decoration-none">
-                            <i class="fas fa-file-contract me-1"></i>{{ _('Conditions d\'utilisation') }}
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        
-        <hr class="bg-secondary my-4">
-        
-        <div class="row">
-            <div class="col-12 text-center">
-                <small class="text-muted d-block mb-2">
-                    <i class="fas fa-copyright me-1"></i> 2025 {{ _('PDF Fusion Pro') }}. {{ _('Tous droits réservés.') }}
-                </small>
-                <small class="text-muted">
-                    {{ _('Version') }} {{ config.VERSION if config else '6.1' }} | 
-                    <i class="fas fa-server me-1"></i>{{ _('Hébergé sur Render') }}
-                </small>
-            </div>
-        </div>
-    </div>
-</footer>
-
-<!-- ================= LOADER ================= -->
+<!-- Loader -->
 <div class="loader-overlay" id="loaderOverlay" style="display:none;">
     <div class="loader text-center">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
@@ -688,12 +159,121 @@
     </div>
 </div>
 
-<!-- ================= SCRIPTS ================= -->
-<!-- Bootstrap Bundle avec Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-main sticky-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('pdf.pdf_index') }}">
+            <i class="fas fa-file-pdf me-2"></i>
+            <span>{{ _('PDF Fusion Pro') }}</span>
+        </a>
 
-<!-- ⭐ PDF.js - CHARGEMENT SYNC (PAS DEFER) ⭐ -->
-<!-- PDF.js - CHARGEMENT SYNC -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'pdf.pdf_index' %}active{% endif %}" href="{{ url_for('pdf.pdf_index') }}">
+                        <i class="fas fa-home me-1"></i>{{ _('Accueil') }}
+                    </a>
+                </li>
+
+                <!-- Convertir Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% if request.endpoint and 'conversion' in request.endpoint %}active{% endif %}" 
+                       href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-exchange-alt me-1"></i>{{ _('Convertir') }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        {% for tool in conversion_tools %}
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="{{ url_for(tool.endpoint) }}">
+                                <i class="{{ tool.icon }} me-2"></i>{{ _(tool.name) }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+
+                <!-- Outils PDF Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% if request.endpoint and 'pdf' in request.endpoint %}active{% endif %}" 
+                       href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-file-pdf me-1"></i>{{ _('Outils PDF') }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        {% for tool in pdf_tools %}
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="{{ url_for(tool.endpoint) }}">
+                                <i class="{{ tool.icon }} me-2"></i>{{ _(tool.name) }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            </ul>
+
+            <!-- SÉLECTEUR DE LANGUE -->
+            <div class="navbar-nav ms-2">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-globe me-1"></i>
+                        {% set current_lang = session.get('language', 'fr') %}
+                        <span class="flag-icon flag-icon-{{ languages[current_lang].flag if languages and languages.get(current_lang) else 'fr' }} me-1"></span>
+                        <span class="d-none d-md-inline">
+                            {{ languages[current_lang].name if languages and languages.get(current_lang) else 'Français' }}
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {% set fallback_languages = {
+                            'fr': {'name': 'Français', 'flag': 'fr'},
+                            'en': {'name': 'English', 'flag': 'gb'},
+                            'es': {'name': 'Español', 'flag': 'es'},
+                            'de': {'name': 'Deutsch', 'flag': 'de'},
+                            'it': {'name': 'Italiano', 'flag': 'it'},
+                            'pt': {'name': 'Português', 'flag': 'pt'},
+                            'nl': {'name': 'Nederlands', 'flag': 'nl'},
+                            'ar': {'name': 'العربية', 'flag': 'sa'},
+                            'zh': {'name': '中文', 'flag': 'cn'},
+                            'ja': {'name': '日本語', 'flag': 'jp'},
+                            'ru': {'name': 'Русский', 'flag': 'ru'}
+                        } %}
+                        {% for code, lang in fallback_languages.items() %}
+                        <li>
+                            <a class="dropdown-item {% if code == current_lang %}active{% endif %} d-flex align-items-center" 
+                               href="{{ url_for('set_language', language=code) }}">
+                                <span class="flag-icon flag-icon-{{ lang.flag }}"></span>
+                                <span>{{ lang.name }}</span>
+                                {% if code == current_lang %}
+                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Contenu principal -->
+<main class="container py-4 flex-grow-1">{% block content %}{% endblock %}</main>
+
+<!-- Footer -->
+<footer class="bg-dark text-white mt-5 py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <small class="text-muted">&copy; 2025 {{ _('PDF Fusion Pro') }}. {{ _('Tous droits réservés.') }}</small>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script>
     if (typeof pdfjsLib !== 'undefined') {
@@ -701,76 +281,34 @@
     }
 </script>
 
-<!-- Sortable.js -->
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-
-<!-- Script principal -->
-<script src="{{ url_for('static', filename='js/app.js') }}"></script>
-
-<!-- ⭐ Scripts d'upload - SANS DEFER ⭐ -->
-<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
-
-<!-- ✅ PDF-TOOLS.JS - DÉPEND DE UPLOAD.JS -->
-<script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Mettre à jour l'année dans le footer
-    const year = document.getElementById('currentYear');
-    if (year) {
-        year.textContent = new Date().getFullYear();
-    }
-    
-    // Masquer le loader après chargement
-    setTimeout(() => {
-        const loader = document.getElementById('loaderOverlay');
-        if (loader) {
-            loader.style.display = 'none';
-        }
-    }, 500);
-    
-    // Gestionnaire pour les boutons de chargement
-    document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('btn-loading') || 
-            e.target.closest('.btn-loading')) {
-            const loader = document.getElementById('loaderOverlay');
-            if (loader) {
-                loader.style.display = 'flex';
-            }
-        }
-    });
-    
-    // Gestionnaire pour les changements de langue
     const languageLinks = document.querySelectorAll('.dropdown-item[href*="set_language"]');
+    const langButtonFlag = document.querySelector('.nav-link.dropdown-toggle .flag-icon');
+    const langButtonText = document.querySelector('.nav-link.dropdown-toggle span:not(.flag-icon)');
+
     languageLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            // Afficher un indicateur de chargement
+            e.preventDefault();
+            const selectedFlag = this.querySelector('.flag-icon').cloneNode(true);
+            const selectedName = this.querySelector('span').textContent;
+            if (langButtonFlag && langButtonText) {
+                langButtonFlag.replaceWith(selectedFlag);
+                langButtonText.textContent = ' ' + selectedName;
+            }
             const loader = document.getElementById('loaderOverlay');
-            if (loader) {
-                loader.style.display = 'flex';
-            }
-            
-            // Changer le texte du bouton pour feedback
-            const langButton = document.querySelector('.nav-link.dropdown-toggle .flag-icon + span');
-            if (langButton) {
-                const flagIcon = this.querySelector('.flag-icon').cloneNode(true);
-                const langName = this.querySelector('span:not(.flag-icon)').textContent;
-                langButton.innerHTML = '';
-                langButton.appendChild(flagIcon);
-                langButton.appendChild(document.createTextNode(' ' + langName));
-            }
+            if (loader) loader.style.display = 'flex';
+            window.location.href = this.href;
         });
     });
-    
-    // Affichage automatique des tooltips Bootstrap
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => 
-        new bootstrap.Tooltip(tooltipTriggerEl)
-    );
+
+    setTimeout(() => {
+        const loader = document.getElementById('loaderOverlay');
+        if (loader) loader.style.display = 'none';
+    }, 500);
 });
 </script>
 
 {% block extra_js %}{% endblock %}
-
 </body>
 </html>
