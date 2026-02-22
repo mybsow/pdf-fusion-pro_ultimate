@@ -45,6 +45,8 @@
     <!-- Flag Icons CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
 
+
+
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8967416460526921"
             crossorigin="anonymous"></script>
@@ -495,23 +497,57 @@
                 </li>
 
             </ul>
-
-            <!-- SÉLECTEUR DE LANGUE AMÉLIORÉ AVEC DRAPEAUX -->
+            
+            <!-- SÉLECTEUR DE LANGUE AVEC FALLBACK -->
             <div class="navbar-nav ms-2">
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-globe me-1"></i>
                         {% set current_lang = session.get('language', 'fr') %}
                         
-                        {# Affichage compact de la langue courante #}
-                        <span class="flag-icon flag-icon-{{ languages[current_lang].flag if languages and languages.get(current_lang) else 'fr' }} me-1"></span>
-                        <span class="d-none d-md-inline">
-                            {{ languages[current_lang].name if languages and languages.get(current_lang) else 'Français' }}
-                        </span>
+                        {# Affichage compact de la langue courante avec fallback #}
+                        {% if languages and languages.get(current_lang) %}
+                            <span class="flag-icon flag-icon-{{ languages[current_lang].flag }} me-1"></span>
+                            <span class="d-none d-md-inline">
+                                {{ languages[current_lang].name }}
+                            </span>
+                        {% else %}
+                            {# Fallback avec Font Awesome #}
+                            {% set flag_icons = {
+                                'fr': 'fa-flag-france',
+                                'en': 'fa-flag-usa',
+                                'es': 'fa-flag-spain',
+                                'de': 'fa-flag-germany',
+                                'it': 'fa-flag-italy',
+                                'pt': 'fa-flag-portugal',
+                                'nl': 'fa-flag-netherlands',
+                                'ar': 'fa-flag',
+                                'zh': 'fa-flag-china',
+                                'ja': 'fa-flag-japan',
+                                'ru': 'fa-flag-russia'
+                            } %}
+                            <i class="fas {{ flag_icons.get(current_lang, 'fa-flag') }} me-1"></i>
+                            <span class="d-none d-md-inline">
+                                {% if current_lang == 'fr' %}Français
+                                {% elif current_lang == 'en' %}English
+                                {% elif current_lang == 'es' %}Español
+                                {% elif current_lang == 'de' %}Deutsch
+                                {% elif current_lang == 'it' %}Italiano
+                                {% elif current_lang == 'pt' %}Português
+                                {% elif current_lang == 'nl' %}Nederlands
+                                {% elif current_lang == 'ar' %}العربية
+                                {% elif current_lang == 'zh' %}中文
+                                {% elif current_lang == 'ja' %}日本語
+                                {% elif current_lang == 'ru' %}Русский
+                                {% else %}Français
+                                {% endif %}
+                            </span>
+                        {% endif %}
                     </a>
+                    
                     <ul class="dropdown-menu dropdown-menu-end">
                         {% if languages %}
-                            {# Affichage des langues depuis la config #}
+                            {# Utiliser la configuration avec Flag Icons #}
                             {% for code, lang in languages.items() %}
                             <li>
                                 <a class="dropdown-item {% if code == current_lang %}active{% endif %} d-flex align-items-center" 
@@ -525,32 +561,117 @@
                             </li>
                             {% endfor %}
                         {% else %}
-                            {# Fallback si la config n'est pas accessible #}
-                            {% set fallback_languages = {
-                                'fr': {'name': 'Français', 'flag': 'fr'},
-                                'en': {'name': 'English', 'flag': 'gb'},
-                                'es': {'name': 'Español', 'flag': 'es'},
-                                'de': {'name': 'Deutsch', 'flag': 'de'},
-                                'it': {'name': 'Italiano', 'flag': 'it'},
-                                'pt': {'name': 'Português', 'flag': 'pt'},
-                                'nl': {'name': 'Nederlands', 'flag': 'nl'},
-                                'ar': {'name': 'العربية', 'flag': 'sa'},
-                                'zh': {'name': '中文', 'flag': 'cn'},
-                                'ja': {'name': '日本語', 'flag': 'jp'},
-                                'ru': {'name': 'Русский', 'flag': 'ru'}
-                            } %}
-                            {% for code, lang in fallback_languages.items() %}
+                            {# Fallback complet avec Font Awesome #}
                             <li>
-                                <a class="dropdown-item {% if code == current_lang %}active{% endif %} d-flex align-items-center" 
-                                   href="{{ url_for('set_language', language=code) }}">
-                                    <span class="flag-icon flag-icon-{{ lang.flag }} me-2"></span>
-                                    <span>{{ lang.name }}</span>
-                                    {% if code == current_lang %}
+                                <a class="dropdown-item {% if 'fr' == current_lang %}active{% endif %} d-flex align-items-center" 
+                                   href="{{ url_for('set_language', language='fr') }}">
+                                    <i class="fas fa-flag-france fa-fw me-2"></i>
+                                    <span>Français</span>
+                                    {% if 'fr' == current_lang %}
                                     <i class="fas fa-check ms-auto text-success"></i>
                                     {% endif %}
                                 </a>
                             </li>
-                            {% endfor %}
+                            <li>
+                                <a class="dropdown-item {% if 'en' == current_lang %}active{% endif %} d-flex align-items-center" 
+                                   href="{{ url_for('set_language', language='en') }}">
+                                    <i class="fas fa-flag-usa fa-fw me-2"></i>
+                                    <span>English</span>
+                                    {% if 'en' == current_lang %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if 'es' == current_lang %}active{% endif %} d-flex align-items-center" 
+                                   href="{{ url_for('set_language', language='es') }}">
+                                    <i class="fas fa-flag-spain fa-fw me-2"></i>
+                                    <span>Español</span>
+                                    {% if 'es' == current_lang %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if 'de' == current_lang %}active{% endif %} d-flex align-items-center" 
+                                   href="{{ url_for('set_language', language='de') }}">
+                                    <i class="fas fa-flag-germany fa-fw me-2"></i>
+                                    <span>Deutsch</span>
+                                    {% if 'de' == current_lang %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if 'it' == current_lang %}active{% endif %} d-flex align-items-center" 
+                                   href="{{ url_for('set_language', language='it') }}">
+                                    <i class="fas fa-flag-italy fa-fw me-2"></i>
+                                    <span>Italiano</span>
+                                    {% if 'it' == current_lang %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if 'pt' == current_lang %}active{% endif %} d-flex align-items-center" 
+                                   href="{{ url_for('set_language', language='pt') }}">
+                                    <i class="fas fa-flag-portugal fa-fw me-2"></i>
+                                    <span>Português</span>
+                                    {% if 'pt' == current_lang %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if 'nl' == current_lang %}active{% endif %} d-flex align-items-center" 
+                                   href="{{ url_for('set_language', language='nl') }}">
+                                    <i class="fas fa-flag-netherlands fa-fw me-2"></i>
+                                    <span>Nederlands</span>
+                                    {% if 'nl' == current_lang %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if 'ar' == current_lang %}active{% endif %} d-flex align-items-center" 
+                                   href="{{ url_for('set_language', language='ar') }}">
+                                    <i class="fas fa-flag fa-fw me-2"></i>
+                                    <span>العربية</span>
+                                    {% if 'ar' == current_lang %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if 'zh' == current_lang %}active{% endif %} d-flex align-items-center" 
+                                   href="{{ url_for('set_language', language='zh') }}">
+                                    <i class="fas fa-flag-china fa-fw me-2"></i>
+                                    <span>中文</span>
+                                    {% if 'zh' == current_lang %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if 'ja' == current_lang %}active{% endif %} d-flex align-items-center" 
+                                   href="{{ url_for('set_language', language='ja') }}">
+                                    <i class="fas fa-flag-japan fa-fw me-2"></i>
+                                    <span>日本語</span>
+                                    {% if 'ja' == current_lang %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if 'ru' == current_lang %}active{% endif %} d-flex align-items-center" 
+                                   href="{{ url_for('set_language', language='ru') }}">
+                                    <i class="fas fa-flag-russia fa-fw me-2"></i>
+                                    <span>Русский</span>
+                                    {% if 'ru' == current_lang %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
+                                    {% endif %}
+                                </a>
+                            </li>
                         {% endif %}
                     </ul>
                 </div>
