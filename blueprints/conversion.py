@@ -723,7 +723,7 @@ def universal_converter(conversion_type):
         
         try:
             return render_template(template_name,
-                                  title=config['title'],
+                                  title=config['title'],  # OK, pas de _() ici
                                   description=config['description'],
                                   from_format=config['from_format'],
                                   to_format=config['to_format'],
