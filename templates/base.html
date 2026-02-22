@@ -277,7 +277,6 @@
             opacity: 1;
         }
 
-    <style>
         /* Fallback pour les drapeaux si le CDN ne fonctionne pas */
         .flag-icon-fallback {
             display: inline-block;
@@ -292,10 +291,7 @@
         .flag-icon-fallback.fr { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23fff"/><rect width="1" height="2" fill="%2300266f"/><rect width="1" x="2" height="2" fill="%23ce1126"/></svg>'); }
         .flag-icon-fallback.gb { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23012169"/><rect width="3" height="2" fill="%23fff" mask="url(%23uk)"/></svg>'); }
         /* Ajoutez d'autres drapeaux si nécessaire */
-    </style>
 
-        <!-- Dans la section <style> ou dans votre fichier CSS -->
-    <style>
         /* Style pour les drapeaux Flag Icons */
         .fi {
             width: 1.2em;
@@ -318,7 +314,6 @@
         .nav-link .fi {
             margin-right: 0.25rem;
         }
-    </style>
         
         @media (max-width: 768px) {
             .conversion-grid {
@@ -899,12 +894,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Changer le texte du bouton pour feedback
             const langSpan = document.querySelector('.nav-link.dropdown-toggle span.d-none');
-            if (langButton) {
-                const flagIcon = this.querySelector('.flag-icon').cloneNode(true);
-                const langName = this.querySelector('span:not(.flag-icon)').textContent;
-                langButton.innerHTML = '';
-                langButton.appendChild(flagIcon);
-                langButton.appendChild(document.createTextNode(' ' + langName));
+            if (langSpan) {
+                const flagIcon = this.querySelector('.fi').cloneNode(true);
+                const langName = this.querySelector('span:not(.fi)').textContent;
+                langSpan.innerHTML = '';
+                langSpan.appendChild(flagIcon);
+                langSpan.appendChild(document.createTextNode(' ' + langName));
             }
         });
     });
