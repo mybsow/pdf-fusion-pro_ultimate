@@ -45,7 +45,25 @@
     <!-- Flag Icons CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
 
-
+    <!-- Flag Icons CSS avec fallback local -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
+    <!-- Fallback local si CDN ne fonctionne pas -->
+    <style>
+        /* Fallback pour les drapeaux si le CDN ne fonctionne pas */
+        .flag-icon-fallback {
+            display: inline-block;
+            width: 1.2em;
+            height: 0.9em;
+            background-size: contain;
+            background-position: 50%;
+            background-repeat: no-repeat;
+            position: relative;
+            border-radius: 3px;
+        }
+        .flag-icon-fallback.fr { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23fff"/><rect width="1" height="2" fill="%2300266f"/><rect width="1" x="2" height="2" fill="%23ce1126"/></svg>'); }
+        .flag-icon-fallback.gb { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23012169"/><rect width="3" height="2" fill="%23fff" mask="url(%23uk)"/></svg>'); }
+        /* Ajoutez d'autres drapeaux si nécessaire */
+    </style>
 
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8967416460526921"
