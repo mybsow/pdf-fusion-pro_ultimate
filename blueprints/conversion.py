@@ -938,26 +938,23 @@ def convert_word_to_pdf(file, form_data=None):
     """Convertit un fichier Word en PDF avec fallback robuste."""
     if not HAS_REPORTLAB:
         return {'error': 'reportlab non installé'}
-    
+
     temp_dir = None
     try:
-        # Créer un dossier temporaire
         temp_dir = tempfile.mkdtemp()
-        input_path = os.path.join(temp_dir, secure_filename(file.filename))
+        filename = secure_filename(file.filename)
+        input_path = os.path.join(temp_dir, filename)
         file.save(input_path)
-        
-        # Options page
+
         page_format = form_data.get('page_format', 'A4') if form_data else 'A4'
         orientation = form_data.get('orientation', 'portrait') if form_data else 'portrait'
-        
+
         pagesize = A4 if page_format == 'A4' else letter
         if orientation == 'landscape':
             pagesize = (pagesize[1], pagesize[0])
         width, height = pagesize
-        
-        output_path = os.path.join(temp_dir, f"{Path(file.filename).stem}.pdf")
-        
-        # ===== Conversion LibreOffice si disponible =====
+
+        # ===== Conversion LibreOffice si dispo =====
         try:
             libreoffice_path = shutil.which('libreoffice')
             if libreoffice_path:
@@ -966,51 +963,48 @@ def convert_word_to_pdf(file, form_data=None):
                     '--outdir', temp_dir, input_path
                 ]
                 result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
-                
-                if result.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 0:
-                    with open(output_path, 'rb') as f:
-                        if f.read(4) == b'%PDF':
-                            return send_file(
-                                output_path,
-                                mimetype='application/pdf',
-                                as_attachment=True,
-                                download_name=f"{Path(file.filename).stem}.pdf"
-                            )
-                        else:
-                            logger.warning("LibreOffice a généré un PDF invalide, fallback activé")
+                if result.returncode == 0:
+                    # LibreOffice peut modifier le nom, chercher le PDF généré
+                    pdf_candidates = [f for f in os.listdir(temp_dir) if f.lower().endswith('.pdf')]
+                    if pdf_candidates:
+                        pdf_path = os.path.join(temp_dir, pdf_candidates[0])
+                        if os.path.getsize(pdf_path) > 0:
+                            # Vérifier signature PDF
+                            with open(pdf_path, 'rb') as f:
+                                if f.read(4) == b'%PDF':
+                                    return send_file(
+                                        pdf_path,
+                                        mimetype='application/pdf',
+                                        as_attachment=True,
+                                        download_name=f"{Path(filename).stem}.pdf"
+                                    )
+                    logger.warning("LibreOffice a généré un PDF invalide ou vide, fallback activé")
                 else:
                     logger.warning(f"LibreOffice failed: {result.stderr}")
         except Exception as e:
             logger.warning(f"LibreOffice conversion failed: {e}")
-        
-        # ===== Fallback: extraire texte avec python-docx =====
-        text_content = ""
-        if file.filename.endswith('.docx') and HAS_DOCX:
+
+        # ===== Fallback =====
+        text_content = f"Document: {filename}\n\nContenu non extractible."
+        if filename.endswith('.docx') and HAS_DOCX:
             try:
                 doc = Document(input_path)
-                paragraphs = [para.text.strip() for para in doc.paragraphs if para.text.strip()]
-                text_content = "\n\n".join(paragraphs)
+                paragraphs = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
+                if paragraphs:
+                    text_content = "\n\n".join(paragraphs)
             except Exception as e:
                 logger.warning(f"python-docx extraction failed: {e}")
-                text_content = f"Document: {file.filename}\n\nContenu non extractible."
-        else:
-            text_content = f"Document: {file.filename}\n\nContenu non extractible."
-        
-        # ===== Créer PDF fallback =====
+
+        # Générer PDF fallback avec reportlab
         output = BytesIO()
         c = canvas.Canvas(output, pagesize=pagesize)
-        
-        # Titre
         c.setFont("Helvetica-Bold", 16)
-        c.drawString(50, height - 50, f"Document: {file.filename}")
-        
-        # Texte
+        c.drawString(50, height - 50, f"Document: {filename}")
+
         y = height - 100
         c.setFont("Helvetica", 11)
-        
         for para in text_content.split("\n"):
             lines = []
-            # Split smart lignes trop longues sans couper mots
             while len(para) > 0:
                 if len(para) <= 95:
                     lines.append(para)
@@ -1020,7 +1014,6 @@ def convert_word_to_pdf(file, form_data=None):
                     split_pos = 95
                 lines.append(para[:split_pos])
                 para = para[split_pos:].lstrip()
-            
             for line in lines:
                 if y < 50:
                     c.showPage()
@@ -1028,23 +1021,22 @@ def convert_word_to_pdf(file, form_data=None):
                     y = height - 50
                 c.drawString(50, y, line)
                 y -= 15
-        
+
         c.save()
         output.seek(0)
-        
+
         return send_file(
             output,
             mimetype='application/pdf',
             as_attachment=True,
-            download_name=f"{Path(file.filename).stem}.pdf"
+            download_name=f"{Path(filename).stem}.pdf"
         )
-    
+
     except Exception as e:
-        logger.error(f"Erreur Word->PDF: {e}")
+        logger.error(f"Erreur Word->PDF: {e}\n{traceback.format_exc()}")
         return {'error': f'Erreur lors de la conversion: {e}'}
-    
+
     finally:
-        # Nettoyage sûr
         if temp_dir and os.path.exists(temp_dir):
             try:
                 shutil.rmtree(temp_dir, ignore_errors=True)
@@ -1056,15 +1048,15 @@ def convert_excel_to_pdf(file, form_data=None):
     temp_dir = None
     try:
         temp_dir = tempfile.mkdtemp()
-        input_path = os.path.join(temp_dir, secure_filename(file.filename))
+        filename = secure_filename(file.filename)
+        input_path = os.path.join(temp_dir, filename)
         file.save(input_path)
-        
+
         if not os.path.exists(input_path) or os.path.getsize(input_path) == 0:
             return {'error': 'Fichier Excel vide ou non sauvegardé'}
-        
+
         logger.info(f"📁 Fichier Excel sauvegardé: {input_path} ({os.path.getsize(input_path)} octets)")
-        output_path = os.path.join(temp_dir, f"{Path(file.filename).stem}.pdf")
-        
+
         # ===== MÉTHODE 1: LibreOffice =====
         try:
             libreoffice_path = shutil.which('libreoffice')
@@ -1075,43 +1067,47 @@ def convert_excel_to_pdf(file, form_data=None):
                     '--nofirststartwizard', '--convert-to', 'pdf', '--outdir', temp_dir, input_path
                 ]
                 result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
-                
-                if result.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 0:
-                    with open(output_path, 'rb') as f:
-                        if f.read(4) == b'%PDF':
-                            logger.info("✅ PDF valide généré avec LibreOffice")
-                            return send_file(
-                                output_path,
-                                mimetype='application/pdf',
-                                as_attachment=True,
-                                download_name=f"{Path(file.filename).stem}.pdf"
-                            )
-                        else:
-                            logger.warning("LibreOffice a généré un PDF invalide, fallback activé")
+
+                if result.returncode == 0:
+                    # LibreOffice peut renommer le fichier PDF, chercher tout PDF dans temp_dir
+                    pdf_candidates = [f for f in os.listdir(temp_dir) if f.lower().endswith('.pdf')]
+                    if pdf_candidates:
+                        pdf_path = os.path.join(temp_dir, pdf_candidates[0])
+                        if os.path.getsize(pdf_path) > 0:
+                            with open(pdf_path, 'rb') as f:
+                                if f.read(4) == b'%PDF':
+                                    logger.info("✅ PDF valide généré avec LibreOffice")
+                                    return send_file(
+                                        pdf_path,
+                                        mimetype='application/pdf',
+                                        as_attachment=True,
+                                        download_name=f"{Path(filename).stem}.pdf"
+                                    )
+                    logger.warning("LibreOffice a généré un PDF invalide ou vide, fallback activé")
                 else:
                     logger.warning(f"LibreOffice conversion failed: {result.stderr}")
         except Exception as e:
             logger.warning(f"⚠️ LibreOffice échoué: {e}")
-        
+
         # ===== MÉTHODE 2: Fallback avec pandas =====
         if HAS_PANDAS:
             try:
                 import pandas as pd
                 from reportlab.pdfgen import canvas
                 from reportlab.lib.pagesizes import A4
-                
+
                 logger.info("🔄 Tentative de conversion avec pandas (fallback)...")
                 sheets = pd.read_excel(input_path, sheet_name=None)
-                
+
                 output = BytesIO()
                 c = canvas.Canvas(output, pagesize=A4)
                 width, height = A4
-                
+
                 y = height - 50
                 c.setFont("Helvetica-Bold", 16)
-                c.drawString(50, y, f"Export de: {file.filename}")
+                c.drawString(50, y, f"Export de: {filename}")
                 y -= 30
-                
+
                 for sheet_name, df in sheets.items():
                     if y < 100:
                         c.showPage()
@@ -1119,38 +1115,38 @@ def convert_excel_to_pdf(file, form_data=None):
                     c.setFont("Helvetica-Bold", 14)
                     c.drawString(50, y, f"Feuille: {sheet_name}")
                     y -= 20
-                    
+
                     c.setFont("Helvetica", 10)
                     for i, row in df.head(20).iterrows():
                         if y < 50:
                             c.showPage()
                             y = height - 50
                         row_text = ' | '.join([str(val)[:20] for val in row.values])
-                        row_text = row_text[:100]  # Limite à 100 caractères par ligne
+                        row_text = row_text[:100]
                         c.drawString(60, y, row_text)
                         y -= 15
                     y -= 20
-                
+
                 c.save()
                 output.seek(0)
-                
+
                 logger.info("✅ PDF généré avec pandas (fallback)")
                 return send_file(
                     output,
                     mimetype='application/pdf',
                     as_attachment=True,
-                    download_name=f"{Path(file.filename).stem}.pdf"
+                    download_name=f"{Path(filename).stem}.pdf"
                 )
             except Exception as e:
                 logger.error(f"❌ Fallback pandas échoué: {e}")
-        
+
         # ===== MÉTHODE 3: Fallback minimal =====
-        return generate_fallback_pdf(file.filename, "Excel")
-    
+        return generate_fallback_pdf(filename, "Excel")
+
     except Exception as e:
-        logger.error(f"❌ Erreur Excel->PDF: {e}")
+        logger.error(f"❌ Erreur Excel->PDF: {e}\n{traceback.format_exc()}")
         return {'error': f'Erreur lors de la conversion: {e}'}
-    
+
     finally:
         if temp_dir and os.path.exists(temp_dir):
             try:
@@ -1158,21 +1154,20 @@ def convert_excel_to_pdf(file, form_data=None):
             except Exception as e:
                 logger.warning(f"Erreur nettoyage temp_dir: {e}")
 
-
 def convert_powerpoint_to_pdf(file, form_data=None):
     """Convertit un fichier PowerPoint en PDF avec fallback robuste."""
     temp_dir = None
     try:
         temp_dir = tempfile.mkdtemp()
-        input_path = os.path.join(temp_dir, secure_filename(file.filename))
+        filename = secure_filename(file.filename)
+        input_path = os.path.join(temp_dir, filename)
         file.save(input_path)
-        
+
         if not os.path.exists(input_path) or os.path.getsize(input_path) == 0:
             return {'error': 'Fichier PowerPoint vide ou non sauvegardé'}
-        
+
         logger.info(f"📁 Fichier PowerPoint sauvegardé: {input_path} ({os.path.getsize(input_path)} octets)")
-        output_path = os.path.join(temp_dir, f"{Path(file.filename).stem}.pdf")
-        
+
         # ===== MÉTHODE 1: LibreOffice =====
         try:
             libreoffice_path = shutil.which('libreoffice')
@@ -1183,19 +1178,23 @@ def convert_powerpoint_to_pdf(file, form_data=None):
                     '--nofirststartwizard', '--convert-to', 'pdf', '--outdir', temp_dir, input_path
                 ]
                 result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
-                
-                if result.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 0:
-                    with open(output_path, 'rb') as f:
-                        if f.read(4) == b'%PDF':
-                            logger.info("✅ PDF valide généré avec LibreOffice")
-                            return send_file(
-                                output_path,
-                                mimetype='application/pdf',
-                                as_attachment=True,
-                                download_name=f"{Path(file.filename).stem}.pdf"
-                            )
-                        else:
-                            logger.warning("LibreOffice a généré un PDF invalide, fallback activé")
+
+                if result.returncode == 0:
+                    # Recherche automatique du PDF généré
+                    pdf_candidates = [f for f in os.listdir(temp_dir) if f.lower().endswith('.pdf')]
+                    if pdf_candidates:
+                        pdf_path = os.path.join(temp_dir, pdf_candidates[0])
+                        if os.path.getsize(pdf_path) > 0:
+                            with open(pdf_path, 'rb') as f:
+                                if f.read(4) == b'%PDF':
+                                    logger.info("✅ PDF valide généré avec LibreOffice")
+                                    return send_file(
+                                        pdf_path,
+                                        mimetype='application/pdf',
+                                        as_attachment=True,
+                                        download_name=f"{Path(filename).stem}.pdf"
+                                    )
+                    logger.warning("LibreOffice a généré un PDF invalide ou vide, fallback activé")
                 else:
                     logger.warning(f"LibreOffice conversion failed: {result.stderr}")
             else:
@@ -1204,27 +1203,27 @@ def convert_powerpoint_to_pdf(file, form_data=None):
             logger.error("⏱️ Timeout LibreOffice")
         except Exception as e:
             logger.error(f"❌ Exception LibreOffice: {e}")
-        
+
         # ===== MÉTHODE 2: Fallback python-pptx =====
         if HAS_PPTX:
             try:
-                logger.info("🔄 Tentative de conversion avec python-pptx (fallback)")
                 from pptx import Presentation
                 from reportlab.pdfgen import canvas
                 from reportlab.lib.pagesizes import A4
                 from io import BytesIO
-                
+
+                logger.info("🔄 Tentative de conversion avec python-pptx (fallback)")
                 prs = Presentation(input_path)
                 output = BytesIO()
                 c = canvas.Canvas(output, pagesize=A4)
                 width, height = A4
-                
+
                 for i, slide in enumerate(prs.slides):
                     y_position = height - 50
                     c.setFont("Helvetica-Bold", 14)
                     c.drawString(50, y_position, f"Diapositive {i+1}")
                     y_position -= 30
-                    
+
                     text_found = False
                     for shape in slide.shapes:
                         if hasattr(shape, "text") and shape.text:
@@ -1234,64 +1233,62 @@ def convert_powerpoint_to_pdf(file, form_data=None):
                                     c.showPage()
                                     y_position = height - 50
                                     c.setFont("Helvetica", 10)
-                                
                                 if len(line) > 80:
                                     line = line[:80] + "..."
                                 c.drawString(50, y_position, line)
                                 y_position -= 15
-                    
+
                     if not text_found:
                         c.drawString(50, y_position, "[Aucun texte trouvé sur cette diapositive]")
-                    
+
                     c.showPage()
-                
+
                 c.save()
                 output.seek(0)
-                
+
                 logger.info("✅ PDF généré avec python-pptx (fallback)")
                 return send_file(
                     output,
                     mimetype='application/pdf',
                     as_attachment=True,
-                    download_name=f"{Path(file.filename).stem}.pdf"
+                    download_name=f"{Path(filename).stem}.pdf"
                 )
             except Exception as e:
                 logger.error(f"❌ Fallback python-pptx échoué: {e}")
                 logger.error(traceback.format_exc())
-        
+
         # ===== MÉTHODE 3: Fallback minimal =====
-        logger.warning("⚠️ Utilisation du fallback minimal")
         from reportlab.pdfgen import canvas
         from reportlab.lib.pagesizes import A4
         from io import BytesIO
-        
+
         output = BytesIO()
         c = canvas.Canvas(output, pagesize=A4)
         width, height = A4
-        
+
         c.setFont("Helvetica-Bold", 16)
-        c.drawString(50, height - 50, f"Conversion de: {file.filename}")
+        c.drawString(50, height - 50, f"Conversion de: {filename}")
         c.setFont("Helvetica", 12)
         c.drawString(50, height - 100, "Le fichier PowerPoint n'a pas pu être converti correctement.")
         c.drawString(50, height - 120, "Veuillez réessayer ou utiliser un autre fichier.")
         c.drawString(50, height - 140, f"Date: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
-        
+
         c.save()
         output.seek(0)
-        
+
         logger.warning("⚠️ PDF minimal généré (fallback)")
         return send_file(
             output,
             mimetype='application/pdf',
             as_attachment=True,
-            download_name=f"{Path(file.filename).stem}.pdf"
+            download_name=f"{Path(filename).stem}.pdf"
         )
-    
+
     except Exception as e:
         logger.error(f"❌ Erreur PowerPoint->PDF: {e}")
         logger.error(traceback.format_exc())
         return {'error': f'Erreur lors de la conversion: {e}'}
-    
+
     finally:
         if temp_dir and os.path.exists(temp_dir):
             try:
@@ -1302,46 +1299,27 @@ def convert_powerpoint_to_pdf(file, form_data=None):
 
 
 def convert_images_to_pdf(files, form_data=None):
-    """Convertit une liste d'images en un PDF unique."""
+    """Convertit une liste d'images en un PDF unique (robuste)."""
     if not HAS_PILLOW or not HAS_REPORTLAB:
         return {'error': 'Pillow ou reportlab non installé'}
-    
-    temp_files = []
+
     try:
         output = BytesIO()
-        
-        # Options de conversion
         page_size = form_data.get('pageSize', 'A4') if form_data else 'A4'
         orientation = form_data.get('orientation', 'portrait') if form_data else 'portrait'
         quality = form_data.get('quality', 'medium') if form_data else 'medium'
-        
-        # Définir la taille de page
-        if page_size == 'A4':
-            pagesize = A4
-        elif page_size == 'Letter':
-            pagesize = letter
-        else:
-            pagesize = A4
-        
-        # Ajuster l'orientation
+
+        pagesize = A4 if page_size == 'A4' else letter
         if orientation == 'landscape':
             pagesize = (pagesize[1], pagesize[0])
-        
-        c = canvas.Canvas(output, pagesize=pagesize)
         width, height = pagesize
-        
-        # Qualité JPEG
+
+        c = canvas.Canvas(output, pagesize=pagesize)
         quality_val = 95 if quality == 'high' else 75 if quality == 'medium' else 50
-        
+
         for file in files:
             try:
-                # Sauvegarder l'image temporairement
-                temp_input = tempfile.NamedTemporaryFile(suffix=Path(file.filename).suffix, delete=False)
-                file.save(temp_input.name)
-                temp_files.append(temp_input.name)
-                
-                # Ouvrir l'image
-                img = Image.open(temp_input.name)
+                img = Image.open(file)
                 
                 # Conversion RGB si nécessaire
                 if img.mode in ('RGBA', 'LA', 'P'):
@@ -1353,58 +1331,44 @@ def convert_images_to_pdf(files, form_data=None):
                     img = bg
                 elif img.mode != 'RGB':
                     img = img.convert('RGB')
-                
-                # Calculer le ratio pour tenir sur la page
+
                 img_width, img_height = img.size
                 ratio = min((width * 0.9) / img_width, (height * 0.9) / img_height)
                 new_width = int(img_width * ratio)
                 new_height = int(img_height * ratio)
-                
-                # Centrer l'image
                 x = (width - new_width) / 2
                 y = (height - new_height) / 2
-                
-                # Sauvegarder temporairement l'image redimensionnée
-                temp_img = tempfile.NamedTemporaryFile(suffix='.jpg', delete=False)
-                temp_files.append(temp_img.name)
+
+                # Sauvegarder dans un buffer mémoire (pas de fichier temporaire)
+                img_buffer = BytesIO()
                 if ratio < 1:
                     img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-                img.save(temp_img.name, 'JPEG', quality=quality_val, optimize=True)
-                
-                # Ajouter l'image au PDF
-                c.drawImage(temp_img.name, x, y, width=new_width, height=new_height)
+                img.save(img_buffer, format='JPEG', quality=quality_val, optimize=True)
+                img_buffer.seek(0)
+
+                # Ajouter au PDF depuis buffer
+                c.drawImage(img_buffer, x, y, width=new_width, height=new_height)
                 c.showPage()
-                
             except Exception as e:
                 logger.error(f"Erreur traitement image {getattr(file, 'filename', 'inconnu')}: {e}")
                 continue
-        
+
         c.save()
         output.seek(0)
-        
-        # Vérifier le PDF
+
         if output.getvalue()[:4] != b'%PDF':
             return {'error': 'PDF généré invalide'}
-        
+
         return send_file(
             output,
             mimetype='application/pdf',
             as_attachment=True,
             download_name="images_converted.pdf"
         )
-    
+
     except Exception as e:
         logger.error(f"Erreur Images->PDF: {str(e)}")
         return {'error': f'Erreur lors de la conversion: {str(e)}'}
-    
-    finally:
-        # Nettoyage des fichiers temporaires
-        for temp_file in temp_files:
-            try:
-                if os.path.exists(temp_file):
-                    os.unlink(temp_file)
-            except Exception as e:
-                logger.warning(f"⚠️ Erreur suppression fichier temporaire {temp_file}: {e}")
 
 
 def convert_pdf_to_word(file, form_data=None):
