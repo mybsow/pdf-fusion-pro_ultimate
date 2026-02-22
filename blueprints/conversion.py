@@ -736,7 +736,7 @@ def universal_converter(conversion_type):
                                   missing_deps=missing)
         except Exception as e:
             current_app.logger.error(f"Template non trouvé: {template_name} - {str(e)}")
-            flash(_('Template non trouvé pour %(type)s') % {'type': conversion_type}, 'error')
+            flash('Template non trouvé pour {}'.format(conversion_type), 'error')
             return redirect(url_for('conversion.index'))
         
     except Exception as e:
