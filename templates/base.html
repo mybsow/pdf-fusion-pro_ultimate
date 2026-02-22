@@ -46,9 +46,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
     <!-- Fallback local si CDN ne fonctionne pas -->
 
-    <!-- Google AdSense -->
+    <!-- Google AdSense avec fallback -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8967416460526921"
             crossorigin="anonymous"></script>
+    <script>
+        // Fallback si AdSense ne se charge pas
+        window.adsbygoogle = window.adsbygoogle || [];
+        window.addEventListener('error', function(e) {
+            if (e.target.src && e.target.src.includes('adsbygoogle.js')) {
+                console.warn('AdSense script failed to load');
+                // Optionnel : masquer les emplacements d'annonces
+                document.querySelectorAll('.adsbygoogle').forEach(el => {
+                    el.style.display = 'none';
+                });
+            }
+        }, true);
+    </script>
 
     <script async custom-element="amp-auto-ads"
             src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
