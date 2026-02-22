@@ -45,22 +45,6 @@
     <!-- Flag Icons CSS avec fallback local -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
     <!-- Fallback local si CDN ne fonctionne pas -->
-    <style>
-        /* Fallback pour les drapeaux si le CDN ne fonctionne pas */
-        .flag-icon-fallback {
-            display: inline-block;
-            width: 1.2em;
-            height: 0.9em;
-            background-size: contain;
-            background-position: 50%;
-            background-repeat: no-repeat;
-            position: relative;
-            border-radius: 3px;
-        }
-        .flag-icon-fallback.fr { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23fff"/><rect width="1" height="2" fill="%2300266f"/><rect width="1" x="2" height="2" fill="%23ce1126"/></svg>'); }
-        .flag-icon-fallback.gb { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23012169"/><rect width="3" height="2" fill="%23fff" mask="url(%23uk)"/></svg>'); }
-        /* Ajoutez d'autres drapeaux si nécessaire */
-    </style>
 
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8967416460526921"
@@ -292,6 +276,49 @@
         .thumb-container:hover .trash-btn {
             opacity: 1;
         }
+
+    <style>
+        /* Fallback pour les drapeaux si le CDN ne fonctionne pas */
+        .flag-icon-fallback {
+            display: inline-block;
+            width: 1.2em;
+            height: 0.9em;
+            background-size: contain;
+            background-position: 50%;
+            background-repeat: no-repeat;
+            position: relative;
+            border-radius: 3px;
+        }
+        .flag-icon-fallback.fr { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23fff"/><rect width="1" height="2" fill="%2300266f"/><rect width="1" x="2" height="2" fill="%23ce1126"/></svg>'); }
+        .flag-icon-fallback.gb { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23012169"/><rect width="3" height="2" fill="%23fff" mask="url(%23uk)"/></svg>'); }
+        /* Ajoutez d'autres drapeaux si nécessaire */
+    </style>
+
+        <!-- Dans la section <style> ou dans votre fichier CSS -->
+    <style>
+        /* Style pour les drapeaux Flag Icons */
+        .fi {
+            width: 1.2em;
+            height: 0.9em;
+            display: inline-block;
+            vertical-align: middle;
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .fi.fis {
+            width: 1.2em;
+            height: 0.9em;
+        }
+        
+        .dropdown-item .fi {
+            margin-right: 0.75rem;
+        }
+        
+        .nav-link .fi {
+            margin-right: 0.25rem;
+        }
+    </style>
         
         @media (max-width: 768px) {
             .conversion-grid {
@@ -514,48 +541,49 @@
             </ul>
             
             <!-- SÉLECTEUR DE LANGUE SIMPLIFIÉ AVEC FONTAWESOME -->
+            <!-- SÉLECTEUR DE LANGUE AVEC FONTAWESOME 6 -->
             <div class="navbar-nav ms-2">
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-globe me-1"></i>
                         {% set current_lang = session.get('language', 'fr') %}
                         
-                        {# Affichage compact avec icône FontAwesome #}
+                        {# Affichage compact avec icône FontAwesome 6 #}
                         {% if current_lang == 'fr' %}
-                            <i class="fas fa-flag-france me-1"></i>
+                            <span class="fi fi-fr me-1"></span>
                             <span class="d-none d-md-inline">Français</span>
                         {% elif current_lang == 'en' %}
-                            <i class="fas fa-flag-usa me-1"></i>
+                            <span class="fi fi-gb me-1"></span>
                             <span class="d-none d-md-inline">English</span>
                         {% elif current_lang == 'es' %}
-                            <i class="fas fa-flag-spain me-1"></i>
+                            <span class="fi fi-es me-1"></span>
                             <span class="d-none d-md-inline">Español</span>
                         {% elif current_lang == 'de' %}
-                            <i class="fas fa-flag-germany me-1"></i>
+                            <span class="fi fi-de me-1"></span>
                             <span class="d-none d-md-inline">Deutsch</span>
                         {% elif current_lang == 'it' %}
-                            <i class="fas fa-flag-italy me-1"></i>
+                            <span class="fi fi-it me-1"></span>
                             <span class="d-none d-md-inline">Italiano</span>
                         {% elif current_lang == 'pt' %}
-                            <i class="fas fa-flag-portugal me-1"></i>
+                            <span class="fi fi-pt me-1"></span>
                             <span class="d-none d-md-inline">Português</span>
                         {% elif current_lang == 'nl' %}
-                            <i class="fas fa-flag-netherlands me-1"></i>
+                            <span class="fi fi-nl me-1"></span>
                             <span class="d-none d-md-inline">Nederlands</span>
                         {% elif current_lang == 'ar' %}
-                            <i class="fas fa-flag me-1"></i>
+                            <span class="fi fi-sa me-1"></span>
                             <span class="d-none d-md-inline">العربية</span>
                         {% elif current_lang == 'zh' %}
-                            <i class="fas fa-flag-china me-1"></i>
+                            <span class="fi fi-cn me-1"></span>
                             <span class="d-none d-md-inline">中文</span>
                         {% elif current_lang == 'ja' %}
-                            <i class="fas fa-flag-japan me-1"></i>
+                            <span class="fi fi-jp me-1"></span>
                             <span class="d-none d-md-inline">日本語</span>
                         {% elif current_lang == 'ru' %}
-                            <i class="fas fa-flag-russia me-1"></i>
+                            <span class="fi fi-ru me-1"></span>
                             <span class="d-none d-md-inline">Русский</span>
                         {% else %}
-                            <i class="fas fa-flag-france me-1"></i>
+                            <span class="fi fi-fr me-1"></span>
                             <span class="d-none d-md-inline">Français</span>
                         {% endif %}
                     </a>
@@ -564,7 +592,7 @@
                         <li>
                             <a class="dropdown-item {% if session.get('language', 'fr') == 'fr' %}active{% endif %} d-flex align-items-center" 
                                href="{{ url_for('set_language', language='fr') }}">
-                                <i class="fas fa-flag-france fa-fw me-2"></i>
+                                <span class="fi fi-fr fis me-2"></span>
                                 <span>Français</span>
                                 {% if session.get('language', 'fr') == 'fr' %}
                                 <i class="fas fa-check ms-auto text-success"></i>
@@ -574,7 +602,7 @@
                         <li>
                             <a class="dropdown-item {% if session.get('language') == 'en' %}active{% endif %} d-flex align-items-center" 
                                href="{{ url_for('set_language', language='en') }}">
-                                <i class="fas fa-flag-usa fa-fw me-2"></i>
+                                <span class="fi fi-gb fis me-2"></span>
                                 <span>English</span>
                                 {% if session.get('language') == 'en' %}
                                 <i class="fas fa-check ms-auto text-success"></i>
@@ -584,7 +612,7 @@
                         <li>
                             <a class="dropdown-item {% if session.get('language') == 'es' %}active{% endif %} d-flex align-items-center" 
                                href="{{ url_for('set_language', language='es') }}">
-                                <i class="fas fa-flag-spain fa-fw me-2"></i>
+                                <span class="fi fi-es fis me-2"></span>
                                 <span>Español</span>
                                 {% if session.get('language') == 'es' %}
                                 <i class="fas fa-check ms-auto text-success"></i>
@@ -594,7 +622,7 @@
                         <li>
                             <a class="dropdown-item {% if session.get('language') == 'de' %}active{% endif %} d-flex align-items-center" 
                                href="{{ url_for('set_language', language='de') }}">
-                                <i class="fas fa-flag-germany fa-fw me-2"></i>
+                                <span class="fi fi-de fis me-2"></span>
                                 <span>Deutsch</span>
                                 {% if session.get('language') == 'de' %}
                                 <i class="fas fa-check ms-auto text-success"></i>
@@ -604,7 +632,7 @@
                         <li>
                             <a class="dropdown-item {% if session.get('language') == 'it' %}active{% endif %} d-flex align-items-center" 
                                href="{{ url_for('set_language', language='it') }}">
-                                <i class="fas fa-flag-italy fa-fw me-2"></i>
+                                <span class="fi fi-it fis me-2"></span>
                                 <span>Italiano</span>
                                 {% if session.get('language') == 'it' %}
                                 <i class="fas fa-check ms-auto text-success"></i>
@@ -614,7 +642,7 @@
                         <li>
                             <a class="dropdown-item {% if session.get('language') == 'pt' %}active{% endif %} d-flex align-items-center" 
                                href="{{ url_for('set_language', language='pt') }}">
-                                <i class="fas fa-flag-portugal fa-fw me-2"></i>
+                                <span class="fi fi-pt fis me-2"></span>
                                 <span>Português</span>
                                 {% if session.get('language') == 'pt' %}
                                 <i class="fas fa-check ms-auto text-success"></i>
@@ -624,7 +652,7 @@
                         <li>
                             <a class="dropdown-item {% if session.get('language') == 'nl' %}active{% endif %} d-flex align-items-center" 
                                href="{{ url_for('set_language', language='nl') }}">
-                                <i class="fas fa-flag-netherlands fa-fw me-2"></i>
+                                <span class="fi fi-nl fis me-2"></span>
                                 <span>Nederlands</span>
                                 {% if session.get('language') == 'nl' %}
                                 <i class="fas fa-check ms-auto text-success"></i>
@@ -634,7 +662,7 @@
                         <li>
                             <a class="dropdown-item {% if session.get('language') == 'ar' %}active{% endif %} d-flex align-items-center" 
                                href="{{ url_for('set_language', language='ar') }}">
-                                <i class="fas fa-flag fa-fw me-2"></i>
+                                <span class="fi fi-sa fis me-2"></span>
                                 <span>العربية</span>
                                 {% if session.get('language') == 'ar' %}
                                 <i class="fas fa-check ms-auto text-success"></i>
@@ -644,7 +672,7 @@
                         <li>
                             <a class="dropdown-item {% if session.get('language') == 'zh' %}active{% endif %} d-flex align-items-center" 
                                href="{{ url_for('set_language', language='zh') }}">
-                                <i class="fas fa-flag-china fa-fw me-2"></i>
+                                <span class="fi fi-cn fis me-2"></span>
                                 <span>中文</span>
                                 {% if session.get('language') == 'zh' %}
                                 <i class="fas fa-check ms-auto text-success"></i>
@@ -654,7 +682,7 @@
                         <li>
                             <a class="dropdown-item {% if session.get('language') == 'ja' %}active{% endif %} d-flex align-items-center" 
                                href="{{ url_for('set_language', language='ja') }}">
-                                <i class="fas fa-flag-japan fa-fw me-2"></i>
+                                <span class="fi fi-jp fis me-2"></span>
                                 <span>日本語</span>
                                 {% if session.get('language') == 'ja' %}
                                 <i class="fas fa-check ms-auto text-success"></i>
@@ -664,7 +692,7 @@
                         <li>
                             <a class="dropdown-item {% if session.get('language') == 'ru' %}active{% endif %} d-flex align-items-center" 
                                href="{{ url_for('set_language', language='ru') }}">
-                                <i class="fas fa-flag-russia fa-fw me-2"></i>
+                                <span class="fi fi-ru fis me-2"></span>
                                 <span>Русский</span>
                                 {% if session.get('language') == 'ru' %}
                                 <i class="fas fa-check ms-auto text-success"></i>
