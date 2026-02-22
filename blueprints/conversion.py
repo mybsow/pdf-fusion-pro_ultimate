@@ -719,7 +719,7 @@ def universal_converter(conversion_type):
             return handle_conversion_request(conversion_type, request, config)
         
         # GET request - afficher le formulaire
-        template_name = f"conversion/{config['template']}"
+        template_name = config['template']  # Juste le nom du fichier, sans dossier
         
         try:
             return render_template(template_name,
@@ -736,7 +736,7 @@ def universal_converter(conversion_type):
                                   missing_deps=missing)
         except Exception as e:
             current_app.logger.error(f"Template non trouvé: {template_name} - {str(e)}")
-            flash(f'Template non trouvé pour {conversion_type}', 'error')
+            flash(_('Template non trouvé pour %(type)s') % {'type': conversion_type}, 'error')
             return redirect(url_for('conversion.index'))
         
     except Exception as e:
