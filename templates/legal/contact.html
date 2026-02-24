@@ -99,27 +99,30 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // === Thème sombre/clair automatique ===
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.setAttribute('data-bs-theme', 'dark');
-    }
 
-    // === Compteur de caractères ===
     const messageTextarea = document.getElementById('message');
     const charCount = document.getElementById('charCount');
-    
+    const label = "{{ _('caractères') }}";
+
     if (messageTextarea && charCount) {
+
         function updateCharCount() {
             const length = messageTextarea.value.length;
-            charCount.textContent = `${length} / 2000 {{ _('caractères') }}`;
-            
+            charCount.textContent = length + " / 2000 " + label;
+
             charCount.classList.remove('warning', 'danger');
-            if (length > 1500) charCount.classList.add('warning');
-            if (length > 1900) charCount.classList.add('danger');
+
+            if (length > 1900) {
+                charCount.classList.add('danger');
+            } else if (length > 1500) {
+                charCount.classList.add('warning');
+            }
         }
+
         messageTextarea.addEventListener('input', updateCharCount);
         updateCharCount();
     }
 });
 </script>
 {% endblock %}
+
