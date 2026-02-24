@@ -281,6 +281,7 @@ def contact():
         current_year=datetime.now().year,
         config=AppConfig,
         datetime=datetime
+        current_lang=session.get('language', 'fr')  # Ajoutez ceci
     )
 
 
@@ -298,6 +299,7 @@ def legal():
         current_year=datetime.now().year,
         config=AppConfig,
         datetime=datetime
+        current_lang=session.get('language', 'fr')  # Ajoutez ceci
     )
 
 
@@ -311,6 +313,7 @@ def privacy():
         current_year=datetime.now().year,
         config=AppConfig,
         datetime=datetime
+        current_lang=session.get('language', 'fr')  # Ajoutez ceci
     )
 
 
@@ -324,6 +327,7 @@ def terms():
         current_year=datetime.now().year,
         config=AppConfig,
         datetime=datetime
+        current_lang=session.get('language', 'fr')  # Ajoutez ceci
     )
 
 
@@ -337,6 +341,7 @@ def about():
         current_year=datetime.now().year,
         config=AppConfig,
         datetime=datetime
+        current_lang=session.get('language', 'fr')  # Ajoutez ceci
     )
 
 
