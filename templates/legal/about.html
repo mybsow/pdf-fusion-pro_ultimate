@@ -80,7 +80,8 @@
 <p>{{ _('Service entièrement gratuit, financé par des publicités discrètes et non intrusives.') }}</p>
 
 <h2>{{ _('Développeur') }}</h2>
-<p>{{ _('%(app_name)s est développé et maintenu par %(developer_name)s, un développeur passionné par la création d\'outils web utiles et accessibles.') % {'app_name': config.NAME, 'developer_name': config.DEVELOPER_NAME} }}</p>
+<!-- LIGNE CORRIGÉE -->
+<p>{{ _('%(app_name)s est développé et maintenu par %(developer_name)s, un développeur passionné par la création d\'outils web utiles et accessibles.', app_name=config.NAME, developer_name=config.DEVELOPER_NAME) }}</p>
 
 <div class="info-box mt-4">
     <i class="fas fa-code me-2"></i>
