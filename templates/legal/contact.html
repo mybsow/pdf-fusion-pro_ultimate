@@ -14,13 +14,10 @@
     <div class="alert alert-success" role="alert">
         <i class="fas fa-check-circle me-2"></i>
         <strong>{{ _('Message enregistré avec succès !') }}</strong><br>
-        <small>
-            {{ _('Référence:') }} {{ datetime.now().strftime('%H:%M') }} • 
-            {{ _('Merci pour votre message.') }}
-        </small><br>
+        <small>{{ _('Référence:') }} {{ datetime.now().strftime('%H:%M') }} • {{ _('Merci pour votre message.') }}</small><br>
         {{ _('Nous avons bien reçu votre demande et nous vous répondrons dans les plus brefs délais.') }}
     </div>
-
+    
     <div class="text-center mt-4">
         <a href="/" class="btn btn-primary me-2">
             <i class="fas fa-home me-1"></i> {{ _('Retour à l\'accueil') }}
@@ -29,165 +26,128 @@
             <i class="fas fa-envelope me-1"></i> {{ _('Envoyer un autre message') }}
         </a>
     </div>
-
 {% else %}
-
     {% if error %}
         <div class="alert alert-danger" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i>
             <strong>{{ _('Attention :') }}</strong> {{ error }}
         </div>
     {% endif %}
-
+    
     <div class="contact-form-container">
         <form method="POST" action="/contact">
             {{ form.hidden_tag() }}
-
+            
             <div class="mb-3">
                 <label for="full_name" class="form-label">{{ _('Nom complet') }} *</label>
-                <input type="text"
-                       class="form-control"
-                       id="full_name"
-                       name="full_name"
-                       placeholder="{{ _('Votre prénom et nom') }}"
-                       required
-                       minlength="2"
-                       maxlength="100"
-                       value="{{ form_data.get('full_name', '') }}">
+                <input type="text" class="form-control" id="full_name" name="full_name" 
+                       placeholder="{{ _('Votre prénom et nom') }}" required
+                       value="{{ form_data.get('full_name', '') }}"
+                       minlength="2" maxlength="100">
             </div>
-
+            
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="email" class="form-label">{{ _('Adresse email') }} *</label>
-                    <input type="email"
-                           class="form-control"
-                           id="email"
-                           name="email"
-                           placeholder="votre@email.com"
-                           required
+                    <input type="email" class="form-control" id="email" name="email" 
+                           placeholder="votre@email.com" required
                            value="{{ form_data.get('email', '') }}">
-                    <div class="form-text">
-                        {{ _('Nous ne partagerons jamais votre email avec des tiers.') }}
-                    </div>
+                    <div class="form-text">{{ _('Nous ne partagerons jamais votre email avec des tiers.') }}</div>
                 </div>
-
+                
                 <div class="col-md-6 mb-3">
-                    <label for="phone" class="form-label">
-                        {{ _('Numéro de téléphone (optionnel)') }}
-                    </label>
-                    <input type="tel"
-                           class="form-control"
-                           id="phone"
-                           name="phone"
+                    <label for="phone" class="form-label">{{ _('Numéro de téléphone (optionnel)') }}</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" 
                            placeholder="06 12 34 56 78"
                            value="{{ form_data.get('phone', '') }}">
-                    <div class="form-text">
-                        {{ _('Pour un contact plus rapide si nécessaire.') }}
-                    </div>
+                    <div class="form-text">{{ _('Pour un contact plus rapide si nécessaire.') }}</div>
                 </div>
             </div>
-
+            
             <div class="mb-3">
-                <label for="subject" class="form-label">
-                    {{ _('Sujet de votre message') }} *
-                </label>
+                <label for="subject" class="form-label">{{ _('Sujet de votre message') }} *</label>
                 <select class="form-select" id="subject" name="subject" required>
-                    <option value="" disabled
-                        {% if not form_data.get('subject') %}selected{% endif %}>
+                    <option value="" disabled {% if not form_data.get('subject') %}selected{% endif %}>
                         {{ _('Sélectionnez un sujet') }}
                     </option>
-
-                    <option value="bug"
-                        {% if form_data.get('subject') == 'bug' %}selected{% endif %}>
-                        🚨 {{ _('Signaler un bug ou un problème technique') }}
-                    </option>
-
-                    <option value="improvement"
-                        {% if form_data.get('subject') == 'improvement' %}selected{% endif %}>
-                        💡 {{ _('Proposer une amélioration fonctionnelle') }}
-                    </option>
-
-                    <option value="partnership"
-                        {% if form_data.get('subject') == 'partnership' %}selected{% endif %}>
-                        🤝 {{ _('Demande de partenariat') }}
-                    </option>
-
-                    <option value="other"
-                        {% if form_data.get('subject') == 'other' %}selected{% endif %}>
-                        ❓ {{ _('Autre demande') }}
-                    </option>
+                    <option value="bug" {% if form_data.get('subject') == 'bug' %}selected{% endif %}>🚨 {{ _('Signaler un bug ou un problème technique') }}</option>
+                    <option value="improvement" {% if form_data.get('subject') == 'improvement' %}selected{% endif %}>💡 {{ _('Proposer une amélioration fonctionnelle') }}</option>
+                    <option value="partnership" {% if form_data.get('subject') == 'partnership' %}selected{% endif %}>🤝 {{ _('Demande de partenariat') }}</option>
+                    <option value="other" {% if form_data.get('subject') == 'other' %}selected{% endif %}>❓ {{ _('Autre demande') }}</option>
                 </select>
             </div>
-
+            
             <div class="mb-3">
-                <label for="message" class="form-label">
-                    {{ _('Votre message') }} *
-                </label>
-
-                <textarea class="form-control"
-                          id="message"
-                          name="message"
-                          rows="6"
-                          required
-                          maxlength="2000"
-                          placeholder="{{ _('Décrivez votre demande en détail...') }}">{{ form_data.get('message', '') }}</textarea>
-
-                <div class="character-count" id="charCount">
-                    0 / 2000 {{ _('caractères') }}
-                </div>
-
-                <div class="form-text">
-                    {{ _('Maximum 2000 caractères. Soyez aussi précis que possible.') }}
-                </div>
+                <label for="message" class="form-label">{{ _('Votre message') }} *</label>
+                <textarea class="form-control" id="message" name="message" rows="6" 
+                          placeholder="{{ _('Décrivez votre demande en détail...') }}" required
+                          maxlength="2000">{{ form_data.get('message', '') }}</textarea>
+                <div class="character-count" id="charCount">0 / 2000 {{ _('caractères') }}</div>
+                <div class="form-text">{{ _('Maximum 2000 caractères. Soyez aussi précis que possible.') }}</div>
             </div>
-
+            
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button type="submit" class="btn btn-send">
-                    <i class="fas fa-paper-plane me-1"></i>
-                    {{ _('Envoyer le message') }}
+                    <i class="fas fa-paper-plane me-1"></i> {{ _('Envoyer le message') }}
                 </button>
             </div>
         </form>
     </div>
-
 {% endif %}
 {% endblock %}
 
-
-{% block extra_js %}
+{% block scripts %}
 <script>
-(function () {
+document.addEventListener('DOMContentLoaded', () => {
 
-    function initCharCounter() {
-        const textarea = document.getElementById('message');
-        const counter = document.getElementById('charCount');
-        const label = "{{ _('caractères') }}";
+    // === Mise à jour de l'année dans le footer ===
+    document.querySelectorAll('[data-year]').forEach(el => {
+        el.textContent = new Date().getFullYear();
+    });
 
-        if (!textarea || !counter) return;
+    // === Sélecteur de langue ===
+    document.querySelectorAll('.dropdown-item[href*="set_language"]').forEach(link => {
+        link.addEventListener('click', function () {
+            const langButton = document.querySelector('.nav-link.dropdown-toggle');
+            if (!langButton) return;
 
-        function update() {
+            const flagIcon = this.querySelector('.fi');              
+            const langNameElem = this.querySelector('span:not(.fi)');
+            if (!flagIcon || !langNameElem) return;
+
+            const globeIcon = langButton.querySelector('.fa-globe');
+
+            // Reconstruire le bouton
+            langButton.innerHTML = '';
+            if (globeIcon) langButton.appendChild(globeIcon.cloneNode(true));
+            langButton.appendChild(document.createTextNode(' '));
+            langButton.appendChild(flagIcon.cloneNode(true));
+            langButton.appendChild(document.createTextNode(' '));
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'd-none d-md-inline';
+            nameSpan.textContent = ' ' + langNameElem.textContent;
+            langButton.appendChild(nameSpan);
+        });
+    });
+
+    // === Compteur de caractères ===
+    const textarea = document.getElementById('message');
+    const counter = document.getElementById('charCount');
+    const label = "{{ _('caractères') }}";
+
+    if (textarea && counter) {
+        const update = () => {
             const length = textarea.value.length;
             counter.textContent = length + " / 2000 " + label;
-
             counter.classList.remove('warning', 'danger');
-
-            if (length > 1900) {
-                counter.classList.add('danger');
-            } else if (length > 1500) {
-                counter.classList.add('warning');
-            }
-        }
-
+            if (length > 1900) counter.classList.add('danger');
+            else if (length > 1500) counter.classList.add('warning');
+        };
         textarea.addEventListener('input', update);
         update();
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initCharCounter);
-    } else {
-        initCharCounter();
-    }
-
-})();
+});
 </script>
 {% endblock %}
