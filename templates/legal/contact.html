@@ -96,33 +96,45 @@
 {% endif %}
 {% endblock %}
 
+// === Compteur de caractères ===
+
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
 
-    const messageTextarea = document.getElementById('message');
-    const charCount = document.getElementById('charCount');
-    const label = "{{ _('caractères') }}";
+    function initCharCounter() {
+        const textarea = document.getElementById('message');
+        const counter = document.getElementById('charCount');
+        const label = "{{ _('caractères') }}";
 
-    if (messageTextarea && charCount) {
+        if (!textarea || !counter) return;
 
-        function updateCharCount() {
-            const length = messageTextarea.value.length;
-            charCount.textContent = length + " / 2000 " + label;
+        function update() {
+            const length = textarea.value.length;
+            counter.textContent = length + " / 2000 " + label;
 
-            charCount.classList.remove('warning', 'danger');
+            counter.classList.remove('warning', 'danger');
 
             if (length > 1900) {
-                charCount.classList.add('danger');
+                counter.classList.add('danger');
             } else if (length > 1500) {
-                charCount.classList.add('warning');
+                counter.classList.add('warning');
             }
         }
 
-        messageTextarea.addEventListener('input', updateCharCount);
-        updateCharCount();
+        textarea.addEventListener('input', update);
+        textarea.addEventListener('keyup', update);      // sécurité supplémentaire
+        textarea.addEventListener('change', update);     // sécurité supplémentaire
+
+        update();
     }
-});
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCharCounter);
+    } else {
+        initCharCounter();
+    }
+
+})();
 </script>
 {% endblock %}
-
