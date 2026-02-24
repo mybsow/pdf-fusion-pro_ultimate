@@ -10,11 +10,19 @@ import requests
 from . import legal_bp
 from config import AppConfig
 from managers.contact_manager import contact_manager
-from flask_babel import _
-from flask_babel import lazy_gettext as _l
+from flask_babel import _, lazy_gettext as _l
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, Optional, Email, Length
+
+# ============================================================
+# CONFIG POUR TEMPLATES
+# ============================================================
+legal_config = {
+    "NAME": AppConfig.NAME,
+    "VERSION": AppConfig.VERSION,
+    "DEVELOPER_NAME": getattr(AppConfig, "DEVELOPER_NAME", "MYBSOW")
+}
 
 # ============================================================
 # FORMULAIRES
@@ -89,7 +97,6 @@ def send_discord_notification(form_data):
     except Exception:
         return True
 
-
 # ============================================================
 # ROUTE CONTACT
 # ============================================================
@@ -134,7 +141,6 @@ def contact():
             error = _('Une erreur technique est survenue. Veuillez réessayer.')
 
     else:
-        # Si POST mais invalid, conserver les valeurs
         if request.method == "POST":
             form_data = {
                 "full_name": request.form.get("full_name", ""),
@@ -154,10 +160,9 @@ def contact():
         success=success,
         error=error,
         current_year=datetime.now().year,
-        config=AppConfig,
+        config=legal_config,
         datetime=datetime
     )
-
 
 # ============================================================
 # AUTRES PAGES LÉGALES
@@ -170,7 +175,7 @@ def legal():
         badge=_("Information légale"),
         subtitle=_("Informations légales concernant l'utilisation du service PDF Fusion Pro"),
         current_year=datetime.now().year,
-        config=AppConfig,
+        config=legal_config,
         datetime=datetime
     )
 
@@ -183,7 +188,7 @@ def privacy():
         badge=_("Protection des données"),
         subtitle=_("Comment nous protégeons et utilisons vos données"),
         current_year=datetime.now().year,
-        config=AppConfig,
+        config=legal_config,
         datetime=datetime
     )
 
@@ -196,7 +201,7 @@ def terms():
         badge=_("Règles d'usage"),
         subtitle=_("Règles et conditions d'utilisation du service PDF Fusion Pro"),
         current_year=datetime.now().year,
-        config=AppConfig,
+        config=legal_config,
         datetime=datetime
     )
 
@@ -209,10 +214,9 @@ def about():
         badge=_("Notre histoire"),
         subtitle=_("Découvrez PDF Fusion Pro, notre mission et nos valeurs"),
         current_year=datetime.now().year,
-        config=AppConfig,
+        config=legal_config,
         datetime=datetime
     )
-
 
 # ============================================================
 # REDIRECTIONS
