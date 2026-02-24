@@ -28,7 +28,8 @@
 </ul>
 
 <h2>{{ _('Publicité — Google AdSense') }}</h2>
-<p>{{ _('Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour afficher des publicités pertinentes.') % {'adsense_id': config.ADSENSE_CLIENT_ID} | safe }}</p>
+<!-- LIGNE CORRIGÉE ICI -->
+<p>{{ _('Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour afficher des publicités pertinentes.', adsense_id=config.ADSENSE_CLIENT_ID) | safe }}</p>
 <p>{{ _('Google utilise des cookies pour personnaliser les annonces en fonction de votre navigation sur ce site et d\'autres sites web.') }}</p>
 <p>{{ _('Vous pouvez désactiver la personnalisation des annonces via les') }} <a href="https://adssettings.google.com" target="_blank">{{ _('paramètres des annonces Google') }}</a>.</p>
 
