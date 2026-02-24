@@ -280,7 +280,7 @@ def contact():
         error=error,
         current_year=datetime.now().year,
         config=AppConfig,
-        datetime=datetime
+        datetime=datetime,
         current_lang=session.get('language', 'fr')  # Ajoutez ceci
     )
 
@@ -298,7 +298,7 @@ def legal():
         subtitle=_("Informations légales") if BABEL_AVAILABLE else "Informations légales",
         current_year=datetime.now().year,
         config=AppConfig,
-        datetime=datetime
+        datetime=datetime,
         current_lang=session.get('language', 'fr')  # Ajoutez ceci
     )
 
@@ -312,7 +312,7 @@ def privacy():
         subtitle=_("Comment nous protégeons vos données") if BABEL_AVAILABLE else "Protection des données",
         current_year=datetime.now().year,
         config=AppConfig,
-        datetime=datetime
+        datetime=datetime,
         current_lang=session.get('language', 'fr')  # Ajoutez ceci
     )
 
@@ -326,7 +326,7 @@ def terms():
         subtitle=_("Conditions d'utilisation du service") if BABEL_AVAILABLE else "Conditions d'utilisation",
         current_year=datetime.now().year,
         config=AppConfig,
-        datetime=datetime
+        datetime=datetime,
         current_lang=session.get('language', 'fr')  # Ajoutez ceci
     )
 
@@ -340,7 +340,7 @@ def about():
         subtitle=_("Découvrez PDF Fusion Pro") if BABEL_AVAILABLE else "À propos de nous",
         current_year=datetime.now().year,
         config=AppConfig,
-        datetime=datetime
+        datetime=datetime,
         current_lang=session.get('language', 'fr')  # Ajoutez ceci
     )
 
