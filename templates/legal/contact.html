@@ -154,7 +154,7 @@
 {% endblock %}
 
 
-{% block scripts %}
+{% block extra_js %}
 <script>
 (function () {
 
@@ -179,7 +179,7 @@
         }
 
         textarea.addEventListener('input', update);
-        update();  // initialise au chargement
+        update();
     }
 
     if (document.readyState === 'loading') {
@@ -191,5 +191,3 @@
 })();
 </script>
 {% endblock %}
-
-
