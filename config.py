@@ -34,6 +34,8 @@ class AppConfig:
 
     # ⚠️ IMPORTANT : définissez SECRET_KEY dans Render !
     SECRET_KEY = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
+    # Dans config.py, ajoutez si nécessaire :
+ADSENSE_CLIENT_ID = os.environ.get("ADSENSE_CLIENT_ID", "ca-pub-8967416460526921")  # Votre ID AdSense
 
     # cookies sécurisés (HTTPS)
     SESSION_COOKIE_SECURE = True
