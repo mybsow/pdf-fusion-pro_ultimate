@@ -14,10 +14,13 @@
     <div class="alert alert-success" role="alert">
         <i class="fas fa-check-circle me-2"></i>
         <strong>{{ _('Message enregistré avec succès !') }}</strong><br>
-        <small>{{ _('Référence:') }} {{ datetime.now().strftime('%H:%M') }} • {{ _('Merci pour votre message.') }}</small><br>
+        <small>
+            {{ _('Référence:') }} {{ datetime.now().strftime('%H:%M') }} • 
+            {{ _('Merci pour votre message.') }}
+        </small><br>
         {{ _('Nous avons bien reçu votre demande et nous vous répondrons dans les plus brefs délais.') }}
     </div>
-    
+
     <div class="text-center mt-4">
         <a href="/" class="btn btn-primary me-2">
             <i class="fas fa-home me-1"></i> {{ _('Retour à l\'accueil') }}
@@ -26,81 +29,134 @@
             <i class="fas fa-envelope me-1"></i> {{ _('Envoyer un autre message') }}
         </a>
     </div>
+
 {% else %}
+
     {% if error %}
         <div class="alert alert-danger" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i>
             <strong>{{ _('Attention :') }}</strong> {{ error }}
         </div>
     {% endif %}
-    
+
     <div class="contact-form-container">
         <form method="POST" action="/contact">
             {{ form.hidden_tag() }}
-            
+
             <div class="mb-3">
                 <label for="full_name" class="form-label">{{ _('Nom complet') }} *</label>
-                <input type="text" class="form-control" id="full_name" name="full_name" 
-                       placeholder="{{ _('Votre prénom et nom') }}" required
-                       value="{{ form_data.get('full_name', '') }}"
-                       minlength="2" maxlength="100">
+                <input type="text"
+                       class="form-control"
+                       id="full_name"
+                       name="full_name"
+                       placeholder="{{ _('Votre prénom et nom') }}"
+                       required
+                       minlength="2"
+                       maxlength="100"
+                       value="{{ form_data.get('full_name', '') }}">
             </div>
-            
+
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="email" class="form-label">{{ _('Adresse email') }} *</label>
-                    <input type="email" class="form-control" id="email" name="email" 
-                           placeholder="votre@email.com" required
+                    <input type="email"
+                           class="form-control"
+                           id="email"
+                           name="email"
+                           placeholder="votre@email.com"
+                           required
                            value="{{ form_data.get('email', '') }}">
-                    <div class="form-text">{{ _('Nous ne partagerons jamais votre email avec des tiers.') }}</div>
+                    <div class="form-text">
+                        {{ _('Nous ne partagerons jamais votre email avec des tiers.') }}
+                    </div>
                 </div>
-                
+
                 <div class="col-md-6 mb-3">
-                    <label for="phone" class="form-label">{{ _('Numéro de téléphone (optionnel)') }}</label>
-                    <input type="tel" class="form-control" id="phone" name="phone" 
+                    <label for="phone" class="form-label">
+                        {{ _('Numéro de téléphone (optionnel)') }}
+                    </label>
+                    <input type="tel"
+                           class="form-control"
+                           id="phone"
+                           name="phone"
                            placeholder="06 12 34 56 78"
                            value="{{ form_data.get('phone', '') }}">
-                    <div class="form-text">{{ _('Pour un contact plus rapide si nécessaire.') }}</div>
+                    <div class="form-text">
+                        {{ _('Pour un contact plus rapide si nécessaire.') }}
+                    </div>
                 </div>
             </div>
-            
+
             <div class="mb-3">
-                <label for="subject" class="form-label">{{ _('Sujet de votre message') }} *</label>
+                <label for="subject" class="form-label">
+                    {{ _('Sujet de votre message') }} *
+                </label>
                 <select class="form-select" id="subject" name="subject" required>
-                    <option value="" disabled {% if not form_data.get('subject') %}selected{% endif %}>
+                    <option value="" disabled
+                        {% if not form_data.get('subject') %}selected{% endif %}>
                         {{ _('Sélectionnez un sujet') }}
                     </option>
-                    <option value="bug" {% if form_data.get('subject') == 'bug' %}selected{% endif %}>🚨 {{ _('Signaler un bug ou un problème technique') }}</option>
-                    <option value="improvement" {% if form_data.get('subject') == 'improvement' %}selected{% endif %}>💡 {{ _('Proposer une amélioration fonctionnelle') }}</option>
-                    <option value="partnership" {% if form_data.get('subject') == 'partnership' %}selected{% endif %}>🤝 {{ _('Demande de partenariat') }}</option>
-                    <option value="other" {% if form_data.get('subject') == 'other' %}selected{% endif %}>❓ {{ _('Autre demande') }}</option>
+
+                    <option value="bug"
+                        {% if form_data.get('subject') == 'bug' %}selected{% endif %}>
+                        🚨 {{ _('Signaler un bug ou un problème technique') }}
+                    </option>
+
+                    <option value="improvement"
+                        {% if form_data.get('subject') == 'improvement' %}selected{% endif %}>
+                        💡 {{ _('Proposer une amélioration fonctionnelle') }}
+                    </option>
+
+                    <option value="partnership"
+                        {% if form_data.get('subject') == 'partnership' %}selected{% endif %}>
+                        🤝 {{ _('Demande de partenariat') }}
+                    </option>
+
+                    <option value="other"
+                        {% if form_data.get('subject') == 'other' %}selected{% endif %}>
+                        ❓ {{ _('Autre demande') }}
+                    </option>
                 </select>
             </div>
-            
+
             <div class="mb-3">
-                <label for="message" class="form-label">{{ _('Votre message') }} *</label>
-                <textarea class="form-control" id="message" name="message" rows="6" 
-                          placeholder="{{ _('Décrivez votre demande en détail...') }}" required
-                          maxlength="2000">{{ form_data.get('message', '') }}</textarea>
-                <div class="character-count" id="charCount">0 / 2000 {{ _('caractères') }}</div>
-                <div class="form-text">{{ _('Maximum 2000 caractères. Soyez aussi précis que possible.') }}</div>
+                <label for="message" class="form-label">
+                    {{ _('Votre message') }} *
+                </label>
+
+                <textarea class="form-control"
+                          id="message"
+                          name="message"
+                          rows="6"
+                          required
+                          maxlength="2000"
+                          placeholder="{{ _('Décrivez votre demande en détail...') }}">{{ form_data.get('message', '') }}</textarea>
+
+                <div class="character-count" id="charCount">
+                    0 / 2000 {{ _('caractères') }}
+                </div>
+
+                <div class="form-text">
+                    {{ _('Maximum 2000 caractères. Soyez aussi précis que possible.') }}
+                </div>
             </div>
-            
+
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button type="submit" class="btn btn-send">
-                    <i class="fas fa-paper-plane me-1"></i> {{ _('Envoyer le message') }}
+                    <i class="fas fa-paper-plane me-1"></i>
+                    {{ _('Envoyer le message') }}
                 </button>
             </div>
         </form>
     </div>
+
 {% endif %}
 {% endblock %}
 
-// === Compteur de caractères ===
 
 {% block scripts %}
 <script>
-(function() {
+(function () {
 
     function initCharCounter() {
         const textarea = document.getElementById('message');
@@ -123,10 +179,7 @@
         }
 
         textarea.addEventListener('input', update);
-        textarea.addEventListener('keyup', update);      // sécurité supplémentaire
-        textarea.addEventListener('change', update);     // sécurité supplémentaire
-
-        update();
+        update();  // initialise au chargement
     }
 
     if (document.readyState === 'loading') {
@@ -138,3 +191,5 @@
 })();
 </script>
 {% endblock %}
+
+
