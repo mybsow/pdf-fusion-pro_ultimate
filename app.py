@@ -552,6 +552,16 @@ def create_app():
         
         return jsonify(result)
 
+        # Dans votre app.py ou __init__.py principal
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+    
+    # Ou pour voir l'erreur dans la réponse
+    @app.errorhandler(500)
+    def internal_error(error):
+        import traceback
+        return f"Erreur 500: {str(error)}\n{traceback.format_exc()}", 500
+
     # ============================================================
     # Erreurs et filtres Jinja
     # ============================================================
