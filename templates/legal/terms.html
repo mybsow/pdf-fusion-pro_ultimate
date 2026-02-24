@@ -2,7 +2,8 @@
 
 {% block content %}
 <h2>{{ _('Acceptation des conditions') }}</h2>
-<p>{{ _('En utilisant le service %(app_name)s, vous acceptez pleinement et sans réserve les présentes conditions d\'utilisation.') % {'app_name': config.NAME} }}</p>
+<!-- LIGNE CORRIGÉE -->
+<p>{{ _('En utilisant le service %(app_name)s, vous acceptez pleinement et sans réserve les présentes conditions d\'utilisation.', app_name=config.NAME) }}</p>
 
 <div class="info-box">
     <i class="fas fa-exclamation-triangle me-2"></i>
@@ -32,7 +33,8 @@
 <h2>{{ _('Limitation de responsabilité') }}</h2>
 <p>{{ _('Le service est fourni sans aucune garantie, expresse ou implicite, y compris, mais sans s\'y limiter, les garanties de qualité marchande, d\'adéquation à un usage particulier et de non-contrefaçon.') }}</p>
 
-<p>{{ _('En aucun cas, %(developer_name)s ne pourra être tenu responsable :') % {'developer_name': config.DEVELOPER_NAME} }}</p>
+<!-- LIGNE CORRIGÉE -->
+<p>{{ _('En aucun cas, %(developer_name)s ne pourra être tenu responsable :', developer_name=config.DEVELOPER_NAME) }}</p>
 <ul>
     <li>{{ _('Des dommages directs ou indirects résultant de l\'utilisation ou de l\'impossibilité d\'utiliser le service') }}</li>
     <li>{{ _('De la perte ou de l\'altération des fichiers PDF traités') }}</li>
@@ -44,7 +46,8 @@
 <p>{{ _('Les utilisateurs seront informés des changements significatifs via une notification sur le site.') }}</p>
 
 <h2>{{ _('Propriété intellectuelle') }}</h2>
-<p>{{ _('Le service, son code source, son design et son contenu sont la propriété exclusive de %(developer_name)s.') % {'developer_name': config.DEVELOPER_NAME} }}</p>
+<!-- LIGNE CORRIGÉE -->
+<p>{{ _('Le service, son code source, son design et son contenu sont la propriété exclusive de %(developer_name)s.', developer_name=config.DEVELOPER_NAME) }}</p>
 <p>{{ _('Toute reproduction, même partielle, est interdite sans autorisation préalable écrite.') }}</p>
 
 <div class="alert alert-info mt-4">
