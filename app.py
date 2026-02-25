@@ -226,18 +226,20 @@ def create_app():
     # --------------------------------------------------------
     # Context processor pour config et fonctions
     # --------------------------------------------------------
-    @app.context_processor
-    def inject_globals():
-        """Injecte les variables globales dans tous les templates"""
-        return dict(
-            config=app.config,
-            languages=app.config.get('LANGUAGES', {}),
-            get_locale=get_locale,  # ✅ CORRIGÉ: injection de la fonction
-            current_lang=session.get('language', 'fr'),  # ✅ Ajout pour faciliter l'accès
-            current_year=datetime.now().year,  # ← Ajoutez ceci si ce n'est pas déjà fait
-            datetime=datetime,    
-            _=_  # ✅ Injection de la fonction de traduction
-        )
+@app.context_processor
+def inject_globals():
+    """Injecte les variables globales dans tous les templates"""
+    from config import AppConfig  # Import local pour éviter les imports circulaires
+    return dict(
+        Config=AppConfig,  # ← Maintenant c'est la classe AppConfig
+        app_config=app.config,  # Gardez app.config si nécessaire ailleurs
+        languages=app.config.get('LANGUAGES', {}),
+        get_locale=get_locale,
+        current_lang=session.get('language', 'fr'),
+        current_year=datetime.now().year,
+        datetime=datetime,
+        _=_
+    )
 
     # --------------------------------------------------------
     # Security headers
