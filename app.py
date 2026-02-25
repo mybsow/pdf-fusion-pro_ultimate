@@ -171,16 +171,6 @@ with app.app_context():
 def _(message):
     return get_translation(message)
 
-# Ajouter au context processor
-@app.context_processor
-def inject_globals():
-    return dict(
-        config=app.config,
-        languages=app.config.get('LANGUAGES', {}),
-        get_locale=get_locale,
-        current_lang=session.get('language', 'fr'),
-        _=_  # Notre fonction de traduction personnalisée
-    )
 
 # ============================================================
 # Fonctions d'initialisation
