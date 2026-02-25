@@ -28,8 +28,7 @@
 </ul>
 
 <h2>{{ _('Publicité — Google AdSense') }}</h2>
-<!-- LIGNE CORRIGÉE ICI -->
-<p>{{ _('Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour afficher des publicités pertinentes.') % {'adsense_id': Config.ADSENSE_CLIENT_ID} | safe }}</p>
+<p>{{ (_('Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour afficher des publicités pertinentes.',) % {'adsense_id': Config.ADSENSE_CLIENT_ID}) | safe }}</p>
 <p>{{ _('Google utilise des cookies pour personnaliser les annonces en fonction de votre navigation sur ce site et d\'autres sites web.') }}</p>
 <p>{{ _('Vous pouvez désactiver la personnalisation des annonces via les') }} <a href="https://adssettings.google.com" target="_blank">{{ _('paramètres des annonces Google') }}</a>.</p>
 
@@ -50,6 +49,3 @@
 <h2>{{ _('Sécurité des données') }}</h2>
 <p>{{ _('Nous mettons en œuvre des mesures de sécurité techniques et organisationnelles appropriées pour protéger vos données contre tout accès non autorisé, altération ou destruction.') }}</p>
 {% endblock %}
-
-
-
