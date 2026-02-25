@@ -234,6 +234,8 @@ def create_app():
             languages=app.config.get('LANGUAGES', {}),
             get_locale=get_locale,  # ✅ CORRIGÉ: injection de la fonction
             current_lang=session.get('language', 'fr'),  # ✅ Ajout pour faciliter l'accès
+            current_year=datetime.now().year,  # ← Ajoutez ceci si ce n'est pas déjà fait
+            datetime=datetime,    
             _=_  # ✅ Injection de la fonction de traduction
         )
 
