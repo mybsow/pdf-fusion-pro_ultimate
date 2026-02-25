@@ -299,7 +299,7 @@
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-globe me-1"></i>
-                        {% set current_lang = session.get('language', 'fr') %}
+                        {% set current_lang = get_locale() %}
                         
                         {# Affichage compact avec icône FontAwesome 6 #}
                         {% if current_lang == 'fr' %}
@@ -342,113 +342,126 @@
                     </a>
                     
                     <ul class="dropdown-menu dropdown-menu-end">
+                    
+                        {% set current = get_locale() %}
+                    
                         <li>
-                            <a class="dropdown-item {% if session.get('language', 'fr') == 'fr' %}active{% endif %} d-flex align-items-center" 
+                            <a class="dropdown-item d-flex align-items-center {% if current == 'fr' %}active{% endif %}"
                                href="{{ url_for('set_language', language='fr') }}">
-                                <span class="fi fi-fr fis me-2"></span>
+                                <span class="fi fi-fr me-2"></span>
                                 <span>Français</span>
-                                {% if session.get('language', 'fr') == 'fr' %}
-                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% if current == 'fr' %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
+                    
                         <li>
-                            <a class="dropdown-item {% if session.get('language') == 'en' %}active{% endif %} d-flex align-items-center" 
+                            <a class="dropdown-item d-flex align-items-center {% if current == 'en' %}active{% endif %}"
                                href="{{ url_for('set_language', language='en') }}">
-                                <span class="fi fi-gb fis me-2"></span>
+                                <span class="fi fi-gb me-2"></span>
                                 <span>English</span>
-                                {% if session.get('language') == 'en' %}
-                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% if current == 'en' %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
+                    
                         <li>
-                            <a class="dropdown-item {% if session.get('language') == 'es' %}active{% endif %} d-flex align-items-center" 
+                            <a class="dropdown-item d-flex align-items-center {% if current == 'es' %}active{% endif %}"
                                href="{{ url_for('set_language', language='es') }}">
-                                <span class="fi fi-es fis me-2"></span>
+                                <span class="fi fi-es me-2"></span>
                                 <span>Español</span>
-                                {% if session.get('language') == 'es' %}
-                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% if current == 'es' %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
+                    
                         <li>
-                            <a class="dropdown-item {% if session.get('language') == 'de' %}active{% endif %} d-flex align-items-center" 
+                            <a class="dropdown-item d-flex align-items-center {% if current == 'de' %}active{% endif %}"
                                href="{{ url_for('set_language', language='de') }}">
-                                <span class="fi fi-de fis me-2"></span>
+                                <span class="fi fi-de me-2"></span>
                                 <span>Deutsch</span>
-                                {% if session.get('language') == 'de' %}
-                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% if current == 'de' %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
+                    
                         <li>
-                            <a class="dropdown-item {% if session.get('language') == 'it' %}active{% endif %} d-flex align-items-center" 
+                            <a class="dropdown-item d-flex align-items-center {% if current == 'it' %}active{% endif %}"
                                href="{{ url_for('set_language', language='it') }}">
-                                <span class="fi fi-it fis me-2"></span>
+                                <span class="fi fi-it me-2"></span>
                                 <span>Italiano</span>
-                                {% if session.get('language') == 'it' %}
-                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% if current == 'it' %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
+                    
                         <li>
-                            <a class="dropdown-item {% if session.get('language') == 'pt' %}active{% endif %} d-flex align-items-center" 
+                            <a class="dropdown-item d-flex align-items-center {% if current == 'pt' %}active{% endif %}"
                                href="{{ url_for('set_language', language='pt') }}">
-                                <span class="fi fi-pt fis me-2"></span>
+                                <span class="fi fi-pt me-2"></span>
                                 <span>Português</span>
-                                {% if session.get('language') == 'pt' %}
-                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% if current == 'pt' %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
+                    
                         <li>
-                            <a class="dropdown-item {% if session.get('language') == 'nl' %}active{% endif %} d-flex align-items-center" 
+                            <a class="dropdown-item d-flex align-items-center {% if current == 'nl' %}active{% endif %}"
                                href="{{ url_for('set_language', language='nl') }}">
-                                <span class="fi fi-nl fis me-2"></span>
+                                <span class="fi fi-nl me-2"></span>
                                 <span>Nederlands</span>
-                                {% if session.get('language') == 'nl' %}
-                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% if current == 'nl' %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
+                    
                         <li>
-                            <a class="dropdown-item {% if session.get('language') == 'ar' %}active{% endif %} d-flex align-items-center" 
+                            <a class="dropdown-item d-flex align-items-center {% if current == 'ar' %}active{% endif %}"
                                href="{{ url_for('set_language', language='ar') }}">
-                                <span class="fi fi-sa fis me-2"></span>
+                                <span class="fi fi-sa me-2"></span>
                                 <span>العربية</span>
-                                {% if session.get('language') == 'ar' %}
-                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% if current == 'ar' %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
+                    
                         <li>
-                            <a class="dropdown-item {% if session.get('language') == 'zh' %}active{% endif %} d-flex align-items-center" 
+                            <a class="dropdown-item d-flex align-items-center {% if current == 'zh' %}active{% endif %}"
                                href="{{ url_for('set_language', language='zh') }}">
-                                <span class="fi fi-cn fis me-2"></span>
+                                <span class="fi fi-cn me-2"></span>
                                 <span>中文</span>
-                                {% if session.get('language') == 'zh' %}
-                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% if current == 'zh' %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
+                    
                         <li>
-                            <a class="dropdown-item {% if session.get('language') == 'ja' %}active{% endif %} d-flex align-items-center" 
+                            <a class="dropdown-item d-flex align-items-center {% if current == 'ja' %}active{% endif %}"
                                href="{{ url_for('set_language', language='ja') }}">
-                                <span class="fi fi-jp fis me-2"></span>
+                                <span class="fi fi-jp me-2"></span>
                                 <span>日本語</span>
-                                {% if session.get('language') == 'ja' %}
-                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% if current == 'ja' %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
+                    
                         <li>
-                            <a class="dropdown-item {% if session.get('language') == 'ru' %}active{% endif %} d-flex align-items-center" 
+                            <a class="dropdown-item d-flex align-items-center {% if current == 'ru' %}active{% endif %}"
                                href="{{ url_for('set_language', language='ru') }}">
-                                <span class="fi fi-ru fis me-2"></span>
+                                <span class="fi fi-ru me-2"></span>
                                 <span>Русский</span>
-                                {% if session.get('language') == 'ru' %}
-                                <i class="fas fa-check ms-auto text-success"></i>
+                                {% if current == 'ru' %}
+                                    <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
