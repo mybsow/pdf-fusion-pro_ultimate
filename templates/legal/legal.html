@@ -8,7 +8,7 @@
 </div>
 
 <h2>{{ _('Éditeur du service') }}</h2>
-<p>{{ _('Le service %(app_name)s est développé et maintenu par %(developer_name)s.', app_name=config.NAME, developer_name=config.DEVELOPER_NAME) }}</p>
+<p>{{ _('Le service %(app_name)s est développé et maintenu par %(developer_name)s.', app_name=Config.NAME, developer_name=Config.DEVELOPER_NAME) }}</p>
 
 <div class="contact-info">
     <div class="contact-icon">
@@ -24,7 +24,7 @@
 </div>
 
 <h2>{{ _('Hébergement') }}</h2>
-<p>{{ _('Ce service est hébergé sur la plateforme %(hosting)s (<a href="https://%(domain)s" target="_blank">%(domain)s</a>).', hosting=config.HOSTING, domain=config.DOMAIN) | safe }}</p>
+<p>{{ _('Ce service est hébergé sur la plateforme %(hosting)s (<a href="https://%(domain)s" target="_blank">%(domain)s</a>).', hosting=Config.HOSTING, domain=Config.DOMAIN) | safe }}</p>
 <p>{{ _('Les serveurs sont localisés dans des centres de données sécurisés et conformes aux normes européennes de protection des données.') }}</p>
 
 <h2>{{ _('Propriété intellectuelle') }}</h2>
@@ -39,3 +39,4 @@
 <p>{{ _('Nous nous efforçons d\'assurer une disponibilité continue du service, mais ne pouvons garantir un fonctionnement ininterrompu.') }}</p>
 <p>{{ _('Des périodes de maintenance technique peuvent être nécessaires pour améliorer le service.') }}</p>
 {% endblock %}
+
