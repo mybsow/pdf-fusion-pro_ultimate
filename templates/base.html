@@ -11,7 +11,7 @@
     <meta name="keywords" 
           content="{{ _('PDF, convertisseur, fusionner, diviser, compresser, OCR, Word, Excel, PowerPoint, image') }}">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="{{ config.DOMAIN }}{{ request.path }}">
+    <link rel="canonical" href="{{ Config.DOMAIN }}{{ request.path }}">
 
     
     <!-- Open Graph -->
@@ -826,7 +826,7 @@
                     <i class="fas fa-copyright me-1"></i> 2025 {{ _('PDF Fusion Pro') }}. {{ _('Tous droits réservés.') }}
                 </small>
                 <small class="text-muted">
-                    {{ _('Version') }} {{ config.VERSION if config else '6.1' }} | 
+                    {{ _('Version') }} {{ Config.VERSION if Config else '6.1' }} | 
                     <i class="fas fa-server me-1"></i>{{ _('Hébergé sur Render') }}
                 </small>
             </div>
