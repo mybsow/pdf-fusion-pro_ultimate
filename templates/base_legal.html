@@ -544,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // === Sélecteur de langue ===
-    document.querySelectorAll('.dropdown-item[href*="set_language"]').forEach(link => {
+    document.querySelectorAll('.dropdown-item[href^="/language/"]').forEach(link => {
         link.addEventListener('click', function () {
             const langButton = document.querySelector('.nav-link.dropdown-toggle');
             if (!langButton) return;
