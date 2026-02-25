@@ -232,7 +232,6 @@ def create_app():
         from config import AppConfig  # Import local pour éviter les imports circulaires
         return dict(
             Config=AppConfig,  # ← Maintenant c'est la classe AppConfig
-            app_config=app.config,  # Gardez app.config si nécessaire ailleurs
             languages=app.config.get('LANGUAGES', {}),
             get_locale=get_locale,
             current_lang=session.get('language', 'fr'),
