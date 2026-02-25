@@ -10,9 +10,9 @@ from flask import (
     redirect,
     url_for,
     flash,
-    current_app,
-    escape
+    current_app
 )
+from markupsafe import escape
 from datetime import datetime
 import os
 import requests
