@@ -234,7 +234,9 @@ def legal():
         "legal/legal.html",
         title=_("Mentions Légales") if BABEL_AVAILABLE else "Mentions Légales",
         badge=_("Information légale") if BABEL_AVAILABLE else "Information légale",
-        subtitle=_("Informations légales") if BABEL_AVAILABLE else "Informations légales"
+        subtitle=_("Informations légales") if BABEL_AVAILABLE else "Informations légales",
+        current_year=datetime.now().year,
+        Config=current_app.config
     )
 
 @legal_bp.route("/privacy")
@@ -243,7 +245,9 @@ def privacy():
         "legal/privacy.html",
         title=_("Politique de Confidentialité") if BABEL_AVAILABLE else "Politique de Confidentialité",
         badge=_("Protection des données") if BABEL_AVAILABLE else "Protection des données",
-        subtitle=_("Comment nous protégeons vos données") if BABEL_AVAILABLE else "Protection des données"
+        subtitle=_("Comment nous protégeons vos données") if BABEL_AVAILABLE else "Protection des données",
+        current_year=datetime.now().year,
+        Config=current_app.config
     )
 
 @legal_bp.route("/terms")
@@ -252,7 +256,9 @@ def terms():
         "legal/terms.html",
         title=_("Conditions d'Utilisation") if BABEL_AVAILABLE else "Conditions d'Utilisation",
         badge=_("Règles d'usage") if BABEL_AVAILABLE else "Règles d'usage",
-        subtitle=_("Conditions d'utilisation du service") if BABEL_AVAILABLE else "Conditions d'utilisation"
+        subtitle=_("Conditions d'utilisation du service") if BABEL_AVAILABLE else "Conditions d'utilisation",
+        current_year=datetime.now().year,
+        Config=current_app.config
     )
 
 @legal_bp.route("/about")
@@ -261,7 +267,9 @@ def about():
         "legal/about.html",
         title=_("À Propos") if BABEL_AVAILABLE else "À Propos",
         badge=_("Notre histoire") if BABEL_AVAILABLE else "Notre histoire",
-        subtitle=_("Découvrez PDF Fusion Pro") if BABEL_AVAILABLE else "À propos de nous"
+        subtitle=_("Découvrez PDF Fusion Pro") if BABEL_AVAILABLE else "À propos de nous",
+        current_year=datetime.now().year,
+        Config=current_app.config
     )
 
 # ===============================
