@@ -1,6 +1,6 @@
 """
 Routes pour les pages légales
-Version production sécurisée - CORRIGÉE
+Version production sécurisée - OPTIMISÉE
 """
 
 from flask import (
@@ -278,11 +278,8 @@ def contact():
         form=form,
         form_data=form_data,
         success=success,
-        error=error,
-        current_year=datetime.now().year,
-        config=AppConfig,
-        datetime=datetime,
-        current_lang=session.get('language', 'fr')  # Ajoutez ceci
+        error=error
+        # Les variables globales (current_year, config, datetime, current_lang) sont injectées par le context processor
     )
 
 
@@ -296,11 +293,8 @@ def legal():
         "legal/legal.html",
         title=_("Mentions Légales") if BABEL_AVAILABLE else "Mentions Légales",
         badge=_("Information légale") if BABEL_AVAILABLE else "Information légale",
-        subtitle=_("Informations légales") if BABEL_AVAILABLE else "Informations légales",
-        current_year=datetime.now().year,
-        config=AppConfig,
-        datetime=datetime,
-        current_lang=session.get('language', 'fr')  # Ajoutez ceci
+        subtitle=_("Informations légales") if BABEL_AVAILABLE else "Informations légales"
+        # Les variables globales sont injectées automatiquement
     )
 
 
@@ -310,11 +304,8 @@ def privacy():
         "legal/privacy.html",
         title=_("Politique de Confidentialité") if BABEL_AVAILABLE else "Politique de Confidentialité",
         badge=_("Protection des données") if BABEL_AVAILABLE else "Protection des données",
-        subtitle=_("Comment nous protégeons vos données") if BABEL_AVAILABLE else "Protection des données",
-        current_year=datetime.now().year,
-        config=AppConfig,
-        datetime=datetime,
-        current_lang=session.get('language', 'fr')  # Ajoutez ceci
+        subtitle=_("Comment nous protégeons vos données") if BABEL_AVAILABLE else "Protection des données"
+        # Les variables globales sont injectées automatiquement
     )
 
 
@@ -324,11 +315,8 @@ def terms():
         "legal/terms.html",
         title=_("Conditions d'Utilisation") if BABEL_AVAILABLE else "Conditions d'Utilisation",
         badge=_("Règles d'usage") if BABEL_AVAILABLE else "Règles d'usage",
-        subtitle=_("Conditions d'utilisation du service") if BABEL_AVAILABLE else "Conditions d'utilisation",
-        current_year=datetime.now().year,
-        config=AppConfig,
-        datetime=datetime,
-        current_lang=session.get('language', 'fr')  # Ajoutez ceci
+        subtitle=_("Conditions d'utilisation du service") if BABEL_AVAILABLE else "Conditions d'utilisation"
+        # Les variables globales sont injectées automatiquement
     )
 
 
@@ -338,11 +326,8 @@ def about():
         "legal/about.html",
         title=_("À Propos") if BABEL_AVAILABLE else "À Propos",
         badge=_("Notre histoire") if BABEL_AVAILABLE else "Notre histoire",
-        subtitle=_("Découvrez PDF Fusion Pro") if BABEL_AVAILABLE else "À propos de nous",
-        current_year=datetime.now().year,
-        config=AppConfig,
-        datetime=datetime,
-        current_lang=session.get('language', 'fr')  # Ajoutez ceci
+        subtitle=_("Découvrez PDF Fusion Pro") if BABEL_AVAILABLE else "À propos de nous"
+        # Les variables globales sont injectées automatiquement
     )
 
 
