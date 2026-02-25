@@ -467,7 +467,7 @@ def ocr_image():
         text = pytesseract.image_to_string(
             img,
             lang=AppConfig.OCR_DEFAULT_LANGUAGE,
-            config=AppConfig.OCR_CONFIG
+            Config=AppConfig.OCR_CONFIG
         )
 
         @after_this_request
