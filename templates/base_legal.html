@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ current_lang }}" data-bs-theme="light">
+<html lang="{{ session.get('language', 'fr') }}" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -294,45 +294,44 @@
                 </li>
             </ul>
 
-            <!-- SÉLECTEUR DE LANGUE SIMPLIFIÉ (copié de base.html) -->
+            <!-- SÉLECTEUR DE LANGUE CORRIGÉ (utilise session directement) -->
             <div class="navbar-nav ms-2">
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-globe me-1"></i>
-                        {% set current_lang = get_locale() %}
                         
                         {# Affichage compact avec icône FontAwesome 6 #}
-                        {% if current_lang == 'fr' %}
+                        {% if session.get('language', 'fr') == 'fr' %}
                             <span class="fi fi-fr me-1"></span>
                             <span class="d-none d-md-inline">Français</span>
-                        {% elif current_lang == 'en' %}
+                        {% elif session.get('language') == 'en' %}
                             <span class="fi fi-gb me-1"></span>
                             <span class="d-none d-md-inline">English</span>
-                        {% elif current_lang == 'es' %}
+                        {% elif session.get('language') == 'es' %}
                             <span class="fi fi-es me-1"></span>
                             <span class="d-none d-md-inline">Español</span>
-                        {% elif current_lang == 'de' %}
+                        {% elif session.get('language') == 'de' %}
                             <span class="fi fi-de me-1"></span>
                             <span class="d-none d-md-inline">Deutsch</span>
-                        {% elif current_lang == 'it' %}
+                        {% elif session.get('language') == 'it' %}
                             <span class="fi fi-it me-1"></span>
                             <span class="d-none d-md-inline">Italiano</span>
-                        {% elif current_lang == 'pt' %}
+                        {% elif session.get('language') == 'pt' %}
                             <span class="fi fi-pt me-1"></span>
                             <span class="d-none d-md-inline">Português</span>
-                        {% elif current_lang == 'nl' %}
+                        {% elif session.get('language') == 'nl' %}
                             <span class="fi fi-nl me-1"></span>
                             <span class="d-none d-md-inline">Nederlands</span>
-                        {% elif current_lang == 'ar' %}
+                        {% elif session.get('language') == 'ar' %}
                             <span class="fi fi-sa me-1"></span>
                             <span class="d-none d-md-inline">العربية</span>
-                        {% elif current_lang == 'zh' %}
+                        {% elif session.get('language') == 'zh' %}
                             <span class="fi fi-cn me-1"></span>
                             <span class="d-none d-md-inline">中文</span>
-                        {% elif current_lang == 'ja' %}
+                        {% elif session.get('language') == 'ja' %}
                             <span class="fi fi-jp me-1"></span>
                             <span class="d-none d-md-inline">日本語</span>
-                        {% elif current_lang == 'ru' %}
+                        {% elif session.get('language') == 'ru' %}
                             <span class="fi fi-ru me-1"></span>
                             <span class="d-none d-md-inline">Русский</span>
                         {% else %}
@@ -343,124 +342,122 @@
                     
                     <ul class="dropdown-menu dropdown-menu-end">
                     
-                        {% set current = get_locale() %}
-                    
                         <li>
-                            <a class="dropdown-item d-flex align-items-center {% if current == 'fr' %}active{% endif %}"
+                            <a class="dropdown-item d-flex align-items-center {% if session.get('language', 'fr') == 'fr' %}active{% endif %}"
                                href="{{ url_for('set_language', language='fr') }}">
                                 <span class="fi fi-fr me-2"></span>
                                 <span>Français</span>
-                                {% if current == 'fr' %}
+                                {% if session.get('language', 'fr') == 'fr' %}
                                     <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
                     
                         <li>
-                            <a class="dropdown-item d-flex align-items-center {% if current == 'en' %}active{% endif %}"
+                            <a class="dropdown-item d-flex align-items-center {% if session.get('language') == 'en' %}active{% endif %}"
                                href="{{ url_for('set_language', language='en') }}">
                                 <span class="fi fi-gb me-2"></span>
                                 <span>English</span>
-                                {% if current == 'en' %}
+                                {% if session.get('language') == 'en' %}
                                     <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
                     
                         <li>
-                            <a class="dropdown-item d-flex align-items-center {% if current == 'es' %}active{% endif %}"
+                            <a class="dropdown-item d-flex align-items-center {% if session.get('language') == 'es' %}active{% endif %}"
                                href="{{ url_for('set_language', language='es') }}">
                                 <span class="fi fi-es me-2"></span>
                                 <span>Español</span>
-                                {% if current == 'es' %}
+                                {% if session.get('language') == 'es' %}
                                     <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
                     
                         <li>
-                            <a class="dropdown-item d-flex align-items-center {% if current == 'de' %}active{% endif %}"
+                            <a class="dropdown-item d-flex align-items-center {% if session.get('language') == 'de' %}active{% endif %}"
                                href="{{ url_for('set_language', language='de') }}">
                                 <span class="fi fi-de me-2"></span>
                                 <span>Deutsch</span>
-                                {% if current == 'de' %}
+                                {% if session.get('language') == 'de' %}
                                     <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
                     
                         <li>
-                            <a class="dropdown-item d-flex align-items-center {% if current == 'it' %}active{% endif %}"
+                            <a class="dropdown-item d-flex align-items-center {% if session.get('language') == 'it' %}active{% endif %}"
                                href="{{ url_for('set_language', language='it') }}">
                                 <span class="fi fi-it me-2"></span>
                                 <span>Italiano</span>
-                                {% if current == 'it' %}
+                                {% if session.get('language') == 'it' %}
                                     <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
                     
                         <li>
-                            <a class="dropdown-item d-flex align-items-center {% if current == 'pt' %}active{% endif %}"
+                            <a class="dropdown-item d-flex align-items-center {% if session.get('language') == 'pt' %}active{% endif %}"
                                href="{{ url_for('set_language', language='pt') }}">
                                 <span class="fi fi-pt me-2"></span>
                                 <span>Português</span>
-                                {% if current == 'pt' %}
+                                {% if session.get('language') == 'pt' %}
                                     <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
                     
                         <li>
-                            <a class="dropdown-item d-flex align-items-center {% if current == 'nl' %}active{% endif %}"
+                            <a class="dropdown-item d-flex align-items-center {% if session.get('language') == 'nl' %}active{% endif %}"
                                href="{{ url_for('set_language', language='nl') }}">
                                 <span class="fi fi-nl me-2"></span>
                                 <span>Nederlands</span>
-                                {% if current == 'nl' %}
+                                {% if session.get('language') == 'nl' %}
                                     <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
                     
                         <li>
-                            <a class="dropdown-item d-flex align-items-center {% if current == 'ar' %}active{% endif %}"
+                            <a class="dropdown-item d-flex align-items-center {% if session.get('language') == 'ar' %}active{% endif %}"
                                href="{{ url_for('set_language', language='ar') }}">
                                 <span class="fi fi-sa me-2"></span>
                                 <span>العربية</span>
-                                {% if current == 'ar' %}
+                                {% if session.get('language') == 'ar' %}
                                     <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
                     
                         <li>
-                            <a class="dropdown-item d-flex align-items-center {% if current == 'zh' %}active{% endif %}"
+                            <a class="dropdown-item d-flex align-items-center {% if session.get('language') == 'zh' %}active{% endif %}"
                                href="{{ url_for('set_language', language='zh') }}">
                                 <span class="fi fi-cn me-2"></span>
                                 <span>中文</span>
-                                {% if current == 'zh' %}
+                                {% if session.get('language') == 'zh' %}
                                     <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
                     
                         <li>
-                            <a class="dropdown-item d-flex align-items-center {% if current == 'ja' %}active{% endif %}"
+                            <a class="dropdown-item d-flex align-items-center {% if session.get('language') == 'ja' %}active{% endif %}"
                                href="{{ url_for('set_language', language='ja') }}">
                                 <span class="fi fi-jp me-2"></span>
                                 <span>日本語</span>
-                                {% if current == 'ja' %}
+                                {% if session.get('language') == 'ja' %}
                                     <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
                         </li>
                     
                         <li>
-                            <a class="dropdown-item d-flex align-items-center {% if current == 'ru' %}active{% endif %}"
+                            <a class="dropdown-item d-flex align-items-center {% if session.get('language') == 'ru' %}active{% endif %}"
                                href="{{ url_for('set_language', language='ru') }}">
                                 <span class="fi fi-ru me-2"></span>
                                 <span>Русский</span>
-                                {% if current == 'ru' %}
+                                {% if session.get('language') == 'ru' %}
                                     <i class="fas fa-check ms-auto text-success"></i>
                                 {% endif %}
                             </a>
@@ -549,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const langButton = document.querySelector('.nav-link.dropdown-toggle');
             if (!langButton) return;
 
-            const flagIcon = this.querySelector('.fi');              // 🔹 classe correcte
+            const flagIcon = this.querySelector('.fi');
             const langNameElem = this.querySelector('span:not(.fi)');
             if (!flagIcon || !langNameElem) return;
 
