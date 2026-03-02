@@ -133,12 +133,8 @@ def load_translations():
                 logger.error(f"❌ Erreur chargement JSON {lang}: {e}")
 
 def get_locale():
-    """Détermine la langue à utiliser"""
-    if 'language' in session:
-        return session['language']
-    # Vérifier l'en-tête Accept-Language
-    best_match = request.accept_languages.best_match(app.config['LANGUAGES'].keys())
-    return best_match or 'fr'
+    """Détermine la langue à utiliser (pour Babel)"""
+    return session.get('language', 'fr')
 
 def get_translation(message):
     """Fonction de traduction personnalisée avec fallback"""
@@ -229,11 +225,17 @@ def create_app():
     @app.context_processor
     def inject_globals():
         """Injecte les variables globales dans tous les templates"""
-        from config import AppConfig  # Import local pour éviter les imports circulaires
+        from config import AppConfig
+        
+        # Fonction helper pour les templates
+        def get_current_locale():
+            return session.get('language', 'fr')
+        
         return dict(
-            Config=AppConfig,  # ← Maintenant c'est la classe AppConfig
+            Config=AppConfig,
+            session=session,
             languages=app.config.get('LANGUAGES', {}),
-            get_locale=get_locale,
+            get_locale=get_current_locale,  # ← Nouvelle fonction simple
             current_lang=session.get('language', 'fr'),
             current_year=datetime.now().year,
             datetime=datetime,
