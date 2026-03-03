@@ -228,23 +228,24 @@ def create_app():
     # --------------------------------------------------------
     @app.context_processor
     def inject_globals():
-        """Injecte les variables globales dans tous les templates"""
         from config import AppConfig
+        
+        print("=== DEBUG CONTEXT ===")  # Ajoutez cette ligne
+        print("Session dans context:", dict(session))  # Et celle-ci
         
         def get_current_lang():
             return session.get('language', 'fr')
         
         return dict(
             Config=AppConfig,
-            session=session,
-            get_current_lang=get_current_lang,  # ← Nouveau nom
-            languages=app.config.get('LANGUAGES', {}),
+            session=session,  # ← Est-ce bien là ?
+            get_current_lang=get_current_lang,
             current_lang=session.get('language', 'fr'),
+            languages=app.config.get('LANGUAGES', {}),
             current_year=datetime.now().year,
             datetime=datetime,
             _=_
         )
-    
     # --------------------------------------------------------
     # Security headers
     # --------------------------------------------------------
