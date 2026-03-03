@@ -134,7 +134,7 @@ def load_translations():
 
 def get_locale():
     """Détermine la langue à utiliser pour Babel"""
-    # 1. Priorité à la session
+    # 1. Priorité ABSOLUE à la session
     if 'language' in session:
         return session['language']
     # 2. Fallback sur la langue du navigateur
