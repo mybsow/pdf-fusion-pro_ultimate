@@ -606,11 +606,11 @@ def create_app():
 # ============================================================
 # Entrypoint
 # ============================================================
-app = create_app()
+application = create_app()  # Renommez en application
 
-# Pour Gunicorn - exporter explicitement
-application = app  # ← AJOUTEZ CETTE LIGNE
+# Pour Gunicorn - utiliser 'application' au lieu de 'app'
+# application = app  # Supprimez cette ligne
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    application.run(host="0.0.0.0", port=port, debug=True)
