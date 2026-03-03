@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PDF Fusion Pro 1.0\n"
 "Report-Msgid-Bugs-To: support@pdffusionpro.com\n"
-"POT-Creation-Date: 2026-03-02 13:41+0000\n"
+"POT-Creation-Date: 2026-03-03 13:16+0000\n"
 "PO-Revision-Date: 2026-02-17 15:45+0000\n"
 "Last-Translator: <banousow@gmail.com>\n"
 "Language: es\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
-#: app.py:492 app.py:493 templates/base.html:8
+#: app.py:507 app.py:508 templates/base.html:8
 msgid "PDF Fusion Pro - Outils PDF Gratuits"
 msgstr "PDF Fusion Pro - Herramientas PDF Gratuitas"
 
@@ -228,15 +228,18 @@ msgid "Fichier corrompu ou non-PDF"
 msgstr ""
 
 #: blueprints/pdf/routes.py:117
-msgid "%%(filename)s n'est pas un PDF"
+#, python-format
+msgid "%(filename)s n'est pas un PDF"
 msgstr ""
 
 #: blueprints/pdf/routes.py:127 blueprints/pdf/routes.py:516
-msgid "%%(filename)s est vide"
+#, python-format
+msgid "%(filename)s est vide"
 msgstr ""
 
 #: blueprints/pdf/routes.py:130 blueprints/pdf/routes.py:519
-msgid "%%(filename)s est corrompu ou non-PDF"
+#, python-format
+msgid "%(filename)s est corrompu ou non-PDF"
 msgstr ""
 
 #: blueprints/pdf/routes.py:151 blueprints/pdf/routes.py:227
@@ -250,11 +253,13 @@ msgid "Au moins 2 PDF requis"
 msgstr ""
 
 #: blueprints/pdf/routes.py:160
-msgid "Maximum %%(max)d fichiers"
+#, python-format
+msgid "Maximum %(max)d fichiers"
 msgstr ""
 
 #: blueprints/pdf/routes.py:176
-msgid "Fichier %%(name)s contient trop de pages"
+#, python-format
+msgid "Fichier %(name)s contient trop de pages"
 msgstr ""
 
 #: blueprints/pdf/routes.py:211 blueprints/pdf/routes.py:294
@@ -603,11 +608,13 @@ msgid "Comment ça marche ?"
 msgstr ""
 
 #: templates/conversion/conversion_base.html:360
-msgid "Téléchargez votre fichier %%(from_format)s."
-msgstr ""
+#, fuzzy, python-format
+msgid "Téléchargez votre fichier %(from_format)s."
+msgstr "Girar un archivo PDF"
 
 #: templates/conversion/conversion_base.html:363
-msgid "Notre système le convertit automatiquement en %%(to_format)s."
+#, python-format
+msgid "Notre système le convertit automatiquement en %(to_format)s."
 msgstr ""
 
 #: templates/conversion/conversion_base.html:366
@@ -2422,15 +2429,15 @@ msgid "Qualité (pour JPG)"
 msgstr ""
 
 #: templates/conversion/pdf_to_image.html:64
-msgid "Haute (90-100%%)"
+msgid "Haute (90-100%)"
 msgstr ""
 
 #: templates/conversion/pdf_to_image.html:65
-msgid "Moyenne (70-80%%)"
+msgid "Moyenne (70-80%)"
 msgstr ""
 
 #: templates/conversion/pdf_to_image.html:66
-msgid "Basse (50-60%%)"
+msgid "Basse (50-60%)"
 msgstr ""
 
 #: templates/conversion/pdf_to_image.html:68
@@ -4394,6 +4401,7 @@ msgid "Développeur"
 msgstr ""
 
 #: templates/legal/about.html:84 templates/legal/legal.html:11
+#, python-format
 msgid ""
 "%(app_name)s est développé et maintenu par %(developer_name)s, un "
 "développeur passionné par la création d'outils web utiles et accessibles."
@@ -4552,6 +4560,7 @@ msgid "Hébergement"
 msgstr ""
 
 #: templates/legal/legal.html:30
+#, python-format
 msgid ""
 "Ce service est hébergé sur la plateforme %(hosting)s (<a "
 "href=\"https://%(domain)s\" target=\"_blank\">%(domain)s</a>)."
@@ -4692,6 +4701,7 @@ msgid "Publicité — Google AdSense"
 msgstr ""
 
 #: templates/legal/privacy.html:31
+#, python-format
 msgid ""
 "Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour"
 " afficher des publicités pertinentes."
@@ -4765,6 +4775,7 @@ msgid "Acceptation des conditions"
 msgstr ""
 
 #: templates/legal/terms.html:6
+#, python-format
 msgid ""
 "En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
 "réserve les présentes conditions d'utilisation."
@@ -4842,7 +4853,8 @@ msgid ""
 msgstr ""
 
 #: templates/legal/terms.html:39
-msgid "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
+#, python-format
+msgid "En aucun cas, %(developer_name)s ne pourra être tenu responsable :"
 msgstr ""
 
 #: templates/legal/terms.html:41
@@ -4876,6 +4888,7 @@ msgid ""
 msgstr ""
 
 #: templates/legal/terms.html:52
+#, python-format
 msgid ""
 "Le service, son code source, son design et son contenu sont la propriété "
 "exclusive de %(developer_name)s."
@@ -4941,6 +4954,7 @@ msgid "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
 msgstr "Inicio - PDF Fusion Pro – Herramientas PDF Gratuitas"
 
 #: templates/pdf/index.html:5
+#, python-format
 msgid ""
 "Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, "
 "compresser et convertir des fichiers PDF. 100% gratuit, sécurisé et sans "
@@ -4954,13 +4968,11 @@ msgid "Transformez vos PDFs en toute simplicité"
 msgstr "Transforme sus PDFs con facilidad"
 
 #: templates/pdf/index.html:12
+#, python-format
 msgid ""
 "Outil PDF tout-en-un : fusion, division, rotation, compression et "
 "conversion. Rapide, sécurisé et 100%% gratuit."
 msgstr ""
-msgstr ""
-"Herramienta PDF todo-en-uno: fusión, división, rotación, compresión y "
-"conversión. Rápido, seguro y 100% gratuito."
 
 #: templates/pdf/index.html:13
 msgid ""
@@ -5061,6 +5073,7 @@ msgid "Disponible"
 msgstr "Disponible"
 
 #: templates/pdf/index.html:145
+#, python-format
 msgid "Votre solution PDF tout-en-un, 100%% gratuite et sécurisée"
 msgstr "Su solución PDF todo-en-uno, 100%% gratis y segura"
 
@@ -5178,4 +5191,37 @@ msgstr "Dividir PDF"
 
 #~ msgid "Déconnexion"
 #~ msgstr "Cerrar sesión"
+
+#~ msgid "%%(filename)s n'est pas un PDF"
+#~ msgstr ""
+
+#~ msgid "%%(filename)s est vide"
+#~ msgstr ""
+
+#~ msgid "%%(filename)s est corrompu ou non-PDF"
+#~ msgstr ""
+
+#~ msgid "Maximum %%(max)d fichiers"
+#~ msgstr ""
+
+#~ msgid "Fichier %%(name)s contient trop de pages"
+#~ msgstr ""
+
+#~ msgid "Téléchargez votre fichier %%(from_format)s."
+#~ msgstr ""
+
+#~ msgid "Notre système le convertit automatiquement en %%(to_format)s."
+#~ msgstr ""
+
+#~ msgid "Haute (90-100%%)"
+#~ msgstr ""
+
+#~ msgid "Moyenne (70-80%%)"
+#~ msgstr ""
+
+#~ msgid "Basse (50-60%%)"
+#~ msgstr ""
+
+#~ msgid "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
+#~ msgstr ""
 
