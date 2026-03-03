@@ -475,6 +475,15 @@ def create_app():
             'has_languages': 'LANGUAGES' in app.config
         })
 
+    @app.route('/debug-session')
+    def debug_session():
+        return jsonify({
+            'session': dict(session),
+            'cookies': request.cookies.get('session'),
+            'language_from_session': session.get('language', 'fr'),
+            'headers': dict(request.headers)
+        })
+
     @app.route('/debug-translations')
     def debug_translations():
         """Vérifie l'état des traductions"""
