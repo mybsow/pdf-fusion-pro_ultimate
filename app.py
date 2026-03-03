@@ -227,21 +227,20 @@ def create_app():
         """Injecte les variables globales dans tous les templates"""
         from config import AppConfig
         
-        # Fonction helper pour les templates
-        def get_current_locale():
+        def get_current_lang():
             return session.get('language', 'fr')
         
         return dict(
             Config=AppConfig,
             session=session,
+            get_current_lang=get_current_lang,  # ← Nouveau nom
             languages=app.config.get('LANGUAGES', {}),
-            get_locale=get_current_locale,  # ← Nouvelle fonction simple
             current_lang=session.get('language', 'fr'),
             current_year=datetime.now().year,
             datetime=datetime,
             _=_
         )
-
+    
     # --------------------------------------------------------
     # Security headers
     # --------------------------------------------------------
