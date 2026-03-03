@@ -137,4 +137,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 # -------------------------------------------------
 # Gunicorn (optimisé mémoire Render)
 # -------------------------------------------------
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000", "--workers", "2", "--threads", "2", "--timeout", "300", "--worker-class", "gthread", "--access-logfile", "-", "--error-logfile", "-"]
+CMD ["gunicorn", "app:application", "--bind", "0.0.0.0:10000", "--workers", "2", "--threads", "2", "--timeout", "300", "--worker-class", "gthread", "--access-logfile", "-", "--error-logfile", "-"]
