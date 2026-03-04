@@ -230,17 +230,17 @@ msgstr "Archivo corrupto o no PDF"
 #: blueprints/pdf/routes.py:117
 #, python-format
 msgid "%(filename)s n'est pas un PDF"
-msgstr ""
+msgstr "%(filename)s no es un PDF"
 
 #: blueprints/pdf/routes.py:127 blueprints/pdf/routes.py:516
 #, python-format
 msgid "%(filename)s est vide"
-msgstr ""
+msgstr "%(filename)s está vacío"
 
 #: blueprints/pdf/routes.py:130 blueprints/pdf/routes.py:519
 #, python-format
 msgid "%(filename)s est corrompu ou non-PDF"
-msgstr ""
+msgstr "%(filename)s está corrupto o no es un PDF"
 
 #: blueprints/pdf/routes.py:151 blueprints/pdf/routes.py:227
 #: blueprints/pdf/routes.py:310 blueprints/pdf/routes.py:378
@@ -255,12 +255,12 @@ msgstr "Se requieren al menos 2 PDF"
 #: blueprints/pdf/routes.py:160
 #, python-format
 msgid "Maximum %(max)d fichiers"
-msgstr ""
+msgstr "Máximo %(max)d archivos"
 
 #: blueprints/pdf/routes.py:176
 #, python-format
 msgid "Fichier %(name)s contient trop de pages"
-msgstr ""
+msgstr "El archivo %(name)s contiene demasiadas páginas"
 
 #: blueprints/pdf/routes.py:211 blueprints/pdf/routes.py:294
 #: blueprints/pdf/routes.py:362 blueprints/pdf/routes.py:429
@@ -617,7 +617,7 @@ msgstr "Girar un archivo PDF"
 #: templates/conversion/conversion_base.html:363
 #, python-format
 msgid "Notre système le convertit automatiquement en %(to_format)s."
-msgstr ""
+msgstr "Nuestro sistema lo convierte automáticamente a %(to_format)s."
 
 #: templates/conversion/conversion_base.html:366
 msgid "Téléchargez ensuite votre fichier converti."
@@ -1238,6 +1238,16 @@ msgid ""
 "&lt;/body&gt;\n"
 "&lt;/html&gt;"
 msgstr ""
+"&lt;!DOCTYPE html&gt;\n"
+"&lt;html&gt;\n"
+"&lt;head&gt;\n"
+"    &lt;title&gt;Mi página&lt;/title&gt;\n"
+"&lt;/head&gt;\n"
+"&lt;body&gt;\n"
+"    &lt;h1&gt;Título&lt;/h1&gt;\n"
+"    &lt;p&gt;Contenido...&lt;/p&gt;\n"
+"&lt;/body&gt;\n"
+"&lt;/html&gt;"
 
 #: templates/conversion/html_to_pdf.html:50
 #: templates/conversion/txt_to_pdf.html:50
@@ -1530,6 +1540,8 @@ msgid ""
 "Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par "
 "fichier)"
 msgstr ""
+"Formatos aceptados: JPG, PNG, BMP, GIF, TIFF, WEBP (hasta 50MB por "
+"archivo)"
 
 #: templates/conversion/image_to_pdf.html:49
 #: templates/conversion/jpg_to_pdf.html:57
@@ -1604,7 +1616,7 @@ msgstr "Convierte imágenes y PDF a documentos Word editables con OCR"
 
 #: templates/conversion/image_to_word.html:21
 msgid "Glissez-déposez vos fichiers ici"
-msgstr ""
+msgstr "Arrastre y suelte sus archivos aquí"
 
 #: templates/conversion/image_to_word.html:37
 msgid "Paramètres OCR avancés"
@@ -4462,6 +4474,8 @@ msgid ""
 "%(app_name)s est développé et maintenu par %(developer_name)s, un "
 "développeur passionné par la création d'outils web utiles et accessibles."
 msgstr ""
+"%(app_name)s es desarrollado y mantenido por %(developer_name)s, un "
+"desarrollador apasionado por la creación de herramientas web útiles y accesibles."
 
 #: templates/legal/about.html:89
 msgid "Technologies utilisées :"
@@ -4788,6 +4802,8 @@ msgid ""
 "Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour"
 " afficher des publicités pertinentes."
 msgstr ""
+"Este sitio utiliza <strong>Google AdSense</strong> (ID: %(adsense_id)s) para"
+" mostrar anuncios relevantes."
 
 #: templates/legal/privacy.html:32
 msgid ""
@@ -4869,6 +4885,8 @@ msgid ""
 "En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
 "réserve les présentes conditions d'utilisation."
 msgstr ""
+"Al utilizar el servicio %(app_name)s, usted acepta plena y totalmente "
+"los presentes términos de uso."
 
 #: templates/legal/terms.html:12
 msgid "Avertissement important :"
@@ -4955,7 +4973,7 @@ msgstr ""
 #: templates/legal/terms.html:39
 #, python-format
 msgid "En aucun cas, %(developer_name)s ne pourra être tenu responsable :"
-msgstr ""
+msgstr "En ningún caso, %(developer_name)s podrá ser considerado responsable:"
 
 #: templates/legal/terms.html:41
 msgid ""
@@ -4999,6 +5017,8 @@ msgid ""
 "Le service, son code source, son design et son contenu sont la propriété "
 "exclusive de %(developer_name)s."
 msgstr ""
+"El servicio, su código fuente, su diseño y su contenido son propiedad "
+"exclusiva de %(developer_name)s."
 
 #: templates/legal/terms.html:53
 msgid ""
@@ -5081,6 +5101,8 @@ msgid ""
 "Outil PDF tout-en-un : fusion, division, rotation, compression et "
 "conversion. Rapide, sécurisé et 100%% gratuit."
 msgstr ""
+"Herramienta PDF todo-en-uno: fusionar, dividir, rotar, comprimir y "
+"convertir. Rápido, seguro y 100%% gratuito."
 
 #: templates/pdf/index.html:13
 msgid ""
@@ -5303,35 +5325,34 @@ msgstr "Dividir PDF"
 #~ msgstr "Cerrar sesión"
 
 #~ msgid "%%(filename)s n'est pas un PDF"
-#~ msgstr ""
+#~ msgstr "%%(filename)s no es un PDF"
 
 #~ msgid "%%(filename)s est vide"
-#~ msgstr ""
+#~ msgstr "%%(filename)s está vacío"
 
 #~ msgid "%%(filename)s est corrompu ou non-PDF"
-#~ msgstr ""
+#~ msgstr "%%(filename)s está corrupto o no es un PDF"
 
 #~ msgid "Maximum %%(max)d fichiers"
-#~ msgstr ""
+#~ msgstr "Máximo %%(max)d archivos"
 
 #~ msgid "Fichier %%(name)s contient trop de pages"
-#~ msgstr ""
+#~ msgstr "El archivo %%(name)s contiene demasiadas páginas"
 
 #~ msgid "Téléchargez votre fichier %%(from_format)s."
-#~ msgstr ""
+#~ msgstr "Cargue su archivo %%(from_format)s."
 
 #~ msgid "Notre système le convertit automatiquement en %%(to_format)s."
-#~ msgstr ""
+#~ msgstr "Nuestro sistema lo convierte automáticamente a %%(to_format)s."
 
 #~ msgid "Haute (90-100%%)"
-#~ msgstr ""
+#~ msgstr "Alta (90-100%%)"
 
 #~ msgid "Moyenne (70-80%%)"
-#~ msgstr ""
+#~ msgstr "Media (70-80%%)"
 
 #~ msgid "Basse (50-60%%)"
-#~ msgstr ""
+#~ msgstr "Baja (50-60%%)"
 
 #~ msgid "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
-#~ msgstr ""
-
+#~ msgstr "En ningún caso, %%(developer_name)s podrá ser considerado responsable:"

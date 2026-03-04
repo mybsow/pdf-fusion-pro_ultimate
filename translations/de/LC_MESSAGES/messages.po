@@ -1238,6 +1238,16 @@ msgid ""
 "&lt;/body&gt;\n"
 "&lt;/html&gt;"
 msgstr ""
+"&lt;!DOCTYPE html&gt;\n"
+"&lt;html&gt;\n"
+"&lt;head&gt;\n"
+"    &lt;title&gt;Meine Seite&lt;/title&gt;\n"
+"&lt;/head&gt;\n"
+"&lt;body&gt;\n"
+"    &lt;h1&gt;Titel&lt;/h1&gt;\n"
+"    &lt;p&gt;Inhalt...&lt;/p&gt;\n"
+"&lt;/body&gt;\n"
+"&lt;/html&gt;"
 
 #: templates/conversion/html_to_pdf.html:50
 #: templates/conversion/txt_to_pdf.html:50
@@ -1530,6 +1540,8 @@ msgid ""
 "Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par "
 "fichier)"
 msgstr ""
+"Unterstützte Formate: JPG, PNG, BMP, GIF, TIFF, WEBP (bis zu 50MB pro "
+"Datei)"
 
 #: templates/conversion/image_to_pdf.html:49
 #: templates/conversion/jpg_to_pdf.html:57
@@ -1604,7 +1616,7 @@ msgstr "Konvertieren Sie Bilder und PDFs mit OCR in bearbeitbare Word-Dokumente"
 
 #: templates/conversion/image_to_word.html:21
 msgid "Glissez-déposez vos fichiers ici"
-msgstr ""
+msgstr "Ziehen Sie Ihre Dateien hierher"
 
 #: templates/conversion/image_to_word.html:37
 msgid "Paramètres OCR avancés"
@@ -3024,6 +3036,10 @@ msgid ""
 "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
 "commodo consequat."
 msgstr ""
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod "
+"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim "
+"veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
+"commodo consequat."
 
 #: templates/conversion/pdf_to_word.html:325
 msgid "Extraction de la page"
@@ -4638,8 +4654,8 @@ msgid ""
 "Ce service est hébergé sur la plateforme %(hosting)s (<a "
 "href=\"https://%(domain)s\" target=\"_blank\">%(domain)s</a>)."
 msgstr ""
-"Ce service est hébergé sur la plateforme %(hosting)s (<a "
-"href=\"https://%(domain)s\" target=\"_blank\">%(domain)s</a>)."
+"Dieser Dienst wird auf der Plattform %(hosting)s (<a "
+"href=\"https://%(domain)s\" target=\"_blank\">%(domain)s</a>) gehostet."
 
 #: templates/legal/legal.html:34
 msgid ""
@@ -4802,8 +4818,8 @@ msgid ""
 "Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour"
 " afficher des publicités pertinentes."
 msgstr ""
-"Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour"
-" afficher des publicités pertinentes."
+"Diese Website verwendet <strong>Google AdSense</strong> (ID: %(adsense_id)s) "
+"um relevante Werbung anzuzeigen."
 
 #: templates/legal/privacy.html:32
 msgid ""
@@ -4883,8 +4899,8 @@ msgid ""
 "En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
 "réserve les présentes conditions d'utilisation."
 msgstr ""
-"En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
-"réserve les présentes conditions d'utilisation."
+"Durch die Nutzung des Dienstes %(app_name)s stimmen Sie vorbehaltlos und "
+"uneingeschränkt diesen Nutzungsbedingungen zu."
 
 #: templates/legal/terms.html:12
 msgid "Avertissement important :"
@@ -5015,8 +5031,8 @@ msgid ""
 "Le service, son code source, son design et son contenu sont la propriété "
 "exclusive de %(developer_name)s."
 msgstr ""
-"Le service, son code source, son design et son contenu sont la propriété "
-"exclusive de %(developer_name)s."
+"Der Dienst, sein Quellcode, sein Design und sein Inhalt sind "
+"ausschließliches Eigentum von %(developer_name)s."
 
 #: templates/legal/terms.html:53
 msgid ""
@@ -5331,12 +5347,36 @@ msgstr "PDF teilen"
 #~ msgid "Déconnexion"
 #~ msgstr "Abmelden"
 
+#~ msgid "%%(filename)s n'est pas un PDF"
+#~ msgstr "%%(filename)s ist keine PDF-Datei"
+
+#~ msgid "%%(filename)s est vide"
+#~ msgstr "%%(filename)s ist leer"
+
+#~ msgid "%%(filename)s est corrompu ou non-PDF"
+#~ msgstr "%%(filename)s ist beschädigt oder keine PDF-Datei"
+
+#~ msgid "Maximum %%(max)d fichiers"
+#~ msgstr "Maximal %%(max)d Dateien"
+
+#~ msgid "Fichier %%(name)s contient trop de pages"
+#~ msgstr "Datei %%(name)s enthält zu viele Seiten"
+
+#~ msgid "Téléchargez votre fichier %%(from_format)s."
+#~ msgstr "Laden Sie Ihre %%(from_format)s-Datei hoch."
+
+#~ msgid "Notre système le convertit automatiquement en %%(to_format)s."
+#~ msgstr "Unser System konvertiert sie automatisch in %%(to_format)s."
+
 #~ msgid "Haute (90-100%%)"
-#~ msgstr ""
+#~ msgstr "Hoch (90-100%%)"
 
 #~ msgid "Moyenne (70-80%%)"
-#~ msgstr ""
+#~ msgstr "Mittel (70-80%%)"
 
 #~ msgid "Basse (50-60%%)"
-#~ msgstr ""
+#~ msgstr "Niedrig (50-60%%)"
+
+#~ msgid "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
+#~ msgstr "In keinem Fall haftet %%(developer_name)s für:"
 

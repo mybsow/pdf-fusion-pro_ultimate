@@ -1235,6 +1235,16 @@ msgid ""
 "&lt;/body&gt;\n"
 "&lt;/html&gt;"
 msgstr ""
+"&lt;!DOCTYPE html&gt;\n"
+"&lt;html&gt;\n"
+"&lt;head&gt;\n"
+"    &lt;title&gt;صفحتي&lt;/title&gt;\n"
+"&lt;/head&gt;\n"
+"&lt;body&gt;\n"
+"    &lt;h1&gt;عنوان&lt;/h1&gt;\n"
+"    &lt;p&gt;محتوى...&lt;/p&gt;\n"
+"&lt;/body&gt;\n"
+"&lt;/html&gt;"
 
 #: templates/conversion/html_to_pdf.html:50
 #: templates/conversion/txt_to_pdf.html:50
@@ -1527,6 +1537,7 @@ msgid ""
 "Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par "
 "fichier)"
 msgstr ""
+"الصيغ المقبولة: JPG، PNG، BMP، GIF، TIFF، WEBP (حتى 50 ميجابايت لكل ملف)"
 
 #: templates/conversion/image_to_pdf.html:49
 #: templates/conversion/jpg_to_pdf.html:57
@@ -1601,7 +1612,7 @@ msgstr "حوّل الصور وملفات PDF إلى مستندات Word قابل
 
 #: templates/conversion/image_to_word.html:21
 msgid "Glissez-déposez vos fichiers ici"
-msgstr ""
+msgstr "اسحب وأفلت ملفاتك هنا"
 
 #: templates/conversion/image_to_word.html:37
 msgid "Paramètres OCR avancés"
@@ -3012,6 +3023,12 @@ msgid ""
 "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
 "commodo consequat."
 msgstr ""
+"السلام عليكم ورحمة الله وبركاته، وبعد: هذا النص هو مثال لنص يمكن أن يستبدل "
+"في نفس المساحة، لقد تم توليد هذا النص من مولد النص العربي، حيث يمكنك أن "
+"تولد مثل هذا النص أو العديد من النصوص الأخرى إضافة إلى زيادة عدد الحروف "
+"التي ترغب في توليدها. إذا كنت تحتاج إلى عدد أكبر من الفقرات يتيح لك مولد "
+"النص العربي زيادة عدد الفقرات كما تريد، النص لن يبدو مقسما ولا يحوي أخطاء "
+"لغوية."
 
 #: templates/conversion/pdf_to_word.html:325
 msgid "Extraction de la page"
@@ -4432,8 +4449,8 @@ msgid ""
 "%(app_name)s est développé et maintenu par %(developer_name)s, un "
 "développeur passionné par la création d'outils web utiles et accessibles."
 msgstr ""
-"%(app_name)s est développé et maintenu par %(developer_name)s, un "
-"développeur passionné par la création d'outils web utiles et accessibles."
+"%(app_name)s تم تطويره وصيانته بواسطة %(developer_name)s، مطور شغوف بإنشاء "
+"أدوات ويب مفيدة وسهلة الوصول."
 
 #: templates/legal/about.html:89
 msgid "Technologies utilisées :"
@@ -4597,7 +4614,7 @@ msgid ""
 "Ce service est hébergé sur la plateforme %(hosting)s (<a "
 "href=\"https://%(domain)s\" target=\"_blank\">%(domain)s</a>)."
 msgstr ""
-"Ce service est hébergé sur la plateforme %(hosting)s (<a "
+"هذه الخدمة مستضافة على منصة %(hosting)s (<a "
 "href=\"https://%(domain)s\" target=\"_blank\">%(domain)s</a>)."
 
 #: templates/legal/legal.html:34
@@ -4830,8 +4847,8 @@ msgid ""
 "En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
 "réserve les présentes conditions d'utilisation."
 msgstr ""
-"En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
-"réserve les présentes conditions d'utilisation."
+"باستخدامك لخدمة %(app_name)s، فإنك توافق بشكل كامل وبدون أي تحفظ على شروط "
+"الاستخدام الحالية."
 
 #: templates/legal/terms.html:12
 msgid "Avertissement important :"
@@ -4951,8 +4968,7 @@ msgid ""
 "Le service, son code source, son design et son contenu sont la propriété "
 "exclusive de %(developer_name)s."
 msgstr ""
-"Le service, son code source, son design et son contenu sont la propriété "
-"exclusive de %(developer_name)s."
+"الخدمة، وكودها المصدر، وتصميمها، ومحتواها هي ملكية حصرية لـ %(developer_name)s."
 
 #: templates/legal/terms.html:53
 msgid ""
@@ -5250,12 +5266,35 @@ msgstr "تقسيم بي دي إف"
 #~ msgid "Déconnexion"
 #~ msgstr "تسجيل الخروج"
 
+#~ msgid "%%(filename)s n'est pas un PDF"
+#~ msgstr "%%(filename)s ليس ملف PDF"
+
+#~ msgid "%%(filename)s est vide"
+#~ msgstr "%%(filename)s فارغ"
+
+#~ msgid "%%(filename)s est corrompu ou non-PDF"
+#~ msgstr "%%(filename)s تالف أو ليس ملف PDF"
+
+#~ msgid "Maximum %%(max)d fichiers"
+#~ msgstr "الحد الأقصى %%(max)d ملفات"
+
+#~ msgid "Fichier %%(name)s contient trop de pages"
+#~ msgstr "الملف %%(name)s يحتوي على صفحات كثيرة جداً"
+
+#~ msgid "Téléchargez votre fichier %%(from_format)s."
+#~ msgstr "حمّل ملفك %%(from_format)s."
+
+#~ msgid "Notre système le convertit automatiquement en %%(to_format)s."
+#~ msgstr "نظامنا يحوّله تلقائياً إلى %%(to_format)s."
+
 #~ msgid "Haute (90-100%%)"
-#~ msgstr ""
+#~ msgstr "عالية (٪٪100-90)"
 
 #~ msgid "Moyenne (70-80%%)"
-#~ msgstr ""
+#~ msgstr "متوسطة (٪٪80-70)"
 
 #~ msgid "Basse (50-60%%)"
-#~ msgstr ""
+#~ msgstr "منخفضة (٪٪60-50)"
 
+#~ msgid "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
+#~ msgstr "لا يمكن تحت أي ظرف تحميل %%(developer_name)s المسؤولية عن:"

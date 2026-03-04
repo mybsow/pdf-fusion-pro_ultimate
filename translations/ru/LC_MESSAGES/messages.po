@@ -1239,6 +1239,16 @@ msgid ""
 "&lt;/body&gt;\n"
 "&lt;/html&gt;"
 msgstr ""
+"&lt;!DOCTYPE html&gt;\n"
+"&lt;html&gt;\n"
+"&lt;head&gt;\n"
+"    &lt;title&gt;Minha página&lt;/title&gt;\n"
+"&lt;/head&gt;\n"
+"&lt;body&gt;\n"
+"    &lt;h1&gt;Título&lt;/h1&gt;\n"
+"    &lt;p&gt;Conteúdo...&lt;/p&gt;\n"
+"&lt;/body&gt;\n"
+"&lt;/html&gt;"
 
 #: templates/conversion/html_to_pdf.html:50
 #: templates/conversion/txt_to_pdf.html:50
@@ -1531,6 +1541,7 @@ msgid ""
 "Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par "
 "fichier)"
 msgstr ""
+"Поддерживаемые форматы: JPG, PNG, BMP, GIF, TIFF, WEBP (до 50 МБ на файл)"
 
 #: templates/conversion/image_to_pdf.html:49
 #: templates/conversion/jpg_to_pdf.html:57
@@ -1607,7 +1618,7 @@ msgstr ""
 
 #: templates/conversion/image_to_word.html:21
 msgid "Glissez-déposez vos fichiers ici"
-msgstr ""
+msgstr "Перетащите файлы сюда"
 
 #: templates/conversion/image_to_word.html:37
 msgid "Paramètres OCR avancés"
@@ -3026,6 +3037,10 @@ msgid ""
 "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
 "commodo consequat."
 msgstr ""
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod "
+"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim "
+"veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
+"commodo consequat."
 
 #: templates/conversion/pdf_to_word.html:325
 msgid "Extraction de la page"
@@ -4464,8 +4479,8 @@ msgid ""
 "%(app_name)s est développé et maintenu par %(developer_name)s, un "
 "développeur passionné par la création d'outils web utiles et accessibles."
 msgstr ""
-"%(app_name)s est développé et maintenu par %(developer_name)s, un "
-"développeur passionné par la création d'outils web utiles et accessibles."
+"%(app_name)s разработан и поддерживается %(developer_name)s, "
+"разработчиком, увлеченным созданием полезных и доступных веб-инструментов."
 
 #: templates/legal/about.html:89
 msgid "Technologies utilisées :"
@@ -4631,7 +4646,7 @@ msgid ""
 "Ce service est hébergé sur la plateforme %(hosting)s (<a "
 "href=\"https://%(domain)s\" target=\"_blank\">%(domain)s</a>)."
 msgstr ""
-"Ce service est hébergé sur la plateforme %(hosting)s (<a "
+"Этот сервис размещен на платформе %(hosting)s (<a "
 "href=\"https://%(domain)s\" target=\"_blank\">%(domain)s</a>)."
 
 #: templates/legal/legal.html:34
@@ -4794,8 +4809,8 @@ msgid ""
 "Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour"
 " afficher des publicités pertinentes."
 msgstr ""
-"Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour"
-" afficher des publicités pertinentes."
+"Этот сайт использует <strong>Google AdSense</strong> (ID: %(adsense_id)s) для "
+"показа релевантной рекламы."
 
 #: templates/legal/privacy.html:32
 msgid ""
@@ -4877,8 +4892,8 @@ msgid ""
 "En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
 "réserve les présentes conditions d'utilisation."
 msgstr ""
-"En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
-"réserve les présentes conditions d'utilisation."
+"Используя сервис %(app_name)s, вы полностью и безоговорочно принимаете "
+"настоящие условия использования."
 
 #: templates/legal/terms.html:12
 msgid "Avertissement important :"
@@ -5007,8 +5022,8 @@ msgid ""
 "Le service, son code source, son design et son contenu sont la propriété "
 "exclusive de %(developer_name)s."
 msgstr ""
-"Le service, son code source, son design et son contenu sont la propriété "
-"exclusive de %(developer_name)s."
+"Сервис, его исходный код, дизайн и содержание являются исключительной "
+"собственностью %(developer_name)s."
 
 #: templates/legal/terms.html:53
 msgid ""
@@ -5315,12 +5330,35 @@ msgstr "Разделить PDF"
 #~ msgid "Déconnexion"
 #~ msgstr "Выйти"
 
+#~ msgid "%%(filename)s n'est pas un PDF"
+#~ msgstr "%%(filename)s не является PDF-файлом"
+
+#~ msgid "%%(filename)s est vide"
+#~ msgstr "%%(filename)s пуст"
+
+#~ msgid "%%(filename)s est corrompu ou non-PDF"
+#~ msgstr "%%(filename)s поврежден или не является PDF-файлом"
+
+#~ msgid "Maximum %%(max)d fichiers"
+#~ msgstr "Максимум %%(max)d файлов"
+
+#~ msgid "Fichier %%(name)s contient trop de pages"
+#~ msgstr "Файл %%(name)s содержит слишком много страниц"
+
+#~ msgid "Téléchargez votre fichier %%(from_format)s."
+#~ msgstr "Загрузите ваш файл %%(from_format)s."
+
+#~ msgid "Notre système le convertit automatiquement en %%(to_format)s."
+#~ msgstr "Наша система автоматически конвертирует его в %%(to_format)s."
+
 #~ msgid "Haute (90-100%%)"
-#~ msgstr ""
+#~ msgstr "Высокое (90-100%%)"
 
 #~ msgid "Moyenne (70-80%%)"
-#~ msgstr ""
+#~ msgstr "Среднее (70-80%%)"
 
 #~ msgid "Basse (50-60%%)"
-#~ msgstr ""
+#~ msgstr "Низкое (50-60%%)"
 
+#~ msgid "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
+#~ msgstr "Ни при каких обстоятельствах %%(developer_name)s не несет ответственности за:"

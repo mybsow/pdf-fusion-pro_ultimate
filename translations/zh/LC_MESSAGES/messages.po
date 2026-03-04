@@ -1232,6 +1232,16 @@ msgid ""
 "&lt;/body&gt;\n"
 "&lt;/html&gt;"
 msgstr ""
+"&lt;!DOCTYPE html&gt;\n"
+"&lt;html&gt;\n"
+"&lt;head&gt;\n"
+"    &lt;title&gt;我的页面&lt;/title&gt;\n"
+"&lt;/head&gt;\n"
+"&lt;body&gt;\n"
+"    &lt;h1&gt;标题&lt;/h1&gt;\n"
+"    &lt;p&gt;内容...&lt;/p&gt;\n"
+"&lt;/body&gt;\n"
+"&lt;/html&gt;"
 
 #: templates/conversion/html_to_pdf.html:50
 #: templates/conversion/txt_to_pdf.html:50
@@ -1524,6 +1534,7 @@ msgid ""
 "Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par "
 "fichier)"
 msgstr ""
+"支持的格式：JPG、PNG、BMP、GIF、TIFF、WEBP（每个文件最大50MB）"
 
 #: templates/conversion/image_to_pdf.html:49
 #: templates/conversion/jpg_to_pdf.html:57
@@ -1598,7 +1609,7 @@ msgstr "使用 OCR 将图像和 PDF 转换为可编辑的 Word 文档"
 
 #: templates/conversion/image_to_word.html:21
 msgid "Glissez-déposez vos fichiers ici"
-msgstr ""
+msgstr "将您的文件拖放到此处"
 
 #: templates/conversion/image_to_word.html:37
 msgid "Paramètres OCR avancés"
@@ -2992,6 +3003,10 @@ msgid ""
 "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
 "commodo consequat."
 msgstr ""
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod "
+"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim "
+"veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
+"commodo consequat."
 
 #: templates/conversion/pdf_to_word.html:325
 msgid "Extraction de la page"
@@ -4402,8 +4417,7 @@ msgid ""
 "%(app_name)s est développé et maintenu par %(developer_name)s, un "
 "développeur passionné par la création d'outils web utiles et accessibles."
 msgstr ""
-"%(app_name)s est développé et maintenu par %(developer_name)s, un "
-"développeur passionné par la création d'outils web utiles et accessibles."
+"%(app_name)s 由 %(developer_name)s 开发和维护，他是一位热衷于创建实用且易于访问的网页工具的开发者。"
 
 #: templates/legal/about.html:89
 msgid "Technologies utilisées :"
@@ -4563,8 +4577,8 @@ msgid ""
 "Ce service est hébergé sur la plateforme %(hosting)s (<a "
 "href=\"https://%(domain)s\" target=\"_blank\">%(domain)s</a>)."
 msgstr ""
-"Ce service est hébergé sur la plateforme %(hosting)s (<a "
-"href=\"https://%(domain)s\" target=\"_blank\">%(domain)s</a>)."
+"本服务托管于 %(hosting)s 平台 (<a "
+"href=\"https://%(domain)s\" target=\"_blank\">%(domain)s</a>)。"
 
 #: templates/legal/legal.html:34
 msgid ""
@@ -4782,8 +4796,7 @@ msgid ""
 "En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
 "réserve les présentes conditions d'utilisation."
 msgstr ""
-"En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
-"réserve les présentes conditions d'utilisation."
+"使用 %(app_name)s 服务即表示您完全且无条件地接受这些使用条款。"
 
 #: templates/legal/terms.html:12
 msgid "Avertissement important :"
@@ -4897,8 +4910,7 @@ msgid ""
 "Le service, son code source, son design et son contenu sont la propriété "
 "exclusive de %(developer_name)s."
 msgstr ""
-"Le service, son code source, son design et son contenu sont la propriété "
-"exclusive de %(developer_name)s."
+"本服务、其源代码、设计及内容均为 %(developer_name)s 的独家财产。"
 
 #: templates/legal/terms.html:53
 msgid ""
@@ -5190,12 +5202,35 @@ msgstr "拆分PDF"
 #~ msgid "Déconnexion"
 #~ msgstr "登出"
 
+#~ msgid "%%(filename)s n'est pas un PDF"
+#~ msgstr "%%(filename)s 不是 PDF 文件"
+
+#~ msgid "%%(filename)s est vide"
+#~ msgstr "%%(filename)s 为空"
+
+#~ msgid "%%(filename)s est corrompu ou non-PDF"
+#~ msgstr "%%(filename)s 已损坏或不是 PDF 文件"
+
+#~ msgid "Maximum %%(max)d fichiers"
+#~ msgstr "最多 %%(max)d 个文件"
+
+#~ msgid "Fichier %%(name)s contient trop de pages"
+#~ msgstr "文件 %%(name)s 包含的页数过多"
+
+#~ msgid "Téléchargez votre fichier %%(from_format)s."
+#~ msgstr "上传您的 %%(from_format)s 文件。"
+
+#~ msgid "Notre système le convertit automatiquement en %%(to_format)s."
+#~ msgstr "我们的系统会自动将其转换为 %%(to_format)s 格式。"
+
 #~ msgid "Haute (90-100%%)"
-#~ msgstr ""
+#~ msgstr "高 (90-100%%)"
 
 #~ msgid "Moyenne (70-80%%)"
-#~ msgstr ""
+#~ msgstr "中 (70-80%%)"
 
 #~ msgid "Basse (50-60%%)"
-#~ msgstr ""
+#~ msgstr "低 (50-60%%)"
 
+#~ msgid "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
+#~ msgstr "在任何情况下，%%(developer_name)s 均不对以下情况负责："
