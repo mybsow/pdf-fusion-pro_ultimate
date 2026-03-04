@@ -514,17 +514,17 @@ msgstr "Fichier corrompu ou non-PDF"
 
 #: blueprints/pdf/routes.py:117
 #, python-format
-msgid "%(filename)s n'est pas un PDF"
+msgid "%%(filename)s n'est pas un PDF"
 msgstr "%%(filename)s n'est pas un PDF"
 
 #: blueprints/pdf/routes.py:127 blueprints/pdf/routes.py:516
 #, python-format
-msgid "%(filename)s est vide"
+msgid "%%(filename)s est vide"
 msgstr "%%(filename)s est vide"
 
 #: blueprints/pdf/routes.py:130 blueprints/pdf/routes.py:519
 #, python-format
-msgid "%(filename)s est corrompu ou non-PDF"
+msgid "%%(filename)s est corrompu ou non-PDF"
 msgstr "%%(filename)s est corrompu ou non-PDF"
 
 #: blueprints/pdf/routes.py:151 blueprints/pdf/routes.py:227
@@ -539,12 +539,12 @@ msgstr "Au moins 2 PDF requis"
 
 #: blueprints/pdf/routes.py:160
 #, python-format
-msgid "Maximum %(max)d fichiers"
+msgid "Maximum %%(max)d fichiers"
 msgstr "Maximum %%(max)d fichiers"
 
 #: blueprints/pdf/routes.py:176
 #, python-format
-msgid "Fichier %(name)s contient trop de pages"
+msgid "Fichier %%(name)s contient trop de pages"
 msgstr "Le fichier %%(name)s contient trop de pages"
 
 #: blueprints/pdf/routes.py:211 blueprints/pdf/routes.py:294
@@ -886,12 +886,12 @@ msgstr "Comment ça marche ?"
 
 #: templates/conversion/conversion_base.html:360
 #, python-format
-msgid "Téléchargez votre fichier %(from_format)s."
+msgid "Téléchargez votre fichier %%(from_format)s."
 msgstr "Téléchargez votre fichier %%(from_format)s."
 
 #: templates/conversion/conversion_base.html:363
 #, python-format
-msgid "Notre système le convertit automatiquement en %(to_format)s."
+msgid "Notre système le convertit automatiquement en %%(to_format)s."
 msgstr "Notre système le convertit automatiquement en %%(to_format)s."
 
 #: templates/conversion/conversion_base.html:366
@@ -2729,15 +2729,15 @@ msgid "Qualité (pour JPG)"
 msgstr "Qualité (pour JPG)"
 
 #: templates/conversion/pdf_to_image.html:64
-msgid "Haute (90-100%)"
-msgstr "Haute (90-100%%)"
+msgid "Haute (90-100%%%)"
+msgstr "Haute (90-100%%%)"
 
 #: templates/conversion/pdf_to_image.html:65
-msgid "Moyenne (70-80%)"
+msgid "Moyenne (70-80%%)"
 msgstr "Moyenne (70-80%%)"
 
 #: templates/conversion/pdf_to_image.html:66
-msgid "Basse (50-60%)"
+msgid "Basse (50-60%%)"
 msgstr "Basse (50-60%%)"
 
 #: templates/conversion/pdf_to_image.html:68
@@ -5241,7 +5241,7 @@ msgstr ""
 
 #: templates/legal/terms.html:39
 #, python-format
-msgid "En aucun cas, %(developer_name)s ne pourra être tenu responsable :"
+msgid "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
 msgstr "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
 
 #: templates/legal/terms.html:41
@@ -5354,7 +5354,7 @@ msgstr "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
 #, python-format
 msgid ""
 "Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, "
-"compresser et convertir des fichiers PDF. 100% gratuit, sécurisé et sans "
+"compresser et convertir des fichiers PDF. 100%% gratuit, sécurisé et sans "
 "inscription."
 msgstr ""
 
@@ -5366,7 +5366,7 @@ msgstr ""
 #, python-format
 msgid ""
 "Outil PDF tout-en-un : fusion, division, rotation, compression et "
-"conversion. Rapide, sécurisé et 100%% gratuit."
+"conversion. Rapide, sécurisé et 100%%% gratuit."
 msgstr ""
 
 #: templates/pdf/index.html:13
@@ -5469,7 +5469,7 @@ msgstr "Non disponible"
 
 #: templates/pdf/index.html:145
 #, python-format
-msgid "Votre solution PDF tout-en-un, 100%% gratuite et sécurisée"
+msgid "Votre solution PDF tout-en-un, 100%%% gratuite et sécurisée"
 msgstr ""
 
 #: templates/pdf/index.html:147
@@ -5683,13 +5683,13 @@ msgstr "Diviser le PDF"
 #~ msgid ""
 #~ "All PDF tools in one place: merge,"
 #~ " split, rotate, compress and convert "
-#~ "PDF files. 100% free, secure and "
+#~ "PDF files. 100%% free, secure and "
 #~ "no registration required."
 #~ msgstr ""
 #~ "Tous les outils PDF en un seul "
 #~ "endroit : fusionner, diviser, pivoter, "
 #~ "compresser et convertir des fichiers "
-#~ "PDF. 100% gratuit, sécurisé et sans "
+#~ "PDF. 100%% gratuit, sécurisé et sans "
 #~ "inscription."
 
 #~ msgid "Transform your PDFs with ease"
@@ -5698,11 +5698,11 @@ msgstr "Diviser le PDF"
 #~ msgid ""
 #~ "All-in-one PDF tool: merge, split,"
 #~ " rotate, compress and convert. Fast, "
-#~ "secure and 100% free."
+#~ "secure and 100%% free."
 #~ msgstr ""
 #~ "Outil PDF tout-en-un : fusion, "
 #~ "division, rotation, compression et conversion."
-#~ " Rapide, sécurisé et 100% gratuit."
+#~ " Rapide, sécurisé et 100%% gratuit."
 
 #~ msgid "No registration required – your files never leave your browser."
 #~ msgstr ""
@@ -5755,8 +5755,8 @@ msgstr "Diviser le PDF"
 #~ msgid "Users"
 #~ msgstr "Utilisateurs"
 
-#~ msgid "Your all-in-one PDF solution, 100%% free and secure"
-#~ msgstr "Votre solution PDF tout-en-un, 100%% gratuite et sécurisée"
+#~ msgid "Your all-in-one PDF solution, 100%%% free and secure"
+#~ msgstr "Votre solution PDF tout-en-un, 100%%% gratuite et sécurisée"
 
 #~ msgid "No registration required"
 #~ msgstr "Aucune inscription requise"

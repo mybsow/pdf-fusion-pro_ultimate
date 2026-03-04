@@ -517,17 +517,17 @@ msgstr "ملف تالف أو ليس بصيغة PDF"
 
 #: blueprints/pdf/routes.py:117
 #, fuzzy, python-format
-msgid "%(filename)s n'est pas un PDF"
+msgid "%%(filename)s n'est pas un PDF"
 msgstr "%%(filename)s n'est pas un PDF"
 
 #: blueprints/pdf/routes.py:127 blueprints/pdf/routes.py:516
 #, fuzzy, python-format
-msgid "%(filename)s est vide"
+msgid "%%(filename)s est vide"
 msgstr "%%(filename)s est vide"
 
 #: blueprints/pdf/routes.py:130 blueprints/pdf/routes.py:519
 #, fuzzy, python-format
-msgid "%(filename)s est corrompu ou non-PDF"
+msgid "%%(filename)s est corrompu ou non-PDF"
 msgstr "%%(filename)s est corrompu ou non-PDF"
 
 #: blueprints/pdf/routes.py:151 blueprints/pdf/routes.py:227
@@ -542,12 +542,12 @@ msgstr "يلزم رفع ملفي PDF على الأقل"
 
 #: blueprints/pdf/routes.py:160
 #, fuzzy, python-format
-msgid "Maximum %(max)d fichiers"
+msgid "Maximum %%(max)d fichiers"
 msgstr "Maximum %%(max)d fichiers"
 
 #: blueprints/pdf/routes.py:176
 #, fuzzy, python-format
-msgid "Fichier %(name)s contient trop de pages"
+msgid "Fichier %%(name)s contient trop de pages"
 msgstr "Fichier %%(name)s contient trop de pages"
 
 #: blueprints/pdf/routes.py:211 blueprints/pdf/routes.py:294
@@ -887,12 +887,12 @@ msgstr "كيف يعمل؟"
 
 #: templates/conversion/conversion_base.html:360
 #, fuzzy, python-format
-msgid "Téléchargez votre fichier %(from_format)s."
+msgid "Téléchargez votre fichier %%(from_format)s."
 msgstr "Téléchargez votre fichier %%(from_format)s."
 
 #: templates/conversion/conversion_base.html:363
 #, fuzzy, python-format
-msgid "Notre système le convertit automatiquement en %(to_format)s."
+msgid "Notre système le convertit automatiquement en %%(to_format)s."
 msgstr "Notre système le convertit automatiquement en %%(to_format)s."
 
 #: templates/conversion/conversion_base.html:366
@@ -2725,16 +2725,16 @@ msgid "Qualité (pour JPG)"
 msgstr "الجودة (لـ JPG)"
 
 #: templates/conversion/pdf_to_image.html:64
-msgid "Haute (90-100%)"
-msgstr "عالية (90-100%)"
+msgid "Haute (90-100%%%)"
+msgstr "عالية (90-100%%%)"
 
 #: templates/conversion/pdf_to_image.html:65
-msgid "Moyenne (70-80%)"
-msgstr "متوسطة (70-80%)"
+msgid "Moyenne (70-80%%)"
+msgstr "متوسطة (70-80%%)"
 
 #: templates/conversion/pdf_to_image.html:66
-msgid "Basse (50-60%)"
-msgstr "منخفضة (50-60%)"
+msgid "Basse (50-60%%)"
+msgstr "منخفضة (50-60%%)"
 
 #: templates/conversion/pdf_to_image.html:68
 msgid "Uniquement pour le format JPG"
@@ -5189,7 +5189,7 @@ msgstr ""
 
 #: templates/legal/terms.html:39
 #, fuzzy, python-format
-msgid "En aucun cas, %(developer_name)s ne pourra être tenu responsable :"
+msgid "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
 msgstr "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
 
 #: templates/legal/terms.html:41
@@ -5296,11 +5296,11 @@ msgstr "الرئيسية - بي دي إف فيوجن برو – أدوات بي 
 #, python-format
 msgid ""
 "Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, "
-"compresser et convertir des fichiers PDF. 100% gratuit, sécurisé et sans "
+"compresser et convertir des fichiers PDF. 100%% gratuit, sécurisé et sans "
 "inscription."
 msgstr ""
 "جميع أدوات بي دي إف في مكان واحد: دمج، تقسيم، تدوير، ضغط وتحويل ملفات بي "
-"دي إف. 100% مجاني، آمن وبدون تسجيل."
+"دي إف. 100%% مجاني، آمن وبدون تسجيل."
 
 #: templates/pdf/index.html:10
 msgid "Transformez vos PDFs en toute simplicité"
@@ -5310,9 +5310,9 @@ msgstr "حول ملفات بي دي إف الخاصة بك بكل سهولة"
 #, python-format
 msgid ""
 "Outil PDF tout-en-un : fusion, division, rotation, compression et "
-"conversion. Rapide, sécurisé et 100%% gratuit."
+"conversion. Rapide, sécurisé et 100%%% gratuit."
 msgstr ""
-"أداة بي دي إف شاملة: دمج، تقسيم، تدوير، ضغط وتحويل. سريع، آمن و100%% "
+"أداة بي دي إف شاملة: دمج، تقسيم، تدوير، ضغط وتحويل. سريع، آمن و100%%% "
 "مجاني."
 
 #: templates/pdf/index.html:13
@@ -5413,8 +5413,8 @@ msgstr "متاح"
 
 #: templates/pdf/index.html:145
 #, python-format
-msgid "Votre solution PDF tout-en-un, 100%% gratuite et sécurisée"
-msgstr "حل بي دي إف الشامل الخاص بك، 100%% مجاني وآمن"
+msgid "Votre solution PDF tout-en-un, 100%%% gratuite et sécurisée"
+msgstr "حل بي دي إف الشامل الخاص بك، 100%%% مجاني وآمن"
 
 #: templates/pdf/index.html:147
 msgid ""
@@ -5550,7 +5550,7 @@ msgstr "تقسيم بي دي إف"
 #~ msgid "Notre système le convertit automatiquement en %%(to_format)s."
 #~ msgstr "نظامنا يحوّله تلقائياً إلى %%(to_format)s."
 
-#~ msgid "Haute (90-100%%)"
+#~ msgid "Haute (90-100%%%)"
 #~ msgstr "عالية (٪٪100-90)"
 
 #~ msgid "Moyenne (70-80%%)"

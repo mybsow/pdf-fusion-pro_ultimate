@@ -1,84 +1,71 @@
 #!/usr/bin/env python3
-# scripts/fix_percent.py - Version corrigée
-
+import os
 import re
-from pathlib import Path
-import sys
-import subprocess
 
-def needs_fix(line):
-    """Vérifie si la ligne a des % non échappés qui ne sont pas des placeholders"""
-    # Ignorer les placeholders courants
-    if re.search(r'%[s,d,f,i,u,x,X,o,e,E,g,G]', line):
-        return False
-    # Chercher des % simples non échappés
-    return '%' in line and '%%' not in line
-
-def fix_percent_in_file(filepath):
-    """Corrige intelligemment les % problématiques"""
-    print(f"🔧 Traitement de {filepath}")
+def smart_fix_po_file(po_file):
+    """Corrige intelligemment les problèmes de formatage"""
     
-    with open(filepath, 'r', encoding='utf-8') as f:
-        content = f.read()
+    with open(po_file, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
     
-    lines = content.split('\n')
     modified = False
     new_lines = []
     
-    for line in lines:
-        if (line.startswith('msgstr "') or line.startswith('msgid "')) and needs_fix(line):
-            # Remplacer % par %% mais préserver les placeholders
-            new_line = re.sub(r'(?<!%)%(?!%)(?![sdfiuxXoEeGg])', '%%', line)
-            if new_line != line:
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        
+        # Détecter les lignes msgstr
+        if line.startswith('msgstr "') and i > 0:
+            # Vérifier la ligne msgid précédente
+            msgid_line = lines[i-1] if i-1 >= 0 else ""
+            
+            # Corriger les doubles pourcentages
+            if '100%' in line and not '100%%' in line:
+                line = line.replace('100%', '100%%')
                 modified = True
-                line = new_line
-                print(f"  ✅ Corrigé: {line[:50]}...")
+                print(f"  ✅ 100% corrigé dans {po_file}:{i+1}")
+            
+            # Vérifier la cohérence des placeholders avec msgid
+            if msgid_line.startswith('msgid "'):
+                # Extraire les placeholders du msgid
+                id_placeholders = set(re.findall(r'(%\([^)]+\)[diouxXeEfFgGcs])', msgid_line))
+                # Extraire les placeholders du msgstr
+                str_placeholders = set(re.findall(r'(%\([^)]+\)[diouxXeEfFgGcs])', line))
+                
+                # Vérifier si des placeholders manquent
+                missing = id_placeholders - str_placeholders
+                if missing:
+                    print(f"  ⚠️ Placeholders manquants dans {po_file}:{i+1} - {missing}")
+                    # Option: ajouter automatiquement? (décommenter si voulu)
+                    # for ph in missing:
+                    #     line = line.replace('msgstr "', f'msgstr "{ph} ')
+                    # modified = True
+        
         new_lines.append(line)
+        i += 1
     
     if modified:
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(new_lines))
+        # Sauvegarde automatique
+        backup = po_file + '.smart.bak'
+        if not os.path.exists(backup):
+            with open(backup, 'w', encoding='utf-8') as f:
+                f.writelines(lines)
+            print(f"  💾 Backup créé: {backup}")
+        
+        with open(po_file, 'w', encoding='utf-8') as f:
+            f.writelines(new_lines)
         return True
+    
     return False
 
-def main():
-    print("🔧 CORRECTION INTELLIGENTE DES POURCENTAGES")
-    print("=" * 50)
-    
-    trans_dir = Path('translations')
-    if not trans_dir.exists():
-        print("❌ Dossier translations introuvable")
-        return 1
-    
-    fixed_count = 0
-    total_files = 0
-    
-    for lang_dir in sorted(trans_dir.iterdir()):
-        if lang_dir.is_dir():
-            po_file = lang_dir / 'LC_MESSAGES' / 'messages.po'
-            if po_file.exists():
-                total_files += 1
-                if fix_percent_in_file(po_file):
-                    fixed_count += 1
-    
-    print(f"\n📊 Récapitulatif:")
-    print(f"   - {total_files} fichiers trouvés")
-    print(f"   - {fixed_count} fichiers corrigés")
-    
-    # Recompiler si nécessaire
-    if fixed_count > 0:
-        print("\n🔨 Recompilation des traductions...")
-        result = subprocess.run(['pybabel', 'compile', '-d', 'translations', '-f'], 
-                               capture_output=True, text=True)
-        if result.returncode == 0:
-            print("✅ Compilation réussie !")
-        else:
-            print("⚠️ Compilation avec avertissements (normal)")
-            print(result.stderr)
-    else:
-        print("\n✅ Aucune correction nécessaire")
-    
-    return 0
+# Exécuter
+translations_dir = 'translations'
+for lang in os.listdir(translations_dir):
+    po_file = os.path.join(translations_dir, lang, 'LC_MESSAGES', 'messages.po')
+    if os.path.exists(po_file):
+        print(f"\n📁 Traitement de {lang}...")
+        if smart_fix_po_file(po_file):
+            print(f"  ✅ Modifications effectuées")
 
-if __name__ == "__main__":
-    sys.exit(main())
+print("\n🔄 Recompilez avec: pybabel compile -d translations")
