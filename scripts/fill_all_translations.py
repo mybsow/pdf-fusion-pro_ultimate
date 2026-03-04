@@ -907,7 +907,7 @@ TRANSLATIONS = {
         "Déposez votre fichier PDF et sélectionnez les pages à extraire.": "Drop your PDF file and select pages to extract.",
         "Pages à extraire": "Pages to extract",
         "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\"": "Format: numbers separated by commas, ranges with hyphen. Ex: \"1,3-5\"",
-    }
+    },
     'es': {
         # Traductions espagnoles (à compléter avec Google Translate)
         "Date inconnue": "Fecha desconocida",
@@ -1806,7 +1806,7 @@ TRANSLATIONS = {
         "Déposez votre fichier PDF et sélectionnez les pages à extraire.": "Suelta tu archivo PDF y selecciona las páginas a extraer.",
         "Pages à extraire": "Páginas a extraer",
         "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\"": "Formato: números separados por comas, rangos con guión. Ej: \"1,3-5\"",
-    }
+    },
 
     'de': {
         # Traductions allemandes
@@ -2706,7 +2706,7 @@ TRANSLATIONS = {
         "Déposez votre fichier PDF et sélectionnez les pages à extraire.": "Legen Sie Ihre PDF-Datei ab und wählen Sie die zu extrahierenden Seiten aus.",
         "Pages à extraire": "Zu extrahierende Seiten",
         "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\"": "Format: durch Kommas getrennte Zahlen, Bereiche mit Bindestrich. Bsp: \"1,3-5\"",
-    }
+    },
     'it': {
         # Traductions italiennes
         "Date inconnue": "Data sconosciuta",
@@ -3605,7 +3605,7 @@ TRANSLATIONS = {
         "Déposez votre fichier PDF et sélectionnez les pages à extraire.": "Deposita il tuo file PDF e seleziona le pagine da estrarre.",
         "Pages à extraire": "Pagine da estrarre",
         "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\"": "Formato: numeri separati da virgole, intervalli con trattino. Es: \"1,3-5\"",
-    }
+    },
 
     'pt': {
         # Traductions portugaises
@@ -4505,7 +4505,7 @@ TRANSLATIONS = {
         "Déposez votre fichier PDF et sélectionnez les pages à extraire.": "Solte seu arquivo PDF e selecione as páginas a extrair.",
         "Pages à extraire": "Páginas a extrair",
         "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\"": "Formato: números separados por vírgulas, intervalos com hífen. Ex: \"1,3-5\"",
-    }
+    },
 
     'ar': {
         # Traductions arabes (saoudien / arabe standard moderne)
@@ -5405,7 +5405,7 @@ TRANSLATIONS = {
         "Déposez votre fichier PDF et sélectionnez les pages à extraire.": "ضع ملف PDF الخاص بك وحدد الصفحات المراد استخراجها.",
         "Pages à extraire": "الصفحات المراد استخراجها",
         "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\"": "الصيغة: أرقام مفصولة بفواصل، نطاقات بشرطة. مثال: \"1,3-5\"",
-    }
+    },
     'nl': {
         # Traductions néerlandaises
         "Date inconnue": "Onbekende datum",
@@ -6304,7 +6304,7 @@ TRANSLATIONS = {
         "Déposez votre fichier PDF et sélectionnez les pages à extraire.": "Plaats uw PDF-bestand en selecteer de te extraheren pagina's.",
         "Pages à extraire": "Te extraheren pagina's",
         "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\"": "Formaat: nummers gescheiden door komma's, bereiken met koppelteken. Bijv: \"1,3-5\"",
-    }
+    },
     'zh': {
         # Traductions chinoises
         "Date inconnue": "未知日期",
@@ -7203,7 +7203,7 @@ TRANSLATIONS = {
         "Déposez votre fichier PDF et sélectionnez les pages à extraire.": "放置您的 PDF 文件并选择要提取的页面。",
         "Pages à extraire": "要提取的页面",
         "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\"": "格式：数字用逗号分隔，范围用连字符。例如：\"1,3-5\"",
-    }
+    },
     'ja': {
     # Traductions japonaises
     "Date inconnue": "不明な日付",
@@ -8102,7 +8102,7 @@ TRANSLATIONS = {
     "Déposez votre fichier PDF et sélectionnez les pages à extraire.": "PDFファイルを配置し、抽出するページを選択します。",
     "Pages à extraire": "抽出するページ",
     "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\"": "形式: 数字はカンマ区切り、範囲はハイフン。例: \"1,3-5\"",
-    }
+    },
     'ru': {
     # Traductions russes
     "Date inconnue": "Дата неизвестна",
@@ -9001,7 +9001,7 @@ TRANSLATIONS = {
     "Déposez votre fichier PDF et sélectionnez les pages à extraire.": "Перетащите ваш PDF-файл и выберите страницы для извлечения.",
     "Pages à extraire": "Страницы для извлечения",
     "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\"": "Формат: числа через запятую, диапазоны через дефис. Пример: \"1,3-5\"",
-    }
+    },
 }
 
 
