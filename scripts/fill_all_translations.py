@@ -907,7 +907,7 @@ TRANSLATIONS = {
         "Déposez votre fichier PDF et sélectionnez les pages à extraire.": "Drop your PDF file and select pages to extract.",
         "Pages à extraire": "Pages to extract",
         "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\"": "Format: numbers separated by commas, ranges with hyphen. Ex: \"1,3-5\"",
-    },
+    }
     'es': {
         # Traductions espagnoles (à compléter avec Google Translate)
         "Date inconnue": "Fecha desconocida",
