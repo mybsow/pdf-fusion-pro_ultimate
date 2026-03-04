@@ -228,14 +228,17 @@ msgid "Fichier corrompu ou non-PDF"
 msgstr "Fichier corrompu ou non-PDF"
 
 #: blueprints/pdf/routes.py:117
+#, python-format
 msgid "%(filename)s n'est pas un PDF"
 msgstr "%%(filename)s n'est pas un PDF"
 
 #: blueprints/pdf/routes.py:127 blueprints/pdf/routes.py:516
+#, python-format
 msgid "%(filename)s est vide"
 msgstr "%%(filename)s est vide"
 
 #: blueprints/pdf/routes.py:130 blueprints/pdf/routes.py:519
+#, python-format
 msgid "%(filename)s est corrompu ou non-PDF"
 msgstr "%%(filename)s est corrompu ou non-PDF"
 
@@ -250,10 +253,12 @@ msgid "Au moins 2 PDF requis"
 msgstr "Au moins 2 PDF requis"
 
 #: blueprints/pdf/routes.py:160
+#, python-format
 msgid "Maximum %(max)d fichiers"
 msgstr "Maximum %%(max)d fichiers"
 
 #: blueprints/pdf/routes.py:176
+#, python-format
 msgid "Fichier %(name)s contient trop de pages"
 msgstr "Le fichier %%(name)s contient trop de pages"
 
@@ -603,10 +608,12 @@ msgid "Comment ça marche ?"
 msgstr "Comment ça marche ?"
 
 #: templates/conversion/conversion_base.html:360
+#, python-format
 msgid "Téléchargez votre fichier %(from_format)s."
 msgstr "Téléchargez votre fichier %%(from_format)s."
 
 #: templates/conversion/conversion_base.html:363
+#, python-format
 msgid "Notre système le convertit automatiquement en %(to_format)s."
 msgstr "Notre système le convertit automatiquement en %%(to_format)s."
 
@@ -4972,6 +4979,7 @@ msgstr ""
 "d'adéquation à un usage particulier et de non-contrefaçon."
 
 #: templates/legal/terms.html:39
+#, python-format
 msgid "En aucun cas, %(developer_name)s ne pourra être tenu responsable :"
 msgstr "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
 
