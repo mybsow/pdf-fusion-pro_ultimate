@@ -950,14 +950,13 @@ def smart_ocr(img, min_confidence=40, max_words=10000):
 
 # ----- Word -> PDF -----
 def convert_word_to_pdf(file, form_data=None):
+
     # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+    if isinstance(file, list):
+        if not file:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
-    
+        file = file[0]
+
     # Vérifier que c'est bien un objet fichier
     if not hasattr(file, 'filename') or not hasattr(file, 'save'):
         return {'error': 'Objet fichier invalide'}
@@ -1070,103 +1069,115 @@ def convert_word_to_pdf(file, form_data=None):
 
 # ----- Excel -> PDF -----
 def convert_excel_to_pdf(file, form_data=None):
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+    """
+    Conversion Excel -> PDF
+    Priorité : LibreOffice (qualité parfaite)
+    Fallback : Pandas + ReportLab
+    """
+
+    # Sécurité : accepter liste ou fichier
+    if isinstance(file, list):
+        if not file:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
-    
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        file = file[0]
+
+    if not hasattr(file, "filename"):
         return {'error': 'Objet fichier invalide'}
 
-    temp_dir = None
+    temp_dir = tempfile.mkdtemp()
+
     try:
-        # ---- Dossier temporaire ----
-        temp_dir = tempfile.mkdtemp()
         input_path = os.path.join(temp_dir, secure_filename(file.filename))
         file.save(input_path)
 
-        # =====================================================
-        # 1) TENTATIVE AVEC LIBREOFFICE (méthode fiable)
-        # =====================================================
-        libreoffice_path = shutil.which("libreoffice")
-        if libreoffice_path:
+        # ============================
+        # 1️⃣ Conversion LibreOffice
+        # ============================
+        libreoffice = shutil.which("libreoffice")
+
+        if libreoffice:
+
             cmd = [
-                libreoffice_path,
+                libreoffice,
                 "--headless",
-                "--convert-to", "pdf",
-                "--outdir", temp_dir,
+                "--convert-to",
+                "pdf",
+                "--outdir",
+                temp_dir,
                 input_path
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+            subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=120
+            )
 
-            if result.returncode == 0:
-                # RÉCUPÉRER LE PDF RÉELLEMENT PRODUIT
-                pdf_candidates = [
-                    f for f in os.listdir(temp_dir)
-                    if f.lower().endswith(".pdf")
-                ]
+            pdf_files = [
+                f for f in os.listdir(temp_dir)
+                if f.lower().endswith(".pdf")
+            ]
 
-                if pdf_candidates:
-                    output_path = os.path.join(temp_dir, pdf_candidates[0])
+            if pdf_files:
 
-                    # Lire en mémoire (évite corruption)
-                    with open(output_path, "rb") as f:
-                        pdf_bytes = f.read()
+                pdf_path = os.path.join(temp_dir, pdf_files[0])
 
-                    return send_file(
-                        BytesIO(pdf_bytes),
-                        mimetype="application/pdf",
-                        as_attachment=True,
-                        download_name=f"{Path(file.filename).stem}.pdf"
-                    )
+                return send_file(
+                    pdf_path,
+                    mimetype="application/pdf",
+                    as_attachment=True,
+                    download_name=f"{Path(file.filename).stem}.pdf"
+                )
 
-        # =====================================================
-        # 2) FALLBACK : Pandas + ReportLab
-        # =====================================================
+        # ============================
+        # 2️⃣ Fallback Pandas
+        # ============================
+
         sheets = pd.read_excel(input_path, sheet_name=None)
 
         output = BytesIO()
+
         c = canvas.Canvas(output, pagesize=A4)
         width, height = A4
 
         y = height - 50
+
         c.setFont("Helvetica-Bold", 16)
-        c.drawString(50, y, f"Export Excel : {file.filename}")
-        y -= 30
+        c.drawString(50, y, f"Excel export : {file.filename}")
+        y -= 40
 
         for sheet_name, df in sheets.items():
-            # Nouvelle page si nécessaire
+
             if y < 100:
                 c.showPage()
-                c.setFont("Helvetica", 10)
                 y = height - 50
 
-            # Titre de la feuille
             c.setFont("Helvetica-Bold", 14)
-            c.drawString(50, y, f"Feuille : {sheet_name}")
-            y -= 20
-
-            # Lignes du tableau (limitées pour éviter surcharges)
-            c.setFont("Helvetica", 10)
-            for _, row in df.head(25).iterrows():
-                if y < 50:
-                    c.showPage()
-                    c.setFont("Helvetica", 10)
-                    y = height - 50
-
-                # Rendu simplifié
-                row_text = " | ".join([str(v)[:20] for v in row.values])[:120]
-                c.drawString(60, y, row_text)
-                y -= 15
-
+            c.drawString(50, y, f"Sheet : {sheet_name}")
             y -= 25
 
+            c.setFont("Helvetica", 9)
+
+            for _, row in df.head(40).iterrows():
+
+                if y < 50:
+                    c.showPage()
+                    y = height - 50
+                    c.setFont("Helvetica", 9)
+
+                row_text = " | ".join(
+                    str(v)[:25] for v in row.values
+                )[:140]
+
+                c.drawString(60, y, row_text)
+
+                y -= 14
+
+            y -= 20
+
         c.save()
+
         output.seek(0)
 
         return send_file(
@@ -1177,23 +1188,27 @@ def convert_excel_to_pdf(file, form_data=None):
         )
 
     except Exception as e:
-        logger.error(f"Erreur Excel->PDF : {e}")
-        return generate_fallback_pdf(file.filename, "Excel")
+
+        current_app.logger.error(f"Erreur Excel->PDF : {str(e)}")
+
+        return generate_fallback_pdf(
+            file.filename,
+            "Excel"
+        )
 
     finally:
-        if temp_dir:
-            shutil.rmtree(temp_dir, ignore_errors=True)
+
+        shutil.rmtree(temp_dir, ignore_errors=True)
 
 # ----- PowerPoint -> PDF -----
 def convert_powerpoint_to_pdf(file, form_data=None):
+
     # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+    if isinstance(file, list):
+        if not file:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
-    
+        file = file[0]
+
     # Vérifier que c'est bien un objet fichier
     if not hasattr(file, 'filename') or not hasattr(file, 'save'):
         return {'error': 'Objet fichier invalide'}
@@ -1299,6 +1314,14 @@ def convert_powerpoint_to_pdf(file, form_data=None):
 
 # ----- Images -> PDF -----
 def convert_images_to_pdf(files, form_data=None):
+    # Vérifier que c'est une liste non vide
+    if not isinstance(files, list) or not files:
+        return {'error': 'Aucun fichier fourni'}
+    
+    for file in files:
+        if not hasattr(file, 'filename'):
+            return {'error': 'Objet fichier invalide'}
+
     if not HAS_PILLOW or not HAS_REPORTLAB:
         return {'error': 'Pillow ou reportlab non installé'}
 
@@ -1498,6 +1521,14 @@ def convert_pdf_to_excel(file_storage, form_data=None):
     Ultra robuste + OCR multilingue Tesseract + extraction structurée.
     Fonctionnelle en production (aucune erreur silencieuse).
     """
+        # Sécurité : accepter liste ou fichier
+    if isinstance(file, list):
+        if not file:
+            return {'error': 'Aucun fichier fourni'}
+        file = file[0]
+    
+    if not hasattr(file, "filename"):
+        return {'error': 'Objet fichier invalide'}
 
     # ---- Vérification dépendances ----
     if not HAS_PDF2IMAGE:
@@ -1696,6 +1727,16 @@ def convert_pdf_to_excel(file_storage, form_data=None):
 # ----- PDF -> PPT -----
 def convert_pdf_to_ppt(file, form_data=None):
     """Conversion PDF → PowerPoint (.pptx) robuste, fiable et stable."""
+
+        # Sécurité : accepter liste ou fichier
+    if isinstance(file, list):
+        if not file:
+            return {'error': 'Aucun fichier fourni'}
+        file = file[0]
+    
+    if not hasattr(file, "filename"):
+        return {'error': 'Objet fichier invalide'}
+
     if not HAS_PDF2IMAGE or not HAS_PILLOW or not HAS_PPTX:
         return {'error': 'Dépendances manquantes pour PDF→PowerPoint'}
 
@@ -1949,16 +1990,13 @@ def convert_pdf_to_images(file, form_data=None):
       - annotate_ocr: 'true'|'false' (dessine boîtes autour des mots) [défaut false; nécessite Tesseract]
       - language: ex. 'fra', 'eng', 'fra+eng' (pour OCR si annotate_ocr)
     """
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+    # Sécurité : accepter liste ou fichier
+    if isinstance(file, list):
+        if not file:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
+        file = file[0]
     
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+    if not hasattr(file, "filename"):
         return {'error': 'Objet fichier invalide'}
 
     if not HAS_PDF2IMAGE:
@@ -2155,16 +2193,14 @@ def convert_pdf_to_pdfa(file, form_data=None):
     Compatible : PDF/A-1b, 2b, 3b, 2u, 3u.
     100% conforme aux normes ISO 19005.
     """
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+
+    # Sécurité : accepter liste ou fichier
+    if isinstance(file, list):
+        if not file:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
+        file = file[0]
     
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+    if not hasattr(file, "filename"):
         return {'error': 'Objet fichier invalide'}
 
     try:
@@ -4314,16 +4350,13 @@ def redact_pdf(file, form_data=None):
     Caviarde (supprime définitivement) le contenu sensible d'un PDF.
     Version améliorée avec pdfplumber pour la détection précise du texte.
     """
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+    # Sécurité : accepter liste ou fichier
+    if isinstance(file, list):
+        if not file:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
+        file = file[0]
     
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+    if not hasattr(file, "filename"):
         return {'error': 'Objet fichier invalide'}
 
     if not HAS_PYPDF:
@@ -4768,16 +4801,13 @@ def edit_pdf(file, form_data=None):
     Édite un PDF : ajoute/modifie du texte, ajoute une image, supprime ou réorganise les pages.
     Totalement indépendant de Flask pour l'upload d'image.
     """
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+    # Sécurité : accepter liste ou fichier
+    if isinstance(file, list):
+        if not file:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
+        file = file[0]
     
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+    if not hasattr(file, "filename"):
         return {'error': 'Objet fichier invalide'}
 
     if not HAS_PYPDF or not HAS_REPORTLAB:
@@ -4954,16 +4984,13 @@ def sign_pdf(file, form_data=None):
     Ajoute une signature électronique à un PDF (image ou texte).
     Supporte plusieurs pages et tailles dynamiques.
     """
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+    # Sécurité : accepter liste ou fichier
+    if isinstance(file, list):
+        if not file:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
+        file = file[0]
     
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+    if not hasattr(file, "filename"):
         return {'error': 'Objet fichier invalide'}
 
     if not HAS_PYPDF or not HAS_PILLOW:
@@ -5117,16 +5144,13 @@ def prepare_form(file, form_data=None, ocr_enabled=True):
     - Supporte PDF, Word, Excel, Images.
     - OCR intégré pour les PDFs scannés ou images.
     """
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+    # Sécurité : accepter liste ou fichier
+    if isinstance(file, list):
+        if not file:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
+        file = file[0]
     
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+    if not hasattr(file, "filename"):
         return {'error': 'Objet fichier invalide'}
 
     try:
