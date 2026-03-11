@@ -3918,314 +3918,243 @@ if __name__ == "__main__":
     print("  - ai_restructure_text(text, api_key)")
 
 # ----- IMAGE -> EXCEL -----
-def convert_image_to_excel(file_storage, form_data=None):
-    """Convertit une image en Excel avec OCR - Support multilingue complet et détection avancée des tableaux"""
+ddef convert_image_to_excel(file_storage, form_data=None):
+    """Convertit une image en Excel avec OCR."""
     if not HAS_PILLOW or not HAS_TESSERACT or not HAS_PANDAS:
         return {'error': 'Dépendances manquantes pour Image->Excel'}
-    
+
     temp_files = []
     try:
-        # Sauvegarder l'image temporairement
-        temp_input = tempfile.NamedTemporaryFile(suffix=Path(file_storage.filename).suffix, delete=False)
+        # Sauvegarde fichier
+        temp_input = tempfile.NamedTemporaryFile(
+            suffix=Path(file_storage.filename).suffix, delete=False
+        )
         file_storage.save(temp_input.name)
         temp_files.append(temp_input.name)
         logger.info(f"📁 Image sauvegardée: {temp_input.name}")
-        
-        # Ouvrir l'image avec PIL
+
         try:
             img = Image.open(temp_input.name)
             logger.info(f"🖼️ Image ouverte: {img.format} {img.size} {img.mode}")
         except Exception as e:
-            return {'error': f'Impossible d\'ouvrir l\'image: {str(e)}'}
-        
-        # Récupérer les options
+            return {'error': f"Impossible d'ouvrir l'image: {str(e)}"}
+
+        # Options
         language = form_data.get('language', 'fra') if form_data else 'fra'
-        detect_tables = form_data.get('detect_tables', 'true') if form_data else 'true'
-        enhance_image = form_data.get('enhance_image', 'true') if form_data else 'true'
-        
-        # Support des langues multiples (format: "fra+eng+spa")
-        selected_languages = language.split('+') if '+' in language else [language]
-        
-        # CARTE COMPLÈTE DES LANGUES OCR - 11 langues supportées
+        detect_tables = (form_data.get('detect_tables', 'true') if form_data else 'true') == 'true'
+        enhance_image = (form_data.get('enhance_image', 'true') if form_data else 'true') == 'true'
+
+        # Langues OCR
         lang_map = {
-            # Code interface -> Code Tesseract
-            'fra': 'fra',      # Français
-            'en': 'eng',       # Anglais
-            'es': 'spa',       # Espagnol
-            'de': 'deu',       # Allemand
-            'it': 'ita',       # Italien
-            'pt': 'por',       # Portugais
-            'ru': 'rus',       # Russe
-            'ar': 'ara',       # Arabe
-            'zh': 'chi_sim',   # Chinois simplifié
-            'ja': 'jpn',       # Japonais
-            'nl': 'nld'        # Néerlandais
+            'fra': 'fra', 'en': 'eng', 'es': 'spa', 'de': 'deu',
+            'it': 'ita', 'pt': 'por', 'ru': 'rus', 'ar': 'ara',
+            'zh': 'chi_sim', 'ja': 'jpn', 'nl': 'nld'
         }
-        
-        # Construire la chaîne de langues pour Tesseract
-        ocr_langs = []
-        for lang_code in selected_languages:
-            if lang_code in lang_map:
-                ocr_langs.append(lang_map[lang_code])
-                logger.info(f"✅ Langue OCR ajoutée: {lang_code} -> {lang_map[lang_code]}")
-            else:
-                # Fallback vers français si langue non reconnue
-                logger.warning(f"⚠️ Langue non reconnue: {lang_code}, fallback vers français")
-                ocr_langs.append('fra')
-        
-        # Si aucune langue valide, utiliser français par défaut
+        selected_languages = language.split('+') if '+' in language else [language]
+        ocr_langs = [lang_map.get(l, 'fra') for l in selected_languages]
         ocr_lang = '+'.join(ocr_langs) if ocr_langs else 'fra'
-        logger.info(f"🔤 Langues OCR sélectionnées: {ocr_lang}")
-        
-        # Prétraitement de l'image pour améliorer l'OCR
-        processed_img = img
-        if enhance_image == 'true':
+        logger.info(f"🔤 Langues OCR: {ocr_lang}")
+
+        # Prétraitement image
+        processed_img = img.copy()
+        if enhance_image:
             try:
-                # Convertir en niveaux de gris
-                if processed_img.mode != 'L':
-                    processed_img = processed_img.convert('L')
-                
-                # Améliorer le contraste
-                from PIL import ImageEnhance
-                enhancer = ImageEnhance.Contrast(processed_img)
-                processed_img = enhancer.enhance(2.0)
-                
-                # Binarisation adaptative pour meilleure détection des tableaux
-                import numpy as np
-                img_array = np.array(processed_img)
-                
-                # Seuillage adaptatif
-                from PIL import ImageOps
+                # Convertir en RGB si nécessaire
+                if processed_img.mode not in ('RGB', 'L'):
+                    processed_img = processed_img.convert('RGB')
+
+                # Agrandir pour améliorer l'OCR (min 300dpi équivalent)
+                w, h = processed_img.size
+                if max(w, h) < 1000:
+                    scale = 1000 / max(w, h)
+                    processed_img = processed_img.resize(
+                        (int(w * scale), int(h * scale)),
+                        Image.Resampling.LANCZOS
+                    )
+
                 processed_img = ImageOps.autocontrast(processed_img)
-                
-                # Sauvegarder l'image améliorée
+                enhancer = ImageEnhance.Contrast(processed_img)
+                processed_img = enhancer.enhance(1.5)
+
                 temp_enhanced = tempfile.NamedTemporaryFile(suffix='_enhanced.png', delete=False)
                 processed_img.save(temp_enhanced.name, 'PNG')
                 temp_files.append(temp_enhanced.name)
                 logger.info("✨ Image améliorée pour OCR")
             except Exception as e:
-                logger.warning(f"⚠️ Erreur lors de l'amélioration de l'image: {e}")
-                processed_img = img
-        
-        if detect_tables == 'true':
-            # DÉTECTION AVANCÉE DES TABLEAUX
-            logger.info("🔍 Détection avancée des tableaux...")
-            
-            # Configuration Tesseract optimisée pour les tableaux
-            # --psm 6: Assume a single uniform block of text
-            # --psm 11: Sparse text (finds text in no particular order)
-            custom_config = r'--oem 3 --psm 6 -c tessedit_char_whitelist="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,;:!?()[]{}-+*/=@#$%& "'
-            
-            # Obtenir les données détaillées avec positions
+                logger.warning(f"⚠️ Erreur amélioration image: {e}")
+                processed_img = img.copy()
+                if processed_img.mode not in ('RGB', 'L'):
+                    processed_img = processed_img.convert('RGB')
+
+        # ✅ Config sans whitelist pour supporter tous les caractères
+        custom_config = '--oem 3 --psm 6'
+
+        if detect_tables:
+            logger.info("🔍 Détection des tableaux...")
+
             data = pytesseract.image_to_data(
-                processed_img, 
-                lang=ocr_lang, 
+                processed_img,
+                lang=ocr_lang,
                 output_type=Output.DICT,
                 config=custom_config
             )
-            
-            # Organiser les données en tableau 2D
+
+            # ✅ Regroupement des mots par ligne (par position Y)
             rows_dict = {}
-            row_threshold = 15  # Seuil pour considérer qu'on change de ligne
-            col_threshold = 30  # Seuil pour grouper les colonnes
-            
-            # Première passe : collecter tous les mots avec leurs positions
+            row_threshold = 12
+
             for i, text in enumerate(data['text']):
-                if text and text.strip():
+                if not text or not text.strip():
+                    continue
+                try:
                     conf = int(data['conf'][i])
-                    # Ignorer les détections de faible confiance
-                    if conf < 30:
-                        continue
-                    
-                    top = data['top'][i]
-                    left = data['left'][i]
-                    width = data['width'][i]
-                    height = data['height'][i]
-                    
-                    # Trouver la ligne appropriée
-                    row_found = False
-                    for row_top in rows_dict.keys():
-                        if abs(top - row_top) <= row_threshold:
-                            # Ajouter à cette ligne
-                            if row_top not in rows_dict:
-                                rows_dict[row_top] = []
-                            rows_dict[row_top].append({
-                                'text': text.strip(),
-                                'left': left,
-                                'width': width,
-                                'height': height,
-                                'conf': conf
-                            })
-                            row_found = True
-                            break
-                    
-                    if not row_found:
-                        # Nouvelle ligne
-                        rows_dict[top] = [{
-                            'text': text.strip(),
-                            'left': left,
-                            'width': width,
-                            'height': height,
-                            'conf': conf
-                        }]
-            
-            # Trier les lignes par position Y
-            sorted_rows = sorted(rows_dict.items(), key=lambda x: x[0])
-            
-            # Construire le tableau 2D
-            table_data = []
-            headers_detected = False
-            potential_headers = []
-            
-            for row_top, words in sorted_rows:
-                # Trier les mots dans la ligne par position X
-                sorted_words = sorted(words, key=lambda w: w['left'])
-                
-                # Extraire le texte de la ligne
-                row_text = [word['text'] for word in sorted_words]
-                
-                # Vérifier si cette ligne pourrait être un en-tête
-                if not headers_detected and len(row_text) > 1:
-                    # Les en-têtes ont souvent des mots plus courts et en gras
-                    avg_word_length = sum(len(w) for w in row_text) / len(row_text)
-                    if avg_word_length < 10:  # Les en-têtes sont généralement courts
-                        potential_headers = row_text
-                        headers_detected = True
-                        continue  # Ne pas ajouter comme ligne de données
-                
-                table_data.append(row_text)
-            
-            # Si des en-têtes ont été détectés, les utiliser
-            if potential_headers:
-                # S'assurer que toutes les lignes ont le même nombre de colonnes
-                max_cols = len(potential_headers)
-                for i in range(len(table_data)):
-                    if len(table_data[i]) < max_cols:
-                        table_data[i].extend([''] * (max_cols - len(table_data[i])))
-                    elif len(table_data[i]) > max_cols:
-                        table_data[i] = table_data[i][:max_cols]
-                
-                # Créer le DataFrame avec les en-têtes
-                df = pd.DataFrame(table_data, columns=potential_headers)
+                except (ValueError, TypeError):
+                    conf = -1
+                if conf < 20:  # ✅ Seuil abaissé à 20 (était 30)
+                    continue
+
+                top = data['top'][i]
+                left = data['left'][i]
+                width = data['width'][i]
+
+                # Trouver la ligne correspondante
+                row_key = None
+                for existing_top in rows_dict:
+                    if abs(top - existing_top) <= row_threshold:
+                        row_key = existing_top
+                        break
+
+                if row_key is None:
+                    row_key = top
+                    rows_dict[row_key] = []
+
+                rows_dict[row_key].append({
+                    'text': text.strip(),
+                    'left': left,
+                    'width': width,
+                    'conf': conf
+                })
+
+            logger.info(f"Lignes brutes détectées: {len(rows_dict)}")
+
+            if not rows_dict:
+                # ✅ Fallback OCR simple si aucune donnée structurée
+                logger.warning("Aucune donnée structurée, fallback OCR simple")
+                raw_text = pytesseract.image_to_string(
+                    processed_img, lang=ocr_lang, config='--oem 3 --psm 3'
+                )
+                lines = [l.strip() for l in raw_text.split('\n') if l.strip()]
+                df = pd.DataFrame({'Texte extrait': lines}) if lines else \
+                     pd.DataFrame({'Avertissement': ['Aucun texte détecté']})
             else:
-                # Pas d'en-têtes détectés, utiliser des colonnes génériques
+                # Trier les lignes par position Y
+                sorted_rows = sorted(rows_dict.items(), key=lambda x: x[0])
+
+                # ✅ Construire table_data SANS logique d'en-têtes automatique
+                # (on garde tout, l'utilisateur peut renommer les colonnes dans Excel)
+                table_data = []
+                for row_top, words in sorted_rows:
+                    sorted_words = sorted(words, key=lambda w: w['left'])
+                    row_text = [w['text'] for w in sorted_words]
+                    if row_text:
+                        table_data.append(row_text)
+
+                logger.info(f"Lignes de données: {len(table_data)}")
+
                 if table_data:
+                    # Uniformiser le nombre de colonnes
                     max_cols = max(len(row) for row in table_data)
-                    # Ajuster toutes les lignes pour avoir le même nombre de colonnes
-                    padded_rows = []
-                    for row in table_data:
-                        padded_row = row + [''] * (max_cols - len(row))
-                        padded_rows.append(padded_row)
-                    
-                    # Créer des noms de colonnes génériques
-                    columns = [f'Colonne {i+1}' for i in range(max_cols)]
-                    df = pd.DataFrame(padded_rows, columns=columns)
+                    padded = [row + [''] * (max_cols - len(row)) for row in table_data]
+
+                    # ✅ Première ligne = en-têtes si elle ressemble à des labels
+                    first_row = padded[0]
+                    rest = padded[1:]
+
+                    # Heuristique : première ligne = en-tête si mots courts et pas que des chiffres
+                    is_header = (
+                        len(rest) > 0 and
+                        all(len(cell) < 20 for cell in first_row if cell) and
+                        not all(cell.replace('.', '').replace(',', '').isdigit()
+                                for cell in first_row if cell)
+                    )
+
+                    if is_header and rest:
+                        df = pd.DataFrame(rest, columns=first_row)
+                        logger.info(f"En-têtes détectés: {first_row}")
+                    else:
+                        cols = [f'Colonne {i+1}' for i in range(max_cols)]
+                        df = pd.DataFrame(padded, columns=cols)
                 else:
-                    df = pd.DataFrame({'Avertissement': ['Aucune donnée détectée dans l\'image']})
-            
-            logger.info(f"✅ Tableau détecté: {df.shape[0]} lignes x {df.shape[1]} colonnes")
-            
+                    df = pd.DataFrame({'Avertissement': ['Aucun texte détecté dans l\'image']})
+
         else:
-            # OCR SIMPLE SANS DÉTECTION DE TABLEAUX
-            logger.info("📝 OCR simple sans détection de tableaux")
-            
-            # Configuration pour texte simple
-            custom_config = r'--oem 3 --psm 3'
-            text = pytesseract.image_to_string(
-                processed_img, 
-                lang=ocr_lang,
-                config=custom_config
+            # OCR simple
+            logger.info("📝 OCR simple...")
+            raw_text = pytesseract.image_to_string(
+                processed_img, lang=ocr_lang, config='--oem 3 --psm 3'
             )
-            
-            # Nettoyer le texte
-            lines = [line.strip() for line in text.split('\n') if line.strip()]
-            
-            if lines:
-                df = pd.DataFrame({'Texte extrait': lines})
-                logger.info(f"✅ {len(lines)} lignes de texte extraites")
-            else:
-                df = pd.DataFrame({'Avertissement': ['Aucun texte détecté dans l\'image']})
-        
-        # Sauvegarder en Excel avec formatage amélioré
+            lines = [l.strip() for l in raw_text.split('\n') if l.strip()]
+            df = pd.DataFrame({'Texte extrait': lines}) if lines else \
+                 pd.DataFrame({'Avertissement': ['Aucun texte détecté']})
+
+        logger.info(f"✅ Tableau final: {df.shape[0]} lignes x {df.shape[1]} colonnes")
+
+        # Export Excel
         output = BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            # Feuille principale
             df.to_excel(writer, index=False, sheet_name='Image_OCR')
-            
-            # Ajuster la largeur des colonnes
-            worksheet = writer.sheets['Image_OCR']
-            for column in worksheet.columns:
-                max_length = 0
-                column_letter = column[0].column_letter
-                for cell in column:
-                    try:
-                        if len(str(cell.value)) > max_length:
-                            max_length = len(str(cell.value))
-                    except:
-                        pass
-                adjusted_width = min(max_length + 2, 50)
-                worksheet.column_dimensions[column_letter].width = adjusted_width
-            
-            # Feuille de résumé détaillée
-            summary_data = {
+
+            # Ajuster largeur colonnes
+            ws = writer.sheets['Image_OCR']
+            for column in ws.columns:
+                max_length = max(
+                    (len(str(cell.value)) for cell in column if cell.value), default=10
+                )
+                ws.column_dimensions[column[0].column_letter].width = min(max_length + 2, 50)
+
+            # Feuille résumé
+            summary_df = pd.DataFrame({
                 'Information': [
-                    'Fichier source',
-                    'Dimensions image',
-                    'Mode couleur',
-                    'Langues sélectionnées',
-                    'Langues OCR utilisées',
-                    'Détection tableaux',
-                    'Amélioration image',
-                    'Lignes détectées',
-                    'Colonnes détectées',
-                    'Date de conversion',
-                    'Taille du fichier'
+                    'Fichier source', 'Dimensions', 'Mode couleur',
+                    'Langue OCR', 'Détection tableaux', 'Lignes', 'Colonnes',
+                    'Date de conversion'
                 ],
                 'Valeur': [
                     Path(file_storage.filename).name,
-                    f"{img.size[0]} x {img.size[1]} pixels",
+                    f"{img.size[0]} x {img.size[1]} px",
                     img.mode,
-                    ', '.join(selected_languages),
                     ocr_lang,
-                    'Oui' if detect_tables == 'true' else 'Non',
-                    'Oui' if enhance_image == 'true' else 'Non',
+                    'Oui' if detect_tables else 'Non',
                     str(df.shape[0]),
-                    str(df.shape[1]) if df.shape[1] > 0 else 'N/A',
-                    datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
-                    f"{os.path.getsize(temp_input.name) / 1024:.1f} KB"
+                    str(df.shape[1]),
+                    datetime.now().strftime('%d/%m/%Y %H:%M:%S')
                 ]
-            }
-            
-            summary_df = pd.DataFrame(summary_data)
+            })
             summary_df.to_excel(writer, sheet_name='Résumé', index=False)
-            
-            # Ajuster la largeur des colonnes du résumé
-            summary_sheet = writer.sheets['Résumé']
-            summary_sheet.column_dimensions['A'].width = 25
-            summary_sheet.column_dimensions['B'].width = 40
-        
+            ws2 = writer.sheets['Résumé']
+            ws2.column_dimensions['A'].width = 25
+            ws2.column_dimensions['B'].width = 40
+
         output.seek(0)
-        logger.info(f"✅ Fichier Excel généré: {output.getbuffer().nbytes} octets")
-        
+        logger.info(f"✅ Excel généré: {output.getbuffer().nbytes} octets")
+
         return send_file(
             output,
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             as_attachment=True,
             download_name=f"{Path(file_storage.filename).stem}.xlsx"
         )
-        
+
     except Exception as e:
         logger.error(f"❌ Erreur Image->Excel: {str(e)}")
         logger.error(traceback.format_exc())
         return {'error': f'Erreur lors de la conversion: {str(e)}'}
-    
+
     finally:
-        # Nettoyer les fichiers temporaires
         for temp_file in temp_files:
             try:
                 if os.path.exists(temp_file):
                     os.unlink(temp_file)
-                    logger.info(f"🧹 Nettoyage: {temp_file}")
             except Exception as e:
                 logger.warning(f"⚠️ Erreur nettoyage {temp_file}: {e}")
 
