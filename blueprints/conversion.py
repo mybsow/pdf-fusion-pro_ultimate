@@ -1169,13 +1169,8 @@ def convert_word_to_pdf(file, form_data=None):
             cleanup_temp_directory(temp_dir)
             return {"error": "Aucune conversion n'a abouti. Vérifiez les fichiers fournis."}
 
-        # ✅ Nettoyage APRÈS l'envoi Flask
-        @after_this_request
-        def cleanup(response):
-            cleanup_temp_directory(temp_dir)
-            return response
 
-        # ------------------------------------------------------------------
+# ------------------------------------------------------------------
         # FUSION PDF (multi-fichiers)
         # ------------------------------------------------------------------
         if merge_output and len(generated_pdfs) > 1:
@@ -1187,17 +1182,25 @@ def convert_word_to_pdf(file, form_data=None):
                 merger.write(merged_path)
                 merger.close()
 
+                # ✅ Lecture en mémoire avant nettoyage
+                with open(merged_path, 'rb') as f:
+                    pdf_bytes = f.read()
+                cleanup_temp_directory(temp_dir)
+
                 return send_file(
-                    merged_path,
+                    BytesIO(pdf_bytes),
                     mimetype="application/pdf",
                     as_attachment=True,
                     download_name="converted_documents.pdf"
                 )
             except Exception as e:
                 current_app.logger.error(f"Erreur fusion PDF : {e}")
-                # ✅ Fallback : on envoie le premier PDF si la fusion échoue
+                # Fallback sur premier PDF
+                with open(generated_pdfs[0], 'rb') as f:
+                    pdf_bytes = f.read()
+                cleanup_temp_directory(temp_dir)
                 return send_file(
-                    generated_pdfs[0],
+                    BytesIO(pdf_bytes),
                     mimetype="application/pdf",
                     as_attachment=True,
                     download_name=f"{Path(original_filenames[0]).stem}.pdf"
@@ -1206,11 +1209,16 @@ def convert_word_to_pdf(file, form_data=None):
         # ------------------------------------------------------------------
         # FICHIER UNIQUE
         # ------------------------------------------------------------------
+        # ✅ Lecture en mémoire avant nettoyage
+        with open(generated_pdfs[0], 'rb') as f:
+            pdf_bytes = f.read()
+        cleanup_temp_directory(temp_dir)  # ✅ Nettoyage immédiat, fichier déjà en RAM
+
         return send_file(
-            generated_pdfs[0],
+            BytesIO(pdf_bytes),
             mimetype="application/pdf",
             as_attachment=True,
-            download_name=f"{Path(original_filenames[0]).stem}.pdf"  # ✅ variable locale
+            download_name=f"{Path(original_filenames[0]).stem}.pdf"
         )
 
     except Exception as e:
@@ -1221,13 +1229,6 @@ def convert_word_to_pdf(file, form_data=None):
 
 # ----- Excel -> PDF -----
 def convert_excel_to_pdf(file, form_data=None):
-    """
-    Conversion Excel -> PDF
-    Priorité : LibreOffice (qualité parfaite)
-    Fallback : Pandas + ReportLab
-    """
-
-    # Sécurité : accepter liste ou fichier
     if isinstance(file, list):
         if not file:
             return {'error': 'Aucun fichier fourni'}
@@ -1236,256 +1237,166 @@ def convert_excel_to_pdf(file, form_data=None):
     if not hasattr(file, "filename"):
         return {'error': 'Objet fichier invalide'}
 
+    # ✅ Sauvegarde du nom avant toute opération
+    original_filename = file.filename
     temp_dir = tempfile.mkdtemp()
 
     try:
-        input_path = os.path.join(temp_dir, secure_filename(file.filename))
+        input_path = os.path.join(temp_dir, secure_filename(original_filename))
         file.save(input_path)
 
-        # ============================
-        # 1️⃣ Conversion LibreOffice
-        # ============================
         libreoffice = shutil.which("libreoffice")
 
         if libreoffice:
+            cmd = [libreoffice, "--headless", "--convert-to", "pdf",
+                   "--outdir", temp_dir, input_path]
+            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120)
 
-            cmd = [
-                libreoffice,
-                "--headless",
-                "--convert-to",
-                "pdf",
-                "--outdir",
-                temp_dir,
-                input_path
-            ]
-
-            subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                timeout=120
-            )
-
-            pdf_files = [
-                f for f in os.listdir(temp_dir)
-                if f.lower().endswith(".pdf")
-            ]
+            pdf_files = [f for f in os.listdir(temp_dir) if f.lower().endswith(".pdf")]
 
             if pdf_files:
-
                 pdf_path = os.path.join(temp_dir, pdf_files[0])
-
+                # ✅ Lecture en mémoire avant nettoyage
+                with open(pdf_path, 'rb') as f:
+                    pdf_bytes = f.read()
+                shutil.rmtree(temp_dir, ignore_errors=True)
                 return send_file(
-                    pdf_path,
+                    BytesIO(pdf_bytes),
                     mimetype="application/pdf",
                     as_attachment=True,
-                    download_name=f"{Path(file.filename).stem}.pdf"
+                    download_name=f"{Path(original_filename).stem}.pdf"
                 )
 
-        # ============================
-        # 2️⃣ Fallback Pandas
-        # ============================
-
+        # Fallback Pandas
         sheets = pd.read_excel(input_path, sheet_name=None)
-
         output = BytesIO()
-
         c = canvas.Canvas(output, pagesize=A4)
         width, height = A4
-
         y = height - 50
 
         c.setFont("Helvetica-Bold", 16)
-        c.drawString(50, y, f"Excel export : {file.filename}")
+        c.drawString(50, y, f"Excel export : {original_filename}")
         y -= 40
 
         for sheet_name, df in sheets.items():
-
             if y < 100:
                 c.showPage()
                 y = height - 50
-
             c.setFont("Helvetica-Bold", 14)
             c.drawString(50, y, f"Sheet : {sheet_name}")
             y -= 25
-
             c.setFont("Helvetica", 9)
-
             for _, row in df.head(40).iterrows():
-
                 if y < 50:
                     c.showPage()
                     y = height - 50
                     c.setFont("Helvetica", 9)
-
-                row_text = " | ".join(
-                    str(v)[:25] for v in row.values
-                )[:140]
-
+                row_text = " | ".join(str(v)[:25] for v in row.values)[:140]
                 c.drawString(60, y, row_text)
-
                 y -= 14
-
             y -= 20
 
         c.save()
-
         output.seek(0)
-
+        shutil.rmtree(temp_dir, ignore_errors=True)  # ✅ nettoyage après BytesIO
         return send_file(
             output,
             mimetype="application/pdf",
             as_attachment=True,
-            download_name=f"{Path(file.filename).stem}.pdf"
+            download_name=f"{Path(original_filename).stem}.pdf"
         )
 
     except Exception as e:
-
         current_app.logger.error(f"Erreur Excel->PDF : {str(e)}")
-
-        return generate_fallback_pdf(
-            file.filename,
-            "Excel"
-        )
-
-    finally:
-
         shutil.rmtree(temp_dir, ignore_errors=True)
+        return generate_fallback_pdf(original_filename, "Excel")
 
 # ----- PowerPoint -> PDF -----
 def convert_powerpoint_to_pdf(file, form_data=None):
-    """
-    Conversion PowerPoint -> PDF
-    Priorité : LibreOffice
-    Fallback : python-pptx + ReportLab
-    """
-
-    # Normaliser l'entrée (file ou liste)
     if isinstance(file, list):
         if not file:
             return {'error': 'Aucun fichier fourni'}
         file = file[0]
 
-    # Vérifier objet fichier
     if not hasattr(file, "filename") or not hasattr(file, "save"):
         return {'error': 'Objet fichier invalide'}
 
-    # Vérifier extension
     allowed = (".pptx", ".ppt", ".odp")
     if not file.filename.lower().endswith(allowed):
         return {'error': 'Format PowerPoint non supporté'}
 
+    # ✅ Sauvegarde du nom avant toute opération
+    original_filename = file.filename
     temp_dir = tempfile.mkdtemp()
 
     try:
-        input_path = os.path.join(temp_dir, secure_filename(file.filename))
+        input_path = os.path.join(temp_dir, secure_filename(original_filename))
         file.save(input_path)
 
-        # =====================================================
-        # 1️⃣ Conversion via LibreOffice
-        # =====================================================
         libreoffice = shutil.which("libreoffice")
 
         if libreoffice:
-
-            cmd = [
-                libreoffice,
-                "--headless",
-                "--convert-to",
-                "pdf",
-                "--outdir",
-                temp_dir,
-                input_path
-            ]
-
-            result = subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                timeout=120,
-                check=False
-            )
-
-            pdf_candidates = [
-                f for f in os.listdir(temp_dir)
-                if f.lower().endswith(".pdf")
-            ]
+            cmd = [libreoffice, "--headless", "--convert-to", "pdf",
+                   "--outdir", temp_dir, input_path]
+            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                    timeout=120, check=False)
+            pdf_candidates = [f for f in os.listdir(temp_dir) if f.lower().endswith(".pdf")]
 
             if result.returncode == 0 and pdf_candidates:
-
-                output_path = os.path.join(temp_dir, pdf_candidates[0])
-
+                pdf_path = os.path.join(temp_dir, pdf_candidates[0])
+                # ✅ Lecture en mémoire avant nettoyage
+                with open(pdf_path, 'rb') as f:
+                    pdf_bytes = f.read()
+                shutil.rmtree(temp_dir, ignore_errors=True)
                 return send_file(
-                    output_path,
+                    BytesIO(pdf_bytes),
                     mimetype="application/pdf",
                     as_attachment=True,
-                    download_name=f"{Path(file.filename).stem}.pdf"
+                    download_name=f"{Path(original_filename).stem}.pdf"
                 )
 
-        # =====================================================
-        # 2️⃣ Fallback python-pptx
-        # =====================================================
-
+        # Fallback python-pptx
         prs = Presentation(input_path)
-
         output = BytesIO()
-
         c = canvas.Canvas(output, pagesize=A4)
         width, height = A4
 
         for i, slide in enumerate(prs.slides):
-
             y = height - 50
-
             c.setFont("Helvetica-Bold", 16)
             c.drawString(50, y, f"Diapositive {i+1}")
             y -= 30
-
             text_found = False
-
             for shape in slide.shapes:
-
                 if hasattr(shape, "text") and shape.text.strip():
-
                     text_found = True
                     c.setFont("Helvetica", 10)
-
                     for line in shape.text.split("\n"):
-
                         if y < 50:
                             c.showPage()
                             c.setFont("Helvetica", 10)
                             y = height - 50
-
                         c.drawString(50, y, line[:110])
                         y -= 14
-
             if not text_found:
                 c.setFont("Helvetica", 10)
                 c.drawString(50, y, "[Aucun texte détecté dans cette diapositive]")
-
             c.showPage()
 
         c.save()
-
         output.seek(0)
-
+        shutil.rmtree(temp_dir, ignore_errors=True)  # ✅ nettoyage après BytesIO
         return send_file(
             output,
             mimetype="application/pdf",
             as_attachment=True,
-            download_name=f"{Path(file.filename).stem}.pdf"
+            download_name=f"{Path(original_filename).stem}.pdf"
         )
 
     except Exception as e:
-
         current_app.logger.error(f"Erreur PowerPoint->PDF : {str(e)}")
-
-        return generate_fallback_pdf(file.filename, "PowerPoint")
-
-    finally:
-
         shutil.rmtree(temp_dir, ignore_errors=True)
+        return generate_fallback_pdf(original_filename, "PowerPoint")
 
 # ----- Images -> PDF -----
 def convert_images_to_pdf(files, form_data=None):
@@ -2310,114 +2221,73 @@ def convert_pdf_to_images(file, form_data=None):
 
 # ----- PDF -> PDFA -----
 def convert_pdf_to_pdfa(file, form_data=None):
-    """
-    Convertit réellement un PDF en PDF/A via Ghostscript.
-    Compatible : PDF/A-1b, 2b, 3b, 2u, 3u.
-    100% conforme aux normes ISO 19005.
-    """
-
-    # Sécurité : accepter liste ou fichier
     if isinstance(file, list):
         if not file:
             return {'error': 'Aucun fichier fourni'}
         file = file[0]
-    
+
     if not hasattr(file, "filename"):
         return {'error': 'Objet fichier invalide'}
 
+    # ✅ Sauvegarde du nom avant toute opération
+    original_filename = file.filename
+    temp_dir = None
+
     try:
         temp_dir = tempfile.mkdtemp()
-        
-        input_path = os.path.join(temp_dir, secure_filename(file.filename))
+        input_path = os.path.join(temp_dir, secure_filename(original_filename))
         file.save(input_path)
 
-        # Extraire version PDF/A demandée
         version = (form_data.get('version', '2b') if form_data else '2b').lower()
-
-        # Maps réels Ghostscript
-        version_map = {
-            "1b": "1",
-            "1a": "1",
-            "2b": "2",
-            "2u": "2",
-            "2a": "2",
-            "3b": "3",
-            "3u": "3",
-            "3a": "3"
-        }
-
-        conformance_map = {
-            "1b": "B",
-            "1a": "A",
-            "2b": "B",
-            "2u": "U",
-            "2a": "A",
-            "3b": "B",
-            "3u": "U",
-            "3a": "A"
-        }
-
+        version_map = {"1b":"1","1a":"1","2b":"2","2u":"2","2a":"2","3b":"3","3u":"3","3a":"3"}
         pdfa_level = version_map.get(version, "2")
-        pdfa_conformance = conformance_map.get(version, "B")  # Valeur par défaut : "B"
 
-        output_path = os.path.join(
-            temp_dir,
-            f"{Path(file.filename).stem}_pdfa.pdf"
-        )
+        output_path = os.path.join(temp_dir, f"{Path(original_filename).stem}_pdfa.pdf")
 
         ghostscript_path = shutil.which("gs") or shutil.which("gswin64c") or shutil.which("gswin32c")
         if not ghostscript_path:
+            shutil.rmtree(temp_dir, ignore_errors=True)
             return {"error": "Ghostscript n'est pas installé sur le serveur."}
 
-        # Commande Ghostscript PDF/A ISO
         cmd = [
             ghostscript_path,
-            "-dPDFA",
-            f"-dPDFACompatibilityPolicy=1",
-            f"-sPDFACompatibilityPolicy=1",
-            f"-sProcessColorModel=DeviceRGB",
-            f"-sDEVICE=pdfwrite",
-            f"-dPDFA=1",
-            f"-dBATCH",
-            f"-dNOPAUSE",
-            f"-dUseCIEColor",
-            f"-dEmbedAllFonts=true",
-            f"-dSubsetFonts=true",
-            f"-sColorConversionStrategy=RGB",
+            f"-dPDFA={pdfa_level}",
+            "-dPDFACompatibilityPolicy=1",
+            "-sProcessColorModel=DeviceRGB",
+            "-sDEVICE=pdfwrite",
+            "-dBATCH", "-dNOPAUSE",
+            "-dUseCIEColor",
+            "-dEmbedAllFonts=true",
+            "-dSubsetFonts=true",
+            "-sColorConversionStrategy=RGB",
             f"-sOutputFile={output_path}",
             input_path
         ]
 
-        # Adapter selon version PDF/A (1, 2 ou 3)
-        cmd[1] = f"-dPDFA={pdfa_level}"
-        cmd.insert(2, f"-dPDFACompatibilityPolicy=1")
-
-        # Exécuter Ghostscript
-        proc = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True
-        )
+        proc = subprocess.run(cmd, capture_output=True, text=True)
 
         if proc.returncode != 0:
             logger.error(proc.stderr)
+            shutil.rmtree(temp_dir, ignore_errors=True)
             return {"error": f"Ghostscript a échoué : {proc.stderr}"}
 
-        # Retourner le vrai PDF/A généré
+        # ✅ Lecture en mémoire avant nettoyage
+        with open(output_path, 'rb') as f:
+            pdf_bytes = f.read()
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
         return send_file(
-            output_path,
+            BytesIO(pdf_bytes),
             mimetype="application/pdf",
             as_attachment=True,
-            download_name=f"{Path(file.filename).stem}_pdfa.pdf"
+            download_name=f"{Path(original_filename).stem}_pdfa.pdf"
         )
 
     except Exception as e:
         logger.error(f"Erreur PDF->PDF/A : {e}")
-        return {"error": f"Erreur conversion PDF/A : {e}"}
-
-    finally:
         if temp_dir:
             shutil.rmtree(temp_dir, ignore_errors=True)
+        return {"error": f"Erreur conversion PDF/A : {e}"}
 
 # ----- PDF -> HTML -----
 def convert_pdf_to_html(file, form_data=None):
@@ -2738,52 +2608,25 @@ def convert_pdf_to_txt(file, form_data=None):
 
 # ----- HTML -> PDF -----
 def convert_html_to_pdf(file, form_data=None):
-    """
-    Convertit du HTML en PDF avec priorité à Chromium (Playwright) pour un rendu pixel-perfect.
-    Fallback: WeasyPrint puis PDFKit si Chromium indisponible.
-    
-    Options `form_data` (toutes facultatives) :
-      - engine: "chromium" | "weasyprint" | "pdfkit" | "auto" (défaut: "auto")
-      - pageSize: "A4"|"Letter"|... (défaut "A4") ou width/height explicites ("210mm","297mm")
-      - orientation: "portrait"|"landscape" (défaut "portrait")
-      - margin: "20mm" (appliqué aux 4 bords) OU marginTop/Right/Bottom/Left
-      - scale: "1" (float string) (0.1 à 2)
-      - printBackground: "true"|"false" (défaut "true")
-      - headerHtml / footerHtml: HTML (peut contenir <span class="pageNumber"></span> et <span class="totalPages"></span>)
-      - waitUntil: "load"|"domcontentloaded"|"networkidle" (défaut "networkidle")
-      - base_url: base pour les ressources relatives (ex: "file:///.../assets/" ou "https://...")
-      - css_url: URL CSS (WeasyPrint uniquement)
-      - encoding: "utf-8" (défaut)
-    """
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+    """Convertit du HTML en PDF."""
+    # ✅ 'file' au lieu de 'file_input' partout
+    if isinstance(file, list):
+        if len(file) == 0:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
-    
-    # Vérifier que c'est bien un objet fichier
+        file = file[0]
+
     if not hasattr(file, 'filename') or not hasattr(file, 'save'):
         return {'error': 'Objet fichier invalide'}
 
-    # ==== Détections des moteurs disponibles ====
     has_chromium = False
-    has_weasy = False
-    has_pdfkit = False
+    has_weasy = HAS_WEASYPRINT
+    has_pdfkit = HAS_PDFKIT
 
-    # Flags que vous avez peut-être déjà dans votre projet :
     try:
         from playwright.sync_api import sync_playwright
         has_chromium = True
     except Exception:
         has_chromium = False
-
-    if 'HAS_WEASYPRINT' in globals() and HAS_WEASYPRINT:
-        has_weasy = True
-
-    if 'HAS_PDFKIT' in globals() and HAS_PDFKIT:
-        has_pdfkit = True
 
     if not (has_chromium or has_weasy or has_pdfkit):
         return {'error': "Aucun moteur HTML->PDF disponible (Playwright/Chromium, WeasyPrint, ou PDFKit requis)."}
@@ -2791,18 +2634,18 @@ def convert_html_to_pdf(file, form_data=None):
     temp_dir = None
     try:
         temp_dir = create_temp_directory("html2pdf_")
-        # CRÉATION DOSSIER TEMPORAIRE
         input_path = os.path.join(temp_dir, secure_filename(file.filename))
-        file.save(input_path)  # Sauvegarde du fichier
-        # ---------- Lecture HTML ----------
+        file.save(input_path)
+
         try:
-            raw = file.read()
+            with open(input_path, 'rb') as f:
+                raw = f.read()
             encoding = (form_data.get('encoding', 'utf-8') if form_data else 'utf-8')
             html_content = raw.decode(encoding, errors='replace')
         except Exception:
+            cleanup_temp_directory(temp_dir)
             return {"error": "Impossible de lire le fichier HTML"}
 
-        # ---------- Options ----------
         engine = (form_data.get('engine', 'auto') if form_data else 'auto').lower()
         page_size = (form_data.get('pageSize', 'A4') if form_data else 'A4')
         orientation = (form_data.get('orientation', 'portrait') if form_data else 'portrait').lower()
@@ -2811,46 +2654,29 @@ def convert_html_to_pdf(file, form_data=None):
         margin_right = form_data.get('marginRight') if form_data else None
         margin_bottom = form_data.get('marginBottom') if form_data else None
         margin_left = form_data.get('marginLeft') if form_data else None
-        scale = float(form_data.get('scale', '1.0')) if form_data else 1.0
-        print_background = str(form_data.get('printBackground', 'true')).lower() == 'true' if form_data else True
-        wait_until = form_data.get('waitUntil', 'networkidle') if form_data else 'networkidle'
+        scale = float(form_data.get('scale', '1.0') if form_data else '1.0')
+        print_background = str(form_data.get('printBackground', 'true') if form_data else 'true').lower() == 'true'
         base_url = form_data.get('base_url') if form_data else None
-        header_html = form_data.get('headerHtml') if form_data else None
-        footer_html = form_data.get('footerHtml') if form_data else None
         css_url = form_data.get('css_url') if form_data else None
+        original_filename = file.filename  # ✅ sauvegardé avant tout
 
-        logger.info(f"HTML->PDF (engine={engine}) pageSize={page_size} orient={orientation} scale={scale} bg={print_background}")
-
-        # ---------- Chromium (Playwright) PRIORITAIRE si demandé ----------
+        # ---------- Chromium ----------
         if (engine in ('auto', 'chromium')) and has_chromium:
             try:
-                temp_dir = tempfile.mkdtemp()
-                # Écrire un fichier HTML temporaire pour gérer les ressources relatives en file://
+                from playwright.sync_api import sync_playwright
                 html_path = os.path.join(temp_dir, "input.html")
                 with open(html_path, "w", encoding=encoding, errors="replace") as f_html:
-                    # Si un base_url est fourni et que le HTML ne le définit pas, on peut injecter une balise <base>
-                    # pour que les liens relatifs (CSS/IMG) résolvent correctement.
                     if base_url and "<head" in html_content.lower():
-                        # Injection propre d'une balise <base> juste après <head>
-                        injected = html_content.replace(
-                            "<head>",
-                            f"<head><base href=\"{base_url}\">",
-                        )
-                        f_html.write(injected)
+                        f_html.write(html_content.replace("<head>", f'<head><base href="{base_url}">'))
                     else:
                         f_html.write(html_content)
 
-                # Lancer Chromium
                 with sync_playwright() as p:
                     browser = p.chromium.launch(headless=True, args=["--no-sandbox"])
                     context = browser.new_context()
                     page = context.new_page()
+                    page.goto(f"file://{html_path}", wait_until='networkidle')
 
-                    # Naviguer sur file:// pour conserver les ressources locales (si base_url absent)
-                    target_url = f"file://{html_path}" if not base_url else f"file://{html_path}"
-                    page.goto(target_url, wait_until=wait_until)
-
-                    # Préparer marges (Playwright accepte string "20mm")
                     pdf_margins = {}
                     if margin:
                         pdf_margins = {"top": margin, "right": margin, "bottom": margin, "left": margin}
@@ -2860,83 +2686,50 @@ def convert_html_to_pdf(file, form_data=None):
                         if margin_bottom: pdf_margins["bottom"] = margin_bottom
                         if margin_left: pdf_margins["left"] = margin_left
 
-                    # Taille de page : si valeurs width/height fournies dans form_data, on les privilégie
-                    width = form_data.get('width')
-                    height = form_data.get('height')
-                    prefer_css_page_size = True  # respecte @page size s'il existe
                     pdf_kwargs = {
                         "landscape": (orientation == "landscape"),
                         "print_background": print_background,
                         "scale": scale,
-                        "prefer_css_page_size": prefer_css_page_size,
+                        "prefer_css_page_size": True,
+                        "format": page_size,
                     }
                     if pdf_margins:
                         pdf_kwargs["margin"] = pdf_margins
 
-                    if width and height:
-                        pdf_kwargs["width"] = width
-                        pdf_kwargs["height"] = height
-                    else:
-                        # Sinon utiliser un format standard (A4, Letter, etc.)
-                        pdf_kwargs["format"] = page_size
-
-                    # Header/Footer (peuvent inclure <span class="pageNumber"></span> / <span class="totalPages"></span>)
-                    if header_html or footer_html:
-                        pdf_kwargs["display_header_footer"] = True
-                        pdf_kwargs["header_template"] = header_html or "<span></span>"
-                        pdf_kwargs["footer_template"] = footer_html or "<span></span>"
-
                     pdf_bytes = page.pdf(**pdf_kwargs)
-
-                    await_close = True
-                    try:
-                        page.close()
-                        context.close()
-                        browser.close()
-                        await_close = False
-                    finally:
-                        if await_close:
-                            try: browser.close()
-                            except: pass
+                    page.close()
+                    context.close()
+                    browser.close()
 
                 if pdf_bytes and pdf_bytes[:4] == b'%PDF':
-                    output = BytesIO(pdf_bytes)
-                    output.seek(0)
+                    cleanup_temp_directory(temp_dir)
                     return send_file(
-                        output,
+                        BytesIO(pdf_bytes),
                         mimetype="application/pdf",
                         as_attachment=True,
-                        download_name=f"{Path(file.filename).stem}.pdf"
+                        download_name=f"{Path(original_filename).stem}.pdf"
                     )
-                else:
-                    logger.warning("Playwright a produit un flux qui ne commence pas par %PDF — on tente un fallback.")
-
             except Exception as e:
-                logger.warning(f"Chromium/Playwright a échoué : {e} — tentative fallback.")
-            finally:
-                cleanup_temp_directory(temp_dir)
+                logger.warning(f"Chromium/Playwright échoué : {e}")
 
-        # ---------- Fallback WeasyPrint ----------
+        # ---------- WeasyPrint ----------
         if (engine in ('auto', 'weasyprint')) and has_weasy:
             try:
                 html_obj = weasyprint.HTML(string=html_content, base_url=base_url or None)
-                stylesheets = []
-                if css_url:
-                    stylesheets.append(weasyprint.CSS(css_url))
+                stylesheets = [weasyprint.CSS(css_url)] if css_url else []
                 pdf_bytes = html_obj.write_pdf(stylesheets=stylesheets, presentational_hints=True)
                 if pdf_bytes and pdf_bytes[:4] == b'%PDF':
-                    output = BytesIO(pdf_bytes)
-                    output.seek(0)
+                    cleanup_temp_directory(temp_dir)
                     return send_file(
-                        output,
+                        BytesIO(pdf_bytes),
                         mimetype="application/pdf",
                         as_attachment=True,
-                        download_name=f"{Path(file.filename).stem}.pdf"
+                        download_name=f"{Path(original_filename).stem}.pdf"
                     )
             except Exception as e:
                 logger.warning(f"WeasyPrint échoué : {e}")
 
-        # ---------- Fallback PDFKit / wkhtmltopdf ----------
+        # ---------- PDFKit ----------
         if (engine in ('auto', 'pdfkit')) and has_pdfkit:
             try:
                 options = {
@@ -2952,22 +2745,23 @@ def convert_html_to_pdf(file, form_data=None):
                 }
                 pdf_bytes = pdfkit.from_string(html_content, False, options=options)
                 if pdf_bytes and pdf_bytes[:4] == b'%PDF':
-                    output = BytesIO(pdf_bytes)
-                    output.seek(0)
+                    cleanup_temp_directory(temp_dir)
                     return send_file(
-                        output,
+                        BytesIO(pdf_bytes),
                         mimetype="application/pdf",
                         as_attachment=True,
-                        download_name=f"{Path(file.filename).stem}.pdf"
+                        download_name=f"{Path(original_filename).stem}.pdf"
                     )
             except Exception as e:
                 logger.warning(f"PDFKit échoué : {e}")
 
+        cleanup_temp_directory(temp_dir)
         return {"error": "Impossible de générer un PDF valide (tous les moteurs ont échoué)."}
 
     except Exception as e:
-        logger.error(f"Erreur HTML->PDF (Chromium) : {e}")
+        logger.error(f"Erreur HTML->PDF : {e}")
         logger.error(traceback.format_exc())
+        cleanup_temp_directory(temp_dir)
         return {"error": f"Erreur lors de la conversion : {e}"}
 
 # ----- TXT -> PDF -----
@@ -3850,7 +3644,6 @@ def extract_ocr_params(form_data: Optional[Dict] = None) -> Dict[str, Any]:
     if form_data is None:
         form_data = {}
     
-    # Paramètres de base
     params = {
         'language': form_data.get('language', 'fra'),
         'preserve_layout': str(form_data.get('preserve_layout', 'true')).lower() == 'true',
@@ -3869,11 +3662,10 @@ def extract_ocr_params(form_data: Optional[Dict] = None) -> Dict[str, Any]:
         'ai_api_key': form_data.get('ai_api_key', os.environ.get('OPENAI_API_KEY', '')),
     }
     
-    # Construire la chaîne de langue Tesseract
     selected_langs = [l.strip() for l in params['language'].split('+') if l.strip()]
     ocr_langs = []
     for lang in selected_langs:
-        tess_lang = LANG_MAP.get(lang, 'fra')
+        tess_lang = OCR_LANG_MAP.get(lang, 'fra')  # ✅ OCR_LANG_MAP au lieu de LANG_MAP
         ocr_langs.append(tess_lang)
     
     params['ocr_lang'] = "+".join(ocr_langs) if ocr_langs else 'fra'
@@ -3998,25 +3790,12 @@ def add_ai_restructured_to_doc(doc: Document, extracted_text: str, params: Dict)
     doc.add_heading("Texte restructuré par IA", level=2)
     doc.add_paragraph(structured_text)
 
+# ✅ Correction : supprimer complètement ce bloc (c'est du code mort)
 def generate_document_response(doc: Document, original_filename: str):
-    """Génère la réponse avec le document Word."""
-    # Protection contre les listes
-    if isinstance(file, list):
-        if len(file) == 0:
-            return {'error': 'Aucun fichier fourni'}
-        file = file[0]
-    
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
-        return {'error': 'Objet fichier invalide'}
-
     output = BytesIO()
     doc.save(output)
     output.seek(0)
-    
     logger.info(f"Document Word généré ({output.getbuffer().nbytes} octets)")
-    
-    from flask import send_file  # Import ici si utilisation Flask
     return send_file(
         output,
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -5255,11 +5034,7 @@ def create_image_overlay(image_file, x, y):
 
 
 def sign_pdf(file, form_data=None):
-    """
-    Ajoute une signature électronique à un PDF (image ou texte).
-    Supporte plusieurs pages et tailles dynamiques.
-    """
-    # Sécurité : accepter liste ou fichier
+    """Ajoute une signature électronique à un PDF."""
     if isinstance(file, list):
         if not file:
             return {'error': 'Aucun fichier fourni'}
@@ -5272,11 +5047,9 @@ def sign_pdf(file, form_data=None):
         return {'error': 'pypdf ou Pillow non installé'}
 
     try:
-        # Lire le PDF
         pdf_reader = pypdf.PdfReader(file.stream)
-        pdf_writer = pypdf.PyPdfWriter()
+        pdf_writer = pypdf.PdfWriter()  # ✅ PdfWriter au lieu de PyPdfWriter
 
-        # Récupérer les options
         signature_type = form_data.get('signature_type', 'draw') if form_data else 'draw'
         page_numbers = form_data.get('page_numbers', '1') if form_data else '1'
         position_x = float(form_data.get('position_x', '50')) if form_data else 50
@@ -5285,14 +5058,14 @@ def sign_pdf(file, form_data=None):
         max_width = int(form_data.get('max_width', '200')) if form_data else 200
         max_height = int(form_data.get('max_height', '100')) if form_data else 100
 
-        # Transformer page_numbers en liste d’indices
         pages_to_sign = []
         for part in page_numbers.split(','):
+            part = part.strip()
             if '-' in part:
                 start, end = map(int, part.split('-'))
-                pages_to_sign.extend(range(start-1, end))
+                pages_to_sign.extend(range(start - 1, end))
             else:
-                pages_to_sign.append(int(part)-1)
+                pages_to_sign.append(int(part) - 1)
 
         overlay_pdf = None
 
@@ -5300,23 +5073,19 @@ def sign_pdf(file, form_data=None):
             sig_file = request.files['signature_image']
             overlay_pdf = create_signature_overlay(sig_file, position_x, position_y,
                                                    max_width=max_width, max_height=max_height)
-
         elif signature_type == 'type' and signature_text:
             font_size = int(form_data.get('font_size', '24')) if form_data else 24
             font_family = form_data.get('font_family', 'Courier') if form_data else 'Courier'
             overlay_pdf = create_text_signature(signature_text, position_x, position_y,
-                                               font_size, font_family)
-
+                                                font_size, font_family)
         elif signature_type == 'certificate':
             return {'error': 'Signature numérique avec certificat non encore implémentée'}
 
-        # Appliquer la signature
         for i, page in enumerate(pdf_reader.pages):
             if i in pages_to_sign and overlay_pdf:
                 page.merge_page(overlay_pdf.pages[0])
             pdf_writer.add_page(page)
 
-        # Ajouter des métadonnées de signature
         pdf_writer.add_metadata({
             '/Producer': 'PDF Fusion Pro',
             '/Creator': 'PDF Fusion Pro',
@@ -5325,7 +5094,6 @@ def sign_pdf(file, form_data=None):
             '/Signed': 'true'
         })
 
-        # Sauvegarder
         output = BytesIO()
         pdf_writer.write(output)
         output.seek(0)
