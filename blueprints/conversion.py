@@ -817,95 +817,96 @@ def handle_conversion_request(conversion_type, request, config):
 
 def process_conversion(conversion_type, file=None, files=None, form_data=None):
     """Exécute la conversion appropriée selon le type."""
-    # Dictionnaire des fonctions de conversion
-    conversion_functions = {
-        # === CONVERSIONS EN PDF ===
-        'word-en-pdf': convert_word_to_pdf if HAS_REPORTLAB else None,
-        'excel-en-pdf': convert_excel_to_pdf if HAS_REPORTLAB else None,
-        'powerpoint-en-pdf': convert_powerpoint_to_pdf if HAS_REPORTLAB else None,
-        'image-en-pdf': convert_images_to_pdf if HAS_PILLOW and HAS_REPORTLAB else None,
-        'jpg-en-pdf': convert_images_to_pdf if HAS_PILLOW and HAS_REPORTLAB else None,
-        'png-en-pdf': convert_images_to_pdf if HAS_PILLOW and HAS_REPORTLAB else None,
-        'html-en-pdf': convert_html_to_pdf if HAS_PDFKIT or HAS_WEASYPRINT else None,
-        'txt-en-pdf': convert_txt_to_pdf if HAS_REPORTLAB else None,
 
-        # === CONVERSIONS DEPUIS PDF ===
-        'pdf-en-word': convert_pdf_to_word if HAS_PYPDF and HAS_DOCX else None,
-        'pdf-en-doc': convert_pdf_to_doc if HAS_PYPDF and HAS_DOCX else None,
-        'pdf-en-excel': convert_pdf_to_excel if HAS_PDF2IMAGE and HAS_TESSERACT and HAS_PANDAS else None,
-        'pdf-en-ppt': convert_pdf_to_ppt if HAS_PDF2IMAGE and HAS_PILLOW and HAS_PPTX else None,
-        'pdf-en-image': convert_pdf_to_images if HAS_PDF2IMAGE else None,
-        'pdf-en-pdfa': convert_pdf_to_pdfa if HAS_PYPDF else None,
-        'pdf-en-html': convert_pdf_to_html if HAS_PYPDF else None,
-        'pdf-en-txt': convert_pdf_to_txt if HAS_PYPDF else None,
+    # ✅ Dictionnaire lazy avec get() pour éviter NameError sur fonctions manquantes
+    conversion_functions = {}
 
-        # === OUTILS PDF ===
-        'proteger-pdf': protect_pdf_advanced if HAS_PYPDF else None,
-        'deverrouiller-pdf': unlock_pdf if HAS_PYPDF else None,
-        'redact-pdf': redact_pdf if HAS_PYPDF else None,
-        'edit-pdf': edit_pdf if HAS_PYPDF and HAS_REPORTLAB else None,
-        'sign-pdf': sign_pdf if HAS_PYPDF and HAS_PILLOW else None,
-        'prepare-form': prepare_form if HAS_PYPDF and HAS_REPORTLAB else None,
+    # === CONVERSIONS EN PDF ===
+    if HAS_REPORTLAB:
+        conversion_functions['word-en-pdf'] = convert_word_to_pdf
+        conversion_functions['excel-en-pdf'] = convert_excel_to_pdf
+        conversion_functions['powerpoint-en-pdf'] = convert_powerpoint_to_pdf
+        conversion_functions['txt-en-pdf'] = convert_txt_to_pdf
+    if HAS_PILLOW and HAS_REPORTLAB:
+        conversion_functions['image-en-pdf'] = convert_images_to_pdf
+        conversion_functions['jpg-en-pdf'] = convert_images_to_pdf
+        conversion_functions['png-en-pdf'] = convert_images_to_pdf
+    if HAS_PDFKIT or HAS_WEASYPRINT:
+        conversion_functions['html-en-pdf'] = convert_html_to_pdf
 
-        # === AUTRES CONVERSIONS ===
-        'image-en-word': convert_image_to_word if HAS_PILLOW and HAS_TESSERACT and HAS_DOCX else None,
-        'image-en-excel': convert_image_to_excel if HAS_PILLOW and HAS_TESSERACT and HAS_PANDAS else None,
-        'csv-en-excel': convert_csv_to_excel if HAS_PANDAS else None,
-        'excel-en-csv': convert_excel_to_csv if HAS_PANDAS else None
-    }
+    # === CONVERSIONS DEPUIS PDF ===
+    if HAS_PYPDF and HAS_DOCX:
+        conversion_functions['pdf-en-word'] = convert_pdf_to_word
+        conversion_functions['pdf-en-doc'] = convert_pdf_to_doc
+    if HAS_PDF2IMAGE and HAS_TESSERACT and HAS_PANDAS:
+        conversion_functions['pdf-en-excel'] = convert_pdf_to_excel
+    if HAS_PDF2IMAGE and HAS_PILLOW and HAS_PPTX:
+        conversion_functions['pdf-en-ppt'] = convert_pdf_to_ppt
+    if HAS_PDF2IMAGE:
+        conversion_functions['pdf-en-image'] = convert_pdf_to_images
+    if HAS_PYPDF:
+        conversion_functions['pdf-en-pdfa'] = convert_pdf_to_pdfa
+        conversion_functions['pdf-en-html'] = convert_pdf_to_html
+        conversion_functions['pdf-en-txt'] = convert_pdf_to_txt
+
+    # === OUTILS PDF ===
+    if HAS_PYPDF:
+        conversion_functions['proteger-pdf'] = protect_pdf_advanced
+        conversion_functions['deverrouiller-pdf'] = unlock_pdf  # ✅ seulement si définie
+        conversion_functions['redact-pdf'] = redact_pdf
+    if HAS_PYPDF and HAS_REPORTLAB:
+        conversion_functions['edit-pdf'] = edit_pdf
+        conversion_functions['prepare-form'] = prepare_form
+    if HAS_PYPDF and HAS_PILLOW:
+        conversion_functions['sign-pdf'] = sign_pdf
+
+    # === AUTRES CONVERSIONS ===
+    if HAS_PILLOW and HAS_TESSERACT and HAS_DOCX:
+        conversion_functions['image-en-word'] = convert_image_to_word
+    if HAS_PILLOW and HAS_TESSERACT and HAS_PANDAS:
+        conversion_functions['image-en-excel'] = convert_image_to_excel
+    if HAS_PANDAS:
+        conversion_functions['csv-en-excel'] = convert_csv_to_excel
+        conversion_functions['excel-en-csv'] = convert_excel_to_csv
 
     # Vérification type de conversion
     if conversion_type not in conversion_functions:
-        return {'error': 'Type de conversion non implémenté'}
+        return {'error': 'Type de conversion non implémenté ou dépendances manquantes'}
 
     func = conversion_functions[conversion_type]
-    if func is None:
-        return {'error': 'Cette conversion nécessite des dépendances manquantes'}
 
     try:
-        # CAS 1: Plusieurs fichiers fournis
         if files is not None:
-            # Les fichiers ont déjà été normalisés par normalize_files_input
             if not files:
                 return {'error': 'Aucun fichier fourni'}
-            
-            # Liste des conversions qui acceptent plusieurs fichiers
-            multi_file_conversions = ['csv-en-excel', 'excel-en-csv', 'image-en-pdf', 
-                                      'jpg-en-pdf', 'png-en-pdf', 'word-en-pdf']
-            
+
+            multi_file_conversions = [
+                'csv-en-excel', 'excel-en-csv', 'image-en-pdf',
+                'jpg-en-pdf', 'png-en-pdf', 'word-en-pdf'
+            ]
+
             if conversion_type in multi_file_conversions:
-                # Ces fonctions acceptent directement une liste de fichiers
                 return func(files, form_data)
             else:
-                # Pour les autres conversions, on prend le premier fichier
                 return func(files[0], form_data)
-        
-        # CAS 2: Un seul fichier fourni
+
         elif file is not None:
-            # Le fichier a déjà été normalisé par normalize_file_input
             return func(file, form_data)
-        
-        # CAS 3: Aucun fichier fourni
+
         else:
             return {'error': 'Aucun fichier fourni pour la conversion'}
-            
+
     except Exception as e:
         current_app.logger.error(f"Exception dans {conversion_type}: {str(e)}\n{traceback.format_exc()}")
-        
-        # Tentative de fallback PDF si possible
         try:
-            # Déterminer le nom du fichier pour le fallback
             filename = "document"
             if file is not None:
                 filename = getattr(file, 'filename', 'document')
             elif files is not None and len(files) > 0:
                 filename = getattr(files[0], 'filename', 'document')
-            
             return generate_fallback_pdf(filename, conversion_type)
-            
         except Exception as fallback_e:
             current_app.logger.error(f"Erreur fallback PDF: {str(fallback_e)}")
-            
         return {'error': f'Erreur interne: {str(e)}'}
 
 def validate_file_extension(filename, allowed_extensions):
@@ -3371,7 +3372,50 @@ def protect_pdf_advanced(file, form_data=None, return_report=False):
         logger.error(traceback.format_exc())
         return {"error": f"Erreur lors de la protection avancée : {e}"}
 
+def unlock_pdf(file, form_data=None):
+    """Retire la protection mot de passe d'un PDF."""
+    if isinstance(file, list):
+        if not file:
+            return {'error': 'Aucun fichier fourni'}
+        file = file[0]
 
+    if not hasattr(file, 'filename') or not hasattr(file, 'read'):
+        return {'error': 'Objet fichier invalide'}
+
+    if not HAS_PYPDF:
+        return {'error': 'pypdf non installé'}
+
+    original_filename = file.filename
+
+    try:
+        password = (form_data.get('password', '') if form_data else '')
+        pdf_bytes = file.read()
+        reader = pypdf.PdfReader(BytesIO(pdf_bytes))
+
+        if reader.is_encrypted:
+            result = reader.decrypt(password)
+            if result == 0:
+                return {'error': 'Mot de passe incorrect ou PDF non déchiffrable'}
+
+        writer = pypdf.PdfWriter()
+        for page in reader.pages:
+            writer.add_page(page)
+
+        # ✅ Pas de chiffrement = déverrouillé
+        output = BytesIO()
+        writer.write(output)
+        output.seek(0)
+
+        return send_file(
+            output,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f"{Path(original_filename).stem}_unlocked.pdf"
+        )
+
+    except Exception as e:
+        logger.error(f"Erreur déverrouillage PDF : {e}")
+        return {'error': f'Erreur lors du déverrouillage : {str(e)}'}
 
 # ================= FONCTIONS UTILITAIRES IMAGE =================
 
