@@ -756,28 +756,34 @@ def compression_redirect():
 def handle_conversion_request(conversion_type, request, config):
     """Gère la requête de conversion."""
     try:
-        # Vérifier les fichiers
-        if 'file' not in request.files and 'files' not in request.files:
-            flash('Aucun fichier sélectionné', 'error')
-            return redirect(request.url)
-        
-        # Récupérer les fichiers selon le type
+        # Vérifier les fichiers selon le type
         if config['max_files'] > 1:
+            # Plusieurs fichiers autorisés
             files = request.files.getlist('files')
-            if not files or files[0].filename == '':
-                flash('Veuillez sélectionner au moins un fichier', 'error')
-                return redirect(request.url)
             
-            if len(files) > config['max_files']:
-                flash(f'Maximum {config["max_files"]} fichiers autorisés', 'error')
+            # Normaliser l'entrée
+            files, error = normalize_files_input(files, max_files=config['max_files'])
+            if error:
+                flash(error['error'], 'error')
                 return redirect(request.url)
             
             result = process_conversion(conversion_type, files=files, form_data=request.form)
         else:
-            file = request.files['file']
-            if file.filename == '':
-                flash('Veuillez sélectionner un fichier', 'error')
+            # Un seul fichier autorisé
+            file = request.files.get('file')
+            
+            # Normaliser l'entrée
+            file, error = normalize_file_input(file)
+            if error:
+                flash(error['error'], 'error')
                 return redirect(request.url)
+            
+            # Vérifier l'extension si spécifiée
+            if config.get('accept'):
+                allowed_ext = {ext.strip() for ext in config['accept'].split(',')}
+                if not validate_file_extension(file.filename, allowed_ext):
+                    flash(f"Type de fichier non supporté. Formats acceptés: {config['accept']}", 'error')
+                    return redirect(request.url)
             
             result = process_conversion(conversion_type, file=file, form_data=request.form)
         
@@ -798,38 +804,38 @@ def process_conversion(conversion_type, file=None, files=None, form_data=None):
     # Dictionnaire des fonctions de conversion
     conversion_functions = {
         # === CONVERSIONS EN PDF ===
-        'word-en-pdf': globals().get('convert_word_to_pdf') if HAS_REPORTLAB else None,
-        'excel-en-pdf': globals().get('convert_excel_to_pdf') if HAS_REPORTLAB else None,
-        'powerpoint-en-pdf': globals().get('convert_powerpoint_to_pdf') if HAS_REPORTLAB else None,
-        'image-en-pdf': globals().get('convert_images_to_pdf') if HAS_PILLOW and HAS_REPORTLAB else None,
-        'jpg-en-pdf': globals().get('convert_images_to_pdf') if HAS_PILLOW and HAS_REPORTLAB else None,
-        'png-en-pdf': globals().get('convert_images_to_pdf') if HAS_PILLOW and HAS_REPORTLAB else None,
-        'html-en-pdf': globals().get('convert_html_to_pdf') if HAS_PDFKIT or HAS_WEASYPRINT else None,
-        'txt-en-pdf': globals().get('convert_txt_to_pdf') if HAS_REPORTLAB else None,
+        'word-en-pdf': convert_word_to_pdf if HAS_REPORTLAB else None,
+        'excel-en-pdf': convert_excel_to_pdf if HAS_REPORTLAB else None,
+        'powerpoint-en-pdf': convert_powerpoint_to_pdf if HAS_REPORTLAB else None,
+        'image-en-pdf': convert_images_to_pdf if HAS_PILLOW and HAS_REPORTLAB else None,
+        'jpg-en-pdf': convert_images_to_pdf if HAS_PILLOW and HAS_REPORTLAB else None,
+        'png-en-pdf': convert_images_to_pdf if HAS_PILLOW and HAS_REPORTLAB else None,
+        'html-en-pdf': convert_html_to_pdf if HAS_PDFKIT or HAS_WEASYPRINT else None,
+        'txt-en-pdf': convert_txt_to_pdf if HAS_REPORTLAB else None,
 
         # === CONVERSIONS DEPUIS PDF ===
-        'pdf-en-word': globals().get('convert_pdf_to_word') if HAS_PYPDF and HAS_DOCX else None,
-        'pdf-en-doc': globals().get('convert_pdf_to_doc') if HAS_PYPDF and HAS_DOCX else None,
-        'pdf-en-excel': globals().get('convert_pdf_to_excel') if HAS_PDF2IMAGE and HAS_TESSERACT and HAS_PANDAS else None,
-        'pdf-en-ppt': globals().get('convert_pdf_to_ppt') if HAS_PDF2IMAGE and HAS_PILLOW and HAS_PPTX else None,
-        'pdf-en-image': globals().get('convert_pdf_to_images') if HAS_PDF2IMAGE else None,
-        'pdf-en-pdfa': globals().get('convert_pdf_to_pdfa') if HAS_PYPDF else None,
-        'pdf-en-html': globals().get('convert_pdf_to_html') if HAS_PYPDF else None,
-        'pdf-en-txt': globals().get('convert_pdf_to_txt') if HAS_PYPDF else None,
+        'pdf-en-word': convert_pdf_to_word if HAS_PYPDF and HAS_DOCX else None,
+        'pdf-en-doc': convert_pdf_to_doc if HAS_PYPDF and HAS_DOCX else None,
+        'pdf-en-excel': convert_pdf_to_excel if HAS_PDF2IMAGE and HAS_TESSERACT and HAS_PANDAS else None,
+        'pdf-en-ppt': convert_pdf_to_ppt if HAS_PDF2IMAGE and HAS_PILLOW and HAS_PPTX else None,
+        'pdf-en-image': convert_pdf_to_images if HAS_PDF2IMAGE else None,
+        'pdf-en-pdfa': convert_pdf_to_pdfa if HAS_PYPDF else None,
+        'pdf-en-html': convert_pdf_to_html if HAS_PYPDF else None,
+        'pdf-en-txt': convert_pdf_to_txt if HAS_PYPDF else None,
 
         # === OUTILS PDF ===
-        'proteger-pdf': globals().get('protect_pdf') if HAS_PYPDF else None,
-        'deverrouiller-pdf': globals().get('unlock_pdf') if HAS_PYPDF else None,
-        'redact-pdf': globals().get('redact_pdf') if HAS_PYPDF else None,
-        'edit-pdf': globals().get('edit_pdf') if HAS_PYPDF and HAS_REPORTLAB else None,
-        'sign-pdf': globals().get('sign_pdf') if HAS_PYPDF and HAS_PILLOW else None,
-        'prepare-form': globals().get('prepare_form') if HAS_PYPDF and HAS_REPORTLAB else None,
+        'proteger-pdf': protect_pdf_advanced if HAS_PYPDF else None,
+        'deverrouiller-pdf': unlock_pdf if HAS_PYPDF else None,
+        'redact-pdf': redact_pdf if HAS_PYPDF else None,
+        'edit-pdf': edit_pdf if HAS_PYPDF and HAS_REPORTLAB else None,
+        'sign-pdf': sign_pdf if HAS_PYPDF and HAS_PILLOW else None,
+        'prepare-form': prepare_form if HAS_PYPDF and HAS_REPORTLAB else None,
 
         # === AUTRES CONVERSIONS ===
-        'image-en-word': globals().get('convert_image_to_word') if HAS_PILLOW and HAS_TESSERACT and HAS_DOCX else None,
-        'image-en-excel': globals().get('convert_image_to_excel') if HAS_PILLOW and HAS_TESSERACT and HAS_PANDAS else None,
-        'csv-en-excel': globals().get('convert_csv_to_excel') if HAS_PANDAS else None,
-        'excel-en-csv': globals().get('convert_excel_to_csv') if HAS_PANDAS else None
+        'image-en-word': convert_image_to_word if HAS_PILLOW and HAS_TESSERACT and HAS_DOCX else None,
+        'image-en-excel': convert_image_to_excel if HAS_PILLOW and HAS_TESSERACT and HAS_PANDAS else None,
+        'csv-en-excel': convert_csv_to_excel if HAS_PANDAS else None,
+        'excel-en-csv': convert_excel_to_csv if HAS_PANDAS else None
     }
 
     # Vérification type de conversion
@@ -843,16 +849,13 @@ def process_conversion(conversion_type, file=None, files=None, form_data=None):
     try:
         # CAS 1: Plusieurs fichiers fournis
         if files is not None:
-            # Vérifier que files est bien une liste non vide
-            if not isinstance(files, list):
-                return {'error': 'Format de fichiers invalide'}
-            
-            if len(files) == 0:
+            # Les fichiers ont déjà été normalisés par normalize_files_input
+            if not files:
                 return {'error': 'Aucun fichier fourni'}
             
             # Liste des conversions qui acceptent plusieurs fichiers
             multi_file_conversions = ['csv-en-excel', 'excel-en-csv', 'image-en-pdf', 
-                                      'jpg-en-pdf', 'png-en-pdf']
+                                      'jpg-en-pdf', 'png-en-pdf', 'word-en-pdf']
             
             if conversion_type in multi_file_conversions:
                 # Ces fonctions acceptent directement une liste de fichiers
@@ -863,16 +866,8 @@ def process_conversion(conversion_type, file=None, files=None, form_data=None):
         
         # CAS 2: Un seul fichier fourni
         elif file is not None:
-            # Vérifier que file n'est pas une liste (sécurité supplémentaire)
-            if isinstance(file, list):
-                if len(file) > 0:
-                    # Si c'est une liste avec un élément, on prend le premier
-                    return func(file[0], form_data)
-                else:
-                    return {'error': 'Liste de fichiers vide'}
-            else:
-                # Cas normal : un seul fichier
-                return func(file, form_data)
+            # Le fichier a déjà été normalisé par normalize_file_input
+            return func(file, form_data)
         
         # CAS 3: Aucun fichier fourni
         else:
@@ -886,12 +881,9 @@ def process_conversion(conversion_type, file=None, files=None, form_data=None):
             # Déterminer le nom du fichier pour le fallback
             filename = "document"
             if file is not None:
-                if hasattr(file, 'filename'):
-                    filename = file.filename
-                elif isinstance(file, list) and len(file) > 0 and hasattr(file[0], 'filename'):
-                    filename = file[0].filename
-            elif files is not None and len(files) > 0 and hasattr(files[0], 'filename'):
-                filename = files[0].filename
+                filename = getattr(file, 'filename', 'document')
+            elif files is not None and len(files) > 0:
+                filename = getattr(files[0], 'filename', 'document')
             
             return generate_fallback_pdf(filename, conversion_type)
             
@@ -899,6 +891,24 @@ def process_conversion(conversion_type, file=None, files=None, form_data=None):
             current_app.logger.error(f"Erreur fallback PDF: {str(fallback_e)}")
             
         return {'error': f'Erreur interne: {str(e)}'}
+
+def validate_file_extension(filename, allowed_extensions):
+    """
+    Vérifie si l'extension du fichier est autorisée.
+    allowed_extensions peut être un set ou une liste d'extensions avec ou sans le point.
+    """
+    if not filename:
+        return False
+    
+    # S'assurer que toutes les extensions commencent par un point
+    normalized_exts = set()
+    for ext in allowed_extensions:
+        if not ext.startswith('.'):
+            ext = '.' + ext
+        normalized_exts.add(ext.lower())
+    
+    ext = Path(filename).suffix.lower()
+    return ext in normalized_exts
 
 # ============================================================================
 # FONCTIONS DE CONVERSION
