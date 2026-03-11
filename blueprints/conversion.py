@@ -6,11 +6,13 @@ from flask import Blueprint, render_template, request, jsonify, send_file, flash
 from werkzeug.utils import secure_filename
 import sys
 import os
+import json
 os.environ["OMP_THREAD_LIMIT"] = "1"
 import tempfile
 import uuid
 from datetime import datetime
 from pathlib import Path
+from pypdf import PdfMerger
 import shutil
 import traceback
 from io import BytesIO
@@ -24,6 +26,26 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 from flask_babel import _, lazy_gettext as _l
 
+# =========================
+# CONSTANTES GLOBALES
+# =========================
+# Ajoutez ceci après les imports, avant les vérifications de dépendances
+OCR_LANG_MAP = {
+    'fra': 'fra', 'en': 'eng', 'es': 'spa', 'de': 'deu', 
+    'it': 'ita', 'pt': 'por', 'ru': 'rus', 'ar': 'ara',
+    'zh': 'chi_sim', 'ja': 'jpn', 'nl': 'nld'
+}
+
+PDF_PERMISSIONS_MAP = {
+    'can_print': 4,
+    'can_modify': 8,
+    'can_copy': 16,
+    'can_annotate': 32,
+    'can_fill_forms': 256,
+    'can_extract_for_accessibility': 512,
+    'can_assemble': 1024,
+    'can_print_high_res': 2048
+}
 # =========================
 # LOGGING
 # =========================
@@ -108,9 +130,12 @@ try:
     from sklearn.cluster import KMeans
     import numpy as np
     HAS_NUMPY = True
+    HAS_SKLEARN = True
 except ImportError:
     np = None
+    KMeans = None
     HAS_NUMPY = False
+    HAS_SKLEARN = False
     logger.warning("[WARN] numpy non installé, certains traitements désactivés")
 
 # pytesseract
@@ -947,125 +972,128 @@ def smart_ocr(img, min_confidence=40, max_words=10000):
         print(f"[OCR_UNKNOWN_ERROR] {e}")
         return []
 
-
 # ----- Word -> PDF -----
 def convert_word_to_pdf(file, form_data=None):
+    """Convertit Word -> PDF"""
+    # Normalisation pour fichier unique (car cette fonction peut aussi gérer plusieurs fichiers)
+    files, error = normalize_files_input(file if isinstance(file, list) else [file])
+    if error:
+        return error
 
-    # Protection contre les listes
-    if isinstance(file, list):
-        if not file:
-            return {'error': 'Aucun fichier fourni'}
-        file = file[0]
+    allowed = {".docx", ".doc", ".odt", ".rtf"}
+    form_data = form_data or {}
+    merge_output = form_data.get("merge", True)
 
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
-        return {'error': 'Objet fichier invalide'}
+    temp_dir = create_temp_directory("word2pdf_")
+    generated_pdfs = []
 
-    temp_dir = None
     try:
-        # ---- Création du répertoire temporaire ----
-        temp_dir = tempfile.mkdtemp()
-        input_path = os.path.join(temp_dir, secure_filename(file.filename))
-        file.save(input_path)
+        libreoffice = shutil.which("libreoffice")
+        if not libreoffice:
+            current_app.logger.warning("LibreOffice non installé → fallback")
 
-        # ---- Options de mise en page ----
-        page_format = form_data.get('page_format', 'A4') if form_data else 'A4'
-        orientation = form_data.get('orientation', 'portrait') if form_data else 'portrait'
+        for f in files:
+            if not validate_file_extension(f.filename, allowed):
+                continue
 
-        pagesize = A4 if page_format == 'A4' else letter
-        if orientation == 'landscape':
-            pagesize = (pagesize[1], pagesize[0])
+            input_path = os.path.join(temp_dir, secure_filename(f.filename))
+            f.save(input_path)
 
-        width, height = pagesize
+            # Conversion LibreOffice
+            if libreoffice:
+                cmd = [
+                    libreoffice,
+                    "--headless",
+                    "--convert-to",
+                    "pdf",
+                    "--outdir",
+                    temp_dir,
+                    input_path
+                ]
 
-        # =====================================================
-        # 1) TENTATIVE DE CONVERSION AVEC LIBREOFFICE
-        # =====================================================
-        libreoffice_path = shutil.which("libreoffice")
-        if libreoffice_path:
-            cmd = [
-                libreoffice_path, "--headless", "--convert-to", "pdf",
-                "--outdir", temp_dir, input_path
-            ]
+                subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    timeout=120,
+                    check=False
+                )
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
-
-            if result.returncode == 0:
-                # On récupère le PDF réellement généré (nom incertain)
                 pdf_candidates = [
-                    f for f in os.listdir(temp_dir) if f.lower().endswith(".pdf")
+                    os.path.join(temp_dir, p)
+                    for p in os.listdir(temp_dir)
+                    if p.lower().endswith(".pdf")
                 ]
 
                 if pdf_candidates:
-                    output_path = os.path.join(temp_dir, pdf_candidates[0])
+                    generated_pdfs.append(pdf_candidates[-1])
+                    continue
 
-                    # Lire le PDF avant de supprimer le dossier
-                    with open(output_path, "rb") as f:
-                        pdf_bytes = f.read()
-
-                    # Retourner un flux BytesIO → plus de PDF corrompu
-                    return send_file(
-                        BytesIO(pdf_bytes),
-                        mimetype="application/pdf",
-                        as_attachment=True,
-                        download_name=f"{Path(file.filename).stem}.pdf"
+            # Fallback python-docx
+            if f.filename.lower().endswith(".docx"):
+                try:
+                    doc = Document(input_path)
+                    text = "\n\n".join(
+                        p.text for p in doc.paragraphs if p.text.strip()
                     )
+                except Exception:
+                    text = "Contenu non extractible."
+            else:
+                text = "Format non supporté."
 
-        # =====================================================
-        # 2) FALLBACK PYTHON-DOCX + REPORTLAB
-        # =====================================================
-        text_content = ""
-        if file.filename.endswith(".docx"):
-            try:
-                doc = Document(input_path)
-                paragraphs = [
-                    p.text.strip() for p in doc.paragraphs if p.text.strip()
-                ]
-                text_content = "\n\n".join(paragraphs) if paragraphs else "Contenu non extractible."
-            except Exception:
-                text_content = "Document lisible mais contenu non extractible."
-        else:
-            text_content = "Format non supporté par fallback."
+            output_pdf = os.path.join(
+                temp_dir,
+                f"{Path(f.filename).stem}_fallback.pdf"
+            )
 
-        # Génération du PDF fallback
-        output = BytesIO()
-        c = canvas.Canvas(output, pagesize=pagesize)
-        c.setFont("Helvetica-Bold", 16)
-        c.drawString(50, height - 50, f"Document : {file.filename}")
+            c = canvas.Canvas(output_pdf, pagesize=A4)
+            y = 800
+            c.setFont("Helvetica", 11)
 
-        y = height - 100
-        c.setFont("Helvetica", 11)
-
-        for para in text_content.split("\n"):
-            while para:
-                # Découpage automatique = éviter texte hors page
-                line = para[:95] if len(para) <= 95 else para[:para.rfind(" ", 0, 95)] or para[:95]
-                c.drawString(50, y, line)
-                y -= 15
-                para = para[len(line):].lstrip()
-
+            for line in text.split("\n"):
                 if y < 50:
                     c.showPage()
                     c.setFont("Helvetica", 11)
-                    y = height - 50
+                    y = 800
+                c.drawString(50, y, line[:100])
+                y -= 15
 
-        c.save()
-        output.seek(0)
+            c.save()
+            generated_pdfs.append(output_pdf)
 
+        if not generated_pdfs:
+            return {"error": "Conversion impossible"}
+
+        # Fusion PDF automatique
+        if merge_output and len(generated_pdfs) > 1:
+            merger = PdfMerger()
+            for pdf in generated_pdfs:
+                merger.append(pdf)
+            merged_path = os.path.join(temp_dir, "merged_output.pdf")
+            merger.write(merged_path)
+            merger.close()
+
+            return send_file(
+                merged_path,
+                mimetype="application/pdf",
+                as_attachment=True,
+                download_name="converted_documents.pdf"
+            )
+
+        # Un seul fichier
         return send_file(
-            output,
+            generated_pdfs[0],
             mimetype="application/pdf",
             as_attachment=True,
-            download_name=f"{Path(file.filename).stem}.pdf"
+            download_name=f"{Path(files[0].filename).stem}.pdf"
         )
 
     except Exception as e:
-        print(f"Erreur Word->PDF : {e}")
-        return {"error": str(e)}
+        current_app.logger.error(f"Erreur Word->PDF PRO: {str(e)}")
+        return generate_fallback_pdf("document", "Word")
 
     finally:
-        if temp_dir:
-            shutil.rmtree(temp_dir, ignore_errors=True)
+        cleanup_temp_directory(temp_dir)
 
 # ----- Excel -> PDF -----
 def convert_excel_to_pdf(file, form_data=None):
@@ -1202,72 +1230,89 @@ def convert_excel_to_pdf(file, form_data=None):
 
 # ----- PowerPoint -> PDF -----
 def convert_powerpoint_to_pdf(file, form_data=None):
+    """
+    Conversion PowerPoint -> PDF
+    Priorité : LibreOffice
+    Fallback : python-pptx + ReportLab
+    """
 
-    # Protection contre les listes
+    # Normaliser l'entrée (file ou liste)
     if isinstance(file, list):
         if not file:
             return {'error': 'Aucun fichier fourni'}
         file = file[0]
 
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+    # Vérifier objet fichier
+    if not hasattr(file, "filename") or not hasattr(file, "save"):
         return {'error': 'Objet fichier invalide'}
 
-    temp_dir = None
+    # Vérifier extension
+    allowed = (".pptx", ".ppt", ".odp")
+    if not file.filename.lower().endswith(allowed):
+        return {'error': 'Format PowerPoint non supporté'}
+
+    temp_dir = tempfile.mkdtemp()
+
     try:
-        # ---- Création répertoire temporaire ----
-        temp_dir = tempfile.mkdtemp()
         input_path = os.path.join(temp_dir, secure_filename(file.filename))
         file.save(input_path)
 
         # =====================================================
-        # 1) TENTATIVE AVEC LIBREOFFICE
+        # 1️⃣ Conversion via LibreOffice
         # =====================================================
-        libreoffice_path = shutil.which("libreoffice")
+        libreoffice = shutil.which("libreoffice")
 
-        if libreoffice_path:
+        if libreoffice:
+
             cmd = [
-                libreoffice_path,
+                libreoffice,
                 "--headless",
-                "--convert-to", "pdf",
-                "--outdir", temp_dir,
+                "--convert-to",
+                "pdf",
+                "--outdir",
+                temp_dir,
                 input_path
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+            result = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=120,
+                check=False
+            )
 
-            if result.returncode == 0:
-                # Récupérer le vrai PDF généré dans temp_dir
-                pdf_candidates = [
-                    f for f in os.listdir(temp_dir)
-                    if f.lower().endswith(".pdf")
-                ]
+            pdf_candidates = [
+                f for f in os.listdir(temp_dir)
+                if f.lower().endswith(".pdf")
+            ]
 
-                if pdf_candidates:
-                    output_path = os.path.join(temp_dir, pdf_candidates[0])
+            if result.returncode == 0 and pdf_candidates:
 
-                    # Lire le PDF en mémoire AVANT suppression du dossier
-                    with open(output_path, "rb") as f:
-                        pdf_bytes = f.read()
+                output_path = os.path.join(temp_dir, pdf_candidates[0])
 
-                    return send_file(
-                        BytesIO(pdf_bytes),
-                        mimetype="application/pdf",
-                        as_attachment=True,
-                        download_name=f"{Path(file.filename).stem}.pdf"
-                    )
+                return send_file(
+                    output_path,
+                    mimetype="application/pdf",
+                    as_attachment=True,
+                    download_name=f"{Path(file.filename).stem}.pdf"
+                )
 
         # =====================================================
-        # 2) FALLBACK AVEC python-pptx + reportlab
+        # 2️⃣ Fallback python-pptx
         # =====================================================
+
         prs = Presentation(input_path)
+
         output = BytesIO()
 
         c = canvas.Canvas(output, pagesize=A4)
         width, height = A4
 
         for i, slide in enumerate(prs.slides):
+
             y = height - 50
+
             c.setFont("Helvetica-Bold", 16)
             c.drawString(50, y, f"Diapositive {i+1}")
             y -= 30
@@ -1275,11 +1320,14 @@ def convert_powerpoint_to_pdf(file, form_data=None):
             text_found = False
 
             for shape in slide.shapes:
+
                 if hasattr(shape, "text") and shape.text.strip():
+
                     text_found = True
                     c.setFont("Helvetica", 10)
 
                     for line in shape.text.split("\n"):
+
                         if y < 50:
                             c.showPage()
                             c.setFont("Helvetica", 10)
@@ -1295,6 +1343,7 @@ def convert_powerpoint_to_pdf(file, form_data=None):
             c.showPage()
 
         c.save()
+
         output.seek(0)
 
         return send_file(
@@ -1305,87 +1354,117 @@ def convert_powerpoint_to_pdf(file, form_data=None):
         )
 
     except Exception as e:
-        logger.error(f"Erreur PowerPoint->PDF : {e}")
+
+        current_app.logger.error(f"Erreur PowerPoint->PDF : {str(e)}")
+
         return generate_fallback_pdf(file.filename, "PowerPoint")
 
     finally:
-        if temp_dir:
-            shutil.rmtree(temp_dir, ignore_errors=True)
+
+        shutil.rmtree(temp_dir, ignore_errors=True)
 
 # ----- Images -> PDF -----
 def convert_images_to_pdf(files, form_data=None):
-    # Vérifier que c'est une liste non vide
-    if not isinstance(files, list) or not files:
-        return {'error': 'Aucun fichier fourni'}
-    
-    for file in files:
-        if not hasattr(file, 'filename'):
-            return {'error': 'Objet fichier invalide'}
+    """Conversion Images -> PDF (version PRO)"""
+    # Normalisation
+    files, error = normalize_files_input(files, max_files=20)
+    if error:
+        return error
 
     if not HAS_PILLOW or not HAS_REPORTLAB:
-        return {'error': 'Pillow ou reportlab non installé'}
+        return {"error": "Pillow ou reportlab non installé"}
 
-    output = BytesIO()
+    allowed_ext = (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff")
+    form_data = form_data or {}
+    page_size = form_data.get("pageSize", "A4")
+    orientation = form_data.get("orientation", "portrait")
+    quality = form_data.get("quality", "medium")
 
-    # ---- Options utilisateur ----
-    page_size = form_data.get('pageSize', 'A4') if form_data else 'A4'
-    orientation = form_data.get('orientation', 'portrait') if form_data else 'portrait'
-    quality = form_data.get('quality', 'medium') if form_data else 'medium'
-
-    # Pagesize
-    pagesize = A4 if page_size == 'A4' else letter
-    if orientation == 'landscape':
+    pagesize = A4 if page_size == "A4" else letter
+    if orientation == "landscape":
         pagesize = (pagesize[1], pagesize[0])
-
     width, height = pagesize
 
-    # Qualité JPEG
-    quality_val = 95 if quality == 'high' else 75 if quality == 'medium' else 50
+    quality_map = {"high": 95, "medium": 75, "low": 50}
+    quality_val = quality_map.get(quality, 75)
 
+    # Filtrer et trier les fichiers valides
+    valid_files = []
+    for f in files:
+        if validate_file_extension(f.filename, allowed_ext):
+            valid_files.append(f)
+    
+    if not valid_files:
+        return {"error": "Aucune image valide"}
+
+    # Tri alphabétique
+    valid_files.sort(key=lambda x: x.filename.lower())
+
+    output = BytesIO()
     c = canvas.Canvas(output, pagesize=pagesize)
+    images_processed = 0
 
-    # ---- Traitement de chaque image ----
-    for file in files:
+    for file in valid_files:
         try:
-            img = Image.open(file.stream)
+            # Opération sécurisée sur l'image
+            img = safe_image_operation(Image.open, file.stream)
+            if img is None:
+                continue
+
+            # Correction rotation EXIF
+            try:
+                exif = img._getexif()
+                if exif:
+                    orientation_key = 274
+                    if orientation_key in exif:
+                        orientation_val = exif[orientation_key]
+                        if orientation_val == 3:
+                            img = img.rotate(180, expand=True)
+                        elif orientation_val == 6:
+                            img = img.rotate(270, expand=True)
+                        elif orientation_val == 8:
+                            img = img.rotate(90, expand=True)
+            except Exception:
+                pass
 
             # Correction mode / transparence
             if img.mode in ("RGBA", "LA", "P"):
-                bg = Image.new("RGB", img.size, (255, 255, 255))
+                background = Image.new("RGB", img.size, (255, 255, 255))
                 if img.mode == "P":
                     img = img.convert("RGBA")
                 mask = img.split()[-1] if img.mode in ("RGBA", "LA") else None
-                bg.paste(img, mask=mask)
-                img = bg
+                background.paste(img, mask=mask)
+                img = background
             elif img.mode != "RGB":
                 img = img.convert("RGB")
 
-            # ---- Redimensionnement optimisé ----
+            # Redimensionnement
             max_w = int(width * 0.9)
             max_h = int(height * 0.9)
             img.thumbnail((max_w, max_h), Image.Resampling.LANCZOS)
+            new_w, new_h = img.size
+            x = (width - new_w) / 2
+            y = (height - new_h) / 2
 
-            new_width, new_height = img.size
-            x = (width - new_width) / 2
-            y = (height - new_height) / 2
-
-            # ---- Export JPEG en mémoire ----
             temp_img = BytesIO()
             img.save(temp_img, format="JPEG", quality=quality_val, optimize=True)
             temp_img.seek(0)
 
-            c.drawImage(temp_img, x, y, width=new_width, height=new_height)
+            c.drawImage(ImageReader(temp_img), x, y, width=new_w, height=new_h)
             c.showPage()
+            images_processed += 1
 
         except Exception as e:
-            logger.error(f"Erreur traitement image {getattr(file, 'filename', 'inconnu')}: {e}")
+            logger.error(f"Erreur image {getattr(file, 'filename', 'inconnu')} : {e}")
             continue
+
+    if images_processed == 0:
+        return {"error": "Aucune image traitée avec succès"}
 
     c.save()
     output.seek(0)
 
-    # Vérification légère PDF (ReportLab met toujours '%PDF' en début)
-    if not output.getvalue().lstrip().startswith(b"%PDF"):
+    if not output.getvalue().startswith(b"%PDF"):
         return {"error": "PDF généré invalide"}
 
     return send_file(
@@ -1397,39 +1476,34 @@ def convert_images_to_pdf(files, form_data=None):
 
 # ----- PDF -> WORD -----
 def convert_pdf_to_word(file, form_data=None):
-    """Convertit un PDF en document Word (.docx)"""
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
-            return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
-    
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
-        return {'error': 'Objet fichier invalide'}
+    """
+    Convertit un PDF en document Word (.docx)
+    Compatible avec pypdf + python-docx
+    """
+
+    # Normalisation
+    file, error = normalize_file_input(file)
+    if error:
+        return error
 
     if not HAS_PYPDF or not HAS_DOCX:
         return {'error': 'pypdf ou python-docx non installé'}
-    
+
     try:
-        # Vérifier l'extension
-        if not file.filename.lower().endswith('.pdf'):
-            return {'error': 'Le fichier fourni n’est pas un PDF'}
+        # Vérification extension PDF
+        if not file.filename.lower().endswith(".pdf"):
+            return {"error": "Le fichier fourni n’est pas un PDF"}
 
-        # Charger le PDF
+        # Lecture PDF
         pdf_reader = pypdf.PdfReader(file.stream)
-
         if len(pdf_reader.pages) == 0:
-            return {'error': 'PDF vide ou invalide'}
+            return {"error": "PDF vide ou invalide"}
 
         logger.info(f"📄 Conversion PDF->Word: {file.filename} ({len(pdf_reader.pages)} pages)")
 
-        # Création du document Word
+        # Création document Word
         doc = Document()
         doc.add_heading(f'Extraction du PDF : {Path(file.filename).stem}', 0)
-
         doc.add_paragraph(f"Date : {datetime.now().strftime('%d/%m/%Y %H:%M')}")
         doc.add_paragraph(f"Nombre de pages détectées : {len(pdf_reader.pages)}")
         doc.add_paragraph()
@@ -1441,7 +1515,7 @@ def convert_pdf_to_word(file, form_data=None):
             if page_num > 0:
                 doc.add_page_break()
 
-            doc.add_heading(f'Page {page_num + 1}', 1)
+            doc.add_heading(f'Page {page_num + 1}', level=1)
 
             try:
                 extracted = page.extract_text() or ""
@@ -1452,7 +1526,7 @@ def convert_pdf_to_word(file, form_data=None):
                     doc.add_paragraph(extracted)
                 else:
                     doc.add_paragraph("[⚠ Aucun texte détecté sur cette page]")
-            
+
             except Exception as e_page:
                 logger.warning(f"⚠ Impossible d’extraire texte page {page_num+1}: {e_page}")
                 doc.add_paragraph("[Erreur d’extraction de cette page]")
@@ -1466,7 +1540,7 @@ def convert_pdf_to_word(file, form_data=None):
                 "Aucun texte n'a pu être extrait automatiquement."
             )
 
-        # ---- Exporter en mémoire ----
+        # ---- Export mémoire ----
         output = BytesIO()
         doc.save(output)
         output.seek(0)
@@ -1483,29 +1557,37 @@ def convert_pdf_to_word(file, form_data=None):
     except Exception as e:
         logger.error(f"❌ Erreur PDF->Word: {e}")
         logger.error(traceback.format_exc())
-        return {'error': f'Erreur lors de la conversion: {str(e)}'}
+        return {"error": f"Erreur lors de la conversion: {str(e)}"}
 
 # ----- PDF -> DOC -----
 def convert_pdf_to_doc(file, form_data=None):
-    """Convertit un PDF en document Word .doc 
-    en ré-utilisant la conversion PDF->DOCX puis en renommant pour compatibilité."""
-    
+    """
+    Convertit un PDF en document Word (.doc)
+    En réutilisant la conversion PDF->DOCX puis renommage pour compatibilité.
+    """
+
+    # Normalisation
+    file, error = normalize_file_input(file)
+    if error:
+        return error
+
     try:
-        # On réutilise convert_pdf_to_word
+        # Réutilisation de convert_pdf_to_word
         response = convert_pdf_to_word(file, form_data)
 
-        # En cas d'erreur, renvoyer telle quelle
+        # Si la conversion retourne une erreur, on la transmet
         if isinstance(response, dict) and "error" in response:
             return response
 
-        # Vérification : send_file renvoie un objet réponse Flask
+        # Vérification que c'est bien un objet Flask response
         if not hasattr(response, "headers"):
             return {"error": "Réponse inattendue du convertisseur PDF->DOCX"}
 
-        # Modifier le nom de fichier retourné
-        disp = response.headers.get("Content-Disposition", "")
-        disp = disp.replace(".docx", ".doc")
-        response.headers["Content-Disposition"] = disp
+        # Renommer le fichier de sortie .docx → .doc
+        content_disp = response.headers.get("Content-Disposition", "")
+        if ".docx" in content_disp:
+            content_disp = content_disp.replace(".docx", ".doc")
+            response.headers["Content-Disposition"] = content_disp
 
         return response
 
@@ -1521,13 +1603,14 @@ def convert_pdf_to_excel(file_storage, form_data=None):
     Ultra robuste + OCR multilingue Tesseract + extraction structurée.
     Fonctionnelle en production (aucune erreur silencieuse).
     """
-        # Sécurité : accepter liste ou fichier
-    if isinstance(file, list):
-        if not file:
+
+    # Sécurité : accepter liste ou fichier unique
+    if isinstance(file_storage, list):
+        if not file_storage:
             return {'error': 'Aucun fichier fourni'}
-        file = file[0]
-    
-    if not hasattr(file, "filename"):
+        file_storage = file_storage[0]
+
+    if not hasattr(file_storage, "filename") or not hasattr(file_storage, "save"):
         return {'error': 'Objet fichier invalide'}
 
     # ---- Vérification dépendances ----
@@ -1540,10 +1623,10 @@ def convert_pdf_to_excel(file_storage, form_data=None):
 
     temp_dir = None
     try:
+        temp_dir = create_temp_directory("pdf2excel_")
         # ---------------------------------------------------------------------
         # 1) SAUVEGARDE DU PDF EN LOCAL
         # ---------------------------------------------------------------------
-        temp_dir = tempfile.mkdtemp()
         pdf_path = os.path.join(temp_dir, secure_filename(file_storage.filename))
         file_storage.save(pdf_path)
 
@@ -1554,7 +1637,7 @@ def convert_pdf_to_excel(file_storage, form_data=None):
         # 2) OPTIONS UTILISATEUR
         # ---------------------------------------------------------------------
         language = (form_data.get('language') if form_data else 'fra') or 'fra'
-        ocr_enabled = str(form_data.get('ocr_enabled', 'true')).lower() == 'true'
+        ocr_enabled = str(form_data.get('ocr_enabled', 'true') if form_data else 'true').lower() == 'true'
 
         # Map langues simples -> Tesseract
         lang_map = {
@@ -1562,7 +1645,6 @@ def convert_pdf_to_excel(file_storage, form_data=None):
             'pt': 'por', 'ru': 'rus', 'ar': 'ara', 'zh': 'chi_sim',
             'ja': 'jpn', 'nl': 'nld'
         }
-
         lang_list = language.split('+')
         ocr_lang = "+".join([lang_map.get(l, "fra") for l in lang_list])
 
@@ -1592,12 +1674,11 @@ def convert_pdf_to_excel(file_storage, form_data=None):
             logger.info(f"📄 OCR page {i + 1}/{len(images)}")
 
             try:
+                page_lines = []
+
                 if ocr_enabled:
-                    # Extraction détaillée
                     data = pytesseract.image_to_data(
-                        img,
-                        lang=ocr_lang,
-                        output_type=Output.DICT,
+                        img, lang=ocr_lang, output_type=Output.DICT,
                         config="--oem 3 --psm 6"
                     )
 
@@ -1634,39 +1715,24 @@ def convert_pdf_to_excel(file_storage, form_data=None):
                     if current:
                         rows.append(current)
 
-                    # nettoyage lignes
                     page_lines = [
                         " ".join([word for _, word in sorted(row)])
                         for row in rows if row
                     ]
-
                 else:
-                    # OCR simple
                     txt = pytesseract.image_to_string(img, lang=ocr_lang)
                     page_lines = [l.strip() for l in txt.split("\n") if l.strip()]
 
                 if page_lines:
                     pages_with_text += 1
                     for ln_idx, line in enumerate(page_lines, 1):
-                        all_rows.append({
-                            "Page": i + 1,
-                            "Ligne": ln_idx,
-                            "Contenu": line
-                        })
+                        all_rows.append({"Page": i + 1, "Ligne": ln_idx, "Contenu": line})
                 else:
-                    all_rows.append({
-                        "Page": i + 1,
-                        "Ligne": 1,
-                        "Contenu": "[Aucun texte détecté]"
-                    })
+                    all_rows.append({"Page": i + 1, "Ligne": 1, "Contenu": "[Aucun texte détecté]"})
 
             except Exception as e_ocr:
                 logger.error(f"❌ Erreur OCR page {i+1} : {e_ocr}")
-                all_rows.append({
-                    "Page": i + 1,
-                    "Ligne": 1,
-                    "Contenu": "[Erreur OCR]"
-                })
+                all_rows.append({"Page": i + 1, "Ligne": 1, "Contenu": "[Erreur OCR]"})
 
         # ---------------------------------------------------------------------
         # 5) CREATION DU DATAFRAME FINAL
@@ -1677,11 +1743,10 @@ def convert_pdf_to_excel(file_storage, form_data=None):
         # 6) EXPORT EXCEL
         # ---------------------------------------------------------------------
         output = BytesIO()
-
         with pd.ExcelWriter(output, engine="openpyxl") as writer:
             df.to_excel(writer, index=False, sheet_name="Extraction")
 
-            # Formatage
+            # Formatage des colonnes
             sheet = writer.sheets["Extraction"]
             for col in sheet.columns:
                 max_len = max(len(str(cell.value) or "") for cell in col)
@@ -1700,14 +1765,12 @@ def convert_pdf_to_excel(file_storage, form_data=None):
                     datetime.now().strftime("%d/%m/%Y %H:%M:%S")
                 ]
             })
-
             summary.to_excel(writer, sheet_name="Résumé", index=False)
             sheet2 = writer.sheets["Résumé"]
             sheet2.column_dimensions["A"].width = 25
             sheet2.column_dimensions["B"].width = 40
 
         output.seek(0)
-
         return send_file(
             output,
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -1721,20 +1784,19 @@ def convert_pdf_to_excel(file_storage, form_data=None):
         return {"error": f"Erreur lors de la conversion : {e}"}
 
     finally:
-        if temp_dir and os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir, ignore_errors=True)
+        cleanup_temp_directory(temp_dir)
 
 # ----- PDF -> PPT -----
-def convert_pdf_to_ppt(file, form_data=None):
+def convert_pdf_to_ppt(file_storage, form_data=None):
     """Conversion PDF → PowerPoint (.pptx) robuste, fiable et stable."""
 
-        # Sécurité : accepter liste ou fichier
-    if isinstance(file, list):
-        if not file:
+    # Sécurité : accepter liste ou fichier unique
+    if isinstance(file_storage, list):
+        if not file_storage:
             return {'error': 'Aucun fichier fourni'}
-        file = file[0]
-    
-    if not hasattr(file, "filename"):
+        file_storage = file_storage[0]
+
+    if not hasattr(file_storage, "filename") or not hasattr(file_storage, "save"):
         return {'error': 'Objet fichier invalide'}
 
     if not HAS_PDF2IMAGE or not HAS_PILLOW or not HAS_PPTX:
@@ -1742,12 +1804,12 @@ def convert_pdf_to_ppt(file, form_data=None):
 
     temp_dir = None
     try:
+        temp_dir = create_temp_directory("pdf2ppt_")
         # ---------------------------------------------------------------------
         # 1) Workspace temporaire
         # ---------------------------------------------------------------------
-        temp_dir = tempfile.mkdtemp()
-        input_pdf = os.path.join(temp_dir, secure_filename(file.filename))
-        file.save(input_pdf)
+        input_pdf = os.path.join(temp_dir, secure_filename(file_storage.filename))
+        file_storage.save(input_pdf)
 
         if not os.path.exists(input_pdf) or os.path.getsize(input_pdf) == 0:
             return {"error": "PDF non valide ou vide"}
@@ -1761,14 +1823,13 @@ def convert_pdf_to_ppt(file, form_data=None):
         if slide_size_opt == "standard":
             slide_width, slide_height = 9144000, 6858000      # 4:3
         else:
-            slide_width, slide_height = 12192000, 6858000     # 16:9 amélioré
-            # (12192000 = 13.33" en EMU, mieux aligné avec PPT réel)
+            slide_width, slide_height = 12192000, 6858000     # 16:9
 
         # ---------------------------------------------------------------------
         # 3) Conversion PDF → images
         # ---------------------------------------------------------------------
         try:
-            images = convert_from_path(input_pdf, dpi=220)   # haute qualité sans lourdeur
+            images = convert_from_path(input_pdf, dpi=220)   # haute qualité
         except Exception as e:
             logger.error(f"Erreur conversion PDF→images : {e}")
             return {"error": "Impossible de convertir le PDF en images. Vérifiez Ghostscript."}
@@ -1788,21 +1849,16 @@ def convert_pdf_to_ppt(file, form_data=None):
         # ---------------------------------------------------------------------
         for i, img in enumerate(images, start=1):
 
-            # Layout vierge
-            slide = prs.slides.add_slide(prs.slide_layouts[6])
-
-            # Nettoyage/transparence
+            slide = prs.slides.add_slide(prs.slide_layouts[6])  # Layout vierge
             img = img.convert("RGB")
 
             # Sauvegarde image temporaire
             img_path = os.path.join(temp_dir, f"page_{i}.jpg")
             img.save(img_path, "JPEG", quality=95)
 
-            # Dimensions de la slide
+            # Calcul scale & position centrée
             sw, sh = slide_width, slide_height
             iw, ih = img.size
-
-            # Calcul du scale × positionnement centré
             scale = min(sw / iw, sh / ih) * 0.96
             new_w = int(iw * scale)
             new_h = int(ih * scale)
@@ -1814,10 +1870,7 @@ def convert_pdf_to_ppt(file, form_data=None):
 
             # Ajout numéro de page
             tx = slide.shapes.add_textbox(
-                Inches(0.25),
-                sh - Inches(0.5),
-                Inches(2),
-                Inches(0.4)
+                Inches(0.25), sh - Inches(0.5), Inches(2), Inches(0.4)
             )
             tf = tx.text_frame
             tf.text = f"Page {i}"
@@ -1835,7 +1888,7 @@ def convert_pdf_to_ppt(file, form_data=None):
             output,
             mimetype="application/vnd.openxmlformats-officedocument.presentationml.presentation",
             as_attachment=True,
-            download_name=f"{Path(file.filename).stem}.pptx"
+            download_name=f"{Path(file_storage.filename).stem}.pptx"
         )
 
     except Exception as e:
@@ -1844,21 +1897,25 @@ def convert_pdf_to_ppt(file, form_data=None):
         return {"error": f"Erreur lors de la conversion : {e}"}
 
     finally:
-        # NETTOYAGE DU DOSSIER TEMPORAIRE
-        if temp_dir and os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir, ignore_errors=True)
+        cleanup_temp_directory(temp_dir)
 
 # ----- PDF -> IMAGE -----
 def _enhance_scan(img: Image.Image, do_binarize: bool) -> Image.Image:
-    """Amélioration visuelle légère pour scans : autocontraste, filtre médian, binarisation optionnelle."""
+    """
+    Amélioration visuelle légère pour scans :
+    - autocontraste
+    - filtre médian
+    - binarisation optionnelle (Otsu si NumPy disponible)
+    """
     try:
         out = img.convert("RGB")
         out = ImageOps.autocontrast(out)
         out = out.filter(ImageFilter.MedianFilter(size=3))
+
         if do_binarize:
             gray = out.convert("L")
             if HAS_NUMPY:
-                arr = np.array(gray)
+                arr = np.array(gray, dtype=np.uint8)
                 # Otsu simple
                 hist, _ = np.histogram(arr, bins=256, range=(0, 255))
                 total = arr.size
@@ -1877,36 +1934,45 @@ def _enhance_scan(img: Image.Image, do_binarize: bool) -> Image.Image:
                     sumB += t * hist[t]
                     mB = sumB / wB
                     mF = (sum_total - sumB) / wF
-                    between = wB * wF * (mB - mF) ** 2
-                    if between > max_var:
-                        max_var = between
+                    var_between = wB * wF * (mB - mF) ** 2
+                    if var_between > max_var:
+                        max_var = var_between
                         threshold = t
                 bw = gray.point(lambda x: 255 if x > threshold else 0, mode='1')
                 out = bw.convert("L").convert("RGB")
             else:
+                # Seuil fixe si NumPy non disponible
                 bw = gray.point(lambda x: 255 if x > 160 else 0, mode='1')
                 out = bw.convert("L").convert("RGB")
+
         return out
+
     except Exception as e:
-        logger.debug(f"Enhance fallback (no binarize): {e}")
+        logger.debug(f"_enhance_scan fallback: {e}")
         return img.convert("RGB")
 
 
 def _is_blank(img: Image.Image, white_ratio_threshold: float = 0.99) -> bool:
-    """Détecte si une page est (quasi) blanche. Mesure le pourcentage de pixels très clairs."""
+    """
+    Détecte si une page est quasi blanche.
+    - white_ratio_threshold : fraction de pixels très clairs pour considérer l'image comme blanche
+    """
     try:
         gray = img.convert("L")
+
         if HAS_NUMPY:
             arr = np.array(gray, dtype=np.uint8)
-            white_pixels = (arr > 245).sum()  # très clair
+            white_pixels = (arr > 245).sum()
             ratio = white_pixels / arr.size
         else:
             data = list(gray.getdata())
             white_pixels = sum(1 for v in data if v > 245)
             ratio = white_pixels / len(data)
+
         return ratio >= white_ratio_threshold
+
     except Exception as e:
-        logger.debug(f"Blank detection failed: {e}")
+        logger.debug(f"_is_blank detection failed: {e}")
         return False
 
 
@@ -1971,7 +2037,7 @@ def _save_image_as_pdf(img: Image.Image, buffer: BytesIO):
         rgb = img.convert("RGB")
         rgb.save(buffer, format="PDF")
 
-
+# ----- PDF -> Image -----
 def convert_pdf_to_images(file, form_data=None):
     """
     Convertit un PDF en images (PNG/JPG) et retourne un ZIP.
@@ -2004,8 +2070,8 @@ def convert_pdf_to_images(file, form_data=None):
 
     temp_dir = None
     try:
-        # 1) Workspace
-        temp_dir = tempfile.mkdtemp()
+        temp_dir = create_temp_directory("pdf2images_")
+        # 1) Workspace temporaire
         pdf_path = os.path.join(temp_dir, secure_filename(file.filename))
         file.save(pdf_path)
 
@@ -2015,155 +2081,103 @@ def convert_pdf_to_images(file, form_data=None):
         # 2) Options
         image_format = (form_data.get('format', 'png') if form_data else 'png').lower()
         quality_opt = form_data.get('quality', 'medium') if form_data else 'medium'
-        dpi = int(form_data.get('dpi', '180')) if form_data else 180
+        dpi = int(form_data.get('dpi', 180) if form_data else 180)
 
         enhance = str(form_data.get('enhance', 'false')).lower() == 'true' if form_data else False
         do_binarize = str(form_data.get('binarize', 'false')).lower() == 'true' if form_data else False
 
         remove_blanks = str(form_data.get('remove_blanks', 'false')).lower() == 'true' if form_data else False
-        blank_threshold = float(form_data.get('blank_threshold', '0.99')) if form_data else 0.99
+        blank_threshold = float(form_data.get('blank_threshold', 0.99) if form_data else 0.99)
 
         contact_sheet = str(form_data.get('contact_sheet', 'false')).lower() == 'true' if form_data else False
-        contact_cols = int(form_data.get('contact_cols', '4')) if form_data else 4
-        contact_rows = int(form_data.get('contact_rows', '5')) if form_data else 5
+        contact_cols = int(form_data.get('contact_cols', 4) if form_data else 4)
+        contact_rows = int(form_data.get('contact_rows', 5) if form_data else 5)
 
         export_per_pdf = str(form_data.get('export_per_page_pdf', 'false')).lower() == 'true' if form_data else False
 
         annotate_ocr = str(form_data.get('annotate_ocr', 'false')).lower() == 'true' if form_data else False
         language = (form_data.get('language', 'fra') if form_data else 'fra')
-        # Map simple
-        lang_map = {'fra':'fra','en':'eng','es':'spa','de':'deu','it':'ita','pt':'por','ru':'rus','ar':'ara','zh':'chi_sim','ja':'jpn','nl':'nld'}
+        lang_map = {'fra':'fra','en':'eng','es':'spa','de':'deu','it':'ita','pt':'por',
+                    'ru':'rus','ar':'ara','zh':'chi_sim','ja':'jpn','nl':'nld'}
         ocr_lang = "+".join([lang_map.get(l.strip(), 'fra') for l in (language.split('+') if '+' in language else [language])])
 
         if image_format not in ['png', 'jpg', 'jpeg']:
             image_format = 'png'
         if image_format == 'jpeg':
             image_format = 'jpg'
-
         quality_val = 95 if quality_opt == 'high' else 75 if quality_opt == 'medium' else 50
 
-        logger.info(f"PDF->IMG: fmt={image_format}, dpi={dpi}, enhance={enhance}, binarize={do_binarize}, blanks={remove_blanks}, perPDF={export_per_pdf}, contact={contact_sheet}, ocrAnnot={annotate_ocr}")
-
-        # 3) PDF -> Images
-        try:
-            pages = convert_from_path(pdf_path, dpi=dpi)
-        except Exception as e:
-            logger.error(f"Erreur PDF->images : {e}")
-            return {'error': f'Impossible de convertir le PDF en images. Vérifiez Ghostscript. Détails : {e}'}
-
+        # 3) Conversion PDF -> Images
+        pages = convert_from_path(pdf_path, dpi=dpi)
         if not pages:
             return {"error": "Aucune page détectée dans le PDF."}
 
-        # 4) ZIP construction
+        # 4) Création ZIP
         zip_buffer = BytesIO()
         with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
-
-            kept_images = []       # pour contact sheet
-            kept_indices = []      # numéros de pages conservées
+            kept_images, kept_indices = [], []
 
             for idx, img in enumerate(pages, start=1):
-                try:
-                    work = img
-                    # Harmoniser couleur/transparence
-                    if work.mode in ("RGBA", "LA", "P"):
-                        bg = Image.new("RGB", work.size, (255, 255, 255))
-                        if work.mode == "P":
-                            work = work.convert("RGBA")
-                        mask = work.split()[-1] if work.mode in ("RGBA", "LA") else None
-                        bg.paste(work, mask=mask)
-                        work = bg
-                    elif work.mode != "RGB":
-                        work = work.convert("RGB")
-
-                    # Améliorations visuelles (optionnelles)
-                    if enhance or do_binarize:
-                        work = _enhance_scan(work, do_binarize=do_binarize)
-
-                    # Éventuelle annotation OCR
-                    if annotate_ocr and HAS_TESSERACT:
-                        work = _annotate_ocr_boxes(work, ocr_lang=ocr_lang)
-
-                    # Filtrer pages blanches
-                    if remove_blanks and _is_blank(work, white_ratio_threshold=blank_threshold):
-                        logger.info(f"Page {idx} ignorée (blanche).")
-                        continue
-
-                    # Sauvegarde image
-                    img_buf = BytesIO()
-                    if image_format == 'png':
-                        work.save(img_buf, format='PNG', optimize=True)
-                    else:
-                        work.save(img_buf, format='JPEG', quality=quality_val, optimize=True)
-                    img_buf.seek(0)
-
-                    img_name = f"images/page_{idx}.{image_format}"
-                    zipf.writestr(img_name, img_buf.getvalue())
-                    kept_images.append(work)
-                    kept_indices.append(idx)
-
-                    # Export PDF par page (optionnel)
-                    if export_per_pdf:
-                        pdf_buf = BytesIO()
-                        _save_image_as_pdf(work, pdf_buf)
-                        pdf_buf.seek(0)
-                        zipf.writestr(f"per_page_pdf/page_{idx}.pdf", pdf_buf.getvalue())
-
-                except Exception as e:
-                    logger.warning(f"⚠ Erreur traitement page {idx} : {e}")
+                work = img.convert("RGB")
+                if enhance or do_binarize:
+                    work = _enhance_scan(work, do_binarize=do_binarize)
+                if annotate_ocr and HAS_TESSERACT:
+                    work = _annotate_ocr_boxes(work, ocr_lang=ocr_lang)
+                if remove_blanks and _is_blank(work, white_ratio_threshold=blank_threshold):
                     continue
 
-            # Feuille de miniatures (optionnelle)
+                # Sauvegarde image
+                img_buf = BytesIO()
+                if image_format == 'png':
+                    work.save(img_buf, format='PNG', optimize=True)
+                else:
+                    work.save(img_buf, format='JPEG', quality=quality_val, optimize=True)
+                img_buf.seek(0)
+                img_name = f"images/page_{idx}.{image_format}"
+                zipf.writestr(img_name, img_buf.getvalue())
+                kept_images.append(work)
+                kept_indices.append(idx)
+
+                if export_per_pdf:
+                    pdf_buf = BytesIO()
+                    _save_image_as_pdf(work, pdf_buf)
+                    pdf_buf.seek(0)
+                    zipf.writestr(f"per_page_pdf/page_{idx}.pdf", pdf_buf.getvalue())
+
+            # Feuille de miniatures
             if contact_sheet and kept_images:
-                try:
-                    cols = max(1, contact_cols)
-                    rows = max(1, contact_rows)
-                    thumb_w = 400
-                    thumb_h = 400
-                    margin = 20
-                    sheet_w = cols * thumb_w + (cols + 1) * margin
-                    sheet_h = rows * thumb_h + (rows + 1) * margin
+                cols = max(1, contact_cols)
+                rows = max(1, contact_rows)
+                thumb_w, thumb_h, margin = 400, 400, 20
+                sheet_w = cols * thumb_w + (cols + 1) * margin
+                sheet_h = rows * thumb_h + (rows + 1) * margin
+                pages_count = len(kept_images)
+                sheets_needed = (pages_count + (cols * rows) - 1) // (cols * rows)
 
-                    pages_count = len(kept_images)
-                    sheets_needed = (pages_count + (cols * rows) - 1) // (cols * rows)
-
-                    for s in range(sheets_needed):
-                        start = s * (cols * rows)
-                        end = min(start + cols * rows, pages_count)
-                        canvas_img = Image.new("RGB", (sheet_w, sheet_h), (240, 240, 240))
-                        draw = ImageDraw.Draw(canvas_img)
-                        try:
-                            font = ImageFont.load_default()
-                        except Exception:
-                            font = None
-
-                        for k, page_img in enumerate(kept_images[start:end]):
-                            r = k // cols
-                            c = k % cols
-                            x0 = margin + c * (thumb_w + margin)
-                            y0 = margin + r * (thumb_h + margin)
-
-                            # créer miniature respectant ratio
-                            thumb = page_img.copy()
-                            thumb.thumbnail((thumb_w, thumb_h), Image.Resampling.LANCZOS)
-                            # centrer la miniature dans sa cellule
-                            tx = x0 + (thumb_w - thumb.width)//2
-                            ty = y0 + (thumb_h - thumb.height)//2
-                            canvas_img.paste(thumb, (tx, ty))
-
-                            # numéro de page
-                            page_no = kept_indices[start + k]
-                            label = f"Page {page_no}"
-                            if font:
-                                draw.text((x0+5, y0+5), label, fill=(0, 0, 0), font=font)
-
-                        # Sauvegarder cette planche dans le ZIP
-                        cs_buf = BytesIO()
-                        canvas_img.save(cs_buf, format='PNG', optimize=True)
-                        cs_buf.seek(0)
-                        zipf.writestr(f"contact_sheets/contact_{s+1}.png", cs_buf.getvalue())
-
-                except Exception as e:
-                    logger.warning(f"Contact sheet échouée: {e}")
+                for s in range(sheets_needed):
+                    start = s * (cols * rows)
+                    end = min(start + cols * rows, pages_count)
+                    canvas_img = Image.new("RGB", (sheet_w, sheet_h), (240, 240, 240))
+                    draw = ImageDraw.Draw(canvas_img)
+                    try:
+                        font = ImageFont.load_default()
+                    except Exception:
+                        font = None
+                    for k, page_img in enumerate(kept_images[start:end]):
+                        r, c = divmod(k, cols)
+                        x0 = margin + c * (thumb_w + margin)
+                        y0 = margin + r * (thumb_h + margin)
+                        thumb = page_img.copy()
+                        thumb.thumbnail((thumb_w, thumb_h), Image.Resampling.LANCZOS)
+                        tx = x0 + (thumb_w - thumb.width)//2
+                        ty = y0 + (thumb_h - thumb.height)//2
+                        canvas_img.paste(thumb, (tx, ty))
+                        if font:
+                            draw.text((x0+5, y0+5), f"Page {kept_indices[start + k]}", fill=(0,0,0), font=font)
+                    cs_buf = BytesIO()
+                    canvas_img.save(cs_buf, format='PNG', optimize=True)
+                    cs_buf.seek(0)
+                    zipf.writestr(f"contact_sheets/contact_{s+1}.png", cs_buf.getvalue())
 
         zip_buffer.seek(0)
         return send_file(
@@ -2179,12 +2193,7 @@ def convert_pdf_to_images(file, form_data=None):
         return {'error': f'Erreur lors de la conversion: {e}'}
 
     finally:
-        if temp_dir and os.path.exists(temp_dir):
-            try:
-                shutil.rmtree(temp_dir, ignore_errors=True)
-                logger.info(f"🧹 Nettoyage du dossier temporaire: {temp_dir}")
-            except Exception as e:
-                logger.warning(f"⚠️ Erreur nettoyage: {e}")
+        cleanup_temp_directory(temp_dir)
 
 # ----- PDF -> PDFA -----
 def convert_pdf_to_pdfa(file, form_data=None):
@@ -2307,12 +2316,11 @@ def convert_pdf_to_html(file, form_data=None):
       - résultat dans un fichier HTML ou ZIP selon options
     """
     # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+    # Protection contre les listes
+    if isinstance(file, list):
+        if len(file) == 0:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
+        file = file[0]
     
     # Vérifier que c'est bien un objet fichier
     if not hasattr(file, 'filename') or not hasattr(file, 'save'):
@@ -2344,10 +2352,10 @@ def convert_pdf_to_html(file, form_data=None):
     temp_dir = None
 
     try:
+        temp_dir = create_temp_directory("pdf2html_")
         # ------------------------------------------------------------
         # 1) Sauvegarder PDF temporairement
         # ------------------------------------------------------------
-        temp_dir = tempfile.mkdtemp()
         pdf_path = os.path.join(temp_dir, secure_filename(file.filename))
         file.save(pdf_path)
 
@@ -2490,45 +2498,32 @@ def convert_pdf_to_html(file, form_data=None):
         return {"error": f"Erreur lors de la conversion : {e}"}
 
     finally:
-        # NETTOYAGE DU DOSSIER TEMPORAIRE
-        if temp_dir and os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir, ignore_errors=True)
+        cleanup_temp_directory(temp_dir)
 
 # ----- PDF -> TXT -----
 def convert_pdf_to_txt(file, form_data=None):
     """Conversion PDF -> TXT robuste, avec OCR fallback optionnel."""
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
-            return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
-    
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
-        return {'error': 'Objet fichier invalide'}
-    
+    # Normalisation
+    file, error = normalize_file_input(file)
+    if error:
+        return error
+
     if not HAS_PYPDF:
         return {"error": "pypdf non installé"}
 
     try:
-        # ------------------ OPTIONS UTILISATEUR ------------------
+        # Options utilisateur
         encoding = (form_data.get("encoding", "utf-8") if form_data else "utf-8")
         add_markers = str(form_data.get("addPageMarkers", "true")).lower() == "true" if form_data else True
         ocr_enabled = str(form_data.get("ocr", "false")).lower() == "true" if form_data else False
         language = (form_data.get("language", "fra") if form_data else "fra")
 
         # Mapping OCR complet
-        lang_map = {
-            'fra': 'fra', 'en': 'eng', 'es': 'spa', 'de': 'deu', 'it': 'ita',
-            'pt': 'por', 'ru': 'rus', 'ar': 'ara', 'zh': 'chi_sim', 'ja': 'jpn', 'nl': 'nld'
-        }
-        ocr_lang = "+".join([lang_map.get(l, "fra") for l in (language.split("+") if "+" in language else [language])])
+        ocr_lang = build_ocr_lang_string(language)
 
         logger.info(f"PDF->TXT : encoding={encoding}, markers={add_markers}, OCR={ocr_enabled}, languages={ocr_lang}")
 
-        # ------------------ LECTURE PDF ------------------
+        # Lecture PDF
         pdf_reader = pypdf.PdfReader(file.stream)
         num_pages = len(pdf_reader.pages)
 
@@ -2536,23 +2531,29 @@ def convert_pdf_to_txt(file, form_data=None):
             return {"error": "PDF vide ou invalide"}
 
         # OCR nécessite pdf2image + Tesseract
+        temp_dir = None
+        pages_img = []
         if ocr_enabled:
             if not HAS_TESSERACT:
                 return {"error": "OCR activé mais Tesseract n'est pas installé"}
             if not HAS_PDF2IMAGE:
                 return {"error": "OCR activé mais pdf2image n'est pas installé"}
 
-            from pdf2image import convert_from_path
-            temp_dir = tempfile.mkdtemp()
+            temp_dir = create_temp_directory("pdf2txt_")
             pdf_temp = os.path.join(temp_dir, secure_filename(file.filename))
-            file.save(pdf_temp)
+            
+            # Sauvegarder le fichier pour pdf2image
+            file.stream.seek(0)
+            with open(pdf_temp, 'wb') as f:
+                f.write(file.read())
 
             try:
                 pages_img = convert_from_path(pdf_temp, dpi=200)
             except Exception as e:
+                cleanup_temp_directory(temp_dir)
                 return {"error": f"Impossible de rasteriser le PDF pour OCR : {e}"}
 
-        # ------------------ EXTRACTION TEXTE ------------------
+        # Extraction texte
         full_text = []
 
         if add_markers:
@@ -2576,13 +2577,15 @@ def convert_pdf_to_txt(file, form_data=None):
             txt = txt.replace("\x00", "").strip()
 
             # Si pas de texte → Fallback OCR
-            if ocr_enabled and (not txt or not txt.strip()):
-                try:
-                    txt = pytesseract.image_to_string(pages_img[idx-1], lang=ocr_lang).strip()
-                    if txt:
-                        full_text.append("[Texte extrait via OCR]\n")
-                except Exception as e:
-                    txt = f"[Erreur OCR : {e}]"
+            if ocr_enabled and (not txt or not txt.strip()) and pages_img and idx-1 < len(pages_img):
+                ocr_text = safe_ocr_call(
+                    pytesseract.image_to_string, 
+                    pages_img[idx-1], 
+                    lang=ocr_lang
+                )
+                if ocr_text:
+                    txt = ocr_text.strip()
+                    full_text.append("[Texte extrait via OCR]\n")
 
             # Si encore vide
             if not txt:
@@ -2598,10 +2601,14 @@ def convert_pdf_to_txt(file, form_data=None):
 
         final_txt = "\n".join(full_text)
 
-        # ------------------ EXPORT FICHIER ------------------
+        # Export fichier
         output = BytesIO()
         output.write(final_txt.encode(encoding, errors="replace"))
         output.seek(0)
+
+        # Nettoyage
+        if temp_dir:
+            cleanup_temp_directory(temp_dir)
 
         return send_file(
             output,
@@ -2669,8 +2676,8 @@ def convert_html_to_pdf(file, form_data=None):
 
     temp_dir = None
     try:
+        temp_dir = create_temp_directory("html2pdf_")
         # CRÉATION DOSSIER TEMPORAIRE
-        temp_dir = tempfile.mkdtemp()
         input_path = os.path.join(temp_dir, secure_filename(file.filename))
         file.save(input_path)  # Sauvegarde du fichier
         # ---------- Lecture HTML ----------
@@ -2793,9 +2800,7 @@ def convert_html_to_pdf(file, form_data=None):
             except Exception as e:
                 logger.warning(f"Chromium/Playwright a échoué : {e} — tentative fallback.")
             finally:
-                # NETTOYAGE DU DOSSIER TEMPORAIRE
-                if temp_dir and os.path.exists(temp_dir):
-                    shutil.rmtree(temp_dir, ignore_errors=True)
+                cleanup_temp_directory(temp_dir)
 
         # ---------- Fallback WeasyPrint ----------
         if (engine in ('auto', 'weasyprint')) and has_weasy:
@@ -2853,26 +2858,17 @@ def convert_html_to_pdf(file, form_data=None):
 
 # ----- TXT -> PDF -----
 def convert_txt_to_pdf(file, form_data=None):
-    """Conversion professionnelle de TXT vers PDF avec gestion des longues lignes, encodage, marges et pagination."""
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
-            return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
-    
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
-        return {'error': 'Objet fichier invalide'}
-    
+    """Conversion professionnelle de TXT vers PDF."""
+    # Normalisation
+    file, error = normalize_file_input(file)
+    if error:
+        return error
+
     if not HAS_REPORTLAB:
         return {'error': 'reportlab non installé'}
 
     try:
-        # ------------------------------------------------------------
-        # 1) Lecture du fichier TXT
-        # ------------------------------------------------------------
+        # Lecture du fichier TXT
         raw = file.read()
         encoding = (form_data.get("encoding", "utf-8") if form_data else "utf-8")
         try:
@@ -2880,28 +2876,23 @@ def convert_txt_to_pdf(file, form_data=None):
         except Exception:
             text_content = raw.decode("utf-8", errors="replace")
 
-        # ------------------------------------------------------------
-        # 2) Options utilisateur
-        # ------------------------------------------------------------
+        # Options utilisateur
         page_size_opt = (form_data.get("pageSize", "A4") if form_data else "A4").upper()
         font_name = form_data.get("font", "Helvetica") if form_data else "Helvetica"
         font_size = int(form_data.get("fontSize", "12")) if form_data else 12
-
         margin = int(form_data.get("margin", "50")) if form_data else 50
+
         logger.info(f"TXT->PDF: page_size={page_size_opt}, font={font_name}, size={font_size}, margin={margin}")
 
         pagesize = A4 if page_size_opt == "A4" else letter
         width, height = pagesize
-
         line_height = font_size * 1.4
 
-        # ------------------------------------------------------------
-        # 3) Création du PDF
-        # ------------------------------------------------------------
+        # Création du PDF
         output = BytesIO()
         pdf = canvas.Canvas(output, pagesize=pagesize)
 
-        # Charger la police (UTF‑8 étendu optionnel)
+        # Charger la police
         try:
             pdf.setFont(font_name, font_size)
         except:
@@ -2910,17 +2901,10 @@ def convert_txt_to_pdf(file, form_data=None):
             pdf.setFont(font_name, font_size)
 
         y = height - margin
-
-        # ------------------------------------------------------------
-        # 4) Gestion intelligente des lignes
-        # ------------------------------------------------------------
-        import textwrap
-
         max_width = width - (margin * 2)
 
-        def wrap_line(line: str):
-            """Retourne une liste de lignes wrap en fonction du PDF."""
-            # calcul largeur du texte → textobject ou stringWidth
+        # Fonction de wrapping des lignes
+        def wrap_line(line):
             from reportlab.pdfbase.pdfmetrics import stringWidth
             wrapped = []
             current = ""
@@ -2938,9 +2922,7 @@ def convert_txt_to_pdf(file, form_data=None):
 
             return wrapped
 
-        # ------------------------------------------------------------
-        # 5) Écriture du texte page par page
-        # ------------------------------------------------------------
+        # Écriture du texte
         for line in text_content.split("\n"):
             wrapped_lines = wrap_line(line)
 
@@ -2956,9 +2938,7 @@ def convert_txt_to_pdf(file, form_data=None):
         pdf.save()
         output.seek(0)
 
-        # ------------------------------------------------------------
-        # 6) Validation PDF
-        # ------------------------------------------------------------
+        # Validation PDF
         pdf_bytes = output.getvalue()
         if not pdf_bytes.startswith(b'%PDF'):
             return {"error": "PDF généré invalide"}
@@ -2976,30 +2956,30 @@ def convert_txt_to_pdf(file, form_data=None):
         return {"error": f"Erreur lors de la conversion : {e}"}
 
 # ----- PDF UNLOCK -----
-def analyze_pdf_permissions(file, form_data=None):
+def analyze_pdf_permissions_advanced(file, form_data=None):
     """
-    Analyse complète d'un PDF : chiffrement, restrictions, permissions,
-    détails AES/RC4, niveaux de protection et version PDF.
+    Analyse complète d'un PDF :
+    - Chiffrement (AES/RC4), longueur clé, révision, filtre.
+    - Permissions détaillées.
+    - Version PDF.
+    - Vérifie si mot de passe nécessaire et validité.
     """
     # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+    if isinstance(file, list):
+        if not file:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
-    
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        file = file[0]
+
+    if not hasattr(file, 'filename') or not hasattr(file, 'read'):
         return {'error': 'Objet fichier invalide'}
 
     if not HAS_PYPDF:
         return {"error": "pypdf non installé"}
 
     try:
-        # Lire le flux PDF
         pdf_bytes = file.read()
         pdf_stream = BytesIO(pdf_bytes)
+        pdf_stream.seek(0)
         reader = pypdf.PdfReader(pdf_stream)
 
         report = {
@@ -3012,18 +2992,16 @@ def analyze_pdf_permissions(file, form_data=None):
             "pdf_version": None
         }
 
-        # Version PDF
+        # PDF version
         try:
             report["pdf_version"] = reader.pdf_header.decode("latin-1").strip()
         except:
             report["pdf_version"] = "inconnue"
 
         # -----------------------------
-        # 1) Si le PDF est chiffré
+        # 1) Chiffrement
         # -----------------------------
         if reader.is_encrypted:
-
-            # Nécessite un mot de passe ?
             password = form_data.get("password", "") if form_data else ""
             if not password:
                 report["requires_password"] = True
@@ -3032,57 +3010,68 @@ def analyze_pdf_permissions(file, form_data=None):
             # Essai user password
             res = reader.decrypt(password)
             if res not in (1, 2, True):
-                # Essai owner password
                 res2 = reader.decrypt(password, owner_pwd=password)
-                if res2 not in (1, 2, True):
-                    report["password_valid"] = False
-                    return report
-                else:
-                    report["password_valid"] = True
+                report["password_valid"] = res2 in (1, 2, True)
             else:
                 report["password_valid"] = True
 
-            # Détails du chiffrement
+            # Lecture détails chiffrement
             try:
                 encrypt_dict = reader.trailer.get("/Encrypt", {})
+
+                filter_name = encrypt_dict.get("/Filter")
+                subfilter_name = encrypt_dict.get("/SubFilter")
+                version = encrypt_dict.get("/V")
+                revision = encrypt_dict.get("/R")
+                key_length = encrypt_dict.get("/Length")  # en bits
+
+                # Détection AES vs RC4
+                aes = False
+                aes_strength = None
+                if filter_name == "/Standard":
+                    if version in (4, 5, 6) and subfilter_name in ("/AESV2", "/AESV3"):
+                        aes = True
+                        aes_strength = key_length
+                    else:
+                        aes = False
+                        aes_strength = key_length
+                elif filter_name == "/Adobe.PubSec":
+                    aes = True
+                    aes_strength = key_length
+                else:
+                    aes = key_length >= 128  # approximation
+
                 report["encryption"] = {
-                    "filter": encrypt_dict.get("/Filter"),
-                    "subfilter": encrypt_dict.get("/SubFilter"),
-                    "version": encrypt_dict.get("/V"),
-                    "revision": encrypt_dict.get("/R"),
-                    "key_length_bits": encrypt_dict.get("/Length"),
-                    "aes": (encrypt_dict.get("/CF") is not None),
+                    "filter": filter_name,
+                    "subfilter": subfilter_name,
+                    "version": version,
+                    "revision": revision,
+                    "key_length_bits": key_length,
+                    "aes": aes,
+                    "aes_strength_bits": aes_strength
                 }
-            except:
-                report["encryption"] = {"error": "Impossible de lire les infos de chiffrement"}
+            except Exception as e:
+                report["encryption"] = {"error": f"Impossible de lire chiffrement : {e}"}
 
         # -----------------------------
         # 2) Permissions
         # -----------------------------
-        # Les permissions sont dans reader.trailer["/Encrypt"]["/P"] en négatif
         try:
             encrypt_dict = reader.trailer.get("/Encrypt", {})
             perms_raw = encrypt_dict.get("/P")
-
-            # Si pas d'encrypt => toutes permissions OK
             if perms_raw is None:
-                report["permissions"] = {
-                    "can_print": True,
-                    "can_modify": True,
-                    "can_copy": True,
-                    "can_annotate": True,
-                    "can_fill_forms": True,
-                    "can_extract_for_accessibility": True,
-                    "can_assemble": True,
-                    "can_print_high_res": True
-                }
+                # PDF non protégé => toutes permissions
+                report["permissions"] = {k: True for k in [
+                    "can_print","can_modify","can_copy","can_annotate",
+                    "can_fill_forms","can_extract_for_accessibility",
+                    "can_assemble","can_print_high_res"
+                ]}
             else:
                 perms = int(perms_raw)
 
                 def allowed(mask):
-                    return bool(perms & mask)
+                    return (perms & mask) == mask
 
-                # Masks PDF standard (Adobe)
                 report["permissions"] = {
                     "can_print": allowed(4),
                     "can_modify": allowed(8),
@@ -3093,100 +3082,111 @@ def analyze_pdf_permissions(file, form_data=None):
                     "can_assemble": allowed(1024),
                     "can_print_high_res": allowed(2048)
                 }
-
         except Exception as e:
             report["permissions"] = {"error": str(e)}
 
         return report
 
     except Exception as e:
-        logger.error(f"Erreur analyse PDF : {e}")
+        logger.error(f"Erreur analyse PDF avancée : {e}")
         logger.error(traceback.format_exc())
-        return {"error": f"Erreur analyse PDF : {e}"}
+        return {"error": f"Erreur analyse PDF avancée : {e}"}
 
 # ----- PDF PROTECT -----
-def protect_pdf(file, form_data=None):
+def protect_pdf_advanced(file, form_data=None, return_report=False):
     """
-    Protège un PDF avec mot de passe et permissions personnalisées.
-    - user_password : requis pour ouvrir le fichier
-    - owner_password : mot de passe administrateur
-    - encryption : 'AES128' (défaut), 'AES256', 'RC4'
-    - allow_printing, allow_copy, allow_modify, allow_annotate : true/false
+    Protège un PDF avec mot de passe et permissions avancées.
+    Retourne un PDF protégé et optionnellement un rapport JSON :
+      - user_password : requis pour ouvrir
+      - owner_password : mot de passe administrateur
+      - encryption : 'AES128' (défaut), 'AES256', 'RC4'
+      - allow_printing, allow_copy, allow_modify, allow_annotate, allow_fill_forms, allow_assemble, allow_extract_access : true/false
     """
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+    if isinstance(file, list):
+        if not file:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
-    
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        file = file[0]
+
+    if not hasattr(file, 'filename') or not hasattr(file, 'read'):
         return {'error': 'Objet fichier invalide'}
 
     if not HAS_PYPDF:
         return {"error": "pypdf non installé"}
 
     try:
-        # =========================================================
-        # 1) Récupération des paramètres
-        # =========================================================
-        user_password = form_data.get("user_password", "") if form_data else ""
-        owner_password = form_data.get("owner_password") if form_data else None
-        if not owner_password:
-            owner_password = user_password + "_master"
+        # ===============================
+        # 1) Paramètres utilisateur
+        # ===============================
+        user_password = (form_data.get("user_password") if form_data else "") or ""
+        owner_password = (form_data.get("owner_password") if form_data else None) or (user_password + "_master")
+        encryption_type = (form_data.get("encryption", "AES128") if form_data else "AES128").upper()
 
-        if not user_password:
-            return {"error": "Mot de passe utilisateur requis"}
-        if len(user_password) < 6:
-            return {"error": "Le mot de passe doit contenir au moins 6 caractères"}
-
-        # Permissions
+        # Permissions avancées
         allow_printing = str(form_data.get("allow_printing", "true")).lower() == "true"
         allow_copy = str(form_data.get("allow_copy", "true")).lower() == "true"
         allow_modify = str(form_data.get("allow_modify", "false")).lower() == "true"
         allow_annotate = str(form_data.get("allow_annotate", "true")).lower() == "true"
+        allow_fill_forms = str(form_data.get("allow_fill_forms", "true")).lower() == "true"
+        allow_assemble = str(form_data.get("allow_assemble", "true")).lower() == "true"
+        allow_extract_access = str(form_data.get("allow_extract_access", "true")).lower() == "true"
 
-        encryption_type = form_data.get("encryption", "AES128").upper()
+        if not user_password or len(user_password) < 6:
+            return {"error": "Mot de passe utilisateur requis et >= 6 caractères"}
 
-        # =========================================================
+        # ===============================
         # 2) Lecture PDF
-        # =========================================================
+        # ===============================
         pdf_bytes = file.read()
         reader = pypdf.PdfReader(BytesIO(pdf_bytes))
 
+        initial_permissions = {}
+        initial_encrypted = reader.is_encrypted
         if reader.is_encrypted:
-            # Déverrouiller automatiquement si possible
             try:
                 reader.decrypt(owner_password)
-            except Exception:
-                pass  # On continue, on réécrira proprement plus bas
+            except:
+                pass
+
+        for perm_name, perm_mask in [
+            ("can_print", 4),
+            ("can_modify", 8),
+            ("can_copy", 16),
+            ("can_annotate", 32),
+            ("can_fill_forms", 256),
+            ("can_extract_accessibility", 512),
+            ("can_assemble", 1024),
+            ("can_print_high_res", 2048),
+        ]:
+            try:
+                perms_raw = reader.trailer.get("/Encrypt", {}).get("/P")
+                if perms_raw is None:
+                    initial_permissions[perm_name] = True
+                else:
+                    initial_permissions[perm_name] = bool(int(perms_raw) & perm_mask)
+            except:
+                initial_permissions[perm_name] = None
 
         if len(reader.pages) == 0:
             return {"error": "PDF vide ou illisible"}
 
-        # =========================================================
+        # ===============================
         # 3) Création PDF protégé
-        # =========================================================
+        # ===============================
         writer = pypdf.PdfWriter()
-
-        # Ajouter pages
         for page in reader.pages:
             writer.add_page(page)
 
-        # Permissions standard PDF
+        # Permissions PDF combinées
         permissions = 0
-        if allow_printing:
-            permissions |= pypdf.Permissions.PRINTING
-        if allow_copy:
-            permissions |= pypdf.Permissions.COPYING
-        if allow_modify:
-            permissions |= pypdf.Permissions.MODIFYING
-        if allow_annotate:
-            permissions |= pypdf.Permissions.ANNOTATING
+        if allow_printing: permissions |= pypdf.Permissions.PRINTING
+        if allow_copy: permissions |= pypdf.Permissions.COPYING
+        if allow_modify: permissions |= pypdf.Permissions.MODIFYING
+        if allow_annotate: permissions |= pypdf.Permissions.ANNOTATING
+        if allow_fill_forms: permissions |= pypdf.Permissions.FILLING
+        if allow_assemble: permissions |= pypdf.Permissions.ASSEMBLING
+        if allow_extract_access: permissions |= pypdf.Permissions.ACCESSIBILITY
 
-        # Paramétrage chiffrement
+        # Algorithme
         if encryption_type == "AES256":
             encryption_algorithm = pypdf.Encryption.AES_256
         elif encryption_type == "RC4":
@@ -3194,7 +3194,7 @@ def protect_pdf(file, form_data=None):
         else:
             encryption_algorithm = pypdf.Encryption.AES_128
 
-        # Application du chiffrement
+        # Appliquer chiffrement
         writer.encrypt(
             user_password=user_password,
             owner_password=owner_password,
@@ -3202,7 +3202,6 @@ def protect_pdf(file, form_data=None):
             encryption_algorithm=encryption_algorithm
         )
 
-        # Métadonnées
         now = datetime.now().strftime("D:%Y%m%d%H%M%S")
         writer.add_metadata({
             "/Producer": "PDF Fusion Pro",
@@ -3212,12 +3211,40 @@ def protect_pdf(file, form_data=None):
             "/ModDate": now
         })
 
-        # =========================================================
-        # 4) Sauvegarde
-        # =========================================================
         output = BytesIO()
         writer.write(output)
         output.seek(0)
+
+        # ===============================
+        # 4) Rapport (optionnel)
+        # ===============================
+        report = {
+            "filename": file.filename,
+            "original_encrypted": initial_encrypted,
+            "original_permissions": initial_permissions,
+            "new_encrypted": True,
+            "new_permissions": {
+                "can_print": allow_printing,
+                "can_modify": allow_modify,
+                "can_copy": allow_copy,
+                "can_annotate": allow_annotate,
+                "can_fill_forms": allow_fill_forms,
+                "can_extract_accessibility": allow_extract_access,
+                "can_assemble": allow_assemble
+            },
+            "encryption_algorithm": encryption_type
+        }
+
+        if return_report:
+            return {
+                "file": send_file(
+                    output,
+                    mimetype="application/pdf",
+                    as_attachment=True,
+                    download_name=f"{Path(file.filename).stem}_protege.pdf"
+                ),
+                "report": report
+            }
 
         return send_file(
             output,
@@ -3227,13 +3254,129 @@ def protect_pdf(file, form_data=None):
         )
 
     except Exception as e:
-        logger.error(f"Erreur protection PDF : {e}")
+        logger.error(f"Erreur protection PDF avancée : {e}")
         logger.error(traceback.format_exc())
-        return {"error": f"Erreur lors de la protection : {e}"}
+        return {"error": f"Erreur lors de la protection avancée : {e}"}
 
 
 
 # ================= FONCTIONS UTILITAIRES IMAGE =================
+
+def build_ocr_lang_string(language_input):
+    """
+    Construit une chaîne de langues pour Tesseract à partir de l'entrée utilisateur.
+    Exemple: "fra+eng" ou ["fra", "eng"] ou "fra"
+    """
+    if isinstance(language_input, str):
+        if '+' in language_input:
+            langs = [l.strip() for l in language_input.split('+') if l.strip()]
+        else:
+            langs = [language_input]
+    elif isinstance(language_input, list):
+        langs = language_input
+    else:
+        langs = ['fra']
+    
+    ocr_langs = []
+    for lang in langs:
+        tess_lang = OCR_LANG_MAP.get(lang, 'fra')
+        ocr_langs.append(tess_lang)
+    
+    return "+".join(ocr_langs) if ocr_langs else 'fra'
+
+def normalize_file_input(file_input):
+    """
+    Convertit l'entrée en un seul fichier.
+    Retourne (file, None) en cas de succès, (None, error_dict) en cas d'erreur.
+    """
+    # Cas liste
+    if isinstance(file_input, list):
+        if not file_input:
+            return None, {'error': 'Aucun fichier fourni'}
+        return file_input[0], None
+    
+    # Cas fichier unique
+    if not hasattr(file_input, 'filename') or not hasattr(file_input, 'save'):
+        return None, {'error': 'Objet fichier invalide'}
+    
+    return file_input, None
+
+def normalize_files_input(files_input, max_files=None):
+    """
+    Convertit l'entrée en une liste de fichiers.
+    Retourne (files, None) en cas de succès, (None, error_dict) en cas d'erreur.
+    """
+    if not isinstance(files_input, list):
+        files_input = [files_input] if files_input else []
+    
+    # Filtrer les fichiers valides
+    valid_files = [f for f in files_input 
+                   if hasattr(f, 'filename') and hasattr(f, 'save') and f.filename]
+    
+    if not valid_files:
+        return None, {'error': 'Aucun fichier valide fourni'}
+    
+    if max_files and len(valid_files) > max_files:
+        return None, {'error': f'Maximum {max_files} fichiers autorisés'}
+    
+    return valid_files, None
+
+def safe_ocr_call(func, *args, **kwargs):
+    """
+    Wrapper sécurisé pour les appels OCR.
+    Retourne le résultat ou une chaîne vide en cas d'erreur.
+    """
+    if not HAS_TESSERACT:
+        logger.warning("Tesseract non installé")
+        return ""
+    
+    try:
+        return func(*args, **kwargs)
+    except pytesseract.TesseractNotFoundError:
+        logger.error("Tesseract non trouvé dans le système")
+        return ""
+    except pytesseract.TesseractError as e:
+        logger.error(f"Erreur Tesseract: {e}")
+        return ""
+    except Exception as e:
+        logger.error(f"Erreur OCR inattendue: {e}")
+        return ""
+
+def safe_image_operation(func, *args, default=None, **kwargs):
+    """
+    Wrapper sécurisé pour les opérations sur les images.
+    """
+    if not HAS_PILLOW:
+        return default
+    
+    try:
+        return func(*args, **kwargs)
+    except Exception as e:
+        logger.error(f"Erreur opération image: {e}")
+        return default
+
+def validate_file_extension(filename, allowed_extensions):
+    """
+    Vérifie si l'extension du fichier est autorisée.
+    """
+    if not filename:
+        return False
+    ext = Path(filename).suffix.lower()
+    return ext in allowed_extensions
+
+def create_temp_directory(prefix="conversion_"):
+    """
+    Crée un dossier temporaire et retourne son chemin.
+    """
+    return tempfile.mkdtemp(prefix=prefix)
+
+def cleanup_temp_directory(temp_dir):
+    """
+    Nettoie un dossier temporaire en ignorant les erreurs.
+    """
+    if temp_dir and os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        logger.debug(f"Dossier temporaire nettoyé: {temp_dir}")
 
 def _ensure_rgb(im: Image.Image) -> Image.Image:
     """Convertit l'image en RGB."""
@@ -3701,12 +3844,10 @@ def add_ai_restructured_to_doc(doc: Document, extracted_text: str, params: Dict)
 def generate_document_response(doc: Document, original_filename: str):
     """Génère la réponse avec le document Word."""
     # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
+    if isinstance(file, list):
+        if len(file) == 0:
             return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
+        file = file[0]
     
     # Vérifier que c'est bien un objet fichier
     if not hasattr(file, 'filename') or not hasattr(file, 'save'):
@@ -3729,39 +3870,25 @@ def generate_document_response(doc: Document, original_filename: str):
 # ================= FONCTION PRINCIPALE =================
 
 def convert_image_to_word(file, form_data: Optional[Dict] = None):
-    """
-    Convertit une image (ou TIFF multi-pages) en document Word (.docx).
-    
-    Args:
-        file: Fichier image (objet avec méthode save())
-        form_data: Dictionnaire des paramètres du formulaire
-    
-    Returns:
-        Response Flask ou dict d'erreur
-    """
-    # Vérification des dépendances
     if not HAS_PILLOW:
         return {'error': 'Pillow non installé'}
     if not HAS_TESSERACT:
         return {'error': 'Tesseract non installé ou non trouvé'}
     if not HAS_DOCX:
         return {'error': 'python-docx non installé'}
-    
+
     temp_dir = None
     try:
-        # CRÉATION DOSSIER TEMPORAIRE
-        temp_dir = tempfile.mkdtemp()
+        # Une seule création du répertoire temporaire
+        temp_dir = create_temp_directory("image2word_")
         input_path = os.path.join(temp_dir, secure_filename(file.filename))
-        file.save(input_path)  # Sauvegarde du fichier
+        
+        # Une seule sauvegarde du fichier
+        file.save(input_path)
+        logger.info(f"Image sauvegardée : {input_path}")
 
         # Extraire les paramètres
         params = extract_ocr_params(form_data)
-        
-        # Créer un répertoire temporaire
-        temp_dir = tempfile.mkdtemp()
-        input_path = os.path.join(temp_dir, secure_filename(file.filename))
-        file.save(input_path)
-        logger.info(f"Image sauvegardée : {input_path}")
         
         # Extraire les frames
         frames = extract_frames(input_path)
@@ -3832,10 +3959,7 @@ def convert_image_to_word(file, form_data: Optional[Dict] = None):
         return {'error': f'Erreur lors de la conversion: {str(e)}'}
     
     finally:
-        # Nettoyer les fichiers temporaires
-        if temp_dir and os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir, ignore_errors=True)
-            logger.info("Répertoire temporaire nettoyé")
+        cleanup_temp_directory(temp_dir)
 
 # ================= POINT D'ENTRÉE POUR TEST =================
 
@@ -4163,18 +4287,11 @@ def convert_image_to_excel(file_storage, form_data=None):
 
 
 def convert_csv_to_excel(files, form_data=None):
-    """Convertit un ou plusieurs fichiers CSV en Excel avec résumé et colonnes ajustées."""
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
-            return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
-    
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
-        return {'error': 'Objet fichier invalide'}
+    """Convertit un ou plusieurs fichiers CSV en Excel."""
+    # Normalisation
+    files, error = normalize_files_input(files, max_files=5)
+    if error:
+        return error
 
     if not HAS_PANDAS:
         return {'error': 'pandas non installé'}
@@ -4264,26 +4381,17 @@ def convert_csv_to_excel(files, form_data=None):
 
 
 def convert_excel_to_csv(files, form_data=None):
-    """Convertit un ou plusieurs fichiers Excel en CSV, avec ZIP si multi-fichiers."""
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
-            return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
-    
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
-        return {'error': 'Objet fichier invalide'}
+    """Convertit un ou plusieurs fichiers Excel en CSV."""
+    # Normalisation
+    files, error = normalize_files_input(files, max_files=5)
+    if error:
+        return error
 
     if not HAS_PANDAS:
         return {'error': 'pandas non installé'}
     
     import pandas as pd
     import zipfile
-    from io import BytesIO
-    from pathlib import Path
 
     try:
         delimiter = form_data.get('delimiter', ',') if form_data else ','
@@ -4303,7 +4411,8 @@ def convert_excel_to_csv(files, form_data=None):
 
                         # CSV dans buffer
                         csv_buffer = BytesIO()
-                        df.to_csv(csv_buffer, sep=delimiter, index=False, header=include_header=='true', encoding=encoding)
+                        df.to_csv(csv_buffer, sep=delimiter, index=False, 
+                                 header=include_header=='true', encoding=encoding)
                         csv_buffer.seek(0)
 
                         # Ajouter au ZIP
@@ -4330,7 +4439,8 @@ def convert_excel_to_csv(files, form_data=None):
                 df = pd.read_excel(file.stream, sheet_name=0)
 
             output = BytesIO()
-            df.to_csv(output, sep=delimiter, index=False, header=include_header=='true', encoding=encoding)
+            df.to_csv(output, sep=delimiter, index=False, 
+                     header=include_header=='true', encoding=encoding)
             output.seek(0)
 
             logger.info(f"✅ Excel->CSV généré: {file.filename}")
@@ -5224,7 +5334,7 @@ def prepare_form(file, form_data=None, ocr_enabled=True):
             if ocr_enabled and not page_text.strip():
                 pix = page_fitz.get_pixmap()
                 img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-                ocr_text = pytesseract.image_to_string(img)
+                ocr_text = safe_ocr_call(pytesseract.image_to_string, img, lang='fra')
                 # Ajouter mots OCR comme mots "simulés"
                 y_pos = pix.height - 50
                 for line in ocr_text.split('\n'):
