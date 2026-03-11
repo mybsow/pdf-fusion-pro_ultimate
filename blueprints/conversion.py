@@ -770,18 +770,6 @@ def handle_conversion_request(conversion_type, request, config):
 
 def process_conversion(conversion_type, file=None, files=None, form_data=None):
     """Exécute la conversion appropriée selon le type."""
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
-            return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
-    
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
-        return {'error': 'Objet fichier invalide'}
-
     # Dictionnaire des fonctions de conversion
     conversion_functions = {
         # === CONVERSIONS EN PDF ===
@@ -846,7 +834,6 @@ def process_conversion(conversion_type, file=None, files=None, form_data=None):
                 return func(files, form_data)
             else:
                 # Pour les autres conversions, on prend le premier fichier
-                # (au cas où plusieurs auraient été envoyés par erreur)
                 return func(files[0], form_data)
         
         # CAS 2: Un seul fichier fourni
