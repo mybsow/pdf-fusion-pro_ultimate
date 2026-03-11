@@ -724,8 +724,24 @@ def compression_redirect():
     return redirect(url_for('pdf.compress'), code=301)
 
 
+# =========================
+# PROCESS CONVERSION
+# =========================
+
 def handle_conversion_request(conversion_type, request, config):
     """Gère la requête de conversion."""
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     try:
         # Vérifier les fichiers
         if 'file' not in request.files and 'files' not in request.files:
@@ -752,6 +768,7 @@ def handle_conversion_request(conversion_type, request, config):
             
             result = process_conversion(conversion_type, file=file, form_data=request.form)
         
+        # Vérifier si le résultat est une erreur (dictionnaire avec 'error')
         if isinstance(result, dict) and 'error' in result:
             flash(result['error'], 'error')
             return redirect(request.url)
@@ -762,51 +779,21 @@ def handle_conversion_request(conversion_type, request, config):
         current_app.logger.error(f"Erreur conversion {conversion_type}: {str(e)}\n{traceback.format_exc()}")
         flash(f'Erreur lors de la conversion: {str(e)}', 'error')
         return redirect(request.url)
-
-
-# =========================
-# PROCESS CONVERSION
-# =========================
-
-def handle_conversion_request(conversion_type, request, config):
-    """Gère la requête POST/GET pour une conversion universelle."""
-    try:
-        # Vérifier si des fichiers sont présents
-        if 'file' not in request.files and 'files' not in request.files:
-            flash('Aucun fichier sélectionné', 'error')
-            return redirect(request.url)
-
-        # Plusieurs fichiers autorisés
-        if config['max_files'] > 1:
-            files = request.files.getlist('files')
-            if not files or files[0].filename == '':
-                flash('Veuillez sélectionner au moins un fichier', 'error')
-                return redirect(request.url)
-            if len(files) > config['max_files']:
-                flash(f'Maximum {config["max_files"]} fichiers autorisés', 'error')
-                return redirect(request.url)
-            result = process_conversion(conversion_type, files=files, form_data=request.form)
-        else:
-            file = request.files['file']
-            if file.filename == '':
-                flash('Veuillez sélectionner un fichier', 'error')
-                return redirect(request.url)
-            result = process_conversion(conversion_type, file=file, form_data=request.form)
-
-        if isinstance(result, dict) and 'error' in result:
-            flash(result['error'], 'error')
-            return redirect(request.url)
-
-        return result
-
-    except Exception as e:
-        current_app.logger.error(f"Erreur conversion {conversion_type}: {str(e)}\n{traceback.format_exc()}")
-        flash(f'Erreur lors de la conversion: {str(e)}', 'error')
-        return redirect(request.url)
-
 
 def process_conversion(conversion_type, file=None, files=None, form_data=None):
     """Exécute la conversion appropriée selon le type."""
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     # Dictionnaire des fonctions de conversion
     conversion_functions = {
         # === CONVERSIONS EN PDF ===
@@ -853,18 +840,64 @@ def process_conversion(conversion_type, file=None, files=None, form_data=None):
         return {'error': 'Cette conversion nécessite des dépendances manquantes'}
 
     try:
-        if files:
-            return func(files, form_data)
+        # CAS 1: Plusieurs fichiers fournis
+        if files is not None:
+            # Vérifier que files est bien une liste non vide
+            if not isinstance(files, list):
+                return {'error': 'Format de fichiers invalide'}
+            
+            if len(files) == 0:
+                return {'error': 'Aucun fichier fourni'}
+            
+            # Liste des conversions qui acceptent plusieurs fichiers
+            multi_file_conversions = ['csv-en-excel', 'excel-en-csv', 'image-en-pdf', 
+                                      'jpg-en-pdf', 'png-en-pdf']
+            
+            if conversion_type in multi_file_conversions:
+                # Ces fonctions acceptent directement une liste de fichiers
+                return func(files, form_data)
+            else:
+                # Pour les autres conversions, on prend le premier fichier
+                # (au cas où plusieurs auraient été envoyés par erreur)
+                return func(files[0], form_data)
+        
+        # CAS 2: Un seul fichier fourni
+        elif file is not None:
+            # Vérifier que file n'est pas une liste (sécurité supplémentaire)
+            if isinstance(file, list):
+                if len(file) > 0:
+                    # Si c'est une liste avec un élément, on prend le premier
+                    return func(file[0], form_data)
+                else:
+                    return {'error': 'Liste de fichiers vide'}
+            else:
+                # Cas normal : un seul fichier
+                return func(file, form_data)
+        
+        # CAS 3: Aucun fichier fourni
         else:
-            return func(file, form_data)
+            return {'error': 'Aucun fichier fourni pour la conversion'}
+            
     except Exception as e:
         current_app.logger.error(f"Exception dans {conversion_type}: {str(e)}\n{traceback.format_exc()}")
+        
+        # Tentative de fallback PDF si possible
         try:
-            # Fallback PDF si possible
-            if hasattr(file, 'filename'):
-                return generate_fallback_pdf(file.filename, conversion_type)
+            # Déterminer le nom du fichier pour le fallback
+            filename = "document"
+            if file is not None:
+                if hasattr(file, 'filename'):
+                    filename = file.filename
+                elif isinstance(file, list) and len(file) > 0 and hasattr(file[0], 'filename'):
+                    filename = file[0].filename
+            elif files is not None and len(files) > 0 and hasattr(files[0], 'filename'):
+                filename = files[0].filename
+            
+            return generate_fallback_pdf(filename, conversion_type)
+            
         except Exception as fallback_e:
             current_app.logger.error(f"Erreur fallback PDF: {str(fallback_e)}")
+            
         return {'error': f'Erreur interne: {str(e)}'}
 
 # ============================================================================
@@ -942,6 +975,18 @@ def smart_ocr(img, min_confidence=40, max_words=10000):
 
 # ----- Word -> PDF -----
 def convert_word_to_pdf(file, form_data=None):
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     temp_dir = None
     try:
         # ---- Création du répertoire temporaire ----
@@ -1050,6 +1095,18 @@ def convert_word_to_pdf(file, form_data=None):
 
 # ----- Excel -> PDF -----
 def convert_excel_to_pdf(file, form_data=None):
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     temp_dir = None
     try:
         # ---- Dossier temporaire ----
@@ -1154,6 +1211,18 @@ def convert_excel_to_pdf(file, form_data=None):
 
 # ----- PowerPoint -> PDF -----
 def convert_powerpoint_to_pdf(file, form_data=None):
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     temp_dir = None
     try:
         # ---- Création répertoire temporaire ----
@@ -1331,6 +1400,18 @@ def convert_images_to_pdf(files, form_data=None):
 # ----- PDF -> WORD -----
 def convert_pdf_to_word(file, form_data=None):
     """Convertit un PDF en document Word (.docx)"""
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     if not HAS_PYPDF or not HAS_DOCX:
         return {'error': 'pypdf ou python-docx non installé'}
     
@@ -1634,7 +1715,7 @@ def convert_pdf_to_excel(file_storage, form_data=None):
         return {"error": f"Erreur lors de la conversion : {e}"}
 
     finally:
-        if temp_dir:
+        if temp_dir and os.path.exists(temp_dir):
             shutil.rmtree(temp_dir, ignore_errors=True)
 
 # ----- PDF -> PPT -----
@@ -1747,7 +1828,8 @@ def convert_pdf_to_ppt(file, form_data=None):
         return {"error": f"Erreur lors de la conversion : {e}"}
 
     finally:
-        if temp_dir:
+        # NETTOYAGE DU DOSSIER TEMPORAIRE
+        if temp_dir and os.path.exists(temp_dir):
             shutil.rmtree(temp_dir, ignore_errors=True)
 
 # ----- PDF -> IMAGE -----
@@ -1892,6 +1974,18 @@ def convert_pdf_to_images(file, form_data=None):
       - annotate_ocr: 'true'|'false' (dessine boîtes autour des mots) [défaut false; nécessite Tesseract]
       - language: ex. 'fra', 'eng', 'fra+eng' (pour OCR si annotate_ocr)
     """
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     if not HAS_PDF2IMAGE:
         return {'error': "La dépendance 'pdf2image' est requise pour effectuer la conversion."}
 
@@ -2086,6 +2180,18 @@ def convert_pdf_to_pdfa(file, form_data=None):
     Compatible : PDF/A-1b, 2b, 3b, 2u, 3u.
     100% conforme aux normes ISO 19005.
     """
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     try:
         temp_dir = tempfile.mkdtemp()
         
@@ -2189,6 +2295,17 @@ def convert_pdf_to_html(file, form_data=None):
       - export des pages en images (option)
       - résultat dans un fichier HTML ou ZIP selon options
     """
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
 
     # --- Dépendances requises ---
     if not HAS_PYPDF:
@@ -2362,12 +2479,24 @@ def convert_pdf_to_html(file, form_data=None):
         return {"error": f"Erreur lors de la conversion : {e}"}
 
     finally:
-        if temp_dir:
+        # NETTOYAGE DU DOSSIER TEMPORAIRE
+        if temp_dir and os.path.exists(temp_dir):
             shutil.rmtree(temp_dir, ignore_errors=True)
 
 # ----- PDF -> TXT -----
 def convert_pdf_to_txt(file, form_data=None):
     """Conversion PDF -> TXT robuste, avec OCR fallback optionnel."""
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
     
     if not HAS_PYPDF:
         return {"error": "pypdf non installé"}
@@ -2494,6 +2623,18 @@ def convert_html_to_pdf(file, form_data=None):
       - css_url: URL CSS (WeasyPrint uniquement)
       - encoding: "utf-8" (défaut)
     """
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     # ==== Détections des moteurs disponibles ====
     has_chromium = False
     has_weasy = False
@@ -2516,6 +2657,11 @@ def convert_html_to_pdf(file, form_data=None):
         return {'error': "Aucun moteur HTML->PDF disponible (Playwright/Chromium, WeasyPrint, ou PDFKit requis)."}
 
     temp_dir = None
+    try:
+        # CRÉATION DOSSIER TEMPORAIRE
+        temp_dir = tempfile.mkdtemp()
+        input_path = os.path.join(temp_dir, secure_filename(file.filename))
+        file.save(input_path)  # Sauvegarde du fichier
     try:
         # ---------- Lecture HTML ----------
         try:
@@ -2637,9 +2783,9 @@ def convert_html_to_pdf(file, form_data=None):
             except Exception as e:
                 logger.warning(f"Chromium/Playwright a échoué : {e} — tentative fallback.")
             finally:
-                if temp_dir:
+                # NETTOYAGE DU DOSSIER TEMPORAIRE
+                if temp_dir and os.path.exists(temp_dir):
                     shutil.rmtree(temp_dir, ignore_errors=True)
-                    temp_dir = None
 
         # ---------- Fallback WeasyPrint ----------
         if (engine in ('auto', 'weasyprint')) and has_weasy:
@@ -2698,6 +2844,17 @@ def convert_html_to_pdf(file, form_data=None):
 # ----- TXT -> PDF -----
 def convert_txt_to_pdf(file, form_data=None):
     """Conversion professionnelle de TXT vers PDF avec gestion des longues lignes, encodage, marges et pagination."""
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
     
     if not HAS_REPORTLAB:
         return {'error': 'reportlab non installé'}
@@ -2814,6 +2971,18 @@ def analyze_pdf_permissions(file, form_data=None):
     Analyse complète d'un PDF : chiffrement, restrictions, permissions,
     détails AES/RC4, niveaux de protection et version PDF.
     """
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     if not HAS_PYPDF:
         return {"error": "pypdf non installé"}
 
@@ -2934,6 +3103,18 @@ def protect_pdf(file, form_data=None):
     - encryption : 'AES128' (défaut), 'AES256', 'RC4'
     - allow_printing, allow_copy, allow_modify, allow_annotate : true/false
     """
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     if not HAS_PYPDF:
         return {"error": "pypdf non installé"}
 
@@ -3509,6 +3690,18 @@ def add_ai_restructured_to_doc(doc: Document, extracted_text: str, params: Dict)
 
 def generate_document_response(doc: Document, original_filename: str):
     """Génère la réponse avec le document Word."""
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     output = BytesIO()
     doc.save(output)
     output.seek(0)
@@ -3545,6 +3738,11 @@ def convert_image_to_word(file, form_data: Optional[Dict] = None):
         return {'error': 'python-docx non installé'}
     
     temp_dir = None
+    try:
+        # CRÉATION DOSSIER TEMPORAIRE
+        temp_dir = tempfile.mkdtemp()
+        input_path = os.path.join(temp_dir, secure_filename(file.filename))
+        file.save(input_path)  # Sauvegarde du fichier
     try:
         # Extraire les paramètres
         params = extract_ocr_params(form_data)
@@ -3956,6 +4154,18 @@ def convert_image_to_excel(file_storage, form_data=None):
 
 def convert_csv_to_excel(files, form_data=None):
     """Convertit un ou plusieurs fichiers CSV en Excel avec résumé et colonnes ajustées."""
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     if not HAS_PANDAS:
         return {'error': 'pandas non installé'}
     
@@ -4045,6 +4255,18 @@ def convert_csv_to_excel(files, form_data=None):
 
 def convert_excel_to_csv(files, form_data=None):
     """Convertit un ou plusieurs fichiers Excel en CSV, avec ZIP si multi-fichiers."""
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     if not HAS_PANDAS:
         return {'error': 'pandas non installé'}
     
@@ -4118,6 +4340,18 @@ def redact_pdf(file, form_data=None):
     Caviarde (supprime définitivement) le contenu sensible d'un PDF.
     Version améliorée avec pdfplumber pour la détection précise du texte.
     """
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     if not HAS_PYPDF:
         return {'error': 'pypdf non installé'}
     
@@ -4560,6 +4794,18 @@ def edit_pdf(file, form_data=None):
     Édite un PDF : ajoute/modifie du texte, ajoute une image, supprime ou réorganise les pages.
     Totalement indépendant de Flask pour l'upload d'image.
     """
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     if not HAS_PYPDF or not HAS_REPORTLAB:
         return {'error': 'pypdf ou reportlab non installé'}
 
@@ -4734,6 +4980,18 @@ def sign_pdf(file, form_data=None):
     Ajoute une signature électronique à un PDF (image ou texte).
     Supporte plusieurs pages et tailles dynamiques.
     """
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     if not HAS_PYPDF or not HAS_PILLOW:
         return {'error': 'pypdf ou Pillow non installé'}
 
@@ -4885,6 +5143,18 @@ def prepare_form(file, form_data=None, ocr_enabled=True):
     - Supporte PDF, Word, Excel, Images.
     - OCR intégré pour les PDFs scannés ou images.
     """
+    # Protection contre les listes
+    if isinstance(file_input, list):
+        if len(file_input) == 0:
+            return {'error': 'Aucun fichier fourni'}
+        file = file_input[0]
+    else:
+        file = file_input
+    
+    # Vérifier que c'est bien un objet fichier
+    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
+        return {'error': 'Objet fichier invalide'}
+
     try:
         # Vérifier les bibliothèques
         if not (HAS_PYPDF and HAS_REPORTLAB):
