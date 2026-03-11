@@ -984,14 +984,28 @@ def smart_ocr(img, min_confidence=40, max_words=10000):
 
 # ----- Word -> PDF -----
 def convert_word_to_pdf(file, form_data=None):
-    """Convertit Word -> PDF"""
+    """
+    Convertit Word -> PDF (docx, doc, odt, rtf).
+    - Conversion via LibreOffice (headless) avec vérification stabilité fichier
+    - Fallback reportlab si LibreOffice absent
+    - Fusion PDF optionnelle
+    - Nettoyage sécurisé après envoi
+    """
+    import time
+
     files, error = normalize_files_input(file if isinstance(file, list) else [file])
     if error:
         return error
 
+    if not files:
+        return {"error": "Aucun fichier fourni"}
+
     allowed = {".docx", ".doc", ".odt", ".rtf"}
     form_data = form_data or {}
     merge_output = form_data.get("merge", True)
+
+    # ✅ Sauvegarde des noms de fichiers avant toute opération
+    original_filenames = [f.filename for f in files]
 
     temp_dir = create_temp_directory("word2pdf_")
     generated_pdfs = []
@@ -999,15 +1013,26 @@ def convert_word_to_pdf(file, form_data=None):
     try:
         libreoffice = shutil.which("libreoffice")
         if not libreoffice:
-            current_app.logger.warning("LibreOffice non installé → fallback")
+            current_app.logger.warning("LibreOffice non installé → fallback reportlab")
 
-        for f in files:
-            if not validate_file_extension(f.filename, allowed):
+        for i, f in enumerate(files):
+            original_name = original_filenames[i]
+
+            if not validate_file_extension(original_name, allowed):
+                current_app.logger.warning(f"Extension non autorisée ignorée : {original_name}")
                 continue
 
-            input_path = os.path.join(temp_dir, secure_filename(f.filename))
+            input_path = os.path.join(temp_dir, secure_filename(original_name))
             f.save(input_path)
 
+            # ✅ Vérification que le fichier est bien sauvegardé
+            if not os.path.exists(input_path) or os.path.getsize(input_path) == 0:
+                current_app.logger.error(f"Fichier invalide ou vide : {original_name}")
+                continue
+
+            # ------------------------------------------------------------------
+            # CONVERSION LIBREOFFICE
+            # ------------------------------------------------------------------
             if libreoffice:
                 cmd = [
                     libreoffice,
@@ -1016,7 +1041,8 @@ def convert_word_to_pdf(file, form_data=None):
                     "--outdir", temp_dir,
                     input_path
                 ]
-                subprocess.run(
+
+                result = subprocess.run(
                     cmd,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
@@ -1024,76 +1050,156 @@ def convert_word_to_pdf(file, form_data=None):
                     check=False
                 )
 
-                pdf_candidates = [
-                    os.path.join(temp_dir, p)
-                    for p in os.listdir(temp_dir)
-                    if p.lower().endswith(".pdf")
-                ]
-                if pdf_candidates:
-                    generated_pdfs.append(pdf_candidates[-1])
-                    continue
+                # ✅ Vérification du code de retour
+                if result.returncode != 0:
+                    stderr_msg = result.stderr.decode("utf-8", errors="replace")
+                    current_app.logger.error(
+                        f"LibreOffice échec (code {result.returncode}) "
+                        f"pour '{original_name}' : {stderr_msg}"
+                    )
+                else:
+                    # ✅ Nom du PDF prévisible (pas de pdf_candidates[-1] aléatoire)
+                    expected_pdf = os.path.join(
+                        temp_dir,
+                        Path(secure_filename(original_name)).stem + ".pdf"
+                    )
 
-            # Fallback python-docx / reportlab
-            if f.filename.lower().endswith(".docx"):
+                    # ✅ Attente que le fichier soit stable (écriture terminée)
+                    pdf_ready = False
+                    for _ in range(20):  # 20 × 100ms = 2s max
+                        if os.path.exists(expected_pdf) and os.path.getsize(expected_pdf) > 0:
+                            size_before = os.path.getsize(expected_pdf)
+                            time.sleep(0.1)
+                            size_after = os.path.getsize(expected_pdf)
+                            if size_before == size_after:
+                                pdf_ready = True
+                                break
+                        time.sleep(0.1)
+
+                    if pdf_ready:
+                        current_app.logger.info(f"LibreOffice OK : {expected_pdf}")
+                        generated_pdfs.append(expected_pdf)
+                        continue
+                    else:
+                        current_app.logger.warning(
+                            f"PDF non stable après conversion LibreOffice : {expected_pdf}"
+                        )
+
+            # ------------------------------------------------------------------
+            # FALLBACK REPORTLAB
+            # ------------------------------------------------------------------
+            current_app.logger.info(f"Fallback reportlab pour : {original_name}")
+
+            if original_name.lower().endswith(".docx"):
                 try:
                     doc = Document(input_path)
                     text = "\n\n".join(
                         p.text for p in doc.paragraphs if p.text.strip()
                     )
-                except Exception:
+                    if not text.strip():
+                        text = "[Document sans contenu textuel extractible]"
+                except Exception as e:
+                    current_app.logger.error(f"Erreur lecture docx '{original_name}': {e}")
                     text = "Contenu non extractible."
             else:
-                text = "Format non supporté."
+                text = f"Format '{Path(original_name).suffix}' non supporté par le fallback.\nVeuillez installer LibreOffice pour convertir ce type de fichier."
 
-            output_pdf = os.path.join(temp_dir, f"{Path(f.filename).stem}_fallback.pdf")
-            c = canvas.Canvas(output_pdf, pagesize=A4)
-            y = 800
-            c.setFont("Helvetica", 11)
-            for line in text.split("\n"):
-                if y < 50:
-                    c.showPage()
-                    c.setFont("Helvetica", 11)
-                    y = 800
-                c.drawString(50, y, line[:100])
-                y -= 15
-            c.save()
-            generated_pdfs.append(output_pdf)
+            output_pdf = os.path.join(
+                temp_dir,
+                f"{Path(secure_filename(original_name)).stem}_fallback.pdf"
+            )
 
+            try:
+                c = canvas.Canvas(output_pdf, pagesize=A4)
+                width, height = A4
+                y = height - 50
+                c.setFont("Helvetica", 11)
+
+                for line in text.split("\n"):
+                    # ✅ Découpage des lignes trop longues
+                    while len(line) > 90:
+                        c.drawString(50, y, line[:90])
+                        line = line[90:]
+                        y -= 15
+                        if y < 50:
+                            c.showPage()
+                            c.setFont("Helvetica", 11)
+                            y = height - 50
+
+                    if y < 50:
+                        c.showPage()
+                        c.setFont("Helvetica", 11)
+                        y = height - 50
+
+                    c.drawString(50, y, line)
+                    y -= 15
+
+                c.save()
+
+                # ✅ Vérification que le PDF fallback a bien été créé
+                if os.path.exists(output_pdf) and os.path.getsize(output_pdf) > 0:
+                    generated_pdfs.append(output_pdf)
+                else:
+                    current_app.logger.error(f"PDF fallback vide : {output_pdf}")
+
+            except Exception as e:
+                current_app.logger.error(f"Erreur fallback reportlab '{original_name}': {e}")
+
+        # ------------------------------------------------------------------
+        # AUCUN PDF GÉNÉRÉ
+        # ------------------------------------------------------------------
         if not generated_pdfs:
-            cleanup_temp_directory(temp_dir)  # ← nettoyage immédiat si erreur
-            return {"error": "Conversion impossible"}
+            cleanup_temp_directory(temp_dir)
+            return {"error": "Aucune conversion n'a abouti. Vérifiez les fichiers fournis."}
 
-        # ✅ Nettoyage APRÈS l'envoi, pas avant
+        # ✅ Nettoyage APRÈS l'envoi Flask
         @after_this_request
         def cleanup(response):
             cleanup_temp_directory(temp_dir)
             return response
 
-        # Fusion PDF
+        # ------------------------------------------------------------------
+        # FUSION PDF (multi-fichiers)
+        # ------------------------------------------------------------------
         if merge_output and len(generated_pdfs) > 1:
-            merger = PdfMerger()
-            for pdf in generated_pdfs:
-                merger.append(pdf)
-            merged_path = os.path.join(temp_dir, "merged_output.pdf")
-            merger.write(merged_path)
-            merger.close()
-            return send_file(
-                merged_path,
-                mimetype="application/pdf",
-                as_attachment=True,
-                download_name="converted_documents.pdf"
-            )
+            try:
+                merger = PdfMerger()
+                for pdf in generated_pdfs:
+                    merger.append(pdf)
+                merged_path = os.path.join(temp_dir, "merged_output.pdf")
+                merger.write(merged_path)
+                merger.close()
 
+                return send_file(
+                    merged_path,
+                    mimetype="application/pdf",
+                    as_attachment=True,
+                    download_name="converted_documents.pdf"
+                )
+            except Exception as e:
+                current_app.logger.error(f"Erreur fusion PDF : {e}")
+                # ✅ Fallback : on envoie le premier PDF si la fusion échoue
+                return send_file(
+                    generated_pdfs[0],
+                    mimetype="application/pdf",
+                    as_attachment=True,
+                    download_name=f"{Path(original_filenames[0]).stem}.pdf"
+                )
+
+        # ------------------------------------------------------------------
+        # FICHIER UNIQUE
+        # ------------------------------------------------------------------
         return send_file(
             generated_pdfs[0],
             mimetype="application/pdf",
             as_attachment=True,
-            download_name=f"{Path(files[0].filename).stem}.pdf"
+            download_name=f"{Path(original_filenames[0]).stem}.pdf"  # ✅ variable locale
         )
 
     except Exception as e:
-        current_app.logger.error(f"Erreur Word->PDF: {str(e)}")
-        cleanup_temp_directory(temp_dir)  # ← nettoyage immédiat si exception
+        current_app.logger.error(f"Erreur Word->PDF : {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        cleanup_temp_directory(temp_dir)
         return generate_fallback_pdf("document", "Word")
 
 # ----- Excel -> PDF -----
