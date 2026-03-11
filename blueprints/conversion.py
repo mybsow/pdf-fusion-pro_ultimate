@@ -3742,7 +3742,7 @@ def convert_image_to_word(file, form_data: Optional[Dict] = None):
         temp_dir = tempfile.mkdtemp()
         input_path = os.path.join(temp_dir, secure_filename(file.filename))
         file.save(input_path)  # Sauvegarde du fichier
-    try:
+
         # Extraire les paramètres
         params = extract_ocr_params(form_data)
         
