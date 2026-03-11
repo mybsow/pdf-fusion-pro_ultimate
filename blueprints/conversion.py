@@ -755,45 +755,61 @@ def compression_redirect():
 
 def handle_conversion_request(conversion_type, request, config):
     """Gère la requête de conversion."""
+    # ✅ Debug temporaire — à supprimer après diagnostic
+    current_app.logger.info(f"=== FILES KEYS: {list(request.files.keys())} ===")
+    current_app.logger.info(f"=== FORM KEYS: {list(request.form.keys())} ===")
+    current_app.logger.info(f"=== CONTENT-TYPE: {request.content_type} ===")
+
     try:
-        # Vérifier les fichiers selon le type
         if config['max_files'] > 1:
-            # Plusieurs fichiers autorisés
+            # ✅ Chercher 'files' ET 'file' pour couvrir les deux cas
             files = request.files.getlist('files')
-            
-            # Normaliser l'entrée
+            if not files or all(f.filename == '' for f in files):
+                files = request.files.getlist('file')
+
+            # ✅ Log debug pour diagnostiquer
+            current_app.logger.info(
+                f"Fichiers reçus pour '{conversion_type}': "
+                f"keys={list(request.files.keys())}, count={len(files)}"
+            )
+
             files, error = normalize_files_input(files, max_files=config['max_files'])
             if error:
                 flash(error['error'], 'error')
                 return redirect(request.url)
-            
+
             result = process_conversion(conversion_type, files=files, form_data=request.form)
+
         else:
-            # Un seul fichier autorisé
+            # ✅ Chercher 'file' ET 'files' pour couvrir les deux cas
             file = request.files.get('file')
-            
-            # Normaliser l'entrée
+            if not file or file.filename == '':
+                file = request.files.get('files')
+
+            current_app.logger.info(
+                f"Fichier reçu pour '{conversion_type}': "
+                f"keys={list(request.files.keys())}, filename={getattr(file, 'filename', 'None')}"
+            )
+
             file, error = normalize_file_input(file)
             if error:
                 flash(error['error'], 'error')
                 return redirect(request.url)
-            
-            # Vérifier l'extension si spécifiée
+
             if config.get('accept'):
                 allowed_ext = {ext.strip() for ext in config['accept'].split(',')}
                 if not validate_file_extension(file.filename, allowed_ext):
                     flash(f"Type de fichier non supporté. Formats acceptés: {config['accept']}", 'error')
                     return redirect(request.url)
-            
+
             result = process_conversion(conversion_type, file=file, form_data=request.form)
-        
-        # Vérifier si le résultat est une erreur
+
         if isinstance(result, dict) and 'error' in result:
             flash(result['error'], 'error')
             return redirect(request.url)
-        
+
         return result
-        
+
     except Exception as e:
         current_app.logger.error(f"Erreur conversion {conversion_type}: {str(e)}\n{traceback.format_exc()}")
         flash(f'Erreur lors de la conversion: {str(e)}', 'error')
