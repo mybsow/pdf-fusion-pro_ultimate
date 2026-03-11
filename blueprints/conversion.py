@@ -730,18 +730,6 @@ def compression_redirect():
 
 def handle_conversion_request(conversion_type, request, config):
     """Gère la requête de conversion."""
-    # Protection contre les listes
-    if isinstance(file_input, list):
-        if len(file_input) == 0:
-            return {'error': 'Aucun fichier fourni'}
-        file = file_input[0]
-    else:
-        file = file_input
-    
-    # Vérifier que c'est bien un objet fichier
-    if not hasattr(file, 'filename') or not hasattr(file, 'save'):
-        return {'error': 'Objet fichier invalide'}
-
     try:
         # Vérifier les fichiers
         if 'file' not in request.files and 'files' not in request.files:
@@ -768,7 +756,7 @@ def handle_conversion_request(conversion_type, request, config):
             
             result = process_conversion(conversion_type, file=file, form_data=request.form)
         
-        # Vérifier si le résultat est une erreur (dictionnaire avec 'error')
+        # Vérifier si le résultat est une erreur
         if isinstance(result, dict) and 'error' in result:
             flash(result['error'], 'error')
             return redirect(request.url)
