@@ -2662,7 +2662,6 @@ def convert_html_to_pdf(file, form_data=None):
         temp_dir = tempfile.mkdtemp()
         input_path = os.path.join(temp_dir, secure_filename(file.filename))
         file.save(input_path)  # Sauvegarde du fichier
-    try:
         # ---------- Lecture HTML ----------
         try:
             raw = file.read()
