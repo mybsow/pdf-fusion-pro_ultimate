@@ -130,36 +130,49 @@
 
 <script>
 let downloadUrl = null;
+let progressInterval = null;
+
+function updateStep(step) {
+    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+}
+
+function showError(message) {
+    let errorDiv = document.getElementById('conversionError');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'conversionError';
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+        document.getElementById('step1Content').prepend(errorDiv);
+    }
+    document.getElementById('conversionErrorMsg').textContent = message;
+    errorDiv.style.display = 'block';
+}
 
 document.addEventListener('DOMContentLoaded', function() {
-    const textContent = document.getElementById('textContent');
-    
-    textContent.addEventListener('input', updateConvertButton);
+    document.getElementById('textContent')?.addEventListener('input', updateConvertButton);
 });
 
 function updateConvertButton() {
-    const uploadManager = window.uploadManagers['txtUploadZone'];
-    const textContent = document.getElementById('textContent');
-    const convertBtn = document.getElementById('convertBtn');
-    
+    const uploadManager = window.uploadManagers?.['txtUploadZone'];
     const hasFile = uploadManager && uploadManager.getFiles().length > 0;
-    const hasText = textContent.value.trim().length > 0;
-    
-    convertBtn.disabled = !(hasFile || hasText);
+    const hasText = document.getElementById('textContent')?.value.trim().length > 0;
+    const btn = document.getElementById('convertBtn');
+    if (btn) btn.disabled = !(hasFile || hasText);
 }
 
 function startConversion() {
-    const uploadManager = window.uploadManagers['txtUploadZone'];
+    const uploadManager = window.uploadManagers?.['txtUploadZone'];
     const textContent = document.getElementById('textContent');
     const files = uploadManager ? uploadManager.getFiles() : [];
-    
+
     const formData = new FormData();
-    
     if (files.length > 0) {
         formData.append('file', files[0]);
-    } else if (textContent.value.trim()) {
-        const blob = new Blob([textContent.value], { type: 'text/plain' });
-        formData.append('file', blob, 'document.txt');
+    } else if (textContent?.value.trim()) {
+        formData.append('file', new Blob([textContent.value], { type: 'text/plain' }), 'document.txt');
     } else {
         showError('{{ _("Veuillez saisir du texte ou sélectionner un fichier") }}');
         return;
@@ -169,15 +182,17 @@ function startConversion() {
     formData.append('fontFamily', document.getElementById('fontFamily').value);
     formData.append('fontSize', document.getElementById('fontSize').value);
     formData.append('lineSpacing', document.getElementById('lineSpacing').value);
-    formData.append('addPageNumbers', document.getElementById('addPageNumbers').checked);
+    formData.append('addPageNumbers', document.getElementById('addPageNumbers').checked ? 'true' : 'false');
 
     updateStep(2);
-    
+
     let progress = 0;
-    const interval = setInterval(() => {
-        progress += 10;
-        document.getElementById('progressBar').style.width = progress + '%';
-        if (progress >= 90) clearInterval(interval);
+    const progressBar = document.getElementById('progressBar');
+    progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 10;
+            if (progressBar) progressBar.style.width = progress + '%';
+        }
     }, 500);
 
     fetch('{{ url_for("conversion.universal_converter", conversion_type="txt-en-pdf") }}', {
@@ -185,49 +200,63 @@ function startConversion() {
         body: formData
     })
     .then(async response => {
-        clearInterval(interval);
-        document.getElementById('progressBar').style.width = '100%';
-        
-        if (response.ok) {
-            const blob = await response.blob();
-            downloadUrl = window.URL.createObjectURL(blob);
-            document.getElementById('downloadLink').href = downloadUrl;
-            updateStep(3);
-        } else {
-            const error = await response.text();
-            showError('{{ _("Erreur lors de la conversion :") }} ' + error);
-            updateStep(1);
+        clearInterval(progressInterval);
+        if (progressBar) progressBar.style.width = '100%';
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Erreur serveur ' + response.status);
         }
+        const contentType = response.headers.get('Content-Type') || '';
+        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
+
+        const blob = await response.blob();
+        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+
+        downloadUrl = window.URL.createObjectURL(blob);
+        const contentDisposition = response.headers.get('Content-Disposition') || '';
+        let filename = 'document.pdf';
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
+
+        const downloadLink = document.getElementById('downloadLink');
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.setAttribute('download', filename);
+        }
+        updateStep(3);
     })
     .catch(error => {
-        clearInterval(interval);
-        showError('{{ _("Erreur :") }} ' + error.message);
+        clearInterval(progressInterval);
         updateStep(1);
+        showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
     });
 }
 
 function resetConversion() {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-        downloadUrl = null;
-    }
-    
-    const uploadManager = window.uploadManagers['txtUploadZone'];
+    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+
+    const uploadManager = window.uploadManagers?.['txtUploadZone'];
     if (uploadManager) {
-        while (uploadManager.getFiles().length > 0) {
-            uploadManager.removeFile(0);
-        }
+        const files = uploadManager.getFiles();
+        for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
     }
-    
-    document.getElementById('textContent').value = '';
-    updateStep(1);
+
+    const textContent = document.getElementById('textContent');
+    if (textContent) textContent.value = '';
+    const errorDiv = document.getElementById('conversionError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) progressBar.style.width = '0%';
+
     updateConvertButton();
+    updateStep(1);
 }
 
 window.addEventListener('beforeunload', () => {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-    }
+    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+    if (progressInterval) clearInterval(progressInterval);
 });
 </script>
 {% endblock %}

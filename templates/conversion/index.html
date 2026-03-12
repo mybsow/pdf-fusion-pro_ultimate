@@ -210,7 +210,7 @@
                                 <div class="card-icon-wrapper" style="background: {{ conversion.color }};">
                                     <i class="fas fa-{{ conversion.icon }}"></i>
                                 </div>
-                                <h4 class="card-title h5 mb-3">{{ conversion.title }}</h4>
+                                <h3 class="card-title h5 mb-3">{{ conversion.title }}</h3>
                                 <p class="card-text small text-muted mb-3">
                                     {{ conversion.description }}
                                 </p>
@@ -266,7 +266,7 @@
                             <i class="fas fa-{{ conversion.icon }} fa-lg"></i>
                         </div>
                         <div class="flex-grow-1">
-                            <h6 class="mb-1">{{ conversion.title }}</h6>
+                            <h4 class="mb-1">{{ conversion.title }}</h4>
                             <p class="mb-0 small text-muted">{{ conversion.description }}</p>
                         </div>
                         <div>
@@ -284,7 +284,7 @@
         <div class="col-md-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-question-circle me-2"></i>{{ _('Comment ça marche ?') }}</h5>
+                    <h4 class="card-title"><i class="fas fa-question-circle me-2"></i>{{ _('Comment ça marche ?') }}</h4>
                     <ol class="mt-3 ps-3">
                         <li class="mb-2">{{ _('Choisissez votre outil de conversion') }}</li>
                         <li class="mb-2">{{ _('Téléchargez votre fichier source') }}</li>
@@ -303,7 +303,7 @@
             <!-- Liens rapides -->
             <div class="card border-0 shadow-sm mt-3">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-link me-2"></i>{{ _('Liens rapides') }}</h5>
+                    <h4 class="card-title"><i class="fas fa-link me-2"></i>{{ _('Liens rapides') }}</h4>
                     <div class="list-group list-group-flush">
                         <a href="{{ url_for('conversion.dependencies_page') }}" class="list-group-item list-group-item-action">
                             <i class="fas fa-cogs me-2"></i>{{ _('Dépendances système') }}
@@ -327,10 +327,10 @@
             <div class="col-md-6 mb-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
-                        <h5 class="card-title">
+                        <h4 class="card-title">
                             <i class="fas fa-shield-alt text-primary me-2"></i>
                             {{ _('Les fichiers sont-ils sécurisés ?') }}
-                        </h5>
+                        </h4>
                         <p class="card-text">
                             {{ _('Oui, tous les fichiers sont traités localement et automatiquement supprimés après 1 heure. Nous ne stockons jamais vos documents sur nos serveurs.') }}
                         </p>
@@ -341,10 +341,10 @@
             <div class="col-md-6 mb-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
-                        <h5 class="card-title">
+                        <h4 class="card-title">
                             <i class="fas fa-weight-hanging text-primary me-2"></i>
                             {{ _('Quelles sont les limites de taille ?') }}
-                        </h5>
+                        </h4>
                         <p class="card-text">
                             {{ _('Taille maximale par fichier : 50MB. Nombre maximum de fichiers par conversion : variable selon l\'outil (de 1 à 20).') }}
                         </p>
@@ -355,10 +355,10 @@
             <div class="col-md-6 mb-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
-                        <h5 class="card-title">
+                        <h4 class="card-title">
                             <i class="fas fa-clock text-primary me-2"></i>
                             {{ _('Combien de temps dure une conversion ?') }}
-                        </h5>
+                        </h4>
                         <p class="card-text">
                             {{ _('La plupart des conversions prennent moins de 30 secondes. Pour les gros fichiers ou les conversions complexes (OCR), comptez 1 à 2 minutes.') }}
                         </p>
@@ -369,10 +369,10 @@
             <div class="col-md-6 mb-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
-                        <h5 class="card-title">
+                        <h4 class="card-title">
                             <i class="fas fa-file text-primary me-2"></i>
                             {{ _('Quels formats sont supportés ?') }}
-                        </h5>
+                        </h4>
                         <p class="card-text">
                             {{ _('Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore.') }}
                         </p>
@@ -386,39 +386,38 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Animation au défilement
-        const animatedElements = document.querySelectorAll('.animated-card');
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
+document.addEventListener('DOMContentLoaded', function() {
+    const animatedCards = document.querySelectorAll('.animated-card');
+
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
                 if (entry.isIntersecting) {
-                    const delay = entry.target.classList.contains('card-1') ? 100 :
-                                 entry.target.classList.contains('card-2') ? 200 :
-                                 entry.target.classList.contains('card-3') ? 300 :
-                                 entry.target.classList.contains('card-4') ? 400 : 500;
-                    
-                    setTimeout(() => {
-                        entry.target.style.animationPlayState = 'running';
-                    }, delay);
+                    // Lire le délai depuis le style inline déjà défini par CSS
+                    entry.target.style.animationPlayState = 'running';
+                    observer.unobserve(entry.target); // ← important : ne déclencher qu'une fois
                 }
             });
         }, { threshold: 0.1 });
-        
-        animatedElements.forEach(el => {
+
+        animatedCards.forEach(function(el) {
             el.style.animationPlayState = 'paused';
             observer.observe(el);
         });
-        
-        // Mettre en surbrillance la catégorie actuelle dans le menu
-        const currentPath = window.location.pathname;
-        const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
-        
-        navLinks.forEach(link => {
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('active');
-            }
+    } else {
+        // Fallback sans IntersectionObserver
+        animatedCards.forEach(function(el) {
+            el.style.opacity = '1';
         });
+    }
+
+    // Surbrillance nav active
+    const currentPath = window.location.pathname;
+    document.querySelectorAll('.navbar-nav .nav-link').forEach(function(link) {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
+        }
     });
+});
 </script>
 {% endblock %}

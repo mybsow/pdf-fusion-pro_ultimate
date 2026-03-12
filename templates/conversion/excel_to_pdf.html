@@ -100,9 +100,33 @@
 
 <script>
 let downloadUrl = null;
+let progressInterval = null;
+
+function updateStep(step) {
+    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+}
+
+function showError(message) {
+    let errorDiv = document.getElementById('conversionError');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'conversionError';
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span id="conversionErrorMsg"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.getElementById('step1Content').prepend(errorDiv);
+    }
+    document.getElementById('conversionErrorMsg').textContent = message;
+    errorDiv.style.display = 'block';
+}
 
 function startConversion() {
-    const uploadManager = window.uploadManagers['excelUploadZone'];
+    const uploadManager = window.uploadManagers?.['excelUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
         showError('{{ _("Veuillez sélectionner au moins un fichier Excel") }}');
         return;
@@ -112,90 +136,101 @@ function startConversion() {
     uploadManager.getFiles().forEach(file => {
         formData.append('files', file);
     });
-    
+
     formData.append('orientation', document.getElementById('orientation').value);
     formData.append('pageSize', document.getElementById('pageSize').value);
 
-    // Passer à l'étape 2
     updateStep(2);
-    
-    // Simuler la progression
+
     let progress = 0;
-    const interval = setInterval(() => {
-        progress += 10;
-        document.getElementById('progressBar').style.width = progress + '%';
-        if (progress >= 90) clearInterval(interval);
+    const progressBar = document.getElementById('progressBar');
+    progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 10;
+            if (progressBar) progressBar.style.width = progress + '%';
+        }
     }, 500);
 
-    // Envoyer la requête
     fetch('{{ url_for("conversion.universal_converter", conversion_type="excel-en-pdf") }}', {
         method: 'POST',
         body: formData
     })
     .then(async response => {
-        clearInterval(interval);
-        document.getElementById('progressBar').style.width = '100%';
-        
-        if (response.ok) {
-            const blob = await response.blob();
-            downloadUrl = window.URL.createObjectURL(blob);
-            
-            // Récupérer le nom du fichier depuis l'en-tête Content-Disposition
-            const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = '{{ _("converted.pdf") }}';
-            if (contentDisposition) {
-                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-                if (match && match[1]) {
-                    filename = match[1].replace(/['"]/g, '');
-                }
-            }
-            
-            // Si plusieurs fichiers ont été convertis, le nom peut être différent
-            if (uploadManager.getFiles().length > 1) {
-                filename = '{{ _("excel_converted.zip") }}';
-            }
-            
-            const downloadLink = document.getElementById('downloadLink');
-            downloadLink.href = downloadUrl;
-            downloadLink.download = filename;
-            updateStep(3);
-        } else {
-            const error = await response.text();
-            showError('{{ _("Erreur lors de la conversion :") }} ' + error);
-            updateStep(1);
+        clearInterval(progressInterval);
+        if (progressBar) progressBar.style.width = '100%';
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Erreur serveur ' + response.status);
         }
+
+        const contentType = response.headers.get('Content-Type') || '';
+        if (contentType.includes('text/html')) {
+            throw new Error('Le serveur a retourné une erreur. Vérifiez les fichiers.');
+        }
+
+        const blob = await response.blob();
+        if (blob.size === 0) {
+            throw new Error('Fichier téléchargé vide.');
+        }
+
+        downloadUrl = window.URL.createObjectURL(blob);
+
+        // ✅ Priorité au Content-Disposition, fallback selon nb de fichiers
+        const contentDisposition = response.headers.get('Content-Disposition') || '';
+        let filename = uploadManager.getFiles().length > 1 ? 'excel_converted.zip' : 'converted.pdf';
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+            filename = match[1].replace(/['"]/g, '');
+        }
+
+        const downloadLink = document.getElementById('downloadLink');
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.setAttribute('download', filename);
+        }
+
+        updateStep(3);
     })
     .catch(error => {
-        clearInterval(interval);
-        showError('{{ _("Erreur :") }} ' + error.message);
+        clearInterval(progressInterval);
+        console.error('Erreur conversion:', error);
         updateStep(1);
+        showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
     });
 }
 
 function resetConversion() {
-    // Nettoyer l'URL de téléchargement
     if (downloadUrl) {
         window.URL.revokeObjectURL(downloadUrl);
         downloadUrl = null;
     }
-    
-    // Vider les fichiers de l'upload manager
-    const uploadManager = window.uploadManagers['excelUploadZone'];
+
+    if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+    }
+
+    const uploadManager = window.uploadManagers?.['excelUploadZone'];
     if (uploadManager) {
-        while (uploadManager.getFiles().length > 0) {
-            uploadManager.removeFile(0);
+        const files = uploadManager.getFiles();
+        for (let i = files.length - 1; i >= 0; i--) {
+            uploadManager.removeFile(i);
         }
     }
-    
-    // Retourner à l'étape 1
+
+    const errorDiv = document.getElementById('conversionError');
+    if (errorDiv) errorDiv.style.display = 'none';
+
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) progressBar.style.width = '0%';
+
     updateStep(1);
 }
 
-// Nettoyage à la fermeture de la page
 window.addEventListener('beforeunload', () => {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-    }
+    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+    if (progressInterval) clearInterval(progressInterval);
 });
 </script>
 {% endblock %}

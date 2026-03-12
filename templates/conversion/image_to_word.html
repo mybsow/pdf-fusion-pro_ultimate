@@ -212,9 +212,33 @@
 
 <script>
 let downloadUrl = null;
+let ocrProgressInterval = null;
+
+function updateStep(step) {
+    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+}
+
+function showError(message) {
+    let errorDiv = document.getElementById('conversionError');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'conversionError';
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span id="conversionErrorMsg"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.getElementById('step1Content').prepend(errorDiv);
+    }
+    document.getElementById('conversionErrorMsg').textContent = message;
+    errorDiv.style.display = 'block';
+}
 
 function startConversion() {
-    const uploadManager = window.uploadManagers['imageWordUploadZone'];
+    const uploadManager = window.uploadManagers?.['imageWordUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
         showError('{{ _("Veuillez sélectionner un fichier") }}');
         return;
@@ -222,106 +246,104 @@ function startConversion() {
 
     const formData = new FormData();
     formData.append('file', uploadManager.getFiles()[0]);
-    
-    // Langues sélectionnées
+
     const languages = Array.from(document.querySelectorAll('input[name="languages"]:checked'))
-        .map(cb => cb.value)
-        .join(',');
+        .map(cb => cb.value).join(',');
     formData.append('languages', languages || 'fra');
-    
     formData.append('confidence', document.getElementById('confidenceLevel').value);
-    formData.append('preserve_layout', document.getElementById('preserveLayout').checked);
+    formData.append('preserve_layout', document.getElementById('preserveLayout').checked ? 'true' : 'false');
     formData.append('preprocessing', document.getElementById('preprocessing').value);
     formData.append('output_format', document.getElementById('outputFormat').value);
 
-    // Passer à l'étape 2
     updateStep(2);
-    
-    // Simuler la progression OCR
-    simulateOCRProgress();
-    
-    // Envoyer la requête
+
+    // ✅ Progression simulée jusqu'à 90% max
+    const progressBar = document.getElementById('conversionProgress');
+    const ocrMessage = document.getElementById('ocrMessage');
+    const ocrDetails = document.getElementById('ocrDetails');
+
+    const steps = [
+        { percent: 15, message: '{{ _("Prétraitement de l\'image...") }}',       detail: '{{ _("Optimisation de l\'image pour l\'OCR") }}' },
+        { percent: 30, message: '{{ _("Analyse des zones de texte...") }}',       detail: '{{ _("Détection des paragraphes et colonnes") }}' },
+        { percent: 45, message: '{{ _("Reconnaissance des caractères...") }}',    detail: '{{ _("Analyse des formes et patterns") }}' },
+        { percent: 60, message: '{{ _("Correction orthographique...") }}',        detail: '{{ _("Vérification du vocabulaire") }}' },
+        { percent: 75, message: '{{ _("Structuration du document...") }}',        detail: '{{ _("Organisation en paragraphes") }}' },
+        { percent: 90, message: '{{ _("Finalisation...") }}',                     detail: '{{ _("Préparation du document Word") }}' },
+    ];
+
+    let stepIndex = 0;
+    // ✅ Utiliser setInterval au lieu de setTimeout récursif pour pouvoir l'arrêter
+    ocrProgressInterval = setInterval(() => {
+        if (stepIndex < steps.length) {
+            const step = steps[stepIndex];
+            if (progressBar) progressBar.style.width = step.percent + '%';
+            if (ocrMessage) ocrMessage.textContent = step.message;
+            if (ocrDetails) ocrDetails.innerHTML = `<i class="fas fa-search me-1"></i> ${step.detail}`;
+            stepIndex++;
+        } else {
+            clearInterval(ocrProgressInterval);
+        }
+    }, 800);
+
     fetch('{{ url_for("conversion.universal_converter", conversion_type="image-en-word") }}', {
         method: 'POST',
         body: formData
     })
     .then(async response => {
-        if (response.ok) {
-            const blob = await response.blob();
-            downloadUrl = window.URL.createObjectURL(blob);
-            
-            const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = '{{ _("extraction.docx") }}';
-            if (contentDisposition) {
-                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-                if (match && match[1]) {
-                    filename = match[1].replace(/['"]/g, '');
-                }
-            }
-            
-            const downloadLink = document.getElementById('downloadLink');
-            downloadLink.href = downloadUrl;
-            downloadLink.download = filename;
-            
-            // Simuler les statistiques d'extraction
-            simulateExtractionStats();
-            
-            updateStep(3);
-        } else {
-            const error = await response.text();
-            showError('{{ _("Erreur lors de l\'extraction :") }} ' + error);
-            updateStep(1);
+        clearInterval(ocrProgressInterval);  // ✅ Stopper la simulation
+
+        if (progressBar) progressBar.style.width = '100%';
+        if (ocrMessage) ocrMessage.textContent = '{{ _("Extraction terminée !") }}';
+        if (ocrDetails) ocrDetails.innerHTML = `<i class="fas fa-check me-1"></i> {{ _("Document prêt") }}`;
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Erreur serveur ' + response.status);
         }
+
+        const contentType = response.headers.get('Content-Type') || '';
+        if (contentType.includes('text/html')) {
+            throw new Error('Le serveur a retourné une erreur. Vérifiez le fichier.');
+        }
+
+        const blob = await response.blob();
+        if (blob.size === 0) {
+            throw new Error('Fichier téléchargé vide.');
+        }
+
+        downloadUrl = window.URL.createObjectURL(blob);
+
+        const contentDisposition = response.headers.get('Content-Disposition') || '';
+        let filename = 'extraction.docx';
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+            filename = match[1].replace(/['"]/g, '');
+        }
+
+        const downloadLink = document.getElementById('downloadLink');
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.setAttribute('download', filename);
+        }
+
+        // Statistiques simulées (cosmétiques)
+        const chars = Math.floor(Math.random() * 2000) + 1000;
+        const words = Math.floor(chars / 6);
+        const lines = Math.floor(words / 12) + 1;
+        const confidence = Math.floor(Math.random() * 15) + 85;
+        document.getElementById('statsChars').textContent = chars.toLocaleString();
+        document.getElementById('statsWords').textContent = words.toLocaleString();
+        document.getElementById('statsLines').textContent = lines;
+        document.getElementById('statsConfidence').textContent = confidence + '%';
+
+        updateStep(3);
     })
     .catch(error => {
-        showError('{{ _("Erreur :") }} ' + error.message);
+        clearInterval(ocrProgressInterval);
+        console.error('Erreur conversion:', error);
         updateStep(1);
+        showError('{{ _("Erreur lors de l\'extraction :") }} ' + error.message);
     });
-}
-
-function simulateOCRProgress() {
-    const progressBar = document.getElementById('conversionProgress');
-    const ocrMessage = document.getElementById('ocrMessage');
-    const ocrDetails = document.getElementById('ocrDetails');
-    
-    const steps = [
-        { percent: 15, message: '{{ _("Prétraitement de l\'image...") }}', detail: '{{ _("Optimisation de l\'image pour l\'OCR") }}' },
-        { percent: 30, message: '{{ _("Analyse des zones de texte...") }}', detail: '{{ _("Détection des paragraphes et colonnes") }}' },
-        { percent: 45, message: '{{ _("Reconnaissance des caractères...") }}', detail: '{{ _("Analyse des formes et patterns") }}' },
-        { percent: 60, message: '{{ _("Correction orthographique...") }}', detail: '{{ _("Vérification du vocabulaire") }}' },
-        { percent: 75, message: '{{ _("Structuration du document...") }}', detail: '{{ _("Organisation en paragraphes") }}' },
-        { percent: 90, message: '{{ _("Finalisation...") }}', detail: '{{ _("Préparation du document Word") }}' },
-        { percent: 100, message: '{{ _("Extraction terminée !") }}', detail: '{{ _("Document prêt") }}' }
-    ];
-    
-    let stepIndex = 0;
-    
-    function updateProgress() {
-        if (stepIndex < steps.length) {
-            const step = steps[stepIndex];
-            progressBar.style.width = step.percent + '%';
-            ocrMessage.textContent = step.message;
-            ocrDetails.innerHTML = `<i class="fas fa-search me-1"></i> ${step.detail}`;
-            
-            stepIndex++;
-            setTimeout(updateProgress, 800);
-        }
-    }
-    
-    updateProgress();
-}
-
-function simulateExtractionStats() {
-    // Simuler des statistiques réalistes
-    const chars = Math.floor(Math.random() * 2000) + 1000;
-    const words = Math.floor(chars / 6);
-    const lines = Math.floor(words / 12) + 1;
-    const confidence = Math.floor(Math.random() * 15) + 85; // Entre 85% et 100%
-    
-    document.getElementById('statsChars').textContent = chars.toLocaleString();
-    document.getElementById('statsWords').textContent = words.toLocaleString();
-    document.getElementById('statsLines').textContent = lines;
-    document.getElementById('statsConfidence').textContent = confidence + '%';
 }
 
 function resetConversion() {
@@ -329,48 +351,67 @@ function resetConversion() {
         window.URL.revokeObjectURL(downloadUrl);
         downloadUrl = null;
     }
-    
-    const uploadManager = window.uploadManagers['imageWordUploadZone'];
+
+    if (ocrProgressInterval) {
+        clearInterval(ocrProgressInterval);
+        ocrProgressInterval = null;
+    }
+
+    const uploadManager = window.uploadManagers?.['imageWordUploadZone'];
     if (uploadManager) {
-        while (uploadManager.getFiles().length > 0) {
-            uploadManager.removeFile(0);
+        const files = uploadManager.getFiles();
+        for (let i = files.length - 1; i >= 0; i--) {
+            uploadManager.removeFile(i);
         }
     }
-    
+
+    const errorDiv = document.getElementById('conversionError');
+    if (errorDiv) errorDiv.style.display = 'none';
+
+    const progressBar = document.getElementById('conversionProgress');
+    if (progressBar) progressBar.style.width = '0%';
+
     updateStep(1);
 }
 
-// Mise à jour de l'affichage de la valeur du slider
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    // Slider confiance
     const confidenceSlider = document.getElementById('confidenceLevel');
     const confidenceValue = document.getElementById('confidenceValue');
-    
-    confidenceSlider.addEventListener('input', function() {
-        confidenceValue.textContent = this.value + '%';
-    });
-    
-    // Activer/désactiver le bouton selon la sélection de fichier
-    const uploadManager = window.uploadManagers?.['imageWordUploadZone'];
-    if (uploadManager) {
-        const originalHandleFiles = uploadManager.handleFiles;
-        uploadManager.handleFiles = function(fileList) {
-            originalHandleFiles.call(this, fileList);
-            document.getElementById('convertBtn').disabled = this.getFiles().length === 0;
-        };
-        
-        const originalRemoveFile = uploadManager.removeFile;
-        uploadManager.removeFile = function(index) {
-            originalRemoveFile.call(this, index);
-            document.getElementById('convertBtn').disabled = this.getFiles().length === 0;
-        };
+    if (confidenceSlider) {
+        confidenceSlider.addEventListener('input', function () {
+            if (confidenceValue) confidenceValue.textContent = this.value + '%';
+        });
     }
+
+    // ✅ Bind uploadManager avec retry
+    function tryBindUploadManager(attempts) {
+        const uploadManager = window.uploadManagers?.['imageWordUploadZone'];
+        if (uploadManager) {
+            const originalHandleFiles = uploadManager.handleFiles.bind(uploadManager);
+            uploadManager.handleFiles = function (fileList) {
+                originalHandleFiles(fileList);
+                const btn = document.getElementById('convertBtn');
+                if (btn) btn.disabled = this.getFiles().length === 0;
+            };
+
+            const originalRemoveFile = uploadManager.removeFile.bind(uploadManager);
+            uploadManager.removeFile = function (index) {
+                originalRemoveFile(index);
+                const btn = document.getElementById('convertBtn');
+                if (btn) btn.disabled = this.getFiles().length === 0;
+            };
+        } else if (attempts > 0) {
+            setTimeout(() => tryBindUploadManager(attempts - 1), 300);
+        }
+    }
+
+    tryBindUploadManager(10);
 });
 
 window.addEventListener('beforeunload', () => {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-    }
+    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+    if (ocrProgressInterval) clearInterval(ocrProgressInterval);
 });
 </script>
-
 {% endblock %}

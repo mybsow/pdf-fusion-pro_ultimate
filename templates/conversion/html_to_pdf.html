@@ -122,37 +122,59 @@
 
 <script>
 let downloadUrl = null;
+let progressInterval = null;
 
-document.addEventListener('DOMContentLoaded', function() {
+function updateStep(step) {
+    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+}
+
+function showError(message) {
+    let errorDiv = document.getElementById('conversionError');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'conversionError';
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span id="conversionErrorMsg"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.getElementById('step1Content').prepend(errorDiv);
+    }
+    document.getElementById('conversionErrorMsg').textContent = message;
+    errorDiv.style.display = 'block';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
     const htmlCode = document.getElementById('htmlCode');
-    const convertBtn = document.getElementById('convertBtn');
-    
-    htmlCode.addEventListener('input', function() {
-        updateConvertButton();
-    });
+    if (htmlCode) {
+        htmlCode.addEventListener('input', updateConvertButton);
+    }
 });
 
 function updateConvertButton() {
-    const uploadManager = window.uploadManagers['htmlUploadZone'];
+    const uploadManager = window.uploadManagers?.['htmlUploadZone'];
     const htmlCode = document.getElementById('htmlCode');
     const convertBtn = document.getElementById('convertBtn');
-    
+
     const hasFile = uploadManager && uploadManager.getFiles().length > 0;
-    const hasCode = htmlCode.value.trim().length > 0;
-    
-    convertBtn.disabled = !(hasFile || hasCode);
+    const hasCode = htmlCode && htmlCode.value.trim().length > 0;
+
+    if (convertBtn) convertBtn.disabled = !(hasFile || hasCode);
 }
 
 function startConversion() {
-    const uploadManager = window.uploadManagers['htmlUploadZone'];
+    const uploadManager = window.uploadManagers?.['htmlUploadZone'];
     const htmlCode = document.getElementById('htmlCode');
     const files = uploadManager ? uploadManager.getFiles() : [];
-    
+
     const formData = new FormData();
-    
+
     if (files.length > 0) {
         formData.append('file', files[0]);
-    } else if (htmlCode.value.trim()) {
+    } else if (htmlCode && htmlCode.value.trim()) {
         const blob = new Blob([htmlCode.value], { type: 'text/html' });
         formData.append('file', blob, 'document.html');
     } else {
@@ -163,16 +185,18 @@ function startConversion() {
     formData.append('pageSize', document.getElementById('pageSize').value);
     formData.append('orientation', document.getElementById('orientation').value);
     formData.append('margin', document.getElementById('margin').value);
-    formData.append('includeImages', document.getElementById('includeImages').checked);
-    formData.append('enableJavascript', document.getElementById('enableJavascript').checked);
+    formData.append('includeImages', document.getElementById('includeImages').checked ? 'true' : 'false');
+    formData.append('enableJavascript', document.getElementById('enableJavascript').checked ? 'true' : 'false');
 
     updateStep(2);
-    
+
     let progress = 0;
-    const interval = setInterval(() => {
-        progress += 10;
-        document.getElementById('progressBar').style.width = progress + '%';
-        if (progress >= 90) clearInterval(interval);
+    const progressBar = document.getElementById('progressBar');
+    progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 10;
+            if (progressBar) progressBar.style.width = progress + '%';
+        }
     }, 500);
 
     fetch('{{ url_for("conversion.universal_converter", conversion_type="html-en-pdf") }}', {
@@ -180,24 +204,46 @@ function startConversion() {
         body: formData
     })
     .then(async response => {
-        clearInterval(interval);
-        document.getElementById('progressBar').style.width = '100%';
-        
-        if (response.ok) {
-            const blob = await response.blob();
-            downloadUrl = window.URL.createObjectURL(blob);
-            document.getElementById('downloadLink').href = downloadUrl;
-            updateStep(3);
-        } else {
-            const error = await response.text();
-            showError('{{ _("Erreur lors de la conversion :") }} ' + error);
-            updateStep(1);
+        clearInterval(progressInterval);
+        if (progressBar) progressBar.style.width = '100%';
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Erreur serveur ' + response.status);
         }
+
+        const contentType = response.headers.get('Content-Type') || '';
+        if (contentType.includes('text/html')) {
+            throw new Error('Le serveur a retourné une erreur. Vérifiez le fichier.');
+        }
+
+        const blob = await response.blob();
+        if (blob.size === 0) {
+            throw new Error('Fichier téléchargé vide.');
+        }
+
+        downloadUrl = window.URL.createObjectURL(blob);
+
+        const contentDisposition = response.headers.get('Content-Disposition') || '';
+        let filename = 'converted.pdf';
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+            filename = match[1].replace(/['"]/g, '');
+        }
+
+        const downloadLink = document.getElementById('downloadLink');
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.setAttribute('download', filename);
+        }
+
+        updateStep(3);
     })
     .catch(error => {
-        clearInterval(interval);
-        showError('{{ _("Erreur :") }} ' + error.message);
+        clearInterval(progressInterval);
+        console.error('Erreur conversion:', error);
         updateStep(1);
+        showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
     });
 }
 
@@ -206,23 +252,36 @@ function resetConversion() {
         window.URL.revokeObjectURL(downloadUrl);
         downloadUrl = null;
     }
-    
-    const uploadManager = window.uploadManagers['htmlUploadZone'];
+
+    if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+    }
+
+    const uploadManager = window.uploadManagers?.['htmlUploadZone'];
     if (uploadManager) {
-        while (uploadManager.getFiles().length > 0) {
-            uploadManager.removeFile(0);
+        const files = uploadManager.getFiles();
+        for (let i = files.length - 1; i >= 0; i--) {
+            uploadManager.removeFile(i);
         }
     }
-    
-    document.getElementById('htmlCode').value = '';
+
+    const htmlCode = document.getElementById('htmlCode');
+    if (htmlCode) htmlCode.value = '';
+
+    const errorDiv = document.getElementById('conversionError');
+    if (errorDiv) errorDiv.style.display = 'none';
+
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) progressBar.style.width = '0%';
+
     updateStep(1);
     updateConvertButton();
 }
 
 window.addEventListener('beforeunload', () => {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-    }
+    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+    if (progressInterval) clearInterval(progressInterval);
 });
 </script>
 {% endblock %}

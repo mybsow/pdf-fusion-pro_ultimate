@@ -271,9 +271,29 @@
 
 <script>
 let downloadUrl = null;
+let progressInterval = null;
+
+function updateStep(step) {
+    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+}
+
+function showError(message) {
+    let errorDiv = document.getElementById('conversionError');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'conversionError';
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+        document.getElementById('step1Content').prepend(errorDiv);
+    }
+    document.getElementById('conversionErrorMsg').textContent = message;
+    errorDiv.style.display = 'block';
+}
 
 function startConversion() {
-    const uploadManager = window.uploadManagers['wordPdfUploadZone'];
+    const uploadManager = window.uploadManagers?.['wordPdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
         showError('{{ _("Veuillez sélectionner un document Word") }}');
         return;
@@ -286,175 +306,148 @@ function startConversion() {
     formData.append('orientation', document.querySelector('input[name="orientation"]:checked').value);
     formData.append('margins', document.getElementById('margins').value);
     formData.append('quality', document.getElementById('quality').value);
-    formData.append('preserve_layout', document.getElementById('preserveLayout').checked);
-    formData.append('include_bookmarks', document.getElementById('includeBookmarks').checked);
-    formData.append('protect_pdf', document.getElementById('protectPDF').checked);
-    
+    formData.append('preserve_layout', document.getElementById('preserveLayout').checked ? 'true' : 'false');
+    formData.append('include_bookmarks', document.getElementById('includeBookmarks').checked ? 'true' : 'false');
+    formData.append('protect_pdf', document.getElementById('protectPDF').checked ? 'true' : 'false');
+
     if (document.getElementById('protectPDF').checked) {
         formData.append('password', document.getElementById('password').value);
         formData.append('permissions', document.getElementById('permissions').value);
     }
 
-    // Passer à l'étape 2
     updateStep(2);
-    
-    // Mettre à jour les informations d'estimation
+
     const pages = Math.max(1, Math.ceil(file.size / 15000));
-    document.getElementById('estimatedPages').textContent = pages;
-    
+    const el = id => document.getElementById(id);
+    if (el('estimatedPages')) el('estimatedPages').textContent = pages;
     const qualitySelect = document.getElementById('quality');
-    const qualityText = qualitySelect.options[qualitySelect.selectedIndex].text.split(' ')[0];
-    document.getElementById('qualitySetting').textContent = qualityText;
-    
-    document.getElementById('formatSetting').textContent = document.getElementById('pageFormat').value;
-    
-    // Simuler la progression
-    simulateConversion(file, pages);
-    
-    // Envoyer la requête
+    if (el('qualitySetting')) el('qualitySetting').textContent = qualitySelect?.options[qualitySelect.selectedIndex]?.text.split(' ')[0] || '';
+    if (el('formatSetting')) el('formatSetting').textContent = document.getElementById('pageFormat').value;
+
+    const simSteps = [
+        { percent: 15, msg: "{{ _('Lecture du document Word...') }}", detail: "{{ _('Analyse de la structure') }}" },
+        { percent: 30, msg: "{{ _('Extraction des styles...') }}", detail: "{{ _('Préservation des polices') }}" },
+        { percent: 50, msg: "{{ _('Traitement des images...') }}", detail: "{{ _('Optimisation des graphiques') }}" },
+        { percent: 70, msg: "{{ _('Génération du PDF...') }}", detail: "{{ _('Création des pages') }}" },
+        { percent: 90, msg: "{{ _('Application des paramètres...') }}", detail: "{{ _('Configuration finale') }}" },
+    ];
+    let simIdx = 0;
+    const progressBar = el('conversionProgress');
+
+    progressInterval = setInterval(() => {
+        if (simIdx < simSteps.length) {
+            const s = simSteps[simIdx++];
+            if (progressBar) progressBar.style.width = s.percent + '%';
+            if (el('conversionMessage')) el('conversionMessage').textContent = s.msg;
+            if (el('conversionDetails')) el('conversionDetails').innerHTML = `<i class="fas fa-cog fa-spin me-1"></i> ${s.detail}`;
+        } else {
+            clearInterval(progressInterval);
+        }
+    }, 800);
+
     fetch('{{ url_for("conversion.universal_converter", conversion_type="word-en-pdf") }}', {
         method: 'POST',
         body: formData
     })
     .then(async response => {
-        if (response.ok) {
-            const blob = await response.blob();
-            downloadUrl = window.URL.createObjectURL(blob);
-            
-            const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = file.name.replace(/\.[^/.]+$/, '') + '.pdf';
-            if (contentDisposition) {
-                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-                if (match && match[1]) {
-                    filename = match[1].replace(/['"]/g, '');
-                }
-            }
-            
-            const downloadLink = document.getElementById('downloadLink');
-            downloadLink.href = downloadUrl;
-            downloadLink.download = filename;
-            
-            // Simuler les statistiques finales
-            simulateFinalStats(file, pages, filename);
-            
-            updateStep(3);
-        } else {
-            const error = await response.text();
-            showError('{{ _("Erreur lors de la conversion :") }} ' + error);
-            updateStep(1);
+        clearInterval(progressInterval);
+        if (progressBar) progressBar.style.width = '100%';
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Erreur serveur ' + response.status);
         }
+        const contentType = response.headers.get('Content-Type') || '';
+        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
+
+        const blob = await response.blob();
+        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+
+        downloadUrl = window.URL.createObjectURL(blob);
+        const contentDisposition = response.headers.get('Content-Disposition') || '';
+        let filename = file.name.replace(/\.[^/.]+$/, '') + '.pdf';
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
+
+        const downloadLink = document.getElementById('downloadLink');
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.setAttribute('download', filename);
+        }
+
+        simulateFinalStats(file, pages, filename);
+        updateStep(3);
     })
     .catch(error => {
-        showError('{{ _("Erreur :") }} ' + error.message);
+        clearInterval(progressInterval);
         updateStep(1);
+        showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
     });
-}
-
-function simulateConversion(file, totalPages) {
-    const progressBar = document.getElementById('conversionProgress');
-    const conversionMessage = document.getElementById('conversionMessage');
-    const conversionDetails = document.getElementById('conversionDetails');
-    
-    const steps = [
-        { percent: 15, message: "{{ _('Lecture du document Word...') }}", detail: "{{ _('Analyse de la structure') }}" },
-        { percent: 30, message: "{{ _('Extraction des styles...') }}", detail: "{{ _('Préservation des polices') }}" },
-        { percent: 50, message: "{{ _('Traitement des images...') }}", detail: "{{ _('Optimisation des graphiques') }}" },
-        { percent: 70, message: "{{ _('Génération du PDF...') }}", detail: "{{ _('Création des pages') }}" },
-        { percent: 90, message: "{{ _('Application des paramètres...') }}", detail: "{{ _('Configuration finale') }}" },
-        { percent: 100, message: "{{ _('Conversion terminée !') }}", detail: "{{ _('Préparation du téléchargement') }}" }
-    ];
-    
-    let stepIndex = 0;
-    
-    function updateProgress() {
-        if (stepIndex < steps.length) {
-            const step = steps[stepIndex];
-            progressBar.style.width = step.percent + '%';
-            conversionMessage.textContent = step.message;
-            conversionDetails.innerHTML = `<i class="fas fa-cog fa-spin me-1"></i> ${step.detail}`;
-            
-            stepIndex++;
-            setTimeout(updateProgress, 800);
-        } else {
-            conversionDetails.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i> {{ _("Conversion terminée !") }}';
-        }
-    }
-    
-    updateProgress();
 }
 
 function simulateFinalStats(file, pages, filename) {
-    const sizeMB = (file.size * 0.6 / (1024 * 1024)).toFixed(2); // Estimation 60% de la taille originale
-    
-    document.getElementById('pdfFileName').textContent = filename;
-    document.getElementById('pdfFileInfo').textContent = `{{ _('Taille:') }} ${sizeMB} MB | {{ _('Pages:') }} ${pages}`;
-    
+    const el = id => document.getElementById(id);
+    const sizeMB = (file.size * 0.6 / (1024 * 1024)).toFixed(2);
+    if (el('pdfFileName')) el('pdfFileName').textContent = filename;
+    if (el('pdfFileInfo')) el('pdfFileInfo').textContent = `{{ _('Taille:') }} ${sizeMB} MB | {{ _('Pages:') }} ${pages}`;
+
     const format = document.getElementById('pageFormat').value;
     const orientation = document.querySelector('input[name="orientation"]:checked').value === 'portrait' ? '{{ _("Portrait") }}' : '{{ _("Paysage") }}';
     const quality = document.getElementById('quality').options[document.getElementById('quality').selectedIndex].text;
-    
-    document.getElementById('conversionDetailsInfo').innerHTML = 
-        `{{ _('Format:') }} ${format}<br>
-         {{ _('Orientation:') }} ${orientation}<br>
-         {{ _('Qualité:') }} ${quality}`;
+    if (el('conversionDetailsInfo')) el('conversionDetailsInfo').innerHTML = `{{ _('Format:') }} ${format}<br>{{ _('Orientation:') }} ${orientation}<br>{{ _('Qualité:') }} ${quality}`;
 }
 
-// Gestion de l'affichage des options de protection
-document.addEventListener('DOMContentLoaded', function() {
-    const protectCheckbox = document.getElementById('protectPDF');
-    const protectionOptions = document.getElementById('protectionOptions');
-    const passwordInput = document.getElementById('password');
-    
-    protectCheckbox.addEventListener('change', function() {
-        protectionOptions.style.display = this.checked ? 'block' : 'none';
-    });
-    
-    // Validation du mot de passe
-    passwordInput.addEventListener('input', function() {
-        if (this.value && this.value.length < 6) {
-            this.classList.add('is-invalid');
-        } else {
-            this.classList.remove('is-invalid');
-        }
-    });
-    
-    // Activer/désactiver le bouton selon la sélection de fichier
+function resetConversion() {
+    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+
     const uploadManager = window.uploadManagers?.['wordPdfUploadZone'];
     if (uploadManager) {
-        const originalHandleFiles = uploadManager.handleFiles;
-        uploadManager.handleFiles = function(fileList) {
-            originalHandleFiles.call(this, fileList);
-            document.getElementById('convertBtn').disabled = this.getFiles().length === 0;
-        };
-        
-        const originalRemoveFile = uploadManager.removeFile;
-        uploadManager.removeFile = function(index) {
-            originalRemoveFile.call(this, index);
-            document.getElementById('convertBtn').disabled = this.getFiles().length === 0;
-        };
+        const files = uploadManager.getFiles();
+        for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
     }
-});
 
-function resetConversion() {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-        downloadUrl = null;
-    }
-    
-    const uploadManager = window.uploadManagers['wordPdfUploadZone'];
-    if (uploadManager) {
-        while (uploadManager.getFiles().length > 0) {
-            uploadManager.removeFile(0);
-        }
-    }
-    
+    const errorDiv = document.getElementById('conversionError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    const progressBar = document.getElementById('conversionProgress');
+    if (progressBar) progressBar.style.width = '0%';
+
     updateStep(1);
 }
 
-window.addEventListener('beforeunload', () => {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
+document.addEventListener('DOMContentLoaded', function() {
+    const protectCheckbox = document.getElementById('protectPDF');
+    if (protectCheckbox) {
+        protectCheckbox.addEventListener('change', function() {
+            const opts = document.getElementById('protectionOptions');
+            if (opts) opts.style.display = this.checked ? 'block' : 'none';
+        });
     }
+
+    const passwordInput = document.getElementById('password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            this.classList.toggle('is-invalid', this.value.length > 0 && this.value.length < 6);
+        });
+    }
+
+    const tryBind = (attempt = 0) => {
+        const um = window.uploadManagers?.['wordPdfUploadZone'];
+        if (um) {
+            const origHandle = um.handleFiles.bind(um);
+            um.handleFiles = function(fl) { origHandle(fl); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
+            const origRemove = um.removeFile.bind(um);
+            um.removeFile = function(i) { origRemove(i); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
+        } else if (attempt < 10) {
+            setTimeout(() => tryBind(attempt + 1), 300);
+        }
+    };
+    tryBind();
+});
+
+window.addEventListener('beforeunload', () => {
+    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+    if (progressInterval) clearInterval(progressInterval);
 });
 </script>
 

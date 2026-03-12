@@ -225,9 +225,29 @@
 
 <script>
 let downloadUrl = null;
+let progressInterval = null;
+
+function updateStep(step) {
+    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+}
+
+function showError(message) {
+    let errorDiv = document.getElementById('conversionError');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'conversionError';
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+        document.getElementById('step1Content').prepend(errorDiv);
+    }
+    document.getElementById('conversionErrorMsg').textContent = message;
+    errorDiv.style.display = 'block';
+}
 
 function startConversion() {
-    const uploadManager = window.uploadManagers['pdfWordUploadZone'];
+    const uploadManager = window.uploadManagers?.['pdfWordUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
         showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
         return;
@@ -238,169 +258,117 @@ function startConversion() {
     formData.append('file', file);
     formData.append('mode', document.getElementById('extractionMode').value);
     formData.append('language', document.getElementById('language').value);
-    formData.append('detect_tables', document.getElementById('detectTables').checked);
-    formData.append('preserve_formatting', document.getElementById('preserveFormatting').checked);
+    formData.append('detect_tables', document.getElementById('detectTables').checked ? 'true' : 'false');
+    formData.append('preserve_formatting', document.getElementById('preserveFormatting').checked ? 'true' : 'false');
 
-    // Passer à l'étape 2
     updateStep(2);
-    
-    // Estimer le nombre de pages basé sur la taille du fichier
+
     const estimatedPages = Math.max(1, Math.floor(file.size / (200 * 1024)));
-    
-    // Simuler la progression
-    simulateConversion(estimatedPages);
-    
-    // Envoyer la requête
+    let currentPage = 0, paragraphs = 0, images = 0;
+    const progressBar = document.getElementById('conversionProgress');
+
+    progressInterval = setInterval(() => {
+        if (currentPage < estimatedPages) {
+            currentPage++;
+            const percent = Math.min(Math.floor((currentPage / estimatedPages) * 90), 90);
+            if (progressBar) progressBar.style.width = percent + '%';
+            paragraphs += Math.floor(Math.random() * 10) + 5;
+            if (currentPage % 3 === 0) images += Math.floor(Math.random() * 2) + 1;
+            const el = id => document.getElementById(id);
+            if (el('processedPages')) el('processedPages').textContent = currentPage;
+            if (el('extractedParagraphs')) el('extractedParagraphs').textContent = paragraphs;
+            if (el('detectedImages')) el('detectedImages').textContent = images;
+            if (el('conversionMessage')) el('conversionMessage').textContent = `{{ _("Extraction de la page") }} ${currentPage}/${estimatedPages}`;
+        } else {
+            clearInterval(progressInterval);
+        }
+    }, 400);
+
     fetch('{{ url_for("conversion.universal_converter", conversion_type="pdf-en-word") }}', {
         method: 'POST',
         body: formData
     })
     .then(async response => {
-        if (response.ok) {
-            const blob = await response.blob();
-            downloadUrl = window.URL.createObjectURL(blob);
-            
-            const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = file.name.replace('.pdf', '') + '.docx';
-            if (contentDisposition) {
-                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-                if (match && match[1]) {
-                    filename = match[1].replace(/['"]/g, '');
-                }
-            }
-            
-            const downloadLink = document.getElementById('downloadLink');
-            downloadLink.href = downloadUrl;
-            downloadLink.download = filename;
-            
-            // Simuler les statistiques finales
-            simulateFinalStats(file, estimatedPages);
-            
-            updateStep(3);
-        } else {
-            const error = await response.text();
-            showError('{{ _("Erreur lors de la conversion :") }} ' + error);
-            updateStep(1);
+        clearInterval(progressInterval);
+        if (progressBar) progressBar.style.width = '100%';
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Erreur serveur ' + response.status);
         }
+        const contentType = response.headers.get('Content-Type') || '';
+        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
+
+        const blob = await response.blob();
+        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+
+        downloadUrl = window.URL.createObjectURL(blob);
+        const contentDisposition = response.headers.get('Content-Disposition') || '';
+        let filename = file.name.replace(/\.pdf$/i, '') + '.docx';
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
+
+        const downloadLink = document.getElementById('downloadLink');
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.setAttribute('download', filename);
+        }
+
+        simulateFinalStats(file, estimatedPages);
+        updateStep(3);
     })
     .catch(error => {
-        showError('{{ _("Erreur :") }} ' + error.message);
+        clearInterval(progressInterval);
         updateStep(1);
+        showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
     });
 }
 
-function simulateConversion(totalPages) {
-    const progressBar = document.getElementById('conversionProgress');
-    const conversionMessage = document.getElementById('conversionMessage');
-    const conversionDetails = document.getElementById('conversionDetails');
-    const processedPages = document.getElementById('processedPages');
-    const extractedParagraphs = document.getElementById('extractedParagraphs');
-    const detectedImages = document.getElementById('detectedImages');
-    
-    let currentPage = 0;
-    let paragraphs = 0;
-    let images = 0;
-    
-    function updateProgress() {
-        if (currentPage <= totalPages) {
-            const percent = Math.floor((currentPage / totalPages) * 100);
-            progressBar.style.width = percent + '%';
-            processedPages.textContent = currentPage;
-            
-            // Simuler l'extraction de contenu
-            if (currentPage > 0) {
-                paragraphs += Math.floor(Math.random() * 10) + 5;
-                extractedParagraphs.textContent = paragraphs;
-                
-                if (currentPage % 3 === 0) {
-                    images += Math.floor(Math.random() * 2) + 1;
-                    detectedImages.textContent = images;
-                }
-            }
-            
-            if (currentPage === 0) {
-                conversionMessage.textContent = '{{ _("Analyse du PDF...") }}';
-                conversionDetails.innerHTML = '<i class="fas fa-search me-1"></i> {{ _("Lecture de la structure du document") }}';
-            } else if (currentPage < totalPages) {
-                conversionMessage.textContent = `{{ _("Extraction de la page") }} ${currentPage}/${totalPages}`;
-                conversionDetails.innerHTML = `<i class="fas fa-file-text me-1"></i> {{ _("Traitement de la page") }} ${currentPage}`;
-            } else {
-                conversionMessage.textContent = '{{ _("Génération du document Word...") }}';
-                conversionDetails.innerHTML = '<i class="fas fa-file-word me-1"></i> {{ _("Création du fichier DOCX") }}';
-            }
-            
-            currentPage++;
-            
-            if (currentPage <= totalPages) {
-                setTimeout(updateProgress, 400);
-            }
-        }
-    }
-    
-    updateProgress();
-}
-
 function simulateFinalStats(file, pages) {
-    // Estimer le nombre de mots (environ 300 mots par page)
     const words = pages * 300;
-    const chars = words * 5; // 5 caractères par mot en moyenne
-    const sizeMB = (file.size * 1.1 / (1024 * 1024)).toFixed(2);
-    
-    document.getElementById('finalPages').textContent = pages;
-    document.getElementById('finalWords').textContent = words.toLocaleString();
-    document.getElementById('finalChars').textContent = chars.toLocaleString();
-    document.getElementById('finalSize').textContent = sizeMB + ' MB';
-    
-    // Mettre à jour l'aperçu du texte
-    const preview = document.getElementById('textPreview');
-    if (preview) {
-        const sampleTexts = [
-            '{{ _("Le document a été converti avec succès. La mise en page a été préservée et le texte est maintenant entièrement modifiable dans Microsoft Word, LibreOffice ou Google Docs.") }}',
-            '{{ _("La conversion a conservé la structure du document original, y compris les titres, les paragraphes et la mise en forme du texte.") }}',
-            '{{ _("Les tableaux ont été détectés et convertis en tableaux Word modifiables. Les images ont été intégrées au document final.") }}'
-        ];
-        preview.textContent = sampleTexts.join(' ');
-    }
+    const el = id => document.getElementById(id);
+    if (el('finalPages')) el('finalPages').textContent = pages;
+    if (el('finalWords')) el('finalWords').textContent = words.toLocaleString();
+    if (el('finalChars')) el('finalChars').textContent = (words * 5).toLocaleString();
+    if (el('finalSize')) el('finalSize').textContent = (file.size * 1.1 / (1024 * 1024)).toFixed(2) + ' MB';
 }
 
 function resetConversion() {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-        downloadUrl = null;
-    }
-    
-    const uploadManager = window.uploadManagers['pdfWordUploadZone'];
+    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+
+    const uploadManager = window.uploadManagers?.['pdfWordUploadZone'];
     if (uploadManager) {
-        while (uploadManager.getFiles().length > 0) {
-            uploadManager.removeFile(0);
-        }
+        const files = uploadManager.getFiles();
+        for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
     }
-    
+
+    const errorDiv = document.getElementById('conversionError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    const progressBar = document.getElementById('conversionProgress');
+    if (progressBar) progressBar.style.width = '0%';
+
     updateStep(1);
 }
 
-// Activer/désactiver le bouton selon la sélection de fichier
 document.addEventListener('DOMContentLoaded', function() {
-    const uploadManager = window.uploadManagers?.['pdfWordUploadZone'];
-    if (uploadManager) {
-        const originalHandleFiles = uploadManager.handleFiles;
-        uploadManager.handleFiles = function(fileList) {
-            originalHandleFiles.call(this, fileList);
-            document.getElementById('convertBtn').disabled = this.getFiles().length === 0;
-        };
-        
-        const originalRemoveFile = uploadManager.removeFile;
-        uploadManager.removeFile = function(index) {
-            originalRemoveFile.call(this, index);
-            document.getElementById('convertBtn').disabled = this.getFiles().length === 0;
-        };
-    }
+    const tryBind = (attempt = 0) => {
+        const um = window.uploadManagers?.['pdfWordUploadZone'];
+        if (um) {
+            const origHandle = um.handleFiles.bind(um);
+            um.handleFiles = function(fl) { origHandle(fl); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
+            const origRemove = um.removeFile.bind(um);
+            um.removeFile = function(i) { origRemove(i); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
+        } else if (attempt < 10) {
+            setTimeout(() => tryBind(attempt + 1), 300);
+        }
+    };
+    tryBind();
 });
 
 window.addEventListener('beforeunload', () => {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-    }
+    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+    if (progressInterval) clearInterval(progressInterval);
 });
 </script>
 

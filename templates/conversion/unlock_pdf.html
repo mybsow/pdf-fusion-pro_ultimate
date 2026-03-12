@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            a.download = filename;
+            a.setAttribute('download', filename);
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -142,7 +142,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
         } catch (error) {
             console.error('{{ _("Erreur:") }}', error);
-            alert('{{ _("Erreur:") }} ' + error.message);
+            const errDiv = document.createElement('div');
+            errDiv.className = 'alert alert-danger mt-3';
+            errDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${error.message}`;
+            document.querySelector('.card-body').prepend(errDiv);
+            setTimeout(() => errDiv.remove(), 8000);
         } finally {
             if (loader) loader.style.display = 'none';
         }

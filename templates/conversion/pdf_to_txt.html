@@ -120,59 +120,74 @@
 
 <script>
 let downloadUrl = null;
+let progressInterval = null;
+
+function updateStep(step) {
+    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+}
+
+function showError(message) {
+    let errorDiv = document.getElementById('conversionError');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'conversionError';
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+        document.getElementById('step1Content').prepend(errorDiv);
+    }
+    document.getElementById('conversionErrorMsg').textContent = message;
+    errorDiv.style.display = 'block';
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     const extractAllPages = document.getElementById('extractAllPages');
     const pageRangeGroup = document.getElementById('pageRangeGroup');
-
-    extractAllPages.addEventListener('change', () => {
-        pageRangeGroup.style.display = extractAllPages.checked ? 'none' : 'block';
-    });
+    if (extractAllPages) {
+        extractAllPages.addEventListener('change', () => {
+            if (pageRangeGroup) pageRangeGroup.style.display = extractAllPages.checked ? 'none' : 'block';
+        });
+    }
 });
 
 function validatePageRange(range) {
     if (!range) return false;
-    const pattern = /^(\d+(-\d+)?)(,\d+(-\d+)?)*$/;
-    return pattern.test(range);
+    return /^(\d+(-\d+)?)(,\d+(-\d+)?)*$/.test(range);
 }
 
 function startConversion() {
-    const uploadManager = window.uploadManagers['pdfUploadZone'];
+    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
         showError('{{ _("Veuillez sélectionner un fichier") }}');
         return;
     }
 
-    if (!document.getElementById('extractAllPages').checked) {
+    const extractAll = document.getElementById('extractAllPages').checked;
+    if (!extractAll) {
         const pageRange = document.getElementById('pageRange').value.trim();
-        if (!pageRange) {
-            showError('{{ _("Veuillez spécifier les pages à extraire") }}');
-            return;
-        }
-        if (!validatePageRange(pageRange)) {
-            showError('{{ _("Format de pages invalide. Utilisez le format: 1-5,8,11-13") }}');
-            return;
-        }
+        if (!pageRange) { showError('{{ _("Veuillez spécifier les pages à extraire") }}'); return; }
+        if (!validatePageRange(pageRange)) { showError('{{ _("Format de pages invalide. Utilisez le format: 1-5,8,11-13") }}'); return; }
     }
 
+    const file = uploadManager.getFiles()[0];
     const formData = new FormData();
-    formData.append('file', uploadManager.getFiles()[0]);
+    formData.append('file', file);
     formData.append('encoding', document.getElementById('encoding').value);
-    formData.append('preserveLayout', document.getElementById('preserveLayout').checked);
-    formData.append('addPageMarkers', document.getElementById('addPageMarkers').checked);
-    formData.append('extractAllPages', document.getElementById('extractAllPages').checked);
-    
-    if (!document.getElementById('extractAllPages').checked) {
-        formData.append('pageRange', document.getElementById('pageRange').value);
-    }
+    formData.append('preserveLayout', document.getElementById('preserveLayout').checked ? 'true' : 'false');
+    formData.append('addPageMarkers', document.getElementById('addPageMarkers').checked ? 'true' : 'false');
+    formData.append('extractAllPages', extractAll ? 'true' : 'false');
+    if (!extractAll) formData.append('pageRange', document.getElementById('pageRange').value);
 
     updateStep(2);
-    
+
     let progress = 0;
-    const interval = setInterval(() => {
-        progress += 10;
-        document.getElementById('progressBar').style.width = progress + '%';
-        if (progress >= 90) clearInterval(interval);
+    const progressBar = document.getElementById('progressBar');
+    progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 10;
+            if (progressBar) progressBar.style.width = progress + '%';
+        }
     }, 500);
 
     fetch('{{ url_for("conversion.universal_converter", conversion_type="pdf-en-txt") }}', {
@@ -180,48 +195,62 @@ function startConversion() {
         body: formData
     })
     .then(async response => {
-        clearInterval(interval);
-        document.getElementById('progressBar').style.width = '100%';
-        
-        if (response.ok) {
-            const blob = await response.blob();
-            downloadUrl = window.URL.createObjectURL(blob);
-            document.getElementById('downloadLink').href = downloadUrl;
-            updateStep(3);
-        } else {
-            const error = await response.text();
-            showError('{{ _("Erreur lors de l\'extraction :") }} ' + error);
-            updateStep(1);
+        clearInterval(progressInterval);
+        if (progressBar) progressBar.style.width = '100%';
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Erreur serveur ' + response.status);
         }
+        const contentType = response.headers.get('Content-Type') || '';
+        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
+
+        const blob = await response.blob();
+        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+
+        downloadUrl = window.URL.createObjectURL(blob);
+        const contentDisposition = response.headers.get('Content-Disposition') || '';
+        let filename = file.name.replace(/\.pdf$/i, '') + '.txt';
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
+
+        const downloadLink = document.getElementById('downloadLink');
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.setAttribute('download', filename);
+        }
+        updateStep(3);
     })
     .catch(error => {
-        clearInterval(interval);
-        showError('{{ _("Erreur :") }} ' + error.message);
+        clearInterval(progressInterval);
         updateStep(1);
+        showError('{{ _("Erreur lors de l\'extraction :") }} ' + error.message);
     });
 }
 
 function resetConversion() {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-        downloadUrl = null;
-    }
-    
-    const uploadManager = window.uploadManagers['pdfUploadZone'];
+    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+
+    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
     if (uploadManager) {
-        while (uploadManager.getFiles().length > 0) {
-            uploadManager.removeFile(0);
-        }
+        const files = uploadManager.getFiles();
+        for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
     }
-    
-    document.getElementById('pageRange').value = '';
+
+    const pageRangeEl = document.getElementById('pageRange');
+    if (pageRangeEl) pageRangeEl.value = '';
+    const errorDiv = document.getElementById('conversionError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) progressBar.style.width = '0%';
+
     updateStep(1);
 }
 
 window.addEventListener('beforeunload', () => {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-    }
+    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+    if (progressInterval) clearInterval(progressInterval);
 });
 </script>
 {% endblock %}

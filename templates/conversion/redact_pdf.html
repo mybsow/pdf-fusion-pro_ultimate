@@ -239,10 +239,9 @@
 
 <script>
 let downloadUrl = null;
+let progressInterval = null;
 let redactAreas = [];
 let pdfDocument = null;
-
-// ===== VARIABLES POUR LE DESSIN DE ZONES =====
 let isDrawingArea = false;
 let startX, startY;
 let currentRect = null;
@@ -252,13 +251,30 @@ let pdfImage = null;
 let canvas = null;
 let ctx = null;
 
-// ===== FONCTIONS POUR LE DESSIN DE ZONES =====
+function updateStep(step) {
+    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+}
+
+function showError(message) {
+    let errorDiv = document.getElementById('conversionError');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'conversionError';
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+        document.getElementById('step1Content').prepend(errorDiv);
+    }
+    document.getElementById('conversionErrorMsg').textContent = message;
+    errorDiv.style.display = 'block';
+}
+
+// ===== DESSIN DE ZONES =====
 function initAreaDrawing() {
     canvas = document.getElementById('pdfCanvas');
     if (!canvas) return;
-    
     ctx = canvas.getContext('2d');
-    
     canvas.addEventListener('mousedown', startDrawArea);
     canvas.addEventListener('mousemove', drawArea);
     canvas.addEventListener('mouseup', endDrawArea);
@@ -266,70 +282,41 @@ function initAreaDrawing() {
 }
 
 function startDrawArea(e) {
-    if (document.querySelector('input[name="redactType"]:checked').value !== 'area') {
-        return;
-    }
-    
+    if (document.querySelector('input[name="redactType"]:checked')?.value !== 'area') return;
     isDrawingArea = true;
     const rect = canvas.getBoundingClientRect();
     startX = e.clientX - rect.left;
     startY = e.clientY - rect.top;
-    
-    // Échelle par rapport au PDF réel
     if (pdfDimensions.width > 0 && pdfDimensions.height > 0) {
-        const scaleX = pdfDimensions.width / canvas.width;
-        const scaleY = pdfDimensions.height / canvas.height;
-        
         currentRect = {
-            x: startX * scaleX,
-            y: startY * scaleY,
-            width: 0,
-            height: 0,
-            page: currentPage
+            x: startX * (pdfDimensions.width / canvas.width),
+            y: startY * (pdfDimensions.height / canvas.height),
+            width: 0, height: 0, page: currentPage
         };
     }
 }
 
 function drawArea(e) {
     if (!isDrawingArea) return;
-    
     const rect = canvas.getBoundingClientRect();
     const currentX = e.clientX - rect.left;
     const currentY = e.clientY - rect.top;
-    
-    if (pdfDimensions.width > 0 && pdfDimensions.height > 0) {
-        const scaleX = pdfDimensions.width / canvas.width;
-        const scaleY = pdfDimensions.height / canvas.height;
-        
-        currentRect.width = (currentX - startX) * scaleX;
-        currentRect.height = (currentY - startY) * scaleY;
+    if (pdfDimensions.width > 0 && pdfDimensions.height > 0 && currentRect) {
+        currentRect.width = (currentX - startX) * (pdfDimensions.width / canvas.width);
+        currentRect.height = (currentY - startY) * (pdfDimensions.height / canvas.height);
     }
-    
-    // Redessiner le canvas avec le rectangle
     drawCanvasWithAreas();
 }
 
 function endDrawArea() {
     if (!isDrawingArea || !currentRect) return;
-    
     isDrawingArea = false;
-    
-    // Ajouter la zone à la liste
     if (Math.abs(currentRect.width) > 5 && Math.abs(currentRect.height) > 5) {
-        // Normaliser les dimensions (si dessiné de droite à gauche ou bas en haut)
-        if (currentRect.width < 0) {
-            currentRect.x += currentRect.width;
-            currentRect.width = Math.abs(currentRect.width);
-        }
-        if (currentRect.height < 0) {
-            currentRect.y += currentRect.height;
-            currentRect.height = Math.abs(currentRect.height);
-        }
-        
-        redactAreas.push({...currentRect});
+        if (currentRect.width < 0) { currentRect.x += currentRect.width; currentRect.width = Math.abs(currentRect.width); }
+        if (currentRect.height < 0) { currentRect.y += currentRect.height; currentRect.height = Math.abs(currentRect.height); }
+        redactAreas.push({ ...currentRect });
         updateAreasList();
     }
-    
     currentRect = null;
     drawCanvasWithAreas();
 }
@@ -342,82 +329,43 @@ function cancelDrawArea() {
 
 function drawCanvasWithAreas() {
     if (!ctx || !canvas) return;
-    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Redessiner le PDF
-    if (pdfImage) {
-        ctx.drawImage(pdfImage, 0, 0, canvas.width, canvas.height);
-    }
-    
-    // Dessiner toutes les zones sauvegardées
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    if (pdfImage) ctx.drawImage(pdfImage, 0, 0, canvas.width, canvas.height);
+
+    const scaleX = pdfDimensions.width > 0 ? canvas.width / pdfDimensions.width : 1;
+    const scaleY = pdfDimensions.height > 0 ? canvas.height / pdfDimensions.height : 1;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
     redactAreas.forEach(area => {
-        if (pdfDimensions.width > 0 && pdfDimensions.height > 0) {
-            const scaleX = canvas.width / pdfDimensions.width;
-            const scaleY = canvas.height / pdfDimensions.height;
-            
-            ctx.fillRect(
-                area.x * scaleX,
-                area.y * scaleY,
-                area.width * scaleX,
-                area.height * scaleY
-            );
-        }
+        ctx.fillRect(area.x * scaleX, area.y * scaleY, area.width * scaleX, area.height * scaleY);
     });
-    
-    // Dessiner le rectangle en cours
-    if (currentRect && pdfDimensions.width > 0 && pdfDimensions.height > 0) {
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-        const scaleX = canvas.width / pdfDimensions.width;
-        const scaleY = canvas.height / pdfDimensions.height;
-        
-        let x = currentRect.x * scaleX;
-        let y = currentRect.y * scaleY;
-        let width = currentRect.width * scaleX;
-        let height = currentRect.height * scaleY;
-        
-        // Ajuster pour les dimensions négatives
-        if (width < 0) {
-            x += width;
-            width = Math.abs(width);
-        }
-        if (height < 0) {
-            y += height;
-            height = Math.abs(height);
-        }
-        
-        ctx.fillRect(x, y, width, height);
+
+    if (currentRect) {
+        ctx.fillStyle = 'rgba(255,0,0,0.3)';
+        let x = currentRect.x * scaleX, y = currentRect.y * scaleY;
+        let w = currentRect.width * scaleX, h = currentRect.height * scaleY;
+        if (w < 0) { x += w; w = Math.abs(w); }
+        if (h < 0) { y += h; h = Math.abs(h); }
+        ctx.fillRect(x, y, w, h);
     }
 }
 
 function updateAreasList() {
-    // Créer un conteneur pour la liste des zones s'il n'existe pas
     let listDiv = document.getElementById('areasList');
     if (!listDiv) {
         listDiv = document.createElement('div');
         listDiv.id = 'areasList';
         listDiv.className = 'mt-3';
-        
-        // Ajouter après le canvas
-        const previewDiv = document.querySelector('#pdfPreview .border');
-        if (previewDiv) {
-            previewDiv.appendChild(listDiv);
-        }
+        document.querySelector('#pdfPreview .border')?.appendChild(listDiv);
     }
-    
     listDiv.innerHTML = '<h6 class="mb-2">{{ _("Zones dessinées :") }}</h6>';
-    
     if (redactAreas.length === 0) {
         listDiv.innerHTML += '<p class="text-muted small">{{ _("Aucune zone dessinée") }}</p>';
     } else {
         redactAreas.forEach((area, index) => {
             const div = document.createElement('div');
             div.className = 'badge bg-secondary me-2 mb-2 p-2';
-            div.innerHTML = `
-                {{ _('Zone') }} ${index + 1} (${Math.round(area.width)}x${Math.round(area.height)})
-                <i class="fas fa-times ms-2" onclick="removeArea(${index})" style="cursor:pointer;"></i>
-            `;
+            div.innerHTML = `{{ _('Zone') }} ${index + 1} (${Math.round(area.width)}×${Math.round(area.height)}) <i class="fas fa-times ms-2" onclick="removeArea(${index})" style="cursor:pointer;"></i>`;
             listDiv.appendChild(div);
         });
     }
@@ -429,227 +377,196 @@ function removeArea(index) {
     drawCanvasWithAreas();
 }
 
-// ===== FONCTION POUR CHARGER L'APERÇU DU PDF =====
 async function loadPdfPreview() {
-    const uploadManager = window.uploadManagers['pdfUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
-        return;
-    }
-    
+    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
+    if (!uploadManager || uploadManager.getFiles().length === 0) return;
     const file = uploadManager.getFiles()[0];
     const arrayBuffer = await file.arrayBuffer();
-    
-    // Utiliser PDF.js pour charger le PDF
-    if (typeof pdfjsLib !== 'undefined') {
-        try {
-            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-            pdfDocument = await loadingTask.promise;
-            
-            // Charger la première page
-            const page = await pdfDocument.getPage(1);
-            const viewport = page.getViewport({ scale: 1.5 });
-            
-            canvas = document.getElementById('pdfCanvas');
-            if (!canvas) return;
-            
-            // Définir les dimensions du canvas
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            
-            // Mettre à jour les dimensions du PDF pour l'échelle
-            pdfDimensions.width = viewport.width;
-            pdfDimensions.height = viewport.height;
-            
-            // Rendre la page sur le canvas
-            const context = canvas.getContext('2d');
-            const renderContext = {
-                canvasContext: context,
-                viewport: viewport
-            };
-            
-            await page.render(renderContext).promise;
-            
-            // Sauvegarder l'image pour le redessin
-            pdfImage = new Image();
-            pdfImage.src = canvas.toDataURL();
-            
-            // Initialiser le dessin
-            initAreaDrawing();
-            
-        } catch (error) {
-            console.error('Erreur chargement PDF:', error);
-            showError('{{ _("Erreur lors du chargement de l\'aperçu PDF") }}');
-        }
+    if (typeof pdfjsLib === 'undefined') return;
+    try {
+        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+        pdfDocument = await loadingTask.promise;
+        const page = await pdfDocument.getPage(1);
+        const viewport = page.getViewport({ scale: 1.5 });
+        canvas = document.getElementById('pdfCanvas');
+        if (!canvas) return;
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        pdfDimensions = { width: viewport.width, height: viewport.height };
+        const context = canvas.getContext('2d');
+        await page.render({ canvasContext: context, viewport }).promise;
+        pdfImage = new Image();
+        pdfImage.src = canvas.toDataURL();
+        initAreaDrawing();
+    } catch (error) {
+        console.error('Erreur chargement PDF:', error);
+        showError('{{ _("Erreur lors du chargement de l\'aperçu PDF") }}');
     }
 }
 
+// ===== TEXTE ET MOTIFS =====
 function addTextToList() {
     const input = document.getElementById('searchText');
-    const text = input.value.trim();
-    if (text) {
-        const list = document.getElementById('textList');
-        const badge = document.createElement('div');
-        badge.className = 'badge bg-secondary me-2 mb-2 p-2';
-        badge.setAttribute('data-text', text);
-        badge.innerHTML = `${text} <i class="fas fa-times ms-2" onclick="removeText(this)" style="cursor:pointer;"></i>`;
-        list.appendChild(badge);
-        input.value = '';
-    }
+    const text = input?.value.trim();
+    if (!text) return;
+    const list = document.getElementById('textList');
+    if (!list) return;
+    const badge = document.createElement('div');
+    badge.className = 'badge bg-secondary me-2 mb-2 p-2';
+    badge.setAttribute('data-text', text);
+    badge.innerHTML = `${text} <i class="fas fa-times ms-2" onclick="removeText(this)" style="cursor:pointer;"></i>`;
+    list.appendChild(badge);
+    input.value = '';
 }
 
 function removeText(element) {
-    element.parentElement.remove();
+    element.parentElement?.remove();
 }
 
-// Gestionnaire pour le changement de type de caviardage
+// ===== CONVERSION =====
+function startConversion() {
+    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
+    if (!uploadManager || uploadManager.getFiles().length === 0) {
+        showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
+        return;
+    }
+
+    const file = uploadManager.getFiles()[0];
+    const redactType = document.querySelector('input[name="redactType"]:checked')?.value || 'text';
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('redact_type', redactType);
+    formData.append('redact_color', document.getElementById('areaColor')?.value || '#000000');
+
+    const textList = [];
+    document.querySelectorAll('#textList .badge').forEach(badge => {
+        const t = badge.getAttribute('data-text');
+        if (t) textList.push(t);
+    });
+    formData.append('search_text', textList.join(','));
+
+    if (redactType === 'pattern') {
+        const patterns = [];
+        document.querySelectorAll('#patternSection input:checked').forEach(cb => patterns.push(cb.value));
+        formData.append('patterns', patterns.join(','));
+    }
+
+    const pagesVal = document.getElementById('pages')?.value || 'all';
+    formData.append('pages', pagesVal === 'range' ? (document.getElementById('pageRange')?.value || '') : pagesVal);
+
+    if (redactAreas.length > 0) formData.append('areas', JSON.stringify(redactAreas));
+
+    updateStep(2);
+
+    let progress = 0;
+    const progressBar = document.getElementById('progressBar');
+    const progressMsg = document.getElementById('progressMessage');
+    const messages = [
+        '{{ _("Analyse du document...") }}',
+        '{{ _("Recherche du contenu sensible...") }}',
+        '{{ _("Application du caviardage...") }}',
+        '{{ _("Finalisation...") }}'
+    ];
+
+    progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 5;
+            if (progressBar) progressBar.style.width = progress + '%';
+            const msgIdx = progress < 30 ? 0 : progress < 60 ? 1 : progress < 85 ? 2 : 3;
+            if (progressMsg) progressMsg.textContent = messages[msgIdx];
+        }
+    }, 300);
+
+    fetch('{{ url_for("conversion.universal_converter", conversion_type="redact-pdf") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(async response => {
+        clearInterval(progressInterval);
+        if (progressBar) progressBar.style.width = '100%';
+        if (progressMsg) progressMsg.textContent = '{{ _("Finalisation...") }}';
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Erreur serveur ' + response.status);
+        }
+        const contentType = response.headers.get('Content-Type') || '';
+        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
+
+        const blob = await response.blob();
+        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+
+        downloadUrl = window.URL.createObjectURL(blob);
+        const contentDisposition = response.headers.get('Content-Disposition') || '';
+        let filename = file.name.replace(/\.pdf$/i, '') + '_redacted.pdf';
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
+
+        const downloadLink = document.getElementById('downloadLink');
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.setAttribute('download', filename);
+        }
+        updateStep(3);
+    })
+    .catch(error => {
+        clearInterval(progressInterval);
+        updateStep(1);
+        showError('{{ _("Erreur lors du caviardage :") }} ' + error.message);
+    });
+}
+
+function resetConversion() {
+    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+
+    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
+    if (uploadManager) {
+        const files = uploadManager.getFiles();
+        for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
+    }
+
+    redactAreas = [];
+    pdfDocument = null;
+    pdfImage = null;
+
+    canvas = document.getElementById('pdfCanvas');
+    if (canvas) {
+        ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    const areasList = document.getElementById('areasList');
+    if (areasList) areasList.innerHTML = '';
+
+    const errorDiv = document.getElementById('conversionError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) progressBar.style.width = '0%';
+
+    updateStep(1);
+}
+
+// ===== GESTIONNAIRES D'ÉVÉNEMENTS =====
 document.querySelectorAll('input[name="redactType"]').forEach(radio => {
     radio.addEventListener('change', function() {
         document.getElementById('textSection').style.display = this.value === 'text' ? 'block' : 'none';
         document.getElementById('areaSection').style.display = this.value === 'area' ? 'block' : 'none';
         document.getElementById('pdfPreview').style.display = this.value === 'area' ? 'block' : 'none';
         document.getElementById('patternSection').style.display = this.value === 'pattern' ? 'block' : 'none';
-        
-        // Charger l'aperçu si on passe en mode zone
-        if (this.value === 'area') {
-            setTimeout(loadPdfPreview, 500);
-        }
+        if (this.value === 'area') setTimeout(loadPdfPreview, 500);
     });
 });
 
-// Gestionnaire pour les pages
-document.getElementById('pages').addEventListener('change', function() {
-    document.getElementById('pageRange').disabled = this.value !== 'range';
+document.getElementById('pages')?.addEventListener('change', function() {
+    const pageRange = document.getElementById('pageRange');
+    if (pageRange) pageRange.disabled = this.value !== 'range';
 });
-
-function startConversion() {
-    const uploadManager = window.uploadManagers['pdfUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', uploadManager.getFiles()[0]);
-    
-    // Récupérer le type de caviardage
-    const redactType = document.querySelector('input[name="redactType"]:checked').value;
-    formData.append('redact_type', redactType);
-    formData.append('redact_color', document.getElementById('areaColor')?.value || '#000000');
-    
-    // Récupérer les textes à caviarder
-    const textList = [];
-    document.querySelectorAll('#textList .badge').forEach(badge => {
-        textList.push(badge.getAttribute('data-text'));
-    });
-    formData.append('search_text', textList.join(','));
-    
-    // Récupérer les motifs
-    if (redactType === 'pattern') {
-        const patterns = [];
-        document.querySelectorAll('#patternSection input:checked').forEach(checkbox => {
-            patterns.push(checkbox.value);
-        });
-        formData.append('patterns', patterns.join(','));
-    }
-    
-    // Récupérer les pages
-    const pages = document.getElementById('pages').value;
-    formData.append('pages', pages === 'range' ? document.getElementById('pageRange').value : pages);
-    
-    // Coordonnées des zones (si dessinées)
-    if (redactAreas.length > 0) {
-        formData.append('areas', JSON.stringify(redactAreas));
-    }
-
-    // Passer à l'étape 2
-    updateStep(2);
-    
-    // Simuler la progression
-    let progress = 0;
-    const interval = setInterval(() => {
-        progress += 5;
-        document.getElementById('progressBar').style.width = progress + '%';
-        if (progress < 30) {
-            document.getElementById('progressMessage').textContent = '{{ _("Analyse du document...") }}';
-        } else if (progress < 60) {
-            document.getElementById('progressMessage').textContent = '{{ _("Recherche du contenu sensible...") }}';
-        } else if (progress < 90) {
-            document.getElementById('progressMessage').textContent = '{{ _("Application du caviardage...") }}';
-        }
-        if (progress >= 90) clearInterval(interval);
-    }, 300);
-
-    // Envoyer la requête
-    fetch('{{ url_for("conversion.universal_converter", conversion_type="redact-pdf") }}', {
-        method: 'POST',
-        body: formData
-    })
-    .then(async response => {
-        clearInterval(interval);
-        document.getElementById('progressBar').style.width = '100%';
-        document.getElementById('progressMessage').textContent = '{{ _("Finalisation...") }}';
-        
-        if (response.ok) {
-            const blob = await response.blob();
-            downloadUrl = window.URL.createObjectURL(blob);
-            
-            const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = '{{ _("redacted.pdf") }}';
-            if (contentDisposition) {
-                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-                if (match && match[1]) {
-                    filename = match[1].replace(/['"]/g, '');
-                }
-            }
-            
-            const downloadLink = document.getElementById('downloadLink');
-            downloadLink.href = downloadUrl;
-            downloadLink.download = filename;
-            updateStep(3);
-        } else {
-            const error = await response.text();
-            showError('{{ _("Erreur lors du caviardage :") }} ' + error);
-            updateStep(1);
-        }
-    })
-    .catch(error => {
-        clearInterval(interval);
-        showError('{{ _("Erreur :") }} ' + error.message);
-        updateStep(1);
-    });
-}
-
-function resetConversion() {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-        downloadUrl = null;
-    }
-    
-    const uploadManager = window.uploadManagers['pdfUploadZone'];
-    if (uploadManager) {
-        while (uploadManager.getFiles().length > 0) {
-            uploadManager.removeFile(0);
-        }
-    }
-    
-    redactAreas = [];
-    pdfDocument = null;
-    pdfImage = null;
-    
-    // Réinitialiser le canvas
-    canvas = document.getElementById('pdfCanvas');
-    if (canvas) {
-        ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-    
-    updateStep(1);
-}
 
 window.addEventListener('beforeunload', () => {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-    }
+    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+    if (progressInterval) clearInterval(progressInterval);
 });
 </script>
 {% endblock %}

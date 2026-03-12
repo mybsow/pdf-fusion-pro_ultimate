@@ -222,32 +222,82 @@
 
 <script>
 let downloadUrl = null;
+let progressInterval = null;
 let signatureCanvas = null;
 let ctx = null;
 let isDrawing = false;
 let penSize = 2;
 let penColor = '#000000';
 
-// Initialisation du canvas de signature
+function updateStep(step) {
+    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+}
+
+function showError(message) {
+    let errorDiv = document.getElementById('conversionError');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'conversionError';
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+        document.getElementById('step1Content').prepend(errorDiv);
+    }
+    document.getElementById('conversionErrorMsg').textContent = message;
+    errorDiv.style.display = 'block';
+}
+
+// ===== CANVAS DE SIGNATURE =====
 document.addEventListener('DOMContentLoaded', () => {
     signatureCanvas = document.getElementById('signatureCanvas');
-    if (signatureCanvas) {
-        ctx = signatureCanvas.getContext('2d');
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.strokeStyle = penColor;
-        ctx.lineWidth = penSize;
-        
-        signatureCanvas.addEventListener('mousedown', startDrawing);
-        signatureCanvas.addEventListener('mousemove', draw);
-        signatureCanvas.addEventListener('mouseup', stopDrawing);
-        signatureCanvas.addEventListener('mouseleave', stopDrawing);
-        
-        // Support tactile
-        signatureCanvas.addEventListener('touchstart', startDrawingTouch);
-        signatureCanvas.addEventListener('touchmove', drawTouch);
-        signatureCanvas.addEventListener('touchend', stopDrawing);
-    }
+    if (!signatureCanvas) return;
+    ctx = signatureCanvas.getContext('2d');
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = penColor;
+    ctx.lineWidth = penSize;
+
+    signatureCanvas.addEventListener('mousedown', startDrawing);
+    signatureCanvas.addEventListener('mousemove', draw);
+    signatureCanvas.addEventListener('mouseup', stopDrawing);
+    signatureCanvas.addEventListener('mouseleave', stopDrawing);
+    signatureCanvas.addEventListener('touchstart', startDrawingTouch, { passive: false });
+    signatureCanvas.addEventListener('touchmove', drawTouch, { passive: false });
+    signatureCanvas.addEventListener('touchend', stopDrawing);
+
+    // Gestionnaires type signature
+    document.querySelectorAll('input[name="signatureType"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.getElementById('drawSection').style.display = this.value === 'draw' ? 'block' : 'none';
+            document.getElementById('typeSection').style.display = this.value === 'type' ? 'block' : 'none';
+            document.getElementById('uploadSection').style.display = this.value === 'upload' ? 'block' : 'none';
+            if (this.value === 'type') updateTypePreview();
+        });
+    });
+
+    document.getElementById('addReason')?.addEventListener('change', function() {
+        const reasonInput = document.getElementById('reasonInput');
+        if (reasonInput) reasonInput.style.display = this.checked ? 'block' : 'none';
+    });
+
+    document.getElementById('typedSignature')?.addEventListener('input', updateTypePreview);
+    document.getElementById('signatureFont')?.addEventListener('change', updateTypePreview);
+    document.getElementById('signatureSize')?.addEventListener('change', updateTypePreview);
+
+    // Bind upload manager
+    const tryBind = (attempt = 0) => {
+        const um = window.uploadManagers?.['pdfUploadZone'];
+        if (um) {
+            const origHandle = um.handleFiles.bind(um);
+            um.handleFiles = function(fl) { origHandle(fl); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
+            const origRemove = um.removeFile.bind(um);
+            um.removeFile = function(i) { origRemove(i); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
+        } else if (attempt < 10) {
+            setTimeout(() => tryBind(attempt + 1), 300);
+        }
+    };
+    tryBind();
 });
 
 function startDrawing(e) {
@@ -266,201 +316,169 @@ function startDrawingTouch(e) {
     e.preventDefault();
     const touch = e.touches[0];
     const rect = signatureCanvas.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-    
     isDrawing = true;
     ctx.beginPath();
-    ctx.moveTo(x, y);
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
 }
 
 function drawTouch(e) {
     e.preventDefault();
     if (!isDrawing) return;
-    
     const touch = e.touches[0];
     const rect = signatureCanvas.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-    
-    ctx.lineTo(x, y);
+    ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
     ctx.stroke();
 }
 
-function stopDrawing() {
-    isDrawing = false;
-}
+function stopDrawing() { isDrawing = false; }
 
 function clearSignature() {
-    if (ctx && signatureCanvas) {
-        ctx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
-    }
+    if (ctx && signatureCanvas) ctx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
 }
 
 function setPenSize(size) {
     penSize = size;
-    if (ctx) {
-        ctx.lineWidth = size;
-    }
+    if (ctx) ctx.lineWidth = size;
 }
 
 function setPenColor(color) {
     penColor = color;
-    if (ctx) {
-        ctx.strokeStyle = color;
-    }
+    if (ctx) ctx.strokeStyle = color;
 }
-
-// Gestionnaire pour le type de signature
-document.querySelectorAll('input[name="signatureType"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        document.getElementById('drawSection').style.display = this.value === 'draw' ? 'block' : 'none';
-        document.getElementById('typeSection').style.display = this.value === 'type' ? 'block' : 'none';
-        document.getElementById('uploadSection').style.display = this.value === 'upload' ? 'block' : 'none';
-        
-        // Afficher l'aperçu pour le type "taper"
-        if (this.value === 'type') {
-            updateTypePreview();
-        }
-    });
-});
-
-// Gestionnaire pour la date et le motif
-document.getElementById('addReason').addEventListener('change', function() {
-    document.getElementById('reasonInput').style.display = this.checked ? 'block' : 'none';
-});
 
 function updateTypePreview() {
-    const text = document.getElementById('typedSignature').value;
-    const font = document.getElementById('signatureFont').value;
-    const size = document.getElementById('signatureSize').value;
-    
-    document.getElementById('previewSection').style.display = 'block';
-    document.getElementById('signaturePreview').innerHTML = 
-        `<span style="font-family:${font}; font-size:${size}px; color:#0000FF;">${text}</span>`;
+    const text = document.getElementById('typedSignature')?.value || '';
+    const font = document.getElementById('signatureFont')?.value || 'Courier';
+    const size = document.getElementById('signatureSize')?.value || '24';
+    const previewSection = document.getElementById('previewSection');
+    const previewEl = document.getElementById('signaturePreview');
+    if (previewSection) previewSection.style.display = 'block';
+    if (previewEl) previewEl.innerHTML = `<span style="font-family:${font};font-size:${size}px;color:#0000FF;">${text}</span>`;
 }
 
-document.getElementById('typedSignature').addEventListener('input', updateTypePreview);
-document.getElementById('signatureFont').addEventListener('change', updateTypePreview);
-document.getElementById('signatureSize').addEventListener('change', updateTypePreview);
-
+// ===== CONVERSION =====
 function startConversion() {
-    const uploadManager = window.uploadManagers['pdfUploadZone'];
+    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
         showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
         return;
     }
 
+    const signatureType = document.querySelector('input[name="signatureType"]:checked')?.value || 'draw';
     const formData = new FormData();
     formData.append('file', uploadManager.getFiles()[0]);
-    
-    const signatureType = document.querySelector('input[name="signatureType"]:checked').value;
     formData.append('signature_type', signatureType);
-    formData.append('page_number', document.getElementById('signaturePage').value);
-    formData.append('position_x', document.getElementById('signatureX').value);
-    formData.append('position_y', document.getElementById('signatureY').value);
-    
+    formData.append('page_number', document.getElementById('signaturePage')?.value || '1');
+    formData.append('position_x', document.getElementById('signatureX')?.value || '50');
+    formData.append('position_y', document.getElementById('signatureY')?.value || '50');
+    formData.append('add_date', document.getElementById('addDate')?.checked ? 'true' : 'false');
+    formData.append('add_reason', document.getElementById('addReason')?.checked ? 'true' : 'false');
+    formData.append('signature_reason', document.getElementById('signatureReason')?.value || '');
+
     if (signatureType === 'draw') {
-        // Convertir le canvas en image
         const canvas = document.getElementById('signatureCanvas');
+        if (!canvas) { showError('{{ _("Canvas de signature introuvable") }}'); return; }
         canvas.toBlob(blob => {
+            if (!blob) { showError('{{ _("Erreur lors de la capture de la signature") }}'); return; }
             formData.append('signature_image', blob, 'signature.png');
             sendConversion(formData);
         }, 'image/png');
         return;
-    } else if (signatureType === 'type') {
-        formData.append('signature_text', document.getElementById('typedSignature').value);
-        formData.append('font_family', document.getElementById('signatureFont').value);
-        formData.append('font_size', document.getElementById('signatureSize').value);
+    }
+
+    if (signatureType === 'type') {
+        const text = document.getElementById('typedSignature')?.value?.trim();
+        if (!text) { showError('{{ _("Veuillez saisir votre signature") }}'); return; }
+        formData.append('signature_text', text);
+        formData.append('font_family', document.getElementById('signatureFont')?.value || 'Courier');
+        formData.append('font_size', document.getElementById('signatureSize')?.value || '24');
     } else if (signatureType === 'upload') {
-        const sigManager = window.uploadManagers['signatureUploadZone'];
-        if (sigManager && sigManager.getFiles().length > 0) {
-            formData.append('signature_image', sigManager.getFiles()[0]);
-        } else {
+        const sigManager = window.uploadManagers?.['signatureUploadZone'];
+        if (!sigManager || sigManager.getFiles().length === 0) {
             showError('{{ _("Veuillez télécharger une image de signature") }}');
             return;
         }
+        formData.append('signature_image', sigManager.getFiles()[0]);
     }
-    
-    formData.append('add_date', document.getElementById('addDate').checked ? 'true' : 'false');
-    formData.append('add_reason', document.getElementById('addReason').checked ? 'true' : 'false');
-    formData.append('signature_reason', document.getElementById('signatureReason')?.value || '');
-    
+
     sendConversion(formData);
 }
 
 function sendConversion(formData) {
-    // Passer à l'étape 2
     updateStep(2);
-    
-    // Simuler la progression
+
     let progress = 0;
-    const interval = setInterval(() => {
-        progress += 10;
-        document.getElementById('progressBar').style.width = progress + '%';
-        if (progress >= 90) clearInterval(interval);
+    const progressBar = document.getElementById('progressBar');
+    progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 10;
+            if (progressBar) progressBar.style.width = progress + '%';
+        }
     }, 500);
 
-    // Envoyer la requête
+    const file = window.uploadManagers?.['pdfUploadZone']?.getFiles()[0];
+
     fetch('{{ url_for("conversion.universal_converter", conversion_type="sign-pdf") }}', {
         method: 'POST',
         body: formData
     })
     .then(async response => {
-        clearInterval(interval);
-        document.getElementById('progressBar').style.width = '100%';
-        
-        if (response.ok) {
-            const blob = await response.blob();
-            downloadUrl = window.URL.createObjectURL(blob);
-            
-            const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = '{{ _("signed.pdf") }}';
-            if (contentDisposition) {
-                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-                if (match && match[1]) {
-                    filename = match[1].replace(/['"]/g, '');
-                }
-            }
-            
-            const downloadLink = document.getElementById('downloadLink');
-            downloadLink.href = downloadUrl;
-            downloadLink.download = filename;
-            updateStep(3);
-        } else {
-            const error = await response.text();
-            showError('{{ _("Erreur lors de la signature :") }} ' + error);
-            updateStep(1);
+        clearInterval(progressInterval);
+        if (progressBar) progressBar.style.width = '100%';
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Erreur serveur ' + response.status);
         }
+        const contentType = response.headers.get('Content-Type') || '';
+        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
+
+        const blob = await response.blob();
+        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+
+        downloadUrl = window.URL.createObjectURL(blob);
+        const contentDisposition = response.headers.get('Content-Disposition') || '';
+        let filename = (file?.name?.replace(/\.pdf$/i, '') || 'document') + '_signed.pdf';
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
+
+        const downloadLink = document.getElementById('downloadLink');
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.setAttribute('download', filename);
+        }
+        updateStep(3);
     })
     .catch(error => {
-        clearInterval(interval);
-        showError('{{ _("Erreur :") }} ' + error.message);
+        clearInterval(progressInterval);
         updateStep(1);
+        showError('{{ _("Erreur lors de la signature :") }} ' + error.message);
     });
 }
 
 function resetConversion() {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-        downloadUrl = null;
-    }
-    
-    const uploadManager = window.uploadManagers['pdfUploadZone'];
+    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+
+    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
     if (uploadManager) {
-        while (uploadManager.getFiles().length > 0) {
-            uploadManager.removeFile(0);
-        }
+        const files = uploadManager.getFiles();
+        for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
     }
-    
+
     clearSignature();
+
+    const errorDiv = document.getElementById('conversionError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) progressBar.style.width = '0%';
+
     updateStep(1);
 }
 
 window.addEventListener('beforeunload', () => {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-    }
+    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+    if (progressInterval) clearInterval(progressInterval);
 });
 </script>
 {% endblock %}
