@@ -3918,10 +3918,21 @@ if __name__ == "__main__":
     print("  - ai_restructure_text(text, api_key)")
 
 # ----- IMAGE -> EXCEL -----
-def convert_image_to_excel(file_storage, form_data=None):
+def convert_image_to_excel(file_input, form_data=None):
     """Convertit une image en Excel avec OCR."""
     if not HAS_PILLOW or not HAS_TESSERACT or not HAS_PANDAS:
         return {'error': 'Dépendances manquantes pour Image->Excel'}
+
+    # --- AJOUT : Protection contre les listes ---
+    if isinstance(file_input, list):
+        if not file_input:
+            return {'error': 'Aucun fichier fourni'}
+        file_storage = file_input[0]
+    else:
+        file_storage = file_input
+
+    if not hasattr(file_storage, 'filename'):
+        return {'error': 'Objet fichier invalide'}
 
     temp_files = []
     try:
@@ -3943,6 +3954,10 @@ def convert_image_to_excel(file_storage, form_data=None):
         language = form_data.get('language', 'fra') if form_data else 'fra'
         detect_tables = (form_data.get('detect_tables', 'true') if form_data else 'true') == 'true'
         enhance_image = (form_data.get('enhance_image', 'true') if form_data else 'true') == 'true'
+        
+        # --- AJOUT : Nouvelles options ---
+        extraction_mode = form_data.get('extractionMode', 'auto') if form_data else 'auto'
+        confidence_threshold = int(form_data.get('confidence', '20')) if form_data else 20
 
         # Langues OCR
         lang_map = {
@@ -3963,7 +3978,7 @@ def convert_image_to_excel(file_storage, form_data=None):
                 if processed_img.mode not in ('RGB', 'L'):
                     processed_img = processed_img.convert('RGB')
 
-                # Agrandir pour améliorer l'OCR (min 300dpi équivalent)
+                # Agrandir pour améliorer l'OCR
                 w, h = processed_img.size
                 if max(w, h) < 1000:
                     scale = 1000 / max(w, h)
@@ -3986,22 +4001,28 @@ def convert_image_to_excel(file_storage, form_data=None):
                 if processed_img.mode not in ('RGB', 'L'):
                     processed_img = processed_img.convert('RGB')
 
-        # ✅ Config sans whitelist pour supporter tous les caractères
-        custom_config = '--oem 3 --psm 6'
+        # Configuration Tesseract selon le mode
+        if extraction_mode == 'sparse':
+            tesseract_config = '--oem 3 --psm 11'  # Texte épars
+        elif extraction_mode == 'block':
+            tesseract_config = '--oem 3 --psm 6'   # Bloc de texte uniforme
+        else:
+            tesseract_config = '--oem 3 --psm 3'   # Auto (fallback)
 
-        if detect_tables:
+        if detect_tables or extraction_mode == 'table':
             logger.info("🔍 Détection des tableaux...")
 
+            # --- AMÉLIORATION : Utiliser psm 6 pour les tableaux ---
             data = pytesseract.image_to_data(
                 processed_img,
                 lang=ocr_lang,
                 output_type=Output.DICT,
-                config=custom_config
+                config='--oem 3 --psm 6'
             )
 
-            # ✅ Regroupement des mots par ligne (par position Y)
+            # Regroupement des mots par ligne
             rows_dict = {}
-            row_threshold = 12
+            row_threshold = max(12, int(processed_img.size[1] / 50))  # Adaptatif
 
             for i, text in enumerate(data['text']):
                 if not text or not text.strip():
@@ -4010,12 +4031,11 @@ def convert_image_to_excel(file_storage, form_data=None):
                     conf = int(data['conf'][i])
                 except (ValueError, TypeError):
                     conf = -1
-                if conf < 20:  # ✅ Seuil abaissé à 20 (était 30)
+                if conf < confidence_threshold:
                     continue
 
                 top = data['top'][i]
                 left = data['left'][i]
-                width = data['width'][i]
 
                 # Trouver la ligne correspondante
                 row_key = None
@@ -4031,27 +4051,34 @@ def convert_image_to_excel(file_storage, form_data=None):
                 rows_dict[row_key].append({
                     'text': text.strip(),
                     'left': left,
-                    'width': width,
                     'conf': conf
                 })
 
-            logger.info(f"Lignes brutes détectées: {len(rows_dict)}")
+            logger.info(f"Lignes détectées: {len(rows_dict)}")
 
             if not rows_dict:
-                # ✅ Fallback OCR simple si aucune donnée structurée
-                logger.warning("Aucune donnée structurée, fallback OCR simple")
+                # Fallback OCR simple
+                logger.warning("⚠️ Aucune donnée structurée, fallback OCR simple")
                 raw_text = pytesseract.image_to_string(
                     processed_img, lang=ocr_lang, config='--oem 3 --psm 3'
                 )
                 lines = [l.strip() for l in raw_text.split('\n') if l.strip()]
-                df = pd.DataFrame({'Texte extrait': lines}) if lines else \
-                     pd.DataFrame({'Avertissement': ['Aucun texte détecté']})
+                if lines:
+                    df = pd.DataFrame({'Texte extrait': lines})
+                else:
+                    # --- AMÉLIORATION : Message plus utile ---
+                    df = pd.DataFrame({
+                        'Information': ['Aucun texte détecté dans l\'image'],
+                        'Conseil': [
+                            'Vérifiez la qualité de l\'image, '
+                            'la langue sélectionnée, ou essayez le mode "Haute précision"'
+                        ]
+                    })
             else:
                 # Trier les lignes par position Y
                 sorted_rows = sorted(rows_dict.items(), key=lambda x: x[0])
 
-                # ✅ Construire table_data SANS logique d'en-têtes automatique
-                # (on garde tout, l'utilisateur peut renommer les colonnes dans Excel)
+                # Construire le tableau
                 table_data = []
                 for row_top, words in sorted_rows:
                     sorted_words = sorted(words, key=lambda w: w['left'])
@@ -4064,40 +4091,78 @@ def convert_image_to_excel(file_storage, form_data=None):
                 if table_data:
                     # Uniformiser le nombre de colonnes
                     max_cols = max(len(row) for row in table_data)
-                    padded = [row + [''] * (max_cols - len(row)) for row in table_data]
+                    padded_data = [row + [''] * (max_cols - len(row)) for row in table_data]
 
-                    # ✅ Première ligne = en-têtes si elle ressemble à des labels
-                    first_row = padded[0]
-                    rest = padded[1:]
-
-                    # Heuristique : première ligne = en-tête si mots courts et pas que des chiffres
-                    is_header = (
-                        len(rest) > 0 and
-                        all(len(cell) < 20 for cell in first_row if cell) and
-                        not all(cell.replace('.', '').replace(',', '').isdigit()
-                                for cell in first_row if cell)
-                    )
-
-                    if is_header and rest:
-                        df = pd.DataFrame(rest, columns=first_row)
-                        logger.info(f"En-têtes détectés: {first_row}")
+                    # --- AMÉLIORATION : Détection d'en-têtes plus robuste ---
+                    # Compter les cellules non-vides de la première ligne
+                    first_row_nonempty = sum(1 for cell in padded_data[0] if cell.strip())
+                    
+                    # Si première ligne a au moins 2 cellules ET moins de 40% de la ligne suivante
+                    if (len(padded_data) > 1 and 
+                        first_row_nonempty >= 2 and
+                        first_row_nonempty / len(padded_data[1]) < 0.4):
+                        # Utiliser la première ligne comme en-têtes
+                        headers = [cell if cell.strip() else f'Colonne {i+1}' 
+                                  for i, cell in enumerate(padded_data[0])]
+                        df = pd.DataFrame(padded_data[1:], columns=headers)
+                        logger.info(f"📊 En-têtes détectés: {headers}")
                     else:
-                        cols = [f'Colonne {i+1}' for i in range(max_cols)]
-                        df = pd.DataFrame(padded, columns=cols)
+                        # Pas d'en-têtes, utiliser des colonnes génériques
+                        columns = [f'Colonne {i+1}' for i in range(max_cols)]
+                        df = pd.DataFrame(padded_data, columns=columns)
                 else:
-                    df = pd.DataFrame({'Avertissement': ['Aucun texte détecté dans l\'image']})
+                    df = pd.DataFrame({'Avertissement': ['Aucune donnée exploitable']})
 
         else:
             # OCR simple
             logger.info("📝 OCR simple...")
             raw_text = pytesseract.image_to_string(
-                processed_img, lang=ocr_lang, config='--oem 3 --psm 3'
+                processed_img, lang=ocr_lang, config=tesseract_config
             )
             lines = [l.strip() for l in raw_text.split('\n') if l.strip()]
-            df = pd.DataFrame({'Texte extrait': lines}) if lines else \
-                 pd.DataFrame({'Avertissement': ['Aucun texte détecté']})
+            
+            if lines:
+                # Essayer de détecter un séparateur
+                import re
+                first_line = lines[0]
+                
+                if '\t' in first_line:
+                    separator = '\t'
+                elif ';' in first_line:
+                    separator = ';'
+                elif ',' in first_line:
+                    separator = ','
+                else:
+                    separator = None
+                
+                if separator and len(lines) > 1:
+                    # Parser comme CSV
+                    data = [line.split(separator) for line in lines]
+                    df = pd.DataFrame(data[1:], columns=data[0] if data else None)
+                else:
+                    # Une colonne par ligne
+                    df = pd.DataFrame({'Texte': lines})
+            else:
+                df = pd.DataFrame({
+                    'Information': ['Aucun texte détecté'],
+                    'Action recommandée': ['Augmentez la qualité de l\'image ou changez de langue']
+                })
 
         logger.info(f"✅ Tableau final: {df.shape[0]} lignes x {df.shape[1]} colonnes")
+
+        # --- AMÉLIORATION : Vérification de la taille du DataFrame ---
+        if df.empty or (df.shape[0] == 1 and df.shape[1] == 1 and 
+                        'Aucun' in str(df.iloc[0, 0])):
+            # Forcer un DataFrame avec des instructions
+            df = pd.DataFrame({
+                '⚠️ Aucune donnée détectée': [''],
+                'Conseils': [
+                    '1. Vérifiez que l\'image contient du texte lisible',
+                    '2. Sélectionnez la bonne langue (' + ocr_lang + ')',
+                    '3. Augmentez le contraste de l\'image',
+                    '4. Utilisez le mode "Tableau" pour les données structurées'
+                ]
+            })
 
         # Export Excel
         output = BytesIO()
@@ -4107,36 +4172,58 @@ def convert_image_to_excel(file_storage, form_data=None):
             # Ajuster largeur colonnes
             ws = writer.sheets['Image_OCR']
             for column in ws.columns:
-                max_length = max(
-                    (len(str(cell.value)) for cell in column if cell.value), default=10
-                )
+                max_length = 10
+                for cell in column:
+                    if cell.value:
+                        try:
+                            max_length = max(max_length, len(str(cell.value)))
+                        except:
+                            pass
                 ws.column_dimensions[column[0].column_letter].width = min(max_length + 2, 50)
 
-            # Feuille résumé
-            summary_df = pd.DataFrame({
+            # Feuille résumé améliorée
+            summary_data = {
                 'Information': [
-                    'Fichier source', 'Dimensions', 'Mode couleur',
-                    'Langue OCR', 'Détection tableaux', 'Lignes', 'Colonnes',
-                    'Date de conversion'
+                    'Fichier source',
+                    'Dimensions image',
+                    'Mode couleur',
+                    'Langue OCR',
+                    'Mode extraction',
+                    'Seuil de confiance',
+                    'Lignes détectées',
+                    'Colonnes détectées',
+                    'Date de conversion',
+                    'Statut'
                 ],
                 'Valeur': [
                     Path(file_storage.filename).name,
                     f"{img.size[0]} x {img.size[1]} px",
                     img.mode,
                     ocr_lang,
-                    'Oui' if detect_tables else 'Non',
+                    'Tableau' if detect_tables else 'Texte',
+                    f"{confidence_threshold}%",
                     str(df.shape[0]),
                     str(df.shape[1]),
-                    datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+                    datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
+                    'Succès' if df.shape[0] > 1 or df.shape[1] > 1 else 'Aucune donnée'
                 ]
-            })
+            }
+            
+            summary_df = pd.DataFrame(summary_data)
             summary_df.to_excel(writer, sheet_name='Résumé', index=False)
+            
             ws2 = writer.sheets['Résumé']
             ws2.column_dimensions['A'].width = 25
             ws2.column_dimensions['B'].width = 40
 
         output.seek(0)
-        logger.info(f"✅ Excel généré: {output.getbuffer().nbytes} octets")
+        file_size = output.getbuffer().nbytes
+        logger.info(f"✅ Excel généré: {file_size} octets")
+
+        # --- AMÉLIORATION : Dernière vérification ---
+        if file_size < 500:  # Fichier anormalement petit
+            logger.warning("⚠️ Fichier Excel très petit, vérification du contenu...")
+            # Le fichier sera quand même envoyé, mais on a loggé l'avertissement
 
         return send_file(
             output,
