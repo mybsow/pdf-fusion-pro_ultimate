@@ -74,6 +74,7 @@ app.wsgi_app = ProxyFix(
 
 # Configuration des langues supportées
 app.config['BABEL_DEFAULT_LOCALE'] = 'fr'
+# Chemin ABSOLU pour les traductions
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(os.path.dirname(__file__), 'translations')
 app.config['LANGUAGES'] = {
     'fr': {'name': 'Français', 'flag': 'fr'},
@@ -114,9 +115,14 @@ _default_translations = {}
 
 def load_translations():
     """Charge toutes les traductions en mémoire au démarrage"""
-    base_path = Path('translations')
+    # Utiliser le MÊME chemin que Babel
+    translations_path = app.config['BABEL_TRANSLATION_DIRECTORIES']
+    base_path = Path(translations_path)
+    
+    logger.info(f"📁 Chargement des traductions depuis: {base_path}")
+    
     if not base_path.exists():
-        logger.warning("⚠️ Dossier translations non trouvé")
+        logger.warning(f"⚠️ Dossier translations non trouvé: {base_path}")
         return
     
     for lang_dir in base_path.iterdir():
@@ -130,7 +136,7 @@ def load_translations():
             try:
                 with open(mo_file, 'rb') as f:
                     _translations_cache[lang] = gettext.GNUTranslations(f)
-                logger.info(f"✅ Traductions chargées pour {lang}")
+                logger.info(f"✅ Traductions chargées pour {lang} ({mo_file.stat().st_size} octets)")
             except Exception as e:
                 logger.error(f"❌ Erreur chargement {lang}: {e}")
         
@@ -231,15 +237,12 @@ def create_app():
     def inject_globals():
         from config import AppConfig
         
-        print("=== DEBUG CONTEXT ===")  # Ajoutez cette ligne
-        print("Session dans context:", dict(session))  # Et celle-ci
-        
         def get_current_lang():
             return session.get('language', 'fr')
         
         return dict(
             Config=AppConfig,
-            session=session,  # ← Est-ce bien là ?
+            session=session,
             get_current_lang=get_current_lang,
             current_lang=session.get('language', 'fr'),
             languages=app.config.get('LANGUAGES', {}),
@@ -468,7 +471,7 @@ def create_app():
             'current_locale': str(babel_get_locale()),
             'languages_in_config': list(app.config.get('LANGUAGES', {}).keys()),
             'config_keys': list(app.config.keys()),
-            'has_config_processor': True  # Simplifié pour éviter l'erreur
+            'has_config_processor': True
         })
 
     @app.route('/debug-languages')
@@ -493,20 +496,21 @@ def create_app():
     @app.route('/debug-translations')
     def debug_translations():
         """Vérifie l'état des traductions"""
-        import os
-        from pathlib import Path
         from flask_babel import get_locale as babel_get_locale, gettext
         
-        trans_dir = Path('translations')
+        # Utiliser le MÊME chemin que Babel
+        trans_dir = Path(app.config['BABEL_TRANSLATION_DIRECTORIES'])
+        
         result = {
             'current_locale': str(babel_get_locale()),
             'session_language': session.get('language', 'fr'),
             'babel_default': app.config.get('BABEL_DEFAULT_LOCALE', 'fr'),
+            'translations_dir': str(trans_dir),
             'translations_dir_exists': trans_dir.exists(),
             'languages': [],
             'test_translations': {
                 'fr': gettext('PDF Fusion Pro - Outils PDF Gratuits'),
-                'en': gettext('PDF Fusion Pro - Outils PDF Gratuits'),  # Même chaîne pour test
+                'en': gettext('PDF Fusion Pro - Outils PDF Gratuits'),
             }
         }
         
@@ -519,22 +523,36 @@ def create_app():
                         'lang': lang_dir.name,
                         'mo_exists': mo_file.exists(),
                         'mo_size': mo_file.stat().st_size if mo_file.exists() else 0,
+                        'mo_path': str(mo_file) if mo_file.exists() else None,
                         'po_exists': po_file.exists(),
                         'po_size': po_file.stat().st_size if po_file.exists() else 0
                     })
         
         return jsonify(result)
     
-    
-
-# Ajoutez ceci DANS votre app.py (après les autres routes)
+    @app.route('/debug-translation-load')
+    def debug_translation_load():
+        """Vérifie ce qui est réellement chargé en mémoire"""
+        loaded_langs = list(_translations_cache.keys())
+        loaded_sizes = {}
+        for lang in loaded_langs:
+            try:
+                mo_path = Path(app.config['BABEL_TRANSLATION_DIRECTORIES']) / lang / 'LC_MESSAGES' / 'messages.mo'
+                if mo_path.exists():
+                    loaded_sizes[lang] = mo_path.stat().st_size
+            except:
+                loaded_sizes[lang] = 'unknown'
+        
+        return jsonify({
+            'configured_path': app.config.get('BABEL_TRANSLATION_DIRECTORIES'),
+            'loaded_languages': loaded_langs,
+            'loaded_sizes': loaded_sizes,
+            'cache_size': len(_translations_cache)
+        })
 
     @app.route('/debug/static-check')
     def debug_static_check():
         """Vérifie les fichiers statiques"""
-        import os
-        from pathlib import Path
-        
         static_dir = Path('static')
         result = {
             'static_exists': static_dir.exists(),
@@ -544,32 +562,19 @@ def create_app():
         }
         
         if static_dir.exists():
-            # Vérifier js/components
             js_components = static_dir / 'js' / 'components'
             if js_components.exists():
                 result['js_components'] = [f.name for f in js_components.glob('*.js')]
             
-            # Vérifier js/pages
             js_pages = static_dir / 'js' / 'pages'
             if js_pages.exists():
                 result['js_pages'] = [f.name for f in js_pages.glob('*.js')]
             
-            # Vérifier css
             css_dir = static_dir / 'css'
             if css_dir.exists():
                 result['css_files'] = [f.name for f in css_dir.glob('*.css')]
         
         return jsonify(result)
-
-        # Dans votre app.py ou __init__.py principal
-    import logging
-    logging.basicConfig(level=logging.DEBUG)
-    
-    # Ou pour voir l'erreur dans la réponse
-    @app.errorhandler(500)
-    def internal_error(error):
-        import traceback
-        return f"Erreur 500: {str(error)}\n{traceback.format_exc()}", 500
 
     # ============================================================
     # Erreurs et filtres Jinja
@@ -607,10 +612,7 @@ def create_app():
 # ============================================================
 # Entrypoint
 # ============================================================
-application = create_app()  # Renommez en application
-
-# Pour Gunicorn - utiliser 'application' au lieu de 'app'
-# application = app  # Supprimez cette ligne
+application = create_app()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
