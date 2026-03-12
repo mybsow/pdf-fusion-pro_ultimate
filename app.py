@@ -74,7 +74,7 @@ app.wsgi_app = ProxyFix(
 
 # Configuration des langues supportées
 app.config['BABEL_DEFAULT_LOCALE'] = 'fr'
-app.config['BABEL_TRANSLATION_DIRECTORIES'] = './translations'
+app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(os.path.dirname(__file__), 'translations')
 app.config['LANGUAGES'] = {
     'fr': {'name': 'Français', 'flag': 'fr'},
     'en': {'name': 'English', 'flag': 'gb'},
