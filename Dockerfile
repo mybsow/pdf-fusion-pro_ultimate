@@ -70,6 +70,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 # -------------------------------------------------
 # Copier config Babel & scripts
 # -------------------------------------------------
+# NE COPIEZ PAS les fichiers .mo existants !
 COPY translations ./translations
 COPY babel.cfg .
 COPY messages.pot .
@@ -100,13 +101,13 @@ RUN mkdir -p translations && \
         done; \
         python scripts/fix_placeholders.py; \
         python scripts/fix_percent.py; \
-        pybabel compile -d translations; \
+        pybabel compile -d translations -f; \
         cp .sources.md5 translations/.sources.md5; \
     else \
-        echo "♻️ Aucune modification → compilation uniquement"; \
+        echo "♻️ Aucune modification → compilation forcée des .mo"; \
         python scripts/fix_placeholders.py; \
         python scripts/fix_percent.py; \
-        pybabel compile -d translations; \
+        pybabel compile -d translations -f; \
     fi
 
 # -------------------------------------------------
