@@ -96,6 +96,18 @@ import gettext
 import json
 from pathlib import Path
 
+# Définir get_locale AVANT l'initialisation de Babel
+def get_locale():
+    """Détermine la langue à utiliser pour Babel"""
+    # 1. Priorité ABSOLUE à la session
+    if 'language' in session:
+        return session['language']
+    # 2. Fallback sur la langue du navigateur
+    return request.accept_languages.best_match(app.config['LANGUAGES'].keys()) or 'fr'
+
+# Initialiser Babel avec la fonction locale_selector
+babel = Babel(app, locale_selector=get_locale)
+
 # Dictionnaire pour stocker les traductions en mémoire
 _translations_cache = {}
 _default_translations = {}
@@ -132,14 +144,6 @@ def load_translations():
             except Exception as e:
                 logger.error(f"❌ Erreur chargement JSON {lang}: {e}")
 
-def get_locale():
-    """Détermine la langue à utiliser pour Babel"""
-    # 1. Priorité ABSOLUE à la session
-    if 'language' in session:
-        return session['language']
-    # 2. Fallback sur la langue du navigateur
-    return request.accept_languages.best_match(app.config['LANGUAGES'].keys()) or 'fr'
-
 def get_translation(message):
     """Fonction de traduction personnalisée avec fallback"""
     lang = get_locale()
@@ -159,9 +163,6 @@ def get_translation(message):
     
     # 3. Fallback: retourner le message original
     return message
-
-# Initialiser Babel avec la fonction locale_selector
-babel = Babel(app, locale_selector=get_locale)
 
 # Charger les traductions au démarrage
 with app.app_context():
