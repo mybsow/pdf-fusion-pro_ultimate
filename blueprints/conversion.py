@@ -3918,7 +3918,7 @@ if __name__ == "__main__":
     print("  - ai_restructure_text(text, api_key)")
 
 # ----- IMAGE -> EXCEL -----
-ddef convert_image_to_excel(file_storage, form_data=None):
+def convert_image_to_excel(file_storage, form_data=None):
     """Convertit une image en Excel avec OCR."""
     if not HAS_PILLOW or not HAS_TESSERACT or not HAS_PANDAS:
         return {'error': 'Dépendances manquantes pour Image->Excel'}
