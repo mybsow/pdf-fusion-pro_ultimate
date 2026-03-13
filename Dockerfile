@@ -68,47 +68,34 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     ln -sf /usr/bin/python3 /usr/bin/python
 
 # -------------------------------------------------
-# Copier config Babel & scripts
-# -------------------------------------------------
-# NE COPIEZ PAS les fichiers .mo existants !
-COPY translations ./translations
-COPY babel.cfg .
-COPY messages.pot .
-COPY scripts ./scripts
-
-# -------------------------------------------------
-# Copier le projet
+# Copier le code source (sans translations d'abord)
 # -------------------------------------------------
 COPY . .
 
 # -------------------------------------------------
-# Génération intelligente des traductions (Babel)
+# MAINTENANT, gérer les traductions
 # -------------------------------------------------
+# 1. Supprimer les anciens .mo qui pourraient être dans l'image
+RUN rm -f translations/*/LC_MESSAGES/*.mo
+
+# 2. Compiler les traductions à partir des .po
 RUN mkdir -p translations && \
-    echo "🔎 Vérification des sources Babel..." && \
-    find . -type f \( -name "*.py" -o -name "*.html" -o -name "babel.cfg" \) -print0 \
-        | sort -z | xargs -0 md5sum > .sources.md5 && \
-    if [ ! -f translations/.sources.md5 ] || ! cmp -s .sources.md5 translations/.sources.md5; then \
-        echo "🌍 Changements détectés → extraction traductions"; \
-        pybabel extract -F babel.cfg -o messages.pot .; \
-        LANGUAGES="en es de it pt ar zh ja ru nl"; \
-        for lang in $LANGUAGES; do \
-            if [ ! -d "translations/$lang/LC_MESSAGES" ]; then \
-                pybabel init -i messages.pot -d translations -l $lang; \
-            else \
-                pybabel update -i messages.pot -d translations -l $lang; \
-            fi; \
-        done; \
-        python scripts/fix_placeholders.py; \
-        python scripts/fix_percent.py; \
-        pybabel compile -d translations -f; \
-        cp .sources.md5 translations/.sources.md5; \
-    else \
-        echo "♻️ Aucune modification → compilation forcée des .mo"; \
-        python scripts/fix_placeholders.py; \
-        python scripts/fix_percent.py; \
-        pybabel compile -d translations -f; \
-    fi
+    echo "🔎 Compilation des traductions..." && \
+    python scripts/fix_placeholders.py && \
+    python scripts/fix_percent.py && \
+    pybabel compile -d translations -f
+
+# 3. Vérifier que les .mo sont bien générés
+RUN echo "🔍 VÉRIFICATION DES FICHIERS .MO :" && \
+    ls -la translations/*/LC_MESSAGES/messages.mo && \
+    for mo in translations/*/LC_MESSAGES/messages.mo; do \
+        size=$(stat -c%s "$mo"); \
+        echo "📄 $mo : $size octets"; \
+        if [ $size -lt 10000 ]; then \
+            echo "❌ FICHIER TROP PETIT !"; \
+            exit 1; \
+        fi; \
+    done
 
 # -------------------------------------------------
 # Créer dossiers runtime
