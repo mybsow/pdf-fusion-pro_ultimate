@@ -1,86 +1,75 @@
 #!/usr/bin/env python3
-"""
-Script pour corriger les erreurs après pybabel update
-"""
-
 import os
 import re
 
-def fix_po_file(po_file):
-    print(f"\n📁 Correction de {po_file}")
+def fix_duplicates_and_percent(po_file):
+    """Supprime les doublons et corrige les pourcentages"""
     
     with open(po_file, 'r', encoding='utf-8') as f:
         lines = f.readlines()
     
+    # Première passe : corriger les pourcentages
     modified = False
+    new_lines = []
+    
+    for line in lines:
+        # Corriger 100% en 100%%
+        if '100%' in line and not '100%%' in line and not '100%%%' in line:
+            line = line.replace('100%', '100%%')
+            modified = True
+        
+        new_lines.append(line)
+    
+    # Deuxième passe : supprimer les doublons
+    seen_msgid = set()
+    unique_lines = []
     i = 0
-    while i < len(lines):
-        line = lines[i]
+    
+    while i < len(new_lines):
+        line = new_lines[i]
         
-        # Chercher les paires msgid/msgstr
-        if line.startswith('msgid "') and i + 1 < len(lines) and lines[i+1].startswith('msgstr "'):
+        if line.startswith('msgid "'):
+            # Capturer le msgid complet (peut être sur plusieurs lignes)
             msgid = line
-            msgstr = lines[i+1]
+            j = i + 1
+            while j < len(new_lines) and not new_lines[j].startswith('msgstr "') and not new_lines[j].startswith('msgid "'):
+                msgid += new_lines[j]
+                j += 1
             
-            # Extraire les placeholders du msgid
-            id_placeholders = re.findall(r'(%\([^)]+\)[diouxXeEfFgGcs])', msgid)
-            str_placeholders = re.findall(r'(%\([^)]+\)[diouxXeEfFgGcs])', msgstr)
-            
-            # Vérifier si les placeholders correspondent
-            if id_placeholders and set(id_placeholders) != set(str_placeholders):
-                print(f"  Ligne {i+1}: Placeholders incorrects")
-                print(f"    msgid: {msgid.strip()}")
-                print(f"    msgstr: {msgstr.strip()}")
-                print(f"    Attendu: {id_placeholders}")
-                print(f"    Trouvé: {str_placeholders}")
-                
-                # Remplacer les placeholders dans msgstr par ceux de msgid
-                new_msgstr = msgstr
-                for ph in id_placeholders:
-                    if ph not in new_msgstr:
-                        # Ajouter au début
-                        new_msgstr = new_msgstr.replace('msgstr "', f'msgstr "{ph} ')
-                
-                lines[i+1] = new_msgstr
+            # Vérifier si ce msgid a déjà été vu
+            if msgid in seen_msgid:
+                # C'est un doublon, on saute jusqu'au prochain msgid
+                print(f"  ⚠️ Doublon trouvé dans {po_file} à la ligne {i+1}")
+                while i < len(new_lines) and not new_lines[i].startswith('msgid "'):
+                    i += 1
                 modified = True
-                print(f"    ✅ Corrigé")
+                continue
+            else:
+                seen_msgid.add(msgid)
         
+        unique_lines.append(line)
         i += 1
     
     if modified:
-        backup = po_file + '.postupdate.bak'
-        with open(backup, 'w', encoding='utf-8') as f:
-            f.writelines(lines)
+        # Sauvegarde
+        backup = po_file + '.clean.bak'
+        if not os.path.exists(backup):
+            with open(backup, 'w', encoding='utf-8') as f:
+                f.writelines(new_lines)
+            print(f"  💾 Backup: {backup}")
         
         with open(po_file, 'w', encoding='utf-8') as f:
-            f.writelines(lines)
-        print(f"  💾 Backup: {backup}")
+            f.writelines(unique_lines if unique_lines else new_lines)
         return True
     
-    print("  ✓ Aucune modification nécessaire")
     return False
 
-def main():
-    langs = ['pt', 'it', 'de', 'ja', 'ru', 'ar', 'fr', 'nl', 'zh', 'es', 'en']
-    
-    print("🔍 CORRECTION POST-UPDATE")
-    print("=" * 50)
-    
-    fixed = 0
-    for lang in langs:
-        po_file = f"translations/{lang}/LC_MESSAGES/messages.po"
-        if os.path.exists(po_file):
-            if fix_po_file(po_file):
-                fixed += 1
-    
-    print("\n" + "=" * 50)
-    print(f"✅ {fixed} fichiers corrigés")
-    print("\n🔄 Recompilez maintenant:")
-    print("   pybabel compile -d translations")
+# Traiter toutes les langues
+for lang in os.listdir('translations'):
+    po_file = f'translations/{lang}/LC_MESSAGES/messages.po'
+    if os.path.exists(po_file):
+        print(f"\n📁 Traitement de {lang}...")
+        if fix_duplicates_and_percent(po_file):
+            print(f"  ✅ Modifications effectuées")
 
-if __name__ == "__main__":
-    response = input("⚠️  Ce script va modifier les fichiers .po. Continuer? (oui/non): ")
-    if response.lower() in ['oui', 'o', 'yes', 'y']:
-        main()
-    else:
-        print("Annulé.")
+print("\n🔄 Recompilez avec: pybabel compile -d translations")
