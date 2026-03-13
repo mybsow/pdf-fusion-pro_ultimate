@@ -263,13 +263,17 @@ def terms():
 
 @legal_bp.route("/about")
 def about():
+    from config import AppConfig  # Import local
     return render_template(
         "legal/about.html",
         title=_("À Propos") if BABEL_AVAILABLE else "À Propos",
         badge=_("Notre histoire") if BABEL_AVAILABLE else "Notre histoire",
         subtitle=_("Découvrez PDF Fusion Pro") if BABEL_AVAILABLE else "À propos de nous",
         current_year=datetime.now().year,
-        Config=current_app.config
+        Config=current_app.config,
+        # Ajoutez ces deux lignes :
+        app_name=AppConfig.NAME,
+        developer_name=AppConfig.DEVELOPER_NAME
     )
 
 # ===============================
