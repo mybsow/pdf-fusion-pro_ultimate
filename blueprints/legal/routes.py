@@ -75,6 +75,11 @@ except ImportError as e:
 # ===============================
 # FORMULAIRE CONTACT
 # ===============================
+# blueprints/legal/forms.py
+from flask_wtf import FlaskForm
+from wtforms import StringField, TextAreaField, SelectField
+from wtforms.validators import DataRequired, Email, Length
+
 if FORMS_AVAILABLE:
     class ContactForm(FlaskForm):
         full_name = StringField(
