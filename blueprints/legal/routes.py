@@ -14,6 +14,7 @@ from flask import (
 )
 from markupsafe import escape
 from datetime import datetime
+from .forms import ContactForm  # type: ignore # si Flask-WTF disponible
 import os
 import requests
 import logging
@@ -178,14 +179,15 @@ def process_contact(form_data: dict) -> bool:
 # ===============================
 @legal_bp.route("/contact", methods=["GET", "POST"])
 def contact():
-    form = ContactForm()
+    form = ContactForm() if FORMS_AVAILABLE else None
     success = False
     error = None
     form_data = {}
+    current_time = datetime.now().strftime('%H:%M')  # pour le template
 
     if request.method == "POST":
-        # Extraction formulaire WTForms ou fallback manuel
-        if FORMS_AVAILABLE and hasattr(form, 'validate_on_submit') and form.validate_on_submit():
+        # === Récupération des données ===
+        if FORMS_AVAILABLE and form and hasattr(form, "validate_on_submit") and form.validate_on_submit():
             form_data = {
                 "full_name": (form.full_name.data or "").strip(),
                 "email": (form.email.data or "").strip().lower(),
@@ -202,18 +204,23 @@ def contact():
                 "message": request.form.get("message", "").strip(),
             }
 
-        # Validation minimale
-        if form_data["full_name"] and form_data["message"]:
+        # === Validation minimale ===
+        if not form_data["full_name"] or not form_data["message"]:
+            error = _('Veuillez remplir tous les champs obligatoires.') if BABEL_AVAILABLE else 'Veuillez remplir tous les champs obligatoires.'
+        elif form_data["email"] and "@" not in form_data["email"]:
+            error = _('Veuillez entrer une adresse email valide.') if BABEL_AVAILABLE else 'Adresse email invalide.'
+        else:
+            # === Traitement du message ===
             success = process_contact(form_data)
             if success:
                 flash(_('Votre message a été envoyé avec succès !') if BABEL_AVAILABLE else 'Message envoyé !', 'success')
-                form = ContactForm()
                 form_data = {}
+                if FORMS_AVAILABLE:
+                    form = ContactForm()
             else:
                 error = _('Une erreur technique est survenue. Veuillez réessayer.') if BABEL_AVAILABLE else 'Erreur technique'
-        else:
-            error = _('Veuillez remplir tous les champs obligatoires.') if BABEL_AVAILABLE else 'Veuillez remplir tous les champs obligatoires.'
 
+    # === Rendu du template ===
     return render_template(
         "legal/contact.html",
         title=_("Contact") if BABEL_AVAILABLE else "Contact",
@@ -222,7 +229,8 @@ def contact():
         form=form,
         form_data=form_data,
         success=success,
-        error=error
+        error=error,
+        current_time=current_time
     )
 
 # ===============================
@@ -236,10 +244,13 @@ def legal():
         badge=_("Information légale") if BABEL_AVAILABLE else "Information légale",
         subtitle=_("Informations légales") if BABEL_AVAILABLE else "Informations légales",
         current_year=datetime.now().year,
-        Config=current_app.config,
-        app_name=current_app.config['NAME'],           # <--- ajouté
-        developer_name=current_app.config['DEVELOPER_NAME', 'Développeur']  # <--- ajouté
+        Config=current_app.config,  # utile pour d'autres valeurs
+        app_name=current_app.config.get('NAME', 'PDF Fusion Pro'),
+        developer_name=current_app.config.get('DEVELOPER_NAME', 'Développeur'),
+        hosting=current_app.config.get('HOSTING', 'Render'),
+        domain=current_app.config.get('DOMAIN', 'pdf-fusion-pro-ultimate-ltd.onrender.com')
     )
+
 
 @legal_bp.route("/privacy")
 def privacy():
@@ -253,6 +264,7 @@ def privacy():
         adsense_id=current_app.config.get('ADSENSE_CLIENT_ID', 'N/A')
     )
 
+
 @legal_bp.route("/terms")
 def terms():
     return render_template(
@@ -262,7 +274,7 @@ def terms():
         subtitle=_("Conditions d'utilisation du service") if BABEL_AVAILABLE else "Conditions d'utilisation",
         current_year=datetime.now().year,
         app_name=current_app.config.get('NAME', 'PDF Fusion Pro'),
-        developer_name=current_app.config.get('DEVELOPER_NAME', 'Développeur'),
+        developer_name=current_app.config.get('DEVELOPER_NAME', 'Développeur')
     )
 
 @legal_bp.route("/about")
