@@ -11,8 +11,7 @@ import tempfile
 import os
 import logging
 from pathlib import Path
-from flask_babel import Babel, _
-from flask import request, session
+from flask_babel import Babel
 
 # ============================================================
 # Création de l'app Flask
@@ -74,7 +73,6 @@ app.wsgi_app = ProxyFix(
 
 # Configuration des langues supportées
 app.config['BABEL_DEFAULT_LOCALE'] = 'fr'
-# Chemin ABSOLU pour les traductions
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(os.path.dirname(__file__), 'translations')
 app.config['LANGUAGES'] = {
     'fr': {'name': 'Français', 'flag': 'fr'},
@@ -91,98 +89,25 @@ app.config['LANGUAGES'] = {
 }
 
 # ============================================================
-# Configuration Babel avec système de fallback
+# Babel — locale_selector lit directement la session
 # ============================================================
-import gettext
-import json
-from pathlib import Path
-
-# Définir get_locale AVANT l'initialisation de Babel
 def get_locale():
     """Détermine la langue à utiliser pour Babel"""
-    # 1. Priorité ABSOLUE à la session
+    # 1. Priorité absolue à la session
     if 'language' in session:
-        return session['language']
+        lang = session['language']
+        if lang in app.config['LANGUAGES']:
+            return lang
     # 2. Fallback sur la langue du navigateur
     return request.accept_languages.best_match(app.config['LANGUAGES'].keys()) or 'fr'
 
-# Initialiser Babel avec la fonction locale_selector
+# Flask-Babel >= 3.0 : locale_selector= à l'init
 babel = Babel(app, locale_selector=get_locale)
-
-# Dictionnaire pour stocker les traductions en mémoire
-_translations_cache = {}
-_default_translations = {}
-
-def load_translations():
-    """Charge toutes les traductions en mémoire au démarrage"""
-    # Utiliser le MÊME chemin que Babel
-    translations_path = app.config['BABEL_TRANSLATION_DIRECTORIES']
-    base_path = Path(translations_path)
-    
-    logger.info(f"📁 Chargement des traductions depuis: {base_path}")
-    
-    if not base_path.exists():
-        logger.warning(f"⚠️ Dossier translations non trouvé: {base_path}")
-        return
-    
-    for lang_dir in base_path.iterdir():
-        if not lang_dir.is_dir():
-            continue
-        
-        lang = lang_dir.name
-        mo_file = lang_dir / 'LC_MESSAGES' / 'messages.mo'
-        
-        if mo_file.exists():
-            try:
-                with open(mo_file, 'rb') as f:
-                    _translations_cache[lang] = gettext.GNUTranslations(f)
-                logger.info(f"✅ Traductions chargées pour {lang} ({mo_file.stat().st_size} octets)")
-            except Exception as e:
-                logger.error(f"❌ Erreur chargement {lang}: {e}")
-        
-        # Essayer de charger aussi le fichier JSON s'il existe
-        json_file = lang_dir / 'messages.json'
-        if json_file.exists():
-            try:
-                with open(json_file, 'r', encoding='utf-8') as f:
-                    _default_translations[lang] = json.load(f)
-                logger.info(f"✅ Traductions JSON chargées pour {lang}")
-            except Exception as e:
-                logger.error(f"❌ Erreur chargement JSON {lang}: {e}")
-
-def get_translation(message):
-    """Fonction de traduction personnalisée avec fallback"""
-    lang = get_locale()
-    
-    # 1. Essayer avec gettext (fichiers .mo)
-    if lang in _translations_cache:
-        try:
-            translated = _translations_cache[lang].gettext(message)
-            if translated != message:  # Si une traduction a été trouvée
-                return translated
-        except:
-            pass
-    
-    # 2. Essayer avec le fichier JSON
-    if lang in _default_translations and message in _default_translations[lang]:
-        return _default_translations[lang][message]
-    
-    # 3. Fallback: retourner le message original
-    return message
-
-# Charger les traductions au démarrage
-with app.app_context():
-    load_translations()
-
-# Remplacer la fonction _ par notre version personnalisée
-def _(message):
-    return get_translation(message)
 
 
 # ============================================================
 # Fonctions d'initialisation
 # ============================================================
-
 def init_app_dirs():
     base_dir = Path(__file__).parent
     dirs = ['data/contacts', 'data/ratings', 'uploads', 'temp', 'logs']
@@ -192,6 +117,7 @@ def init_app_dirs():
     contacts_file = base_dir / 'data' / 'contacts.json'
     if not contacts_file.exists():
         contacts_file.write_text('[]', encoding='utf-8')
+
 
 # ============================================================
 # Create App complet
@@ -231,25 +157,21 @@ def create_app():
         return redirect('/conversion/', code=301)
 
     # --------------------------------------------------------
-    # Context processor pour config et fonctions
+    # Context processor
+    # IMPORTANT : ne pas injecter _() ici — Flask-Babel le fait automatiquement
     # --------------------------------------------------------
     @app.context_processor
     def inject_globals():
         from config import AppConfig
-        
-        def get_current_lang():
-            return session.get('language', 'fr')
-        
         return dict(
             Config=AppConfig,
             session=session,
-            get_current_lang=get_current_lang,
             current_lang=session.get('language', 'fr'),
             languages=app.config.get('LANGUAGES', {}),
             current_year=datetime.now().year,
             datetime=datetime,
-            _=_
         )
+
     # --------------------------------------------------------
     # Security headers
     # --------------------------------------------------------
@@ -329,20 +251,20 @@ def create_app():
         try:
             if not PYTESSERACT_AVAILABLE:
                 return jsonify({"error": "pytesseract non disponible", "installed": False}), 500
-            tesseract_cmd = next((p for p in ['/usr/bin/tesseract','/usr/local/bin/tesseract','/bin/tesseract'] if os.path.exists(p)), None)
+            tesseract_cmd = next((p for p in ['/usr/bin/tesseract', '/usr/local/bin/tesseract', '/bin/tesseract'] if os.path.exists(p)), None)
             if not tesseract_cmd:
                 return jsonify({"error": "Tesseract non trouvé", "python_package": True}), 500
             pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
             version = pytesseract.get_tesseract_version()
             langs = pytesseract.get_languages(config='') if PYTESSERACT_AVAILABLE else []
-            return jsonify({"status": "OK","tesseract_version": str(version),"tesseract_path": tesseract_cmd,"available_languages": langs})
+            return jsonify({"status": "OK", "tesseract_version": str(version), "tesseract_path": tesseract_cmd, "available_languages": langs})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
     @app.route('/force-install-ocr')
     def force_install_ocr():
         import subprocess, sys
-        packages = ['pytesseract==0.3.10','pdf2image==1.16.3','Pillow==10.0.0','opencv-python-headless==4.8.1.78']
+        packages = ['pytesseract==0.3.10', 'pdf2image==1.16.3', 'Pillow==10.0.0', 'opencv-python-headless==4.8.1.78']
         results = []
         for package in packages:
             try:
@@ -362,24 +284,28 @@ def create_app():
     @app.route('/')
     def index():
         return redirect('/pdf')
-    
+
     @app.route("/pdf")
     def redirect_pdf():
         return redirect("/pdf/", code=301)
-    
+
     # Route pour changer de langue
     @app.route('/language/<language>')
     def set_language(language):
         if language in app.config['LANGUAGES']:
             session['language'] = language
-        return redirect(request.referrer or url_for('pdf.pdf_index'))
+            session.permanent = True
+        referrer = request.referrer
+        # Sécurité : ne pas rediriger vers un domaine externe
+        if referrer and request.host in referrer:
+            return redirect(referrer)
+        return redirect(url_for('pdf.pdf_index'))
 
     # ------------------- SEO / sitemap / Health -------------------
     @app.route('/ads.txt')
     def ads():
         return send_from_directory('.', 'ads.txt')
 
-    # Route pour robots.txt à la racine du projet
     @app.route('/robots.txt')
     def robots():
         return send_from_directory('.', 'robots.txt')
@@ -407,13 +333,11 @@ def create_app():
             xml.append(f"  <url><loc>{url}</loc><lastmod>{today}</lastmod><changefreq>{freq}</changefreq><priority>{priority}</priority></url>")
         xml.append('</urlset>')
         return Response("\n".join(xml), mimetype="application/xml", headers={"Cache-Control": "public, max-age=3600"})
-    
-    
+
     @app.route('/google6f0d847067bbd18a.html')
     def google_verification():
-        """Retourne directement le contenu de vérification"""
         return Response(
-            "google-site-verification: google6f0d847067bbd18a.html", 
+            "google-site-verification: google6f0d847067bbd18a.html",
             mimetype="text/html"
         )
 
@@ -452,55 +376,28 @@ def create_app():
     @app.route('/debug/system')
     def debug_system():
         import subprocess
-        paths_to_check = ['/usr/bin/tesseract','/usr/local/bin/tesseract','/bin/tesseract']
-        checks = [{'path':p,'exists':os.path.exists(p),'executable':os.access(p,os.X_OK) if os.path.exists(p) else False} for p in paths_to_check]
+        paths_to_check = ['/usr/bin/tesseract', '/usr/local/bin/tesseract', '/bin/tesseract']
+        checks = [{'path': p, 'exists': os.path.exists(p), 'executable': os.access(p, os.X_OK) if os.path.exists(p) else False} for p in paths_to_check]
         try:
-            result = subprocess.run(['/usr/bin/tesseract','--version'], capture_output=True, text=True)
-            cmd_test = {'success': result.returncode == 0,'output':result.stdout[:200],'error':result.stderr[:200]}
+            result = subprocess.run(['/usr/bin/tesseract', '--version'], capture_output=True, text=True)
+            cmd_test = {'success': result.returncode == 0, 'output': result.stdout[:200], 'error': result.stderr[:200]}
         except Exception as e:
             cmd_test = {'error': str(e)}
-        return jsonify({'system_checks': checks,'command_test': cmd_test})
+        return jsonify({'system_checks': checks, 'command_test': cmd_test})
 
     @app.route('/debug-config')
     def debug_config():
-        """Route de diagnostic pour vérifier la configuration"""
         from flask_babel import get_locale as babel_get_locale
-        
         return jsonify({
             'session_language': session.get('language', 'fr'),
             'current_locale': str(babel_get_locale()),
             'languages_in_config': list(app.config.get('LANGUAGES', {}).keys()),
-            'config_keys': list(app.config.keys()),
-            'has_config_processor': True
-        })
-
-    @app.route('/debug-languages')
-    def debug_languages():
-        """Vérifie la configuration des langues"""
-        return jsonify({
-            'session_language': session.get('language', 'fr'),
-            'languages_in_config': list(app.config.get('LANGUAGES', {}).keys()),
-            'config_keys': list(app.config.keys()),
-            'has_languages': 'LANGUAGES' in app.config
-        })
-
-    @app.route('/debug-session')
-    def debug_session():
-        return jsonify({
-            'session': dict(session),
-            'cookies': request.cookies.get('session'),
-            'language_from_session': session.get('language', 'fr'),
-            'headers': dict(request.headers)
         })
 
     @app.route('/debug-translations')
     def debug_translations():
-        """Vérifie l'état des traductions"""
         from flask_babel import get_locale as babel_get_locale, gettext
-        
-        # Utiliser le MÊME chemin que Babel
         trans_dir = Path(app.config['BABEL_TRANSLATION_DIRECTORIES'])
-        
         result = {
             'current_locale': str(babel_get_locale()),
             'session_language': session.get('language', 'fr'),
@@ -508,14 +405,10 @@ def create_app():
             'translations_dir': str(trans_dir),
             'translations_dir_exists': trans_dir.exists(),
             'languages': [],
-            'test_translations': {
-                'fr': gettext('PDF Fusion Pro - Outils PDF Gratuits'),
-                'en': gettext('PDF Fusion Pro - Outils PDF Gratuits'),
-            }
+            'test_translation': gettext('Convertisseur de fichiers'),
         }
-        
         if trans_dir.exists():
-            for lang_dir in trans_dir.iterdir():
+            for lang_dir in sorted(trans_dir.iterdir()):
                 if lang_dir.is_dir():
                     mo_file = lang_dir / 'LC_MESSAGES' / 'messages.mo'
                     po_file = lang_dir / 'LC_MESSAGES' / 'messages.po'
@@ -523,36 +416,12 @@ def create_app():
                         'lang': lang_dir.name,
                         'mo_exists': mo_file.exists(),
                         'mo_size': mo_file.stat().st_size if mo_file.exists() else 0,
-                        'mo_path': str(mo_file) if mo_file.exists() else None,
                         'po_exists': po_file.exists(),
-                        'po_size': po_file.stat().st_size if po_file.exists() else 0
                     })
-        
         return jsonify(result)
-    
-    @app.route('/debug-translation-load')
-    def debug_translation_load():
-        """Vérifie ce qui est réellement chargé en mémoire"""
-        loaded_langs = list(_translations_cache.keys())
-        loaded_sizes = {}
-        for lang in loaded_langs:
-            try:
-                mo_path = Path(app.config['BABEL_TRANSLATION_DIRECTORIES']) / lang / 'LC_MESSAGES' / 'messages.mo'
-                if mo_path.exists():
-                    loaded_sizes[lang] = mo_path.stat().st_size
-            except:
-                loaded_sizes[lang] = 'unknown'
-        
-        return jsonify({
-            'configured_path': app.config.get('BABEL_TRANSLATION_DIRECTORIES'),
-            'loaded_languages': loaded_langs,
-            'loaded_sizes': loaded_sizes,
-            'cache_size': len(_translations_cache)
-        })
 
     @app.route('/debug/static-check')
     def debug_static_check():
-        """Vérifie les fichiers statiques"""
         static_dir = Path('static')
         result = {
             'static_exists': static_dir.exists(),
@@ -560,20 +429,16 @@ def create_app():
             'js_pages': [],
             'css_files': []
         }
-        
         if static_dir.exists():
             js_components = static_dir / 'js' / 'components'
             if js_components.exists():
                 result['js_components'] = [f.name for f in js_components.glob('*.js')]
-            
             js_pages = static_dir / 'js' / 'pages'
             if js_pages.exists():
                 result['js_pages'] = [f.name for f in js_pages.glob('*.js')]
-            
             css_dir = static_dir / 'css'
             if css_dir.exists():
                 result['css_files'] = [f.name for f in css_dir.glob('*.css')]
-        
         return jsonify(result)
 
     # ============================================================
@@ -602,12 +467,13 @@ def create_app():
 
     @app.template_filter('filesize')
     def filesize(value):
-        for unit in ['B','KB','MB','GB']:
+        for unit in ['B', 'KB', 'MB', 'GB']:
             if value < 1024:
                 return f"{value:.1f} {unit}"
             value /= 1024
 
     return app
+
 
 # ============================================================
 # Entrypoint
