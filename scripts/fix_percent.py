@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import re
+import sys
 
 def smart_fix_po_file(po_file):
     """Corrige intelligemment les problèmes de formatage"""
@@ -37,10 +38,11 @@ def smart_fix_po_file(po_file):
                 missing = id_placeholders - str_placeholders
                 if missing:
                     print(f"  ⚠️ Placeholders manquants dans {po_file}:{i+1} - {missing}")
-                    # Option: ajouter automatiquement? (décommenter si voulu)
-                    # for ph in missing:
-                    #     line = line.replace('msgstr "', f'msgstr "{ph} ')
-                    # modified = True
+                    # Option: ajouter automatiquement
+                    for ph in missing:
+                        line = line.replace('msgstr "', f'msgstr "{ph} ')
+                        modified = True
+                        print(f"  ✅ {ph} ajouté automatiquement")
         
         new_lines.append(line)
         i += 1
@@ -59,13 +61,34 @@ def smart_fix_po_file(po_file):
     
     return False
 
-# Exécuter
-translations_dir = 'translations'
-for lang in os.listdir(translations_dir):
-    po_file = os.path.join(translations_dir, lang, 'LC_MESSAGES', 'messages.po')
-    if os.path.exists(po_file):
-        print(f"\n📁 Traitement de {lang}...")
-        if smart_fix_po_file(po_file):
-            print(f"  ✅ Modifications effectuées")
+def main():
+    translations_dir = 'translations'
+    print("🔍 CORRECTION INTELLIGENTE DES FICHIERS .po")
+    print("=" * 50)
+    
+    if not os.path.exists(translations_dir):
+        print(f"❌ Dossier {translations_dir} non trouvé")
+        return 1
+    
+    fixed_count = 0
+    for lang in os.listdir(translations_dir):
+        po_file = os.path.join(translations_dir, lang, 'LC_MESSAGES', 'messages.po')
+        if os.path.exists(po_file):
+            print(f"\n📁 Traitement de {lang}...")
+            if smart_fix_po_file(po_file):
+                fixed_count += 1
+    
+    print("\n" + "=" * 50)
+    print(f"📊 RÉSUMÉ: {fixed_count} fichiers modifiés")
+    print("\n🔄 Recompilez avec: pybabel compile -d translations")
+    return 0
 
-print("\n🔄 Recompilez avec: pybabel compile -d translations")
+if __name__ == "__main__":
+    # Détection automatique de l'environnement
+    try:
+        # En mode interactif (terminal)
+        sys.exit(main())
+    except EOFError:
+        # Dans Docker (pas de terminal)
+        print("🚀 Mode automatique Docker détecté")
+        sys.exit(main())
