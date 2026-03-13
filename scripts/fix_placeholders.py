@@ -1,21 +1,27 @@
 #!/usr/bin/env python3
 """
 Script complet pour corriger tous les problèmes de placeholders dans les fichiers .po
+Version automatique pour Docker (détection automatique)
 """
 
 import os
 import re
 import shutil
+import sys
 from pathlib import Path
 
-def fix_placeholders_in_file(po_file):
+def fix_placeholders_in_file(po_file, force=False):
     """
     Corrige les placeholders manquants dans un fichier .po
     """
     print(f"\n📁 Traitement de {po_file}...")
     
-    with open(po_file, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
+    try:
+        with open(po_file, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except Exception as e:
+        print(f"  ❌ Erreur lecture: {e}")
+        return False
     
     modified = False
     i = 0
@@ -49,21 +55,29 @@ def fix_placeholders_in_file(po_file):
                         prefix = ' '.join(missing) + ' '
                         
                         # Insérer après 'msgstr "'
-                        new_msgstr = current_msgstr.replace('msgstr "', f'msgstr "{prefix}', 1)
-                        lines[msgstr_line] = new_msgstr
-                        modified = True
+                        if 'msgstr "' in current_msgstr:
+                            new_msgstr = current_msgstr.replace('msgstr "', f'msgstr "{prefix}', 1)
+                            lines[msgstr_line] = new_msgstr
+                            modified = True
         i += 1
     
     if modified:
         # Créer une sauvegarde
         backup_file = po_file + '.fixed.bak'
-        shutil.copy2(po_file, backup_file)
-        print(f"  💾 Backup créé: {backup_file}")
+        try:
+            shutil.copy2(po_file, backup_file)
+            print(f"  💾 Backup créé: {backup_file}")
+        except Exception as e:
+            print(f"  ⚠️ Impossible de créer la sauvegarde: {e}")
         
         # Écrire les modifications
-        with open(po_file, 'w', encoding='utf-8') as f:
-            f.writelines(lines)
-        return True
+        try:
+            with open(po_file, 'w', encoding='utf-8') as f:
+                f.writelines(lines)
+            return True
+        except Exception as e:
+            print(f"  ❌ Erreur écriture: {e}")
+            return False
     
     print("  ✓ Aucune correction nécessaire")
     return False
@@ -94,8 +108,12 @@ def verify_specific_lines():
         if os.path.exists(po_file):
             print(f"\n🔧 Correction spécifique pour {po_file}")
             
-            with open(po_file, 'r', encoding='utf-8') as f:
-                lines_content = f.readlines()
+            try:
+                with open(po_file, 'r', encoding='utf-8') as f:
+                    lines_content = f.readlines()
+            except Exception as e:
+                print(f"  ❌ Erreur lecture: {e}")
+                continue
             
             modified = False
             for line_num, placeholder in lines.items():
@@ -112,24 +130,38 @@ def verify_specific_lines():
             
             if modified:
                 backup = po_file + '.specific.bak'
-                shutil.copy2(po_file, backup)
+                try:
+                    shutil.copy2(po_file, backup)
+                    print(f"  💾 Backup: {backup}")
+                except:
+                    pass
                 
-                with open(po_file, 'w', encoding='utf-8') as f:
-                    f.writelines(lines_content)
-                print(f"  💾 Backup: {backup}")
+                try:
+                    with open(po_file, 'w', encoding='utf-8') as f:
+                        f.writelines(lines_content)
+                except Exception as e:
+                    print(f"  ❌ Erreur écriture: {e}")
 
-def main():
+def main(force=False):
     translations_dir = 'translations'
     
     print("🔍 RECHERCHE ET CORRECTION DES PLACEHOLDERS")
     print("=" * 50)
     
+    if not os.path.exists(translations_dir):
+        print(f"❌ Dossier {translations_dir} non trouvé")
+        return 1
+    
     # Correction générale
     fixed_count = 0
     for lang in os.listdir(translations_dir):
-        po_file = os.path.join(translations_dir, lang, 'LC_MESSAGES', 'messages.po')
+        lang_path = os.path.join(translations_dir, lang)
+        if not os.path.isdir(lang_path):
+            continue
+            
+        po_file = os.path.join(lang_path, 'LC_MESSAGES', 'messages.po')
         if os.path.exists(po_file):
-            if fix_placeholders_in_file(po_file):
+            if fix_placeholders_in_file(po_file, force):
                 fixed_count += 1
     
     # Corrections spécifiques pour les lignes signalées
@@ -140,14 +172,18 @@ def main():
     print("\n🔄 Maintenant, recompilez avec:")
     print("   pybabel compile -d translations")
     
-    # Vérification après correction
-    print("\n🔎 Vérification rapide des problèmes restants potentiels...")
-    os.system("pybabel compile -d translations 2>&1 | grep -c 'error' || echo 'Aucune erreur détectée'")
+    return 0
 
 if __name__ == "__main__":
-    # Demander confirmation
-    response = input("⚠️  Ce script va modifier vos fichiers .po. Une sauvegarde sera créée. Continuer? (oui/non): ")
-    if response.lower() in ['oui', 'o', 'yes', 'y']:
-        main()
-    else:
-        print("Annulé.")
+    try:
+        # Essaie en mode interactif (quand exécuté manuellement)
+        response = input("⚠️  Ce script va modifier vos fichiers .po. Une sauvegarde sera créée. Continuer? (oui/non): ")
+        if response.lower() in ['oui', 'o', 'yes', 'y']:
+            sys.exit(main())
+        else:
+            print("Annulé.")
+            sys.exit(0)
+    except EOFError:
+        # En cas d'exécution dans Docker (pas de terminal), passe en mode forcé
+        print("🚀 Mode automatique activé (exécution dans Docker)")
+        sys.exit(main(force=True))
