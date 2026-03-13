@@ -236,7 +236,9 @@ def legal():
         badge=_("Information légale") if BABEL_AVAILABLE else "Information légale",
         subtitle=_("Informations légales") if BABEL_AVAILABLE else "Informations légales",
         current_year=datetime.now().year,
-        Config=current_app.config
+        Config=current_app.config,
+        app_name=current_app.config['NAME'],           # <--- ajouté
+        developer_name=current_app.config['DEVELOPER_NAME', 'Développeur']  # <--- ajouté
     )
 
 @legal_bp.route("/privacy")
@@ -247,7 +249,8 @@ def privacy():
         badge=_("Protection des données") if BABEL_AVAILABLE else "Protection des données",
         subtitle=_("Comment nous protégeons vos données") if BABEL_AVAILABLE else "Protection des données",
         current_year=datetime.now().year,
-        Config=current_app.config
+        Config=current_app.config,  # garde pour d’autres valeurs
+        adsense_id=current_app.config.get('ADSENSE_CLIENT_ID', 'N/A')
     )
 
 @legal_bp.route("/terms")
@@ -258,22 +261,30 @@ def terms():
         badge=_("Règles d'usage") if BABEL_AVAILABLE else "Règles d'usage",
         subtitle=_("Conditions d'utilisation du service") if BABEL_AVAILABLE else "Conditions d'utilisation",
         current_year=datetime.now().year,
-        Config=current_app.config
+        app_name=current_app.config.get('NAME', 'PDF Fusion Pro'),
+        developer_name=current_app.config.get('DEVELOPER_NAME', 'Développeur'),
     )
 
 @legal_bp.route("/about")
 def about():
     from config import AppConfig  # Import local
+
+    # Préparer le texte traduit et formaté côté Python
+    dev_text = _(
+        "%(app_name)s est développé et maintenu par %(developer_name)s, "
+        "un développeur passionné par la création d'outils web utiles et accessibles."
+    ) % {
+        "app_name": AppConfig.NAME,
+        "developer_name": AppConfig.DEVELOPER_NAME
+    }
+
     return render_template(
         "legal/about.html",
         title=_("À Propos") if BABEL_AVAILABLE else "À Propos",
         badge=_("Notre histoire") if BABEL_AVAILABLE else "Notre histoire",
         subtitle=_("Découvrez PDF Fusion Pro") if BABEL_AVAILABLE else "À propos de nous",
         current_year=datetime.now().year,
-        Config=current_app.config,
-        # Ajoutez ces deux lignes :
-        app_name=AppConfig.NAME,
-        developer_name=AppConfig.DEVELOPER_NAME
+        dev_text=dev_text  # <-- passer le texte déjà formaté
     )
 
 # ===============================
