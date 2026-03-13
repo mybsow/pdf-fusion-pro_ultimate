@@ -273,7 +273,7 @@ def terms():
         badge=_("Règles d'usage") if BABEL_AVAILABLE else "Règles d'usage",
         subtitle=_("Conditions d'utilisation du service") if BABEL_AVAILABLE else "Conditions d'utilisation",
         current_year=datetime.now().year,
-        app_name=current_app.config.get('NAME', 'PDF Fusion Pro'),
+        app_name=current_app.config.get('APP_NAME', 'PDF Fusion Pro'),
         developer_name=current_app.config.get('DEVELOPER_NAME', 'Développeur')
     )
 
