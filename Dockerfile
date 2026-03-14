@@ -4,7 +4,7 @@
 FROM python:3.11-slim
 
 # -------------------------------------------------
-# Variables d’environnement
+# Variables d'environnement
 # -------------------------------------------------
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -68,35 +68,26 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     ln -sf /usr/bin/python3 /usr/bin/python
 
 # -------------------------------------------------
-# Copier le code source (sans translations d'abord)
+# Copier le code source (traductions incluses)
 # -------------------------------------------------
 COPY . .
 
 # -------------------------------------------------
-# MAINTENANT, gérer les traductions
+# Vérifier que les .mo pré-compilés sont bien présents
+# Les .mo sont compilés localement et commitées dans le repo
+# NE PAS recompiler ici — cela écraserait les bonnes traductions
 # -------------------------------------------------
-# 1. Supprimer les anciens .mo qui pourraient être dans l'image
-RUN rm -f translations/*/LC_MESSAGES/*.mo
-
-# 2. Compiler les traductions à partir des .po
-RUN mkdir -p translations && \
-    echo "🔎 Compilation des traductions..." && \
-    python scripts/fix_placeholders.py || true && \
-    python scripts/fix_percent.py || true && \
-    pybabel compile -d translations -f 2>/dev/null || true && \
-    echo "✅ Compilation terminée (erreurs ignorées)"
-
-# 3. Vérifier que les .mo sont bien générés
-RUN echo "🔍 VÉRIFICATION DES FICHIERS .MO :" && \
+RUN echo "🔍 Vérification des fichiers .mo pré-compilés :" && \
     ls -la translations/*/LC_MESSAGES/messages.mo && \
     for mo in translations/*/LC_MESSAGES/messages.mo; do \
         size=$(stat -c%s "$mo"); \
         echo "📄 $mo : $size octets"; \
-        if [ $size -lt 10000 ]; then \
-            echo "❌ FICHIER TROP PETIT !"; \
+        if [ "$size" -lt 10000 ]; then \
+            echo "❌ $mo est trop petit ($size octets) — recompilez localement avec : pybabel compile -d translations"; \
             exit 1; \
         fi; \
-    done
+    done && \
+    echo "✅ Tous les fichiers .mo sont valides"
 
 # -------------------------------------------------
 # Créer dossiers runtime
