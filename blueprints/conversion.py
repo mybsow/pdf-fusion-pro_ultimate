@@ -252,220 +252,220 @@ CONVERSION_MAP = {
     # ==================== CONVERTIR EN PDF ====================
     'word-en-pdf': {
         'template': 'word_to_pdf.html',
-        'title': _('Word vers PDF'),
-        'description': _('Convertissez vos documents Word en PDF'),
-        'from_format': _('Word'),
-        'to_format': _('PDF'),
+        'title': _l('Word vers PDF'),
+        'description': _l('Convertissez vos documents Word en PDF'),
+        'from_format': 'Word',
+        'to_format': 'PDF',
         'icon': 'file-word',
         'color': '#2b579a',
         'accept': '.doc,.docx',
         'max_files': 5,
         'deps': ['reportlab', 'libreoffice']
     },
-    
+
     'excel-en-pdf': {
         'template': 'excel_to_pdf.html',
-        'title': _('Excel vers PDF'),
-        'description': _('Convertissez vos feuilles Excel en PDF'),
-        'from_format': _('Excel'),
-        'to_format': _('PDF'),
+        'title': _l('Excel vers PDF'),
+        'description': _l('Convertissez vos feuilles Excel en PDF'),
+        'from_format': 'Excel',
+        'to_format': 'PDF',
         'icon': 'file-excel',
         'color': '#217346',
         'accept': '.xls,.xlsx,.xlsm',
         'max_files': 5,
         'deps': ['reportlab', 'libreoffice']
     },
-    
+
     'powerpoint-en-pdf': {
         'template': 'powerpoint_to_pdf.html',
-        'title': _('PowerPoint vers PDF'),
-        'description': _('Convertissez vos présentations PowerPoint en PDF'),
-        'from_format': _('PowerPoint'),
-        'to_format': _('PDF'),
+        'title': _l('PowerPoint vers PDF'),
+        'description': _l('Convertissez vos présentations PowerPoint en PDF'),
+        'from_format': 'PowerPoint',
+        'to_format': 'PDF',
         'icon': 'file-powerpoint',
         'color': '#d24726',
         'accept': '.ppt,.pptx',
         'max_files': 5,
         'deps': ['reportlab', 'libreoffice']
     },
-    
+
     'image-en-pdf': {
         'template': 'image_to_pdf.html',
-        'title': _('Image vers PDF'),
-        'description': _('Convertissez vos images en document PDF'),
-        'from_format': _('Image'),
-        'to_format': _('PDF'),
+        'title': _l('Image vers PDF'),
+        'description': _l('Convertissez vos images en document PDF'),
+        'from_format': 'Image',
+        'to_format': 'PDF',
         'icon': 'file-image',
         'color': '#e74c3c',
         'accept': '.jpg,.jpeg,.png,.bmp,.gif,.tiff,.webp',
         'max_files': 20,
         'deps': ['Pillow', 'reportlab']
     },
-    
+
     'jpg-en-pdf': {
         'template': 'image_to_pdf.html',
-        'title': _('JPG vers PDF'),
-        'description': _('Convertissez vos images JPG en PDF'),
-        'from_format': _('JPG'),
-        'to_format': _('PDF'),
+        'title': _l('JPG vers PDF'),
+        'description': _l('Convertissez vos images JPG en PDF'),
+        'from_format': 'JPG',
+        'to_format': 'PDF',
         'icon': 'file-image',
         'color': '#e74c3c',
         'accept': '.jpg,.jpeg',
         'max_files': 20,
         'deps': ['Pillow', 'reportlab']
     },
-    
+
     'png-en-pdf': {
         'template': 'image_to_pdf.html',
-        'title': _('PNG vers PDF'),
-        'description': _('Convertissez vos images PNG en PDF'),
-        'from_format': _('PNG'),
-        'to_format': _('PDF'),
+        'title': _l('PNG vers PDF'),
+        'description': _l('Convertissez vos images PNG en PDF'),
+        'from_format': 'PNG',
+        'to_format': 'PDF',
         'icon': 'file-image',
         'color': '#e74c3c',
         'accept': '.png',
         'max_files': 20,
         'deps': ['Pillow', 'reportlab']
     },
-    
+
     'html-en-pdf': {
         'template': 'html_to_pdf.html',
-        'title': _('HTML vers PDF'),
-        'description': _('Convertissez vos pages HTML en PDF'),
-        'from_format': _('HTML'),
-        'to_format': _('PDF'),
+        'title': _l('HTML vers PDF'),
+        'description': _l('Convertissez vos pages HTML en PDF'),
+        'from_format': 'HTML',
+        'to_format': 'PDF',
         'icon': 'code',
         'color': '#f16529',
         'accept': '.html,.htm',
         'max_files': 1,
         'deps': ['weasyprint', 'pdfkit']
     },
-    
+
     'txt-en-pdf': {
         'template': 'txt_to_pdf.html',
-        'title': _('TXT vers PDF'),
-        'description': _('Convertissez vos fichiers texte en PDF'),
-        'from_format': _('TXT'),
-        'to_format': _('PDF'),
+        'title': _l('TXT vers PDF'),
+        'description': _l('Convertissez vos fichiers texte en PDF'),
+        'from_format': 'TXT',
+        'to_format': 'PDF',
         'icon': 'file-alt',
         'color': '#3498db',
         'accept': '.txt',
         'max_files': 1,
         'deps': ['reportlab']
     },
-    
+
     # ==================== CONVERTIR DEPUIS PDF ====================
     'pdf-en-word': {
         'template': 'pdf_to_word.html',
-        'title': _('PDF vers Word'),
-        'description': _('Extrayez le texte de vos PDF en documents Word'),
-        'from_format': _('PDF'),
-        'to_format': _('Word'),
+        'title': _l('PDF vers Word'),
+        'description': _l('Extrayez le texte de vos PDF en documents Word'),
+        'from_format': 'PDF',
+        'to_format': 'Word',
         'icon': 'file-pdf',
         'color': '#e74c3c',
         'accept': '.pdf',
         'max_files': 1,
         'deps': ['pypdf', 'python-docx']
     },
-    
+
     'pdf-en-doc': {
         'template': 'pdf_to_doc.html',
-        'title': _('PDF vers DOC'),
-        'description': _('Convertissez vos PDF en documents Word (format DOC)'),
-        'from_format': _('PDF'),
-        'to_format': _('DOC'),
+        'title': _l('PDF vers DOC'),
+        'description': _l('Convertissez vos PDF en documents Word (format DOC)'),
+        'from_format': 'PDF',
+        'to_format': 'DOC',
         'icon': 'file-word',
         'color': '#2b579a',
         'accept': '.pdf',
         'max_files': 1,
         'deps': ['pypdf', 'python-docx']
     },
-    
+
     'pdf-en-excel': {
         'template': 'pdf_to_excel.html',
-        'title': _('PDF vers Excel'),
-        'description': _('Extrayez les tableaux de vos PDF en feuilles Excel'),
-        'from_format': _('PDF'),
-        'to_format': _('Excel'),
+        'title': _l('PDF vers Excel'),
+        'description': _l('Extrayez les tableaux de vos PDF en feuilles Excel'),
+        'from_format': 'PDF',
+        'to_format': 'Excel',
         'icon': 'file-pdf',
         'color': '#e74c3c',
         'accept': '.pdf',
         'max_files': 1,
         'deps': ['pypdf', 'pdf2image', 'pytesseract', 'pandas', 'openpyxl']
     },
-    
+
     'pdf-en-ppt': {
         'template': 'pdf_to_ppt.html',
-        'title': _('PDF vers PowerPoint'),
-        'description': _('Convertissez vos PDF en présentations PowerPoint modifiables'),
-        'from_format': _('PDF'),
-        'to_format': _('PowerPoint'),
+        'title': _l('PDF vers PowerPoint'),
+        'description': _l('Convertissez vos PDF en présentations PowerPoint modifiables'),
+        'from_format': 'PDF',
+        'to_format': 'PowerPoint',
         'icon': 'file-powerpoint',
         'color': '#d24726',
         'accept': '.pdf',
         'max_files': 1,
         'deps': ['pdf2image', 'Pillow', 'python-pptx']
     },
-    
+
     'pdf-en-image': {
         'template': 'pdf_to_image.html',
-        'title': _('PDF vers Image'),
-        'description': _('Convertissez les pages de vos PDF en images'),
-        'from_format': _('PDF'),
-        'to_format': _('Image'),
+        'title': _l('PDF vers Image'),
+        'description': _l('Convertissez les pages de vos PDF en images'),
+        'from_format': 'PDF',
+        'to_format': 'Image',
         'icon': 'file-pdf',
         'color': '#e74c3c',
         'accept': '.pdf',
         'max_files': 1,
         'deps': ['pdf2image']
     },
-    
+
     'pdf-en-pdfa': {
         'template': 'pdf_to_pdfa.html',
-        'title': _('PDF vers PDF/A'),
-        'description': _('Convertissez vos PDF en format PDF/A pour l\'archivage'),
-        'from_format': _('PDF'),
-        'to_format': _('PDF/A'),
+        'title': _l('PDF vers PDF/A'),
+        'description': _l("Convertissez vos PDF en format PDF/A pour l'archivage"),
+        'from_format': 'PDF',
+        'to_format': 'PDF/A',
         'icon': 'file-pdf',
         'color': '#e74c3c',
         'accept': '.pdf',
         'max_files': 1,
         'deps': ['pypdf']
     },
-    
+
     'pdf-en-html': {
         'template': 'pdf_to_html.html',
-        'title': _('PDF vers HTML'),
-        'description': _('Convertissez vos PDF en pages HTML'),
-        'from_format': _('PDF'),
-        'to_format': _('HTML'),
+        'title': _l('PDF vers HTML'),
+        'description': _l('Convertissez vos PDF en pages HTML'),
+        'from_format': 'PDF',
+        'to_format': 'HTML',
         'icon': 'code',
         'color': '#f16529',
         'accept': '.pdf',
         'max_files': 1,
         'deps': ['pypdf']
     },
-    
+
     'pdf-en-txt': {
         'template': 'pdf_to_txt.html',
-        'title': _('PDF vers TXT'),
-        'description': _('Extrayez le texte de vos PDF en fichiers texte'),
-        'from_format': _('PDF'),
-        'to_format': _('TXT'),
+        'title': _l('PDF vers TXT'),
+        'description': _l('Extrayez le texte de vos PDF en fichiers texte'),
+        'from_format': 'PDF',
+        'to_format': 'TXT',
         'icon': 'file-alt',
         'color': '#3498db',
         'accept': '.pdf',
         'max_files': 1,
         'deps': ['pypdf']
     },
-    
+
     # ==================== OUTILS PDF ====================
     'proteger-pdf': {
         'template': 'protect_pdf.html',
-        'title': _('Protéger PDF'),
-        'description': _('Ajoutez un mot de passe pour protéger vos PDF'),
-        'from_format': _('PDF'),
-        'to_format': _('PDF'),
+        'title': _l('Protéger PDF'),
+        'description': _l('Ajoutez un mot de passe pour protéger vos PDF'),
+        'from_format': 'PDF',
+        'to_format': 'PDF',
         'icon': 'lock',
         'color': '#e67e22',
         'accept': '.pdf',
@@ -475,10 +475,10 @@ CONVERSION_MAP = {
 
     'deverrouiller-pdf': {
         'template': 'unlock_pdf.html',
-        'title': _('Déverrouiller PDF'),
-        'description': _('Retirez la protection des PDF'),
-        'from_format': _('PDF'),
-        'to_format': _('PDF'),
+        'title': _l('Déverrouiller PDF'),
+        'description': _l('Retirez la protection des PDF'),
+        'from_format': 'PDF',
+        'to_format': 'PDF',
         'icon': 'unlock',
         'color': '#1abc9c',
         'accept': '.pdf',
@@ -489,102 +489,102 @@ CONVERSION_MAP = {
     # ==================== NOUVEAUX OUTILS PDF ====================
     'redact-pdf': {
         'template': 'redact_pdf.html',
-        'title': _('Caviarder PDF'),
-        'description': _('Supprimez définitivement et en toute sécurité le contenu sensible de votre PDF'),
-        'from_format': _('PDF'),
-        'to_format': _('PDF'),
+        'title': _l('Caviarder PDF'),
+        'description': _l('Supprimez définitivement et en toute sécurité le contenu sensible de votre PDF'),
+        'from_format': 'PDF',
+        'to_format': 'PDF',
         'icon': 'mask',
         'color': '#e67e22',
         'accept': '.pdf',
         'max_files': 1,
         'deps': ['pypdf', 'Pillow']
     },
-    
+
     'edit-pdf': {
         'template': 'edit_pdf.html',
-        'title': _('Éditer PDF'),
-        'description': _('Modifiez ou ajoutez du texte, des images et des pages à votre PDF'),
-        'from_format': _('PDF'),
-        'to_format': _('PDF'),
+        'title': _l('Éditer PDF'),
+        'description': _l('Modifiez ou ajoutez du texte, des images et des pages à votre PDF'),
+        'from_format': 'PDF',
+        'to_format': 'PDF',
         'icon': 'edit',
         'color': '#3498db',
         'accept': '.pdf',
         'max_files': 1,
         'deps': ['pypdf', 'Pillow', 'reportlab']
     },
-    
+
     'sign-pdf': {
         'template': 'sign_pdf.html',
-        'title': _('Signer PDF'),
-        'description': _('Ajoutez votre signature électronique à votre PDF'),
-        'from_format': _('PDF'),
-        'to_format': _('PDF'),
+        'title': _l('Signer PDF'),
+        'description': _l('Ajoutez votre signature électronique à votre PDF'),
+        'from_format': 'PDF',
+        'to_format': 'PDF',
         'icon': 'pen',
         'color': '#27ae60',
         'accept': '.pdf',
         'max_files': 1,
         'deps': ['pypdf', 'Pillow', 'reportlab']
     },
-    
+
     'prepare-form': {
         'template': 'prepare_form.html',
-        'title': _('Préparer formulaire PDF'),
-        'description': _('Transformez vos documents Word, Excel ou numérisés en formulaires PDF interactifs'),
-        'from_format': _('Document'),
-        'to_format': _('PDF Formulaire'),
+        'title': _l('Préparer formulaire PDF'),
+        'description': _l('Transformez vos documents Word, Excel ou numérisés en formulaires PDF interactifs'),
+        'from_format': 'Document',
+        'to_format': 'PDF Formulaire',
         'icon': 'file-signature',
         'color': '#9b59b6',
         'accept': '.pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png',
         'max_files': 1,
         'deps': ['pypdf', 'Pillow', 'reportlab', 'python-docx', 'pandas']
-    },    
-    
+    },
+
     # ==================== CONVERSIONS DIVERSES ====================
     'image-en-word': {
         'template': 'image_to_word.html',
-        'title': _('Image vers Word'),
-        'description': _('Extrayez le texte des images en documents Word'),
-        'from_format': _('Image'),
-        'to_format': _('Word'),
+        'title': _l('Image vers Word'),
+        'description': _l('Extrayez le texte des images en documents Word'),
+        'from_format': 'Image',
+        'to_format': 'Word',
         'icon': 'image',
         'color': '#2b579a',
         'accept': '.jpg,.jpeg,.png,.bmp,.tiff',
         'max_files': 1,
         'deps': ['Pillow', 'pytesseract', 'python-docx']
     },
-    
+
     'image-en-excel': {
         'template': 'image_to_excel.html',
-        'title': _('Image vers Excel'),
-        'description': _('Extrayez les tableaux des images en Excel'),
-        'from_format': _('Image'),
-        'to_format': _('Excel'),
+        'title': _l('Image vers Excel'),
+        'description': _l('Extrayez les tableaux des images en Excel'),
+        'from_format': 'Image',
+        'to_format': 'Excel',
         'icon': 'image',
         'color': '#217346',
         'accept': '.jpg,.jpeg,.png,.bmp,.tiff,.pdf',
         'max_files': 1,
         'deps': ['Pillow', 'pytesseract', 'pandas', 'openpyxl']
     },
-    
+
     'csv-en-excel': {
         'template': 'csv_to_excel.html',
-        'title': _('CSV vers Excel'),
-        'description': _('Convertissez vos fichiers CSV en Excel'),
-        'from_format': _('CSV'),
-        'to_format': _('Excel'),
+        'title': _l('CSV vers Excel'),
+        'description': _l('Convertissez vos fichiers CSV en Excel'),
+        'from_format': 'CSV',
+        'to_format': 'Excel',
         'icon': 'file-csv',
         'color': '#217346',
         'accept': '.csv,.txt',
         'max_files': 5,
         'deps': ['pandas', 'openpyxl']
     },
-    
+
     'excel-en-csv': {
         'template': 'excel_to_csv.html',
-        'title': _('Excel vers CSV'),
-        'description': _('Exportez vos feuilles Excel en CSV'),
-        'from_format': _('Excel'),
-        'to_format': _('CSV'),
+        'title': _l('Excel vers CSV'),
+        'description': _l('Exportez vos feuilles Excel en CSV'),
+        'from_format': 'Excel',
+        'to_format': 'CSV',
         'icon': 'file-excel',
         'color': '#217346',
         'accept': '.xls,.xlsx',
