@@ -170,6 +170,11 @@ def create_app():
             languages=app.config.get('LANGUAGES', {}),
             current_year=datetime.now().year,
             datetime=datetime,
+            app_name=AppConfig.NAME,
+            developer_name=AppConfig.DEVELOPER_NAME,
+            hosting=AppConfig.HOSTING,
+            domain=AppConfig.DOMAIN,
+            adsense_id='ca-pub-8967416460526921',
         )
 
     # --------------------------------------------------------

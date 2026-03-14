@@ -2,6 +2,8 @@
 """
 Blueprint pour les conversions de fichiers - Version universelle
 """
+import zipfile
+
 from flask import Blueprint, after_this_request, render_template, request, jsonify, send_file, flash, redirect, url_for, current_app
 from werkzeug.utils import secure_filename
 import sys
@@ -3748,7 +3750,10 @@ def add_page_to_document(doc: Document, page_num: int, extracted_text: str,
         
         # Légende
         cap = doc.add_paragraph()
-        cap.style = 'Caption'
+        try:
+            cap.style = 'Caption'
+        except KeyError:
+            pass  # style absent, on continue sans
         cap.add_run(f"Image originale - Page {page_num}")
 
 def add_positions_to_doc(doc: Document, image: Image.Image, params: Dict):
@@ -3761,7 +3766,10 @@ def add_positions_to_doc(doc: Document, image: Image.Image, params: Dict):
     )
     
     doc.add_heading("Données OCR (mots + positions)", level=2)
-    doc.add_paragraph(json.dumps(words_pos, indent=2, ensure_ascii=False))
+    json_text = json.dumps(words_pos, indent=2, ensure_ascii=False)
+    # Word ne gère pas les paragraphes > ~32k caractères
+    for chunk in [json_text[i:i+30000] for i in range(0, len(json_text), 30000)]:
+        doc.add_paragraph(chunk)
 
 def add_columns_to_doc(doc: Document, image: Image.Image, params: Dict):
     """Ajoute le texte reconstruit par colonnes."""
@@ -3788,7 +3796,7 @@ def add_ai_restructured_to_doc(doc: Document, extracted_text: str, params: Dict)
     doc.add_heading("Texte restructuré par IA", level=2)
     doc.add_paragraph(structured_text)
 
-# ✅ Correction : supprimer complètement ce bloc (c'est du code mort)
+
 def generate_document_response(doc: Document, original_filename: str):
     output = BytesIO()
     doc.save(output)

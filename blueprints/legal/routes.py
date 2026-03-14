@@ -14,15 +14,12 @@ from flask import (
 )
 from markupsafe import escape
 from datetime import datetime
-from .forms import ContactForm  # type: ignore # si Flask-WTF disponible
+from pathlib import Path
 import os
 import requests
 import logging
-from pathlib import Path
 
 from . import legal_bp
-
-# Imports absolus
 from config import AppConfig
 
 # ===============================
@@ -78,29 +75,29 @@ except ImportError as e:
 if FORMS_AVAILABLE:
     class ContactForm(FlaskForm):
         full_name = StringField(
-            _l('Nom complet') if BABEL_AVAILABLE else 'Nom complet',
+            _l('Nom complet'),
             validators=[DataRequired(), Length(min=2, max=100)]
         )
         email = StringField(
-            _l('Email') if BABEL_AVAILABLE else 'Email',
+            _l('Email'),
             validators=[Optional(), Email()]
         )
         phone = StringField(
-            _l('Téléphone (optionnel)') if BABEL_AVAILABLE else 'Téléphone (optionnel)',
+            _l('Téléphone (optionnel)'),
             validators=[Optional()]
         )
         subject = SelectField(
-            _l('Sujet') if BABEL_AVAILABLE else 'Sujet',
+            _l('Sujet'),
             choices=[
-                ('bug', '🚨 ' + (_l('Signaler un bug') if BABEL_AVAILABLE else 'Signaler un bug')),
-                ('improvement', '💡 ' + (_l('Proposer une amélioration') if BABEL_AVAILABLE else 'Amélioration')),
-                ('partnership', '🤝 ' + (_l('Partenariat') if BABEL_AVAILABLE else 'Partenariat')),
-                ('other', '❓ ' + (_l('Autre') if BABEL_AVAILABLE else 'Autre')),
+                ('bug',         '🚨 ' + str(_l('Signaler un bug'))),
+                ('improvement', '💡 ' + str(_l('Proposer une amélioration'))),
+                ('partnership', '🤝 ' + str(_l('Partenariat'))),
+                ('other',       '❓ ' + str(_l('Autre'))),
             ],
             validators=[DataRequired()]
         )
         message = TextAreaField(
-            _l('Message') if BABEL_AVAILABLE else 'Message',
+            _l('Message'),
             validators=[DataRequired(), Length(max=2000)]
         )
 else:
@@ -138,11 +135,11 @@ def send_discord_notification(form_data: dict) -> None:
             "title": "📨 Nouveau message de contact",
             "color": 0x4361EE,
             "fields": [
-                {"name": "Nom", "value": escape(f"{first_name} {last_name}"), "inline": True},
-                {"name": "Email", "value": escape(form_data.get("email", "Non renseigné")), "inline": True},
-                {"name": "Téléphone", "value": escape(form_data.get("phone", "Non renseigné")), "inline": True},
-                {"name": "Sujet", "value": escape(subject_map.get(form_data.get("subject"), form_data.get("subject"))), "inline": False},
-                {"name": "Message", "value": escape(form_data.get("message", "")[:1000]), "inline": False},
+                {"name": "Nom",       "value": escape(f"{first_name} {last_name}"),                                               "inline": True},
+                {"name": "Email",     "value": escape(form_data.get("email",   "Non renseigné")),                                 "inline": True},
+                {"name": "Téléphone", "value": escape(form_data.get("phone",   "Non renseigné")),                                 "inline": True},
+                {"name": "Sujet",     "value": escape(subject_map.get(form_data.get("subject"), form_data.get("subject", ""))),   "inline": False},
+                {"name": "Message",   "value": escape(form_data.get("message", "")[:1000]),                                       "inline": False},
             ],
             "footer": {"text": f"{AppConfig.NAME} • {datetime.now().strftime('%d/%m/%Y %H:%M')}"}
         }
@@ -153,6 +150,7 @@ def send_discord_notification(form_data: dict) -> None:
             current_app.logger.info("✅ Notification Discord envoyée")
     except requests.RequestException as e:
         current_app.logger.warning(f"⚠️ Discord webhook échoué: {e}")
+
 
 def process_contact(form_data: dict) -> bool:
     """Valide et sauvegarde un message de contact, envoie Discord"""
@@ -183,72 +181,62 @@ def contact():
     success = False
     error = None
     form_data = {}
-    current_time = datetime.now().strftime('%H:%M')  # pour le template
+    current_time = datetime.now().strftime('%H:%M')
 
     if request.method == "POST":
-        # === Récupération des données ===
         if FORMS_AVAILABLE and form and hasattr(form, "validate_on_submit") and form.validate_on_submit():
             form_data = {
                 "full_name": (form.full_name.data or "").strip(),
-                "email": (form.email.data or "").strip().lower(),
-                "phone": (form.phone.data or "").strip(),
-                "subject": form.subject.data if form.subject else "",
-                "message": (form.message.data or "").strip(),
+                "email":     (form.email.data   or "").strip().lower(),
+                "phone":     (form.phone.data   or "").strip(),
+                "subject":   form.subject.data if form.subject else "",
+                "message":   (form.message.data or "").strip(),
             }
         else:
             form_data = {
                 "full_name": request.form.get("full_name", "").strip(),
-                "email": request.form.get("email", "").strip().lower(),
-                "phone": request.form.get("phone", "").strip(),
-                "subject": request.form.get("subject", ""),
-                "message": request.form.get("message", "").strip(),
+                "email":     request.form.get("email",     "").strip().lower(),
+                "phone":     request.form.get("phone",     "").strip(),
+                "subject":   request.form.get("subject",   ""),
+                "message":   request.form.get("message",   "").strip(),
             }
 
-        # === Validation minimale ===
         if not form_data["full_name"] or not form_data["message"]:
-            error = _('Veuillez remplir tous les champs obligatoires.') if BABEL_AVAILABLE else 'Veuillez remplir tous les champs obligatoires.'
+            error = _('Veuillez remplir tous les champs obligatoires.')
         elif form_data["email"] and "@" not in form_data["email"]:
-            error = _('Veuillez entrer une adresse email valide.') if BABEL_AVAILABLE else 'Adresse email invalide.'
+            error = _('Veuillez entrer une adresse email valide.')
         else:
-            # === Traitement du message ===
             success = process_contact(form_data)
             if success:
-                flash(_('Votre message a été envoyé avec succès !') if BABEL_AVAILABLE else 'Message envoyé !', 'success')
+                flash(_('Votre message a été envoyé avec succès !'), 'success')
                 form_data = {}
                 if FORMS_AVAILABLE:
                     form = ContactForm()
             else:
-                error = _('Une erreur technique est survenue. Veuillez réessayer.') if BABEL_AVAILABLE else 'Erreur technique'
+                error = _('Une erreur technique est survenue. Veuillez réessayer.')
 
-    # === Rendu du template ===
     return render_template(
         "legal/contact.html",
-        title=_("Contact") if BABEL_AVAILABLE else "Contact",
-        badge=_("Formulaire de contact") if BABEL_AVAILABLE else "Formulaire de contact",
-        subtitle=_("Contactez-nous via notre formulaire") if BABEL_AVAILABLE else "Contactez-nous",
+        title=_("Contact"),
+        badge=_("Formulaire de contact"),
+        subtitle=_("Contactez-nous via notre formulaire"),
         form=form,
         form_data=form_data,
         success=success,
         error=error,
-        current_time=current_time
+        current_time=current_time,
     )
 
 # ===============================
-# AUTRES PAGES LÉGALES
+# PAGES LÉGALES
 # ===============================
 @legal_bp.route("/legal")
 def legal():
     return render_template(
         "legal/legal.html",
-        title=_("Mentions Légales") if BABEL_AVAILABLE else "Mentions Légales",
-        badge=_("Information légale") if BABEL_AVAILABLE else "Information légale",
-        subtitle=_("Informations légales") if BABEL_AVAILABLE else "Informations légales",
-        current_year=datetime.now().year,
-        Config=current_app.config,  # utile pour d'autres valeurs
-        app_name=current_app.config.get('NAME', 'PDF Fusion Pro'),
-        developer_name=current_app.config.get('DEVELOPER_NAME', 'Développeur'),
-        hosting=current_app.config.get('HOSTING', 'Render'),
-        domain=current_app.config.get('DOMAIN', 'pdf-fusion-pro-ultimate-ltd.onrender.com')
+        title=_("Mentions Légales"),
+        badge=_("Information légale"),
+        subtitle=_("Informations légales"),
     )
 
 
@@ -256,12 +244,9 @@ def legal():
 def privacy():
     return render_template(
         "legal/privacy.html",
-        title=_("Politique de Confidentialité") if BABEL_AVAILABLE else "Politique de Confidentialité",
-        badge=_("Protection des données") if BABEL_AVAILABLE else "Protection des données",
-        subtitle=_("Comment nous protégeons vos données") if BABEL_AVAILABLE else "Protection des données",
-        current_year=datetime.now().year,
-        Config=current_app.config,  # garde pour d’autres valeurs
-        adsense_id=current_app.config.get('ADSENSE_CLIENT_ID', 'N/A')
+        title=_("Politique de Confidentialité"),
+        badge=_("Protection des données"),
+        subtitle=_("Comment nous protégeons vos données"),
     )
 
 
@@ -269,34 +254,19 @@ def privacy():
 def terms():
     return render_template(
         "legal/terms.html",
-        title=_("Conditions d'Utilisation") if BABEL_AVAILABLE else "Conditions d'Utilisation",
-        badge=_("Règles d'usage") if BABEL_AVAILABLE else "Règles d'usage",
-        subtitle=_("Conditions d'utilisation du service") if BABEL_AVAILABLE else "Conditions d'utilisation",
-        current_year=datetime.now().year,
-        app_name=current_app.config.get('APP_NAME', 'PDF Fusion Pro'),
-        developer_name=current_app.config.get('DEVELOPER_NAME', 'Développeur')
+        title=_("Conditions d'Utilisation"),
+        badge=_("Règles d'usage"),
+        subtitle=_("Conditions d'utilisation du service"),
     )
+
 
 @legal_bp.route("/about")
 def about():
-    from config import AppConfig  # Import local
-
-    # Préparer le texte traduit et formaté côté Python
-    dev_text = _(
-        "%(app_name)s est développé et maintenu par %(developer_name)s, "
-        "un développeur passionné par la création d'outils web utiles et accessibles."
-    ) % {
-        "app_name": AppConfig.NAME,
-        "developer_name": AppConfig.DEVELOPER_NAME
-    }
-
     return render_template(
         "legal/about.html",
-        title=_("À Propos") if BABEL_AVAILABLE else "À Propos",
-        badge=_("Notre histoire") if BABEL_AVAILABLE else "Notre histoire",
-        subtitle=_("Découvrez PDF Fusion Pro") if BABEL_AVAILABLE else "À propos de nous",
-        current_year=datetime.now().year,
-        dev_text=dev_text  # <-- passer le texte déjà formaté
+        title=_("À Propos"),
+        badge=_("Notre histoire"),
+        subtitle=_("Découvrez PDF Fusion Pro"),
     )
 
 # ===============================
