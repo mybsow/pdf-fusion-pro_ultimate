@@ -212,8 +212,6 @@ DEPS_STATUS = {
 # =========================
 conversion_bp = Blueprint(
     'conversion', __name__,
-    template_folder=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates', 'conversion'),
-    static_folder='static/conversion',
     url_prefix='/conversion'
 )
 
@@ -695,7 +693,7 @@ def universal_converter(conversion_type):
             return handle_conversion_request(conversion_type, request, config)
         
         # GET request - afficher le formulaire
-        template_name = config['template']  # Juste le nom du fichier, sans dossier
+        template_name = f"conversion/{config['template']}" 
         
         try:
             return render_template(template_name,
