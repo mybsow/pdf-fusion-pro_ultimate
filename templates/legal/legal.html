@@ -8,10 +8,8 @@
 </div>
 
 <h2>{{ _('Éditeur du service') }}</h2>
-<p>{{ (_('%(app_name)s est développé et maintenu par %(developer_name)s, un développeur passionné par la création d\'outils web utiles et accessibles.') % {
-    'app_name': app_name,
-    'developer_name': developer_name
-}) }}</p>
+<p>{{ _('%(app_name)s est développé et maintenu par %(developer_name)s, un développeur passionné par la création d\'outils web utiles et accessibles.', % {
+    app_name=app_name, developer_name=developer_name) }}</p>
 
 <div class="contact-info">
     <div class="contact-icon">
@@ -27,10 +25,8 @@
 </div>
 
 <h2>{{ _('Hébergement') }}</h2>
-<p>{{ (_('Ce service est hébergé sur la plateforme %(hosting)s (<a href="https://%(domain)s" target="_blank">%(domain)s</a>).') % {
-    'hosting': hosting,
-    'domain': domain
-}) | safe }}</p>
+<p>{{ _('Ce service est hébergé sur la plateforme %(hosting)s (<a href="https://%(domain)s" target="_blank">(domain)s</a>).', hosting=hosting,
+    domain=domain) }}</p>
 <p>{{ _('Les serveurs sont localisés dans des centres de données sécurisés et conformes aux normes européennes de protection des données.') }}</p>
 
 <h2>{{ _('Propriété intellectuelle') }}</h2>
