@@ -561,6 +561,24 @@ def create_app():
 
     return app
 
+@app.route('/reload-translations')
+def reload_translations():
+    """Force le rechargement des traductions"""
+    import sys
+    from flask_babel import refresh
+    
+    refresh()  # Force Babel à recharger les catalogues
+    
+    # Vider le cache des traductions
+    if hasattr(babel, 'list_translations'):
+        babel.list_translations.cache_clear()
+    
+    return jsonify({
+        'status': 'reloaded',
+        'current_locale': str(get_locale()),
+        'session_language': session.get('language', 'fr')
+    })
+
 
 # ============================================================
 # Entrypoint
