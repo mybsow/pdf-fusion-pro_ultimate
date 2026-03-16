@@ -302,6 +302,12 @@ def create_app():
         if language in app.config['LANGUAGES']:
             session['language'] = language
             session.permanent = True
+            # Force Babel à recharger
+            from flask_babel import refresh
+            refresh()
+
+            # Redirection
+            session.permanent = True
         referrer = request.referrer
         # Sécurité : ne pas rediriger vers un domaine externe
         if referrer and request.host in referrer:
@@ -506,6 +512,41 @@ def create_app():
                         'po_exists': po_file.exists(),
                     })
         return jsonify(result)
+    
+    @app.route('/debug-language')
+    def debug_language():
+        """Vérifie la configuration de la langue"""
+        from flask_babel import get_locale, gettext
+        import os
+        
+        # Langue actuelle
+        current_session_lang = session.get('language', 'non défini')
+        current_babel_locale = str(get_locale())
+        
+        # Test de traduction
+        test_word = gettext('Word vers PDF')
+        test_merge = gettext('Fusionner PDF')
+        
+        # Vérification des fichiers .mo
+        trans_dir = app.config.get('BABEL_TRANSLATION_DIRECTORIES', 'translations')
+        mo_files = {}
+        
+        for lang in ['fr', 'en', 'es', 'de', 'it', 'pt', 'nl', 'ru', 'ja', 'zh', 'ar']:
+            mo_path = os.path.join(trans_dir, lang, 'LC_MESSAGES', 'messages.mo')
+            mo_files[lang] = os.path.exists(mo_path)
+        
+        return jsonify({
+            'session_language': current_session_lang,
+            'babel_locale': current_babel_locale,
+            'test_translations': {
+                'word_to_pdf': test_word,
+                'merge_pdf': test_merge,
+            },
+            'mo_files_exist': mo_files,
+            'translations_dir': trans_dir,
+            'translations_dir_exists': os.path.exists(trans_dir),
+            'available_languages': list(app.config.get('LANGUAGES', {}).keys()),
+        })
 
     @app.route('/debug/static-check')
     def debug_static_check():
