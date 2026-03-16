@@ -313,31 +313,111 @@ def create_app():
 
     @app.route('/robots.txt')
     def robots():
-        return send_from_directory('.', 'robots.txt')
+        domain = AppConfig.DOMAIN.rstrip("/")
+        content = (
+            "User-agent: *\n"
+            "Allow: /\n"
+            "\n"
+            "# Bloquer routes debug et système\n"
+            "Disallow: /admin/\n"
+            "Disallow: /uploads/\n"
+            "Disallow: /temp/\n"
+            "Disallow: /debug/\n"
+            "Disallow: /debug-config\n"
+            "Disallow: /debug-translations\n"
+            "Disallow: /test-ocr\n"
+            "Disallow: /test-tesseract\n"
+            "Disallow: /force-install-ocr\n"
+            "Disallow: /health\n"
+            "\n"
+            f"Sitemap: https://{domain}/sitemap.xml\n"
+            "\n"
+            "# PDF Fusion Pro - Développé par MYBSOW\n"
+            "# Contact: banousow@gmail.com\n"
+        )
+        return Response(content, mimetype="text/plain")
+
 
     @app.route('/sitemap.xml')
     def sitemap():
         domain = AppConfig.DOMAIN.rstrip("/")
         base_url = f"https://{domain}"
         today = datetime.now().strftime('%Y-%m-%d')
+
         pages = [
-            ("/", "daily", "1.0"),
-            ("/pdf", "weekly", "0.9"),
-            ("/conversion/", "weekly", "0.8"),
-            ("/test-ocr", "weekly", "0.8"),
-            ("/contact", "monthly", "0.7"),
-            ("/about", "monthly", "0.6"),
-            ("/legal", "yearly", "0.4"),
-            ("/privacy", "yearly", "0.4"),
-            ("/terms", "yearly", "0.4"),
+            # ── Pages principales ──────────────────────────────────
+            ("/",                               "daily",   "1.0"),
+            ("/pdf/",                           "weekly",  "0.9"),
+
+            # ── Outils PDF ────────────────────────────────────────
+            ("/pdf/merge",                      "weekly",  "0.8"),
+            ("/pdf/split",                      "weekly",  "0.8"),
+            ("/pdf/rotate",                     "weekly",  "0.8"),
+            ("/pdf/compress",                   "weekly",  "0.8"),
+
+            # ── Convertir en PDF ──────────────────────────────────
+            ("/conversion/",                    "weekly",  "0.8"),
+            ("/conversion/word-en-pdf",         "weekly",  "0.7"),
+            ("/conversion/excel-en-pdf",        "weekly",  "0.7"),
+            ("/conversion/powerpoint-en-pdf",   "weekly",  "0.7"),
+            ("/conversion/image-en-pdf",        "weekly",  "0.7"),
+            ("/conversion/jpg-en-pdf",          "weekly",  "0.6"),
+            ("/conversion/png-en-pdf",          "weekly",  "0.6"),
+            ("/conversion/html-en-pdf",         "weekly",  "0.6"),
+            ("/conversion/txt-en-pdf",          "weekly",  "0.6"),
+
+            # ── Convertir depuis PDF ───────────────────────────────
+            ("/conversion/pdf-en-word",         "weekly",  "0.7"),
+            ("/conversion/pdf-en-doc",          "weekly",  "0.6"),
+            ("/conversion/pdf-en-excel",        "weekly",  "0.7"),
+            ("/conversion/pdf-en-ppt",          "weekly",  "0.6"),
+            ("/conversion/pdf-en-image",        "weekly",  "0.7"),
+            ("/conversion/pdf-en-pdfa",         "weekly",  "0.6"),
+            ("/conversion/pdf-en-html",         "weekly",  "0.6"),
+            ("/conversion/pdf-en-txt",          "weekly",  "0.6"),
+
+            # ── Outils PDF avancés ────────────────────────────────
+            ("/conversion/proteger-pdf",        "weekly",  "0.6"),
+            ("/conversion/deverrouiller-pdf",   "weekly",  "0.6"),
+            ("/conversion/redact-pdf",          "weekly",  "0.6"),
+            ("/conversion/edit-pdf",            "weekly",  "0.6"),
+            ("/conversion/sign-pdf",            "weekly",  "0.6"),
+            ("/conversion/prepare-form",        "weekly",  "0.6"),
+
+            # ── Conversions diverses ──────────────────────────────
+            ("/conversion/image-en-word",       "weekly",  "0.6"),
+            ("/conversion/image-en-excel",      "weekly",  "0.6"),
+            ("/conversion/csv-en-excel",        "weekly",  "0.6"),
+            ("/conversion/excel-en-csv",        "weekly",  "0.6"),
+
+            # ── Pages légales (doivent exister dans legal blueprint) ──
+            ("/about",                          "monthly", "0.5"),
+            ("/contact",                        "monthly", "0.5"),
+            ("/legal",                          "yearly",  "0.3"),
+            ("/privacy",                        "yearly",  "0.3"),
+            ("/terms",                          "yearly",  "0.3"),
         ]
-        xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+
+        xml = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        ]
         for path, freq, priority in pages:
-            clean_path = path if path.startswith('/') else f"/{path}"
-            url = f"{base_url}{clean_path}"
-            xml.append(f"  <url><loc>{url}</loc><lastmod>{today}</lastmod><changefreq>{freq}</changefreq><priority>{priority}</priority></url>")
+            xml.append(
+                f"  <url>"
+                f"<loc>{base_url}{path}</loc>"
+                f"<lastmod>{today}</lastmod>"
+                f"<changefreq>{freq}</changefreq>"
+                f"<priority>{priority}</priority>"
+                f"</url>"
+            )
         xml.append('</urlset>')
-        return Response("\n".join(xml), mimetype="application/xml", headers={"Cache-Control": "public, max-age=3600"})
+
+        return Response(
+            "\n".join(xml),
+            mimetype="application/xml",
+            headers={"Cache-Control": "public, max-age=3600"}
+        )
 
     @app.route('/google6f0d847067bbd18a.html')
     def google_verification():
