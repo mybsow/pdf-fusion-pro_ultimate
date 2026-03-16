@@ -27,7 +27,7 @@ os.environ["OMP_THREAD_LIMIT"] = "1"
 from flask import (Blueprint, after_this_request, render_template, request,
                    jsonify, send_file, flash, redirect, url_for, current_app)
 from werkzeug.utils import secure_filename
-from flask_babel import _, lazy_gettext as _l
+from flask_babel import _
 
 # ── Dépendances conditionnelles ──────────────────────────────────────────────
 # (le reste de vos try/except inchangés)
@@ -256,6 +256,7 @@ def check_dependencies(deps_list):
 # ============================================================================
 # CONVERSION MAP - Configuration de toutes les conversions disponibles
 # ============================================================================
+from flask_babel import lazy_gettext as _l
 
 CONVERSION_MAP = {
     # ==================== CONVERTIR EN PDF ====================
