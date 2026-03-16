@@ -299,17 +299,18 @@ def create_app():
     # Route pour changer de langue
     @app.route('/language/<language>')
     def set_language(language):
+        """Change la langue de l'utilisateur"""
         if language in app.config['LANGUAGES']:
             session['language'] = language
             session.permanent = True
-            # Force Babel à recharger
-            from flask_babel import refresh
-            refresh()
-
-            # Redirection
-            session.permanent = True
+            # Force la sauvegarde de la session
+            session.modified = True
+            
+            # Log pour debug
+            app.logger.info(f"Langue changée: {language}")
+        
+        # Redirection
         referrer = request.referrer
-        # Sécurité : ne pas rediriger vers un domaine externe
         if referrer and request.host in referrer:
             return redirect(referrer)
         return redirect(url_for('pdf.pdf_index'))
@@ -568,6 +569,18 @@ def create_app():
             if css_dir.exists():
                 result['css_files'] = [f.name for f in css_dir.glob('*.css')]
         return jsonify(result)
+    
+    @app.route('/debug-session')
+    def debug_session():
+        """Vérifie la session"""
+        return jsonify({
+            'session_contents': dict(session),
+            'session_modified': session.modified,
+            'session_permanent': session.permanent,
+            'cookie_secure': app.config.get('SESSION_COOKIE_SECURE'),
+            'cookie_httponly': app.config.get('SESSION_COOKIE_HTTPONLY'),
+            'secret_key_set': bool(app.secret_key),
+        })
 
     # ============================================================
     # Erreurs et filtres Jinja
