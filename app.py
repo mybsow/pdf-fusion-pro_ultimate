@@ -96,12 +96,14 @@ def get_locale():
     # 1. Priorité absolue à la session
     if 'language' in session:
         lang = session['language']
-        if lang in app.config['LANGUAGES']:
+        # Récupérer les langues depuis app.config (déjà initialisé)
+        languages = app.config.get('LANGUAGES', {})
+        if lang in languages:
             return lang
     # 2. Fallback sur la langue du navigateur
-    return request.accept_languages.best_match(app.config['LANGUAGES'].keys()) or 'fr'
+    return request.accept_languages.best_match(app.config.get('LANGUAGES', {}).keys()) or 'fr'
 
-# Flask-Babel >= 3.0 : locale_selector= à l'init
+# IMPORTANT: Initialiser Babel APRÈS avoir configuré app.config
 babel = Babel(app, locale_selector=get_locale)
 
 
