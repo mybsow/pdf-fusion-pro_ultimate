@@ -1,32 +1,36 @@
 #!/usr/bin/env python3
-"""
-Blueprint pour les conversions de fichiers - Version universelle
-"""
-import zipfile
+"""Blueprint pour les conversions de fichiers"""
 
-from flask import Blueprint, after_this_request, render_template, request, jsonify, send_file, flash, redirect, url_for, current_app
-from werkzeug.utils import secure_filename
+# ── Stdlib ──────────────────────────────────────────────────────────────────
+import os
 import sys
-import os, io, sys, logging, tempfile, shutil, traceback, json, re
+import io
+import re
 import json
-os.environ["OMP_THREAD_LIMIT"] = "1"
+import time
+import shutil
+import zipfile
 import tempfile
-import uuid
-from datetime import datetime
-from pathlib import Path
-from typing import Optional, Dict, List, Any
-from pypdf import PdfMerger
+import logging
 import traceback
-from io import BytesIO
-from collections import defaultdict
-from typing import Dict, List, Optional, Any, Tuple, Union
-import subprocess
 import importlib
-from docx.shared import Inches, Pt
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from pptx.util import Inches, Pt
+import subprocess
+from io import BytesIO
+from pathlib import Path
+from datetime import datetime
+from collections import defaultdict
+from typing import Optional, Dict, List, Any, Tuple, Union
 
+os.environ["OMP_THREAD_LIMIT"] = "1"
+
+# ── Flask ────────────────────────────────────────────────────────────────────
+from flask import (Blueprint, after_this_request, render_template, request,
+                   jsonify, send_file, flash, redirect, url_for, current_app)
+from werkzeug.utils import secure_filename
 from flask_babel import _, lazy_gettext as _l
+
+# ── Dépendances conditionnelles ──────────────────────────────────────────────
+# (le reste de vos try/except inchangés)
 
 # =========================
 # CONSTANTES GLOBALES
@@ -113,6 +117,7 @@ try:
 except ImportError:
     HAS_PYPDF = False
  
+# ✅ docx
 try:
     from docx import Document
     from docx.shared import Inches, Pt, RGBColor as DocxRGBColor, Cm
@@ -121,11 +126,12 @@ try:
     HAS_DOCX = True
 except ImportError:
     HAS_DOCX = False
- 
+
+# ✅ pptx — noms distincts pour éviter l'écrasement
 try:
     from pptx import Presentation
     from pptx.util import Inches as PptxInches, Pt as PptxPt, Emu
-    from pptx.dml.color import RGBColor          # ← MANQUAIT dans l'original
+    from pptx.dml.color import RGBColor
     from pptx.enum.text import PP_ALIGN
     HAS_PPTX = True
 except ImportError:
@@ -2662,11 +2668,11 @@ def unlock_pdf(file, form_data=None):
 
 # ================= FONCTIONS UTILITAIRES IMAGE =================
 
+def build_ocr_lang_string(language: str) -> str:
     """
     Construit une chaîne de langues pour Tesseract à partir de l'entrée utilisateur.
     Exemple: "fra+eng" ou ["fra", "eng"] ou "fra"
     """
-def build_ocr_lang_string(language: str) -> str:
     langs = [l.strip() for l in language.replace("+",",").split(",") if l.strip()]
     return "+".join(OCR_LANG_MAP.get(l, "fra") for l in langs) or "fra"
 
@@ -2718,12 +2724,11 @@ def normalize_file_input(f):
     return f, None
     
 
-
+def normalize_files_input(files, max_files=20):
     """
     Convertit l'entrée en une liste de fichiers.
     Retourne (files, None) en cas de succès, (None, error_dict) en cas d'erreur.
     """
-def normalize_files_input(files, max_files=20):
     if not isinstance(files, list):
         files = [files] if files else []
     valid = [f for f in files if hasattr(f,"filename") and hasattr(f,"save") and f.filename]
@@ -2783,10 +2788,10 @@ def create_temp_directory(prefix="conv_") -> str:
     return tempfile.mkdtemp(prefix=prefix)
 
 
+def cleanup_temp_directory(path: Optional[str]):
     """
     Nettoie un dossier temporaire en ignorant les erreurs.
     """
-def cleanup_temp_directory(path: Optional[str]):
     if path and os.path.exists(path):
         shutil.rmtree(path, ignore_errors=True)
 
@@ -2799,12 +2804,11 @@ def secure_save(file_obj, dest_dir: str) -> str:
         raise ValueError(f"Fichier sauvegardé vide ou absent : {name}")
     return path
 
-
+def _ensure_rgb(im: "Image.Image") -> "Image.Image":
     """
     Convertit n'importe quel mode PIL en RGB proprement.
     Gère : RGBA, LA, P (palette+transparence), L, 1, CMYK, YCbCr…
     """
-def _ensure_rgb(im: "Image.Image") -> "Image.Image":
     if im.mode == "RGB": return im
     if im.mode in ("RGBA","LA"):
         bg = Image.new("RGB", im.size, (255,255,255))
