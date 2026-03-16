@@ -6,18 +6,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PDF Fusion Pro 1.0\n"
 "Report-Msgid-Bugs-To: support@pdffusionpro.com\n"
-"POT-Creation-Date: 2026-03-16 15:06+0000\n"
+"POT-Creation-Date: 2026-03-16 17:43+0000\n"
 "PO-Revision-Date: 2026-02-17 16:15+0000\n"
 "Last-Translator: <banousow@gmail.com>\n"
-"Language-Team: Arabic <ar@li.org>\n"
 "Language: ar\n"
+"Language-Team: Arabic <ar@li.org>\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : "
+"n%100>=3 && n%100<=10 ? 3 : n%100>=0 && n%100<=2 ? 4 : 5);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=0 && n%100<=2 ? 4 : 5);\n"
 "Generated-By: Babel 2.14.0\n"
 
-#: app.py:413 templates/conversion/index.html:148
+#: app.py:493 templates/conversion/index.html:148
 msgid "Convertisseur de fichiers"
 msgstr "محول شامل"
 
@@ -231,14 +232,17 @@ msgid "Fichier corrompu ou non-PDF"
 msgstr "ملف تالف أو ليس بصيغة PDF"
 
 #: blueprints/pdf/routes.py:117
+#, python-format
 msgid "%(filename)s n'est pas un PDF"
 msgstr "%%(filename)s n'est pas un PDF"
 
 #: blueprints/pdf/routes.py:127 blueprints/pdf/routes.py:516
+#, python-format
 msgid "%(filename)s est vide"
 msgstr "%%(filename)s est vide"
 
 #: blueprints/pdf/routes.py:130 blueprints/pdf/routes.py:519
+#, python-format
 msgid "%(filename)s est corrompu ou non-PDF"
 msgstr "%%(filename)s est corrompu ou non-PDF"
 
@@ -253,10 +257,12 @@ msgid "Au moins 2 PDF requis"
 msgstr "يلزم رفع ملفي PDF على الأقل"
 
 #: blueprints/pdf/routes.py:160
+#, python-format
 msgid "Maximum %(max)d fichiers"
 msgstr "Maximum %%(max)d fichiers"
 
 #: blueprints/pdf/routes.py:176
+#, python-format
 msgid "Fichier %(name)s contient trop de pages"
 msgstr "Fichier %%(name)s contient trop de pages"
 
@@ -345,23 +351,21 @@ msgid ""
 "Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos "
 "fichiers en ligne. Rapide, sécurisé et sans installation."
 msgstr ""
-"أدوات بي دي إف مجانية لدمج وتقسيم وضغط وتحويل ملفاتك عبر الإنترنت. سريع وآمن"
-" وبدون تثبيت."
+"أدوات بي دي إف مجانية لدمج وتقسيم وضغط وتحويل ملفاتك عبر الإنترنت. سريع "
+"وآمن وبدون تثبيت."
 
 #: templates/base.html:12
 msgid ""
 "PDF, convertisseur, fusionner, diviser, compresser, OCR, Word, Excel, "
 "PowerPoint, image"
-msgstr ""
-"بي دي إف، محول، دمج، تقسيم، ضغط، أو سي آر، وورد، إكسل، باوربوينت، صورة"
+msgstr "بي دي إف، محول، دمج، تقسيم، ضغط، أو سي آر، وورد، إكسل، باوربوينت، صورة"
 
 #: templates/base.html:17
 msgid "PDF Fusion Pro - Convertisseur de fichiers"
 msgstr "بي دي إف فيوجن برو - محول الملفات"
 
 #: templates/base.html:18
-msgid ""
-"Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne"
+msgid "Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne"
 msgstr "قم بتحويل ملفات بي دي إف وورد وإكسل والصور عبر الإنترنت مجانًا"
 
 #: templates/base.html:229 templates/base.html:402 templates/base.html:429
@@ -492,13 +496,14 @@ msgstr "حول"
 
 #: templates/base.html:403
 msgid ""
-"Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et compressez"
-" vos fichiers PDF."
+"Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et "
+"compressez vos fichiers PDF."
 msgstr "أدوات PDF مجانية أونلاين. حوّل، ادمج، قسّم وضغط ملفات PDF."
 
 #: templates/base.html:404
 msgid ""
-"Vos fichiers sont traités de manière sécurisée et supprimés automatiquement."
+"Vos fichiers sont traités de manière sécurisée et supprimés "
+"automatiquement."
 msgstr "تتم معالجة ملفاتك بأمان ويتم حذفها تلقائياً."
 
 #: templates/base.html:407
@@ -613,10 +618,12 @@ msgid "Comment ça marche ?"
 msgstr "كيف يعمل؟"
 
 #: templates/conversion/conversion_base.html:360
+#, python-format
 msgid "Téléchargez votre fichier %(from_format)s."
 msgstr "Téléchargez votre fichier %%(from_format)s."
 
 #: templates/conversion/conversion_base.html:363
+#, python-format
 msgid "Notre système le convertit automatiquement en %(to_format)s."
 msgstr "Notre système le convertit automatiquement en %%(to_format)s."
 
@@ -872,8 +879,7 @@ msgstr "النص المراد إضافته :"
 msgid "Saisissez votre texte ici..."
 msgstr "اكتب نصك هنا..."
 
-#: templates/conversion/edit_pdf.html:63
-#: templates/conversion/edit_pdf.html:120
+#: templates/conversion/edit_pdf.html:63 templates/conversion/edit_pdf.html:120
 msgid "Page d'insertion :"
 msgstr "الإدارة"
 
@@ -881,8 +887,7 @@ msgstr "الإدارة"
 msgid "Position :"
 msgstr "الموضع :"
 
-#: templates/conversion/edit_pdf.html:78
-#: templates/conversion/edit_pdf.html:124
+#: templates/conversion/edit_pdf.html:78 templates/conversion/edit_pdf.html:124
 #: templates/conversion/sign_pdf.html:105
 #: templates/conversion/txt_to_pdf.html:63
 msgid "Taille :"
@@ -1462,9 +1467,9 @@ msgstr "اسحب وأفلت صورك هنا"
 
 #: templates/conversion/image_to_pdf.html:26
 msgid ""
-"Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par fichier)"
-msgstr ""
-"الصيغ المقبولة: JPG، PNG، BMP، GIF، TIFF، WEBP (حتى 50 ميجابايت لكل ملف)"
+"Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par "
+"fichier)"
+msgstr "الصيغ المقبولة: JPG، PNG، BMP، GIF، TIFF، WEBP (حتى 50 ميجابايت لكل ملف)"
 
 #: templates/conversion/image_to_pdf.html:49
 #: templates/conversion/jpg_to_pdf.html:57
@@ -1745,8 +1750,8 @@ msgstr "حوّل مستنداتك إلى جميع الصيغ، مجاناً وأ
 
 #: templates/conversion/index.html:152
 msgid ""
-"Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple, "
-"rapide et sécurisé."
+"Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple,"
+" rapide et sécurisé."
 msgstr "قم بتحويل ملفات وورد وإكسل وباوربوينت والصور إلى بي دي إف والعكس"
 
 #: templates/conversion/index.html:157
@@ -1825,8 +1830,7 @@ msgstr "تحويلات أخرى"
 msgid "Téléchargez votre fichier converti"
 msgstr "حمّل ملفك المحول"
 
-#: templates/conversion/index.html:298
-#: templates/conversion/protect_pdf.html:75
+#: templates/conversion/index.html:298 templates/conversion/protect_pdf.html:75
 msgid "Important :"
 msgstr "مهم :"
 
@@ -1860,11 +1864,12 @@ msgstr "هل الملفات آمنة؟"
 
 #: templates/conversion/index.html:335
 msgid ""
-"Oui, tous les fichiers sont traités localement et automatiquement supprimés "
-"après 1 heure. Nous ne stockons jamais vos documents sur nos serveurs."
+"Oui, tous les fichiers sont traités localement et automatiquement "
+"supprimés après 1 heure. Nous ne stockons jamais vos documents sur nos "
+"serveurs."
 msgstr ""
-"نعم، جميع الملفات تتم معالجتها محلياً ويتم حذفها تلقائياً بعد ساعة. نحن لا "
-"نخزن مستنداتك أبداً على خوادمنا."
+"نعم، جميع الملفات تتم معالجتها محلياً ويتم حذفها تلقائياً بعد ساعة. نحن "
+"لا نخزن مستنداتك أبداً على خوادمنا."
 
 #: templates/conversion/index.html:346
 msgid "Quelles sont les limites de taille ?"
@@ -1875,8 +1880,8 @@ msgid ""
 "Taille maximale par fichier : 50MB. Nombre maximum de fichiers par "
 "conversion : variable selon l'outil (de 1 à 20)."
 msgstr ""
-"الحد الأقصى للحجم لكل ملف: 50 ميجابايت. الحد الأقصى لعدد الملفات لكل تحويل: "
-"يختلف حسب الأداة (من 1 إلى 20)."
+"الحد الأقصى للحجم لكل ملف: 50 ميجابايت. الحد الأقصى لعدد الملفات لكل "
+"تحويل: يختلف حسب الأداة (من 1 إلى 20)."
 
 #: templates/conversion/index.html:360
 msgid "Combien de temps dure une conversion ?"
@@ -1887,8 +1892,8 @@ msgid ""
 "La plupart des conversions prennent moins de 30 secondes. Pour les gros "
 "fichiers ou les conversions complexes (OCR), comptez 1 à 2 minutes."
 msgstr ""
-"معظم التحويلات تستغرق أقل من 30 ثانية. للملفات الكبيرة أو التحويلات المعقدة "
-"(OCR)، قد تستغرق من 1 إلى 2 دقيقة."
+"معظم التحويلات تستغرق أقل من 30 ثانية. للملفات الكبيرة أو التحويلات "
+"المعقدة (OCR)، قد تستغرق من 1 إلى 2 دقيقة."
 
 #: templates/conversion/index.html:374
 msgid "Quels formats sont supportés ?"
@@ -1896,11 +1901,11 @@ msgstr "ما هي الصيغ المدعومة؟"
 
 #: templates/conversion/index.html:377
 msgid ""
-"Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, "
-"JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore."
+"Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, "
+"PPTX, JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore."
 msgstr ""
-"ندعم أكثر من 20 صيغة: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, "
-"BMP, TIFF, CSV, والمزيد."
+"ندعم أكثر من 20 صيغة: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, "
+"GIF, BMP, TIFF, CSV, والمزيد."
 
 #: templates/conversion/jpg_to_pdf.html:10
 msgid "Téléchargez vos images JPG"
@@ -1941,8 +1946,8 @@ msgstr "تحويل إلى بي دي إف"
 
 #: templates/conversion/pdf_to_doc.html:11
 msgid ""
-"Transformez vos documents PDF en format Word compatible avec les anciennes "
-"versions"
+"Transformez vos documents PDF en format Word compatible avec les "
+"anciennes versions"
 msgstr "حوّل مستندات PDF إلى صيغة Word متوافقة مع الإصدارات القديمة"
 
 #: templates/conversion/pdf_to_doc.html:26
@@ -2161,11 +2166,11 @@ msgstr "استخراج ذكي :"
 
 #: templates/conversion/pdf_to_excel.html:86
 msgid ""
-"Les tableaux seront automatiquement détectés et convertis en feuilles Excel."
-" L'OCR permet de reconnaître le texte dans les documents scannés."
+"Les tableaux seront automatiquement détectés et convertis en feuilles "
+"Excel. L'OCR permet de reconnaître le texte dans les documents scannés."
 msgstr ""
-"سيتم كشف الجداول تلقائياً وتحويلها إلى أوراق Excel. تتيح خاصية OCR التعرف "
-"على النص في المستندات الممسوحة ضوئياً."
+"سيتم كشف الجداول تلقائياً وتحويلها إلى أوراق Excel. تتيح خاصية OCR التعرف"
+" على النص في المستندات الممسوحة ضوئياً."
 
 #: templates/conversion/pdf_to_excel.html:93
 msgid "Extraire vers Excel"
@@ -2447,8 +2452,8 @@ msgstr "حوّل ملف PDF إلى صيغة أرشفة"
 
 #: templates/conversion/pdf_to_pdfa.html:11
 msgid ""
-"Le format PDF/A garantit la pérennité de vos documents pour l'archivage à "
-"long terme"
+"Le format PDF/A garantit la pérennité de vos documents pour l'archivage à"
+" long terme"
 msgstr "صيغة PDF/A تضمن استدامة مستنداتك للأرشفة طويلة المدى"
 
 #: templates/conversion/pdf_to_pdfa.html:37
@@ -2505,12 +2510,13 @@ msgstr "ما هي صيغة PDF/A؟"
 
 #: templates/conversion/pdf_to_pdfa.html:63
 msgid ""
-"Le PDF/A est une version standardisée du PDF conçue pour l'archivage à long "
-"terme. Il garantit que votre document sera exactement le même dans 10, 20 ou"
-" 50 ans, indépendamment des logiciels utilisés."
+"Le PDF/A est une version standardisée du PDF conçue pour l'archivage à "
+"long terme. Il garantit que votre document sera exactement le même dans "
+"10, 20 ou 50 ans, indépendamment des logiciels utilisés."
 msgstr ""
-"PDF/A هي نسخة موحدة من PDF مصممة للأرشفة طويلة المدى. تضمن أن مستندك سيكون "
-"مطابقاً تماماً بعد 10 أو 20 أو 50 سنة، بغض النظر عن البرامج المستخدمة."
+"PDF/A هي نسخة موحدة من PDF مصممة للأرشفة طويلة المدى. تضمن أن مستندك "
+"سيكون مطابقاً تماماً بعد 10 أو 20 أو 50 سنة، بغض النظر عن البرامج "
+"المستخدمة."
 
 #: templates/conversion/pdf_to_pdfa.html:70 templates/legal/contact.html:33
 msgid "Attention :"
@@ -2518,9 +2524,9 @@ msgstr "تنبيه :"
 
 #: templates/conversion/pdf_to_pdfa.html:70
 msgid ""
-"La conversion en PDF/A peut modifier légèrement l'apparence du document pour"
-" garantir sa pérennité. Les fonctionnalités interactives (formulaires, "
-"JavaScript) seront supprimées."
+"La conversion en PDF/A peut modifier légèrement l'apparence du document "
+"pour garantir sa pérennité. Les fonctionnalités interactives "
+"(formulaires, JavaScript) seront supprimées."
 msgstr ""
 "قد يؤدي التحويل إلى PDF/A إلى تعديل طفيف في مظهر المستند لضمان استدامته. "
 "ستتم إزالة الميزات التفاعلية (النماذج، JavaScript)."
@@ -2844,11 +2850,11 @@ msgstr "صيغة Word :"
 
 #: templates/conversion/pdf_to_word.html:90
 msgid ""
-"Le fichier généré est au format DOCX, compatible avec Microsoft Word 2007 et"
-" versions ultérieures, ainsi qu'avec LibreOffice et Google Docs."
+"Le fichier généré est au format DOCX, compatible avec Microsoft Word 2007"
+" et versions ultérieures, ainsi qu'avec LibreOffice et Google Docs."
 msgstr ""
-"الملف الذي تم إنشاؤه بصيغة DOCX، متوافق مع Microsoft Word 2007 والإصدارات "
-"الأحدث، وكذلك مع LibreOffice و Google Docs."
+"الملف الذي تم إنشاؤه بصيغة DOCX، متوافق مع Microsoft Word 2007 والإصدارات"
+" الأحدث، وكذلك مع LibreOffice و Google Docs."
 
 #: templates/conversion/pdf_to_word.html:97
 msgid "Convertir en Word"
@@ -2885,15 +2891,16 @@ msgstr "معاينة النص المستخرج"
 #: templates/conversion/pdf_to_word.html:218
 msgid ""
 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod "
-"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,"
-" quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo "
-"consequat."
+"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim "
+"veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
+"commodo consequat."
 msgstr ""
-"السلام عليكم ورحمة الله وبركاته، وبعد: هذا النص هو مثال لنص يمكن أن يستبدل "
-"في نفس المساحة، لقد تم توليد هذا النص من مولد النص العربي، حيث يمكنك أن تولد"
-" مثل هذا النص أو العديد من النصوص الأخرى إضافة إلى زيادة عدد الحروف التي "
-"ترغب في توليدها. إذا كنت تحتاج إلى عدد أكبر من الفقرات يتيح لك مولد النص "
-"العربي زيادة عدد الفقرات كما تريد، النص لن يبدو مقسما ولا يحوي أخطاء لغوية."
+"السلام عليكم ورحمة الله وبركاته، وبعد: هذا النص هو مثال لنص يمكن أن "
+"يستبدل في نفس المساحة، لقد تم توليد هذا النص من مولد النص العربي، حيث "
+"يمكنك أن تولد مثل هذا النص أو العديد من النصوص الأخرى إضافة إلى زيادة عدد"
+" الحروف التي ترغب في توليدها. إذا كنت تحتاج إلى عدد أكبر من الفقرات يتيح "
+"لك مولد النص العربي زيادة عدد الفقرات كما تريد، النص لن يبدو مقسما ولا "
+"يحوي أخطاء لغوية."
 
 #: templates/conversion/pdf_to_word.html:281
 msgid "Extraction de la page"
@@ -2924,8 +2931,7 @@ msgid "Glissez-déposez vos fichiers PowerPoint ici"
 msgstr "اسحب وأفلت ملفات PowerPoint هنا"
 
 #: templates/conversion/powerpoint_to_pdf.html:26
-msgid ""
-"Formats acceptés : PPT, PPTX (jusqu'à 50MB par fichier, 5 fichiers max)"
+msgid "Formats acceptés : PPT, PPTX (jusqu'à 50MB par fichier, 5 fichiers max)"
 msgstr "الصيغ المقبولة: PPT, PPTX (حتى 50 ميجابايت لكل ملف، 5 ملفات كحد أقصى)"
 
 #: templates/conversion/powerpoint_to_pdf.html:45
@@ -2988,11 +2994,11 @@ msgstr "صيغة PDF :"
 
 #: templates/conversion/powerpoint_to_pdf.html:83
 msgid ""
-"Compatible avec tous les lecteurs PDF. Les animations et transitions ne sont"
-" pas conservées dans le PDF."
+"Compatible avec tous les lecteurs PDF. Les animations et transitions ne "
+"sont pas conservées dans le PDF."
 msgstr ""
-"متوافق مع جميع قارئات PDF. لا يتم الاحتفاظ بالرسوم المتحركة والانتقالات في "
-"PDF."
+"متوافق مع جميع قارئات PDF. لا يتم الاحتفاظ بالرسوم المتحركة والانتقالات "
+"في PDF."
 
 #: templates/conversion/powerpoint_to_pdf.html:107
 msgid "Analyse et conversion de vos présentations..."
@@ -3361,8 +3367,8 @@ msgstr "طباعة وتعديل"
 
 #: templates/conversion/protect_pdf.html:76
 msgid ""
-"Notez bien votre mot de passe. Il n'y a aucun moyen de le récupérer en cas "
-"d'oubli."
+"Notez bien votre mot de passe. Il n'y a aucun moyen de le récupérer en "
+"cas d'oubli."
 msgstr ""
 "احتفظ بكلمة المرور الخاصة بك جيداً. لا توجد طريقة لاستعادتها في حالة "
 "نسيانها."
@@ -3439,8 +3445,8 @@ msgstr "سري"
 
 #: templates/conversion/redact_pdf.html:87
 msgid ""
-"Après avoir chargé votre PDF, vous pourrez dessiner des zones à caviarder "
-"sur l'aperçu."
+"Après avoir chargé votre PDF, vous pourrez dessiner des zones à caviarder"
+" sur l'aperçu."
 msgstr "بعد تحميل ملف PDF، يمكنك رسم مناطق الشطب على المعاينة."
 
 #: templates/conversion/redact_pdf.html:96
@@ -3850,7 +3856,8 @@ msgstr "ملاحظة :"
 
 #: templates/conversion/unlock_pdf.html:48
 msgid ""
-"Cette opération ne fonctionne que si vous connaissez le mot de passe du PDF."
+"Cette opération ne fonctionne que si vous connaissez le mot de passe du "
+"PDF."
 msgstr "تعمل هذه العملية فقط إذا كنت تعرف كلمة مرور ملف PDF."
 
 #: templates/conversion/unlock_pdf.html:53
@@ -3870,8 +3877,7 @@ msgid "Convertissez votre document Word en PDF"
 msgstr "حوّل مستند Word إلى PDF"
 
 #: templates/conversion/word_to_pdf.html:11
-msgid ""
-"Transformez vos fichiers DOC/DOCX en PDF avec une mise en page préservée"
+msgid "Transformez vos fichiers DOC/DOCX en PDF avec une mise en page préservée"
 msgstr "حوّل ملفات DOC/DOCX إلى PDF مع الحفاظ على التخطيط"
 
 #: templates/conversion/word_to_pdf.html:21
@@ -4001,8 +4007,8 @@ msgstr "جميع التحويلات"
 
 #: templates/conversion/word_to_pdf.html:150
 msgid ""
-"Compatible avec tous les lecteurs PDF. Les polices sont intégrées pour une "
-"reproduction fidèle."
+"Compatible avec tous les lecteurs PDF. Les polices sont intégrées pour "
+"une reproduction fidèle."
 msgstr "متوافق مع جميع قارئات PDF. الخطوط مضمنة لإعادة إنتاج دقيقة."
 
 #: templates/conversion/word_to_pdf.html:174
@@ -4123,8 +4129,7 @@ msgid "Fichier trop volumineux - PDF Fusion Pro"
 msgstr "حجم الملف كبير جداً - PDF Fusion Pro"
 
 #: templates/errors/413.html:120
-msgid ""
-"Le fichier que vous avez tenté de télécharger dépasse la limite autorisée."
+msgid "Le fichier que vous avez tenté de télécharger dépasse la limite autorisée."
 msgstr "الملف الذي حاولت تحميله يتجاوز الحد المسموح به."
 
 #: templates/errors/413.html:124
@@ -4161,8 +4166,8 @@ msgstr "خطأ داخلي في الخادم"
 
 #: templates/errors/500.html:145
 msgid ""
-"Désolé, une erreur inattendue s'est produite. Notre équipe technique a été "
-"informée."
+"Désolé, une erreur inattendue s'est produite. Notre équipe technique a "
+"été informée."
 msgstr "عذراً، حدث خطأ غير متوقع. تم إبلاغ فريقنا الفني."
 
 #: templates/errors/500.html:150
@@ -4209,8 +4214,8 @@ msgstr "مهمتنا"
 
 #: templates/legal/about.html:12
 msgid ""
-"Offrir un outil PDF en ligne performant, intuitif et respectueux de votre "
-"vie privée."
+"Offrir un outil PDF en ligne performant, intuitif et respectueux de votre"
+" vie privée."
 msgstr "تقديم أداة PDF أونلاين فعالة وبديهية وتحترم خصوصيتك."
 
 #: templates/legal/about.html:16
@@ -4243,8 +4248,8 @@ msgstr "الأمان"
 
 #: templates/legal/about.html:71
 msgid ""
-"Tous les traitements sont effectués en mémoire. Aucun fichier n'est stocké "
-"sur nos serveurs."
+"Tous les traitements sont effectués en mémoire. Aucun fichier n'est "
+"stocké sur nos serveurs."
 msgstr "تتم جميع المعالجات في الذاكرة. لا يتم تخزين أي ملف على خوادمنا."
 
 #: templates/legal/about.html:73
@@ -4301,8 +4306,8 @@ msgstr "نموذج الاتصال :"
 
 #: templates/legal/contact.html:7
 msgid ""
-"Utilisez ce formulaire pour nous contacter directement. Nous vous répondrons"
-" dans les meilleurs délais."
+"Utilisez ce formulaire pour nous contacter directement. Nous vous "
+"répondrons dans les meilleurs délais."
 msgstr "استخدم هذا النموذج للاتصال بنا مباشرة. سنرد عليك في أقرب وقت ممكن."
 
 #: templates/legal/contact.html:10
@@ -4311,8 +4316,8 @@ msgstr "نموذج الاتصال"
 
 #: templates/legal/contact.html:11
 msgid ""
-"Remplissez ce formulaire pour nous contacter. Tous les champs marqués d'un "
-"astérisque (*) sont obligatoires."
+"Remplissez ce formulaire pour nous contacter. Tous les champs marqués "
+"d'un astérisque (*) sont obligatoires."
 msgstr ""
 "املأ هذا النموذج للاتصال بنا. جميع الحقول التي تحمل علامة النجمة (*) "
 "إلزامية."
@@ -4408,8 +4413,8 @@ msgid ""
 "Cette application traite vos fichiers PDF uniquement en mémoire. Aucun "
 "fichier n'est stocké de manière permanente sur nos serveurs."
 msgstr ""
-"يعالج هذا التطبيق ملفات PDF الخاصة بك في الذاكرة فقط. لا يتم تخزين أي ملف "
-"بشكل دائم على خوادمنا."
+"يعالج هذا التطبيق ملفات PDF الخاصة بك في الذاكرة فقط. لا يتم تخزين أي ملف"
+" بشكل دائم على خوادمنا."
 
 #: templates/legal/legal.html:10
 msgid "Éditeur du service"
@@ -4421,8 +4426,8 @@ msgid ""
 "%(app_name)s est développé et maintenu par %(developer_name)s, un "
 "développeur passionné par la création d'outils web utiles et accessibles."
 msgstr ""
-"%(app_name)s تم تطويره وصيانته بواسطة %(developer_name)s، مطور شغوف بإنشاء "
-"أدوات ويب مفيدة وسهلة الوصول."
+"%(app_name)s تم تطويره وصيانته بواسطة %(developer_name)s، مطور شغوف "
+"بإنشاء أدوات ويب مفيدة وسهلة الوصول."
 
 #: templates/legal/legal.html:19
 msgid "Pour nous contacter :"
@@ -4441,6 +4446,7 @@ msgid "Hébergement"
 msgstr "الاستضافة"
 
 #: templates/legal/legal.html:28
+#, python-format
 msgid ""
 "Ce service est hébergé sur la plateforme %(hosting)s (<a "
 "href=\"https://%(domain)s\" target=\"_blank\">(domain)s</a>)."
@@ -4466,13 +4472,13 @@ msgid ""
 "interfaces, textes, graphismes) est protégé par les lois relatives à la "
 "propriété intellectuelle."
 msgstr ""
-"جميع المحتويات الموجودة على هذا الموقع (التصميم، الكود المصدري، الواجهات، "
-"النصوص، الرسومات) محمية بموجب قوانين الملكية الفكرية."
+"جميع المحتويات الموجودة على هذا الموقع (التصميم، الكود المصدري، الواجهات،"
+" النصوص، الرسومات) محمية بموجب قوانين الملكية الفكرية."
 
 #: templates/legal/legal.html:34
 msgid ""
-"Toute reproduction, modification, distribution ou exploitation non autorisée"
-" est strictement interdite."
+"Toute reproduction, modification, distribution ou exploitation non "
+"autorisée est strictement interdite."
 msgstr "أي إعادة إنتاج أو تعديل أو توزيع أو استغلال غير مصرح به محظور تماماً."
 
 #: templates/legal/legal.html:36
@@ -4481,18 +4487,19 @@ msgstr "المسؤولية"
 
 #: templates/legal/legal.html:37
 msgid ""
-"L'utilisateur reste l'unique responsable des fichiers PDF qu'il téléverse et"
-" traite via ce service."
+"L'utilisateur reste l'unique responsable des fichiers PDF qu'il téléverse"
+" et traite via ce service."
 msgstr ""
-"يبقى المستخدم هو المسؤول الوحيد عن ملفات PDF التي يقوم بتحميلها ومعالجتها "
-"عبر هذه الخدمة."
+"يبقى المستخدم هو المسؤول الوحيد عن ملفات PDF التي يقوم بتحميلها ومعالجتها"
+" عبر هذه الخدمة."
 
 #: templates/legal/legal.html:38
 msgid ""
 "Il s'engage à ne pas utiliser le service pour des contenus illicites ou "
 "protégés par des droits d'auteur sans autorisation."
 msgstr ""
-"يتعهد بعدم استخدام الخدمة لمحتويات غير قانونية أو محمية بحقوق النشر دون إذن."
+"يتعهد بعدم استخدام الخدمة لمحتويات غير قانونية أو محمية بحقوق النشر دون "
+"إذن."
 
 #: templates/legal/legal.html:40
 msgid "Disponibilité du service"
@@ -4500,10 +4507,9 @@ msgstr "توفر الخدمة"
 
 #: templates/legal/legal.html:41
 msgid ""
-"Nous nous efforçons d'assurer une disponibilité continue du service, mais ne"
-" pouvons garantir un fonctionnement ininterrompu."
-msgstr ""
-"نحن نسعى لضمان توفر الخدمة باستمرار، لكننا لا نستطيع ضمان تشغيل متواصل."
+"Nous nous efforçons d'assurer une disponibilité continue du service, mais"
+" ne pouvons garantir un fonctionnement ininterrompu."
+msgstr "نحن نسعى لضمان توفر الخدمة باستمرار، لكننا لا نستطيع ضمان تشغيل متواصل."
 
 #: templates/legal/legal.html:42
 msgid ""
@@ -4517,10 +4523,9 @@ msgstr "احترام خصوصيتك"
 
 #: templates/legal/privacy.html:5
 msgid ""
-"Votre confidentialité est notre priorité. Cette politique explique comment "
-"nous collectons, utilisons et protégeons vos informations."
-msgstr ""
-"خصوصيتك هي أولويتنا. توضح هذه السياسة كيف نجمع ونستخدم ونحمي معلوماتك."
+"Votre confidentialité est notre priorité. Cette politique explique "
+"comment nous collectons, utilisons et protégeons vos informations."
+msgstr "خصوصيتك هي أولويتنا. توضح هذه السياسة كيف نجمع ونستخدم ونحمي معلوماتك."
 
 #: templates/legal/privacy.html:9
 msgid "Engagement de confidentialité :"
@@ -4528,9 +4533,9 @@ msgstr "الخصوصية"
 
 #: templates/legal/privacy.html:10
 msgid ""
-"Nous ne stockons jamais le contenu de vos fichiers PDF. Tous les traitements"
-" sont effectués en mémoire vive et les fichiers sont supprimés immédiatement"
-" après traitement."
+"Nous ne stockons jamais le contenu de vos fichiers PDF. Tous les "
+"traitements sont effectués en mémoire vive et les fichiers sont supprimés"
+" immédiatement après traitement."
 msgstr ""
 "لا نقوم أبداً بتخزين محتوى ملفات PDF الخاصة بك. تتم جميع المعالجات في "
 "الذاكرة ويتم حذف الملفات فوراً بعد المعالجة."
@@ -4545,7 +4550,8 @@ msgstr "بيانات تقنية"
 
 #: templates/legal/privacy.html:15
 msgid ""
-"Nous collectons des données techniques anonymes pour améliorer le service :"
+"Nous collectons des données techniques anonymes pour améliorer le service"
+" :"
 msgstr "نجمع بيانات تقنية مجهولة المصدر لتحسين الخدمة :"
 
 #: templates/legal/privacy.html:17
@@ -4595,16 +4601,16 @@ msgstr "الإعلانات — Google AdSense"
 #: templates/legal/privacy.html:31
 #, python-format
 msgid ""
-"Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour "
-"afficher des publicités pertinentes."
+"Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour"
+" afficher des publicités pertinentes."
 msgstr ""
-"Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour "
-"afficher des publicités pertinentes."
+"Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour"
+" afficher des publicités pertinentes."
 
 #: templates/legal/privacy.html:32
 msgid ""
-"Google utilise des cookies pour personnaliser les annonces en fonction de "
-"votre navigation sur ce site et d'autres sites web."
+"Google utilise des cookies pour personnaliser les annonces en fonction de"
+" votre navigation sur ce site et d'autres sites web."
 msgstr ""
 "يستخدم Google ملفات تعريف الارتباط لتخصيص الإعلانات بناءً على تصفحك لهذا "
 "الموقع ومواقع الويب الأخرى."
@@ -4623,8 +4629,8 @@ msgstr "حقوقك (بموجب اللائحة العامة لحماية البي
 
 #: templates/legal/privacy.html:36
 msgid ""
-"Conformément au Règlement Général sur la Protection des Données (RGPD), vous"
-" disposez des droits suivants :"
+"Conformément au Règlement Général sur la Protection des Données (RGPD), "
+"vous disposez des droits suivants :"
 msgstr "وفقاً للائحة العامة لحماية البيانات (RGPD)، لديك الحقوق التالية :"
 
 #: templates/legal/privacy.html:38
@@ -4662,11 +4668,11 @@ msgstr "أمان البيانات"
 #: templates/legal/privacy.html:50
 msgid ""
 "Nous mettons en œuvre des mesures de sécurité techniques et "
-"organisationnelles appropriées pour protéger vos données contre tout accès "
-"non autorisé, altération ou destruction."
+"organisationnelles appropriées pour protéger vos données contre tout "
+"accès non autorisé, altération ou destruction."
 msgstr ""
-"نقوم بتنفيذ إجراءات أمنية تقنية وتنظيمية مناسبة لحماية بياناتك من أي وصول أو"
-" تغيير أو تدمير غير مصرح به."
+"نقوم بتنفيذ إجراءات أمنية تقنية وتنظيمية مناسبة لحماية بياناتك من أي وصول"
+" أو تغيير أو تدمير غير مصرح به."
 
 #: templates/legal/terms.html:4
 msgid "Acceptation des conditions"
@@ -4678,8 +4684,8 @@ msgid ""
 "En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
 "réserve les présentes conditions d'utilisation."
 msgstr ""
-"باستخدامك لخدمة %(app_name)s، فإنك توافق بشكل كامل وبدون أي تحفظ على شروط "
-"الاستخدام الحالية."
+"باستخدامك لخدمة %(app_name)s، فإنك توافق بشكل كامل وبدون أي تحفظ على شروط"
+" الاستخدام الحالية."
 
 #: templates/legal/terms.html:9
 msgid "Avertissement important :"
@@ -4698,8 +4704,7 @@ msgid "Usage autorisé"
 msgstr "الاستخدام المسموح"
 
 #: templates/legal/terms.html:14
-msgid ""
-"Vous vous engagez à utiliser le service de manière responsable et légale :"
+msgid "Vous vous engagez à utiliser le service de manière responsable et légale :"
 msgstr "أنت تتعهد باستخدام الخدمة بمسؤولية وقانونية :"
 
 #: templates/legal/terms.html:16
@@ -4708,8 +4713,8 @@ msgstr "المحظورات"
 
 #: templates/legal/terms.html:18
 msgid ""
-"Téléverser des fichiers contenant des données illicites ou protégés par des "
-"droits d'auteur sans autorisation"
+"Téléverser des fichiers contenant des données illicites ou protégés par "
+"des droits d'auteur sans autorisation"
 msgstr "تحميل ملفات تحتوي على بيانات غير قانونية أو محمية بحقوق النشر دون إذن"
 
 #: templates/legal/terms.html:19
@@ -4725,8 +4730,7 @@ msgid "Surcharger délibérément le service (attaques DoS/DDoS)"
 msgstr "زيادة تحميل الخدمة عمداً (هجمات DoS/DDoS)"
 
 #: templates/legal/terms.html:22
-msgid ""
-"Réutiliser le contenu du service à des fins commerciales sans autorisation"
+msgid "Réutiliser le contenu du service à des fins commerciales sans autorisation"
 msgstr "إعادة استخدام محتوى الخدمة لأغراض تجارية دون إذن"
 
 #: templates/legal/terms.html:25
@@ -4755,10 +4759,11 @@ msgid ""
 "compris, mais sans s'y limiter, les garanties de qualité marchande, "
 "d'adéquation à un usage particulier et de non-contrefaçon."
 msgstr ""
-"يتم تقديم الخدمة بدون أي ضمان، صريح أو ضمني، بما في ذلك على سبيل المثال لا "
-"الحصر، ضمانات القابلية للتسويق، الملاءمة لغرض معين وعدم الانتهاك."
+"يتم تقديم الخدمة بدون أي ضمان، صريح أو ضمني، بما في ذلك على سبيل المثال "
+"لا الحصر، ضمانات القابلية للتسويق، الملاءمة لغرض معين وعدم الانتهاك."
 
 #: templates/legal/terms.html:34
+#, python-format
 msgid "En aucun cas, %(developer_name)s ne pourra être tenu responsable :"
 msgstr "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
 
@@ -4784,8 +4789,8 @@ msgstr "تعديلات الشروط"
 
 #: templates/legal/terms.html:42
 msgid ""
-"Nous nous réservons le droit de modifier ces conditions d'utilisation à tout"
-" moment."
+"Nous nous réservons le droit de modifier ces conditions d'utilisation à "
+"tout moment."
 msgstr "نحن نحتفظ بالحق في تعديل شروط الاستخدام هذه في أي وقت."
 
 #: templates/legal/terms.html:43
@@ -4863,25 +4868,27 @@ msgid "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
 msgstr "الرئيسية - بي دي إف فيوجن برو – أدوات بي دي إف مجانية"
 
 #: templates/pdf/index.html:5
+#, python-format
 msgid ""
 "Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, "
-"compresser et convertir des fichiers PDF. 100%% gratuit, sécurisé et sans "
-"inscription."
+"compresser et convertir des fichiers PDF. 100%% gratuit, sécurisé et sans"
+" inscription."
 msgstr ""
-"جميع أدوات بي دي إف في مكان واحد: دمج، تقسيم، تدوير، ضغط وتحويل ملفات بي دي "
-"إف. 100% مجاني، آمن وبدون تسجيل."
+"جميع أدوات بي دي إف في مكان واحد: دمج، تقسيم، تدوير، ضغط وتحويل ملفات بي "
+"دي إف. 100% مجاني، آمن وبدون تسجيل."
 
 #: templates/pdf/index.html:10
 msgid "Transformez vos PDFs en toute simplicité"
 msgstr "حول ملفات بي دي إف الخاصة بك بكل سهولة"
 
 #: templates/pdf/index.html:12
+#, python-format
 msgid ""
 "Outil PDF tout-en-un : fusion, division, rotation, compression et "
 "conversion. Rapide, sécurisé et 100%% gratuit."
 msgstr ""
-"أدوات بي دي إف مجانية لدمج وتقسيم وضغط وتحويل ملفاتك عبر الإنترنت. سريع وآمن"
-" وبدون تثبيت."
+"أدوات بي دي إف مجانية لدمج وتقسيم وضغط وتحويل ملفاتك عبر الإنترنت. سريع "
+"وآمن وبدون تثبيت."
 
 #: templates/pdf/index.html:13
 msgid ""
@@ -4955,8 +4962,8 @@ msgstr "محول شامل"
 
 #: templates/pdf/index.html:98
 msgid ""
-"Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et vice-"
-"versa"
+"Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et "
+"vice-versa"
 msgstr "قم بتحويل ملفات وورد وإكسل وباوربوينت والصور إلى بي دي إف والعكس"
 
 #: templates/pdf/index.html:114
@@ -4988,14 +4995,15 @@ msgstr "حل PDF الشامل الخاص بك، 100%% مجاني وآمن"
 msgid ""
 "PDF Fusion Pro est la plateforme idéale pour tous vos besoins en "
 "manipulation de fichiers PDF. Que vous ayez besoin de <strong>fusionner "
-"plusieurs documents</strong>, <strong>diviser un PDF volumineux</strong>, "
-"<strong>tourner des pages mal orientées</strong> ou <strong>compresser des "
-"fichiers pour les partager</strong>, nos outils sont là pour vous aider."
+"plusieurs documents</strong>, <strong>diviser un PDF volumineux</strong>,"
+" <strong>tourner des pages mal orientées</strong> ou <strong>compresser "
+"des fichiers pour les partager</strong>, nos outils sont là pour vous "
+"aider."
 msgstr ""
-"بي دي إف فيوجن برو هي المنصة المثالية لجميع احتياجاتك في معالجة ملفات بي دي "
-"إف. سواء كنت بحاجة إلى <strong>دمج عدة مستندات</strong>، <strong>تقسيم بي دي"
-" إف كبير</strong>، <strong>تدوير صفحات غير متناسقة</strong> أو <strong>ضغط "
-"ملفات للمشاركة</strong>، فإن أدواتنا موجودة لمساعدتك."
+"بي دي إف فيوجن برو هي المنصة المثالية لجميع احتياجاتك في معالجة ملفات بي "
+"دي إف. سواء كنت بحاجة إلى <strong>دمج عدة مستندات</strong>، <strong>تقسيم"
+" بي دي إف كبير</strong>، <strong>تدوير صفحات غير متناسقة</strong> أو "
+"<strong>ضغط ملفات للمشاركة</strong>، فإن أدواتنا موجودة لمساعدتك."
 
 #: templates/pdf/index.html:150
 msgid "Aucune inscription requise"
@@ -5259,8 +5267,9 @@ msgstr "تقسيم بي دي إف"
 #~ msgstr "إخفاء محتوى PDF"
 
 #~ msgid ""
-#~ "Supprimez définitivement et en toute sécurité le contenu sensible de votre "
-#~ "PDF"
+#~ "Supprimez définitivement et en toute "
+#~ "sécurité le contenu sensible de votre"
+#~ " PDF"
 #~ msgstr "قم بإزالة المحتوى الحساس من ملف PDF الخاص بك بشكل دائم وآمن"
 
 #~ msgid "Éditer PDF"
@@ -5279,11 +5288,12 @@ msgstr "تقسيم بي دي إف"
 #~ msgstr "إعداد نموذج PDF"
 
 #~ msgid ""
-#~ "Transformez vos documents Word, Excel ou numérisés en formulaires PDF "
-#~ "interactifs"
+#~ "Transformez vos documents Word, Excel ou"
+#~ " numérisés en formulaires PDF interactifs"
 #~ msgstr ""
-#~ "قم بتحويل مستندات Word أو Excel أو المستندات الممسوحة ضوئياً إلى نماذج PDF "
-#~ "تفاعلية"
+#~ "قم بتحويل مستندات Word أو Excel أو"
+#~ " المستندات الممسوحة ضوئياً إلى نماذج "
+#~ "PDF تفاعلية"
 
 #~ msgid "PDF Formulaire"
 #~ msgstr "نموذج PDF"
@@ -5382,26 +5392,36 @@ msgstr "تقسيم بي دي إف"
 #~ msgstr "دمج ملفات بي دي إف"
 
 #~ msgid ""
-#~ "Le document a été converti avec succès. La mise en page a été préservée et "
-#~ "le texte est maintenant entièrement modifiable dans Microsoft Word, "
-#~ "LibreOffice ou Google Docs."
+#~ "Le document a été converti avec "
+#~ "succès. La mise en page a été "
+#~ "préservée et le texte est maintenant "
+#~ "entièrement modifiable dans Microsoft Word,"
+#~ " LibreOffice ou Google Docs."
 #~ msgstr ""
-#~ "تم تحويل المستند بنجاح. تم الحفاظ على التخطيط وأصبح النص الآن قابلاً للتعديل"
-#~ " بالكامل في Microsoft Word أو LibreOffice أو Google Docs."
+#~ "تم تحويل المستند بنجاح. تم الحفاظ "
+#~ "على التخطيط وأصبح النص الآن قابلاً "
+#~ "للتعديل بالكامل في Microsoft Word أو "
+#~ "LibreOffice أو Google Docs."
 
 #~ msgid ""
-#~ "La conversion a conservé la structure du document original, y compris les "
-#~ "titres, les paragraphes et la mise en forme du texte."
+#~ "La conversion a conservé la structure"
+#~ " du document original, y compris les"
+#~ " titres, les paragraphes et la mise"
+#~ " en forme du texte."
 #~ msgstr ""
-#~ "حافظ التحويل على هيكل المستند الأصلي، بما في ذلك العناوين والفقرات وتنسيق "
-#~ "النص."
+#~ "حافظ التحويل على هيكل المستند الأصلي،"
+#~ " بما في ذلك العناوين والفقرات وتنسيق"
+#~ " النص."
 
 #~ msgid ""
-#~ "Les tableaux ont été détectés et convertis en tableaux Word modifiables. Les"
-#~ " images ont été intégrées au document final."
+#~ "Les tableaux ont été détectés et "
+#~ "convertis en tableaux Word modifiables. "
+#~ "Les images ont été intégrées au "
+#~ "document final."
 #~ msgstr ""
-#~ "تم كشف الجداول وتحويلها إلى جداول Word قابلة للتعديل. تم تضمين الصور في "
-#~ "المستند النهائي."
+#~ "تم كشف الجداول وتحويلها إلى جداول "
+#~ "Word قابلة للتعديل. تم تضمين الصور "
+#~ "في المستند النهائي."
 
 #~ msgid "presentations_converted"
 #~ msgstr "عروض_محولة"
@@ -5423,3 +5443,4 @@ msgstr "تقسيم بي دي إف"
 
 #~ msgid "signed.pdf"
 #~ msgstr "دمج بي دي إف"
+

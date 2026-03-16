@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PDF Fusion Pro 1.0\n"
 "Report-Msgid-Bugs-To: support@pdffusionpro.com\n"
-"POT-Creation-Date: 2026-03-16 15:06+0000\n"
+"POT-Creation-Date: 2026-03-16 17:43+0000\n"
 "PO-Revision-Date: 2026-02-18 10:30+0000\n"
 "Last-Translator: <banousow@gmail.com>\n"
 "Language: ja\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
-#: app.py:413 templates/conversion/index.html:148
+#: app.py:493 templates/conversion/index.html:148
 msgid "Convertisseur de fichiers"
 msgstr "ユニバーサルコンバーター"
 
@@ -231,14 +231,17 @@ msgid "Fichier corrompu ou non-PDF"
 msgstr "ファイルが破損しているか、PDFではありません"
 
 #: blueprints/pdf/routes.py:117
+#, python-format
 msgid "%(filename)s n'est pas un PDF"
 msgstr "%%(filename)s n'est pas un PDF"
 
 #: blueprints/pdf/routes.py:127 blueprints/pdf/routes.py:516
+#, python-format
 msgid "%(filename)s est vide"
 msgstr "%%(filename)s est vide"
 
 #: blueprints/pdf/routes.py:130 blueprints/pdf/routes.py:519
+#, python-format
 msgid "%(filename)s est corrompu ou non-PDF"
 msgstr "%%(filename)s est corrompu ou non-PDF"
 
@@ -253,10 +256,12 @@ msgid "Au moins 2 PDF requis"
 msgstr "少なくとも2つのPDFファイルが必要です"
 
 #: blueprints/pdf/routes.py:160
+#, python-format
 msgid "Maximum %(max)d fichiers"
 msgstr "Maximum %%(max)d fichiers"
 
 #: blueprints/pdf/routes.py:176
+#, python-format
 msgid "Fichier %(name)s contient trop de pages"
 msgstr "Fichier %%(name)s contient trop de pages"
 
@@ -610,10 +615,12 @@ msgid "Comment ça marche ?"
 msgstr "使い方"
 
 #: templates/conversion/conversion_base.html:360
+#, python-format
 msgid "Téléchargez votre fichier %(from_format)s."
 msgstr "Téléchargez votre fichier %%(from_format)s."
 
 #: templates/conversion/conversion_base.html:363
+#, python-format
 msgid "Notre système le convertit automatiquement en %(to_format)s."
 msgstr "Notre système le convertit automatiquement en %%(to_format)s."
 
@@ -4407,6 +4414,7 @@ msgid "Hébergement"
 msgstr "ホスティング"
 
 #: templates/legal/legal.html:28
+#, python-format
 msgid ""
 "Ce service est hébergé sur la plateforme %(hosting)s (<a "
 "href=\"https://%(domain)s\" target=\"_blank\">(domain)s</a>)."
@@ -4703,6 +4711,7 @@ msgid ""
 msgstr "本サービスは、商品性、特定目的への適合性、および非侵害の保証を含むがこれらに限定されない、明示または黙示を問わず、いかなる保証もなく提供されます。"
 
 #: templates/legal/terms.html:34
+#, python-format
 msgid "En aucun cas, %(developer_name)s ne pourra être tenu responsable :"
 msgstr "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
 
@@ -4803,6 +4812,7 @@ msgid "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
 msgstr "ホーム - PDF Fusion Pro – 無料PDFツール"
 
 #: templates/pdf/index.html:5
+#, python-format
 msgid ""
 "Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, "
 "compresser et convertir des fichiers PDF. 100%% gratuit, sécurisé et sans"
@@ -4814,6 +4824,7 @@ msgid "Transformez vos PDFs en toute simplicité"
 msgstr "PDFを簡単に変換"
 
 #: templates/pdf/index.html:12
+#, python-format
 msgid ""
 "Outil PDF tout-en-un : fusion, division, rotation, compression et "
 "conversion. Rapide, sécurisé et 100%% gratuit."
