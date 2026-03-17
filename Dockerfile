@@ -82,7 +82,7 @@ RUN echo "🔍 Vérification des fichiers .mo pré-compilés :" && \
     for mo in translations/*/LC_MESSAGES/messages.mo; do \
         size=$(stat -c%s "$mo"); \
         echo "📄 $mo : $size octets"; \
-        if [ "$size" -lt 5000 ]; then \  # 
+        if [ "$size" -lt 5000 ]; then \
             echo "❌ $mo est trop petit ($size octets) — recompilez localement avec : pybabel compile -d translations"; \
             exit 1; \
         fi; \
