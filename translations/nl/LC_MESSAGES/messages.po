@@ -6,15 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PDF Fusion Pro 1.0\n"
 "Report-Msgid-Bugs-To: support@pdffusionpro.com\n"
-"POT-Creation-Date: 2026-03-17 12:38+0000\n"
+"POT-Creation-Date: 2026-03-17 15:01+0000\n"
 "PO-Revision-Date: 2026-02-18 10:45+0000\n"
 "Last-Translator: <banousow@gmail.com>\n"
-"Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
+"Language-Team: Dutch <nl@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.14.0\n"
 
 #: app.py:450 templates/conversion/index.html:104
@@ -147,44 +147,6 @@ msgstr "✅ Contacts.json-bestand opnieuw instellen (was leeg)"
 #: blueprints/admin.py:664
 msgid "✅ Fichier contacts.json créé"
 msgstr "✅ contacts.json-bestand gemaakt"
-
-#: blueprints/legal/routes.py:78 templates/conversion/prepare_form.html:247
-#: templates/legal/contact.html:42
-msgid "Nom complet"
-msgstr "Volledige naam"
-
-#: blueprints/legal/routes.py:82 templates/conversion/prepare_form.html:252
-msgid "Email"
-msgstr "E-mail"
-
-#: blueprints/legal/routes.py:86
-msgid "Téléphone (optionnel)"
-msgstr "Telefoon (optioneel)"
-
-#: blueprints/legal/routes.py:90
-msgid "Sujet"
-msgstr "Onderwerp"
-
-#: blueprints/legal/routes.py:92
-#, fuzzy
-msgid "Signaler un bug"
-msgstr "PDF's samenvoegen"
-
-#: blueprints/legal/routes.py:93
-msgid "Proposer une amélioration"
-msgstr "Stel een verbetering voor"
-
-#: blueprints/legal/routes.py:94
-msgid "Partenariat"
-msgstr "Partnerschap"
-
-#: blueprints/legal/routes.py:95
-msgid "Autre"
-msgstr "Ander"
-
-#: blueprints/legal/routes.py:100
-msgid "Message"
-msgstr "Bericht"
 
 #: blueprints/legal/routes.py:205
 msgid "Veuillez remplir tous les champs obligatoires."
@@ -415,8 +377,7 @@ msgstr "PDF Fusion Pro - Bestandsconverter"
 
 #: templates/base.html:18
 #, fuzzy
-msgid ""
-"Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne"
+msgid "Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne"
 msgstr "Converteer uw PowerPoint-presentaties naar PDF"
 
 #: templates/base.html:229 templates/base.html:402 templates/base.html:429
@@ -560,13 +521,14 @@ msgstr "Over"
 
 #: templates/base.html:403
 msgid ""
-"Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et compressez"
-" vos fichiers PDF."
+"Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et "
+"compressez vos fichiers PDF."
 msgstr ""
 
 #: templates/base.html:404
 msgid ""
-"Vos fichiers sont traités de manière sécurisée et supprimés automatiquement."
+"Vos fichiers sont traités de manière sécurisée et supprimés "
+"automatiquement."
 msgstr ""
 
 #: templates/base.html:407
@@ -948,8 +910,7 @@ msgstr "Toe te voegen tekst:"
 msgid "Saisissez votre texte ici..."
 msgstr "Vul hier uw tekst in..."
 
-#: templates/conversion/edit_pdf.html:63
-#: templates/conversion/edit_pdf.html:120
+#: templates/conversion/edit_pdf.html:63 templates/conversion/edit_pdf.html:120
 msgid "Page d'insertion :"
 msgstr "Pagina invoegen:"
 
@@ -957,8 +918,7 @@ msgstr "Pagina invoegen:"
 msgid "Position :"
 msgstr "Positie:"
 
-#: templates/conversion/edit_pdf.html:78
-#: templates/conversion/edit_pdf.html:124
+#: templates/conversion/edit_pdf.html:78 templates/conversion/edit_pdf.html:124
 #: templates/conversion/sign_pdf.html:105
 #: templates/conversion/txt_to_pdf.html:63
 msgid "Taille :"
@@ -1537,7 +1497,8 @@ msgstr "Sleep uw afbeeldingen hierheen"
 
 #: templates/conversion/image_to_pdf.html:26
 msgid ""
-"Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par fichier)"
+"Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par "
+"fichier)"
 msgstr ""
 
 #: templates/conversion/image_to_pdf.html:49
@@ -1822,8 +1783,8 @@ msgstr "Transformeer uw documenten in alle formaten, gratis en online"
 
 #: templates/conversion/index.html:112
 msgid ""
-"Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple, "
-"rapide et sécurisé."
+"Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple,"
+" rapide et sécurisé."
 msgstr ""
 
 #: templates/conversion/index.html:118
@@ -1902,8 +1863,7 @@ msgstr "Start de conversie"
 msgid "Téléchargez votre fichier converti"
 msgstr "Download uw geconverteerde bestand"
 
-#: templates/conversion/index.html:267
-#: templates/conversion/protect_pdf.html:75
+#: templates/conversion/index.html:267 templates/conversion/protect_pdf.html:75
 msgid "Important :"
 msgstr "Belangrijk:"
 
@@ -1937,8 +1897,9 @@ msgstr "Zijn de bestanden veilig?"
 
 #: templates/conversion/index.html:311
 msgid ""
-"Oui, tous les fichiers sont traités localement et automatiquement supprimés "
-"après 1 heure. Nous ne stockons jamais vos documents sur nos serveurs."
+"Oui, tous les fichiers sont traités localement et automatiquement "
+"supprimés après 1 heure. Nous ne stockons jamais vos documents sur nos "
+"serveurs."
 msgstr ""
 
 #: templates/conversion/index.html:321
@@ -1967,8 +1928,8 @@ msgstr "Welke formaten worden ondersteund?"
 
 #: templates/conversion/index.html:350
 msgid ""
-"Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, "
-"JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore."
+"Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, "
+"PPTX, JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore."
 msgstr ""
 
 #: templates/conversion/jpg_to_pdf.html:10
@@ -2012,8 +1973,8 @@ msgstr "Universele converter"
 
 #: templates/conversion/pdf_to_doc.html:11
 msgid ""
-"Transformez vos documents PDF en format Word compatible avec les anciennes "
-"versions"
+"Transformez vos documents PDF en format Word compatible avec les "
+"anciennes versions"
 msgstr ""
 
 #: templates/conversion/pdf_to_doc.html:26
@@ -2236,8 +2197,8 @@ msgstr "Intelligente extractie:"
 
 #: templates/conversion/pdf_to_excel.html:86
 msgid ""
-"Les tableaux seront automatiquement détectés et convertis en feuilles Excel."
-" L'OCR permet de reconnaître le texte dans les documents scannés."
+"Les tableaux seront automatiquement détectés et convertis en feuilles "
+"Excel. L'OCR permet de reconnaître le texte dans les documents scannés."
 msgstr ""
 
 #: templates/conversion/pdf_to_excel.html:93
@@ -2428,8 +2389,9 @@ msgid "Qualité (pour JPG)"
 msgstr "Kwaliteit (voor JPG)"
 
 #: templates/conversion/pdf_to_image.html:64
+#, fuzzy
 msgid "Haute (90-100%)"
-msgstr "Hoog (90-100%%)"
+msgstr "Hoog (90-100 %%)"
 
 #: templates/conversion/pdf_to_image.html:65
 msgid "Moyenne (70-80%)"
@@ -2525,8 +2487,8 @@ msgstr "Converteer uw PDF naar archiefformaat"
 
 #: templates/conversion/pdf_to_pdfa.html:11
 msgid ""
-"Le format PDF/A garantit la pérennité de vos documents pour l'archivage à "
-"long terme"
+"Le format PDF/A garantit la pérennité de vos documents pour l'archivage à"
+" long terme"
 msgstr ""
 
 #: templates/conversion/pdf_to_pdfa.html:37
@@ -2585,9 +2547,9 @@ msgstr "Wat is PDF/A-formaat?"
 
 #: templates/conversion/pdf_to_pdfa.html:63
 msgid ""
-"Le PDF/A est une version standardisée du PDF conçue pour l'archivage à long "
-"terme. Il garantit que votre document sera exactement le même dans 10, 20 ou"
-" 50 ans, indépendamment des logiciels utilisés."
+"Le PDF/A est une version standardisée du PDF conçue pour l'archivage à "
+"long terme. Il garantit que votre document sera exactement le même dans "
+"10, 20 ou 50 ans, indépendamment des logiciels utilisés."
 msgstr ""
 
 #: templates/conversion/pdf_to_pdfa.html:70 templates/legal/contact.html:33
@@ -2596,9 +2558,9 @@ msgstr "Waarschuwing:"
 
 #: templates/conversion/pdf_to_pdfa.html:70
 msgid ""
-"La conversion en PDF/A peut modifier légèrement l'apparence du document pour"
-" garantir sa pérennité. Les fonctionnalités interactives (formulaires, "
-"JavaScript) seront supprimées."
+"La conversion en PDF/A peut modifier légèrement l'apparence du document "
+"pour garantir sa pérennité. Les fonctionnalités interactives "
+"(formulaires, JavaScript) seront supprimées."
 msgstr ""
 
 #: templates/conversion/pdf_to_pdfa.html:80
@@ -2929,8 +2891,8 @@ msgstr "Word-formaat:"
 
 #: templates/conversion/pdf_to_word.html:90
 msgid ""
-"Le fichier généré est au format DOCX, compatible avec Microsoft Word 2007 et"
-" versions ultérieures, ainsi qu'avec LibreOffice et Google Docs."
+"Le fichier généré est au format DOCX, compatible avec Microsoft Word 2007"
+" et versions ultérieures, ainsi qu'avec LibreOffice et Google Docs."
 msgstr ""
 
 #: templates/conversion/pdf_to_word.html:97
@@ -2970,9 +2932,9 @@ msgstr "Voorbeeld van geëxtraheerde tekst"
 #: templates/conversion/pdf_to_word.html:218
 msgid ""
 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod "
-"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,"
-" quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo "
-"consequat."
+"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim "
+"veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
+"commodo consequat."
 msgstr ""
 
 #: templates/conversion/pdf_to_word.html:281
@@ -2998,16 +2960,14 @@ msgstr "Converteer uw PowerPoint-presentaties naar PDF"
 
 #: templates/conversion/powerpoint_to_pdf.html:11
 msgid "Transformez vos fichiers PPT/PPTX en documents PDF faciles à partager"
-msgstr ""
-"Transformeer uw PPT/PPTX-bestanden in eenvoudig te delen PDF-documenten"
+msgstr "Transformeer uw PPT/PPTX-bestanden in eenvoudig te delen PDF-documenten"
 
 #: templates/conversion/powerpoint_to_pdf.html:21
 msgid "Glissez-déposez vos fichiers PowerPoint ici"
 msgstr "Sleep uw PowerPoint-bestanden hier"
 
 #: templates/conversion/powerpoint_to_pdf.html:26
-msgid ""
-"Formats acceptés : PPT, PPTX (jusqu'à 50MB par fichier, 5 fichiers max)"
+msgid "Formats acceptés : PPT, PPTX (jusqu'à 50MB par fichier, 5 fichiers max)"
 msgstr ""
 "Geaccepteerde formaten: PPT, PPTX (tot 50 MB per bestand, maximaal 5 "
 "bestanden)"
@@ -3072,8 +3032,8 @@ msgstr "PDF-formaat:"
 
 #: templates/conversion/powerpoint_to_pdf.html:83
 msgid ""
-"Compatible avec tous les lecteurs PDF. Les animations et transitions ne sont"
-" pas conservées dans le PDF."
+"Compatible avec tous les lecteurs PDF. Les animations et transitions ne "
+"sont pas conservées dans le PDF."
 msgstr ""
 
 #: templates/conversion/powerpoint_to_pdf.html:107
@@ -3291,6 +3251,10 @@ msgstr "PDF-formulier maken"
 msgid "Veuillez d'abord télécharger un document"
 msgstr "Upload eerst een document"
 
+#: templates/conversion/prepare_form.html:247 templates/legal/contact.html:42
+msgid "Nom complet"
+msgstr "Volledige naam"
+
 #: templates/conversion/prepare_form.html:248
 msgid "Prénom"
 msgstr "Voornaam"
@@ -3306,6 +3270,10 @@ msgstr "Postcode"
 #: templates/conversion/prepare_form.html:251
 msgid "Ville"
 msgstr "Stad"
+
+#: templates/conversion/prepare_form.html:252
+msgid "Email"
+msgstr "E-mail"
 
 #: templates/conversion/prepare_form.html:253
 msgid "Téléphone"
@@ -3442,8 +3410,8 @@ msgstr "Afdrukken en bewerken"
 
 #: templates/conversion/protect_pdf.html:76
 msgid ""
-"Notez bien votre mot de passe. Il n'y a aucun moyen de le récupérer en cas "
-"d'oubli."
+"Notez bien votre mot de passe. Il n'y a aucun moyen de le récupérer en "
+"cas d'oubli."
 msgstr ""
 
 #: templates/conversion/protect_pdf.html:81
@@ -3521,8 +3489,8 @@ msgstr "geheim"
 
 #: templates/conversion/redact_pdf.html:87
 msgid ""
-"Après avoir chargé votre PDF, vous pourrez dessiner des zones à caviarder "
-"sur l'aperçu."
+"Après avoir chargé votre PDF, vous pourrez dessiner des zones à caviarder"
+" sur l'aperçu."
 msgstr ""
 
 #: templates/conversion/redact_pdf.html:96
@@ -3786,7 +3754,8 @@ msgstr "Sleep uw handtekening hier"
 #: templates/conversion/sign_pdf.html:127
 msgid "Formats acceptés : PNG, JPG, GIF (fond transparent recommandé)"
 msgstr ""
-"Geaccepteerde formaten: PNG, JPG, GIF (transparante achtergrond aanbevolen)"
+"Geaccepteerde formaten: PNG, JPG, GIF (transparante achtergrond "
+"aanbevolen)"
 
 #: templates/conversion/sign_pdf.html:137 templates/errors/500.html:154
 msgid "Page :"
@@ -3942,7 +3911,8 @@ msgstr "Opmerking:"
 
 #: templates/conversion/unlock_pdf.html:48
 msgid ""
-"Cette opération ne fonctionne que si vous connaissez le mot de passe du PDF."
+"Cette opération ne fonctionne que si vous connaissez le mot de passe du "
+"PDF."
 msgstr ""
 
 #: templates/conversion/unlock_pdf.html:53
@@ -3965,8 +3935,7 @@ msgid "Convertissez votre document Word en PDF"
 msgstr "Converteer uw Word-document naar PDF"
 
 #: templates/conversion/word_to_pdf.html:11
-msgid ""
-"Transformez vos fichiers DOC/DOCX en PDF avec une mise en page préservée"
+msgid "Transformez vos fichiers DOC/DOCX en PDF avec une mise en page préservée"
 msgstr "Transformeer uw DOC/DOCX-bestanden naar PDF met behouden lay-out"
 
 #: templates/conversion/word_to_pdf.html:21
@@ -4097,8 +4066,8 @@ msgstr "Alle rechten"
 
 #: templates/conversion/word_to_pdf.html:150
 msgid ""
-"Compatible avec tous les lecteurs PDF. Les polices sont intégrées pour une "
-"reproduction fidèle."
+"Compatible avec tous les lecteurs PDF. Les polices sont intégrées pour "
+"une reproduction fidèle."
 msgstr ""
 
 #: templates/conversion/word_to_pdf.html:174
@@ -4220,10 +4189,10 @@ msgid "Fichier trop volumineux - PDF Fusion Pro"
 msgstr "Bestand te groot - PDF Fusion Pro"
 
 #: templates/errors/413.html:120
-msgid ""
-"Le fichier que vous avez tenté de télécharger dépasse la limite autorisée."
+msgid "Le fichier que vous avez tenté de télécharger dépasse la limite autorisée."
 msgstr ""
-"Het bestand dat u probeert te downloaden overschrijdt de toegestane limiet."
+"Het bestand dat u probeert te downloaden overschrijdt de toegestane "
+"limiet."
 
 #: templates/errors/413.html:124
 msgid "Limite : 50 Mo maximum"
@@ -4259,8 +4228,8 @@ msgstr "Interne serverfout"
 
 #: templates/errors/500.html:145
 msgid ""
-"Désolé, une erreur inattendue s'est produite. Notre équipe technique a été "
-"informée."
+"Désolé, une erreur inattendue s'est produite. Notre équipe technique a "
+"été informée."
 msgstr ""
 
 #: templates/errors/500.html:150
@@ -4286,8 +4255,8 @@ msgstr "Hulp nodig?"
 #: templates/errors/500.html:166
 msgid "Si le problème persiste, n'hésitez pas à nous contacter."
 msgstr ""
-"Als het probleem zich blijft voordoen, aarzel dan niet om contact met ons op"
-" te nemen."
+"Als het probleem zich blijft voordoen, aarzel dan niet om contact met ons"
+" op te nemen."
 
 #: templates/errors/500.html:176
 msgid "Nous contacter"
@@ -4309,8 +4278,8 @@ msgstr "Onze missie"
 
 #: templates/legal/about.html:12
 msgid ""
-"Offrir un outil PDF en ligne performant, intuitif et respectueux de votre "
-"vie privée."
+"Offrir un outil PDF en ligne performant, intuitif et respectueux de votre"
+" vie privée."
 msgstr ""
 
 #: templates/legal/about.html:16
@@ -4332,7 +4301,8 @@ msgstr "Roteer specifieke pagina's of het hele document."
 #: templates/legal/about.html:62
 msgid "Réduisez la taille de vos fichiers PDF sans perte de qualité notable."
 msgstr ""
-"Verklein de grootte van uw PDF-bestanden zonder merkbaar kwaliteitsverlies."
+"Verklein de grootte van uw PDF-bestanden zonder merkbaar "
+"kwaliteitsverlies."
 
 #: templates/legal/about.html:68
 msgid "Nos engagements"
@@ -4344,8 +4314,8 @@ msgstr "Beveiliging"
 
 #: templates/legal/about.html:71
 msgid ""
-"Tous les traitements sont effectués en mémoire. Aucun fichier n'est stocké "
-"sur nos serveurs."
+"Tous les traitements sont effectués en mémoire. Aucun fichier n'est "
+"stocké sur nos serveurs."
 msgstr ""
 
 #: templates/legal/about.html:73
@@ -4354,8 +4324,7 @@ msgstr "Prestatie"
 
 #: templates/legal/about.html:74
 msgid "Interface optimisée pour une expérience utilisateur fluide et rapide."
-msgstr ""
-"Interface geoptimaliseerd voor een soepele en snelle gebruikerservaring."
+msgstr "Interface geoptimaliseerd voor een soepele en snelle gebruikerservaring."
 
 #: templates/legal/about.html:77
 msgid ""
@@ -4403,8 +4372,8 @@ msgstr "Contactformulier:"
 
 #: templates/legal/contact.html:7
 msgid ""
-"Utilisez ce formulaire pour nous contacter directement. Nous vous répondrons"
-" dans les meilleurs délais."
+"Utilisez ce formulaire pour nous contacter directement. Nous vous "
+"répondrons dans les meilleurs délais."
 msgstr ""
 
 #: templates/legal/contact.html:10
@@ -4413,8 +4382,8 @@ msgstr "Contactformulier"
 
 #: templates/legal/contact.html:11
 msgid ""
-"Remplissez ce formulaire pour nous contacter. Tous les champs marqués d'un "
-"astérisque (*) sont obligatoires."
+"Remplissez ce formulaire pour nous contacter. Tous les champs marqués "
+"d'un astérisque (*) sont obligatoires."
 msgstr ""
 
 #: templates/legal/contact.html:16
@@ -4562,8 +4531,8 @@ msgstr ""
 
 #: templates/legal/legal.html:34
 msgid ""
-"Toute reproduction, modification, distribution ou exploitation non autorisée"
-" est strictement interdite."
+"Toute reproduction, modification, distribution ou exploitation non "
+"autorisée est strictement interdite."
 msgstr ""
 
 #: templates/legal/legal.html:36
@@ -4572,8 +4541,8 @@ msgstr "Verantwoordelijkheid"
 
 #: templates/legal/legal.html:37
 msgid ""
-"L'utilisateur reste l'unique responsable des fichiers PDF qu'il téléverse et"
-" traite via ce service."
+"L'utilisateur reste l'unique responsable des fichiers PDF qu'il téléverse"
+" et traite via ce service."
 msgstr ""
 
 #: templates/legal/legal.html:38
@@ -4588,8 +4557,8 @@ msgstr "Beschikbaarheid van de dienst"
 
 #: templates/legal/legal.html:41
 msgid ""
-"Nous nous efforçons d'assurer une disponibilité continue du service, mais ne"
-" pouvons garantir un fonctionnement ininterrompu."
+"Nous nous efforçons d'assurer une disponibilité continue du service, mais"
+" ne pouvons garantir un fonctionnement ininterrompu."
 msgstr ""
 
 #: templates/legal/legal.html:42
@@ -4604,8 +4573,8 @@ msgstr "Respect voor uw privacy"
 
 #: templates/legal/privacy.html:5
 msgid ""
-"Votre confidentialité est notre priorité. Cette politique explique comment "
-"nous collectons, utilisons et protégeons vos informations."
+"Votre confidentialité est notre priorité. Cette politique explique "
+"comment nous collectons, utilisons et protégeons vos informations."
 msgstr ""
 
 #: templates/legal/privacy.html:9
@@ -4614,9 +4583,9 @@ msgstr "Vertrouwelijkheidsverplichting:"
 
 #: templates/legal/privacy.html:10
 msgid ""
-"Nous ne stockons jamais le contenu de vos fichiers PDF. Tous les traitements"
-" sont effectués en mémoire vive et les fichiers sont supprimés immédiatement"
-" après traitement."
+"Nous ne stockons jamais le contenu de vos fichiers PDF. Tous les "
+"traitements sont effectués en mémoire vive et les fichiers sont supprimés"
+" immédiatement après traitement."
 msgstr ""
 
 #: templates/legal/privacy.html:13
@@ -4629,13 +4598,13 @@ msgstr "Technische gegevens"
 
 #: templates/legal/privacy.html:15
 msgid ""
-"Nous collectons des données techniques anonymes pour améliorer le service :"
+"Nous collectons des données techniques anonymes pour améliorer le service"
+" :"
 msgstr ""
 
 #: templates/legal/privacy.html:17
 msgid "Type d'opération effectuée (fusion, division, rotation, compression)"
-msgstr ""
-"Type uitgevoerde bewerking (samenvoegen, splitsen, roteren, comprimeren)"
+msgstr "Type uitgevoerde bewerking (samenvoegen, splitsen, roteren, comprimeren)"
 
 #: templates/legal/privacy.html:18
 msgid "Nombre de pages traitées"
@@ -4680,14 +4649,14 @@ msgstr "Adverteren — Google AdSense"
 #: templates/legal/privacy.html:31
 #, python-format
 msgid ""
-"Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour "
-"afficher des publicités pertinentes."
+"Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour"
+" afficher des publicités pertinentes."
 msgstr ""
 
 #: templates/legal/privacy.html:32
 msgid ""
-"Google utilise des cookies pour personnaliser les annonces en fonction de "
-"votre navigation sur ce site et d'autres sites web."
+"Google utilise des cookies pour personnaliser les annonces en fonction de"
+" votre navigation sur ce site et d'autres sites web."
 msgstr ""
 
 #: templates/legal/privacy.html:33
@@ -4704,8 +4673,8 @@ msgstr "Uw rechten (AVG)"
 
 #: templates/legal/privacy.html:36
 msgid ""
-"Conformément au Règlement Général sur la Protection des Données (RGPD), vous"
-" disposez des droits suivants :"
+"Conformément au Règlement Général sur la Protection des Données (RGPD), "
+"vous disposez des droits suivants :"
 msgstr ""
 
 #: templates/legal/privacy.html:38
@@ -4743,8 +4712,8 @@ msgstr "Gegevensbeveiliging"
 #: templates/legal/privacy.html:50
 msgid ""
 "Nous mettons en œuvre des mesures de sécurité techniques et "
-"organisationnelles appropriées pour protéger vos données contre tout accès "
-"non autorisé, altération ou destruction."
+"organisationnelles appropriées pour protéger vos données contre tout "
+"accès non autorisé, altération ou destruction."
 msgstr ""
 
 #: templates/legal/terms.html:4
@@ -4773,8 +4742,7 @@ msgid "Usage autorisé"
 msgstr "Toegestaan ​​gebruik"
 
 #: templates/legal/terms.html:14
-msgid ""
-"Vous vous engagez à utiliser le service de manière responsable et légale :"
+msgid "Vous vous engagez à utiliser le service de manière responsable et légale :"
 msgstr ""
 "U gaat ermee akkoord de service op verantwoorde en legale wijze te "
 "gebruiken:"
@@ -4785,8 +4753,8 @@ msgstr "Verboden"
 
 #: templates/legal/terms.html:18
 msgid ""
-"Téléverser des fichiers contenant des données illicites ou protégés par des "
-"droits d'auteur sans autorisation"
+"Téléverser des fichiers contenant des données illicites ou protégés par "
+"des droits d'auteur sans autorisation"
 msgstr ""
 
 #: templates/legal/terms.html:19
@@ -4800,11 +4768,11 @@ msgstr "Poging om de beveiligingsmaatregelen van de dienst"
 #: templates/legal/terms.html:21
 msgid "Surcharger délibérément le service (attaques DoS/DDoS)"
 msgstr ""
-"te omzeilen Het opzettelijk overbelasten van de dienst (DoS/DDoS-aanvallen)"
+"te omzeilen Het opzettelijk overbelasten van de dienst (DoS/DDoS-"
+"aanvallen)"
 
 #: templates/legal/terms.html:22
-msgid ""
-"Réutiliser le contenu du service à des fins commerciales sans autorisation"
+msgid "Réutiliser le contenu du service à des fins commerciales sans autorisation"
 msgstr ""
 "Hergebruik inhoud van de dienst voor commerciële doeleinden zonder "
 "toestemming"
@@ -4815,8 +4783,7 @@ msgstr "Obligaties"
 
 #: templates/legal/terms.html:27
 msgid "Respecter les droits de propriété intellectuelle des documents traités"
-msgstr ""
-"Respecteer de intellectuele eigendomsrechten van de verwerkte documenten"
+msgstr "Respecteer de intellectuele eigendomsrechten van de verwerkte documenten"
 
 #: templates/legal/terms.html:28
 msgid "Assurer la confidentialité de vos propres fichiers"
@@ -4855,7 +4822,8 @@ msgstr "Verlies of beschadiging van verwerkte PDF-bestanden"
 #: templates/legal/terms.html:38
 msgid "Des conséquences de l'utilisation des fichiers générés par le service"
 msgstr ""
-"Gevolgen van het gebruik van bestanden die door de service zijn gegenereerd"
+"Gevolgen van het gebruik van bestanden die door de service zijn "
+"gegenereerd"
 
 #: templates/legal/terms.html:41
 msgid "Modifications des conditions"
@@ -4863,8 +4831,8 @@ msgstr "Wijzigingen in de voorwaarden"
 
 #: templates/legal/terms.html:42
 msgid ""
-"Nous nous réservons le droit de modifier ces conditions d'utilisation à tout"
-" moment."
+"Nous nous réservons le droit de modifier ces conditions d'utilisation à "
+"tout moment."
 msgstr ""
 
 #: templates/legal/terms.html:43
@@ -4940,11 +4908,10 @@ msgid "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
 msgstr "Home - PDF Fusion Pro – Gratis PDF-tools"
 
 #: templates/pdf/index.html:5
-#, python-format
 msgid ""
 "Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, "
-"compresser et convertir des fichiers PDF. 100%% gratuit, sécurisé et sans "
-"inscription."
+"compresser et convertir des fichiers PDF. Totalement gratuit, sécurisé et"
+" sans inscription."
 msgstr ""
 
 #: templates/pdf/index.html:10
@@ -4952,10 +4919,9 @@ msgid "Transformez vos PDFs en toute simplicité"
 msgstr "Transformeer uw PDF's eenvoudig"
 
 #: templates/pdf/index.html:12
-#, python-format
 msgid ""
 "Outil PDF tout-en-un : fusion, division, rotation, compression et "
-"conversion. Rapide, sécurisé et 100%% gratuit."
+"conversion. Rapide, sécurisé et entièrement gratuit."
 msgstr ""
 
 #: templates/pdf/index.html:13
@@ -5035,8 +5001,8 @@ msgstr "Universele omvormer"
 #: templates/pdf/index.html:98
 #, fuzzy
 msgid ""
-"Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et vice-"
-"versa"
+"Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et "
+"vice-versa"
 msgstr "Converteer uw PowerPoint-presentaties naar PDF"
 
 #: templates/pdf/index.html:114
@@ -5060,17 +5026,18 @@ msgid "Disponible"
 msgstr "Beschikbaar"
 
 #: templates/pdf/index.html:145
-#, python-format
-msgid "Votre solution PDF tout-en-un, 100%% gratuite et sécurisée"
-msgstr "Uw alles-in-één PDF-oplossing, 100% gratis en veilig"
+#, fuzzy
+msgid "Votre solution PDF tout-en-un, entièrement gratuite et sécurisée"
+msgstr "Uw alles-in-één PDF-oplossing, volledig gratis en veilig"
 
 #: templates/pdf/index.html:147
 msgid ""
 "PDF Fusion Pro est la plateforme idéale pour tous vos besoins en "
 "manipulation de fichiers PDF. Que vous ayez besoin de <strong>fusionner "
-"plusieurs documents</strong>, <strong>diviser un PDF volumineux</strong>, "
-"<strong>tourner des pages mal orientées</strong> ou <strong>compresser des "
-"fichiers pour les partager</strong>, nos outils sont là pour vous aider."
+"plusieurs documents</strong>, <strong>diviser un PDF volumineux</strong>,"
+" <strong>tourner des pages mal orientées</strong> ou <strong>compresser "
+"des fichiers pour les partager</strong>, nos outils sont là pour vous "
+"aider."
 msgstr ""
 
 #: templates/pdf/index.html:150
@@ -5118,8 +5085,7 @@ msgstr "te bladeren PDF roteren - PDF Fusion Pro"
 
 #: templates/pdf/rotate.html:4
 msgid "Corrigez l'orientation de vos fichiers PDF en quelques clics."
-msgstr ""
-"Corrigeer de richting van uw PDF-bestanden met slechts een paar klikken."
+msgstr "Corrigeer de richting van uw PDF-bestanden met slechts een paar klikken."
 
 #: templates/pdf/rotate.html:9
 msgid "Déposez votre fichier PDF et choisissez l'angle de rotation."
@@ -5157,8 +5123,7 @@ msgstr ""
 
 #: templates/pdf/split.html:9
 msgid "Déposez votre fichier PDF et sélectionnez les pages à extraire."
-msgstr ""
-"Zet uw PDF-bestand neer en selecteer de pagina's die u wilt extraheren."
+msgstr "Zet uw PDF-bestand neer en selecteer de pagina's die u wilt extraheren."
 
 #: templates/pdf/split.html:28
 msgid "Pages à extraire"
@@ -5174,10 +5139,6 @@ msgstr ""
 #, fuzzy
 msgid "Diviser le PDF"
 msgstr "PDF splitsen"
-
-#: templates/pdf/index.html:200
-msgid "OCR PDF"
-msgstr "OCR PDF"
 
 #~ msgid "Convertisseur de fichiers"
 #~ msgstr "Universele converter"
@@ -5411,26 +5372,32 @@ msgstr "OCR PDF"
 #~ msgstr "PDF Fusion Pro - Gratis PDF-hulpmiddelen"
 
 #~ msgid ""
-#~ "Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos "
-#~ "fichiers en ligne. Rapide, sécurisé et sans installation."
+#~ "Outils PDF gratuits pour fusionner, "
+#~ "diviser, compresser et convertir vos "
+#~ "fichiers en ligne. Rapide, sécurisé et"
+#~ " sans installation."
 #~ msgstr ""
-#~ "Gratis PDF-hulpmiddelen om uw bestanden online te samenvoegen, splitsen, "
-#~ "comprimeren en converteren. Snel, veilig en zonder installatie."
+#~ "Gratis PDF-hulpmiddelen om uw bestanden"
+#~ " online te samenvoegen, splitsen, "
+#~ "comprimeren en converteren. Snel, veilig "
+#~ "en zonder installatie."
 
 #~ msgid ""
-#~ "PDF, convertisseur, fusionner, diviser, compresser, OCR, Word, Excel, "
-#~ "PowerPoint, image"
+#~ "PDF, convertisseur, fusionner, diviser, "
+#~ "compresser, OCR, Word, Excel, PowerPoint, "
+#~ "image"
 #~ msgstr ""
-#~ "PDF, converter, samenvoegen, splitsen, comprimeren, OCR, Word, Excel, "
-#~ "PowerPoint, afbeelding"
+#~ "PDF, converter, samenvoegen, splitsen, "
+#~ "comprimeren, OCR, Word, Excel, PowerPoint, "
+#~ "afbeelding"
 
 #~ msgid "PDF Fusion Pro - Convertisseur de fichiers"
 #~ msgstr "PDF Fusion Pro - Bestandsconverter"
 
 #~ msgid ""
-#~ "Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne"
-#~ msgstr ""
-#~ "Converteer gratis uw PDF-, Word-, Excel- en afbeeldingsbestanden online"
+#~ "Convertissez gratuitement vos fichiers PDF,"
+#~ " Word, Excel, images en ligne"
+#~ msgstr "Converteer gratis uw PDF-, Word-, Excel- en afbeeldingsbestanden online"
 
 #~ msgid "PDF Fusion Pro"
 #~ msgstr "PDF Fusion Pro"
@@ -5478,14 +5445,17 @@ msgstr "OCR PDF"
 #~ msgstr "Over ons"
 
 #~ msgid ""
-#~ "Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et compressez"
+#~ "Outils PDF gratuits en ligne. "
+#~ "Convertissez, fusionnez, divisez et compressez"
 #~ " vos fichiers PDF."
 #~ msgstr ""
-#~ "Gratis online PDF-tools. Converteer, voeg samen, splits en comprimeer uw "
+#~ "Gratis online PDF-tools. Converteer, "
+#~ "voeg samen, splits en comprimeer uw "
 #~ "PDF-bestanden."
 
 #~ msgid ""
-#~ "Vos fichiers sont traités de manière sécurisée et supprimés automatiquement."
+#~ "Vos fichiers sont traités de manière "
+#~ "sécurisée et supprimés automatiquement."
 #~ msgstr "Uw bestanden worden veilig verwerkt en automatisch verwijderd."
 
 #~ msgid "Outils"
@@ -6028,9 +5998,13 @@ msgstr "OCR PDF"
 #~ msgstr "Sleep uw afbeeldingen hierheen"
 
 #~ msgid ""
-#~ "Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par fichier)"
+#~ "Formats acceptés : JPG, PNG, BMP, "
+#~ "GIF, TIFF, WEBP (jusqu'à 50MB par "
+#~ "fichier)"
 #~ msgstr ""
-#~ "Ondersteunde formaten: JPG, PNG, BMP, GIF, TIFF, WEBP (tot 50MB per bestand)"
+#~ "Ondersteunde formaten: JPG, PNG, BMP, "
+#~ "GIF, TIFF, WEBP (tot 50MB per "
+#~ "bestand)"
 
 #~ msgid "Qualité :"
 #~ msgstr "Kwaliteit:"
@@ -6069,8 +6043,7 @@ msgstr "OCR PDF"
 #~ msgstr "Afbeelding naar PDF"
 
 #~ msgid "Convertissez images et PDF en documents Word éditables avec OCR"
-#~ msgstr ""
-#~ "Converteer afbeeldingen en PDF naar bewerkbare Word-documenten met OCR"
+#~ msgstr "Converteer afbeeldingen en PDF naar bewerkbare Word-documenten met OCR"
 
 #~ msgid "Glissez-déposez vos fichiers ici"
 #~ msgstr "Sleep uw bestanden hierheen"
@@ -6211,11 +6184,13 @@ msgstr "OCR PDF"
 #~ msgstr "Converteer uw documenten naar alle formaten, gratis en online"
 
 #~ msgid ""
-#~ "Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple, "
-#~ "rapide et sécurisé."
+#~ "Convertissez PDF, Word, Excel, PowerPoint, "
+#~ "images et plus encore. Simple, rapide"
+#~ " et sécurisé."
 #~ msgstr ""
-#~ "Converteer uw Word-, Excel-, PowerPoint- en afbeeldingsbestanden naar PDF en"
-#~ " vice versa"
+#~ "Converteer uw Word-, Excel-, PowerPoint- "
+#~ "en afbeeldingsbestanden naar PDF en vice"
+#~ " versa"
 
 #~ msgid "Découvrir les outils"
 #~ msgstr "Ontdek de tools"
@@ -6299,41 +6274,57 @@ msgstr "OCR PDF"
 #~ msgstr "Zijn bestanden veilig?"
 
 #~ msgid ""
-#~ "Oui, tous les fichiers sont traités localement et automatiquement supprimés "
-#~ "après 1 heure. Nous ne stockons jamais vos documents sur nos serveurs."
+#~ "Oui, tous les fichiers sont traités "
+#~ "localement et automatiquement supprimés après"
+#~ " 1 heure. Nous ne stockons jamais "
+#~ "vos documents sur nos serveurs."
 #~ msgstr ""
-#~ "Ja, alle bestanden worden lokaal verwerkt en automatisch na 1 uur "
-#~ "verwijderd. Wij slaan uw documenten nooit op onze servers op."
+#~ "Ja, alle bestanden worden lokaal "
+#~ "verwerkt en automatisch na 1 uur "
+#~ "verwijderd. Wij slaan uw documenten "
+#~ "nooit op onze servers op."
 
 #~ msgid "Quelles sont les limites de taille ?"
 #~ msgstr "Wat zijn de groottebeperkingen?"
 
 #~ msgid ""
-#~ "Taille maximale par fichier : 50MB. Nombre maximum de fichiers par "
-#~ "conversion : variable selon l'outil (de 1 à 20)."
+#~ "Taille maximale par fichier : 50MB. "
+#~ "Nombre maximum de fichiers par "
+#~ "conversion : variable selon l'outil (de"
+#~ " 1 à 20)."
 #~ msgstr ""
-#~ "Maximale bestandsgrootte: 50MB. Maximaal aantal bestanden per conversie: "
-#~ "varieert per tool (van 1 tot 20)."
+#~ "Maximale bestandsgrootte: 50MB. Maximaal "
+#~ "aantal bestanden per conversie: varieert "
+#~ "per tool (van 1 tot 20)."
 
 #~ msgid "Combien de temps dure une conversion ?"
 #~ msgstr "Hoe lang duurt een conversie?"
 
 #~ msgid ""
-#~ "La plupart des conversions prennent moins de 30 secondes. Pour les gros "
-#~ "fichiers ou les conversions complexes (OCR), comptez 1 à 2 minutes."
+#~ "La plupart des conversions prennent "
+#~ "moins de 30 secondes. Pour les "
+#~ "gros fichiers ou les conversions "
+#~ "complexes (OCR), comptez 1 à 2 "
+#~ "minutes."
 #~ msgstr ""
-#~ "De meeste conversies duren minder dan 30 seconden. Voor grote bestanden of "
-#~ "complexe conversies (OCR), rekent u op 1 à 2 minuten."
+#~ "De meeste conversies duren minder dan"
+#~ " 30 seconden. Voor grote bestanden of"
+#~ " complexe conversies (OCR), rekent u "
+#~ "op 1 à 2 minuten."
 
 #~ msgid "Quels formats sont supportés ?"
 #~ msgstr "Welke formaten worden ondersteund?"
 
 #~ msgid ""
-#~ "Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, "
-#~ "JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore."
+#~ "Nous supportons plus de 20 formats "
+#~ ": PDF, DOC, DOCX, XLS, XLSX, PPT,"
+#~ " PPTX, JPG, PNG, GIF, BMP, TIFF, "
+#~ "CSV, et plus encore."
 #~ msgstr ""
-#~ "We ondersteunen meer dan 20 formaten: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, "
-#~ "JPG, PNG, GIF, BMP, TIFF, CSV, en meer."
+#~ "We ondersteunen meer dan 20 formaten:"
+#~ " PDF, DOC, DOCX, XLS, XLSX, PPT, "
+#~ "PPTX, JPG, PNG, GIF, BMP, TIFF, "
+#~ "CSV, en meer."
 
 #~ msgid "Téléchargez vos images JPG"
 #~ msgstr "Upload uw JPG-afbeeldingen"
@@ -6360,10 +6351,12 @@ msgstr "OCR PDF"
 #~ msgstr "Converteren naar PDF"
 
 #~ msgid ""
-#~ "Transformez vos documents PDF en format Word compatible avec les anciennes "
+#~ "Transformez vos documents PDF en format"
+#~ " Word compatible avec les anciennes "
 #~ "versions"
 #~ msgstr ""
-#~ "Converteer uw PDF-documenten naar Word-formaat compatibel met oudere versies"
+#~ "Converteer uw PDF-documenten naar "
+#~ "Word-formaat compatibel met oudere versies"
 
 #~ msgid "Format accepté : PDF (jusqu'à 50MB)"
 #~ msgstr "Geaccepteerd formaat: PDF (tot 50MB)"
@@ -6495,11 +6488,15 @@ msgstr "OCR PDF"
 #~ msgstr "Slimme extractie:"
 
 #~ msgid ""
-#~ "Les tableaux seront automatiquement détectés et convertis en feuilles Excel."
-#~ " L'OCR permet de reconnaître le texte dans les documents scannés."
+#~ "Les tableaux seront automatiquement détectés"
+#~ " et convertis en feuilles Excel. "
+#~ "L'OCR permet de reconnaître le texte "
+#~ "dans les documents scannés."
 #~ msgstr ""
-#~ "Tabellen worden automatisch gedetecteerd en geconverteerd naar Excel-"
-#~ "werkbladen. OCR maakt tekstherkenning in gescande documenten mogelijk."
+#~ "Tabellen worden automatisch gedetecteerd en"
+#~ " geconverteerd naar Excel-werkbladen. OCR"
+#~ " maakt tekstherkenning in gescande "
+#~ "documenten mogelijk."
 
 #~ msgid "Extraire vers Excel"
 #~ msgstr "Afbeelding naar Excel"
@@ -6700,11 +6697,12 @@ msgstr "OCR PDF"
 #~ msgstr "Converteren naar PDF"
 
 #~ msgid ""
-#~ "Le format PDF/A garantit la pérennité de vos documents pour l'archivage à "
-#~ "long terme"
+#~ "Le format PDF/A garantit la pérennité"
+#~ " de vos documents pour l'archivage à"
+#~ " long terme"
 #~ msgstr ""
-#~ "PDF/A-formaat garandeert de duurzaamheid van uw documenten voor langdurige "
-#~ "archivering"
+#~ "PDF/A-formaat garandeert de duurzaamheid van"
+#~ " uw documenten voor langdurige archivering"
 
 #~ msgid "Options de conversion PDF/A"
 #~ msgstr "Alle conversies"
@@ -6743,25 +6741,35 @@ msgstr "OCR PDF"
 #~ msgstr "Wat is PDF/A-formaat?"
 
 #~ msgid ""
-#~ "Le PDF/A est une version standardisée du PDF conçue pour l'archivage à long "
-#~ "terme. Il garantit que votre document sera exactement le même dans 10, 20 ou"
-#~ " 50 ans, indépendamment des logiciels utilisés."
+#~ "Le PDF/A est une version standardisée"
+#~ " du PDF conçue pour l'archivage à "
+#~ "long terme. Il garantit que votre "
+#~ "document sera exactement le même dans"
+#~ " 10, 20 ou 50 ans, indépendamment "
+#~ "des logiciels utilisés."
 #~ msgstr ""
-#~ "PDF/A is een gestandaardiseerde versie van PDF ontworpen voor langdurige "
-#~ "archivering. Het garandeert dat uw document over 10, 20 of 50 jaar exact "
-#~ "hetzelfde zal zijn, ongeacht de gebruikte software."
+#~ "PDF/A is een gestandaardiseerde versie "
+#~ "van PDF ontworpen voor langdurige "
+#~ "archivering. Het garandeert dat uw "
+#~ "document over 10, 20 of 50 jaar"
+#~ " exact hetzelfde zal zijn, ongeacht "
+#~ "de gebruikte software."
 
 #~ msgid "Attention :"
 #~ msgstr "Let op:"
 
 #~ msgid ""
-#~ "La conversion en PDF/A peut modifier légèrement l'apparence du document pour"
-#~ " garantir sa pérennité. Les fonctionnalités interactives (formulaires, "
-#~ "JavaScript) seront supprimées."
+#~ "La conversion en PDF/A peut modifier "
+#~ "légèrement l'apparence du document pour "
+#~ "garantir sa pérennité. Les fonctionnalités "
+#~ "interactives (formulaires, JavaScript) seront "
+#~ "supprimées."
 #~ msgstr ""
-#~ "Conversie naar PDF/A kan het uiterlijk van het document licht aanpassen om "
-#~ "duurzaamheid te garanderen. Interactieve functies (formulieren, JavaScript) "
-#~ "worden verwijderd."
+#~ "Conversie naar PDF/A kan het uiterlijk"
+#~ " van het document licht aanpassen om"
+#~ " duurzaamheid te garanderen. Interactieve "
+#~ "functies (formulieren, JavaScript) worden "
+#~ "verwijderd."
 
 #~ msgid "Auto-contenu"
 #~ msgstr "Zelfstandig"
@@ -6887,11 +6895,15 @@ msgstr "OCR PDF"
 #~ msgstr "PowerPoint naar PDF"
 
 #~ msgid ""
-#~ "Le fichier généré est au format PPTX, compatible avec PowerPoint 2007 et "
-#~ "versions ultérieures, ainsi qu'avec LibreOffice et Google Slides."
+#~ "Le fichier généré est au format "
+#~ "PPTX, compatible avec PowerPoint 2007 et"
+#~ " versions ultérieures, ainsi qu'avec "
+#~ "LibreOffice et Google Slides."
 #~ msgstr ""
-#~ "Het gegenereerde bestand is in PPTX-formaat, compatibel met PowerPoint 2007 "
-#~ "en nieuwer, evenals met LibreOffice en Google Slides."
+#~ "Het gegenereerde bestand is in PPTX-"
+#~ "formaat, compatibel met PowerPoint 2007 "
+#~ "en nieuwer, evenals met LibreOffice en"
+#~ " Google Slides."
 
 #~ msgid "Convertir en PowerPoint"
 #~ msgstr "Converteren naar PDF"
@@ -6975,10 +6987,13 @@ msgstr "OCR PDF"
 #~ msgstr "Ongeldig paginaformaat. Gebruik formaat: 1-5,8,11-13"
 
 #~ msgid ""
-#~ "Transformez vos PDF en documents Word modifiables avec mise en page "
+#~ "Transformez vos PDF en documents Word"
+#~ " modifiables avec mise en page "
 #~ "préservée"
 #~ msgstr ""
-#~ "Converteer uw PDF's naar bewerkbare Word-documenten met behoud van lay-out"
+#~ "Converteer uw PDF's naar bewerkbare "
+#~ "Word-documenten met behoud van lay-"
+#~ "out"
 
 #~ msgid "Texte uniquement (plus léger)"
 #~ msgstr "Alleen tekst (lichter)"
@@ -6993,11 +7008,15 @@ msgstr "OCR PDF"
 #~ msgstr "Word-formaat:"
 
 #~ msgid ""
-#~ "Le fichier généré est au format DOCX, compatible avec Microsoft Word 2007 et"
-#~ " versions ultérieures, ainsi qu'avec LibreOffice et Google Docs."
+#~ "Le fichier généré est au format "
+#~ "DOCX, compatible avec Microsoft Word "
+#~ "2007 et versions ultérieures, ainsi "
+#~ "qu'avec LibreOffice et Google Docs."
 #~ msgstr ""
-#~ "Het gegenereerde bestand is in DOCX-formaat, compatibel met Microsoft Word "
-#~ "2007 en nieuwer, evenals met LibreOffice en Google Docs."
+#~ "Het gegenereerde bestand is in DOCX-"
+#~ "formaat, compatibel met Microsoft Word "
+#~ "2007 en nieuwer, evenals met LibreOffice"
+#~ " en Google Docs."
 
 #~ msgid "Convertir en Word"
 #~ msgstr "Converteren naar PDF"
@@ -7024,15 +7043,21 @@ msgstr "OCR PDF"
 #~ msgstr "Voorbeeld van geëxtraheerde tekst"
 
 #~ msgid ""
-#~ "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod "
-#~ "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,"
-#~ " quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo "
-#~ "consequat."
+#~ "Lorem ipsum dolor sit amet, consectetur"
+#~ " adipiscing elit. Sed do eiusmod "
+#~ "tempor incididunt ut labore et dolore"
+#~ " magna aliqua. Ut enim ad minim "
+#~ "veniam, quis nostrud exercitation ullamco "
+#~ "laboris nisi ut aliquip ex ea "
+#~ "commodo consequat."
 #~ msgstr ""
-#~ "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod "
-#~ "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,"
-#~ " quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo "
-#~ "consequat."
+#~ "Lorem ipsum dolor sit amet, consectetur"
+#~ " adipiscing elit. Sed do eiusmod "
+#~ "tempor incididunt ut labore et dolore"
+#~ " magna aliqua. Ut enim ad minim "
+#~ "veniam, quis nostrud exercitation ullamco "
+#~ "laboris nisi ut aliquip ex ea "
+#~ "commodo consequat."
 
 #~ msgid "Extraction de la page"
 #~ msgstr "Pagina extraheren"
@@ -7048,15 +7073,16 @@ msgstr "OCR PDF"
 
 #~ msgid "Transformez vos fichiers PPT/PPTX en documents PDF faciles à partager"
 #~ msgstr ""
-#~ "Converteer uw PPT/PPTX-bestanden naar gemakkelijk te delen PDF-documenten"
+#~ "Converteer uw PPT/PPTX-bestanden naar "
+#~ "gemakkelijk te delen PDF-documenten"
 
 #~ msgid "Glissez-déposez vos fichiers PowerPoint ici"
 #~ msgstr "Sleep uw PowerPoint-bestanden hierheen"
 
-#~ msgid ""
-#~ "Formats acceptés : PPT, PPTX (jusqu'à 50MB par fichier, 5 fichiers max)"
+#~ msgid "Formats acceptés : PPT, PPTX (jusqu'à 50MB par fichier, 5 fichiers max)"
 #~ msgstr ""
-#~ "Geaccepteerde formaten: PPT, PPTX (tot 50MB per bestand, max 5 bestanden)"
+#~ "Geaccepteerde formaten: PPT, PPTX (tot "
+#~ "50MB per bestand, max 5 bestanden)"
 
 #~ msgid "Inclure les notes"
 #~ msgstr "Notities opnemen"
@@ -7101,11 +7127,13 @@ msgstr "OCR PDF"
 #~ msgstr "PDF-formaat:"
 
 #~ msgid ""
-#~ "Compatible avec tous les lecteurs PDF. Les animations et transitions ne sont"
-#~ " pas conservées dans le PDF."
+#~ "Compatible avec tous les lecteurs PDF."
+#~ " Les animations et transitions ne "
+#~ "sont pas conservées dans le PDF."
 #~ msgstr ""
-#~ "Compatibel met alle PDF-lezers. Animaties en overgangen worden niet behouden"
-#~ " in de PDF."
+#~ "Compatibel met alle PDF-lezers. "
+#~ "Animaties en overgangen worden niet "
+#~ "behouden in de PDF."
 
 #~ msgid "Analyse et conversion de vos présentations..."
 #~ msgstr "Uw presentaties worden geanalyseerd en geconverteerd..."
@@ -7177,11 +7205,12 @@ msgstr "OCR PDF"
 #~ msgstr "Velden detecteren"
 
 #~ msgid ""
-#~ "La détection automatique identifie les zones de texte, cases à cocher et "
-#~ "emplacements de signature"
+#~ "La détection automatique identifie les "
+#~ "zones de texte, cases à cocher et"
+#~ " emplacements de signature"
 #~ msgstr ""
-#~ "Automatische detectie identificeert tekstgebieden, selectievakjes en "
-#~ "handtekeningvelden"
+#~ "Automatische detectie identificeert tekstgebieden,"
+#~ " selectievakjes en handtekeningvelden"
 
 #~ msgid "Aperçu du formulaire - Cliquez sur les champs pour les configurer"
 #~ msgstr "Formuliervoorbeeld - Klik op velden om te configureren"
@@ -7319,10 +7348,12 @@ msgstr "OCR PDF"
 #~ msgstr "Fout bij maken formulier:"
 
 #~ msgid ""
-#~ "Protégez votre PDF avec un mot de passe pour empêcher toute ouverture ou "
-#~ "modification non autorisée."
+#~ "Protégez votre PDF avec un mot de"
+#~ " passe pour empêcher toute ouverture "
+#~ "ou modification non autorisée."
 #~ msgstr ""
-#~ "Bescherm uw PDF met een wachtwoord tegen ongeautoriseerd openen of wijzigen."
+#~ "Bescherm uw PDF met een wachtwoord "
+#~ "tegen ongeautoriseerd openen of wijzigen."
 
 #~ msgid "Déposez votre PDF ici"
 #~ msgstr "Plaats uw PDF hier"
@@ -7373,11 +7404,13 @@ msgstr "OCR PDF"
 #~ msgstr "Afdrukken en bewerken"
 
 #~ msgid ""
-#~ "Notez bien votre mot de passe. Il n'y a aucun moyen de le récupérer en cas "
-#~ "d'oubli."
+#~ "Notez bien votre mot de passe. Il"
+#~ " n'y a aucun moyen de le "
+#~ "récupérer en cas d'oubli."
 #~ msgstr ""
-#~ "Onthoud uw wachtwoord goed. Er is geen manier om het te herstellen bij "
-#~ "vergeten."
+#~ "Onthoud uw wachtwoord goed. Er is "
+#~ "geen manier om het te herstellen "
+#~ "bij vergeten."
 
 #~ msgid "Protéger le PDF"
 #~ msgstr "PDF beveiligen"
@@ -7428,10 +7461,12 @@ msgstr "OCR PDF"
 #~ msgstr "geheim"
 
 #~ msgid ""
-#~ "Après avoir chargé votre PDF, vous pourrez dessiner des zones à caviarder "
-#~ "sur l'aperçu."
+#~ "Après avoir chargé votre PDF, vous "
+#~ "pourrez dessiner des zones à caviarder"
+#~ " sur l'aperçu."
 #~ msgstr ""
-#~ "Na het laden van uw PDF kunt u redactiegebieden tekenen op de "
+#~ "Na het laden van uw PDF kunt "
+#~ "u redactiegebieden tekenen op de "
 #~ "voorbeeldweergave."
 
 #~ msgid "Opaque"
@@ -7619,7 +7654,8 @@ msgstr "OCR PDF"
 
 #~ msgid "Formats acceptés : PNG, JPG, GIF (fond transparent recommandé)"
 #~ msgstr ""
-#~ "Geaccepteerde formaten: PNG, JPG, GIF (transparante achtergrond aanbevolen)"
+#~ "Geaccepteerde formaten: PNG, JPG, GIF "
+#~ "(transparante achtergrond aanbevolen)"
 
 #~ msgid "Page :"
 #~ msgstr "Pagina:"
@@ -7727,7 +7763,9 @@ msgstr "OCR PDF"
 #~ msgstr "Opmerking:"
 
 #~ msgid ""
-#~ "Cette opération ne fonctionne que si vous connaissez le mot de passe du PDF."
+#~ "Cette opération ne fonctionne que si "
+#~ "vous connaissez le mot de passe du"
+#~ " PDF."
 #~ msgstr "Deze bewerking werkt alleen als u het wachtwoord van de PDF kent."
 
 #~ msgid "Déverrouiller le PDF"
@@ -7740,7 +7778,8 @@ msgstr "OCR PDF"
 #~ msgstr "PDF ontgrendelen"
 
 #~ msgid ""
-#~ "Transformez vos fichiers DOC/DOCX en PDF avec une mise en page préservée"
+#~ "Transformez vos fichiers DOC/DOCX en PDF"
+#~ " avec une mise en page préservée"
 #~ msgstr "Converteer uw DOC/DOCX-bestanden naar PDF met behoud van lay-out"
 
 #~ msgid "Glissez-déposez votre document Word ici"
@@ -7834,10 +7873,12 @@ msgstr "OCR PDF"
 #~ msgstr "Alle conversies"
 
 #~ msgid ""
-#~ "Compatible avec tous les lecteurs PDF. Les polices sont intégrées pour une "
-#~ "reproduction fidèle."
+#~ "Compatible avec tous les lecteurs PDF."
+#~ " Les polices sont intégrées pour une"
+#~ " reproduction fidèle."
 #~ msgstr ""
-#~ "Compatibel met alle PDF-lezers. Lettertypen zijn ingesloten voor getrouwe "
+#~ "Compatibel met alle PDF-lezers. "
+#~ "Lettertypen zijn ingesloten voor getrouwe "
 #~ "weergave."
 
 #~ msgid "Analyse et conversion de votre document Word..."
@@ -7925,9 +7966,11 @@ msgstr "OCR PDF"
 #~ msgstr "Bestand te groot - PDF Fusion Pro"
 
 #~ msgid ""
-#~ "Le fichier que vous avez tenté de télécharger dépasse la limite autorisée."
+#~ "Le fichier que vous avez tenté de"
+#~ " télécharger dépasse la limite autorisée."
 #~ msgstr ""
-#~ "Het bestand dat u probeert te uploaden overschrijdt de toegestane limiet."
+#~ "Het bestand dat u probeert te "
+#~ "uploaden overschrijdt de toegestane limiet."
 
 #~ msgid "Limite : 50 Mo maximum"
 #~ msgstr "Limiet: maximaal 50 MB"
@@ -7954,11 +7997,13 @@ msgstr "OCR PDF"
 #~ msgstr "Interne serverfout"
 
 #~ msgid ""
-#~ "Désolé, une erreur inattendue s'est produite. Notre équipe technique a été "
-#~ "informée."
+#~ "Désolé, une erreur inattendue s'est "
+#~ "produite. Notre équipe technique a été"
+#~ " informée."
 #~ msgstr ""
-#~ "Sorry, er is een onverwachte fout opgetreden. Ons technisch team is op de "
-#~ "hoogte gesteld."
+#~ "Sorry, er is een onverwachte fout "
+#~ "opgetreden. Ons technisch team is op "
+#~ "de hoogte gesteld."
 
 #~ msgid "Heure :"
 #~ msgstr "Tijd:"
@@ -7982,11 +8027,12 @@ msgstr "OCR PDF"
 #~ msgstr "Contact"
 
 #~ msgid ""
-#~ "Cette erreur a été automatiquement enregistrée et sera analysée par nos "
+#~ "Cette erreur a été automatiquement "
+#~ "enregistrée et sera analysée par nos "
 #~ "équipes."
 #~ msgstr ""
-#~ "Deze fout is automatisch geregistreerd en wordt door onze teams "
-#~ "geanalyseerd."
+#~ "Deze fout is automatisch geregistreerd "
+#~ "en wordt door onze teams geanalyseerd."
 
 #~ msgid "À propos de PDF Fusion Pro"
 #~ msgstr "PDF Fusion Pro"
@@ -7995,10 +8041,12 @@ msgstr "OCR PDF"
 #~ msgstr "Onze missie"
 
 #~ msgid ""
-#~ "Offrir un outil PDF en ligne performant, intuitif et respectueux de votre "
-#~ "vie privée."
+#~ "Offrir un outil PDF en ligne "
+#~ "performant, intuitif et respectueux de "
+#~ "votre vie privée."
 #~ msgstr ""
-#~ "Een krachtige, intuïtieve online PDF-tool bieden die uw privacy respecteert."
+#~ "Een krachtige, intuïtieve online PDF-"
+#~ "tool bieden die uw privacy respecteert."
 
 #~ msgid "Caractéristiques principales"
 #~ msgstr "Belangrijkste kenmerken"
@@ -8007,8 +8055,7 @@ msgstr "OCR PDF"
 #~ msgstr "Meerdere PDF's combineren tot één georganiseerd document"
 
 #~ msgid "Divisez vos PDF par page, par plage ou selon des pages spécifiques."
-#~ msgstr ""
-#~ "Splits uw PDF's per pagina, per bereik of volgens specifieke pagina's."
+#~ msgstr "Splits uw PDF's per pagina, per bereik of volgens specifieke pagina's."
 
 #~ msgid "Faites pivoter des pages spécifiques ou l'ensemble du document."
 #~ msgstr "Specifieke pagina's of het hele document roteren"
@@ -8023,35 +8070,41 @@ msgstr "OCR PDF"
 #~ msgstr "Veiligheid"
 
 #~ msgid ""
-#~ "Tous les traitements sont effectués en mémoire. Aucun fichier n'est stocké "
+#~ "Tous les traitements sont effectués en"
+#~ " mémoire. Aucun fichier n'est stocké "
 #~ "sur nos serveurs."
 #~ msgstr ""
-#~ "Alle verwerking gebeurt in het geheugen. Geen enkel bestand wordt opgeslagen"
-#~ " op onze servers."
+#~ "Alle verwerking gebeurt in het geheugen."
+#~ " Geen enkel bestand wordt opgeslagen "
+#~ "op onze servers."
 
 #~ msgid "Performance"
 #~ msgstr "Prestatie"
 
 #~ msgid "Interface optimisée pour une expérience utilisateur fluide et rapide."
 #~ msgstr ""
-#~ "Geoptimaliseerde interface voor een vloeiende en snelle gebruikerservaring."
+#~ "Geoptimaliseerde interface voor een vloeiende"
+#~ " en snelle gebruikerservaring."
 
 #~ msgid ""
-#~ "Nous ne collectons pas de données personnelles liées au contenu de vos "
+#~ "Nous ne collectons pas de données "
+#~ "personnelles liées au contenu de vos "
 #~ "fichiers."
 #~ msgstr ""
-#~ "We verzamelen geen persoonlijke gegevens met betrekking tot de inhoud van uw"
-#~ " bestanden."
+#~ "We verzamelen geen persoonlijke gegevens "
+#~ "met betrekking tot de inhoud van "
+#~ "uw bestanden."
 
 #~ msgid "Gratuité"
 #~ msgstr "Gratis"
 
 #~ msgid ""
-#~ "Service entièrement gratuit, financé par des publicités discrètes et non "
+#~ "Service entièrement gratuit, financé par "
+#~ "des publicités discrètes et non "
 #~ "intrusives."
 #~ msgstr ""
-#~ "Volledig gratis service, gefinancierd door discrete en niet-opdringerige "
-#~ "advertenties."
+#~ "Volledig gratis service, gefinancierd door "
+#~ "discrete en niet-opdringerige advertenties."
 
 #~ msgid "Développeur"
 #~ msgstr "Ontwikkelaar"
@@ -8075,21 +8128,26 @@ msgstr "OCR PDF"
 #~ msgstr "Contactformulier:"
 
 #~ msgid ""
-#~ "Utilisez ce formulaire pour nous contacter directement. Nous vous répondrons"
+#~ "Utilisez ce formulaire pour nous "
+#~ "contacter directement. Nous vous répondrons"
 #~ " dans les meilleurs délais."
 #~ msgstr ""
-#~ "Gebruik dit formulier om direct contact met ons op te nemen. We zullen u zo "
-#~ "snel mogelijk antwoorden."
+#~ "Gebruik dit formulier om direct contact"
+#~ " met ons op te nemen. We zullen"
+#~ " u zo snel mogelijk antwoorden."
 
 #~ msgid "Formulaire de Contact"
 #~ msgstr "Contactformulier"
 
 #~ msgid ""
-#~ "Remplissez ce formulaire pour nous contacter. Tous les champs marqués d'un "
-#~ "astérisque (*) sont obligatoires."
+#~ "Remplissez ce formulaire pour nous "
+#~ "contacter. Tous les champs marqués d'un"
+#~ " astérisque (*) sont obligatoires."
 #~ msgstr ""
-#~ "Vul dit formulier in om contact met ons op te nemen. Alle velden gemarkeerd "
-#~ "met een sterretje (*) zijn verplicht."
+#~ "Vul dit formulier in om contact "
+#~ "met ons op te nemen. Alle velden"
+#~ " gemarkeerd met een sterretje (*) "
+#~ "zijn verplicht."
 
 #~ msgid "Message enregistré avec succès !"
 #~ msgstr "Bericht succesvol opgeslagen!"
@@ -8101,10 +8159,10 @@ msgstr "OCR PDF"
 #~ msgstr "Dank u voor uw bericht."
 
 #~ msgid ""
-#~ "Nous avons bien reçu votre demande et nous vous répondrons dans les plus "
-#~ "brefs délais."
-#~ msgstr ""
-#~ "We hebben uw verzoek ontvangen en zullen u zo snel mogelijk antwoorden."
+#~ "Nous avons bien reçu votre demande "
+#~ "et nous vous répondrons dans les "
+#~ "plus brefs délais."
+#~ msgstr "We hebben uw verzoek ontvangen en zullen u zo snel mogelijk antwoorden."
 
 #~ msgid "Envoyer un autre message"
 #~ msgstr "Nog een bericht versturen"
@@ -8158,22 +8216,29 @@ msgstr "OCR PDF"
 #~ msgstr "Belangrijke informatie:"
 
 #~ msgid ""
-#~ "Cette application traite vos fichiers PDF uniquement en mémoire. Aucun "
-#~ "fichier n'est stocké de manière permanente sur nos serveurs."
+#~ "Cette application traite vos fichiers "
+#~ "PDF uniquement en mémoire. Aucun fichier"
+#~ " n'est stocké de manière permanente "
+#~ "sur nos serveurs."
 #~ msgstr ""
-#~ "Deze applicatie verwerkt uw PDF-bestanden alleen in het geheugen. Geen enkel"
-#~ " bestand wordt permanent opgeslagen op onze servers."
+#~ "Deze applicatie verwerkt uw PDF-"
+#~ "bestanden alleen in het geheugen. Geen"
+#~ " enkel bestand wordt permanent opgeslagen"
+#~ " op onze servers."
 
 #~ msgid "Éditeur du service"
 #~ msgstr "Service-uitgever"
 
 #~ msgid ""
-#~ "%(app_name)s est développé et maintenu par %(developer_name)s, un "
-#~ "développeur passionné par la création d'outils web utiles et accessibles."
+#~ "%(app_name)s est développé et maintenu "
+#~ "par %(developer_name)s, un développeur "
+#~ "passionné par la création d'outils web"
+#~ " utiles et accessibles."
 #~ msgstr ""
-#~ "%(app_name)s wordt ontwikkeld en onderhouden door %(developer_name)s, een "
-#~ "ontwikkelaar met een passie voor het creëren van nuttige en toegankelijke "
-#~ "webtools."
+#~ "%(app_name)s wordt ontwikkeld en onderhouden"
+#~ " door %(developer_name)s, een ontwikkelaar "
+#~ "met een passie voor het creëren "
+#~ "van nuttige en toegankelijke webtools."
 
 #~ msgid "Pour nous contacter :"
 #~ msgstr "Om contact met ons op te nemen:"
@@ -8188,91 +8253,122 @@ msgstr "OCR PDF"
 #~ msgstr "Hosting"
 
 #~ msgid ""
-#~ "Ce service est hébergé sur la plateforme %(hosting)s (<a "
+#~ "Ce service est hébergé sur la "
+#~ "plateforme %(hosting)s (<a "
 #~ "href=\"https://%(domain)s\" target=\"_blank\">(domain)s</a>)."
 #~ msgstr ""
-#~ "Deze dienst wordt gehost op het platform %(hosting)s (<a "
-#~ "href=\"https://%(domain)s\" target=\"_blank\">%(domain)s</a>)."
+#~ "Deze dienst wordt gehost op het "
+#~ "platform %(hosting)s (<a href=\"https://%(domain)s\""
+#~ " target=\"_blank\">%(domain)s</a>)."
 
 #~ msgid ""
-#~ "Les serveurs sont localisés dans des centres de données sécurisés et "
-#~ "conformes aux normes européennes de protection des données."
+#~ "Les serveurs sont localisés dans des "
+#~ "centres de données sécurisés et "
+#~ "conformes aux normes européennes de "
+#~ "protection des données."
 #~ msgstr ""
-#~ "De servers bevinden zich in beveiligde datacenters die voldoen aan Europese "
+#~ "De servers bevinden zich in beveiligde"
+#~ " datacenters die voldoen aan Europese "
 #~ "normen voor gegevensbescherming."
 
 #~ msgid "Propriété intellectuelle"
 #~ msgstr "Intellectueel eigendom"
 
 #~ msgid ""
-#~ "L'ensemble des contenus présents sur ce site (design, code source, "
-#~ "interfaces, textes, graphismes) est protégé par les lois relatives à la "
-#~ "propriété intellectuelle."
+#~ "L'ensemble des contenus présents sur ce"
+#~ " site (design, code source, interfaces, "
+#~ "textes, graphismes) est protégé par les"
+#~ " lois relatives à la propriété "
+#~ "intellectuelle."
 #~ msgstr ""
-#~ "Alle inhoud op deze site (ontwerp, broncode, interfaces, teksten, "
-#~ "afbeeldingen) is beschermd door wetten inzake intellectueel eigendom."
+#~ "Alle inhoud op deze site (ontwerp, "
+#~ "broncode, interfaces, teksten, afbeeldingen) "
+#~ "is beschermd door wetten inzake "
+#~ "intellectueel eigendom."
 
 #~ msgid ""
-#~ "Toute reproduction, modification, distribution ou exploitation non autorisée"
-#~ " est strictement interdite."
+#~ "Toute reproduction, modification, distribution "
+#~ "ou exploitation non autorisée est "
+#~ "strictement interdite."
 #~ msgstr ""
-#~ "Elke niet-geautoriseerde reproductie, wijziging, distributie of exploitatie "
-#~ "is ten strengste verboden."
+#~ "Elke niet-geautoriseerde reproductie, "
+#~ "wijziging, distributie of exploitatie is "
+#~ "ten strengste verboden."
 
 #~ msgid "Responsabilité"
 #~ msgstr "Aansprakelijkheid"
 
 #~ msgid ""
-#~ "L'utilisateur reste l'unique responsable des fichiers PDF qu'il téléverse et"
-#~ " traite via ce service."
+#~ "L'utilisateur reste l'unique responsable des"
+#~ " fichiers PDF qu'il téléverse et "
+#~ "traite via ce service."
 #~ msgstr ""
-#~ "De gebruiker blijft als enige verantwoordelijk voor de PDF-bestanden die hij"
-#~ " uploadt en verwerkt via deze service."
+#~ "De gebruiker blijft als enige "
+#~ "verantwoordelijk voor de PDF-bestanden "
+#~ "die hij uploadt en verwerkt via "
+#~ "deze service."
 
 #~ msgid ""
-#~ "Il s'engage à ne pas utiliser le service pour des contenus illicites ou "
-#~ "protégés par des droits d'auteur sans autorisation."
+#~ "Il s'engage à ne pas utiliser le"
+#~ " service pour des contenus illicites "
+#~ "ou protégés par des droits d'auteur "
+#~ "sans autorisation."
 #~ msgstr ""
-#~ "Hij verbindt zich ertoe de service niet te gebruiken voor illegale inhoud of"
-#~ " inhoud beschermd door auteursrecht zonder toestemming."
+#~ "Hij verbindt zich ertoe de service "
+#~ "niet te gebruiken voor illegale inhoud"
+#~ " of inhoud beschermd door auteursrecht "
+#~ "zonder toestemming."
 
 #~ msgid "Disponibilité du service"
 #~ msgstr "Beschikbaarheid van de service"
 
 #~ msgid ""
-#~ "Nous nous efforçons d'assurer une disponibilité continue du service, mais ne"
-#~ " pouvons garantir un fonctionnement ininterrompu."
+#~ "Nous nous efforçons d'assurer une "
+#~ "disponibilité continue du service, mais "
+#~ "ne pouvons garantir un fonctionnement "
+#~ "ininterrompu."
 #~ msgstr ""
-#~ "We streven naar continue beschikbaarheid van de service, maar kunnen "
+#~ "We streven naar continue beschikbaarheid "
+#~ "van de service, maar kunnen "
 #~ "ononderbroken werking niet garanderen."
 
 #~ msgid ""
-#~ "Des périodes de maintenance technique peuvent être nécessaires pour "
-#~ "améliorer le service."
+#~ "Des périodes de maintenance technique "
+#~ "peuvent être nécessaires pour améliorer "
+#~ "le service."
 #~ msgstr ""
-#~ "Periodes van technisch onderhoud kunnen nodig zijn om de service te "
+#~ "Periodes van technisch onderhoud kunnen "
+#~ "nodig zijn om de service te "
 #~ "verbeteren."
 
 #~ msgid "Respect de votre vie privée"
 #~ msgstr "Respect voor uw privacy"
 
 #~ msgid ""
-#~ "Votre confidentialité est notre priorité. Cette politique explique comment "
-#~ "nous collectons, utilisons et protégeons vos informations."
+#~ "Votre confidentialité est notre priorité. "
+#~ "Cette politique explique comment nous "
+#~ "collectons, utilisons et protégeons vos "
+#~ "informations."
 #~ msgstr ""
-#~ "Uw privacy is onze prioriteit. Dit beleid legt uit hoe we uw informatie "
-#~ "verzamelen, gebruiken en beschermen."
+#~ "Uw privacy is onze prioriteit. Dit "
+#~ "beleid legt uit hoe we uw "
+#~ "informatie verzamelen, gebruiken en "
+#~ "beschermen."
 
 #~ msgid "Engagement de confidentialité :"
 #~ msgstr "Privacy"
 
 #~ msgid ""
-#~ "Nous ne stockons jamais le contenu de vos fichiers PDF. Tous les traitements"
-#~ " sont effectués en mémoire vive et les fichiers sont supprimés immédiatement"
-#~ " après traitement."
+#~ "Nous ne stockons jamais le contenu "
+#~ "de vos fichiers PDF. Tous les "
+#~ "traitements sont effectués en mémoire "
+#~ "vive et les fichiers sont supprimés "
+#~ "immédiatement après traitement."
 #~ msgstr ""
-#~ "We slaan nooit de inhoud van uw PDF-bestanden op. Alle verwerking gebeurt in"
-#~ " het werkgeheugen en bestanden worden direct na verwerking verwijderd."
+#~ "We slaan nooit de inhoud van uw"
+#~ " PDF-bestanden op. Alle verwerking "
+#~ "gebeurt in het werkgeheugen en bestanden"
+#~ " worden direct na verwerking verwijderd."
 
 #~ msgid "Données collectées"
 #~ msgstr "Verzamelde gegevens"
@@ -8281,13 +8377,14 @@ msgstr "OCR PDF"
 #~ msgstr "Technische gegevens"
 
 #~ msgid ""
-#~ "Nous collectons des données techniques anonymes pour améliorer le service :"
-#~ msgstr ""
-#~ "We verzamelen anonieme technische gegevens om de service te verbeteren:"
+#~ "Nous collectons des données techniques "
+#~ "anonymes pour améliorer le service :"
+#~ msgstr "We verzamelen anonieme technische gegevens om de service te verbeteren:"
 
 #~ msgid "Type d'opération effectuée (fusion, division, rotation, compression)"
 #~ msgstr ""
-#~ "Type uitgevoerde bewerking (samenvoegen, splitsen, roteren, comprimeren)"
+#~ "Type uitgevoerde bewerking (samenvoegen, "
+#~ "splitsen, roteren, comprimeren)"
 
 #~ msgid "Nombre de pages traitées"
 #~ msgstr "Aantal verwerkte pagina's"
@@ -8320,18 +8417,24 @@ msgstr "OCR PDF"
 #~ msgstr "Advertenties — Google AdSense"
 
 #~ msgid ""
-#~ "Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour "
+#~ "Ce site utilise <strong>Google "
+#~ "AdSense</strong> (ID: %(adsense_id)s) pour "
 #~ "afficher des publicités pertinentes."
 #~ msgstr ""
-#~ "Deze site gebruikt <strong>Google AdSense</strong> (ID: %(adsense_id)s) om "
+#~ "Deze site gebruikt <strong>Google "
+#~ "AdSense</strong> (ID: %(adsense_id)s) om "
 #~ "relevante advertenties weer te geven."
 
 #~ msgid ""
-#~ "Google utilise des cookies pour personnaliser les annonces en fonction de "
-#~ "votre navigation sur ce site et d'autres sites web."
+#~ "Google utilise des cookies pour "
+#~ "personnaliser les annonces en fonction "
+#~ "de votre navigation sur ce site et"
+#~ " d'autres sites web."
 #~ msgstr ""
-#~ "Google gebruikt cookies om advertenties te personaliseren op basis van uw "
-#~ "surfgedrag op deze site en andere websites."
+#~ "Google gebruikt cookies om advertenties "
+#~ "te personaliseren op basis van uw "
+#~ "surfgedrag op deze site en andere "
+#~ "websites."
 
 #~ msgid "Vous pouvez désactiver la personnalisation des annonces via les"
 #~ msgstr "U kunt advertentiepersonalisatie uitschakelen via de"
@@ -8343,10 +8446,12 @@ msgstr "OCR PDF"
 #~ msgstr "Uw rechten (AVG)"
 
 #~ msgid ""
-#~ "Conformément au Règlement Général sur la Protection des Données (RGPD), vous"
-#~ " disposez des droits suivants :"
+#~ "Conformément au Règlement Général sur la"
+#~ " Protection des Données (RGPD), vous "
+#~ "disposez des droits suivants :"
 #~ msgstr ""
-#~ "Overeenkomstig de Algemene Verordening Gegevensbescherming (AVG) heeft u de "
+#~ "Overeenkomstig de Algemene Verordening "
+#~ "Gegevensbescherming (AVG) heeft u de "
 #~ "volgende rechten:"
 
 #~ msgid "Droit d'accès à vos données"
@@ -8374,52 +8479,66 @@ msgstr "OCR PDF"
 #~ msgstr "Gegevensbeveiliging"
 
 #~ msgid ""
-#~ "Nous mettons en œuvre des mesures de sécurité techniques et "
-#~ "organisationnelles appropriées pour protéger vos données contre tout accès "
-#~ "non autorisé, altération ou destruction."
+#~ "Nous mettons en œuvre des mesures "
+#~ "de sécurité techniques et organisationnelles"
+#~ " appropriées pour protéger vos données "
+#~ "contre tout accès non autorisé, "
+#~ "altération ou destruction."
 #~ msgstr ""
-#~ "We implementeren passende technische en organisatorische "
-#~ "beveiligingsmaatregelen om uw gegevens te beschermen tegen ongeautoriseerde "
-#~ "toegang, wijziging of vernietiging."
+#~ "We implementeren passende technische en "
+#~ "organisatorische beveiligingsmaatregelen om uw "
+#~ "gegevens te beschermen tegen ongeautoriseerde"
+#~ " toegang, wijziging of vernietiging."
 
 #~ msgid "Acceptation des conditions"
 #~ msgstr "Aanvaarding van voorwaarden"
 
 #~ msgid ""
-#~ "En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
-#~ "réserve les présentes conditions d'utilisation."
+#~ "En utilisant le service %(app_name)s, "
+#~ "vous acceptez pleinement et sans réserve"
+#~ " les présentes conditions d'utilisation."
 #~ msgstr ""
-#~ "Door gebruik te maken van de dienst %(app_name)s gaat u volledig en "
-#~ "onvoorwaardelijk akkoord met deze gebruiksvoorwaarden."
+#~ "Door gebruik te maken van de "
+#~ "dienst %(app_name)s gaat u volledig en"
+#~ " onvoorwaardelijk akkoord met deze "
+#~ "gebruiksvoorwaarden."
 
 #~ msgid "Avertissement important :"
 #~ msgstr "Belangrijke waarschuwing:"
 
 #~ msgid ""
-#~ "Ce service est fourni \"tel quel\". Nous déclinons toute responsabilité "
-#~ "concernant les fichiers traités par l'utilisateur."
+#~ "Ce service est fourni \"tel quel\". "
+#~ "Nous déclinons toute responsabilité concernant"
+#~ " les fichiers traités par l'utilisateur."
 #~ msgstr ""
-#~ "Deze service wordt \"as is\" aangeboden. We wijzen elke aansprakelijkheid af"
-#~ " met betrekking tot bestanden die door de gebruiker worden verwerkt."
+#~ "Deze service wordt \"as is\" aangeboden."
+#~ " We wijzen elke aansprakelijkheid af "
+#~ "met betrekking tot bestanden die door"
+#~ " de gebruiker worden verwerkt."
 
 #~ msgid "Usage autorisé"
 #~ msgstr "Toegestaan gebruik"
 
 #~ msgid ""
-#~ "Vous vous engagez à utiliser le service de manière responsable et légale :"
+#~ "Vous vous engagez à utiliser le "
+#~ "service de manière responsable et légale"
+#~ " :"
 #~ msgstr ""
-#~ "U verbindt zich ertoe de service op een verantwoorde en legale manier te "
-#~ "gebruiken:"
+#~ "U verbindt zich ertoe de service "
+#~ "op een verantwoorde en legale manier "
+#~ "te gebruiken:"
 
 #~ msgid "Interdictions"
 #~ msgstr "Verboden"
 
 #~ msgid ""
-#~ "Téléverser des fichiers contenant des données illicites ou protégés par des "
-#~ "droits d'auteur sans autorisation"
+#~ "Téléverser des fichiers contenant des "
+#~ "données illicites ou protégés par des"
+#~ " droits d'auteur sans autorisation"
 #~ msgstr ""
-#~ "Bestanden uploaden met illegale gegevens of beschermd door auteursrecht "
-#~ "zonder toestemming"
+#~ "Bestanden uploaden met illegale gegevens "
+#~ "of beschermd door auteursrecht zonder "
+#~ "toestemming"
 
 #~ msgid "Utiliser le service pour des activités frauduleuses ou malveillantes"
 #~ msgstr "De service gebruiken voor frauduleuze of kwaadaardige activiteiten"
@@ -8431,17 +8550,18 @@ msgstr "OCR PDF"
 #~ msgstr "De service opzettelijk overbelasten (DoS/DDoS-aanvallen)"
 
 #~ msgid ""
-#~ "Réutiliser le contenu du service à des fins commerciales sans autorisation"
+#~ "Réutiliser le contenu du service à "
+#~ "des fins commerciales sans autorisation"
 #~ msgstr ""
-#~ "De inhoud van de service hergebruiken voor commerciële doeleinden zonder "
+#~ "De inhoud van de service hergebruiken"
+#~ " voor commerciële doeleinden zonder "
 #~ "toestemming"
 
 #~ msgid "Obligations"
 #~ msgstr "Verplichtingen"
 
 #~ msgid "Respecter les droits de propriété intellectuelle des documents traités"
-#~ msgstr ""
-#~ "De intellectuele eigendomsrechten van verwerkte documenten respecteren"
+#~ msgstr "De intellectuele eigendomsrechten van verwerkte documenten respecteren"
 
 #~ msgid "Assurer la confidentialité de vos propres fichiers"
 #~ msgstr "De vertrouwelijkheid van uw eigen bestanden waarborgen"
@@ -8453,22 +8573,30 @@ msgstr "OCR PDF"
 #~ msgstr "Beperking van aansprakelijkheid"
 
 #~ msgid ""
-#~ "Le service est fourni sans aucune garantie, expresse ou implicite, y "
-#~ "compris, mais sans s'y limiter, les garanties de qualité marchande, "
-#~ "d'adéquation à un usage particulier et de non-contrefaçon."
+#~ "Le service est fourni sans aucune "
+#~ "garantie, expresse ou implicite, y "
+#~ "compris, mais sans s'y limiter, les "
+#~ "garanties de qualité marchande, d'adéquation"
+#~ " à un usage particulier et de "
+#~ "non-contrefaçon."
 #~ msgstr ""
-#~ "De service wordt verleend zonder enige garantie, expliciet of impliciet, "
-#~ "inclusief maar niet beperkt tot garanties van verkoopbaarheid, geschiktheid "
-#~ "voor een bepaald doel en niet-inbreuk."
+#~ "De service wordt verleend zonder enige"
+#~ " garantie, expliciet of impliciet, "
+#~ "inclusief maar niet beperkt tot "
+#~ "garanties van verkoopbaarheid, geschiktheid "
+#~ "voor een bepaald doel en niet-"
+#~ "inbreuk."
 
 #~ msgid "En aucun cas, %(developer_name)s ne pourra être tenu responsable :"
 #~ msgstr "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
 
 #~ msgid ""
-#~ "Des dommages directs ou indirects résultant de l'utilisation ou de "
+#~ "Des dommages directs ou indirects "
+#~ "résultant de l'utilisation ou de "
 #~ "l'impossibilité d'utiliser le service"
 #~ msgstr ""
-#~ "Directe of indirecte schade voortvloeiend uit het gebruik of het onvermogen "
+#~ "Directe of indirecte schade voortvloeiend "
+#~ "uit het gebruik of het onvermogen "
 #~ "om de service te gebruiken"
 
 #~ msgid "De la perte ou de l'altération des fichiers PDF traités"
@@ -8481,32 +8609,39 @@ msgstr "OCR PDF"
 #~ msgstr "Wijzigingen in voorwaarden"
 
 #~ msgid ""
-#~ "Nous nous réservons le droit de modifier ces conditions d'utilisation à tout"
-#~ " moment."
+#~ "Nous nous réservons le droit de "
+#~ "modifier ces conditions d'utilisation à "
+#~ "tout moment."
 #~ msgstr ""
-#~ "We behouden ons het recht voor deze gebruiksvoorwaarden op elk moment te "
-#~ "wijzigen."
+#~ "We behouden ons het recht voor "
+#~ "deze gebruiksvoorwaarden op elk moment "
+#~ "te wijzigen."
 
 #~ msgid ""
-#~ "Les utilisateurs seront informés des changements significatifs via une "
-#~ "notification sur le site."
+#~ "Les utilisateurs seront informés des "
+#~ "changements significatifs via une notification"
+#~ " sur le site."
 #~ msgstr ""
-#~ "Gebruikers worden geïnformeerd over belangrijke wijzigingen via een melding "
+#~ "Gebruikers worden geïnformeerd over "
+#~ "belangrijke wijzigingen via een melding "
 #~ "op de site."
 
 #~ msgid ""
-#~ "Le service, son code source, son design et son contenu sont la propriété "
-#~ "exclusive de %(developer_name)s."
+#~ "Le service, son code source, son "
+#~ "design et son contenu sont la "
+#~ "propriété exclusive de %(developer_name)s."
 #~ msgstr ""
-#~ "De dienst, de broncode, het ontwerp en de inhoud zijn exclusief eigendom van"
-#~ " %(developer_name)s."
+#~ "De dienst, de broncode, het ontwerp "
+#~ "en de inhoud zijn exclusief eigendom "
+#~ "van %(developer_name)s."
 
 #~ msgid ""
-#~ "Toute reproduction, même partielle, est interdite sans autorisation "
-#~ "préalable écrite."
+#~ "Toute reproduction, même partielle, est "
+#~ "interdite sans autorisation préalable écrite."
 #~ msgstr ""
-#~ "Elke reproductie, zelfs gedeeltelijk, is verboden zonder voorafgaande "
-#~ "schriftelijke toestemming."
+#~ "Elke reproductie, zelfs gedeeltelijk, is "
+#~ "verboden zonder voorafgaande schriftelijke "
+#~ "toestemming."
 
 #~ msgid "Pour toute question concernant ces conditions :"
 #~ msgstr "Voor vragen over deze voorwaarden:"
@@ -8548,26 +8683,25 @@ msgstr "OCR PDF"
 #~ msgstr "Home - PDF Fusion Pro – Gratis PDF-hulpmiddelen"
 
 #~ msgid ""
-#~ "Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, "
-#~ "compresser et convertir des fichiers PDF. 100%% gratuit, sécurisé et sans "
+#~ "Tous les outils PDF en un seul "
+#~ "endroit : fusionner, diviser, tourner, "
+#~ "compresser et convertir des fichiers "
+#~ "PDF. 100%% gratuit, sécurisé et sans "
 #~ "inscription."
 #~ msgstr ""
-#~ "Alle PDF-hulpmiddelen op één plek: PDF-bestanden samenvoegen, splitsen, "
-#~ "roteren, comprimeren en converteren. 100%% gratis, veilig en zonder "
-#~ "registratie."
 
 #~ msgid "Transformez vos PDFs en toute simplicité"
 #~ msgstr "Transformeer uw PDF's met gemak"
 
 #~ msgid ""
-#~ "Outil PDF tout-en-un : fusion, division, rotation, compression et "
-#~ "conversion. Rapide, sécurisé et 100%% gratuit."
+#~ "Outil PDF tout-en-un : fusion, "
+#~ "division, rotation, compression et conversion."
+#~ " Rapide, sécurisé et 100%% gratuit."
 #~ msgstr ""
-#~ "Gratis PDF-hulpmiddelen om uw bestanden online te samenvoegen, splitsen, "
-#~ "comprimeren en converteren. Snel, veilig en zonder installatie."
 
 #~ msgid ""
-#~ "Aucune inscription requise – vos fichiers ne quittent jamais votre "
+#~ "Aucune inscription requise – vos "
+#~ "fichiers ne quittent jamais votre "
 #~ "navigateur."
 #~ msgstr "Geen registratie vereist – uw bestanden verlaten nooit uw browser."
 
@@ -8620,11 +8754,13 @@ msgstr "OCR PDF"
 #~ msgstr "Universele converter"
 
 #~ msgid ""
-#~ "Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et vice-"
-#~ "versa"
+#~ "Convertissez vos fichiers Word, Excel, "
+#~ "PowerPoint et images en PDF et "
+#~ "vice-versa"
 #~ msgstr ""
-#~ "Converteer uw Word-, Excel-, PowerPoint- en afbeeldingsbestanden naar PDF en"
-#~ " vice versa"
+#~ "Converteer uw Word-, Excel-, PowerPoint- "
+#~ "en afbeeldingsbestanden naar PDF en vice"
+#~ " versa"
 
 #~ msgid "PDF Fusion Pro en chiffres"
 #~ msgstr "PDF Fusion Pro in cijfers"
@@ -8645,17 +8781,26 @@ msgstr "OCR PDF"
 #~ msgstr "Uw alles-in-één PDF-oplossing, 100%% gratis en veilig"
 
 #~ msgid ""
-#~ "PDF Fusion Pro est la plateforme idéale pour tous vos besoins en "
-#~ "manipulation de fichiers PDF. Que vous ayez besoin de <strong>fusionner "
-#~ "plusieurs documents</strong>, <strong>diviser un PDF volumineux</strong>, "
-#~ "<strong>tourner des pages mal orientées</strong> ou <strong>compresser des "
-#~ "fichiers pour les partager</strong>, nos outils sont là pour vous aider."
+#~ "PDF Fusion Pro est la plateforme "
+#~ "idéale pour tous vos besoins en "
+#~ "manipulation de fichiers PDF. Que vous"
+#~ " ayez besoin de <strong>fusionner plusieurs"
+#~ " documents</strong>, <strong>diviser un PDF "
+#~ "volumineux</strong>, <strong>tourner des pages "
+#~ "mal orientées</strong> ou <strong>compresser "
+#~ "des fichiers pour les partager</strong>, "
+#~ "nos outils sont là pour vous "
+#~ "aider."
 #~ msgstr ""
-#~ "PDF Fusion Pro is het ideale platform voor al uw PDF-bestandsbehoeften. Of u"
-#~ " nu <strong>meerdere documenten wilt samenvoegen</strong>, <strong>een grote"
-#~ " PDF wilt splitsen</strong>, <strong>verkeerd georiënteerde pagina's wilt "
-#~ "roteren</strong> of <strong>bestanden wilt comprimeren om te delen</strong>,"
-#~ " onze tools zijn er om u te helpen."
+#~ "PDF Fusion Pro is het ideale "
+#~ "platform voor al uw PDF-"
+#~ "bestandsbehoeften. Of u nu <strong>meerdere"
+#~ " documenten wilt samenvoegen</strong>, "
+#~ "<strong>een grote PDF wilt splitsen</strong>,"
+#~ " <strong>verkeerd georiënteerde pagina's wilt "
+#~ "roteren</strong> of <strong>bestanden wilt "
+#~ "comprimeren om te delen</strong>, onze "
+#~ "tools zijn er om u te helpen."
 
 #~ msgid "Aucune inscription requise"
 #~ msgstr "Geen registratie vereist"
@@ -8667,8 +8812,8 @@ msgstr "OCR PDF"
 #~ msgstr "PDF's samenvoegen"
 
 #~ msgid ""
-#~ "Fusionnez plusieurs fichiers PDF en un seul document, facilement et "
-#~ "rapidement."
+#~ "Fusionnez plusieurs fichiers PDF en un"
+#~ " seul document, facilement et rapidement."
 #~ msgstr "Meerdere PDF's combineren tot één georganiseerd document"
 
 #~ msgid "Fusionner plusieurs PDF"
@@ -8714,11 +8859,11 @@ msgstr "OCR PDF"
 #~ msgstr "PDF Fusion Pro"
 
 #~ msgid ""
-#~ "Divisez vos fichiers PDF en plusieurs documents selon les pages "
-#~ "sélectionnées."
+#~ "Divisez vos fichiers PDF en plusieurs"
+#~ " documents selon les pages sélectionnées."
 #~ msgstr ""
-#~ "Splits uw PDF-bestanden in meerdere documenten volgens geselecteerde "
-#~ "pagina's."
+#~ "Splits uw PDF-bestanden in meerdere "
+#~ "documenten volgens geselecteerde pagina's."
 
 #~ msgid "Déposez votre fichier PDF et sélectionnez les pages à extraire."
 #~ msgstr "Plaats uw PDF-bestand en selecteer de te extraheren pagina's."
@@ -8726,10 +8871,13 @@ msgstr "OCR PDF"
 #~ msgid "Pages à extraire"
 #~ msgstr "Te extraheren pagina's"
 
-#~ msgid "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\""
-#~ msgstr ""
-#~ "Formaat: nummers gescheiden door komma's, bereiken met koppelteken. Bijv: "
+#~ msgid ""
+#~ "Format: numéros séparés par des "
+#~ "virgules, plages avec tiret. Ex: "
 #~ "\"1,3-5\""
+#~ msgstr ""
+#~ "Formaat: nummers gescheiden door komma's, "
+#~ "bereiken met koppelteken. Bijv: \"1,3-5\""
 
 #~ msgid "Diviser le PDF"
 #~ msgstr "PDF splitsen"
@@ -8814,3 +8962,28 @@ msgstr "OCR PDF"
 
 #~ msgid "Excel vers CSV"
 #~ msgstr "Excel naar CSV"
+
+#~ msgid "Téléphone (optionnel)"
+#~ msgstr "Telefoon (optioneel)"
+
+#~ msgid "Sujet"
+#~ msgstr "Onderwerp"
+
+#~ msgid "Signaler un bug"
+#~ msgstr "PDF's samenvoegen"
+
+#~ msgid "Proposer une amélioration"
+#~ msgstr "Stel een verbetering voor"
+
+#~ msgid "Partenariat"
+#~ msgstr "Partnerschap"
+
+#~ msgid "Autre"
+#~ msgstr "Ander"
+
+#~ msgid "Message"
+#~ msgstr "Bericht"
+
+#~ msgid "OCR PDF"
+#~ msgstr "OCR PDF"
+
