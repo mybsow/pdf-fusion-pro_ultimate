@@ -77,6 +77,11 @@ COPY . .
 # Les .mo sont compilés localement et commitées dans le repo
 # NE PAS recompiler ici — cela écraserait les bonnes traductions
 # -------------------------------------------------
+# -------------------------------------------------
+# Vérifier que les .mo pré-compilés sont bien présents
+# Les .mo sont compilés localement et commitées dans le repo
+# NE PAS recompiler ici — cela écraserait les bonnes traductions
+# -------------------------------------------------
 RUN echo "🔍 Vérification des fichiers .mo pré-compilés :" && \
     ls -la translations/*/LC_MESSAGES/messages.mo && \
     for mo in translations/*/LC_MESSAGES/messages.mo; do \
