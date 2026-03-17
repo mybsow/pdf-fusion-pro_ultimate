@@ -269,7 +269,7 @@ def check_dependencies(deps_list):
 # ============================================================================
 # NOTE: Chaînes brutes (pas de _l()), la traduction se fait dans les templates via _()
 
-from flask_babel import gettext as _
+from flask_babel import gettext as _, lazy_gettext as _l
 
 CONVERSION_MAP = {
     # ==================== CONVERTIR EN PDF ====================
