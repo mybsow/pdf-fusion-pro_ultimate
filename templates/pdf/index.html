@@ -144,17 +144,15 @@
             <div class="tool-content">
                 <h2 class="h4">{{ _('Votre solution PDF tout-en-un, entièrement gratuite et sécurisée') }}</h2>
                 <p class="mb-3">
-                    {% set merge = _('fusionner plusieurs documents') %}
-                    {% set split = _('diviser un PDF volumineux') %}
-                    {% set rotate = _('tourner des pages mal orientées') %}
-                    {% set compress = _('compresser des fichiers pour les partager') %}
-                    {% set or_word = _('ou') %}
-                    
                     {{ _('PDF Fusion Pro est la plateforme idéale pour tous vos besoins en manipulation de fichiers PDF. Que vous ayez besoin de') }}
-                    <strong>{{ merge }}</strong>, <strong>{{ split }}</strong>, <strong>{{ rotate }}</strong> {{ or_word }} <strong>{{ compress }}</strong>,
+                    <strong>{{ _('fusionner plusieurs documents') }}</strong>,
+                    <strong>{{ _('diviser un PDF volumineux') }}</strong>,
+                    <strong>{{ _('tourner des pages mal orientées') }}</strong>
+                    {{ _('ou') }}
+                    <strong>{{ _('compresser des fichiers pour les partager') }}</strong>,
                     {{ _('nos outils sont là pour vous aider.') }}
                 </p>
-                <p class="mb-0">
+                                <p class="mb-0">
                     <i class="fas fa-check-circle text-success me-1"></i> {{ _('Aucune inscription requise') }}<br>
                     <i class="fas fa-check-circle text-success me-1"></i> {{ _('Chiffrement SSL et suppression automatique des fichiers') }}<br>
                     <i class="fas fa-check-circle text-success me-1"></i> {{ _('Compatible avec tous les navigateurs modernes') }}
