@@ -6,7 +6,6 @@
     --primary-color: {{ color|default('#e74c3c') }};
     --primary-dark: {{ color|default('#c0392b') }};
 }
-
 .converter-hero {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     color: white;
@@ -15,24 +14,19 @@
     position: relative;
     overflow: hidden;
 }
-
 .converter-hero::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
     background: radial-gradient(circle at center, rgba(255,255,255,0.1) 1px, transparent 1px);
     background-size: 50px 50px;
     animation: float 20s linear infinite;
 }
-
 @keyframes float {
-    0% { transform: translate(0, 0) rotate(0deg); }
+    0%   { transform: translate(0, 0) rotate(0deg); }
     100% { transform: translate(-50px, -50px) rotate(360deg); }
 }
-
 .converter-card {
     background: white;
     border-radius: 20px;
@@ -43,17 +37,13 @@
     position: relative;
     overflow: hidden;
 }
-
 .converter-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     height: 5px;
     background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
 }
-
 .upload-zone {
     border: 3px dashed #ddd;
     border-radius: 15px;
@@ -64,25 +54,19 @@
     cursor: pointer;
     position: relative;
 }
-
 .upload-zone:hover,
 .upload-zone.dragover {
     border-color: var(--primary-color);
     background: rgba(231, 76, 60, 0.05);
     transform: translateY(-2px);
 }
-
 .upload-icon {
     font-size: 4rem;
     color: var(--primary-color);
     margin-bottom: 1.5rem;
     transition: all 0.3s;
 }
-
-.upload-zone:hover .upload-icon {
-    transform: scale(1.1);
-}
-
+.upload-zone:hover .upload-icon { transform: scale(1.1); }
 .file-info-card {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: 15px;
@@ -90,47 +74,37 @@
     margin-top: 1.5rem;
     border-left: 5px solid var(--primary-color);
 }
-
 .step-tracker {
     display: flex;
     justify-content: space-between;
     margin: 3rem 0;
     position: relative;
 }
-
 .step-tracker::before {
     content: '';
     position: absolute;
-    top: 25px;
-    left: 0;
-    right: 0;
+    top: 25px; left: 0; right: 0;
     height: 3px;
     background: #e9ecef;
     z-index: 1;
 }
-
 .step {
     text-align: center;
     position: relative;
     z-index: 2;
     flex: 1;
 }
-
 .step-number {
-    width: 50px;
-    height: 50px;
+    width: 50px; height: 50px;
     background: white;
     border: 3px solid #e9ecef;
     border-radius: 50%;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.2rem;
+    align-items: center; justify-content: center;
+    font-weight: bold; font-size: 1.2rem;
     margin: 0 auto 10px;
     transition: all 0.3s;
 }
-
 .step.active .step-number {
     background: var(--primary-color);
     border-color: var(--primary-color);
@@ -138,139 +112,57 @@
     transform: scale(1.1);
     box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
 }
-
 .step.completed .step-number {
     background: #2ecc71;
     border-color: #2ecc71;
     color: white;
 }
-
-.step-label {
-    font-weight: 600;
-    color: #6c757d;
-    font-size: 0.9rem;
-}
-
-.step.active .step-label {
-    color: var(--primary-color);
-}
-
-.progress-container {
-    height: 10px;
-    background: #e9ecef;
-    border-radius: 5px;
-    overflow: hidden;
-    margin: 2rem 0;
-}
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
-    border-radius: 5px;
-    transition: width 0.3s;
-    position: relative;
-    overflow: hidden;
-}
-
-.progress-bar::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
+.step-label { font-weight: 600; color: #6c757d; font-size: 0.9rem; }
+.step.active .step-label { color: var(--primary-color); }
 .converter-features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
     margin: 3rem 0;
 }
-
 .feature-item {
-    text-align: center;
-    padding: 1.5rem;
-    background: white;
-    border-radius: 15px;
+    text-align: center; padding: 1.5rem;
+    background: white; border-radius: 15px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.05);
     transition: all 0.3s;
 }
-
 .feature-item:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
-
 .feature-icon {
-    width: 60px;
-    height: 60px;
+    width: 60px; height: 60px;
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     margin: 0 auto 1rem;
-    color: white;
-    font-size: 1.5rem;
+    color: white; font-size: 1.5rem;
 }
-
 .success-animation {
-    width: 100px;
-    height: 100px;
-    background: #2ecc71;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 100px; height: 100px;
+    background: #2ecc71; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
     margin: 0 auto 2rem;
-    color: white;
-    font-size: 2.5rem;
+    color: white; font-size: 2.5rem;
     animation: bounceIn 0.6s;
 }
-
 @keyframes bounceIn {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.1); }
+    0%   { transform: scale(0); opacity: 0; }
+    50%  { transform: scale(1.1); }
     100% { transform: scale(1); opacity: 1; }
 }
-
 @media (max-width: 768px) {
-    .converter-hero {
-        padding: 3rem 1rem;
-    }
-    
-    .converter-card {
-        padding: 1.5rem;
-    }
-    
-    .step-tracker {
-        flex-direction: column;
-        gap: 2rem;
-    }
-    
-    .step-tracker::before {
-        display: none;
-    }
-    
-    .step {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        text-align: left;
-    }
-    
-    .step-number {
-        margin: 0;
-        flex-shrink: 0;
-    }
+    .converter-hero { padding: 3rem 1rem; }
+    .converter-card { padding: 1.5rem; }
+    .step-tracker { flex-direction: column; gap: 2rem; }
+    .step-tracker::before { display: none; }
+    .step { display: flex; align-items: center; gap: 1rem; text-align: left; }
+    .step-number { margin: 0; flex-shrink: 0; }
 }
 </style>
 {% endblock %}
@@ -280,18 +172,21 @@
     <div class="container text-center position-relative">
         <h1 class="display-4 fw-bold mb-3">
             <i class="fas fa-{{ icon|default('exchange-alt') }} me-3"></i>
-            {{ title }}
+            {# ✅ _(title) : title est une chaîne brute passée depuis Python #}
+            {{ _(title) }}
         </h1>
-        <p class="lead mb-4">{{ description }}</p>
+        <p class="lead mb-4">{{ _(description) }}</p>
         <div class="badge bg-light text-dark fs-6 px-3 py-2">
             <i class="fas fa-arrow-right me-2"></i>
-            {{ from_format }} → {{ to_format }}
+            {# ✅ from_format et to_format sont aussi des chaînes brutes #}
+            {{ _(from_format) }} → {{ _(to_format) }}
         </div>
     </div>
 </div>
 
 <div class="container">
-    <!-- Étapes de conversion -->
+
+    <!-- Étapes -->
     <div class="step-tracker">
         <div class="step active" id="step1">
             <div class="step-number">1</div>
@@ -306,50 +201,37 @@
             <div class="step-label">{{ _('Télécharger') }}</div>
         </div>
     </div>
-    
+
     <!-- Carte principale -->
     <div class="converter-card">
-        {% block converter_content %}
-        <!-- Le contenu spécifique à chaque conversion sera inséré ici -->
-        {% endblock %}
+        {% block converter_content %}{% endblock %}
     </div>
-    
+
     <!-- Fonctionnalités -->
     <div class="converter-features">
         <div class="feature-item">
-            <div class="feature-icon">
-                <i class="fas fa-shield-alt"></i>
-            </div>
+            <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
             <h5>{{ _('Sécurisé') }}</h5>
             <p class="text-muted small mb-0">{{ _('Vos fichiers sont supprimés après conversion') }}</p>
         </div>
-        
         <div class="feature-item">
-            <div class="feature-icon">
-                <i class="fas fa-bolt"></i>
-            </div>
+            <div class="feature-icon"><i class="fas fa-bolt"></i></div>
             <h5>{{ _('Rapide') }}</h5>
             <p class="text-muted small mb-0">{{ _('Conversion en quelques secondes') }}</p>
         </div>
-        
         <div class="feature-item">
-            <div class="feature-icon">
-                <i class="fas fa-lock"></i>
-            </div>
+            <div class="feature-icon"><i class="fas fa-lock"></i></div>
             <h5>{{ _('Confidentiel') }}</h5>
-            <p class="text-muted small mb-0">{{ _('Personne n\'accède à vos fichiers') }}</p>
+            <p class="text-muted small mb-0">{{ _("Personne n'accède à vos fichiers") }}</p>
         </div>
-        
         <div class="feature-item">
-            <div class="feature-icon">
-                <i class="fas fa-globe"></i>
-            </div>
+            <div class="feature-icon"><i class="fas fa-globe"></i></div>
             <h5>{{ _('Accessible') }}</h5>
-            <p class="text-muted small mb-0">{{ _('Utilisez depuis n\'importe où') }}</p>
+            <p class="text-muted small mb-0">{{ _("Utilisez depuis n'importe où") }}</p>
         </div>
     </div>
-    
-    <!-- Informations supplémentaires -->
+
+    <!-- Info -->
     <div class="alert alert-info mt-4">
         <div class="d-flex align-items-center">
             <i class="fas fa-info-circle fa-2x me-3"></i>
@@ -357,85 +239,54 @@
                 <h6 class="mb-1">{{ _('Comment ça marche ?') }}</h6>
                 <ol class="mb-0 small ps-3">
                     <li>
-                        {{ _('Téléchargez votre fichier %(from_format)s.', from_format=from_format) }}
+                        {{ _('Téléchargez votre fichier %(from_format)s.', from_format=_(from_format)) }}
                     </li>
                     <li>
-                        {{ _('Notre système le convertit automatiquement en %(to_format)s.', to_format=to_format) }}
+                        {{ _('Notre système le convertit automatiquement en %(to_format)s.', to_format=_(to_format)) }}
                     </li>
-                    <li>
-                        {{ _('Téléchargez ensuite votre fichier converti.') }}
-                    </li>
+                    <li>{{ _('Téléchargez ensuite votre fichier converti.') }}</li>
                 </ol>
             </div>
         </div>
     </div>
 
+</div>
+
 <script>
-// Script de base pour toutes les conversions
 function updateStep(stepNumber) {
-    // Cacher tous les contenus d'étape
     document.querySelectorAll('[id$="Step"]').forEach(el => {
-        if (el.id.endsWith('Step')) {
-            el.style.display = 'none';
-        }
+        if (el.id.endsWith('Step')) el.style.display = 'none';
     });
-    
-    // Mettre à jour le tracker
     document.querySelectorAll('.step').forEach((step, index) => {
         step.classList.remove('active', 'completed');
-        if (index + 1 < stepNumber) {
-            step.classList.add('completed');
-        } else if (index + 1 === stepNumber) {
-            step.classList.add('active');
-        }
+        if (index + 1 < stepNumber)      step.classList.add('completed');
+        else if (index + 1 === stepNumber) step.classList.add('active');
     });
-    
-    // Afficher l'étape active
     const activeStep = document.getElementById(`step${stepNumber}Content`);
-    if (activeStep) {
-        activeStep.style.display = 'block';
-    }
+    if (activeStep) activeStep.style.display = 'block';
 }
 
 function showError(message) {
-    // Créer une alerte Bootstrap
     const alertDiv = document.createElement('div');
     alertDiv.className = 'alert alert-danger alert-dismissible fade show';
     alertDiv.innerHTML = `
-        <i class="fas fa-exclamation-circle me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    // Ajouter au début du conteneur principal
+        <i class="fas fa-exclamation-circle me-2"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
     const container = document.querySelector('.container');
     container.insertBefore(alertDiv, container.firstChild);
-    
-    // Supprimer automatiquement après 5 secondes
-    setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.remove();
-        }
-    }, 5000);
+    setTimeout(() => { if (alertDiv.parentNode) alertDiv.remove(); }, 5000);
 }
 
 function showLoader() {
     const loader = document.getElementById('loaderOverlay');
-    if (loader) {
-        loader.style.display = 'flex';
-    }
+    if (loader) loader.style.display = 'flex';
 }
 
 function hideLoader() {
     const loader = document.getElementById('loaderOverlay');
-    if (loader) {
-        loader.style.display = 'none';
-    }
+    if (loader) loader.style.display = 'none';
 }
 
-// Initialiser l'étape 1
-document.addEventListener('DOMContentLoaded', () => {
-    updateStep(1);
-});
+document.addEventListener('DOMContentLoaded', () => updateStep(1));
 </script>
 {% endblock %}

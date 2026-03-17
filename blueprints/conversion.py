@@ -27,17 +27,16 @@ os.environ["OMP_THREAD_LIMIT"] = "1"
 from flask import (Blueprint, after_this_request, render_template, request,
                    jsonify, send_file, flash, redirect, url_for, current_app)
 from werkzeug.utils import secure_filename
-from flask_babel import _
+from flask_babel import gettext as _babel_gettext   # ✅ alias pour éviter écrasement par _
 
-# ── Dépendances conditionnelles ──────────────────────────────────────────────
-# (le reste de vos try/except inchangés)
+# ── Alias global sûr — NE JAMAIS utiliser _ comme variable muette ────────────
+_ = _babel_gettext
 
 # =========================
 # CONSTANTES GLOBALES
 # =========================
-# Ajoutez ceci après les imports, avant les vérifications de dépendances
 OCR_LANG_MAP = {
-    'fra': 'fra', 'en': 'eng', 'es': 'spa', 'de': 'deu', 
+    'fra': 'fra', 'en': 'eng', 'es': 'spa', 'de': 'deu',
     'it': 'ita', 'pt': 'por', 'ru': 'rus', 'ar': 'ara',
     'zh': 'chi_sim', 'ja': 'jpn', 'nl': 'nld'
 }
@@ -52,6 +51,7 @@ PDF_PERMISSIONS_MAP = {
     'can_assemble': 1024,
     'can_print_high_res': 2048
 }
+
 # =========================
 # LOGGING
 # =========================
@@ -83,21 +83,15 @@ except ImportError:
 # =========================
 # IMPORT DEPENDANCES
 # =========================
-# Pandas
-try:
-    import pandas as pd
-    HAS_PANDAS = True
-except ImportError:
-    pd = None
-    HAS_PANDAS = False
-    logger.warning("[WARN] pandas non installé, conversions CSV/Excel désactivées")
 
+# ✅ Pillow
 try:
     from PIL import Image, ImageOps, ImageFilter, ImageDraw, ImageEnhance, ImageFont
     HAS_PILLOW = True
 except ImportError:
     HAS_PILLOW = False
- 
+
+# ✅ ReportLab
 try:
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import letter, A4
@@ -109,15 +103,16 @@ try:
     HAS_REPORTLAB = True
 except ImportError:
     HAS_REPORTLAB = False
- 
+
+# ✅ pypdf
 try:
     import pypdf
-    from pypdf import PdfReader, PdfWriter
+    from pypdf import PdfReader, PdfWriter, PdfMerger
     HAS_PYPDF = True
 except ImportError:
     HAS_PYPDF = False
- 
-# ✅ docx
+
+# ✅ python-docx
 try:
     from docx import Document
     from docx.shared import Inches, Pt, RGBColor as DocxRGBColor, Cm
@@ -127,7 +122,7 @@ try:
 except ImportError:
     HAS_DOCX = False
 
-# ✅ pptx — noms distincts pour éviter l'écrasement
+# ✅ python-pptx — noms distincts pour éviter l'écrasement
 try:
     from pptx import Presentation
     from pptx.util import Inches as PptxInches, Pt as PptxPt, Emu
@@ -137,13 +132,16 @@ try:
 except ImportError:
     HAS_PPTX = False
 
- 
+# ✅ pandas — un seul import
 try:
     import pandas as pd
     HAS_PANDAS = True
 except ImportError:
+    pd = None
     HAS_PANDAS = False
- 
+    logger.warning("[WARN] pandas non installé, conversions CSV/Excel désactivées")
+
+# ✅ pytesseract
 try:
     import pytesseract
     from pytesseract import Output
@@ -151,52 +149,65 @@ try:
     HAS_TESSERACT = True
 except ImportError:
     HAS_TESSERACT = False
- 
+
+# ✅ pdf2image
 try:
     from pdf2image import convert_from_bytes, convert_from_path
     HAS_PDF2IMAGE = True
 except ImportError:
     HAS_PDF2IMAGE = False
- 
+
+# ✅ pdfplumber
 try:
     import pdfplumber
     HAS_PDFPLUMBER = True
 except ImportError:
     HAS_PDFPLUMBER = False
- 
+
+# ✅ weasyprint
 try:
     import weasyprint
     HAS_WEASYPRINT = True
 except ImportError:
     HAS_WEASYPRINT = False
- 
+
+# ✅ pdfkit
 try:
     import pdfkit
     HAS_PDFKIT = True
 except ImportError:
     HAS_PDFKIT = False
- 
+
+# ✅ numpy
 try:
     import numpy as np
     HAS_NUMPY = True
 except ImportError:
     HAS_NUMPY = False
- 
+
+# ✅ PyMuPDF (fitz)
 try:
-    import fitz                  # PyMuPDF — bien meilleur que pypdf pour la manipulation
+    import fitz
     HAS_FITZ = True
 except ImportError:
     HAS_FITZ = False
- 
+
+# ✅ chardet
 try:
     import chardet
     HAS_CHARDET = True
 except ImportError:
     HAS_CHARDET = False
- 
-from pypdf import PdfMerger      # déjà dans l'original
 
-# LibreOffice
+# ✅ scikit-learn KMeans — requis par detect_columns_from_words()
+try:
+    from sklearn.cluster import KMeans
+    HAS_SKLEARN = True
+except ImportError:
+    HAS_SKLEARN = False
+    logger.warning("[WARN] scikit-learn non installé, détection de colonnes désactivée")
+
+# LibreOffice — via subprocess, pas d'import Python
 import subprocess
 
 # =========================
@@ -256,14 +267,14 @@ def check_dependencies(deps_list):
 # ============================================================================
 # CONVERSION MAP - Configuration de toutes les conversions disponibles
 # ============================================================================
-from flask_babel import lazy_gettext as _l
+# NOTE: Chaînes brutes (pas de _l()), la traduction se fait dans les templates via _()
 
 CONVERSION_MAP = {
     # ==================== CONVERTIR EN PDF ====================
     'word-en-pdf': {
         'template': 'word_to_pdf.html',
-        'title': _l('Word vers PDF'),
-        'description': _l('Convertissez vos documents Word en PDF'),
+        'title': 'Word vers PDF',
+        'description': 'Convertissez vos documents Word en PDF',
         'from_format': 'Word',
         'to_format': 'PDF',
         'icon': 'file-word',
@@ -272,11 +283,10 @@ CONVERSION_MAP = {
         'max_files': 5,
         'deps': ['reportlab', 'libreoffice']
     },
-
     'excel-en-pdf': {
         'template': 'excel_to_pdf.html',
-        'title': _l('Excel vers PDF'),
-        'description': _l('Convertissez vos feuilles Excel en PDF'),
+        'title': 'Excel vers PDF',
+        'description': 'Convertissez vos feuilles Excel en PDF',
         'from_format': 'Excel',
         'to_format': 'PDF',
         'icon': 'file-excel',
@@ -285,11 +295,10 @@ CONVERSION_MAP = {
         'max_files': 5,
         'deps': ['reportlab', 'libreoffice']
     },
-
     'powerpoint-en-pdf': {
         'template': 'powerpoint_to_pdf.html',
-        'title': _l('PowerPoint vers PDF'),
-        'description': _l('Convertissez vos présentations PowerPoint en PDF'),
+        'title': 'PowerPoint vers PDF',
+        'description': 'Convertissez vos présentations PowerPoint en PDF',
         'from_format': 'PowerPoint',
         'to_format': 'PDF',
         'icon': 'file-powerpoint',
@@ -298,11 +307,10 @@ CONVERSION_MAP = {
         'max_files': 5,
         'deps': ['reportlab', 'libreoffice']
     },
-
     'image-en-pdf': {
         'template': 'image_to_pdf.html',
-        'title': _l('Image vers PDF'),
-        'description': _l('Convertissez vos images en document PDF'),
+        'title': 'Image vers PDF',
+        'description': 'Convertissez vos images en document PDF',
         'from_format': 'Image',
         'to_format': 'PDF',
         'icon': 'file-image',
@@ -311,11 +319,10 @@ CONVERSION_MAP = {
         'max_files': 20,
         'deps': ['Pillow', 'reportlab']
     },
-
     'jpg-en-pdf': {
         'template': 'image_to_pdf.html',
-        'title': _l('JPG vers PDF'),
-        'description': _l('Convertissez vos images JPG en PDF'),
+        'title': 'JPG vers PDF',
+        'description': 'Convertissez vos images JPG en PDF',
         'from_format': 'JPG',
         'to_format': 'PDF',
         'icon': 'file-image',
@@ -324,11 +331,10 @@ CONVERSION_MAP = {
         'max_files': 20,
         'deps': ['Pillow', 'reportlab']
     },
-
     'png-en-pdf': {
         'template': 'image_to_pdf.html',
-        'title': _l('PNG vers PDF'),
-        'description': _l('Convertissez vos images PNG en PDF'),
+        'title': 'PNG vers PDF',
+        'description': 'Convertissez vos images PNG en PDF',
         'from_format': 'PNG',
         'to_format': 'PDF',
         'icon': 'file-image',
@@ -337,11 +343,10 @@ CONVERSION_MAP = {
         'max_files': 20,
         'deps': ['Pillow', 'reportlab']
     },
-
     'html-en-pdf': {
         'template': 'html_to_pdf.html',
-        'title': _l('HTML vers PDF'),
-        'description': _l('Convertissez vos pages HTML en PDF'),
+        'title': 'HTML vers PDF',
+        'description': 'Convertissez vos pages HTML en PDF',
         'from_format': 'HTML',
         'to_format': 'PDF',
         'icon': 'code',
@@ -350,11 +355,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['weasyprint', 'pdfkit']
     },
-
     'txt-en-pdf': {
         'template': 'txt_to_pdf.html',
-        'title': _l('TXT vers PDF'),
-        'description': _l('Convertissez vos fichiers texte en PDF'),
+        'title': 'TXT vers PDF',
+        'description': 'Convertissez vos fichiers texte en PDF',
         'from_format': 'TXT',
         'to_format': 'PDF',
         'icon': 'file-alt',
@@ -367,8 +371,8 @@ CONVERSION_MAP = {
     # ==================== CONVERTIR DEPUIS PDF ====================
     'pdf-en-word': {
         'template': 'pdf_to_word.html',
-        'title': _l('PDF vers Word'),
-        'description': _l('Extrayez le texte de vos PDF en documents Word'),
+        'title': 'PDF vers Word',
+        'description': 'Extrayez le texte de vos PDF en documents Word',
         'from_format': 'PDF',
         'to_format': 'Word',
         'icon': 'file-pdf',
@@ -377,11 +381,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['pypdf', 'python-docx']
     },
-
     'pdf-en-doc': {
         'template': 'pdf_to_doc.html',
-        'title': _l('PDF vers DOC'),
-        'description': _l('Convertissez vos PDF en documents Word (format DOC)'),
+        'title': 'PDF vers DOC',
+        'description': 'Convertissez vos PDF en documents Word (format DOC)',
         'from_format': 'PDF',
         'to_format': 'DOC',
         'icon': 'file-word',
@@ -390,11 +393,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['pypdf', 'python-docx']
     },
-
     'pdf-en-excel': {
         'template': 'pdf_to_excel.html',
-        'title': _l('PDF vers Excel'),
-        'description': _l('Extrayez les tableaux de vos PDF en feuilles Excel'),
+        'title': 'PDF vers Excel',
+        'description': 'Extrayez les tableaux de vos PDF en feuilles Excel',
         'from_format': 'PDF',
         'to_format': 'Excel',
         'icon': 'file-pdf',
@@ -403,11 +405,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['pypdf', 'pdf2image', 'pytesseract', 'pandas', 'openpyxl']
     },
-
     'pdf-en-ppt': {
         'template': 'pdf_to_ppt.html',
-        'title': _l('PDF vers PowerPoint'),
-        'description': _l('Convertissez vos PDF en présentations PowerPoint modifiables'),
+        'title': 'PDF vers PowerPoint',
+        'description': 'Convertissez vos PDF en présentations PowerPoint modifiables',
         'from_format': 'PDF',
         'to_format': 'PowerPoint',
         'icon': 'file-powerpoint',
@@ -416,11 +417,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['pdf2image', 'Pillow', 'python-pptx']
     },
-
     'pdf-en-image': {
         'template': 'pdf_to_image.html',
-        'title': _l('PDF vers Image'),
-        'description': _l('Convertissez les pages de vos PDF en images'),
+        'title': 'PDF vers Image',
+        'description': 'Convertissez les pages de vos PDF en images',
         'from_format': 'PDF',
         'to_format': 'Image',
         'icon': 'file-pdf',
@@ -429,11 +429,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['pdf2image']
     },
-
     'pdf-en-pdfa': {
         'template': 'pdf_to_pdfa.html',
-        'title': _l('PDF vers PDF/A'),
-        'description': _l("Convertissez vos PDF en format PDF/A pour l'archivage"),
+        'title': 'PDF vers PDF/A',
+        'description': "Convertissez vos PDF en format PDF/A pour l'archivage",
         'from_format': 'PDF',
         'to_format': 'PDF/A',
         'icon': 'file-pdf',
@@ -442,11 +441,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['pypdf']
     },
-
     'pdf-en-html': {
         'template': 'pdf_to_html.html',
-        'title': _l('PDF vers HTML'),
-        'description': _l('Convertissez vos PDF en pages HTML'),
+        'title': 'PDF vers HTML',
+        'description': 'Convertissez vos PDF en pages HTML',
         'from_format': 'PDF',
         'to_format': 'HTML',
         'icon': 'code',
@@ -455,11 +453,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['pypdf']
     },
-
     'pdf-en-txt': {
         'template': 'pdf_to_txt.html',
-        'title': _l('PDF vers TXT'),
-        'description': _l('Extrayez le texte de vos PDF en fichiers texte'),
+        'title': 'PDF vers TXT',
+        'description': 'Extrayez le texte de vos PDF en fichiers texte',
         'from_format': 'PDF',
         'to_format': 'TXT',
         'icon': 'file-alt',
@@ -472,8 +469,8 @@ CONVERSION_MAP = {
     # ==================== OUTILS PDF ====================
     'proteger-pdf': {
         'template': 'protect_pdf.html',
-        'title': _l('Protéger PDF'),
-        'description': _l('Ajoutez un mot de passe pour protéger vos PDF'),
+        'title': 'Protéger PDF',
+        'description': 'Ajoutez un mot de passe pour protéger vos PDF',
         'from_format': 'PDF',
         'to_format': 'PDF',
         'icon': 'lock',
@@ -482,11 +479,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['pypdf']
     },
-
     'deverrouiller-pdf': {
         'template': 'unlock_pdf.html',
-        'title': _l('Déverrouiller PDF'),
-        'description': _l('Retirez la protection des PDF'),
+        'title': 'Déverrouiller PDF',
+        'description': 'Retirez la protection des PDF',
         'from_format': 'PDF',
         'to_format': 'PDF',
         'icon': 'unlock',
@@ -495,12 +491,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['pypdf']
     },
-
-    # ==================== NOUVEAUX OUTILS PDF ====================
     'redact-pdf': {
         'template': 'redact_pdf.html',
-        'title': _l('Caviarder PDF'),
-        'description': _l('Supprimez définitivement et en toute sécurité le contenu sensible de votre PDF'),
+        'title': 'Caviarder PDF',
+        'description': 'Supprimez définitivement et en toute sécurité le contenu sensible de votre PDF',
         'from_format': 'PDF',
         'to_format': 'PDF',
         'icon': 'mask',
@@ -509,11 +503,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['pypdf', 'Pillow']
     },
-
     'edit-pdf': {
         'template': 'edit_pdf.html',
-        'title': _l('Éditer PDF'),
-        'description': _l('Modifiez ou ajoutez du texte, des images et des pages à votre PDF'),
+        'title': 'Éditer PDF',
+        'description': 'Modifiez ou ajoutez du texte, des images et des pages à votre PDF',
         'from_format': 'PDF',
         'to_format': 'PDF',
         'icon': 'edit',
@@ -522,11 +515,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['pypdf', 'Pillow', 'reportlab']
     },
-
     'sign-pdf': {
         'template': 'sign_pdf.html',
-        'title': _l('Signer PDF'),
-        'description': _l('Ajoutez votre signature électronique à votre PDF'),
+        'title': 'Signer PDF',
+        'description': 'Ajoutez votre signature électronique à votre PDF',
         'from_format': 'PDF',
         'to_format': 'PDF',
         'icon': 'pen',
@@ -535,11 +527,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['pypdf', 'Pillow', 'reportlab']
     },
-
     'prepare-form': {
         'template': 'prepare_form.html',
-        'title': _l('Préparer formulaire PDF'),
-        'description': _l('Transformez vos documents Word, Excel ou numérisés en formulaires PDF interactifs'),
+        'title': 'Préparer formulaire PDF',
+        'description': 'Transformez vos documents Word, Excel ou numérisés en formulaires PDF interactifs',
         'from_format': 'Document',
         'to_format': 'PDF Formulaire',
         'icon': 'file-signature',
@@ -552,8 +543,8 @@ CONVERSION_MAP = {
     # ==================== CONVERSIONS DIVERSES ====================
     'image-en-word': {
         'template': 'image_to_word.html',
-        'title': _l('Image vers Word'),
-        'description': _l('Extrayez le texte des images en documents Word'),
+        'title': 'Image vers Word',
+        'description': 'Extrayez le texte des images en documents Word',
         'from_format': 'Image',
         'to_format': 'Word',
         'icon': 'image',
@@ -562,11 +553,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['Pillow', 'pytesseract', 'python-docx']
     },
-
     'image-en-excel': {
         'template': 'image_to_excel.html',
-        'title': _l('Image vers Excel'),
-        'description': _l('Extrayez les tableaux des images en Excel'),
+        'title': 'Image vers Excel',
+        'description': 'Extrayez les tableaux des images en Excel',
         'from_format': 'Image',
         'to_format': 'Excel',
         'icon': 'image',
@@ -575,11 +565,10 @@ CONVERSION_MAP = {
         'max_files': 1,
         'deps': ['Pillow', 'pytesseract', 'pandas', 'openpyxl']
     },
-
     'csv-en-excel': {
         'template': 'csv_to_excel.html',
-        'title': _l('CSV vers Excel'),
-        'description': _l('Convertissez vos fichiers CSV en Excel'),
+        'title': 'CSV vers Excel',
+        'description': 'Convertissez vos fichiers CSV en Excel',
         'from_format': 'CSV',
         'to_format': 'Excel',
         'icon': 'file-csv',
@@ -588,11 +577,10 @@ CONVERSION_MAP = {
         'max_files': 5,
         'deps': ['pandas', 'openpyxl']
     },
-
     'excel-en-csv': {
         'template': 'excel_to_csv.html',
-        'title': _l('Excel vers CSV'),
-        'description': _l('Exportez vos feuilles Excel en CSV'),
+        'title': 'Excel vers CSV',
+        'description': 'Exportez vos feuilles Excel en CSV',
         'from_format': 'Excel',
         'to_format': 'CSV',
         'icon': 'file-excel',
@@ -600,9 +588,8 @@ CONVERSION_MAP = {
         'accept': '.xls,.xlsx',
         'max_files': 5,
         'deps': ['pandas']
-    }
+    },
 }
-
 # =========================
 # ROUTES
 # =========================
@@ -1655,7 +1642,7 @@ def convert_pdf_to_excel(file, form_data=None):
                         rk = next((k for k in rows_dict if abs(top-k)<=row_threshold), top)
                         rows_dict.setdefault(rk,[]).append((left, txt))
                     for top_k in sorted(rows_dict):
-                        line = " ".join(t for _,t in sorted(rows_dict[top_k]))
+                        line = " ".join(t for _x, t in sorted(rows_dict[top_k]))
                         all_rows.append({"Page":i,"Ligne":line})
  
                 df_ocr = pd.DataFrame(all_rows) if all_rows else \
@@ -3041,7 +3028,7 @@ def _run_ocr_full(img, ocr_lang: str, config: str, preserve_layout: bool,
             for bp_key in sorted(paragraphs_dict):
                 para_lines = paragraphs_dict[bp_key]
                 para_lines.sort(key=lambda x: x[0])
-                result_parts.append("\n".join(lt for _, lt in para_lines))
+                result_parts.append("\n".join(lt for _x, lt in para_lines))
 
             return "\n\n".join(result_parts).strip()
 
@@ -3059,41 +3046,30 @@ def _run_ocr_full(img, ocr_lang: str, config: str, preserve_layout: bool,
 # ================= FONCTIONS DE POST-TRAITEMENT =================
 
 def detect_columns_from_words(words: List[Dict], max_columns: int = 4) -> Dict[int, List[Dict]]:
-    """
-    Regroupe les mots en colonnes via clustering X.
-    
-    Args:
-        words: Liste de mots avec positions
-        max_columns: Nombre maximum de colonnes
-    
-    Returns:
-        Dictionnaire: index_colonne -> [mots]
-    """
     if not words:
         return {0: []}
 
-    X_coords = np.array([[w["left"]] for w in words])
-    
-    # Ajuster le nombre de clusters
-    k = min(max_columns, len(words))
-    if k < 2:  # Pas assez de mots pour plusieurs colonnes
+    # ✅ Fallback si scikit-learn absent
+    if not HAS_SKLEARN:
+        logger.warning("scikit-learn absent, retour colonne unique")
         return {0: words}
-    
+
+    X_coords = np.array([[w["left"]] for w in words])
+    k = min(max_columns, len(words))
+    if k < 2:
+        return {0: words}
+
     kmeans = KMeans(n_clusters=k, n_init="auto", random_state=42)
     labels = kmeans.fit_predict(X_coords)
 
     columns = {}
     for w, lab in zip(words, labels):
-        if lab not in columns:
-            columns[lab] = []
-        columns[lab].append(w)
+        columns.setdefault(lab, []).append(w)
 
-    # Trier par position horizontale
     sorted_cols = dict(sorted(
-        columns.items(), 
+        columns.items(),
         key=lambda kv: np.mean([w["left"] for w in kv[1]])
     ))
-
     return sorted_cols
 
 def reconstruct_text_from_columns(columns: Dict[int, List[Dict]]) -> str:

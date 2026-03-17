@@ -12,34 +12,25 @@
         position: relative;
         overflow: hidden;
     }
-    
     .hero-section::before {
         content: '';
         position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
+        top: -50%; left: -50%;
+        width: 200%; height: 200%;
         background: radial-gradient(circle at center, rgba(255,255,255,0.1) 1px, transparent 1px);
         background-size: 50px 50px;
         animation: float 20s linear infinite;
     }
-    
     @keyframes float {
-        0% { transform: translate(0, 0) rotate(0deg); }
+        0%   { transform: translate(0, 0) rotate(0deg); }
         100% { transform: translate(-50px, -50px) rotate(360deg); }
     }
-    
-    .category-section {
-        margin-bottom: 4rem;
-    }
-    
+    .category-section { margin-bottom: 4rem; }
     .category-header {
         padding-bottom: 1rem;
         margin-bottom: 2rem;
         border-bottom: 3px solid;
     }
-    
     .conversion-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border-radius: 15px;
@@ -48,89 +39,51 @@
         border: none;
         height: 100%;
     }
-    
     .conversion-card:hover {
         transform: translateY(-10px);
         box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     }
-    
     .card-icon-wrapper {
-        width: 60px;
-        height: 60px;
+        width: 60px; height: 60px;
         border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: flex; align-items: center; justify-content: center;
         margin-bottom: 1rem;
-        color: white;
-        font-size: 1.5rem;
+        color: white; font-size: 1.5rem;
     }
-    
     .features-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 1.5rem;
         margin: 3rem 0;
     }
-    
     .feature-item {
-        text-align: center;
-        padding: 1.5rem;
-        background: #f8f9fa;
-        border-radius: 10px;
+        text-align: center; padding: 1.5rem;
+        background: #f8f9fa; border-radius: 10px;
         transition: all 0.3s ease;
     }
-    
     .feature-item:hover {
         background: white;
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         transform: translateY(-5px);
     }
-    
-    .format-badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        background: white;
-        border-radius: 20px;
-        margin: 0.25rem;
-        font-size: 0.9rem;
-        border: 1px solid #dee2e6;
-    }
-    
     .stats-card {
-        background: white;
-        border-radius: 15px;
-        padding: 2rem;
-        text-align: center;
+        background: white; border-radius: 15px;
+        padding: 2rem; text-align: center;
         box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         border: 1px solid #e9ecef;
     }
-    
     .stats-number {
-        font-size: 3rem;
-        font-weight: bold;
-        color: #667eea;
-        line-height: 1;
+        font-size: 3rem; font-weight: bold;
+        color: #667eea; line-height: 1;
     }
-    
-    /* Animation pour les cartes */
     @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(30px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
-    
     .animated-card {
         animation: fadeInUp 0.6s ease forwards;
         opacity: 0;
     }
-    
-    /* Délais d'animation pour les cartes */
     .card-1 { animation-delay: 0.1s; }
     .card-2 { animation-delay: 0.2s; }
     .card-3 { animation-delay: 0.3s; }
@@ -142,14 +95,22 @@
 
 {% block content %}
 <div class="container">
-    <!-- Hero Section -->
+
+    <!-- Hero -->
     <div class="hero-section text-center">
         <div class="position-relative">
-            <h1 class="display-4 mb-3"><i class="fas fa-exchange-alt me-2"></i>{{ _('Convertisseur de fichiers') }}</h1>
-            <p class="lead mb-4">{{ _('Transformez vos documents en tous formats, gratuitement et en ligne') }}</p>
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-exchange-alt me-2"></i>
+                {{ _('Convertisseur de fichiers') }}
+            </h1>
+            <p class="lead mb-4">
+                {{ _('Transformez vos documents en tous formats, gratuitement et en ligne') }}
+            </p>
             <div class="row justify-content-center">
                 <div class="col-md-8">
-                    <p class="mb-4">{{ _('Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple, rapide et sécurisé.') }}</p>
+                    <p class="mb-4">
+                        {{ _('Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple, rapide et sécurisé.') }}
+                    </p>
                 </div>
             </div>
             <div class="mt-4">
@@ -188,35 +149,38 @@
         </div>
     </div>
 
-    <!-- Catégories de conversions -->
+    <!-- Catégories -->
     <div id="conversions">
         {% for category_id, category in categories.items() %}
         <div class="category-section">
             <div class="category-header" style="border-color: {{ category.color }};">
                 <h2 class="mb-0">
                     <i class="fas fa-{{ category.icon }} me-2"></i>
-                    {{ category.title }}
+                    {{ _(category.title) }}
                 </h2>
-                <p class="text-muted mb-0 mt-2">{{ category.conversions|length }} {{ _('outils disponibles') }}</p>
+                <p class="text-muted mb-0 mt-2">
+                    {{ category.conversions|length }} {{ _('outils disponibles') }}
+                </p>
             </div>
-            
+
             <div class="row">
                 {% for conversion in category.conversions %}
                 <div class="col-md-3 mb-4">
-                    <a href="{{ url_for('conversion.universal_converter', conversion_type=conversion.type) }}" 
+                    <a href="{{ url_for('conversion.universal_converter', conversion_type=conversion.type) }}"
                        class="text-decoration-none">
                         <div class="card conversion-card animated-card card-{{ loop.index }}">
                             <div class="card-body p-4">
                                 <div class="card-icon-wrapper" style="background: {{ conversion.color }};">
                                     <i class="fas fa-{{ conversion.icon }}"></i>
                                 </div>
-                                <h3 class="card-title h5 mb-3">{{ conversion.title }}</h3>
+                                {# ✅ _(conversion.title) : traduit la chaîne brute au moment du rendu #}
+                                <h3 class="card-title h5 mb-3">{{ _(conversion.title) }}</h3>
                                 <p class="card-text small text-muted mb-3">
-                                    {{ conversion.description }}
+                                    {{ _(conversion.description) }}
                                 </p>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="badge bg-light text-dark">
-                                        {{ conversion.from_format }} → {{ conversion.to_format }}
+                                        {{ _(conversion.from_format) }} → {{ _(conversion.to_format) }}
                                     </span>
                                     <i class="fas fa-arrow-right text-muted"></i>
                                 </div>
@@ -230,25 +194,25 @@
         {% endfor %}
     </div>
 
-    <!-- Fonctionnalités principales -->
+    <!-- Fonctionnalités -->
     <div class="features-grid">
         <div class="feature-item">
-            <i class="fas fa-shield-alt" style="font-size: 2.5rem; color: #667eea;"></i>
+            <i class="fas fa-shield-alt" style="font-size:2.5rem;color:#667eea;"></i>
             <h4>{{ _('Sécurisé') }}</h4>
             <p class="mb-0">{{ _('Fichiers traités localement et supprimés après conversion') }}</p>
         </div>
         <div class="feature-item">
-            <i class="fas fa-bolt" style="font-size: 2.5rem; color: #667eea;"></i>
+            <i class="fas fa-bolt" style="font-size:2.5rem;color:#667eea;"></i>
             <h4>{{ _('Rapide') }}</h4>
             <p class="mb-0">{{ _('Conversion en quelques secondes, sans attente') }}</p>
         </div>
         <div class="feature-item">
-            <i class="fas fa-laptop" style="font-size: 2.5rem; color: #667eea;"></i>
+            <i class="fas fa-laptop" style="font-size:2.5rem;color:#667eea;"></i>
             <h4>{{ _('Multiplateforme') }}</h4>
             <p class="mb-0">{{ _('Compatible avec tous les navigateurs modernes') }}</p>
         </div>
         <div class="feature-item">
-            <i class="fas fa-infinity" style="font-size: 2.5rem; color: #667eea;"></i>
+            <i class="fas fa-infinity" style="font-size:2.5rem;color:#667eea;"></i>
             <h4>{{ _('Illimité') }}</h4>
             <p class="mb-0">{{ _('Aucune limite sur le nombre de conversions') }}</p>
         </div>
@@ -257,7 +221,10 @@
     <!-- Toutes les conversions -->
     <div class="row mt-5">
         <div class="col-md-8">
-            <h3 class="mb-4"><i class="fas fa-list-alt me-2"></i>{{ _('Toutes les conversions disponibles') }}</h3>
+            <h3 class="mb-4">
+                <i class="fas fa-list-alt me-2"></i>
+                {{ _('Toutes les conversions disponibles') }}
+            </h3>
             <div class="row">
                 {% for key, conversion in all_conversions.items() %}
                 <div class="col-md-6 mb-3">
@@ -266,11 +233,12 @@
                             <i class="fas fa-{{ conversion.icon }} fa-lg"></i>
                         </div>
                         <div class="flex-grow-1">
-                            <h4 class="mb-1">{{ conversion.title }}</h4>
-                            <p class="mb-0 small text-muted">{{ conversion.description }}</p>
+                            {# ✅ _(conversion.title) #}
+                            <h4 class="mb-1 h6">{{ _(conversion.title) }}</h4>
+                            <p class="mb-0 small text-muted">{{ _(conversion.description) }}</p>
                         </div>
                         <div>
-                            <a href="{{ url_for('conversion.universal_converter', conversion_type=key) }}" 
+                            <a href="{{ url_for('conversion.universal_converter', conversion_type=key) }}"
                                class="btn btn-sm btn-outline-primary">
                                 {{ _('Utiliser') }}
                             </a>
@@ -280,11 +248,13 @@
                 {% endfor %}
             </div>
         </div>
-        
+
         <div class="col-md-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <h4 class="card-title"><i class="fas fa-question-circle me-2"></i>{{ _('Comment ça marche ?') }}</h4>
+                    <h4 class="card-title">
+                        <i class="fas fa-question-circle me-2"></i>{{ _('Comment ça marche ?') }}
+                    </h4>
                     <ol class="mt-3 ps-3">
                         <li class="mb-2">{{ _('Choisissez votre outil de conversion') }}</li>
                         <li class="mb-2">{{ _('Téléchargez votre fichier source') }}</li>
@@ -292,27 +262,31 @@
                         <li class="mb-2">{{ _('Lancez la conversion') }}</li>
                         <li>{{ _('Téléchargez votre fichier converti') }}</li>
                     </ol>
-                    
                     <div class="alert alert-info mt-3 mb-0">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>{{ _('Important :') }}</strong> {{ _('Les fichiers sont automatiquement supprimés après 1 heure') }}
+                        <strong>{{ _('Important :') }}</strong>
+                        {{ _('Les fichiers sont automatiquement supprimés après 1 heure') }}
                     </div>
                 </div>
             </div>
-            
-            <!-- Liens rapides -->
+
             <div class="card border-0 shadow-sm mt-3">
                 <div class="card-body">
-                    <h4 class="card-title"><i class="fas fa-link me-2"></i>{{ _('Liens rapides') }}</h4>
+                    <h4 class="card-title">
+                        <i class="fas fa-link me-2"></i>{{ _('Liens rapides') }}
+                    </h4>
                     <div class="list-group list-group-flush">
-                        <a href="{{ url_for('conversion.dependencies_page') }}" class="list-group-item list-group-item-action">
+                        <a href="{{ url_for('conversion.dependencies_page') }}"
+                           class="list-group-item list-group-item-action">
                             <i class="fas fa-cogs me-2"></i>{{ _('Dépendances système') }}
                         </a>
-                        <a href="{{ url_for('conversion.clean_temp') }}" class="list-group-item list-group-item-action">
+                        <a href="{{ url_for('conversion.clean_temp') }}"
+                           class="list-group-item list-group-item-action">
                             <i class="fas fa-trash me-2"></i>{{ _('Nettoyer fichiers temporaires') }}
                         </a>
-                        <a href="{{ url_for('conversion.api_health') }}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-heartbeat me-2"></i>{{ _('Vérifier l\'état du service') }}
+                        <a href="{{ url_for('conversion.api_health') }}"
+                           class="list-group-item list-group-item-action">
+                            <i class="fas fa-heartbeat me-2"></i>{{ _("Vérifier l'état du service") }}
                         </a>
                     </div>
                 </div>
@@ -322,7 +296,9 @@
 
     <!-- FAQ -->
     <div class="mt-5 pt-4">
-        <h3 class="text-center mb-4"><i class="fas fa-question-circle me-2"></i>{{ _('Questions fréquentes') }}</h3>
+        <h3 class="text-center mb-4">
+            <i class="fas fa-question-circle me-2"></i>{{ _('Questions fréquentes') }}
+        </h3>
         <div class="row">
             <div class="col-md-6 mb-4">
                 <div class="card border-0 shadow-sm h-100">
@@ -337,7 +313,6 @@
                     </div>
                 </div>
             </div>
-            
             <div class="col-md-6 mb-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
@@ -351,7 +326,6 @@
                     </div>
                 </div>
             </div>
-            
             <div class="col-md-6 mb-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
@@ -365,7 +339,6 @@
                     </div>
                 </div>
             </div>
-            
             <div class="col-md-6 mb-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
@@ -381,39 +354,35 @@
             </div>
         </div>
     </div>
+
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const animatedCards = document.querySelectorAll('.animated-card');
 
     if ('IntersectionObserver' in window) {
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
+        const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
-                    // Lire le délai depuis le style inline déjà défini par CSS
                     entry.target.style.animationPlayState = 'running';
-                    observer.unobserve(entry.target); // ← important : ne déclencher qu'une fois
+                    observer.unobserve(entry.target);
                 }
             });
         }, { threshold: 0.1 });
 
-        animatedCards.forEach(function(el) {
+        animatedCards.forEach(function (el) {
             el.style.animationPlayState = 'paused';
             observer.observe(el);
         });
     } else {
-        // Fallback sans IntersectionObserver
-        animatedCards.forEach(function(el) {
-            el.style.opacity = '1';
-        });
+        animatedCards.forEach(function (el) { el.style.opacity = '1'; });
     }
 
-    // Surbrillance nav active
     const currentPath = window.location.pathname;
-    document.querySelectorAll('.navbar-nav .nav-link').forEach(function(link) {
+    document.querySelectorAll('.navbar-nav .nav-link').forEach(function (link) {
         if (link.getAttribute('href') === currentPath) {
             link.classList.add('active');
         }

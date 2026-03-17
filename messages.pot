@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-16 18:32+0000\n"
+"POT-Creation-Date: 2026-03-17 12:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,8 +17,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
-#: app.py:495 templates/conversion/index.html:148
+#: app.py:450 templates/conversion/index.html:104
 msgid "Convertisseur de fichiers"
+msgstr ""
+
+#: app.py:479
+msgid "Word vers PDF"
+msgstr ""
+
+#: app.py:480 templates/base.html:266 templates/base.html:409
+msgid "Fusionner PDF"
 msgstr ""
 
 #: blueprints/admin.py:36
@@ -133,6 +141,43 @@ msgstr ""
 
 #: blueprints/admin.py:664
 msgid "✅ Fichier contacts.json créé"
+msgstr ""
+
+#: blueprints/legal/routes.py:78 templates/conversion/prepare_form.html:247
+#: templates/legal/contact.html:42
+msgid "Nom complet"
+msgstr ""
+
+#: blueprints/legal/routes.py:82 templates/conversion/prepare_form.html:252
+msgid "Email"
+msgstr ""
+
+#: blueprints/legal/routes.py:86
+msgid "Téléphone (optionnel)"
+msgstr ""
+
+#: blueprints/legal/routes.py:90
+msgid "Sujet"
+msgstr ""
+
+#: blueprints/legal/routes.py:92
+msgid "Signaler un bug"
+msgstr ""
+
+#: blueprints/legal/routes.py:93
+msgid "Proposer une amélioration"
+msgstr ""
+
+#: blueprints/legal/routes.py:94
+msgid "Partenariat"
+msgstr ""
+
+#: blueprints/legal/routes.py:95
+msgid "Autre"
+msgstr ""
+
+#: blueprints/legal/routes.py:100
+msgid "Message"
 msgstr ""
 
 #: blueprints/legal/routes.py:205
@@ -371,7 +416,7 @@ msgid "PDF Fusion Pro"
 msgstr ""
 
 #: templates/base.html:250 templates/base_legal.html:278
-#: templates/conversion/conversion_base.html:302
+#: templates/conversion/conversion_base.html:197
 msgid "Convertir"
 msgstr ""
 
@@ -424,10 +469,6 @@ msgstr ""
 
 #: templates/base.html:265
 msgid "Outils PDF"
-msgstr ""
-
-#: templates/base.html:266 templates/base.html:409
-msgid "Fusionner PDF"
 msgstr ""
 
 #: templates/base.html:267 templates/base.html:410
@@ -563,8 +604,8 @@ msgstr ""
 msgid "caractères"
 msgstr ""
 
-#: templates/conversion/conversion_base.html:298
-#: templates/conversion/conversion_base.html:306
+#: templates/conversion/conversion_base.html:193
+#: templates/conversion/conversion_base.html:201
 #: templates/conversion/csv_to_excel.html:101
 #: templates/conversion/excel_to_csv.html:108
 #: templates/conversion/excel_to_pdf.html:91
@@ -575,56 +616,56 @@ msgstr ""
 msgid "Télécharger"
 msgstr ""
 
-#: templates/conversion/conversion_base.html:323
-#: templates/conversion/index.html:237
+#: templates/conversion/conversion_base.html:214
+#: templates/conversion/index.html:201
 msgid "Sécurisé"
 msgstr ""
 
-#: templates/conversion/conversion_base.html:324
+#: templates/conversion/conversion_base.html:215
 msgid "Vos fichiers sont supprimés après conversion"
 msgstr ""
 
-#: templates/conversion/conversion_base.html:331
-#: templates/conversion/index.html:242
+#: templates/conversion/conversion_base.html:219
+#: templates/conversion/index.html:206
 msgid "Rapide"
 msgstr ""
 
-#: templates/conversion/conversion_base.html:332
+#: templates/conversion/conversion_base.html:220
 msgid "Conversion en quelques secondes"
 msgstr ""
 
-#: templates/conversion/conversion_base.html:339
+#: templates/conversion/conversion_base.html:224
 msgid "Confidentiel"
 msgstr ""
 
-#: templates/conversion/conversion_base.html:340
+#: templates/conversion/conversion_base.html:225
 msgid "Personne n'accède à vos fichiers"
 msgstr ""
 
-#: templates/conversion/conversion_base.html:347
+#: templates/conversion/conversion_base.html:229
 msgid "Accessible"
 msgstr ""
 
-#: templates/conversion/conversion_base.html:348
+#: templates/conversion/conversion_base.html:230
 msgid "Utilisez depuis n'importe où"
 msgstr ""
 
-#: templates/conversion/conversion_base.html:357
-#: templates/conversion/index.html:287
+#: templates/conversion/conversion_base.html:239
+#: templates/conversion/index.html:256
 msgid "Comment ça marche ?"
 msgstr ""
 
-#: templates/conversion/conversion_base.html:360
+#: templates/conversion/conversion_base.html:242
 #, python-format
 msgid "Téléchargez votre fichier %(from_format)s."
 msgstr ""
 
-#: templates/conversion/conversion_base.html:363
+#: templates/conversion/conversion_base.html:245
 #, python-format
 msgid "Notre système le convertit automatiquement en %(to_format)s."
 msgstr ""
 
-#: templates/conversion/conversion_base.html:366
+#: templates/conversion/conversion_base.html:247
 msgid "Téléchargez ensuite votre fichier converti."
 msgstr ""
 
@@ -1731,156 +1772,156 @@ msgstr ""
 msgid "Document prêt"
 msgstr ""
 
-#: templates/conversion/index.html:149
+#: templates/conversion/index.html:107
 msgid "Transformez vos documents en tous formats, gratuitement et en ligne"
 msgstr ""
 
-#: templates/conversion/index.html:152
+#: templates/conversion/index.html:112
 msgid ""
 "Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple,"
 " rapide et sécurisé."
 msgstr ""
 
-#: templates/conversion/index.html:157
+#: templates/conversion/index.html:118
 msgid "Découvrir les outils"
 msgstr ""
 
-#: templates/conversion/index.html:168
+#: templates/conversion/index.html:129
 msgid "Outils de conversion"
 msgstr ""
 
-#: templates/conversion/index.html:174
+#: templates/conversion/index.html:135
 msgid "Gratuit"
 msgstr ""
 
-#: templates/conversion/index.html:180
+#: templates/conversion/index.html:141
 msgid "Max par fichier"
 msgstr ""
 
-#: templates/conversion/index.html:186
+#: templates/conversion/index.html:147
 msgid "Conversions illimitées"
 msgstr ""
 
-#: templates/conversion/index.html:200
+#: templates/conversion/index.html:162
 msgid "outils disponibles"
 msgstr ""
 
-#: templates/conversion/index.html:238
+#: templates/conversion/index.html:202
 msgid "Fichiers traités localement et supprimés après conversion"
 msgstr ""
 
-#: templates/conversion/index.html:243
+#: templates/conversion/index.html:207
 msgid "Conversion en quelques secondes, sans attente"
 msgstr ""
 
-#: templates/conversion/index.html:247
+#: templates/conversion/index.html:211
 msgid "Multiplateforme"
 msgstr ""
 
-#: templates/conversion/index.html:248 templates/pdf/index.html:152
+#: templates/conversion/index.html:212 templates/pdf/index.html:152
 msgid "Compatible avec tous les navigateurs modernes"
 msgstr ""
 
-#: templates/conversion/index.html:252
+#: templates/conversion/index.html:216
 msgid "Illimité"
 msgstr ""
 
-#: templates/conversion/index.html:253
+#: templates/conversion/index.html:217
 msgid "Aucune limite sur le nombre de conversions"
 msgstr ""
 
-#: templates/conversion/index.html:260
+#: templates/conversion/index.html:226
 msgid "Toutes les conversions disponibles"
 msgstr ""
 
-#: templates/conversion/index.html:275
+#: templates/conversion/index.html:243
 msgid "Utiliser"
 msgstr ""
 
-#: templates/conversion/index.html:289
+#: templates/conversion/index.html:259
 msgid "Choisissez votre outil de conversion"
 msgstr ""
 
-#: templates/conversion/index.html:290
+#: templates/conversion/index.html:260
 msgid "Téléchargez votre fichier source"
 msgstr ""
 
-#: templates/conversion/index.html:291
+#: templates/conversion/index.html:261
 msgid "Configurez les options (si besoin)"
 msgstr ""
 
-#: templates/conversion/index.html:292
+#: templates/conversion/index.html:262
 msgid "Lancez la conversion"
 msgstr ""
 
-#: templates/conversion/index.html:293
+#: templates/conversion/index.html:263
 msgid "Téléchargez votre fichier converti"
 msgstr ""
 
-#: templates/conversion/index.html:298 templates/conversion/protect_pdf.html:75
+#: templates/conversion/index.html:267 templates/conversion/protect_pdf.html:75
 msgid "Important :"
 msgstr ""
 
-#: templates/conversion/index.html:298
+#: templates/conversion/index.html:268
 msgid "Les fichiers sont automatiquement supprimés après 1 heure"
 msgstr ""
 
-#: templates/conversion/index.html:306
+#: templates/conversion/index.html:276
 msgid "Liens rapides"
 msgstr ""
 
-#: templates/conversion/index.html:309
+#: templates/conversion/index.html:281
 msgid "Dépendances système"
 msgstr ""
 
-#: templates/conversion/index.html:312
+#: templates/conversion/index.html:285
 msgid "Nettoyer fichiers temporaires"
 msgstr ""
 
-#: templates/conversion/index.html:315
+#: templates/conversion/index.html:289
 msgid "Vérifier l'état du service"
 msgstr ""
 
-#: templates/conversion/index.html:325
+#: templates/conversion/index.html:300
 msgid "Questions fréquentes"
 msgstr ""
 
-#: templates/conversion/index.html:332
+#: templates/conversion/index.html:308
 msgid "Les fichiers sont-ils sécurisés ?"
 msgstr ""
 
-#: templates/conversion/index.html:335
+#: templates/conversion/index.html:311
 msgid ""
 "Oui, tous les fichiers sont traités localement et automatiquement "
 "supprimés après 1 heure. Nous ne stockons jamais vos documents sur nos "
 "serveurs."
 msgstr ""
 
-#: templates/conversion/index.html:346
+#: templates/conversion/index.html:321
 msgid "Quelles sont les limites de taille ?"
 msgstr ""
 
-#: templates/conversion/index.html:349
+#: templates/conversion/index.html:324
 msgid ""
 "Taille maximale par fichier : 50MB. Nombre maximum de fichiers par "
 "conversion : variable selon l'outil (de 1 à 20)."
 msgstr ""
 
-#: templates/conversion/index.html:360
+#: templates/conversion/index.html:334
 msgid "Combien de temps dure une conversion ?"
 msgstr ""
 
-#: templates/conversion/index.html:363
+#: templates/conversion/index.html:337
 msgid ""
 "La plupart des conversions prennent moins de 30 secondes. Pour les gros "
 "fichiers ou les conversions complexes (OCR), comptez 1 à 2 minutes."
 msgstr ""
 
-#: templates/conversion/index.html:374
+#: templates/conversion/index.html:347
 msgid "Quels formats sont supportés ?"
 msgstr ""
 
-#: templates/conversion/index.html:377
+#: templates/conversion/index.html:350
 msgid ""
 "Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, "
 "PPTX, JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore."
@@ -3169,10 +3210,6 @@ msgstr ""
 msgid "Veuillez d'abord télécharger un document"
 msgstr ""
 
-#: templates/conversion/prepare_form.html:247 templates/legal/contact.html:42
-msgid "Nom complet"
-msgstr ""
-
 #: templates/conversion/prepare_form.html:248
 msgid "Prénom"
 msgstr ""
@@ -3187,10 +3224,6 @@ msgstr ""
 
 #: templates/conversion/prepare_form.html:251
 msgid "Ville"
-msgstr ""
-
-#: templates/conversion/prepare_form.html:252
-msgid "Email"
 msgstr ""
 
 #: templates/conversion/prepare_form.html:253
