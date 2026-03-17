@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-17 16:46+0000\n"
+"POT-Creation-Date: 2026-03-17 17:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -420,49 +420,6 @@ msgstr "Excel в CSV"
 #: blueprints/conversion.py:585
 msgid "Exportez vos feuilles Excel en CSV"
 msgstr "Выберите файлы для конвертации в Excel"
-
-#: blueprints/legal/routes.py:78 templates/conversion/prepare_form.html:247
-#: templates/legal/contact.html:42
-msgid "Nom complet"
-msgstr "Полное имя"
-
-#: blueprints/legal/routes.py:82 templates/conversion/prepare_form.html:252
-msgid "Email"
-msgstr "Электронная почта"
-
-#: blueprints/legal/routes.py:86
-#, fuzzy
-msgid "Téléphone (optionnel)"
-msgstr "Номер телефона (необязательно)"
-
-#: blueprints/legal/routes.py:90
-msgid "Sujet"
-msgstr ""
-
-#: blueprints/legal/routes.py:92
-#, fuzzy
-msgid "Signaler un bug"
-msgstr "Объединить PDF"
-
-#: blueprints/legal/routes.py:93
-#, fuzzy
-msgid "Proposer une amélioration"
-msgstr "Предложить функциональное улучшение"
-
-#: blueprints/legal/routes.py:94
-#, fuzzy
-msgid "Partenariat"
-msgstr "Запрос на партнерство"
-
-#: blueprints/legal/routes.py:95
-#, fuzzy
-msgid "Autre"
-msgstr "Дата"
-
-#: blueprints/legal/routes.py:100
-#, fuzzy
-msgid "Message"
-msgstr "сообщения"
 
 #: blueprints/legal/routes.py:205
 msgid "Veuillez remplir tous les champs obligatoires."
@@ -2458,6 +2415,18 @@ msgstr "Для отсканированных PDF-файлов или изобр
 msgid "Maintient les styles et couleurs"
 msgstr "Сохраняет стиль и цвет."
 
+#: templates/conversion/pdf_to_excel.html:86
+#, fuzzy
+msgid "Extraction intelligente :"
+msgstr "Интеллектуальное обнаружение"
+
+#: templates/conversion/pdf_to_excel.html:86
+msgid ""
+"Les tableaux seront automatiquement détectés et convertis en feuilles "
+"Excel. L'OCR permet de reconnaître le texte dans les documents scannés."
+msgstr ""
+"Таблицы будут автоматически обнаружены и преобразованы в листы Excel. OCR"
+" распознает текст в отсканированных документах."
 
 #: templates/conversion/pdf_to_excel.html:93
 msgid "Extraire vers Excel"
@@ -3463,6 +3432,10 @@ msgstr "Создать PDF-форму"
 msgid "Veuillez d'abord télécharger un document"
 msgstr "Пожалуйста, сначала загрузите документ"
 
+#: templates/conversion/prepare_form.html:247 templates/legal/contact.html:42
+msgid "Nom complet"
+msgstr "Полное имя"
+
 #: templates/conversion/prepare_form.html:248
 msgid "Prénom"
 msgstr "Имя"
@@ -3478,6 +3451,10 @@ msgstr "Почтовый индекс"
 #: templates/conversion/prepare_form.html:251
 msgid "Ville"
 msgstr "Город"
+
+#: templates/conversion/prepare_form.html:252
+msgid "Email"
+msgstr "Электронная почта"
 
 #: templates/conversion/prepare_form.html:253
 msgid "Téléphone"
@@ -5333,16 +5310,24 @@ msgstr "Разделить PDF"
 #~ "листы Excel. OCR распознает текст в "
 #~ "отсканированных документах."
 
+#~ msgid "Téléphone (optionnel)"
+#~ msgstr "Номер телефона (необязательно)"
 
+#~ msgid "Sujet"
+#~ msgstr ""
 
-#: templates/conversion/pdf_to_excel.html:86
-msgid "Les tableaux seront automatiquement détectés et convertis en feuilles Excel. L'OCR permet de reconnaître le texte dans les documents scannés."
-msgstr "Таблицы будут автоматически обнаружены и преобразованы в листы Excel. OCR распознает текст в отсканированных документах."
+#~ msgid "Signaler un bug"
+#~ msgstr "Объединить PDF"
 
-#: templates/index.html
-msgid "Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et compressez vos fichiers PDF."
-msgstr "Бесплатные онлайн PDF-инструменты от PDF Fusion Pro. Конвертируйте, объединяйте, разделяйте и сжимайте PDF-файлы."
+#~ msgid "Proposer une amélioration"
+#~ msgstr "Предложить функциональное улучшение"
 
-#: templates/index.html
-msgid "Vos fichiers sont traités de manière sécurisée et supprimés automatiquement."
-msgstr "С PDF Fusion Pro ваши файлы обрабатываются безопасно и автоматически удаляются."
+#~ msgid "Partenariat"
+#~ msgstr "Запрос на партнерство"
+
+#~ msgid "Autre"
+#~ msgstr "Дата"
+
+#~ msgid "Message"
+#~ msgstr "сообщения"
+

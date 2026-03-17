@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-17 16:46+0000\n"
+"POT-Creation-Date: 2026-03-17 17:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -420,49 +420,6 @@ msgstr "إكسل إلى سي إس في"
 #: blueprints/conversion.py:585
 msgid "Exportez vos feuilles Excel en CSV"
 msgstr "اختر الملفات لتحويلها إلى Excel"
-
-#: blueprints/legal/routes.py:78 templates/conversion/prepare_form.html:247
-#: templates/legal/contact.html:42
-msgid "Nom complet"
-msgstr "الاسم الكامل"
-
-#: blueprints/legal/routes.py:82 templates/conversion/prepare_form.html:252
-msgid "Email"
-msgstr "بريد إلكتروني"
-
-#: blueprints/legal/routes.py:86
-#, fuzzy
-msgid "Téléphone (optionnel)"
-msgstr "رقم الهاتف (اختياري)"
-
-#: blueprints/legal/routes.py:90
-msgid "Sujet"
-msgstr ""
-
-#: blueprints/legal/routes.py:92
-#, fuzzy
-msgid "Signaler un bug"
-msgstr "دمج بي دي إف"
-
-#: blueprints/legal/routes.py:93
-#, fuzzy
-msgid "Proposer une amélioration"
-msgstr "اقتراح تحسين وظيفي"
-
-#: blueprints/legal/routes.py:94
-#, fuzzy
-msgid "Partenariat"
-msgstr "طلب الشراكة"
-
-#: blueprints/legal/routes.py:95
-#, fuzzy
-msgid "Autre"
-msgstr "تاريخ"
-
-#: blueprints/legal/routes.py:100
-#, fuzzy
-msgid "Message"
-msgstr "رسائل"
 
 #: blueprints/legal/routes.py:205
 msgid "Veuillez remplir tous les champs obligatoires."
@@ -2456,6 +2413,18 @@ msgstr "لملفات PDF أو الصور الممسوحة ضوئيًا"
 msgid "Maintient les styles et couleurs"
 msgstr "يحافظ على الأنماط والألوان"
 
+#: templates/conversion/pdf_to_excel.html:86
+#, fuzzy
+msgid "Extraction intelligente :"
+msgstr "كشف ذكي"
+
+#: templates/conversion/pdf_to_excel.html:86
+msgid ""
+"Les tableaux seront automatiquement détectés et convertis en feuilles "
+"Excel. L'OCR permet de reconnaître le texte dans les documents scannés."
+msgstr ""
+"سيتم اكتشاف الجداول تلقائيًا وتحويلها إلى أوراق Excel. يتعرف OCR على النص"
+" في المستندات الممسوحة ضوئيًا."
 
 #: templates/conversion/pdf_to_excel.html:93
 msgid "Extraire vers Excel"
@@ -3461,6 +3430,10 @@ msgstr "إنشاء نموذج PDF"
 msgid "Veuillez d'abord télécharger un document"
 msgstr "يرجى تحميل مستند أولاً"
 
+#: templates/conversion/prepare_form.html:247 templates/legal/contact.html:42
+msgid "Nom complet"
+msgstr "الاسم الكامل"
+
 #: templates/conversion/prepare_form.html:248
 msgid "Prénom"
 msgstr "الاسم الأول"
@@ -3476,6 +3449,10 @@ msgstr "شفرة البريد"
 #: templates/conversion/prepare_form.html:251
 msgid "Ville"
 msgstr "مدينة"
+
+#: templates/conversion/prepare_form.html:252
+msgid "Email"
+msgstr "بريد إلكتروني"
 
 #: templates/conversion/prepare_form.html:253
 msgid "Téléphone"
@@ -5316,16 +5293,24 @@ msgstr "تقسيم بي دي إف"
 #~ " OCR على النص في المستندات الممسوحة"
 #~ " ضوئيًا."
 
+#~ msgid "Téléphone (optionnel)"
+#~ msgstr "رقم الهاتف (اختياري)"
 
+#~ msgid "Sujet"
+#~ msgstr ""
 
-#: templates/conversion/pdf_to_excel.html:86
-msgid "Les tableaux seront automatiquement détectés et convertis en feuilles Excel. L'OCR permet de reconnaître le texte dans les documents scannés."
-msgstr "سيتم اكتشاف الجداول تلقائيًا وتحويلها إلى أوراق Excel. يتعرف OCR على النص في المستندات الممسوحة ضوئيًا."
+#~ msgid "Signaler un bug"
+#~ msgstr "دمج بي دي إف"
 
-#: templates/index.html
-msgid "Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et compressez vos fichiers PDF."
-msgstr "أدوات PDF مجانية عبر الإنترنت من PDF Fusion Pro. قم بتحويل ودمج وتقسيم وضغط ملفات PDF الخاصة بك."
+#~ msgid "Proposer une amélioration"
+#~ msgstr "اقتراح تحسين وظيفي"
 
-#: templates/index.html
-msgid "Vos fichiers sont traités de manière sécurisée et supprimés automatiquement."
-msgstr "مع PDF Fusion Pro، تتم معالجة ملفاتك بأمان وحذفها تلقائيًا."
+#~ msgid "Partenariat"
+#~ msgstr "طلب الشراكة"
+
+#~ msgid "Autre"
+#~ msgstr "تاريخ"
+
+#~ msgid "Message"
+#~ msgstr "رسائل"
+

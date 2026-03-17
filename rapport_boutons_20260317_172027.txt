@@ -1,0 +1,839 @@
+RAPPORT DE VÉRIFICATION DES BOUTONS
+Date: Tue Mar 17 17:20:27 UTC 2026
+=========================================
+
+🔤 BOUTON: "Convertir"
+-------------------
+  ❌ NON TRADUIT: excel_to_csv.html
+    ligne 11:        <p class="text-muted">{{ _('Sélectionnez les fichiers à convertir en CSV') }}</p>
+    ligne 77:            <i class="fas fa-file-csv me-2"></i>{{ _('Convertir en CSV') }}
+    ligne 112:                <i class="fas fa-redo me-2"></i>{{ _('Convertir d'autres fichiers') }}
+  ❌ NON TRADUIT: html_to_pdf.html
+    ligne 85:            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PDF') }}
+    ligne 117:                <i class="fas fa-redo me-2"></i>{{ _('Convertir un autre fichier') }}
+  ❌ NON TRADUIT: pdf_to_word.html
+    ligne 97:            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en Word') }}
+  ❌ NON TRADUIT: txt_to_pdf.html
+    ligne 93:            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PDF') }}
+    ligne 125:                <i class="fas fa-redo me-2"></i>{{ _('Convertir un autre texte') }}
+  ❌ NON TRADUIT: word_to_pdf.html
+    ligne 157:            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PDF') }}
+  ❌ NON TRADUIT: pdf_to_image.html
+    ligne 72:                <label for="pages" class="form-label fw-bold">{{ _('Pages à convertir') }}</label>
+    ligne 92:            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en images') }}
+  ❌ NON TRADUIT: pdf_to_pdfa.html
+    ligne 117:            <i class="fas fa-archive me-2"></i>{{ _('Convertir en PDF/A') }}
+  ❌ NON TRADUIT: image_to_word.html
+    ligne 123:            <i class="fas fa-magic me-2"></i>{{ _('Extraire et convertir en Word') }}
+  ❌ NON TRADUIT: pdf_to_doc.html
+    ligne 98:            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en DOC') }}
+  ❌ NON TRADUIT: pdf_to_html.html
+    ligne 11:        <p class="text-muted">{{ _('Sélectionnez le PDF à convertir en HTML') }}</p>
+    ligne 77:            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en HTML') }}
+    ligne 109:                <i class="fas fa-redo me-2"></i>{{ _('Convertir un autre PDF') }}
+  ❌ NON TRADUIT: png_to_pdf.html
+    ligne 11:        <p class="text-muted">{{ _('Sélectionnez les images à convertir en PDF') }}</p>
+    ligne 78:            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PDF') }}
+    ligne 110:                <i class="fas fa-redo me-2"></i>{{ _('Convertir d'autres images') }}
+  ❌ NON TRADUIT: image_to_pdf.html
+    ligne 11:        <p class="text-muted">{{ _('Sélectionnez les images à convertir en PDF') }}</p>
+    ligne 79:            <i class="fas fa-file-pdf me-2"></i>{{ _('Convertir en PDF') }}
+    ligne 117:                <i class="fas fa-redo me-2"></i>{{ _('Convertir d'autres images') }}
+  ❌ NON TRADUIT: pdf_to_ppt.html
+    ligne 96:            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PowerPoint') }}
+  ❌ NON TRADUIT: powerpoint_to_pdf.html
+    ligne 90:            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PDF') }}
+  ❌ NON TRADUIT: jpg_to_pdf.html
+    ligne 11:        <p class="text-muted">{{ _('Sélectionnez les images à convertir en PDF') }}</p>
+    ligne 78:            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PDF') }}
+    ligne 110:                <i class="fas fa-redo me-2"></i>{{ _('Convertir d'autres images') }}
+  ❌ NON TRADUIT: excel_to_pdf.html
+    ligne 11:        <p class="text-muted">{{ _('Sélectionnez les fichiers à convertir en PDF') }}</p>
+    ligne 60:            <i class="fas fa-file-pdf me-2"></i>{{ _('Convertir en PDF') }}
+    ligne 95:                <i class="fas fa-redo me-2"></i>{{ _('Convertir d'autres fichiers') }}
+  ❌ NON TRADUIT: csv_to_excel.html
+    ligne 11:        <p class="text-muted">{{ _('Sélectionnez les fichiers à convertir en Excel') }}</p>
+    ligne 70:            <i class="fas fa-file-excel me-2"></i>{{ _('Convertir en Excel') }}
+    ligne 105:                <i class="fas fa-redo me-2"></i>{{ _('Convertir d'autres fichiers') }}
+  ❌ NON TRADUIT: index.html
+    ligne 5:{% block description %}{{ _('Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, compresser et convertir des fichiers PDF. Totalement gratuit, sécurisé et sans inscription.') }}{% endblock %}
+
+🔤 BOUTON: "Convertir en PDF"
+-------------------
+  ❌ NON TRADUIT: pdf_to_pdfa.html
+    ligne 117:            <i class="fas fa-archive me-2"></i>{{ _('Convertir en PDF/A') }}
+
+🔤 BOUTON: "Extraire vers Excel"
+-------------------
+
+🔤 BOUTON: "Extraire"
+-------------------
+  ❌ NON TRADUIT: unlock_pdf.html
+    ligne 127:            // Extraire le nom du fichier de l'en-tête Content-Disposition
+  ❌ NON TRADUIT: protect_pdf.html
+    ligne 181:            // Extraire le nom du fichier de l'en-tête Content-Disposition
+  ❌ NON TRADUIT: pdf_to_txt.html
+    ligne 11:        <p class="text-muted">{{ _('Sélectionnez le PDF dont vous voulez extraire le texte') }}</p>
+    ligne 65:                        {{ _('Extraire toutes les pages') }}
+    ligne 70:                <label for="pageRange" class="form-label">{{ _('Pages à extraire :') }}</label>
+    ligne 74:                    {{ _('Spécifiez les pages à extraire (ex: 1-3,5,7-9)') }}
+    ligne 83:            <i class="fas fa-sync-alt me-2"></i>{{ _('Extraire le texte') }}
+    ligne 115:                <i class="fas fa-redo me-2"></i>{{ _('Extraire un autre PDF') }}
+    ligne 169:        if (!pageRange) { showError('{{ _("Veuillez spécifier les pages à extraire") }}'); return; }
+  ❌ NON TRADUIT: image_to_word.html
+    ligne 123:            <i class="fas fa-magic me-2"></i>{{ _('Extraire et convertir en Word') }}
+  ❌ NON TRADUIT: image_to_excel.html
+    ligne 126:            <i class="fas fa-search me-2"></i>{{ _('Extraire les tableaux') }}
+    ligne 308:            // Extraire le message flash si présent
+  ❌ NON TRADUIT: pdf_to_excel.html
+    ligne 44:                    <option value="tables" selected>{{ _('Extraire les tableaux uniquement') }}</option>
+    ligne 45:                    <option value="all">{{ _('Extraire tout le texte') }}</option>
+    ligne 48:                <small class="text-muted">{{ _('Choisissez comment extraire les données') }}</small>
+    ligne 93:            <i class="fas fa-sync-alt me-2"></i>{{ _('Extraire vers Excel') }}
+  ❌ NON TRADUIT: split.html
+    ligne 9:    <p>{{ _('Déposez votre fichier PDF et sélectionnez les pages à extraire.') }}</p>
+    ligne 28:            <label class="form-label fw-bold">{{ _('Pages à extraire') }}</label>
+
+🔤 BOUTON: "Fusionner"
+-------------------
+  ❌ NON TRADUIT: png_to_pdf.html
+    ligne 68:                        {{ _('Fusionner toutes les images en un seul PDF') }}
+  ❌ NON TRADUIT: image_to_pdf.html
+    ligne 69:                        {{ _('Fusionner toutes les images en un seul PDF') }}
+  ❌ NON TRADUIT: powerpoint_to_pdf.html
+    ligne 75:                    <option value="merge">{{ _('Fusionner en un seul PDF') }}</option>
+  ❌ NON TRADUIT: jpg_to_pdf.html
+    ligne 68:                        {{ _('Fusionner toutes les images en un seul PDF') }}
+  ❌ NON TRADUIT: image_to_excel.html
+    ligne 89:                        <strong>{{ _('Fusionner les cellules') }}</strong>
+  ❌ NON TRADUIT: merge.html
+    ligne 3:{% block title %}{{ _('Fusionner PDF - PDF Fusion Pro') }}{% endblock %}
+    ligne 8:    <h1>{{ _('Fusionner plusieurs PDF') }}</h1>
+    ligne 28:            <i class="fas fa-object-group me-2"></i>{{ _('Fusionner les PDF') }}
+  ❌ NON TRADUIT: index.html
+    ligne 5:{% block description %}{{ _('Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, compresser et convertir des fichiers PDF. Totalement gratuit, sécurisé et sans inscription.') }}{% endblock %}
+    ligne 19:    <!-- Fusionner -->
+    ligne 23:                <h3><i class="fas fa-object-group me-2"></i>{{ _('Fusionner des fichiers PDF') }}</h3>
+    ligne 28:                    <i class="fas fa-object-group me-2"></i>{{ _('Fusionner des PDF') }}
+    ligne 147:                    {{ _('PDF Fusion Pro est la plateforme idéale pour tous vos besoins en manipulation de fichiers PDF. Que vous ayez besoin de <strong>fusionner plusieurs documents</strong>, <strong>diviser un PDF volumineux</strong>, <strong>tourner des pages mal orientées</strong> ou <strong>compresser des fichiers pour les partager</strong>, nos outils sont là pour vous aider.') | safe }}
+
+🔤 BOUTON: "Diviser"
+-------------------
+  ❌ NON TRADUIT: index.html
+    ligne 5:{% block description %}{{ _('Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, compresser et convertir des fichiers PDF. Totalement gratuit, sécurisé et sans inscription.') }}{% endblock %}
+    ligne 37:    <!-- Diviser -->
+    ligne 41:                <h3><i class="fas fa-cut me-2"></i>{{ _('Diviser un fichier PDF') }}</h3>
+    ligne 46:                    <i class="fas fa-cut me-2"></i>{{ _('Diviser un PDF') }}
+    ligne 147:                    {{ _('PDF Fusion Pro est la plateforme idéale pour tous vos besoins en manipulation de fichiers PDF. Que vous ayez besoin de <strong>fusionner plusieurs documents</strong>, <strong>diviser un PDF volumineux</strong>, <strong>tourner des pages mal orientées</strong> ou <strong>compresser des fichiers pour les partager</strong>, nos outils sont là pour vous aider.') | safe }}
+  ❌ NON TRADUIT: split.html
+    ligne 3:{% block title %}{{ _('Diviser PDF - PDF Fusion Pro') }}{% endblock %}
+    ligne 8:    <h1>{{ _('Diviser un PDF') }}</h1>
+    ligne 36:            <i class="fas fa-cut me-2"></i>{{ _('Diviser le PDF') }}
+
+🔤 BOUTON: "Compresser"
+-------------------
+  ❌ NON TRADUIT: compress.html
+    ligne 3:{% block title %}{{ _('Compresser PDF - PDF Fusion Pro') }}{% endblock %}
+    ligne 8:    <h1>{{ _('Compresser un PDF') }}</h1>
+    ligne 43:            <i class="fas fa-compress me-2"></i>{{ _('Compresser le PDF') }}
+  ❌ NON TRADUIT: index.html
+    ligne 5:{% block description %}{{ _('Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, compresser et convertir des fichiers PDF. Totalement gratuit, sécurisé et sans inscription.') }}{% endblock %}
+    ligne 73:    <!-- Compresser -->
+    ligne 77:                <h3><i class="fas fa-compress-alt me-2"></i>{{ _('Compresser un fichier PDF') }}</h3>
+    ligne 82:                    <i class="fas fa-compress-alt me-2"></i>{{ _('Compresser un PDF') }}
+    ligne 147:                    {{ _('PDF Fusion Pro est la plateforme idéale pour tous vos besoins en manipulation de fichiers PDF. Que vous ayez besoin de <strong>fusionner plusieurs documents</strong>, <strong>diviser un PDF volumineux</strong>, <strong>tourner des pages mal orientées</strong> ou <strong>compresser des fichiers pour les partager</strong>, nos outils sont là pour vous aider.') | safe }}
+
+🔤 BOUTON: "Protéger"
+-------------------
+  ❌ NON TRADUIT: privacy.html
+    ligne 50:<p>{{ _('Nous mettons en œuvre des mesures de sécurité techniques et organisationnelles appropriées pour protéger vos données contre tout accès non autorisé, altération ou destruction.') }}</p>
+  ❌ NON TRADUIT: protect_pdf.html
+    ligne 81:                            <i class="fas fa-lock me-2"></i>{{ _('Protéger le PDF') }}
+  ❌ NON TRADUIT: word_to_pdf.html
+    ligne 118:                        <strong>{{ _('Protéger le PDF') }}</strong>
+  ❌ NON TRADUIT: base.html
+    ligne 270:                        <li><a class="dropdown-item" href="{{ url_for('conversion.universal_converter', conversion_type='proteger-pdf') }}"><i class="fas fa-lock me-2"></i>{{ _('Protéger PDF') }}</a></li>
+
+🔤 BOUTON: "Déverrouiller"
+-------------------
+  ❌ NON TRADUIT: unlock_pdf.html
+    ligne 53:                            <i class="fas fa-unlock me-2"></i>{{ _('Déverrouiller le PDF') }}
+  ❌ NON TRADUIT: base.html
+    ligne 271:                        <li><a class="dropdown-item" href="{{ url_for('conversion.universal_converter', conversion_type='deverrouiller-pdf') }}"><i class="fas fa-unlock me-2"></i>{{ _('Déverrouiller PDF') }}</a></li>
+
+🔤 BOUTON: "Signer"
+-------------------
+  ❌ NON TRADUIT: sign_pdf.html
+    ligne 182:            <i class="fas fa-pen me-2"></i>{{ _('Signer le PDF') }}
+    ligne 217:                <i class="fas fa-redo me-2"></i>{{ _('Signer un autre PDF') }}
+
+🔤 BOUTON: "Éditer"
+-------------------
+  ❌ NON TRADUIT: edit_pdf.html
+    ligne 257:                <i class="fas fa-redo me-2"></i>{{ _('Éditer un autre PDF') }}
+
+🔤 BOUTON: "Caviarder"
+-------------------
+  ❌ NON TRADUIT: redact_pdf.html
+    ligne 62:            <label for="searchText" class="form-label fw-bold">{{ _('Texte à caviarder :') }}</label>
+    ligne 72:            <!-- Liste des textes à caviarder -->
+    ligne 87:                {{ _('Après avoir chargé votre PDF, vous pourrez dessiner des zones à caviarder sur l'aperçu.') }}
+    ligne 116:            <label class="form-label fw-bold">{{ _('Motifs à caviarder :') }}</label>
+    ligne 184:            <i class="fas fa-eye me-2"></i>{{ _('Aperçu du PDF - Dessinez les zones à caviarder') }}
+    ligne 198:            <i class="fas fa-mask me-2"></i>{{ _('Caviarder le PDF') }}
+    ligne 234:                <i class="fas fa-redo me-2"></i>{{ _('Caviarder un autre PDF') }}
+
+🔤 BOUTON: "Préparer"
+-------------------
+
+🔤 BOUTON: "Télécharger"
+-------------------
+  ❌ NON TRADUIT: 413.html
+    ligne 120:        <p>{{ _('Le fichier que vous avez tenté de télécharger dépasse la limite autorisée.') }}</p>
+    ligne 132:                    {{ _('Compressez votre fichier avant de le télécharger') }}
+  ❌ NON TRADUIT: html_to_pdf.html
+    ligne 113:            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF') }}
+  ❌ NON TRADUIT: pdf_to_word.html
+    ligne 168:                <i class="fas fa-download me-2"></i>{{ _('Télécharger Word') }}
+  ❌ NON TRADUIT: txt_to_pdf.html
+    ligne 121:            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF') }}
+  ❌ NON TRADUIT: word_to_pdf.html
+    ligne 253:                <i class="fas fa-download me-2"></i>{{ _('Télécharger PDF') }}
+  ❌ NON TRADUIT: pdf_to_image.html
+    ligne 163:                <i class="fas fa-download me-2"></i>{{ _('Télécharger les images') }}
+  ❌ NON TRADUIT: pdf_to_pdfa.html
+    ligne 188:                <i class="fas fa-download me-2"></i>{{ _('Télécharger PDF/A') }}
+  ❌ NON TRADUIT: edit_pdf.html
+    ligne 253:            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF modifié') }}
+  ❌ NON TRADUIT: pdf_to_txt.html
+    ligne 111:            <i class="fas fa-download me-2"></i>{{ _('Télécharger le texte') }}
+  ❌ NON TRADUIT: image_to_word.html
+    ligne 167:                <i class="fas fa-download me-2"></i>{{ _('Télécharger Word') }}
+  ❌ NON TRADUIT: pdf_to_doc.html
+    ligne 142:                <i class="fas fa-download me-2"></i>{{ _('Télécharger DOC') }}
+  ❌ NON TRADUIT: png_to_pdf.html
+    ligne 106:            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF') }}
+  ❌ NON TRADUIT: pdf_to_ppt.html
+    ligne 167:                <i class="fas fa-download me-2"></i>{{ _('Télécharger PowerPoint') }}
+  ❌ NON TRADUIT: prepare_form.html
+    ligne 202:            <i class="fas fa-download me-2"></i>{{ _('Télécharger le formulaire') }}
+    ligne 240:        showError('{{ _("Veuillez d'abord télécharger un document") }}');
+  ❌ NON TRADUIT: jpg_to_pdf.html
+    ligne 106:            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF') }}
+  ❌ NON TRADUIT: redact_pdf.html
+    ligne 230:            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF caviardé') }}
+  ❌ NON TRADUIT: image_to_excel.html
+    ligne 209:                <i class="fas fa-download me-2"></i>{{ _('Télécharger Excel') }}
+  ❌ NON TRADUIT: pdf_to_excel.html
+    ligne 164:                <i class="fas fa-download me-2"></i>{{ _('Télécharger Excel') }}
+
+🔤 BOUTON: "Choisir des fichiers"
+-------------------
+
+🔤 BOUTON: "Sélectionner des fichiers"
+-------------------
+  ❌ NON TRADUIT: png_to_pdf.html
+    ligne 142:        showError('{{ _("Veuillez sélectionner des fichiers") }}');
+  ❌ NON TRADUIT: jpg_to_pdf.html
+    ligne 146:        showError('{{ _("Veuillez sélectionner des fichiers") }}');
+
+🔤 BOUTON: "Ajouter des fichiers"
+-------------------
+
+🔤 BOUTON: "Valider"
+-------------------
+
+🔤 BOUTON: "Confirmer"
+-------------------
+  ❌ NON TRADUIT: protect_pdf.html
+    ligne 46:                                <label class="form-label fw-bold">{{ _('Confirmer le mot de passe') }}</label>
+
+🔤 BOUTON: "Annuler"
+-------------------
+
+🔤 BOUTON: "Commencer"
+-------------------
+
+🔤 BOUTON: "Appliquer"
+-------------------
+  ❌ NON TRADUIT: edit_pdf.html
+    ligne 222:            <i class="fas fa-edit me-2"></i>{{ _('Appliquer les modifications') }}
+
+🔤 BOUTON: "Soumettre"
+-------------------
+
+🔤 BOUTON: "Télécharger le résultat"
+-------------------
+
+🔤 BOUTON: "Obtenir le résultat"
+-------------------
+
+🔤 BOUTON: "Traiter"
+-------------------
+  ❌ NON TRADUIT: powerpoint_to_pdf.html
+    ligne 77:                <small class="text-muted">{{ _('Choisissez comment traiter plusieurs fichiers') }}</small>
+  ❌ NON TRADUIT: redact_pdf.html
+    ligne 163:        <!-- Pages à traiter -->
+    ligne 166:                <label for="pages" class="form-label fw-bold">{{ _('Pages à traiter :') }}</label>
+
+🔤 BOUTON: "Lancer"
+-------------------
+
+🔤 BOUTON: "Démarrer"
+-------------------
+
+🔤 BOUTON: "OK"
+-------------------
+  ❌ NON TRADUIT: privacy.html
+    ligne 23:<h3>{{ _('Cookies') }}</h3>
+    ligne 24:<p>{{ _('Nous utilisons uniquement des cookies techniques essentiels :') }}</p>
+    ligne 26:    <li><strong>{{ _('Session cookie :') }}</strong> {{ _('Pour maintenir votre session de travail') }}</li>
+    ligne 32:<p>{{ _('Google utilise des cookies pour personnaliser les annonces en fonction de votre navigation sur ce site et d'autres sites web.') }}</p>
+  ❌ NON TRADUIT: excel_to_csv.html
+    ligne 181:        if (!response.ok) {
+    ligne 223:        window.URL.revokeObjectURL(downloadUrl);
+    ligne 250:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: html_to_pdf.html
+    ligne 210:        if (!response.ok) {
+    ligne 252:        window.URL.revokeObjectURL(downloadUrl);
+    ligne 283:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: pdf_to_word.html
+    ligne 295:        if (!response.ok) {
+    ligne 337:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 370:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: unlock_pdf.html
+    ligne 117:            if (!response.ok) {
+    ligne 141:            window.URL.revokeObjectURL(url);
+  ❌ NON TRADUIT: protect_pdf.html
+    ligne 172:            if (!response.ok) {
+    ligne 195:            window.URL.revokeObjectURL(url);
+  ❌ NON TRADUIT: txt_to_pdf.html
+    ligne 206:        if (!response.ok) {
+    ligne 237:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 258:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: word_to_pdf.html
+    ligne 104:                            <input class="form-check-input" type="checkbox" id="includeBookmarks" checked>
+    ligne 105:                            <label class="form-check-label" for="includeBookmarks">
+    ligne 310:    formData.append('include_bookmarks', document.getElementById('includeBookmarks').checked ? 'true' : 'false');
+    ligne 356:        if (!response.ok) {
+    ligne 401:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 449:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: pdf_to_image.html
+    ligne 295:        if (!response.ok) {
+    ligne 355:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 394:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: pdf_to_pdfa.html
+    ligne 312:        if (!response.ok) {
+    ligne 359:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 392:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: edit_pdf.html
+    ligne 373:        if (!response.ok) {
+    ligne 415:        window.URL.revokeObjectURL(downloadUrl);
+    ligne 442:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: pdf_to_txt.html
+    ligne 201:        if (!response.ok) {
+    ligne 232:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 252:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: image_to_word.html
+    ligne 299:        if (!response.ok) {
+    ligne 351:        window.URL.revokeObjectURL(downloadUrl);
+    ligne 413:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: pdf_to_doc.html
+    ligne 239:        if (!response.ok) {
+    ligne 296:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 329:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: pdf_to_html.html
+    ligne 172:        if (!response.ok) {
+    ligne 203:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 221:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: png_to_pdf.html
+    ligne 172:        if (!response.ok) {
+    ligne 203:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 221:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: sign_pdf.html
+    ligne 258:    ctx.strokeStyle = penColor;
+    ligne 312:    ctx.stroke();
+    ligne 330:    ctx.stroke();
+    ligne 346:    if (ctx) ctx.strokeStyle = color;
+    ligne 429:        if (!response.ok) {
+    ligne 460:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 480:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: image_to_pdf.html
+    ligne 197:        if (!response.ok) {
+    ligne 239:        window.URL.revokeObjectURL(downloadUrl);
+    ligne 264:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: pdf_to_ppt.html
+    ligne 294:        if (!response.ok) {
+    ligne 352:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 385:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: prepare_form.html
+    ligne 334:        if (!response.ok) {
+    ligne 365:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 388:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: powerpoint_to_pdf.html
+    ligne 285:        if (!response.ok) {
+    ligne 345:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 378:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: jpg_to_pdf.html
+    ligne 179:        if (!response.ok) {
+    ligne 221:        window.URL.revokeObjectURL(downloadUrl);
+    ligne 248:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: excel_to_pdf.html
+    ligne 162:        if (!response.ok) {
+    ligne 205:        window.URL.revokeObjectURL(downloadUrl);
+    ligne 232:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: redact_pdf.html
+    ligne 490:        if (!response.ok) {
+    ligne 521:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 568:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: image_to_excel.html
+    ligne 299:        if (!response.ok) {
+    ligne 347:        window.URL.revokeObjectURL(downloadUrl);
+    ligne 413:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: csv_to_excel.html
+    ligne 174:        if (!response.ok) {
+    ligne 216:        window.URL.revokeObjectURL(downloadUrl);
+    ligne 243:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+  ❌ NON TRADUIT: pdf_to_excel.html
+    ligne 286:        if (!response.ok) {
+    ligne 328:    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    ligne 361:    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+
+🔤 BOUTON: "Oui"
+-------------------
+  ❌ NON TRADUIT: unlock_pdf.html
+    ligne 53:                            <i class="fas fa-unlock me-2"></i>{{ _('Déverrouiller le PDF') }}
+    ligne 112:            const response = await fetch('/conversion/deverrouiller-pdf', {
+    ligne 119:                throw new Error(error || '{{ _("Erreur lors du déverrouillage") }}');
+    ligne 128:            let filename = '{{ _("document_deverrouille.pdf") }}';
+  ❌ NON TRADUIT: index.html
+    ligne 311:                            {{ _('Oui, tous les fichiers sont traités localement et automatiquement supprimés après 1 heure. Nous ne stockons jamais vos documents sur nos serveurs.') }}
+  ❌ NON TRADUIT: base.html
+    ligne 271:                        <li><a class="dropdown-item" href="{{ url_for('conversion.universal_converter', conversion_type='deverrouiller-pdf') }}"><i class="fas fa-unlock me-2"></i>{{ _('Déverrouiller PDF') }}</a></li>
+
+🔤 BOUTON: "Non"
+-------------------
+  ❌ NON TRADUIT: base_legal.html
+    ligne 13:    <!-- URL CANONIQUE -->
+    ligne 14:    <link rel="canonical" href="https://pdf-fusion-pro-ultimate.onrender.com{{ request.path }}" />
+    ligne 28:            crossorigin="anonymous"></script>
+    ligne 132:            border: none;
+    ligne 208:            .d-none.d-md-inline {
+    ligne 209:                display: none !important;
+    ligne 218:<!-- ================= ANNONCES AUTO AMP ================= -->
+    ligne 274:                <!-- Protection contre endpoint None -->
+    ligne 306:                            <span class="d-none d-md-inline">Français</span>
+    ligne 309:                            <span class="d-none d-md-inline">English</span>
+    ligne 312:                            <span class="d-none d-md-inline">Español</span>
+    ligne 315:                            <span class="d-none d-md-inline">Deutsch</span>
+    ligne 318:                            <span class="d-none d-md-inline">Italiano</span>
+    ligne 321:                            <span class="d-none d-md-inline">Português</span>
+    ligne 324:                            <span class="d-none d-md-inline">Nederlands</span>
+    ligne 327:                            <span class="d-none d-md-inline">العربية</span>
+    ligne 330:                            <span class="d-none d-md-inline">中文</span>
+    ligne 333:                            <span class="d-none d-md-inline">日本語</span>
+    ligne 336:                            <span class="d-none d-md-inline">Русский</span>
+    ligne 339:                            <span class="d-none d-md-inline">Français</span>
+    ligne 508:                    <a href="{{ url_for('legal.legal') }}" class="text-muted text-decoration-none">
+    ligne 512:                    <a href="{{ url_for('legal.privacy') }}" class="text-muted text-decoration-none">
+    ligne 516:                    <a href="{{ url_for('legal.terms') }}" class="text-muted text-decoration-none">
+    ligne 520:                    <a href="{{ url_for('legal.about') }}" class="text-muted text-decoration-none">
+    ligne 563:            nameSpan.className = 'd-none d-md-inline';
+  ❌ NON TRADUIT: 404.html
+    ligne 6:    <title>{{ _('Page non trouvée - PDF Fusion Pro') }}</title>
+    ligne 59:            border: none;
+    ligne 64:            text-decoration: none;
+    ligne 89:<!-- ================= ANNONCES AUTO AMP ================= -->
+    ligne 96:        <h1><i class="fas fa-frown-open me-2" style="color: #667eea;"></i>{{ _('Page non trouvée') }}</h1>
+  ❌ NON TRADUIT: 500.html
+    ligne 82:            border: none;
+    ligne 87:            text-decoration: none;
+    ligne 102:            border: none;
+    ligne 107:            text-decoration: none;
+    ligne 150:                <strong>{{ _('Heure :') }}</strong> {{ datetime.now().strftime('%d/%m/%Y %H:%M:%S') if datetime else _('Non disponible') }}
+    ligne 154:                <strong>{{ _('Page :') }}</strong> <code>{{ request.path if request else _('Non disponible') }}</code>
+  ❌ NON TRADUIT: 413.html
+    ligne 78:            border: none;
+    ligne 83:            text-decoration: none;
+  ❌ NON TRADUIT: legal.html
+    ligne 34:<p>{{ _('Toute reproduction, modification, distribution ou exploitation non autorisée est strictement interdite.') }}</p>
+  ❌ NON TRADUIT: privacy.html
+    ligne 15:<p>{{ _('Nous collectons des données techniques anonymes pour améliorer le service :') }}</p>
+    ligne 19:    <li>{{ _('Heure et date des opérations (anonymisées)') }}</li>
+    ligne 32:<p>{{ _('Google utilise des cookies pour personnaliser les annonces en fonction de votre navigation sur ce site et d'autres sites web.') }}</p>
+    ligne 33:<p>{{ _('Vous pouvez désactiver la personnalisation des annonces via les') }} <a href="https://adssettings.google.com" target="_blank">{{ _('paramètres des annonces Google') }}</a>.</p>
+    ligne 50:<p>{{ _('Nous mettons en œuvre des mesures de sécurité techniques et organisationnelles appropriées pour protéger vos données contre tout accès non autorisé, altération ou destruction.') }}</p>
+  ❌ NON TRADUIT: contact.html
+    ligne 128:            nameSpan.className = 'd-none d-md-inline';
+  ❌ NON TRADUIT: about.html
+    ligne 80:<p>{{ _('Service entièrement gratuit, financé par des publicités discrètes et non intrusives.') }}</p>
+  ❌ NON TRADUIT: terms.html
+    ligne 10:    {{ _('Ce service est fourni "tel quel". Nous déclinons toute responsabilité concernant les fichiers traités par l'utilisateur.') }}
+    ligne 33:<p>{{ _('Le service est fourni sans aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande, d'adéquation à un usage particulier et de non-contrefaçon.') }}</p>
+  ❌ NON TRADUIT: excel_to_csv.html
+    ligne 23:        <input type="file" class="file-input" accept=".xls,.xlsx,.xlsm" multiple style="display: none;">
+    ligne 86:<div id="step2Content" style="display: none;">
+    ligne 100:<div id="step3Content" style="display: none;">
+    ligne 123:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 124:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 125:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 241:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: html_to_pdf.html
+    ligne 23:        <input type="file" class="file-input" accept=".html,.htm" style="display: none;">
+    ligne 91:<div id="step2Content" style="display: none;">
+    ligne 105:<div id="step3Content" style="display: none;">
+    ligne 128:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 129:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 130:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 273:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: pdf_to_word.html
+    ligne 23:        <input type="file" class="file-input" accept=".pdf" style="display: none;">
+    ligne 106:<div id="step2Content" style="display: none;">
+    ligne 155:<div id="step3Content" style="display: none;">
+    ligne 231:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 232:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 233:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 347:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: unlock_pdf.html
+    ligne 29:                        <input type="file" accept=".pdf" style="display:none;">
+    ligne 151:            if (loader) loader.style.display = 'none';
+  ❌ NON TRADUIT: protect_pdf.html
+    ligne 18:                        {{ _('Protégez votre PDF avec un mot de passe pour empêcher toute ouverture ou modification non autorisée.') }}
+    ligne 29:                        <input type="file" accept=".pdf" style="display:none;">
+    ligne 64:                                    <option value="none">{{ _('Aucune restriction') }}</option>
+    ligne 205:            if (loader) loader.style.display = 'none';
+  ❌ NON TRADUIT: txt_to_pdf.html
+    ligne 23:        <input type="file" class="file-input" accept=".txt" style="display: none;">
+    ligne 99:<div id="step2Content" style="display: none;">
+    ligne 113:<div id="step3Content" style="display: none;">
+    ligne 136:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 137:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 138:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 249:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: word_to_pdf.html
+    ligne 23:        <input type="file" class="file-input" accept=".doc,.docx" style="display: none;">
+    ligne 125:            <div id="protectionOptions" class="col-12" style="display: none;">
+    ligne 166:<div id="step2Content" style="display: none;">
+    ligne 215:<div id="step3Content" style="display: none;">
+    ligne 277:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 278:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 279:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 411:    if (errorDiv) errorDiv.style.display = 'none';
+    ligne 423:            if (opts) opts.style.display = this.checked ? 'block' : 'none';
+  ❌ NON TRADUIT: pdf_to_image.html
+    ligne 23:        <input type="file" class="file-input" accept=".pdf" style="display: none;">
+    ligne 101:<div id="step2Content" style="display: none;">
+    ligne 150:<div id="step3Content" style="display: none;">
+    ligne 222:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 223:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 224:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 365:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: pdf_to_pdfa.html
+    ligne 23:        <input type="file" class="file-input" accept=".pdf" style="display: none;">
+    ligne 53:                    <strong>{{ _('PDF/A-3') }}</strong> {{ _('permet d'incorporer des fichiers non-PDF/A.') }}
+    ligne 126:<div id="step2Content" style="display: none;">
+    ligne 175:<div id="step3Content" style="display: none;">
+    ligne 242:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 243:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 244:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 369:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: edit_pdf.html
+    ligne 23:        <input type="file" class="file-input" accept=".pdf" multiple style="display: none;">
+    ligne 115:                    <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.gif,.bmp" style="display: none;">
+    ligne 188:                <div id="deleteSection" style="display:none;">
+    ligne 198:                <div id="rotateSection" style="display:none;">
+    ligne 231:<div id="step2Content" style="display: none;">
+    ligne 245:<div id="step3Content" style="display: none;">
+    ligne 268:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 269:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 270:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 293:        document.getElementById('reorderSection').style.display = this.value === 'reorder' ? 'block' : 'none';
+    ligne 294:        document.getElementById('deleteSection').style.display  = this.value === 'delete'  ? 'block' : 'none';
+    ligne 295:        document.getElementById('rotateSection').style.display  = this.value === 'rotate'  ? 'block' : 'none';
+    ligne 433:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: pdf_to_txt.html
+    ligne 23:        <input type="file" class="file-input" accept=".pdf" style="display: none;">
+    ligne 69:            <div class="col-12" id="pageRangeGroup" style="display: none;">
+    ligne 89:<div id="step2Content" style="display: none;">
+    ligne 103:<div id="step3Content" style="display: none;">
+    ligne 126:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 127:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 128:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 149:            if (pageRangeGroup) pageRangeGroup.style.display = extractAllPages.checked ? 'none' : 'block';
+    ligne 244:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: image_to_word.html
+    ligne 23:        <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.bmp,.tiff,.tif,.webp,.pdf" style="display: none;">
+    ligne 100:                    <option value="none">{{ _('Aucun') }}</option>
+    ligne 132:<div id="step2Content" style="display: none;">
+    ligne 154:<div id="step3Content" style="display: none;">
+    ligne 218:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 219:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 220:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 369:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: pdf_to_doc.html
+    ligne 23:        <input type="file" class="file-input" accept=".pdf" style="display: none;">
+    ligne 107:<div id="step2Content" style="display: none;">
+    ligne 129:<div id="step3Content" style="display: none;">
+    ligne 185:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 186:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 187:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 306:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: pdf_to_html.html
+    ligne 23:        <input type="file" class="file-input" accept=".pdf" style="display: none;">
+    ligne 83:<div id="step2Content" style="display: none;">
+    ligne 97:<div id="step3Content" style="display: none;">
+    ligne 120:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 121:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 122:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 213:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: png_to_pdf.html
+    ligne 23:        <input type="file" class="file-input" accept=".png" multiple style="display: none;">
+    ligne 84:<div id="step2Content" style="display: none;">
+    ligne 98:<div id="step3Content" style="display: none;">
+    ligne 121:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 122:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 123:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 213:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: sign_pdf.html
+    ligne 23:        <input type="file" class="file-input" accept=".pdf" multiple style="display: none;">
+    ligne 65:                        style="border:2px solid #dee2e6; background:white; cursor:crosshair; touch-action: none;"></canvas>
+    ligne 90:        <div id="typeSection" class="mb-4" style="display:none;">
+    ligne 117:        <div id="uploadSection" class="mb-4" style="display:none;">
+    ligne 124:                <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.gif" style="display: none;">
+    ligne 151:        <div class="mt-4" id="previewSection" style="display:none;">
+    ligne 172:            <div id="reasonInput" style="display:none;" class="mt-2">
+    ligne 191:<div id="step2Content" style="display: none;">
+    ligne 205:<div id="step3Content" style="display: none;">
+    ligne 233:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 234:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 235:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 272:            document.getElementById('drawSection').style.display = this.value === 'draw' ? 'block' : 'none';
+    ligne 273:            document.getElementById('typeSection').style.display = this.value === 'type' ? 'block' : 'none';
+    ligne 274:            document.getElementById('uploadSection').style.display = this.value === 'upload' ? 'block' : 'none';
+    ligne 281:        if (reasonInput) reasonInput.style.display = this.checked ? 'block' : 'none';
+    ligne 472:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: image_to_pdf.html
+    ligne 23:        <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.bmp,.gif,.tiff,.webp" multiple style="display: none;">
+    ligne 88:<div id="step2Content" style="display: none;">
+    ligne 105:<div id="step3Content" style="display: none;">
+    ligne 127:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 128:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 129:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 255:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: pdf_to_ppt.html
+    ligne 23:        <input type="file" class="file-input" accept=".pdf" style="display: none;">
+    ligne 105:<div id="step2Content" style="display: none;">
+    ligne 154:<div id="step3Content" style="display: none;">
+    ligne 226:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 227:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 228:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 362:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: prepare_form.html
+    ligne 23:        <input type="file" class="file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" multiple style="display: none;">
+    ligne 81:        <div id="formPreview" class="mt-4" style="display:none;">
+    ligne 140:                    <option value="none">{{ _('Invisible') }}</option>
+    ligne 179:<div id="step2Content" style="display: none;">
+    ligne 194:<div id="step3Content" style="display: none;">
+    ligne 218:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 219:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 220:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 260:        if (loader) loader.style.display = 'none';
+    ligne 378:    if (fp) fp.style.display = 'none';
+    ligne 380:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: powerpoint_to_pdf.html
+    ligne 23:        <input type="file" class="file-input" accept=".ppt,.pptx" multiple style="display: none;">
+    ligne 99:<div id="step2Content" style="display: none;">
+    ligne 148:<div id="step3Content" style="display: none;">
+    ligne 220:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 221:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 222:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 355:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: index.html
+    ligne 39:        border: none;
+    ligne 170:                       class="text-decoration-none">
+  ❌ NON TRADUIT: jpg_to_pdf.html
+    ligne 23:        <input type="file" class="file-input" accept=".jpg,.jpeg" multiple style="display: none;">
+    ligne 84:<div id="step2Content" style="display: none;">
+    ligne 98:<div id="step3Content" style="display: none;">
+    ligne 121:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 122:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 123:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 239:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: excel_to_pdf.html
+    ligne 23:        <input type="file" class="file-input" accept=".xls,.xlsx,.xlsm" multiple style="display: none;">
+    ligne 69:<div id="step2Content" style="display: none;">
+    ligne 83:<div id="step3Content" style="display: none;">
+    ligne 106:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 107:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 108:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 223:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: redact_pdf.html
+    ligne 23:        <input type="file" class="file-input" accept=".pdf" multiple style="display: none;">
+    ligne 84:        <div id="areaSection" class="mb-4" style="display:none;">
+    ligne 106:                        <option value="none">{{ _('Sans bordure') }}</option>
+    ligne 115:        <div id="patternSection" class="mb-4" style="display:none;">
+    ligne 182:    <div id="pdfPreview" class="mt-4" style="display:none;">
+    ligne 207:<div id="step2Content" style="display: none;">
+    ligne 222:<div id="step3Content" style="display: none;">
+    ligne 255:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 256:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 257:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 544:    if (errorDiv) errorDiv.style.display = 'none';
+    ligne 554:        document.getElementById('textSection').style.display = this.value === 'text' ? 'block' : 'none';
+    ligne 555:        document.getElementById('areaSection').style.display = this.value === 'area' ? 'block' : 'none';
+    ligne 556:        document.getElementById('pdfPreview').style.display = this.value === 'area' ? 'block' : 'none';
+    ligne 557:        document.getElementById('patternSection').style.display = this.value === 'pattern' ? 'block' : 'none';
+  ❌ NON TRADUIT: conversion_base.html
+    ligne 35:    border: none;
+    ligne 163:    .step-tracker::before { display: none; }
+    ligne 258:        if (el.id.endsWith('Step')) el.style.display = 'none';
+    ligne 287:    if (loader) loader.style.display = 'none';
+  ❌ NON TRADUIT: image_to_excel.html
+    ligne 23:        <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.bmp,.tiff,.tif,.webp,.pdf" style="display: none;">
+    ligne 115:    <div id="tableStats" class="alert alert-info mt-4" style="display: none;">
+    ligne 135:<div id="step2Content" style="display: none;">
+    ligne 180:<div id="step3Content" style="display: none;">
+    ligne 223:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 224:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 225:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 361:    if (errorDiv) errorDiv.style.display = 'none';
+    ligne 363:    document.getElementById('tableStats').style.display = 'none';
+    ligne 390:                    document.getElementById('tableStats').style.display = 'none';
+    ligne 400:                    document.getElementById('tableStats').style.display = 'none';
+  ❌ NON TRADUIT: csv_to_excel.html
+    ligne 23:        <input type="file" class="file-input" accept=".csv,.txt" multiple style="display: none;">
+    ligne 79:<div id="step2Content" style="display: none;">
+    ligne 93:<div id="step3Content" style="display: none;">
+    ligne 116:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 117:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 118:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 234:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: pdf_to_excel.html
+    ligne 23:        <input type="file" class="file-input" accept=".pdf" style="display: none;">
+    ligne 102:<div id="step2Content" style="display: none;">
+    ligne 151:<div id="step3Content" style="display: none;">
+    ligne 215:    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    ligne 216:    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    ligne 217:    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ligne 338:    if (errorDiv) errorDiv.style.display = 'none';
+  ❌ NON TRADUIT: base.html
+    ligne 14:    <link rel="canonical" href="{{ Config.DOMAIN }}{{ request.path }}">
+    ligne 38:    <!-- AdSense — chargement non-bloquant -->
+    ligne 44:            s.crossOrigin = 'anonymous';
+    ligne 48:                    el.style.display = 'none';
+    ligne 92:            border: none;
+    ligne 158:            text-decoration: none;
+    ligne 169:            text-decoration: none;
+    ligne 181:        .alert { border-radius: 10px; border: none; }
+    ligne 217:            .d-none.d-md-inline { display: none !important; }
+    ligne 325:                        {% if current_lang == 'fr' %}<span class="fi fi-fr me-1"></span><span class="d-none d-md-inline">Français</span>
+    ligne 326:                        {% elif current_lang == 'en' %}<span class="fi fi-gb me-1"></span><span class="d-none d-md-inline">English</span>
+    ligne 327:                        {% elif current_lang == 'es' %}<span class="fi fi-es me-1"></span><span class="d-none d-md-inline">Español</span>
+    ligne 328:                        {% elif current_lang == 'de' %}<span class="fi fi-de me-1"></span><span class="d-none d-md-inline">Deutsch</span>
+    ligne 329:                        {% elif current_lang == 'it' %}<span class="fi fi-it me-1"></span><span class="d-none d-md-inline">Italiano</span>
+    ligne 330:                        {% elif current_lang == 'pt' %}<span class="fi fi-pt me-1"></span><span class="d-none d-md-inline">Português</span>
+    ligne 331:                        {% elif current_lang == 'nl' %}<span class="fi fi-nl me-1"></span><span class="d-none d-md-inline">Nederlands</span>
+    ligne 332:                        {% elif current_lang == 'ar' %}<span class="fi fi-sa me-1"></span><span class="d-none d-md-inline">العربية</span>
+    ligne 333:                        {% elif current_lang == 'zh' %}<span class="fi fi-cn me-1"></span><span class="d-none d-md-inline">中文</span>
+    ligne 334:                        {% elif current_lang == 'ja' %}<span class="fi fi-jp me-1"></span><span class="d-none d-md-inline">日本語</span>
+    ligne 335:                        {% elif current_lang == 'ru' %}<span class="fi fi-ru me-1"></span><span class="d-none d-md-inline">Русский</span>
+    ligne 336:                        {% else %}<span class="fi fi-fr me-1"></span><span class="d-none d-md-inline">Français</span>
+    ligne 409:                    <li class="mb-2"><a href="{{ url_for('pdf.merge') }}" class="text-muted small text-decoration-none"><i class="fas fa-object-group me-1"></i>{{ _('Fusionner PDF') }}</a></li>
+    ligne 410:                    <li class="mb-2"><a href="{{ url_for('pdf.split') }}" class="text-muted small text-decoration-none"><i class="fas fa-cut me-1"></i>{{ _('Diviser PDF') }}</a></li>
+    ligne 411:                    <li class="mb-2"><a href="{{ url_for('pdf.rotate') }}" class="text-muted small text-decoration-none"><i class="fas fa-rotate me-1"></i>{{ _('Tourner PDF') }}</a></li>
+    ligne 412:                    <li class="mb-2"><a href="{{ url_for('pdf.compress') }}" class="text-muted small text-decoration-none"><i class="fas fa-compress me-1"></i>{{ _('Compresser PDF') }}</a></li>
+    ligne 418:                    <li class="mb-2"><a href="{{ url_for('legal.about') }}" class="text-muted small text-decoration-none"><i class="fas fa-info-circle me-1"></i>{{ _('À propos') }}</a></li>
+    ligne 419:                    <li class="mb-2"><a href="{{ url_for('legal.legal') }}" class="text-muted small text-decoration-none"><i class="fas fa-gavel me-1"></i>{{ _('Mentions légales') }}</a></li>
+    ligne 420:                    <li class="mb-2"><a href="{{ url_for('legal.privacy') }}" class="text-muted small text-decoration-none"><i class="fas fa-lock me-1"></i>{{ _('Confidentialité') }}</a></li>
+    ligne 421:                    <li class="mb-2"><a href="{{ url_for('legal.terms') }}" class="text-muted small text-decoration-none"><i class="fas fa-file-contract me-1"></i>{{ _("Conditions d'utilisation") }}</a></li>
+    ligne 441:<div class="loader-overlay" id="loaderOverlay" style="display:none;" role="status" aria-live="polite" aria-label="Chargement en cours">
+  ❌ NON TRADUIT: merge.html
+    ligne 20:        <input type="file" accept=".pdf" multiple style="display:none;">
+  ❌ NON TRADUIT: compress.html
+    ligne 20:        <input type="file" accept=".pdf" style="display:none;">
+  ❌ NON TRADUIT: split.html
+    ligne 20:        <input type="file" accept=".pdf" style="display:none;">
+  ❌ NON TRADUIT: rotate.html
+    ligne 20:        <input type="file" accept=".pdf" style="display:none;">
+  ❌ NON TRADUIT: messages.html
+    ligne 45:                                <a href="mailto:{{ msg.email }}" class="text-decoration-none">
+    ligne 112:                    • <span class="text-danger">{{ unseen }} non lu{% if unseen > 1 %}s{% endif %}</span>
+  ❌ NON TRADUIT: base.html
+    ligne 38:            border: none;
+
+🔤 BOUTON: "Fermer"
+-------------------
+  ❌ NON TRADUIT: base.html
+    ligne 385:                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+
+🔤 BOUTON: "Enregistrer"
+-------------------
+
+🔤 BOUTON: "Supprimer"
+-------------------
+  ❌ NON TRADUIT: messages.html
+    ligne 93:                                                title="Supprimer"
+    ligne 94:                                                onclick="return confirm('Supprimer définitivement ce message ?')">
+  ❌ NON TRADUIT: ratings.html
+    ligne 9:      if (confirm('Supprimer cette évaluation ?')) {
+    ligne 56:      Supprimer
+  ❌ NON TRADUIT: message_detail.html
+    ligne 29:                  onsubmit="return confirm('Supprimer ce message définitivement ?');">
+    ligne 30:                <button type="submit" class="btn btn-danger">Supprimer</button>
+
+🔤 BOUTON: "Modifier"
+-------------------
+  ❌ NON TRADUIT: terms.html
+    ligne 42:<p>{{ _('Nous nous réservons le droit de modifier ces conditions d'utilisation à tout moment.') }}</p>
+  ❌ NON TRADUIT: pdf_to_pdfa.html
+    ligne 70:            <strong>{{ _('Attention :') }}</strong> {{ _('La conversion en PDF/A peut modifier légèrement l'apparence du document pour garantir sa pérennité. Les fonctionnalités interactives (formulaires, JavaScript) seront supprimées.') }}
+
+🔤 BOUTON: "Ajouter"
+-------------------
+  ❌ NON TRADUIT: excel_to_csv.html
+    ligne 67:                        {{ _('Ajouter BOM UTF-8 (compatible Excel)') }}
+  ❌ NON TRADUIT: word_to_pdf.html
+    ligne 119:                        <small class="d-block text-muted">{{ _('Ajouter un mot de passe et des restrictions') }}</small>
+  ❌ NON TRADUIT: edit_pdf.html
+    ligne 38:                    <i class="fas fa-font me-2"></i>{{ _('Ajouter du texte') }}
+    ligne 43:                    <i class="fas fa-image me-2"></i>{{ _('Ajouter une image') }}
+    ligne 56:                <h6 class="mb-3">{{ _('Ajouter du texte au PDF') }}</h6>
+    ligne 59:                        <label for="textContent" class="form-label fw-bold">{{ _('Texte à ajouter :') }}</label>
+    ligne 111:                <h6 class="mb-3">{{ _('Ajouter une image au PDF') }}</h6>
+  ❌ NON TRADUIT: pdf_to_txt.html
+    ligne 57:                        {{ _('Ajouter des marqueurs de page') }}
+  ❌ NON TRADUIT: sign_pdf.html
+    ligne 163:                    {{ _('Ajouter la date automatiquement') }}
+    ligne 169:                    {{ _('Ajouter un motif de signature') }}
+  ❌ NON TRADUIT: prepare_form.html
+    ligne 149:                    {{ _('Ajouter des textes indicatifs (ex: "Nom", "Prénom"...)') }}
+    ligne 161:                    {{ _('Ajouter un bouton de soumission') }}
+
+🔤 BOUTON: "Retirer"
+-------------------
+
+🔤 BOUTON: "Réinitialiser"
+-------------------
+
+🔤 BOUTON: "Effacer"
+-------------------
+
+🔤 BOUTON: "Rechercher"
+-------------------
+
+🔤 BOUTON: "Filtrer"
+-------------------
+
+🔤 BOUTON: "Exporter"
+-------------------
+  ❌ NON TRADUIT: excel_to_csv.html
+    ligne 49:                <label for="sheet" class="form-label fw-bold">{{ _('Feuille à exporter :') }}</label>
+  ❌ NON TRADUIT: ratings.html
+    ligne 32:    Exporter JSON
+
+🔤 BOUTON: "Importer"
+-------------------
+
+🎯 RECHERCHE SPÉCIFIQUE: Extraire vers Excel
+----------------------------------------
+✅ pdf_to_excel.html: DÉJÀ TRADUIT

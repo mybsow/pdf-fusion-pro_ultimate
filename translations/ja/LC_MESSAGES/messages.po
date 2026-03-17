@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-17 16:46+0000\n"
+"POT-Creation-Date: 2026-03-17 17:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ja\n"
@@ -419,49 +419,6 @@ msgstr "Excel → CSV"
 #: blueprints/conversion.py:585
 msgid "Exportez vos feuilles Excel en CSV"
 msgstr "Excelに変換するファイルを選択"
-
-#: blueprints/legal/routes.py:78 templates/conversion/prepare_form.html:247
-#: templates/legal/contact.html:42
-msgid "Nom complet"
-msgstr "フルネーム"
-
-#: blueprints/legal/routes.py:82 templates/conversion/prepare_form.html:252
-msgid "Email"
-msgstr "電子メール"
-
-#: blueprints/legal/routes.py:86
-#, fuzzy
-msgid "Téléphone (optionnel)"
-msgstr "電話番号 (オプション)"
-
-#: blueprints/legal/routes.py:90
-msgid "Sujet"
-msgstr ""
-
-#: blueprints/legal/routes.py:92
-#, fuzzy
-msgid "Signaler un bug"
-msgstr "PDFを結合"
-
-#: blueprints/legal/routes.py:93
-#, fuzzy
-msgid "Proposer une amélioration"
-msgstr "機能改善のご提案"
-
-#: blueprints/legal/routes.py:94
-#, fuzzy
-msgid "Partenariat"
-msgstr "パートナーシップのリクエスト"
-
-#: blueprints/legal/routes.py:95
-#, fuzzy
-msgid "Autre"
-msgstr "日付"
-
-#: blueprints/legal/routes.py:100
-#, fuzzy
-msgid "Message"
-msgstr "メッセージ"
 
 #: blueprints/legal/routes.py:205
 msgid "Veuillez remplir tous les champs obligatoires."
@@ -2455,6 +2412,16 @@ msgstr "スキャンした PDF または画像の場合"
 msgid "Maintient les styles et couleurs"
 msgstr "スタイルと色を維持します"
 
+#: templates/conversion/pdf_to_excel.html:86
+#, fuzzy
+msgid "Extraction intelligente :"
+msgstr "インテリジェントな検出"
+
+#: templates/conversion/pdf_to_excel.html:86
+msgid ""
+"Les tableaux seront automatiquement détectés et convertis en feuilles "
+"Excel. L'OCR permet de reconnaître le texte dans les documents scannés."
+msgstr "表は自動的に検出され、Excelシートに変換されます。OCRはスキャンされたドキュメントのテキストを認識します。"
 
 #: templates/conversion/pdf_to_excel.html:93
 msgid "Extraire vers Excel"
@@ -3460,6 +3427,10 @@ msgstr "PDFフォームを作成"
 msgid "Veuillez d'abord télécharger un document"
 msgstr "まず書類をアップロードしてください"
 
+#: templates/conversion/prepare_form.html:247 templates/legal/contact.html:42
+msgid "Nom complet"
+msgstr "フルネーム"
+
 #: templates/conversion/prepare_form.html:248
 msgid "Prénom"
 msgstr "ファーストネーム"
@@ -3475,6 +3446,10 @@ msgstr "郵便番号"
 #: templates/conversion/prepare_form.html:251
 msgid "Ville"
 msgstr "市"
+
+#: templates/conversion/prepare_form.html:252
+msgid "Email"
+msgstr "電子メール"
 
 #: templates/conversion/prepare_form.html:253
 msgid "Téléphone"
@@ -5307,16 +5282,24 @@ msgstr "PDF分割"
 #~ " scannés."
 #~ msgstr "スマート抽出：表は自動的に検出され、Excelシートに変換されます。OCRはスキャンされたドキュメントのテキストを認識します。"
 
+#~ msgid "Téléphone (optionnel)"
+#~ msgstr "電話番号 (オプション)"
 
+#~ msgid "Sujet"
+#~ msgstr ""
 
-#: templates/conversion/pdf_to_excel.html:86
-msgid "Les tableaux seront automatiquement détectés et convertis en feuilles Excel. L'OCR permet de reconnaître le texte dans les documents scannés."
-msgstr "表は自動的に検出され、Excelシートに変換されます。OCRはスキャンされたドキュメントのテキストを認識します。"
+#~ msgid "Signaler un bug"
+#~ msgstr "PDFを結合"
 
-#: templates/index.html
-msgid "Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et compressez vos fichiers PDF."
-msgstr "PDF Fusion Proの無料オンラインPDFツール。PDFファイルの変換、結合、分割、圧縮。"
+#~ msgid "Proposer une amélioration"
+#~ msgstr "機能改善のご提案"
 
-#: templates/index.html
-msgid "Vos fichiers sont traités de manière sécurisée et supprimés automatiquement."
-msgstr "PDF Fusion Proでは、ファイルは安全に処理され、自動的に削除されます。"
+#~ msgid "Partenariat"
+#~ msgstr "パートナーシップのリクエスト"
+
+#~ msgid "Autre"
+#~ msgstr "日付"
+
+#~ msgid "Message"
+#~ msgstr "メッセージ"
+

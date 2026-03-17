@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-17 16:46+0000\n"
+"POT-Creation-Date: 2026-03-17 17:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh\n"
@@ -419,49 +419,6 @@ msgstr "Excel转CSV"
 #: blueprints/conversion.py:585
 msgid "Exportez vos feuilles Excel en CSV"
 msgstr "选择要转换为 Excel 的文件"
-
-#: blueprints/legal/routes.py:78 templates/conversion/prepare_form.html:247
-#: templates/legal/contact.html:42
-msgid "Nom complet"
-msgstr "姓名"
-
-#: blueprints/legal/routes.py:82 templates/conversion/prepare_form.html:252
-msgid "Email"
-msgstr "电子邮件"
-
-#: blueprints/legal/routes.py:86
-#, fuzzy
-msgid "Téléphone (optionnel)"
-msgstr "电话号码（可选）"
-
-#: blueprints/legal/routes.py:90
-msgid "Sujet"
-msgstr ""
-
-#: blueprints/legal/routes.py:92
-#, fuzzy
-msgid "Signaler un bug"
-msgstr "合并PDF"
-
-#: blueprints/legal/routes.py:93
-#, fuzzy
-msgid "Proposer une amélioration"
-msgstr "提出功能改进建议"
-
-#: blueprints/legal/routes.py:94
-#, fuzzy
-msgid "Partenariat"
-msgstr "合作请求"
-
-#: blueprints/legal/routes.py:95
-#, fuzzy
-msgid "Autre"
-msgstr "日期"
-
-#: blueprints/legal/routes.py:100
-#, fuzzy
-msgid "Message"
-msgstr "消息"
 
 #: blueprints/legal/routes.py:205
 msgid "Veuillez remplir tous les champs obligatoires."
@@ -2455,6 +2412,16 @@ msgstr "对于扫描的 PDF 或图像"
 msgid "Maintient les styles et couleurs"
 msgstr "保持样式和颜色"
 
+#: templates/conversion/pdf_to_excel.html:86
+#, fuzzy
+msgid "Extraction intelligente :"
+msgstr "智能检测"
+
+#: templates/conversion/pdf_to_excel.html:86
+msgid ""
+"Les tableaux seront automatiquement détectés et convertis en feuilles "
+"Excel. L'OCR permet de reconnaître le texte dans les documents scannés."
+msgstr "表格将被自动检测并转换为Excel工作表。OCR可识别扫描文档中的文本。"
 
 #: templates/conversion/pdf_to_excel.html:93
 msgid "Extraire vers Excel"
@@ -3460,6 +3427,10 @@ msgstr "创建 PDF 表单"
 msgid "Veuillez d'abord télécharger un document"
 msgstr "请先上传文件"
 
+#: templates/conversion/prepare_form.html:247 templates/legal/contact.html:42
+msgid "Nom complet"
+msgstr "姓名"
+
 #: templates/conversion/prepare_form.html:248
 msgid "Prénom"
 msgstr "名"
@@ -3475,6 +3446,10 @@ msgstr "邮政编码"
 #: templates/conversion/prepare_form.html:251
 msgid "Ville"
 msgstr "城市"
+
+#: templates/conversion/prepare_form.html:252
+msgid "Email"
+msgstr "电子邮件"
 
 #: templates/conversion/prepare_form.html:253
 msgid "Téléphone"
@@ -5307,16 +5282,24 @@ msgstr "拆分PDF"
 #~ " scannés."
 #~ msgstr "智能提取：表格将被自动检测并转换为Excel工作表。OCR可识别扫描文档中的文本。"
 
+#~ msgid "Téléphone (optionnel)"
+#~ msgstr "电话号码（可选）"
 
+#~ msgid "Sujet"
+#~ msgstr ""
 
-#: templates/conversion/pdf_to_excel.html:86
-msgid "Les tableaux seront automatiquement détectés et convertis en feuilles Excel. L'OCR permet de reconnaître le texte dans les documents scannés."
-msgstr "表格将被自动检测并转换为Excel工作表。OCR可识别扫描文档中的文本。"
+#~ msgid "Signaler un bug"
+#~ msgstr "合并PDF"
 
-#: templates/index.html
-msgid "Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et compressez vos fichiers PDF."
-msgstr "PDF Fusion Pro提供的免费在线PDF工具。转换、合并、拆分和压缩您的PDF文件。"
+#~ msgid "Proposer une amélioration"
+#~ msgstr "提出功能改进建议"
 
-#: templates/index.html
-msgid "Vos fichiers sont traités de manière sécurisée et supprimés automatiquement."
-msgstr "使用PDF Fusion Pro，您的文件得到安全处理并自动删除。"
+#~ msgid "Partenariat"
+#~ msgstr "合作请求"
+
+#~ msgid "Autre"
+#~ msgstr "日期"
+
+#~ msgid "Message"
+#~ msgstr "消息"
+
