@@ -2,15 +2,16 @@
 # Copyright (C) 2026 PDF Fusion Pro
 # This file is distributed under the same license as the PDF Fusion Pro
 # project.
+
 msgid ""
 msgstr ""
-"Project-Id-Version: PDF Fusion Pro 1.0\n"
-"Report-Msgid-Bugs-To: support@pdffusionpro.com\n"
-"POT-Creation-Date: 2026-03-17 15:01+0000\n"
-"PO-Revision-Date: 2026-02-17 16:25+0000\n"
-"Last-Translator: <banousow@gmail.com>\n"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-03-17 16:04+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: de\n"
-"Language-Team: German <de@li.org>\n"
+"Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -18,17 +19,16 @@ msgstr ""
 "Generated-By: Babel 2.14.0\n"
 
 #: app.py:450 templates/conversion/index.html:104
-#, fuzzy
+
 msgid "Convertisseur de fichiers"
 msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
 
-#: app.py:479
-#, fuzzy
+#: app.py:479 blueprints/conversion.py:278
+
 msgid "Word vers PDF"
 msgstr "Word zu PDF"
 
 #: app.py:480 templates/base.html:266 templates/base.html:409
-#, fuzzy
 msgid "Fusionner PDF"
 msgstr "PDFs zusammenführen"
 
@@ -63,18 +63,18 @@ msgstr "Beispielbewertung"
 
 #: blueprints/admin.py:157 blueprints/admin.py:461 templates/base.html:243
 #: templates/base_legal.html:242
+
 msgid "Accueil"
 msgstr "Startseite"
 
 #: blueprints/admin.py:159 blueprints/admin.py:463
 #: templates/legal/about.html:24
-#, fuzzy
+
 msgid "Fusion PDF"
 msgstr "PDFs zusammenführen"
 
 #: blueprints/admin.py:161 blueprints/admin.py:465
 #: templates/legal/about.html:36
-#, fuzzy
 msgid "Division PDF"
 msgstr "PDFs zusammenführen"
 
@@ -145,8 +145,336 @@ msgid "✅ Fichier contacts.json réinitialisé (était vide)"
 msgstr "✅ Contacts.json-Datei zurückgesetzt (war leer)"
 
 #: blueprints/admin.py:664
+
 msgid "✅ Fichier contacts.json créé"
 msgstr "✅ Datei „contacts.json“ erstellt"
+
+#: blueprints/conversion.py:279
+msgid "Convertissez vos documents Word en PDF"
+msgstr "Konvertieren Sie Ihr Word-Dokument in PDF"
+
+#: blueprints/conversion.py:280 blueprints/conversion.py:379
+#: blueprints/conversion.py:551
+msgid "Word"
+msgstr ""
+
+#: blueprints/conversion.py:281 blueprints/conversion.py:293
+#: blueprints/conversion.py:305 blueprints/conversion.py:317
+#: blueprints/conversion.py:329 blueprints/conversion.py:341
+#: blueprints/conversion.py:353 blueprints/conversion.py:365
+#: blueprints/conversion.py:378 blueprints/conversion.py:390
+#: blueprints/conversion.py:402 blueprints/conversion.py:414
+#: blueprints/conversion.py:426 blueprints/conversion.py:438
+#: blueprints/conversion.py:450 blueprints/conversion.py:462
+#: blueprints/conversion.py:476 blueprints/conversion.py:477
+#: blueprints/conversion.py:488 blueprints/conversion.py:489
+#: blueprints/conversion.py:500 blueprints/conversion.py:501
+#: blueprints/conversion.py:512 blueprints/conversion.py:513
+#: blueprints/conversion.py:524 blueprints/conversion.py:525
+#: templates/conversion/powerpoint_to_pdf.html:199
+
+msgid "PDF"
+msgstr "PDF"
+
+#: blueprints/conversion.py:290
+
+msgid "Excel vers PDF"
+msgstr "Excel zu PDF"
+
+#: blueprints/conversion.py:291
+msgid "Convertissez vos feuilles Excel en PDF"
+msgstr "Konvertieren Sie Ihr Word-Dokument in PDF"
+
+#: blueprints/conversion.py:292 blueprints/conversion.py:403
+#: blueprints/conversion.py:563 blueprints/conversion.py:575
+#: blueprints/conversion.py:586
+
+msgid "Excel"
+msgstr ""
+
+#: blueprints/conversion.py:302
+msgid "PowerPoint vers PDF"
+msgstr "PowerPoint zu PDF"
+
+#: blueprints/conversion.py:303 templates/conversion/powerpoint_to_pdf.html:10
+
+msgid "Convertissez vos présentations PowerPoint en PDF"
+msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
+
+#: blueprints/conversion.py:304 blueprints/conversion.py:415
+
+msgid "PowerPoint"
+msgstr "PowerPoint zu PDF"
+
+#: blueprints/conversion.py:314
+
+msgid "Image vers PDF"
+msgstr "Bild zu PDF"
+
+#: blueprints/conversion.py:315
+
+msgid "Convertissez vos images en document PDF"
+msgstr "Konvertieren Sie Ihr PDF in ein Word-Dokument"
+
+#: blueprints/conversion.py:316 blueprints/conversion.py:427
+#: blueprints/conversion.py:550 blueprints/conversion.py:562
+
+msgid "Image"
+msgstr "Ränder"
+
+#: blueprints/conversion.py:326
+
+msgid "JPG vers PDF"
+msgstr "Word zu PDF"
+
+#: blueprints/conversion.py:327
+msgid "Convertissez vos images JPG en PDF"
+msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
+
+#: blueprints/conversion.py:328
+
+msgid "JPG"
+msgstr ""
+
+#: blueprints/conversion.py:338
+
+msgid "PNG vers PDF"
+msgstr "Word zu PDF"
+
+#: blueprints/conversion.py:339
+msgid "Convertissez vos images PNG en PDF"
+msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
+
+#: blueprints/conversion.py:340
+
+msgid "PNG"
+msgstr ""
+
+#: blueprints/conversion.py:350
+
+msgid "HTML vers PDF"
+msgstr "Word zu PDF"
+
+#: blueprints/conversion.py:351
+msgid "Convertissez vos pages HTML en PDF"
+msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
+
+#: blueprints/conversion.py:352 blueprints/conversion.py:451
+
+msgid "HTML"
+msgstr ""
+
+#: blueprints/conversion.py:362
+
+msgid "TXT vers PDF"
+msgstr "Word zu PDF"
+
+#: blueprints/conversion.py:363
+msgid "Convertissez vos fichiers texte en PDF"
+msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
+
+#: blueprints/conversion.py:364 blueprints/conversion.py:463
+msgid "TXT"
+msgstr ""
+
+#: blueprints/conversion.py:376 templates/conversion/word_to_pdf.html:265
+
+msgid "PDF vers Word"
+msgstr "PDF zu Word"
+
+#: blueprints/conversion.py:377
+
+msgid "Extrayez le texte de vos PDF en documents Word"
+msgstr "Extrahieren Sie Text aus Ihren Bildern"
+
+#: blueprints/conversion.py:388
+
+msgid "PDF vers DOC"
+msgstr "PDF zu DOCX"
+
+#: blueprints/conversion.py:389
+msgid "Convertissez vos PDF en documents Word (format DOC)"
+msgstr "Konvertieren Sie Ihr PDF in ein Word-Dokument"
+
+#: blueprints/conversion.py:391
+
+msgid "DOC"
+msgstr ""
+
+#: blueprints/conversion.py:400
+
+msgid "PDF vers Excel"
+msgstr "PDF zu Excel"
+
+#: blueprints/conversion.py:401
+
+msgid "Extrayez les tableaux de vos PDF en feuilles Excel"
+msgstr "Extrahieren Sie Tabellen aus Ihren Dokumenten in Excel-Blätter"
+
+#: blueprints/conversion.py:412
+
+msgid "PDF vers PowerPoint"
+msgstr "PDF zu Word"
+
+#: blueprints/conversion.py:413
+
+msgid "Convertissez vos PDF en présentations PowerPoint modifiables"
+msgstr "Konvertieren Sie Ihr PDF in eine PowerPoint-Präsentation"
+
+#: blueprints/conversion.py:424
+
+msgid "PDF vers Image"
+msgstr "PDF zu Bild"
+
+#: blueprints/conversion.py:425
+
+msgid "Convertissez les pages de vos PDF en images"
+msgstr "Universal-Konverter"
+
+#: blueprints/conversion.py:436
+
+msgid "PDF vers PDF/A"
+msgstr "PDF zu PDF/A"
+
+#: blueprints/conversion.py:437
+
+msgid "Convertissez vos PDF en format PDF/A pour l'archivage"
+msgstr "Konvertieren Sie Ihr PDF in ein Archivierungsformat"
+
+#: blueprints/conversion.py:439
+
+msgid "PDF/A"
+msgstr "PDF/A-3"
+
+#: blueprints/conversion.py:448
+
+msgid "PDF vers HTML"
+msgstr "PDF zu Word"
+
+#: blueprints/conversion.py:449
+
+msgid "Convertissez vos PDF en pages HTML"
+msgstr "Universal-Konverter"
+
+#: blueprints/conversion.py:460
+
+msgid "PDF vers TXT"
+msgstr "PDF zu DOCX"
+
+#: blueprints/conversion.py:461
+msgid "Extrayez le texte de vos PDF en fichiers texte"
+msgstr "Extrahieren Sie Text aus Ihren Bildern"
+
+#: blueprints/conversion.py:474 templates/base.html:270
+
+msgid "Protéger PDF"
+msgstr "PDF schützen"
+
+#: blueprints/conversion.py:475
+msgid "Ajoutez un mot de passe pour protéger vos PDF"
+msgstr "Passwort und Einschränkungen hinzufügen"
+
+#: blueprints/conversion.py:486 templates/base.html:271
+
+msgid "Déverrouiller PDF"
+msgstr "PDF entsperren"
+
+#: blueprints/conversion.py:487
+
+msgid "Retirez la protection des PDF"
+msgstr "Entfernen Sie den Passwortschutz von Ihren PDF-Dateien."
+
+#: blueprints/conversion.py:498
+
+msgid "Caviarder PDF"
+msgstr "Bild zu PDF"
+
+#: blueprints/conversion.py:499
+
+msgid "Supprimez définitivement le contenu sensible de votre PDF"
+msgstr "Entfernen Sie vertrauliche Inhalte dauerhaft aus Ihrem Dokument"
+
+#: blueprints/conversion.py:510
+
+msgid "Éditer PDF"
+msgstr "PDF teilen"
+
+#: blueprints/conversion.py:511
+
+msgid "Modifiez ou ajoutez du texte, des images et des pages à votre PDF"
+msgstr "Bearbeiten Sie Ihr Dokument, fügen Sie Text oder Bilder hinzu"
+
+#: blueprints/conversion.py:522
+
+msgid "Signer PDF"
+msgstr "PDFs zusammenführen"
+
+#: blueprints/conversion.py:523
+
+msgid "Ajoutez votre signature électronique à votre PDF"
+msgstr "Fügen Sie Ihre elektronische Signatur zum Dokument hinzu"
+
+#: blueprints/conversion.py:534
+
+msgid "Préparer formulaire PDF"
+msgstr "PDF-Formular erstellen"
+
+#: blueprints/conversion.py:535 templates/conversion/prepare_form.html:11
+msgid "Transformez vos documents en formulaires PDF interactifs"
+msgstr "Verwandeln Sie Ihre Dokumente in interaktive PDF-Formulare"
+
+#: blueprints/conversion.py:536 templates/conversion/pdf_to_ppt.html:330
+
+msgid "Document"
+msgstr "Dokument"
+
+#: blueprints/conversion.py:537
+
+msgid "PDF Formulaire"
+msgstr "PDF-Formular erstellen"
+
+#: blueprints/conversion.py:548
+
+msgid "Image vers Word"
+msgstr "Bild zu Word"
+
+#: blueprints/conversion.py:549
+
+msgid "Extrayez le texte des images en documents Word"
+msgstr "Extrahieren Sie Text aus Ihren Bildern"
+
+#: blueprints/conversion.py:560
+
+msgid "Image vers Excel"
+msgstr "Bild zu Excel"
+
+#: blueprints/conversion.py:561
+
+msgid "Extrayez les tableaux des images en Excel"
+msgstr "Extrahieren Sie Tabellen aus Ihren Dokumenten in Excel-Blätter"
+
+#: blueprints/conversion.py:572
+
+msgid "CSV vers Excel"
+msgstr "CSV zu Excel"
+
+#: blueprints/conversion.py:573
+msgid "Convertissez vos fichiers CSV en Excel"
+msgstr "Wählen Sie die zu konvertierenden CSV-Dateien aus"
+
+#: blueprints/conversion.py:574 blueprints/conversion.py:587
+
+msgid "CSV"
+msgstr ""
+
+#: blueprints/conversion.py:584
+
+msgid "Excel vers CSV"
+msgstr "Excel zu CSV"
+
+#: blueprints/conversion.py:585
+msgid "Exportez vos feuilles Excel en CSV"
+msgstr "Wählen Sie die zu konvertierenden CSV-Dateien aus"
 
 #: blueprints/legal/routes.py:205
 msgid "Veuillez remplir tous les champs obligatoires."
@@ -191,11 +519,11 @@ msgid "Informations légales"
 msgstr "Rechtliche Informationen"
 
 #: blueprints/legal/routes.py:247
+
 msgid "Politique de Confidentialité"
 msgstr "Datenschutzrichtlinie"
 
 #: blueprints/legal/routes.py:248
-#, fuzzy
 msgid "Protection des données"
 msgstr "Entfernen Sie den Passwortschutz von Ihren PDF-Dateien."
 
@@ -360,10 +688,13 @@ msgid "PDF Fusion Pro - Outils PDF Gratuits"
 msgstr "PDF Fusion Pro – Kostenlose PDF-Tools"
 
 #: templates/base.html:10
+
 msgid ""
 "Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos "
 "fichiers en ligne. Rapide, sécurisé et sans installation."
 msgstr ""
+"All-in-One-PDF-Tool: zusammenführen, teilen, drehen, komprimieren und "
+"konvertieren. Schnell, sicher und völlig kostenlos."
 
 #: templates/base.html:12
 msgid ""
@@ -372,11 +703,11 @@ msgid ""
 msgstr ""
 
 #: templates/base.html:17
+
 msgid "PDF Fusion Pro - Convertisseur de fichiers"
 msgstr "PDF Fusion Pro - Dateikonverter"
 
 #: templates/base.html:18
-#, fuzzy
 msgid "Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne"
 msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
 
@@ -387,6 +718,7 @@ msgstr "PDF Fusion Pro"
 
 #: templates/base.html:250 templates/base_legal.html:278
 #: templates/conversion/conversion_base.html:197
+
 msgid "Convertir"
 msgstr "Konvertieren Sie"
 
@@ -398,99 +730,90 @@ msgstr "Konvertieren Sie"
 #: templates/conversion/powerpoint_to_pdf.html:90
 #: templates/conversion/txt_to_pdf.html:93
 #: templates/conversion/word_to_pdf.html:157
-#, fuzzy
+
 msgid "Convertir en PDF"
 msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
 
 #: templates/base.html:254
-#, fuzzy
+
 msgid "Word en PDF"
 msgstr "Word zu PDF"
 
 #: templates/base.html:255
-#, fuzzy
+
 msgid "Excel en PDF"
 msgstr "Excel zu PDF"
 
 #: templates/base.html:256
-#, fuzzy
+
 msgid "PowerPoint en PDF"
 msgstr "PowerPoint zu PDF"
 
 #: templates/base.html:257
-#, fuzzy
+
 msgid "Image en PDF"
 msgstr "Bild zu PDF"
 
 #: templates/base.html:259
-#, fuzzy
+
 msgid "Convertir depuis PDF"
 msgstr "Bild zu PDF"
 
 #: templates/base.html:260
-#, fuzzy
+
 msgid "PDF en Word"
 msgstr "PDF zu Word"
 
 #: templates/base.html:261
-#, fuzzy
+
 msgid "PDF en Excel"
 msgstr "PDF zu Excel"
 
 #: templates/base.html:262
-#, fuzzy
+
 msgid "PDF en Image"
 msgstr "PDF zu Bild"
 
 #: templates/base.html:263
-#, fuzzy
+
 msgid "PDF en PDF/A"
 msgstr "PDF zu PDF/A"
 
 #: templates/base.html:265
-#, fuzzy
+
 msgid "Outils PDF"
 msgstr "Version"
 
 #: templates/base.html:267 templates/base.html:410
-#, fuzzy
+
 msgid "Diviser PDF"
 msgstr "PDF teilen"
 
 #: templates/base.html:268 templates/base.html:412
-#, fuzzy
 msgid "Compresser PDF"
 msgstr "PDF schützen"
 
-#: templates/base.html:270
-msgid "Protéger PDF"
-msgstr "PDF schützen"
-
-#: templates/base.html:271
-msgid "Déverrouiller PDF"
-msgstr "PDF entsperren"
-
 #: templates/base.html:273
+
 msgid "Autres conversions"
 msgstr "Andere Konvertierungen"
 
 #: templates/base.html:274
-#, fuzzy
+
 msgid "Image en Word"
 msgstr "Bild zu Word"
 
 #: templates/base.html:275
-#, fuzzy
+
 msgid "Image en Excel"
 msgstr "Bild zu Excel"
 
 #: templates/base.html:276
-#, fuzzy
+
 msgid "CSV en Excel"
 msgstr "CSV zu Excel"
 
 #: templates/base.html:277
-#, fuzzy
 msgid "Excel en CSV"
 msgstr "Excel zu CSV"
 
@@ -532,11 +855,11 @@ msgid ""
 msgstr ""
 
 #: templates/base.html:407
+
 msgid "Outils"
 msgstr "Werkzeuge"
 
 #: templates/base.html:411
-#, fuzzy
 msgid "Tourner PDF"
 msgstr "PDF teilen"
 
@@ -654,21 +977,21 @@ msgid "Notre système le convertit automatiquement en %(to_format)s."
 msgstr "Unser System wandelt es automatisch in %(to_format)s um."
 
 #: templates/conversion/conversion_base.html:247
+
 msgid "Téléchargez ensuite votre fichier converti."
 msgstr "Laden Sie dann Ihre konvertierte Datei herunter."
 
 #: templates/conversion/csv_to_excel.html:10
-#, fuzzy
+
 msgid "Téléchargez vos fichiers CSV"
 msgstr "Wählen Sie die zu konvertierenden CSV-Dateien aus"
 
 #: templates/conversion/csv_to_excel.html:11
-#, fuzzy
+
 msgid "Sélectionnez les fichiers à convertir en Excel"
 msgstr "Wählen Sie die zu konvertierenden CSV-Dateien aus"
 
 #: templates/conversion/csv_to_excel.html:21
-#, fuzzy
 msgid "Glissez-déposez vos fichiers CSV ici"
 msgstr "Wählen Sie die zu konvertierenden CSV-Dateien aus"
 
@@ -752,11 +1075,11 @@ msgid "Encodage :"
 msgstr "Kodierung:"
 
 #: templates/conversion/csv_to_excel.html:60
+
 msgid "La première ligne contient les en-têtes"
 msgstr "Die erste Zeile enthält die Überschriften"
 
 #: templates/conversion/csv_to_excel.html:70
-#, fuzzy
 msgid "Convertir en Excel"
 msgstr "Wählen Sie die zu konvertierenden CSV-Dateien aus"
 
@@ -858,11 +1181,11 @@ msgstr "aus Fehler bei der Konvertierung:"
 #: templates/conversion/edit_pdf.html:10
 #: templates/conversion/redact_pdf.html:10
 #: templates/conversion/sign_pdf.html:10
+
 msgid "Téléchargez votre PDF"
 msgstr "Laden Sie Ihr PDF herunter"
 
 #: templates/conversion/edit_pdf.html:11
-#, fuzzy
 msgid "Modifiez, ajoutez du texte ou des images à votre document"
 msgstr "Bearbeiten Sie Ihr Dokument, fügen Sie Text oder Bilder hinzu"
 
@@ -1063,11 +1386,11 @@ msgid "Votre PDF modifié est prêt à être téléchargé"
 msgstr "Ihr bearbeitetes PDF steht zum Download bereit"
 
 #: templates/conversion/edit_pdf.html:253
+
 msgid "Télécharger le PDF modifié"
 msgstr "Geändertes PDF herunterladen"
 
 #: templates/conversion/edit_pdf.html:257
-#, fuzzy
 msgid "Éditer un autre PDF"
 msgstr "PDF teilen"
 
@@ -1090,22 +1413,22 @@ msgid "Veuillez sélectionner une image à insérer"
 msgstr "Bitte wählen Sie ein Bild zum Einfügen aus"
 
 #: templates/conversion/edit_pdf.html:409
+
 msgid "Erreur lors de l'édition :"
 msgstr "Fehler beim Bearbeiten:"
 
 #: templates/conversion/excel_to_csv.html:10
 #: templates/conversion/excel_to_pdf.html:10
-#, fuzzy
 msgid "Téléchargez vos fichiers Excel"
 msgstr "Wählen Sie die zu konvertierenden CSV-Dateien aus"
 
 #: templates/conversion/excel_to_csv.html:11
+
 msgid "Sélectionnez les fichiers à convertir en CSV"
 msgstr "Wählen Sie die Dateien aus, die in CSV konvertiert werden sollen"
 
 #: templates/conversion/excel_to_csv.html:21
 #: templates/conversion/excel_to_pdf.html:21
-#, fuzzy
 msgid "Glissez-déposez vos fichiers Excel ici"
 msgstr "Wählen Sie die zu konvertierenden CSV-Dateien aus"
 
@@ -1143,11 +1466,11 @@ msgstr "Ihre CSV-Dateien stehen zum Herunterladen bereit"
 
 #: templates/conversion/excel_to_csv.html:148
 #: templates/conversion/excel_to_pdf.html:131
+
 msgid "Veuillez sélectionner au moins un fichier Excel"
 msgstr "Bitte wählen Sie mindestens eine Excel-Datei"
 
 #: templates/conversion/excel_to_pdf.html:11
-#, fuzzy
 msgid "Sélectionnez les fichiers à convertir en PDF"
 msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
 
@@ -1262,6 +1585,7 @@ msgstr "Bitte warten Sie, während Ihre Datei verarbeitet wird"
 #: templates/conversion/jpg_to_pdf.html:104
 #: templates/conversion/png_to_pdf.html:104
 #: templates/conversion/txt_to_pdf.html:119
+
 msgid "Votre PDF est prêt à être téléchargé"
 msgstr "Ihr PDF steht zum Download bereit"
 
@@ -1269,7 +1593,6 @@ msgstr "Ihr PDF steht zum Download bereit"
 #: templates/conversion/jpg_to_pdf.html:106
 #: templates/conversion/png_to_pdf.html:106
 #: templates/conversion/txt_to_pdf.html:121
-#, fuzzy
 msgid "Télécharger le PDF"
 msgstr "PDF schützen"
 
@@ -1282,11 +1605,11 @@ msgid "Veuillez sélectionner un fichier ou coller du code HTML"
 msgstr "Bitte wählen Sie eine Datei aus oder fügen Sie den HTML-Code"
 
 #: templates/conversion/image_to_excel.html:10
+
 msgid "Téléchargez votre image ou PDF"
 msgstr "ein Laden Sie Ihr Bild oder PDF hoch"
 
 #: templates/conversion/image_to_excel.html:11
-#, fuzzy
 msgid "Extrayez les tableaux de vos documents en feuilles Excel"
 msgstr "Extrahieren Sie Tabellen aus Ihren Dokumenten in Excel-Blätter"
 
@@ -1378,11 +1701,11 @@ msgid "cellule(s)"
 msgstr "Zelle(n)"
 
 #: templates/conversion/image_to_excel.html:119
+
 msgid "Prêt pour extraction"
 msgstr "Bereit zur Extraktion"
 
 #: templates/conversion/image_to_excel.html:126
-#, fuzzy
 msgid "Extraire les tableaux"
 msgstr "Extrahieren Sie Tabellen aus Ihren Dokumenten in Excel-Blätter"
 
@@ -1419,12 +1742,12 @@ msgid "Aperçu des données"
 msgstr "Datenübersicht"
 
 #: templates/conversion/image_to_excel.html:202
+
 msgid "lignes extraites"
 msgstr "extrahierte Zeilen"
 
 #: templates/conversion/image_to_excel.html:209
 #: templates/conversion/pdf_to_excel.html:164
-#, fuzzy
 msgid "Télécharger Excel"
 msgstr "Bild zu Excel"
 
@@ -1479,13 +1802,13 @@ msgid "Erreur lors de l'extraction :"
 msgstr "Fehler beim Extrahieren:"
 
 #: templates/conversion/image_to_pdf.html:10
+
 msgid "Téléchargez vos images"
 msgstr "Laden Sie Ihre Bilder hoch"
 
 #: templates/conversion/image_to_pdf.html:11
 #: templates/conversion/jpg_to_pdf.html:11
 #: templates/conversion/png_to_pdf.html:11
-#, fuzzy
 msgid "Sélectionnez les images à convertir en PDF"
 msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
 
@@ -1496,10 +1819,11 @@ msgid "Glissez-déposez vos images ici"
 msgstr "Ziehen Sie Ihre Bilder per Drag & Drop hierher"
 
 #: templates/conversion/image_to_pdf.html:26
+
 msgid ""
 "Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par "
 "fichier)"
-msgstr ""
+msgstr "Akzeptierte Formate: JPG, PNG, BMP, TIFF, WEBP, PDF (bis zu 50 MB)"
 
 #: templates/conversion/image_to_pdf.html:49
 #: templates/conversion/jpg_to_pdf.html:57
@@ -1518,13 +1842,13 @@ msgstr "Durchschnitt"
 
 #: templates/conversion/image_to_pdf.html:53
 #: templates/conversion/jpg_to_pdf.html:61
+
 msgid "Basse (fichier plus petit)"
 msgstr "Niedrig (kleinere Datei)"
 
 #: templates/conversion/image_to_pdf.html:69
 #: templates/conversion/jpg_to_pdf.html:68
 #: templates/conversion/png_to_pdf.html:68
-#, fuzzy
 msgid "Fusionner toutes les images en un seul PDF"
 msgstr "Konvertieren Sie Ihr PDF in ein Word-Dokument"
 
@@ -1558,16 +1882,16 @@ msgid "images..."
 msgstr "Bilder..."
 
 #: templates/conversion/image_to_pdf.html:194
+
 msgid "images terminé"
 msgstr "Bilder fertig"
 
 #: templates/conversion/image_to_word.html:10
-#, fuzzy
+
 msgid "Extrayez le texte de vos images"
 msgstr "Extrahieren Sie Text aus Ihren Bildern"
 
 #: templates/conversion/image_to_word.html:11
-#, fuzzy
 msgid "Convertissez images et PDF en documents Word éditables avec OCR"
 msgstr "Konvertieren Sie Ihr PDF in ein Word-Dokument"
 
@@ -1933,7 +2257,7 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/jpg_to_pdf.html:10
-#, fuzzy
+
 msgid "Téléchargez vos images JPG"
 msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
 
@@ -1963,19 +2287,20 @@ msgstr "Hoch (empfohlen)"
 
 #: templates/conversion/jpg_to_pdf.html:146
 #: templates/conversion/png_to_pdf.html:142
+
 msgid "Veuillez sélectionner des fichiers"
 msgstr "Bitte wählen Sie Dateien"
 
 #: templates/conversion/pdf_to_doc.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en DOC"
 msgstr "Universal-Konverter"
 
 #: templates/conversion/pdf_to_doc.html:11
+
 msgid ""
 "Transformez vos documents PDF en format Word compatible avec les "
 "anciennes versions"
-msgstr ""
+msgstr "Verwandeln Sie Ihre Dokumente in interaktive PDF-Formulare"
 
 #: templates/conversion/pdf_to_doc.html:26
 #: templates/conversion/pdf_to_excel.html:26
@@ -2041,11 +2366,11 @@ msgid "Compatible avec Microsoft Word 97-2003 et les anciennes versions."
 msgstr "Kompatibel mit Microsoft Word 97-2003 und älteren Versionen."
 
 #: templates/conversion/pdf_to_doc.html:91
+
 msgid "Pour un format plus récent, utilisez"
 msgstr "Für ein neueres Format verwenden Sie"
 
 #: templates/conversion/pdf_to_doc.html:91
-#, fuzzy
 msgid "PDF vers DOCX"
 msgstr "PDF zu DOCX"
 
@@ -2145,21 +2470,21 @@ msgid "Génération du document..."
 msgstr "Generierung des Dokuments..."
 
 #: templates/conversion/pdf_to_doc.html:277
+
 msgid "Création du fichier DOC"
 msgstr "Erstellen der DOC-Datei"
 
 #: templates/conversion/pdf_to_excel.html:10
-#, fuzzy
+
 msgid "Extrayez les tableaux de votre PDF"
 msgstr "Extrahieren Sie Tabellen aus Ihren Dokumenten in Excel-Blätter"
 
 #: templates/conversion/pdf_to_excel.html:11
-#, fuzzy
+
 msgid "Convertissez vos tableaux PDF en feuilles de calcul Excel"
 msgstr "Extrahieren Sie Tabellen aus Ihren Dokumenten in Excel-Blätter"
 
 #: templates/conversion/pdf_to_excel.html:44
-#, fuzzy
 msgid "Extraire les tableaux uniquement"
 msgstr "Extrahieren Sie Tabellen aus Ihren Dokumenten in Excel-Blätter"
 
@@ -2202,7 +2527,7 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/pdf_to_excel.html:93
-#, fuzzy
+
 msgid "Extraire vers Excel"
 msgstr "Bild zu Excel"
 
@@ -2315,11 +2640,11 @@ msgid "Inclure les styles CSS"
 msgstr "Fügen Sie CSS-Stile ein"
 
 #: templates/conversion/pdf_to_html.html:67
+
 msgid "Conserver les images"
 msgstr "Bilder bewahren"
 
 #: templates/conversion/pdf_to_html.html:77
-#, fuzzy
 msgid "Convertir en HTML"
 msgstr "Universal-Konverter"
 
@@ -2332,11 +2657,11 @@ msgid "Votre fichier HTML est prêt à être téléchargé"
 msgstr "Ihre HTML-Datei steht zum Download bereit"
 
 #: templates/conversion/pdf_to_html.html:109
+
 msgid "Convertir un autre PDF"
 msgstr "Konvertieren Sie ein anderes PDF"
 
 #: templates/conversion/pdf_to_image.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en images"
 msgstr "Universal-Konverter"
 
@@ -2385,11 +2710,11 @@ msgid "Plus de DPI = meilleure qualité, fichier plus gros"
 msgstr "Mehr DPI = bessere Qualität, größere Datei"
 
 #: templates/conversion/pdf_to_image.html:62
+
 msgid "Qualité (pour JPG)"
 msgstr "Qualität (für JPG)"
 
 #: templates/conversion/pdf_to_image.html:64
-#, fuzzy
 msgid "Haute (90-100%)"
 msgstr "Hoch (90-100 %)"
 
@@ -2422,11 +2747,11 @@ msgid "Fichier ZIP unique"
 msgstr "Einzelne ZIP-Datei"
 
 #: templates/conversion/pdf_to_image.html:82
+
 msgid "Regroupe toutes les images dans une archive ZIP"
 msgstr "Gruppiert alle Bilder in einem ZIP-Archiv"
 
 #: templates/conversion/pdf_to_image.html:92
-#, fuzzy
 msgid "Convertir en images"
 msgstr "Universal-Konverter"
 
@@ -2477,11 +2802,11 @@ msgid "Conversion de la page"
 msgstr "Seitenkonvertierung"
 
 #: templates/conversion/pdf_to_image.html:281
+
 msgid "convertie en"
 msgstr "konvertiert in"
 
 #: templates/conversion/pdf_to_pdfa.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en format d'archivage"
 msgstr "Konvertieren Sie Ihr PDF in ein Archivierungsformat"
 
@@ -2492,12 +2817,11 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/pdf_to_pdfa.html:37
-#, fuzzy
+
 msgid "Options de conversion PDF/A"
 msgstr "PDF zu PDF/A"
 
 #: templates/conversion/pdf_to_pdfa.html:42
-#, fuzzy
 msgid "Version PDF/A"
 msgstr "PDF zu PDF/A"
 
@@ -2616,16 +2940,16 @@ msgid "Conformité"
 msgstr "Compliance"
 
 #: templates/conversion/pdf_to_pdfa.html:169
+
 msgid "Vérification de la conformité PDF/A..."
 msgstr "Überprüfung der PDF/A-Konformität..."
 
 #: templates/conversion/pdf_to_pdfa.html:183
-#, fuzzy
+
 msgid "Votre document PDF/A est prêt pour l'archivage"
 msgstr "Konvertieren Sie Ihr PDF in ein Archivierungsformat"
 
 #: templates/conversion/pdf_to_pdfa.html:188
-#, fuzzy
 msgid "Télécharger PDF/A"
 msgstr "PDF schützen"
 
@@ -2667,11 +2991,11 @@ msgid "Pages:"
 msgstr "Seiten:"
 
 #: templates/conversion/pdf_to_pdfa.html:355
+
 msgid "Date:"
 msgstr "Datum:"
 
 #: templates/conversion/pdf_to_ppt.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en présentation PowerPoint"
 msgstr "Konvertieren Sie Ihr PDF in eine PowerPoint-Präsentation"
 
@@ -2728,11 +3052,11 @@ msgid "Texte éditable"
 msgstr "Bearbeitbarer Text"
 
 #: templates/conversion/pdf_to_ppt.html:79
+
 msgid "Le texte pourra être modifié dans PowerPoint"
 msgstr "Der Text kann in PowerPoint"
 
 #: templates/conversion/pdf_to_ppt.html:89
-#, fuzzy
 msgid "Format PowerPoint :"
 msgstr "PDF zu Word"
 
@@ -2743,12 +3067,11 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/pdf_to_ppt.html:96
-#, fuzzy
+
 msgid "Convertir en PowerPoint"
 msgstr "PDF zu Word"
 
 #: templates/conversion/pdf_to_ppt.html:113
-#, fuzzy
 msgid "Création de votre présentation PowerPoint..."
 msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
 
@@ -2761,16 +3084,16 @@ msgstr "geändert werden Folien"
 
 #: templates/conversion/pdf_to_ppt.html:140
 #: templates/conversion/powerpoint_to_pdf.html:134
+
 msgid "Images intégrées"
 msgstr "Eingebettete Bilder"
 
 #: templates/conversion/pdf_to_ppt.html:162
-#, fuzzy
+
 msgid "Votre présentation PowerPoint est prête"
 msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
 
 #: templates/conversion/pdf_to_ppt.html:167
-#, fuzzy
 msgid "Télécharger PowerPoint"
 msgstr "PDF zu Word"
 
@@ -2799,10 +3122,6 @@ msgstr "Erstellung von Folien (Seite"
 #: templates/conversion/pdf_to_ppt.html:330
 msgid "2 pages/diapo"
 msgstr "2 Seiten/Folie"
-
-#: templates/conversion/pdf_to_ppt.html:330
-msgid "Document"
-msgstr "Dokument"
 
 #: templates/conversion/pdf_to_ppt.html:346
 msgid "Diapo"
@@ -2857,19 +3176,20 @@ msgid "Veuillez spécifier les pages à extraire"
 msgstr "Bitte geben Sie die zu extrahierenden Seiten an"
 
 #: templates/conversion/pdf_to_txt.html:170
+
 msgid "Format de pages invalide. Utilisez le format: 1-5,8,11-13"
 msgstr "Ungültiges Seitenformat. Verwenden Sie das Format: 1-5,8,11-13"
 
 #: templates/conversion/pdf_to_word.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en document Word"
 msgstr "Konvertieren Sie Ihr PDF in ein Word-Dokument"
 
 #: templates/conversion/pdf_to_word.html:11
+
 msgid ""
 "Transformez vos PDF en documents Word modifiables avec mise en page "
 "préservée"
-msgstr ""
+msgstr "Wandeln Sie Ihre DOC/DOCX-Dateien in PDF mit beibehaltenem Layout um"
 
 #: templates/conversion/pdf_to_word.html:44
 msgid "Texte uniquement (plus léger)"
@@ -2898,16 +3218,16 @@ msgid "Convertir en Word"
 msgstr "In Word konvertieren"
 
 #: templates/conversion/pdf_to_word.html:133
+
 msgid "Paragraphes"
 msgstr "Absätze"
 
 #: templates/conversion/pdf_to_word.html:141
-#, fuzzy
+
 msgid "Images détectées"
 msgstr "Bild zu Excel"
 
 #: templates/conversion/pdf_to_word.html:163
-#, fuzzy
 msgid "Votre document Word est prêt"
 msgstr "Konvertieren Sie Ihr Word-Dokument in PDF"
 
@@ -2936,11 +3256,11 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/pdf_to_word.html:281
+
 msgid "Extraction de la page"
 msgstr "Extrahieren der Seite"
 
 #: templates/conversion/png_to_pdf.html:10
-#, fuzzy
 msgid "Téléchargez vos images PNG"
 msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
 
@@ -2951,10 +3271,6 @@ msgstr "Akzeptiertes Format: PNG (bis zu 20 Dateien)"
 #: templates/conversion/png_to_pdf.html:60
 msgid "Conserver la transparence"
 msgstr "Transparenz wahren"
-
-#: templates/conversion/powerpoint_to_pdf.html:10
-msgid "Convertissez vos présentations PowerPoint en PDF"
-msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
 
 #: templates/conversion/powerpoint_to_pdf.html:11
 msgid "Transformez vos fichiers PPT/PPTX en documents PDF faciles à partager"
@@ -3053,10 +3369,6 @@ msgstr "Ihre PDF-Dateien sind fertig"
 msgid "Fichiers convertis"
 msgstr "Konvertierte Dateien"
 
-#: templates/conversion/powerpoint_to_pdf.html:199
-msgid "PDF"
-msgstr "PDF"
-
 #: templates/conversion/powerpoint_to_pdf.html:241
 msgid "Veuillez sélectionner au moins un fichier PowerPoint"
 msgstr "Bitte wählen Sie mindestens eine PowerPoint-Datei"
@@ -3077,11 +3389,6 @@ msgstr "PDFs (ZIP)"
 msgid "Téléchargez votre document"
 msgstr "Laden Sie Ihr Dokument herunter"
 
-#: templates/conversion/prepare_form.html:11
-#, fuzzy
-msgid "Transformez vos documents en formulaires PDF interactifs"
-msgstr "Verwandeln Sie Ihre Dokumente in interaktive PDF-Formulare"
-
 #: templates/conversion/prepare_form.html:21
 msgid "Glissez-déposez votre document ici"
 msgstr "Ziehen Sie Ihr Dokument per Drag & Drop hierher"
@@ -3091,11 +3398,11 @@ msgid "Formats acceptés : PDF, Word, Excel, Images (jusqu'à 50MB)"
 msgstr "Akzeptierte Formate: PDF, Word, Excel, Bilder (bis zu 50 MB)"
 
 #: templates/conversion/prepare_form.html:36
+
 msgid "Configuration du formulaire"
 msgstr "Formularkonfiguration"
 
 #: templates/conversion/prepare_form.html:41
-#, fuzzy
 msgid "Type de formulaire :"
 msgstr "PDF-Formular erstellen"
 
@@ -3163,11 +3470,11 @@ msgstr "ein Tag"
 
 #: templates/conversion/prepare_form.html:110
 #: templates/conversion/prepare_form.html:376
+
 msgid "Lancez la détection pour voir les champs"
 msgstr "Führen Sie die Erkennung aus, um die Felder"
 
 #: templates/conversion/prepare_form.html:121
-#, fuzzy
 msgid "Langue du formulaire :"
 msgstr "PDF-Formular erstellen"
 
@@ -3204,11 +3511,11 @@ msgid "Marquer les champs obligatoires (avec *)"
 msgstr "Pflichtfelder markieren (mit *)"
 
 #: templates/conversion/prepare_form.html:161
+
 msgid "Ajouter un bouton de soumission"
 msgstr "Fügen Sie eine Senden-Schaltfläche hinzu"
 
 #: templates/conversion/prepare_form.html:170
-#, fuzzy
 msgid "Créer le formulaire PDF"
 msgstr "PDF-Formular erstellen"
 
@@ -3230,16 +3537,16 @@ msgid "Formulaire créé !"
 msgstr "Formular erstellt!"
 
 #: templates/conversion/prepare_form.html:200
+
 msgid "Votre formulaire PDF interactif est prêt"
 msgstr "Ihr interaktives PDF-Formular ist fertig"
 
 #: templates/conversion/prepare_form.html:202
-#, fuzzy
+
 msgid "Télécharger le formulaire"
 msgstr "PDF-Formular erstellen"
 
 #: templates/conversion/prepare_form.html:206
-#, fuzzy
 msgid "Créer un autre formulaire"
 msgstr "PDF-Formular erstellen"
 
@@ -3316,11 +3623,11 @@ msgid "Ajout des propriétés du formulaire..."
 msgstr "Formulareigenschaften hinzufügen..."
 
 #: templates/conversion/prepare_form.html:332
+
 msgid "Terminé !"
 msgstr "Fertig !"
 
 #: templates/conversion/prepare_form.html:346
-#, fuzzy
 msgid "formulaire.pdf"
 msgstr "PDF-Formular erstellen"
 
@@ -3412,7 +3719,7 @@ msgstr ""
 
 #: templates/conversion/protect_pdf.html:81
 #: templates/conversion/word_to_pdf.html:118
-#, fuzzy
+
 msgid "Protéger le PDF"
 msgstr "PDF schützen"
 
@@ -3434,11 +3741,11 @@ msgstr "document_protege.pdf"
 
 #: templates/conversion/protect_pdf.html:198
 #: templates/conversion/unlock_pdf.html:144
+
 msgid "Erreur:"
 msgstr "Fehler:"
 
 #: templates/conversion/redact_pdf.html:11
-#, fuzzy
 msgid "Supprimez définitivement le contenu sensible de votre document"
 msgstr "Entfernen Sie vertrauliche Inhalte dauerhaft aus Ihrem Dokument"
 
@@ -3459,11 +3766,11 @@ msgid "Zone rectangulaire"
 msgstr "Rechteckiger Bereich"
 
 #: templates/conversion/redact_pdf.html:55
+
 msgid "Motif (email, téléphone...)"
 msgstr "Grund (E-Mail, Telefon...)"
 
 #: templates/conversion/redact_pdf.html:62
-#, fuzzy
 msgid "Texte à caviarder :"
 msgstr "Bild zu PDF"
 
@@ -3510,11 +3817,11 @@ msgid "Fine"
 msgstr "Gut"
 
 #: templates/conversion/redact_pdf.html:108
+
 msgid "Épaisse"
 msgstr "Dick"
 
 #: templates/conversion/redact_pdf.html:116
-#, fuzzy
 msgid "Motifs à caviarder :"
 msgstr "Bild zu PDF"
 
@@ -3575,11 +3882,11 @@ msgid "Aperçu du PDF - Dessinez les zones à caviarder"
 msgstr "PDF-Vorschau – Zeichnen Sie die zu redigierenden Bereiche"
 
 #: templates/conversion/redact_pdf.html:190
+
 msgid "Cliquez et faites glisser pour dessiner un rectangle de caviardage"
 msgstr "Klicken und ziehen Sie, um ein Schwärzungsrechteck"
 
 #: templates/conversion/redact_pdf.html:198
-#, fuzzy
 msgid "Caviarder le PDF"
 msgstr "Bild zu PDF"
 
@@ -3592,11 +3899,11 @@ msgid "Analyse et suppression du contenu sensible"
 msgstr "Analyse und Entfernung sensibler Inhalte"
 
 #: templates/conversion/redact_pdf.html:217
+
 msgid "Préparation..."
 msgstr "Vorbereitung..."
 
 #: templates/conversion/redact_pdf.html:227
-#, fuzzy
 msgid "Caviardage terminé !"
 msgstr "Bild zu PDF"
 
@@ -3605,11 +3912,11 @@ msgid "Le contenu sensible a été supprimé définitivement"
 msgstr "Sensible Inhalte wurden dauerhaft entfernt"
 
 #: templates/conversion/redact_pdf.html:230
+
 msgid "Télécharger le PDF caviardé"
 msgstr "Laden Sie das redigierte PDF herunter"
 
 #: templates/conversion/redact_pdf.html:234
-#, fuzzy
 msgid "Caviarder un autre PDF"
 msgstr "Bild zu PDF"
 
@@ -3638,11 +3945,11 @@ msgid "Application du caviardage..."
 msgstr "Anwendung der Schwärzung..."
 
 #: templates/conversion/redact_pdf.html:516
+
 msgid "Erreur lors du caviardage :"
 msgstr "Fehler beim Schwärzen:"
 
 #: templates/conversion/sign_pdf.html:11
-#, fuzzy
 msgid "Ajoutez votre signature électronique au document"
 msgstr "Fügen Sie Ihre elektronische Signatur zum Dokument hinzu"
 
@@ -3768,11 +4075,11 @@ msgid "Ajouter un motif de signature"
 msgstr "Signaturmuster hinzufügen"
 
 #: templates/conversion/sign_pdf.html:174
+
 msgid "Ex: Approbation, Accord, Certificat..."
 msgstr "Beispiel: Genehmigung, Vereinbarung, Zertifikat..."
 
 #: templates/conversion/sign_pdf.html:182
-#, fuzzy
 msgid "Signer le PDF"
 msgstr "PDFs zusammenführen"
 
@@ -3793,11 +4100,11 @@ msgid "Votre PDF signé est prêt à être téléchargé"
 msgstr "Ihr signiertes PDF steht zum Download bereit"
 
 #: templates/conversion/sign_pdf.html:213
+
 msgid "Télécharger le PDF signé"
 msgstr "Laden Sie das signierte PDF"
 
 #: templates/conversion/sign_pdf.html:217
-#, fuzzy
 msgid "Signer un autre PDF"
 msgstr "PDFs zusammenführen"
 
@@ -3818,11 +4125,11 @@ msgid "Veuillez télécharger une image de signature"
 msgstr "ein Bitte laden Sie ein Signaturbild hoch"
 
 #: templates/conversion/sign_pdf.html:455
+
 msgid "Erreur lors de la signature :"
 msgstr "Fehler beim Signieren:"
 
 #: templates/conversion/txt_to_pdf.html:10
-#, fuzzy
 msgid "Téléchargez votre fichier texte"
 msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
 
@@ -3875,11 +4182,11 @@ msgid "Convertir un autre texte"
 msgstr "Konvertieren Sie einen anderen Text"
 
 #: templates/conversion/txt_to_pdf.html:177
+
 msgid "Veuillez saisir du texte ou sélectionner un fichier"
 msgstr "Bitte geben Sie Text ein oder wählen Sie die Datei"
 
 #: templates/conversion/unlock_pdf.html:18
-#, fuzzy
 msgid "Retirez la protection par mot de passe de vos fichiers PDF."
 msgstr "Entfernen Sie den Passwortschutz von Ihren PDF-Dateien."
 
@@ -3910,21 +4217,21 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/unlock_pdf.html:53
-#, fuzzy
+
 msgid "Déverrouiller le PDF"
 msgstr "PDF entsperren"
 
 #: templates/conversion/unlock_pdf.html:119
+
 msgid "Erreur lors du déverrouillage"
 msgstr "Fehler beim Entsperren"
 
 #: templates/conversion/unlock_pdf.html:128
-#, fuzzy
+
 msgid "document_deverrouille.pdf"
 msgstr "PDF entsperren"
 
 #: templates/conversion/word_to_pdf.html:10
-#, fuzzy
 msgid "Convertissez votre document Word en PDF"
 msgstr "Konvertieren Sie Ihr Word-Dokument in PDF"
 
@@ -4026,11 +4333,11 @@ msgid "Inclure les signets"
 msgstr "Lesezeichen einschließen"
 
 #: templates/conversion/word_to_pdf.html:107
+
 msgid "Pour une navigation plus facile"
 msgstr "Zur einfacheren Navigation"
 
 #: templates/conversion/word_to_pdf.html:119
-#, fuzzy
 msgid "Ajouter un mot de passe et des restrictions"
 msgstr "Passwort und Einschränkungen hinzufügen"
 
@@ -4094,17 +4401,13 @@ msgid "Détails"
 msgstr "Details"
 
 #: templates/conversion/word_to_pdf.html:244
+
 msgid "Format: A4<br>Orientation: Portrait<br>Qualité: Standard"
 msgstr "Format: A4<br>Ausrichtung: Hochformat<br>Qualität: Standard"
 
 #: templates/conversion/word_to_pdf.html:253
-#, fuzzy
 msgid "Télécharger PDF"
 msgstr "PDF schützen"
-
-#: templates/conversion/word_to_pdf.html:265
-msgid "PDF vers Word"
-msgstr "PDF zu Word"
 
 #: templates/conversion/word_to_pdf.html:298
 msgid "Veuillez sélectionner un document Word"
@@ -4180,13 +4483,13 @@ msgstr "Angeforderter Pfad:"
 
 #: templates/errors/413.html:6
 msgid "Fichier trop volumineux - PDF Fusion Pro"
-msgstr "Datei zu groß – PDF Fusion Pro"
+msgstr ""
+"Datei zu groß – PDF Fusion ProDie Datei, die Sie herunterladen wollten, "
+"überschreitet das zulässige Limit."
 
 #: templates/errors/413.html:120
 msgid "Le fichier que vous avez tenté de télécharger dépasse la limite autorisée."
 msgstr ""
-"Die Datei, die Sie herunterladen wollten, überschreitet das zulässige "
-"Limit."
 
 #: templates/errors/413.html:124
 msgid "Limite : 50 Mo maximum"
@@ -4244,13 +4547,13 @@ msgstr "ERR-"
 
 #: templates/errors/500.html:165
 msgid "Besoin d'aide ?"
-msgstr "Brauchen Sie Hilfe?"
+msgstr ""
+"Brauchen Sie Hilfe?Sollte das Problem weiterhin bestehen, zögern Sie "
+"nicht, uns zu kontaktieren."
 
 #: templates/errors/500.html:166
 msgid "Si le problème persiste, n'hésitez pas à nous contacter."
 msgstr ""
-"Sollte das Problem weiterhin bestehen, zögern Sie nicht, uns zu "
-"kontaktieren."
 
 #: templates/errors/500.html:176
 msgid "Nous contacter"
@@ -4290,13 +4593,13 @@ msgstr "Teilen Sie Ihre PDFs nach Seite, Bereich oder bestimmten Seiten auf."
 
 #: templates/legal/about.html:50
 msgid "Faites pivoter des pages spécifiques ou l'ensemble du document."
-msgstr "Drehen Sie bestimmte Seiten oder das gesamte Dokument."
+msgstr ""
+"Drehen Sie bestimmte Seiten oder das gesamte Dokument.Reduzieren Sie die "
+"Größe Ihrer PDF-Dateien ohne spürbaren Qualitätsverlust."
 
 #: templates/legal/about.html:62
 msgid "Réduisez la taille de vos fichiers PDF sans perte de qualité notable."
 msgstr ""
-"Reduzieren Sie die Größe Ihrer PDF-Dateien ohne spürbaren "
-"Qualitätsverlust."
 
 #: templates/legal/about.html:68
 msgid "Nos engagements"
@@ -4314,13 +4617,13 @@ msgstr ""
 
 #: templates/legal/about.html:73
 msgid "Performance"
-msgstr "Leistung"
+msgstr ""
+"LeistungOptimierte Benutzeroberfläche für ein reibungsloses und schnelles"
+" Benutzererlebnis."
 
 #: templates/legal/about.html:74
 msgid "Interface optimisée pour une expérience utilisateur fluide et rapide."
 msgstr ""
-"Optimierte Benutzeroberfläche für ein reibungsloses und schnelles "
-"Benutzererlebnis."
 
 #: templates/legal/about.html:77
 msgid ""
@@ -4601,8 +4904,6 @@ msgstr ""
 #: templates/legal/privacy.html:17
 msgid "Type d'opération effectuée (fusion, division, rotation, compression)"
 msgstr ""
-"Art der durchgeführten Operation (zusammenführen, teilen, drehen, "
-"komprimieren)"
 
 #: templates/legal/privacy.html:18
 msgid "Nombre de pages traitées"
@@ -4737,13 +5038,13 @@ msgstr ""
 
 #: templates/legal/terms.html:13
 msgid "Usage autorisé"
-msgstr "Autorisierte Nutzung"
+msgstr ""
+"Autorisierte NutzungSie erklären sich damit einverstanden, den Dienst "
+"verantwortungsbewusst und rechtmäßig zu nutzen:"
 
 #: templates/legal/terms.html:14
 msgid "Vous vous engagez à utiliser le service de manière responsable et légale :"
 msgstr ""
-"Sie erklären sich damit einverstanden, den Dienst verantwortungsbewusst "
-"und rechtmäßig zu nutzen:"
 
 #: templates/legal/terms.html:16
 msgid "Interdictions"
@@ -4765,13 +5066,14 @@ msgstr "Versuchen Sie, die Sicherheitsmaßnahmen des Dienstes"
 
 #: templates/legal/terms.html:21
 msgid "Surcharger délibérément le service (attaques DoS/DDoS)"
-msgstr "zu umgehen Absichtliche Überlastung des Dienstes (DoS/DDoS-Angriffe)"
+msgstr ""
+"zu umgehen Absichtliche Überlastung des Dienstes (DoS/DDoS-"
+"Angriffe)Inhalte des Dienstes ohne Genehmigung für kommerzielle Zwecke "
+"wiederverwenden"
 
 #: templates/legal/terms.html:22
 msgid "Réutiliser le contenu du service à des fins commerciales sans autorisation"
 msgstr ""
-"Inhalte des Dienstes ohne Genehmigung für kommerzielle Zwecke "
-"wiederverwenden"
 
 #: templates/legal/terms.html:25
 msgid "Obligations"
@@ -4917,6 +5219,8 @@ msgid ""
 "Outil PDF tout-en-un : fusion, division, rotation, compression et "
 "conversion. Rapide, sécurisé et entièrement gratuit."
 msgstr ""
+"All-in-One-PDF-Tool: zusammenführen, teilen, drehen, komprimieren und "
+"konvertieren. Schnell, sicher und völlig kostenlos."
 
 #: templates/pdf/index.html:13
 msgid ""
@@ -4929,29 +5233,29 @@ msgid "Fusionner des fichiers PDF"
 msgstr "PDF-Dateien zusammenführen"
 
 #: templates/pdf/index.html:24
+
 msgid "Combine plusieurs PDF en un seul document organisé"
 msgstr "Kombiniert mehrere PDFs zu einem organisierten Dokument"
 
 #: templates/pdf/index.html:28
-#, fuzzy
 msgid "Fusionner des PDF"
 msgstr "PDFs zusammenführen"
 
 #: templates/pdf/index.html:31
+
 msgid "Accédez à l'outil de fusion PDF"
 msgstr "Greifen Sie auf das PDF-Merger-Tool zu"
 
 #: templates/pdf/index.html:41
-#, fuzzy
 msgid "Diviser un fichier PDF"
 msgstr "PDF entsperren"
 
 #: templates/pdf/index.html:42
+
 msgid "Extrayez des pages spécifiques ou divisez par plages"
 msgstr "Extrahieren Sie bestimmte Seiten oder teilen Sie sie nach Bereichen auf"
 
 #: templates/pdf/index.html:46 templates/pdf/split.html:8
-#, fuzzy
 msgid "Diviser un PDF"
 msgstr "PDF teilen"
 
@@ -4972,11 +5276,11 @@ msgid "Tourner un PDF"
 msgstr "Drehen Sie ein PDF"
 
 #: templates/pdf/index.html:67
+
 msgid "Accédez à l'outil de rotation PDF"
 msgstr "Greifen Sie auf das PDF-Drehwerkzeug zu"
 
 #: templates/pdf/index.html:77
-#, fuzzy
 msgid "Compresser un fichier PDF"
 msgstr "Konvertieren Sie Ihre PowerPoint-Präsentationen in PDF"
 
@@ -4989,11 +5293,12 @@ msgid "Accédez à l'outil de compression PDF"
 msgstr "Greifen Sie auf das PDF-Komprimierungstool zu"
 
 #: templates/pdf/index.html:97
+
 msgid "Convertisseur universel"
 msgstr "Universeller Konverter"
 
 #: templates/pdf/index.html:98
-#, fuzzy
+
 msgid ""
 "Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et "
 "vice-versa"
@@ -5016,11 +5321,11 @@ msgid "Satisfaction"
 msgstr "Zufriedenheit"
 
 #: templates/pdf/index.html:132
+
 msgid "Disponible"
 msgstr "Verfügbar"
 
 #: templates/pdf/index.html:145
-#, fuzzy
 msgid "Votre solution PDF tout-en-un, entièrement gratuite et sécurisée"
 msgstr "Ihre All-in-One-PDF-Lösung, völlig kostenlos und sicher"
 
@@ -5047,31 +5352,32 @@ msgid "Fusionner PDF - PDF Fusion Pro"
 msgstr "PDF zusammenführen - PDF Fusion Pro"
 
 #: templates/pdf/merge.html:4
+
 msgid ""
 "Fusionnez plusieurs fichiers PDF en un seul document, facilement et "
 "rapidement."
-msgstr ""
+msgstr "Kombiniert mehrere PDF-Dateien zu einem organisierten Dokument."
 
 #: templates/pdf/merge.html:8
 msgid "Fusionner plusieurs PDF"
-msgstr "Mehrere PDFs zusammenführen"
+msgstr ""
+"Mehrere PDFs zusammenführenLaden Sie Ihre PDF-Dateien hoch und erhalten "
+"Sie ein einziges zusammengeführtes Dokument."
 
 #: templates/pdf/merge.html:9
 msgid "Déposez vos fichiers PDF et obtenez un document unique fusionné."
 msgstr ""
-"Laden Sie Ihre PDF-Dateien hoch und erhalten Sie ein einziges "
-"zusammengeführtes Dokument."
 
 #: templates/pdf/merge.html:16
 msgid "Déposez vos PDF ici"
 msgstr "Senden Sie Ihr PDF hier"
 
 #: templates/pdf/merge.html:17
+
 msgid "Glissez-déposez vos fichiers ou cliquez pour parcourir"
 msgstr "Ziehen Sie Ihre Dateien per Drag-and-Drop oder klicken Sie, um"
 
 #: templates/pdf/merge.html:28
-#, fuzzy
 msgid "Fusionner les PDF"
 msgstr "PDFs zusammenführen"
 
@@ -5112,3881 +5418,28 @@ msgid "Diviser PDF - PDF Fusion Pro"
 msgstr "PDF teilen – PDF Fusion Pro"
 
 #: templates/pdf/split.html:4
+
 msgid ""
 "Divisez vos fichiers PDF en plusieurs documents selon les pages "
 "sélectionnées."
-msgstr ""
+msgstr "Teilen Sie Ihre Datei in kleinere Teile auf"
 
 #: templates/pdf/split.html:9
 msgid "Déposez votre fichier PDF et sélectionnez les pages à extraire."
 msgstr ""
-"Legen Sie Ihre PDF-Datei ab und wählen Sie die zu extrahierenden Seiten "
-"aus."
 
 #: templates/pdf/split.html:28
 msgid "Pages à extraire"
-msgstr "Zu extrahierende Seiten"
+msgstr ""
+"Zu extrahierende SeitenFormat: Zahlen durch Kommas getrennt, Bereiche "
+"durch Bindestriche. Bsp.: „1,3-5“"
 
 #: templates/pdf/split.html:30
+
 msgid "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\""
 msgstr ""
-"Format: Zahlen durch Kommas getrennt, Bereiche durch Bindestriche. Bsp.: "
-"„1,3-5“"
 
 #: templates/pdf/split.html:36
-#, fuzzy
 msgid "Diviser le PDF"
 msgstr "PDF teilen"
-
-#~ msgid "Convertisseur de fichiers"
-#~ msgstr "Universal-Konverter"
-
-#~ msgid "Date inconnue"
-#~ msgstr "Unbekanntes Datum"
-
-#~ msgid "s"
-#~ msgstr "s"
-
-#~ msgid "à l'instant"
-#~ msgstr "gerade eben"
-
-#~ msgid "Mot de passe incorrect"
-#~ msgstr "Falsches Passwort"
-
-#~ msgid "🔄 Régénération des stats du dashboard..."
-#~ msgstr "🔄 Dashboard-Statistiken werden neu generiert..."
-
-#~ msgid "Ratings chargés"
-#~ msgstr "Bewertungen geladen"
-
-#~ msgid "Exemple rating"
-#~ msgstr "Beispielbewertung"
-
-#~ msgid "Accueil"
-#~ msgstr "Startseite"
-
-#~ msgid "Fusion PDF"
-#~ msgstr "PDF zusammenführen"
-
-#~ msgid "Division PDF"
-#~ msgstr "PDF teilen"
-
-#~ msgid "Rotation PDF"
-#~ msgstr "PDF drehen"
-
-#~ msgid "Compression PDF"
-#~ msgstr "PDF komprimieren"
-
-#~ msgid "DEBUG - Nombre de ratings"
-#~ msgstr "DEBUG - Anzahl der Bewertungen"
-
-#~ msgid "DEBUG - Répertoire ratings"
-#~ msgstr "DEBUG - Bewertungsverzeichnis"
-
-#~ msgid "DEBUG - Fichiers dans ratings"
-#~ msgstr "DEBUG - Dateien im Bewertungsverzeichnis"
-
-#~ msgid "Stats régénérées"
-#~ msgstr "Statistiken neu generiert"
-
-#~ msgid "messages"
-#~ msgstr "Nachrichten"
-
-#~ msgid "ratings"
-#~ msgstr "Bewertungen"
-
-#~ msgid "Erreur lors de la génération des stats"
-#~ msgstr "Fehler beim Generieren der Statistiken"
-
-#~ msgid "Messages Archivés"
-#~ msgstr "Archivierte Nachrichten"
-
-#~ msgid "Messages de Contact"
-#~ msgstr "Kontaktnachrichten"
-
-#~ msgid "Message non trouvé"
-#~ msgstr "Nachricht nicht gefunden"
-
-#~ msgid "Évaluations Non Vues"
-#~ msgstr "Ungesehene Bewertungen"
-
-#~ msgid "Toutes les Évaluations"
-#~ msgstr "Alle Konvertierungen"
-
-#~ msgid "✅ Fichier contacts.json est valide"
-#~ msgstr "✅ Datei contacts.json ist gültig"
-
-#~ msgid "✅ Fichier contacts.json réinitialisé (était vide)"
-#~ msgstr "✅ Datei contacts.json zurückgesetzt (war leer)"
-
-#~ msgid "✅ Fichier contacts.json créé"
-#~ msgstr "✅ Datei contacts.json erstellt"
-
-#~ msgid "Veuillez remplir tous les champs obligatoires."
-#~ msgstr "Bitte füllen Sie alle Pflichtfelder aus."
-
-#~ msgid "Veuillez entrer une adresse email valide."
-#~ msgstr "Bitte geben Sie ein Passwort ein"
-
-#~ msgid "Votre message a été envoyé avec succès !"
-#~ msgstr "Ihre Nachricht wurde erfolgreich gesendet!"
-
-#~ msgid "Une erreur technique est survenue. Veuillez réessayer."
-#~ msgstr "Ein technischer Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
-
-#~ msgid "Contact"
-#~ msgstr "Kontakt"
-
-#~ msgid "Formulaire de contact"
-#~ msgstr "Kontaktformular"
-
-#~ msgid "Contactez-nous via notre formulaire"
-#~ msgstr "Kontaktieren Sie uns über unser Formular"
-
-#~ msgid "Mentions Légales"
-#~ msgstr "Impressum"
-
-#~ msgid "Information légale"
-#~ msgstr "Impressum"
-
-#~ msgid "Informations légales"
-#~ msgstr "Impressum"
-
-#~ msgid "Politique de Confidentialité"
-#~ msgstr "Datenschutz"
-
-#~ msgid "Protection des données"
-#~ msgstr "Datenschutz"
-
-#~ msgid "Comment nous protégeons vos données"
-#~ msgstr "Wie wir Ihre Daten schützen"
-
-#~ msgid "Conditions d'Utilisation"
-#~ msgstr "Nutzungsbedingungen"
-
-#~ msgid "Règles d'usage"
-#~ msgstr "Nutzungsbedingungen"
-
-#~ msgid "Conditions d'utilisation du service"
-#~ msgstr "Nutzungsbedingungen"
-
-#~ msgid "À Propos"
-#~ msgstr "Über uns"
-
-#~ msgid "Notre histoire"
-#~ msgstr "Unsere Geschichte"
-
-#~ msgid "Découvrez PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid "Fichier invalide"
-#~ msgstr "Ungültige Datei"
-
-#~ msgid "Fichier vide"
-#~ msgstr "Leere Datei"
-
-#~ msgid "Fichier trop volumineux"
-#~ msgstr "Datei zu groß"
-
-#~ msgid "Fichier corrompu ou non-PDF"
-#~ msgstr "Beschädigte oder nicht-PDF-Datei"
-
-#~ msgid "%(filename)s n'est pas un PDF"
-#~ msgstr "%%(filename)s n'est pas un PDF"
-
-#~ msgid "%(filename)s est vide"
-#~ msgstr "%%(filename)s est vide"
-
-#~ msgid "%(filename)s est corrompu ou non-PDF"
-#~ msgstr "%%(filename)s est corrompu ou non-PDF"
-
-#~ msgid "Aucun fichier"
-#~ msgstr "Eine PDF-Datei drehen"
-
-#~ msgid "Au moins 2 PDF requis"
-#~ msgstr "Mindestens 2 PDFs erforderlich"
-
-#~ msgid "Maximum %(max)d fichiers"
-#~ msgstr "Maximum %%(max)d fichiers"
-
-#~ msgid "Fichier %(name)s contient trop de pages"
-#~ msgstr "Fichier %%(name)s contient trop de pages"
-
-#~ msgid "Erreur interne serveur"
-#~ msgstr "Interner Serverfehler"
-
-#~ msgid "Fichier contient trop de pages"
-#~ msgstr "Datei enthält zu viele Seiten"
-
-#~ msgid "Format non supporté"
-#~ msgstr "Nicht unterstütztes Format"
-
-#~ msgid "OCR non disponible"
-#~ msgstr "Verfügbar"
-
-#~ msgid "Données manquantes"
-#~ msgstr "Fehlende Daten"
-
-#~ msgid "Note invalide (1-5)"
-#~ msgstr "Ungültige Bewertung (1-5)"
-
-#~ msgid "Merci pour votre évaluation !"
-#~ msgstr "Danke für Ihre Bewertung!"
-
-#~ msgid "Fermer"
-#~ msgstr "Schließen"
-
-#~ msgid "Votre avis compte !"
-#~ msgstr "Ihre Meinung zählt!"
-
-#~ msgid "Comment évaluez-vous votre expérience avec notre outil PDF ?"
-#~ msgstr "Wie bewerten Sie Ihre Erfahrung mit unserem PDF-Tool?"
-
-#~ msgid "Merci ! Avez-vous des suggestions d’amélioration ?"
-#~ msgstr "Danke! Haben Sie Verbesserungsvorschläge?"
-
-#~ msgid "Envoyer mon évaluation"
-#~ msgstr "Meine Bewertung senden"
-
-#~ msgid "Peut-être plus tard"
-#~ msgstr "Vielleicht später"
-
-#~ msgid "Évaluer l’application"
-#~ msgstr "App bewerten"
-
-#~ msgid "Donnez votre avis"
-#~ msgstr "Geben Sie Ihre Meinung ab"
-
-#~ msgid "Merci pour votre retour !"
-#~ msgstr "Danke für Ihr Feedback!"
-
-#~ msgid "Votre évaluation nous aide à améliorer notre service."
-#~ msgstr "Ihre Bewertung hilft uns, unseren Service zu verbessern."
-
-#~ msgid "Une erreur est survenue. Veuillez réessayer."
-#~ msgstr "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
-
-#~ msgid "PDF Fusion Pro - Outils PDF Gratuits"
-#~ msgstr "PDF Fusion Pro - Kostenlose PDF-Werkzeuge"
-
-#~ msgid ""
-#~ "Outils PDF gratuits pour fusionner, "
-#~ "diviser, compresser et convertir vos "
-#~ "fichiers en ligne. Rapide, sécurisé et"
-#~ " sans installation."
-#~ msgstr ""
-#~ "Kostenlose PDF-Werkzeuge zum Zusammenführen,"
-#~ " Teilen, Komprimieren und Konvertieren "
-#~ "Ihrer Dateien online. Schnell, sicher "
-#~ "und ohne Installation."
-
-#~ msgid ""
-#~ "PDF, convertisseur, fusionner, diviser, "
-#~ "compresser, OCR, Word, Excel, PowerPoint, "
-#~ "image"
-#~ msgstr ""
-#~ "PDF, Konverter, zusammenführen, teilen, "
-#~ "komprimieren, OCR, Word, Excel, PowerPoint,"
-#~ " Bild"
-
-#~ msgid "PDF Fusion Pro - Convertisseur de fichiers"
-#~ msgstr "PDF Fusion Pro - Dateikonverter"
-
-#~ msgid ""
-#~ "Convertissez gratuitement vos fichiers PDF,"
-#~ " Word, Excel, images en ligne"
-#~ msgstr ""
-#~ "Konvertieren Sie Ihre PDF-, Word-, "
-#~ "Excel- und Bilddateien kostenlos online"
-
-#~ msgid "PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid "Convertir"
-#~ msgstr "Konvertieren"
-
-#~ msgid "Convertir en PDF"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Convertir depuis PDF"
-#~ msgstr "Von PDF konvertieren"
-
-#~ msgid "PDF en Word"
-#~ msgstr "PDF zu Word"
-
-#~ msgid "Outils PDF"
-#~ msgstr "PDF-Werkzeuge"
-
-#~ msgid "Fusionner PDF"
-#~ msgstr "PDF zusammenführen"
-
-#~ msgid "Compresser PDF"
-#~ msgstr "PDF komprimieren"
-
-#~ msgid "Autres conversions"
-#~ msgstr "Andere Konvertierungen"
-
-#~ msgid "Toutes les conversions"
-#~ msgstr "Alle Konvertierungen"
-
-#~ msgid "Fusionner"
-#~ msgstr "Zusammenführen"
-
-#~ msgid "Diviser"
-#~ msgstr "Teilen"
-
-#~ msgid "Tourner"
-#~ msgstr "Drehen"
-
-#~ msgid "Compresser"
-#~ msgstr "Komprimieren"
-
-#~ msgid "À propos"
-#~ msgstr "Über uns"
-
-#~ msgid ""
-#~ "Outils PDF gratuits en ligne. "
-#~ "Convertissez, fusionnez, divisez et compressez"
-#~ " vos fichiers PDF."
-#~ msgstr ""
-#~ "Kostenlose Online-PDF-Tools. Konvertieren, "
-#~ "zusammenführen, teilen und komprimieren Sie"
-#~ " Ihre PDF-Dateien."
-
-#~ msgid ""
-#~ "Vos fichiers sont traités de manière "
-#~ "sécurisée et supprimés automatiquement."
-#~ msgstr "Ihre Dateien werden sicher verarbeitet und automatisch gelöscht."
-
-#~ msgid "Outils"
-#~ msgstr "Werkzeuge"
-
-#~ msgid "Tourner PDF"
-#~ msgstr "PDF drehen"
-
-#~ msgid "Mentions légales"
-#~ msgstr "Impressum"
-
-#~ msgid "Confidentialité"
-#~ msgstr "Datenschutz"
-
-#~ msgid "Conditions d'utilisation"
-#~ msgstr "Nutzungsbedingungen"
-
-#~ msgid "Tous droits réservés."
-#~ msgstr "Alle Rechte vorbehalten."
-
-#~ msgid "Version"
-#~ msgstr "Version"
-
-#~ msgid "Hébergé sur Render"
-#~ msgstr "Gehostet auf Render"
-
-#~ msgid "Chargement..."
-#~ msgstr "PDF wird geladen..."
-
-#~ msgid "Traitement en cours..."
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "Veuillez patienter"
-#~ msgstr "Bitte warten"
-
-#~ msgid "Conditions"
-#~ msgstr "Anmelden"
-
-#~ msgid "Retour à l'accueil"
-#~ msgstr "Zurück zur Startseite"
-
-#~ msgid "caractères"
-#~ msgstr "Zeichen"
-
-#~ msgid "Télécharger"
-#~ msgstr "Herunterladen"
-
-#~ msgid "Sécurisé"
-#~ msgstr "Sicher"
-
-#~ msgid "Vos fichiers sont supprimés après conversion"
-#~ msgstr "Ihre Dateien werden nach der Konvertierung gelöscht"
-
-#~ msgid "Rapide"
-#~ msgstr "Schnell"
-
-#~ msgid "Conversion en quelques secondes"
-#~ msgstr "Konvertierung in Sekunden"
-
-#~ msgid "Confidentiel"
-#~ msgstr "Datenschutz"
-
-#~ msgid "Personne n'accède à vos fichiers"
-#~ msgstr "PDF-Dateien zusammenführen"
-
-#~ msgid "Accessible"
-#~ msgstr "Startseite"
-
-#~ msgid "Utilisez depuis n'importe où"
-#~ msgstr "Von überall nutzbar"
-
-#~ msgid "Comment ça marche ?"
-#~ msgstr "Wie funktioniert es?"
-
-#~ msgid "Téléchargez votre fichier %(from_format)s."
-#~ msgstr "Téléchargez votre fichier %%(from_format)s."
-
-#~ msgid "Notre système le convertit automatiquement en %(to_format)s."
-#~ msgstr "Notre système le convertit automatiquement en %%(to_format)s."
-
-#~ msgid "Téléchargez ensuite votre fichier converti."
-#~ msgstr "Laden Sie anschließend Ihre konvertierte Datei herunter."
-
-#~ msgid "Téléchargez vos fichiers CSV"
-#~ msgstr "Laden Sie Ihre CSV-Dateien hoch"
-
-#~ msgid "Glissez-déposez vos fichiers CSV ici"
-#~ msgstr "Ziehen Sie Ihre CSV-Dateien hierher"
-
-#~ msgid "ou"
-#~ msgstr "oder"
-
-#~ msgid "Formats acceptés : CSV, TXT (jusqu'à 50MB par fichier)"
-#~ msgstr "Akzeptierte Formate: CSV, TXT (bis zu 50MB pro Datei)"
-
-#~ msgid "Options de conversion"
-#~ msgstr "Alle Konvertierungen"
-
-#~ msgid "Séparateur :"
-#~ msgstr "Trennzeichen:"
-
-#~ msgid "Virgule (,)"
-#~ msgstr "Komma (,)"
-
-#~ msgid "Point-virgule (;)"
-#~ msgstr "Semikolon (;)"
-
-#~ msgid "Tabulation"
-#~ msgstr "Tabulator"
-
-#~ msgid "Pipe (|)"
-#~ msgstr "Pipe (|)"
-
-#~ msgid "Encodage :"
-#~ msgstr "Kodierung:"
-
-#~ msgid "La première ligne contient les en-têtes"
-#~ msgstr "Die erste Zeile enthält die Kopfzeilen"
-
-#~ msgid "Convertir en Excel"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Réinitialiser"
-#~ msgstr "Zurücksetzen"
-
-#~ msgid "Conversion en cours..."
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "Veuillez patienter pendant le traitement de vos fichiers"
-#~ msgstr "Bitte warten Sie, während Ihre Dateien verarbeitet werden"
-
-#~ msgid "Conversion terminée !"
-#~ msgstr "Konvertierung abgeschlossen!"
-
-#~ msgid "Votre fichier Excel est prêt à être téléchargé"
-#~ msgstr "Ihre Excel-Datei ist bereit zum Herunterladen"
-
-#~ msgid "Convertir d'autres fichiers"
-#~ msgstr "PDF-Dateien zusammenführen"
-
-#~ msgid "Veuillez sélectionner au moins un fichier CSV"
-#~ msgstr "Bitte wählen Sie mindestens eine CSV-Datei aus"
-
-#~ msgid "Erreur lors de la conversion :"
-#~ msgstr "Fehler bei der Konvertierung:"
-
-#~ msgid "Téléchargez votre PDF"
-#~ msgstr "Laden Sie Ihr PDF hoch"
-
-#~ msgid "Glissez-déposez votre fichier PDF ici"
-#~ msgstr "Ziehen Sie Ihre PDF-Datei hierher"
-
-#~ msgid "Formats acceptés : PDF (jusqu'à 100MB)"
-#~ msgstr "Akzeptierte Formate: PDF (bis zu 100MB)"
-
-#~ msgid "Ajouter du texte"
-#~ msgstr "Text hinzufügen"
-
-#~ msgid "Ajouter une image"
-#~ msgstr "Bild hinzufügen"
-
-#~ msgid "Gérer les pages"
-#~ msgstr "Seiten verwalten"
-
-#~ msgid "Ajouter du texte au PDF"
-#~ msgstr "Text zum PDF hinzufügen"
-
-#~ msgid "Texte à ajouter :"
-#~ msgstr "Hinzuzufügender Text:"
-
-#~ msgid "Saisissez votre texte ici..."
-#~ msgstr "Geben Sie hier Ihren Text ein..."
-
-#~ msgid "Page d'insertion :"
-#~ msgstr "Administration"
-
-#~ msgid "Position :"
-#~ msgstr "Position:"
-
-#~ msgid "Taille :"
-#~ msgstr "Größe:"
-
-#~ msgid "Couleur :"
-#~ msgstr "Farbe:"
-
-#~ msgid "Police :"
-#~ msgstr "Schriftart:"
-
-#~ msgid "Times New Roman"
-#~ msgstr "Times New Roman"
-
-#~ msgid "Helvetica Gras"
-#~ msgstr "Helvetica Fett"
-
-#~ msgid "Helvetica Italique"
-#~ msgstr "Helvetica Kursiv"
-
-#~ msgid "Ajouter une image au PDF"
-#~ msgstr "Eine PDF-Datei drehen"
-
-#~ msgid "Glissez-déposez votre image ici"
-#~ msgstr "Ziehen Sie Ihr Bild hierher"
-
-#~ msgid "Taille originale"
-#~ msgstr "Originalgröße"
-
-#~ msgid "Ajuster à la page"
-#~ msgstr "An Seite anpassen"
-
-#~ msgid "Personnalisée"
-#~ msgstr "Benutzerdefiniert"
-
-#~ msgid "Position X :"
-#~ msgstr "Position X:"
-
-#~ msgid "Position Y :"
-#~ msgstr "Position Y:"
-
-#~ msgid "Gestion des pages"
-#~ msgstr "Impressum"
-
-#~ msgid "Action :"
-#~ msgstr "Zufriedenheit"
-
-#~ msgid "Réorganiser"
-#~ msgstr "Neu anordnen"
-
-#~ msgid "Supprimer"
-#~ msgstr "Löschen"
-
-#~ msgid "Rotation"
-#~ msgstr "PDF drehen"
-
-#~ msgid "Faites glisser les pages pour les réorganiser"
-#~ msgstr "Ziehen Sie die Seiten, um sie neu anzuordnen"
-
-#~ msgid "Page"
-#~ msgstr "Seite"
-
-#~ msgid "Pages à supprimer :"
-#~ msgstr "Zu löschende Seiten:"
-
-#~ msgid "Ex: 1-3, 5, 7-9"
-#~ msgstr "Bsp: 1-3, 5, 7-9"
-
-#~ msgid "Attention : La suppression est définitive"
-#~ msgstr "Achtung: Das Löschen ist endgültig"
-
-#~ msgid "Pages à tourner :"
-#~ msgstr "Zu drehende Seiten:"
-
-#~ msgid "Angle :"
-#~ msgstr "Winkel:"
-
-#~ msgid "horaire"
-#~ msgstr "im Uhrzeigersinn"
-
-#~ msgid "antihoraire"
-#~ msgstr "gegen den Uhrzeigersinn"
-
-#~ msgid "Appliquer les modifications"
-#~ msgstr "Änderungen anwenden"
-
-#~ msgid "Édition en cours..."
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "Application des modifications au document"
-#~ msgstr "Änderungen werden auf das Dokument angewendet"
-
-#~ msgid "Édition terminée !"
-#~ msgstr "Bearbeitung abgeschlossen!"
-
-#~ msgid "Votre PDF modifié est prêt à être téléchargé"
-#~ msgstr "Ihr bearbeitetes PDF ist bereit zum Herunterladen"
-
-#~ msgid "Télécharger le PDF modifié"
-#~ msgstr "Bearbeitetes PDF herunterladen"
-
-#~ msgid "Éditer un autre PDF"
-#~ msgstr "Ein PDF teilen"
-
-#~ msgid "Veuillez sélectionner un fichier PDF"
-#~ msgstr "Eine PDF-Datei drehen"
-
-#~ msgid "Veuillez sélectionner une image à insérer"
-#~ msgstr "Bitte wählen Sie eine Datei aus"
-
-#~ msgid "Erreur lors de l'édition :"
-#~ msgstr "Fehler bei der Bearbeitung:"
-
-#~ msgid "Téléchargez vos fichiers Excel"
-#~ msgstr "Laden Sie Ihre Excel-Dateien hoch"
-
-#~ msgid "Sélectionnez les fichiers à convertir en CSV"
-#~ msgstr "Wählen Sie die zu konvertierenden Excel-Dateien aus"
-
-#~ msgid "Formats acceptés : XLS, XLSX (jusqu'à 50MB par fichier)"
-#~ msgstr "Akzeptierte Formate: XLS, XLSX (bis zu 50MB pro Datei)"
-
-#~ msgid "Feuille à exporter :"
-#~ msgstr "Zu exportierendes Blatt:"
-
-#~ msgid "Première feuille"
-#~ msgstr "Erstes Blatt"
-
-#~ msgid "Toutes les feuilles (archive ZIP)"
-#~ msgstr "Alle Blätter (ZIP-Archiv)"
-
-#~ msgid "Inclure les en-têtes"
-#~ msgstr "Kopfzeilen einfügen"
-
-#~ msgid "Ajouter BOM UTF-8 (compatible Excel)"
-#~ msgstr "UTF-8 BOM hinzufügen (Excel-kompatibel)"
-
-#~ msgid "Convertir en CSV"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Vos fichiers CSV sont prêts à être téléchargés"
-#~ msgstr "Ihre CSV-Dateien sind bereit zum Herunterladen"
-
-#~ msgid "Veuillez sélectionner au moins un fichier Excel"
-#~ msgstr "Bitte wählen Sie mindestens eine Excel-Datei aus"
-
-#~ msgid "Sélectionnez les fichiers à convertir en PDF"
-#~ msgstr "PDF-Dateien zusammenführen"
-
-#~ msgid "Formats acceptés : XLS, XLSX, XLSM (jusqu'à 50MB par fichier)"
-#~ msgstr "Akzeptierte Formate: XLS, XLSX, XLSM (bis zu 50MB pro Datei)"
-
-#~ msgid "Orientation :"
-#~ msgstr "PDF drehen"
-
-#~ msgid "Portrait"
-#~ msgstr "Verarbeitete PDFs"
-
-#~ msgid "Paysage"
-#~ msgstr "Querformat"
-
-#~ msgid "Format de page :"
-#~ msgstr "Seitenformat:"
-
-#~ msgid "Letter"
-#~ msgstr "Letter"
-
-#~ msgid "Vos fichiers PDF sont prêts à être téléchargés"
-#~ msgstr "Ihre PDF-Dateien sind bereit zum Herunterladen"
-
-#~ msgid "Téléchargez votre fichier HTML"
-#~ msgstr "Laden Sie Ihre HTML-Datei hoch"
-
-#~ msgid "ou collez votre code directement"
-#~ msgstr "oder fügen Sie Ihren Code direkt ein"
-
-#~ msgid "Glissez-déposez votre fichier HTML ici"
-#~ msgstr "Ziehen Sie Ihre HTML-Datei hierher"
-
-#~ msgid "Formats acceptés : HTML, HTM"
-#~ msgstr "Akzeptierte Formate: HTML, HTM"
-
-#~ msgid "Ou collez votre code HTML :"
-#~ msgstr "Oder fügen Sie Ihren HTML-Code ein:"
-
-#~ msgid ""
-#~ "&lt;!DOCTYPE html&gt;\n"
-#~ "&lt;html&gt;\n"
-#~ "&lt;head&gt;\n"
-#~ "    &lt;title&gt;Ma page&lt;/title&gt;\n"
-#~ "&lt;/head&gt;\n"
-#~ "&lt;body&gt;\n"
-#~ "    &lt;h1&gt;Titre&lt;/h1&gt;\n"
-#~ "    &lt;p&gt;Contenu...&lt;/p&gt;\n"
-#~ "&lt;/body&gt;\n"
-#~ "&lt;/html&gt;"
-#~ msgstr ""
-#~ "&lt;!DOCTYPE html&gt;\n"
-#~ "&lt;html&gt;\n"
-#~ "&lt;head&gt;\n"
-#~ "    &lt;title&gt;Meine Seite&lt;/title&gt;\n"
-#~ "&lt;/head&gt;\n"
-#~ "&lt;body&gt;\n"
-#~ "    &lt;h1&gt;Titel&lt;/h1&gt;\n"
-#~ "    &lt;p&gt;Inhalt...&lt;/p&gt;\n"
-#~ "&lt;/body&gt;\n"
-#~ "&lt;/html&gt;"
-
-#~ msgid "Lettre"
-#~ msgstr "Letter"
-
-#~ msgid "Marges (mm) :"
-#~ msgstr "Ränder (mm):"
-
-#~ msgid "Inclure les images"
-#~ msgstr "Bilder einfügen"
-
-#~ msgid "Activer JavaScript"
-#~ msgstr "JavaScript aktivieren"
-
-#~ msgid "Veuillez patienter pendant le traitement de votre fichier"
-#~ msgstr "Bitte warten Sie, während Ihre Datei verarbeitet wird"
-
-#~ msgid "Votre PDF est prêt à être téléchargé"
-#~ msgstr "Ihr PDF ist bereit zum Herunterladen"
-
-#~ msgid "Télécharger le PDF"
-#~ msgstr "PDF schützen"
-
-#~ msgid "Convertir un autre fichier"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Veuillez sélectionner un fichier ou coller du code HTML"
-#~ msgstr "Bitte wählen Sie eine Datei aus oder fügen Sie HTML-Code ein"
-
-#~ msgid "Téléchargez votre image ou PDF"
-#~ msgstr "Laden Sie Ihr Bild oder PDF hoch"
-
-#~ msgid "Glissez-déposez votre fichier ici"
-#~ msgstr "Ziehen Sie Ihre Datei hierher"
-
-#~ msgid "Formats acceptés : JPG, PNG, BMP, TIFF, WEBP, PDF (jusqu'à 50MB)"
-#~ msgstr "Akzeptierte Formate: JPG, PNG, BMP, TIFF, WEBP, PDF (bis zu 50MB)"
-
-#~ msgid "Options d'extraction"
-#~ msgstr "Nutzungsbedingungen"
-
-#~ msgid "Mode d'extraction"
-#~ msgstr "Extraktionsmodus"
-
-#~ msgid "Automatique"
-#~ msgstr "Automatisch"
-
-#~ msgid "Détection intelligente des tableaux"
-#~ msgstr "Intelligente Tabellenerkennung"
-
-#~ msgid "Grille"
-#~ msgstr "Raster"
-
-#~ msgid "Extraction par grille fixe"
-#~ msgstr "Extraktion mittels festem Raster"
-
-#~ msgid "Options"
-#~ msgstr "Werkzeuge"
-
-#~ msgid "Détecter les en-têtes"
-#~ msgstr "Kopfzeilen erkennen"
-
-#~ msgid "Fusionner les cellules"
-#~ msgstr "PDFs zusammenführen"
-
-#~ msgid "Précision OCR"
-#~ msgstr "OCR-Genauigkeit"
-
-#~ msgid "Haute (plus lent)"
-#~ msgstr "Hoch (langsamer)"
-
-#~ msgid "Moyenne (équilibré)"
-#~ msgstr "Mittel (ausgewogen)"
-
-#~ msgid "Basse (plus rapide)"
-#~ msgstr "Niedrig (schneller)"
-
-#~ msgid "Format de sortie"
-#~ msgstr "Ausgabeformat"
-
-#~ msgid "Excel (XLSX)"
-#~ msgstr "Excel (XLSX)"
-
-#~ msgid "tableau(x) détecté(s)"
-#~ msgstr "Tabelle(n) erkannt"
-
-#~ msgid "cellule(s)"
-#~ msgstr "Zelle(n)"
-
-#~ msgid "Prêt pour extraction"
-#~ msgstr "Bereit zur Extraktion"
-
-#~ msgid "Extraire les tableaux"
-#~ msgstr "Tabellen extrahieren"
-
-#~ msgid "Analyse des tableaux en cours"
-#~ msgstr "Tabellenanalyse läuft"
-
-#~ msgid "Détection des structures tabulaires..."
-#~ msgstr "Erkennung tabellarischer Strukturen..."
-
-#~ msgid "Tableaux détectés"
-#~ msgstr "Tabellen erkannt"
-
-#~ msgid "Cellules extraites"
-#~ msgstr "Zellen extrahiert"
-
-#~ msgid "Confiance"
-#~ msgstr "Kontakt"
-
-#~ msgid "Extraction terminée !"
-#~ msgstr "Extraktion abgeschlossen!"
-
-#~ msgid "Aperçu des données"
-#~ msgstr "Datenvorschau"
-
-#~ msgid "lignes extraites"
-#~ msgstr "Zeilen extrahiert"
-
-#~ msgid "Télécharger Excel"
-#~ msgstr "Excel herunterladen"
-
-#~ msgid "Nouvelle extraction"
-#~ msgstr "Neue Extraktion"
-
-#~ msgid "Veuillez sélectionner un fichier"
-#~ msgstr "Bitte wählen Sie eine Datei aus"
-
-#~ msgid "Prétraitement de l'image..."
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "Détection des contours..."
-#~ msgstr "Konturerkennung..."
-
-#~ msgid "Identification des lignes..."
-#~ msgstr "Zeilenidentifikation..."
-
-#~ msgid "Extraction du contenu..."
-#~ msgstr "Inhaltsextraktion..."
-
-#~ msgid "Structuration des données..."
-#~ msgstr "Datenstrukturierung..."
-
-#~ msgid "Finalisation..."
-#~ msgstr "Administration"
-
-#~ msgid "Erreur lors de l'extraction :"
-#~ msgstr "Fehler bei der Extraktion:"
-
-#~ msgid "Téléchargez vos images"
-#~ msgstr "Laden Sie Ihre Bilder hoch"
-
-#~ msgid "Sélectionnez les images à convertir en PDF"
-#~ msgstr "Wählen Sie die zu konvertierenden Bilder aus"
-
-#~ msgid "Glissez-déposez vos images ici"
-#~ msgstr "Ziehen Sie Ihre Bilder hierher"
-
-#~ msgid ""
-#~ "Formats acceptés : JPG, PNG, BMP, "
-#~ "GIF, TIFF, WEBP (jusqu'à 50MB par "
-#~ "fichier)"
-#~ msgstr ""
-#~ "Unterstützte Formate: JPG, PNG, BMP, "
-#~ "GIF, TIFF, WEBP (bis zu 50MB pro"
-#~ " Datei)"
-
-#~ msgid "Qualité :"
-#~ msgstr "Qualität:"
-
-#~ msgid "Haute (fichier plus gros)"
-#~ msgstr "Hoch (größere Datei)"
-
-#~ msgid "Moyenne"
-#~ msgstr "Mittel"
-
-#~ msgid "Basse (fichier plus petit)"
-#~ msgstr "Niedrig (kleinere Datei)"
-
-#~ msgid "Fusionner toutes les images en un seul PDF"
-#~ msgstr "Alle Bilder in einem PDF zusammenführen"
-
-#~ msgid "Veuillez patienter pendant le traitement de vos images"
-#~ msgstr "Bitte warten Sie, während Ihre Bilder verarbeitet werden"
-
-#~ msgid "Traitement de 0/{total} images..."
-#~ msgstr "Traitement de 0/{total} images..."
-
-#~ msgid "Convertir d'autres images"
-#~ msgstr "Von PDF konvertieren"
-
-#~ msgid "Veuillez sélectionner au moins une image"
-#~ msgstr "Bitte wählen Sie mindestens ein Bild aus"
-
-#~ msgid "Traitement de"
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "images..."
-#~ msgstr "Bilder..."
-
-#~ msgid "images terminé"
-#~ msgstr "Bild zu PDF"
-
-#~ msgid "Convertissez images et PDF en documents Word éditables avec OCR"
-#~ msgstr "Konvertieren Sie Bilder und PDFs mit OCR in bearbeitbare Word-Dokumente"
-
-#~ msgid "Glissez-déposez vos fichiers ici"
-#~ msgstr "Ziehen Sie Ihre Dateien hierher"
-
-#~ msgid "Paramètres OCR avancés"
-#~ msgstr "Erweiterte OCR-Einstellungen"
-
-#~ msgid "Langues de reconnaissance"
-#~ msgstr "Erkennungssprachen"
-
-#~ msgid "Français"
-#~ msgstr "Französisch"
-
-#~ msgid "Anglais"
-#~ msgstr "Englisch"
-
-#~ msgid "Espagnol"
-#~ msgstr "Spanisch"
-
-#~ msgid "Allemand"
-#~ msgstr "Deutsch"
-
-#~ msgid "Italien"
-#~ msgstr "Italienisch"
-
-#~ msgid "Portugais"
-#~ msgstr "Portugiesisch"
-
-#~ msgid "Niveau de confiance OCR"
-#~ msgstr "OCR-Vertrauensniveau"
-
-#~ msgid "Bas (plus de texte)"
-#~ msgstr "Niedrig (mehr Text)"
-
-#~ msgid "Haut (plus précis)"
-#~ msgstr "Hoch (genauer)"
-
-#~ msgid "Conserver la mise en page"
-#~ msgstr "Layout beibehalten"
-
-#~ msgid "Maintient les paragraphes et colonnes"
-#~ msgstr "Behält Absätze und Spalten bei"
-
-#~ msgid "Prétraitement d'image"
-#~ msgstr "Bildvorverarbeitung"
-
-#~ msgid "Aucun"
-#~ msgstr "Keine"
-
-#~ msgid "Niveaux de gris"
-#~ msgstr "Graustufen"
-
-#~ msgid "Binarisation (recommandé)"
-#~ msgstr "Binarisierung (empfohlen)"
-
-#~ msgid "Réduction du bruit"
-#~ msgstr "Rauschunterdrückung"
-
-#~ msgid "Correction inclinaison"
-#~ msgstr "Neigungskorrektur"
-
-#~ msgid "DOCX (Word moderne)"
-#~ msgstr "DOCX (modernes Word)"
-
-#~ msgid "DOC (Word ancien)"
-#~ msgstr "DOC (altes Word)"
-
-#~ msgid "TXT (texte brut)"
-#~ msgstr "TXT (reiner Text)"
-
-#~ msgid "RTF (format riche)"
-#~ msgstr "RTF (Rich Text Format)"
-
-#~ msgid "Extraire et convertir en Word"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Extraction OCR en cours"
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "Analyse du document et reconnaissance de texte..."
-#~ msgstr "Dokumentenanalyse und Texterkennung..."
-
-#~ msgid "Recherche des zones de texte..."
-#~ msgstr "Suche nach Textbereichen..."
-
-#~ msgid "Extraction réussie !"
-#~ msgstr "Extraktion erfolgreich!"
-
-#~ msgid "Votre document Word est prêt au téléchargement"
-#~ msgstr "Ihr Word-Dokument ist bereit zum Herunterladen"
-
-#~ msgid "Télécharger Word"
-#~ msgstr "Word herunterladen"
-
-#~ msgid "Caractères extraits"
-#~ msgstr "Zeichen extrahiert"
-
-#~ msgid "Mots détectés"
-#~ msgstr "Wörter erkannt"
-
-#~ msgid "Lignes"
-#~ msgstr "Zeilen"
-
-#~ msgid "Optimisation de l'image pour l'OCR"
-#~ msgstr "Bildoptimierung für OCR"
-
-#~ msgid "Analyse des zones de texte..."
-#~ msgstr "Analyse der Textbereiche..."
-
-#~ msgid "Détection des paragraphes et colonnes"
-#~ msgstr "Erkennung von Absätzen und Spalten"
-
-#~ msgid "Reconnaissance des caractères..."
-#~ msgstr "Zeichenerkennung..."
-
-#~ msgid "Analyse des formes et patterns"
-#~ msgstr "Analyse von Formen und Mustern"
-
-#~ msgid "Correction orthographique..."
-#~ msgstr "Rechtschreibkorrektur..."
-
-#~ msgid "Vérification du vocabulaire"
-#~ msgstr "Vokabelprüfung"
-
-#~ msgid "Structuration du document..."
-#~ msgstr "Dokumentenstrukturierung..."
-
-#~ msgid "Organisation en paragraphes"
-#~ msgstr "Organisation in Absätzen"
-
-#~ msgid "Préparation du document Word"
-#~ msgstr "Vorbereitung des Word-Dokuments"
-
-#~ msgid "Document prêt"
-#~ msgstr "Dokument bereit"
-
-#~ msgid "Transformez vos documents en tous formats, gratuitement et en ligne"
-#~ msgstr "Wandeln Sie Ihre Dokumente in alle Formate um, kostenlos und online"
-
-#~ msgid ""
-#~ "Convertissez PDF, Word, Excel, PowerPoint, "
-#~ "images et plus encore. Simple, rapide"
-#~ " et sécurisé."
-#~ msgstr ""
-#~ "Konvertieren Sie Ihre Word-, Excel-, "
-#~ "PowerPoint- und Bilddateien in PDF und"
-#~ " umgekehrt"
-
-#~ msgid "Découvrir les outils"
-#~ msgstr "Tools entdecken"
-
-#~ msgid "Outils de conversion"
-#~ msgstr "Alle Konvertierungen"
-
-#~ msgid "Gratuit"
-#~ msgstr "Kostenlos"
-
-#~ msgid "Max par fichier"
-#~ msgstr "Max. pro Datei"
-
-#~ msgid "Conversions illimitées"
-#~ msgstr "Unbegrenzte Konvertierungen"
-
-#~ msgid "outils disponibles"
-#~ msgstr "Verfügbar"
-
-#~ msgid "Fichiers traités localement et supprimés après conversion"
-#~ msgstr "Dateien werden lokal verarbeitet und nach der Konvertierung gelöscht"
-
-#~ msgid "Conversion en quelques secondes, sans attente"
-#~ msgstr "Konvertierung in Sekunden, ohne Wartezeit"
-
-#~ msgid "Multiplateforme"
-#~ msgstr "Plattformunabhängig"
-
-#~ msgid "Compatible avec tous les navigateurs modernes"
-#~ msgstr "Kompatibel mit allen modernen Browsern"
-
-#~ msgid "Illimité"
-#~ msgstr "Unbegrenzt"
-
-#~ msgid "Aucune limite sur le nombre de conversions"
-#~ msgstr "Keine Begrenzung der Anzahl der Konvertierungen"
-
-#~ msgid "Toutes les conversions disponibles"
-#~ msgstr "Alle Konvertierungen"
-
-#~ msgid "Utiliser"
-#~ msgstr "Benutzer"
-
-#~ msgid "Choisissez votre outil de conversion"
-#~ msgstr "Wählen Sie Ihr Konvertierungstool"
-
-#~ msgid "Téléchargez votre fichier source"
-#~ msgstr "Laden Sie Ihre Quelldatei hoch"
-
-#~ msgid "Configurez les options (si besoin)"
-#~ msgstr "Konfigurieren Sie die Optionen (falls nötig)"
-
-#~ msgid "Lancez la conversion"
-#~ msgstr "Andere Konvertierungen"
-
-#~ msgid "Téléchargez votre fichier converti"
-#~ msgstr "Laden Sie Ihre konvertierte Datei herunter"
-
-#~ msgid "Important :"
-#~ msgstr "Wichtig:"
-
-#~ msgid "Les fichiers sont automatiquement supprimés après 1 heure"
-#~ msgstr "Dateien werden automatisch nach 1 Stunde gelöscht"
-
-#~ msgid "Liens rapides"
-#~ msgstr "Schnelllinks"
-
-#~ msgid "Dépendances système"
-#~ msgstr "Systemabhängigkeiten"
-
-#~ msgid "Nettoyer fichiers temporaires"
-#~ msgstr "Temporäre Dateien löschen"
-
-#~ msgid "Vérifier l'état du service"
-#~ msgstr "Service-Status prüfen"
-
-#~ msgid "Questions fréquentes"
-#~ msgstr "Häufig gestellte Fragen (FAQ)"
-
-#~ msgid "Les fichiers sont-ils sécurisés ?"
-#~ msgstr "Sind meine Dateien sicher?"
-
-#~ msgid ""
-#~ "Oui, tous les fichiers sont traités "
-#~ "localement et automatiquement supprimés après"
-#~ " 1 heure. Nous ne stockons jamais "
-#~ "vos documents sur nos serveurs."
-#~ msgstr ""
-#~ "Ja, alle Dateien werden lokal "
-#~ "verarbeitet und nach 1 Stunde "
-#~ "automatisch gelöscht. Wir speichern Ihre "
-#~ "Dokumente niemals auf unseren Servern."
-
-#~ msgid "Quelles sont les limites de taille ?"
-#~ msgstr "Was sind die Größenbeschränkungen?"
-
-#~ msgid ""
-#~ "Taille maximale par fichier : 50MB. "
-#~ "Nombre maximum de fichiers par "
-#~ "conversion : variable selon l'outil (de"
-#~ " 1 à 20)."
-#~ msgstr ""
-#~ "Maximale Dateigröße: 50MB. Maximale Anzahl "
-#~ "von Dateien pro Konvertierung: variiert "
-#~ "je nach Tool (von 1 bis 20)."
-
-#~ msgid "Combien de temps dure une conversion ?"
-#~ msgstr "Wie lange dauert eine Konvertierung?"
-
-#~ msgid ""
-#~ "La plupart des conversions prennent "
-#~ "moins de 30 secondes. Pour les "
-#~ "gros fichiers ou les conversions "
-#~ "complexes (OCR), comptez 1 à 2 "
-#~ "minutes."
-#~ msgstr ""
-#~ "Die meisten Konvertierungen dauern weniger "
-#~ "als 30 Sekunden. Für große Dateien "
-#~ "oder komplexe Konvertierungen (OCR) rechnen"
-#~ " Sie mit 1 bis 2 Minuten."
-
-#~ msgid "Quels formats sont supportés ?"
-#~ msgstr "Welche Formate werden unterstützt?"
-
-#~ msgid ""
-#~ "Nous supportons plus de 20 formats "
-#~ ": PDF, DOC, DOCX, XLS, XLSX, PPT,"
-#~ " PPTX, JPG, PNG, GIF, BMP, TIFF, "
-#~ "CSV, et plus encore."
-#~ msgstr ""
-#~ "Wir unterstützen über 20 Formate: PDF,"
-#~ " DOC, DOCX, XLS, XLSX, PPT, PPTX, "
-#~ "JPG, PNG, GIF, BMP, TIFF, CSV und"
-#~ " mehr."
-
-#~ msgid "Téléchargez vos images JPG"
-#~ msgstr "Laden Sie Ihre JPG-Bilder hoch"
-
-#~ msgid "Formats acceptés : JPG, JPEG (jusqu'à 20 fichiers)"
-#~ msgstr "Akzeptierte Formate: JPG, JPEG (bis zu 20 Dateien)"
-
-#~ msgid "A4 (21 x 29,7 cm)"
-#~ msgstr "A4 (21 x 29,7 cm)"
-
-#~ msgid "Lettre (21,6 x 27,9 cm)"
-#~ msgstr "Letter (21,6 x 27,9 cm)"
-
-#~ msgid "Legal (21,6 x 35,6 cm)"
-#~ msgstr "Legal (21,6 x 35,6 cm)"
-
-#~ msgid "Haute (recommandé)"
-#~ msgstr "Hoch (empfohlen)"
-
-#~ msgid "Veuillez sélectionner des fichiers"
-#~ msgstr "PDF-Dateien zusammenführen"
-
-#~ msgid "Convertissez votre PDF en DOC"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid ""
-#~ "Transformez vos documents PDF en format"
-#~ " Word compatible avec les anciennes "
-#~ "versions"
-#~ msgstr ""
-#~ "Konvertieren Sie Ihre PDF-Dokumente in"
-#~ " ein mit älteren Versionen kompatibles "
-#~ "Word-Format"
-
-#~ msgid "Format accepté : PDF (jusqu'à 50MB)"
-#~ msgstr "Akzeptiertes Format: PDF (bis zu 50MB)"
-
-#~ msgid "Texte uniquement"
-#~ msgstr "Nur Text"
-
-#~ msgid "Texte et images"
-#~ msgstr "Text und Bilder"
-
-#~ msgid "Choisissez le niveau de détail à conserver"
-#~ msgstr "Wählen Sie den Detailgrad, der beibehalten werden soll"
-
-#~ msgid "Langue du document"
-#~ msgstr "Dokumentensprache"
-
-#~ msgid "Améliore la reconnaissance du texte"
-#~ msgstr "Verbessert die Texterkennung"
-
-#~ msgid "Détecter les tableaux"
-#~ msgstr "Tabellen erkennen"
-
-#~ msgid "Convertit automatiquement les tableaux en format Word"
-#~ msgstr "Konvertiert Tabellen automatisch in das Word-Format"
-
-#~ msgid "Conserver la mise en forme"
-#~ msgstr "Formatierung beibehalten"
-
-#~ msgid "Maintient les polices, tailles et styles"
-#~ msgstr "Behält Schriftarten, Größen und Stile bei"
-
-#~ msgid "Format DOC :"
-#~ msgstr "DOC-Format:"
-
-#~ msgid "Compatible avec Microsoft Word 97-2003 et les anciennes versions."
-#~ msgstr "Kompatibel mit Microsoft Word 97-2003 und älteren Versionen."
-
-#~ msgid "Pour un format plus récent, utilisez"
-#~ msgstr "Für ein neueres Format verwenden Sie"
-
-#~ msgid "Convertir en DOC"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Analyse et conversion de votre PDF..."
-#~ msgstr "Analyse und Konvertierung Ihres PDFs..."
-
-#~ msgid "Extraction du texte..."
-#~ msgstr "Textextraktion..."
-
-#~ msgid "Conversion réussie !"
-#~ msgstr "Konvertierung erfolgreich!"
-
-#~ msgid "Votre document DOC est prêt au téléchargement"
-#~ msgstr "Ihr DOC-Dokument ist bereit zum Herunterladen"
-
-#~ msgid "Télécharger DOC"
-#~ msgstr "DOC herunterladen"
-
-#~ msgid "Nouvelle conversion"
-#~ msgstr "Alle Konvertierungen"
-
-#~ msgid "Pages traitées"
-#~ msgstr "Verarbeitete PDFs"
-
-#~ msgid "Taille du fichier"
-#~ msgstr "Dateigröße"
-
-#~ msgid "Format"
-#~ msgstr "Format"
-
-#~ msgid "Analyse du PDF..."
-#~ msgstr "PDF-Analyse..."
-
-#~ msgid "Lecture de la structure du document"
-#~ msgstr "Lesen der Dokumentenstruktur"
-
-#~ msgid "Récupération du contenu textuel"
-#~ msgstr "Abrufen des Textinhalts"
-
-#~ msgid "Conservation de la mise en page..."
-#~ msgstr "Layout beibehalten..."
-
-#~ msgid "Préservation des paragraphes et styles"
-#~ msgstr "Beibehaltung von Absätzen und Stilen"
-
-#~ msgid "Traitement des tableaux..."
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "Conversion des structures tabulaires"
-#~ msgstr "Konvertierung tabellarischer Strukturen"
-
-#~ msgid "Génération du document..."
-#~ msgstr "Dokumentenerstellung..."
-
-#~ msgid "Création du fichier DOC"
-#~ msgstr "PDF-Dateien zusammenführen"
-
-#~ msgid "Extrayez les tableaux de votre PDF"
-#~ msgstr "Extrahieren Sie Tabellen aus Ihrem PDF"
-
-#~ msgid "Convertissez vos tableaux PDF en feuilles de calcul Excel"
-#~ msgstr "Konvertieren Sie Ihre PDF-Tabellen in Excel-Tabellenblätter"
-
-#~ msgid "Extraire les tableaux uniquement"
-#~ msgstr "Nur Tabellen extrahieren"
-
-#~ msgid "Extraire tout le texte"
-#~ msgstr "Gesamten Text extrahieren"
-
-#~ msgid "Détection intelligente"
-#~ msgstr "Intelligente Erkennung"
-
-#~ msgid "Choisissez comment extraire les données"
-#~ msgstr "Wählen Sie, wie die Daten extrahiert werden sollen"
-
-#~ msgid "Améliore la reconnaissance OCR"
-#~ msgstr "Verbessert die OCR-Erkennung"
-
-#~ msgid "Activer l'OCR"
-#~ msgstr "OCR aktivieren"
-
-#~ msgid "Pour les PDF scannés ou les images"
-#~ msgstr "Für gescannte PDFs oder Bilder"
-
-#~ msgid "Maintient les styles et couleurs"
-#~ msgstr "Behält Stile und Farben bei"
-
-#~ msgid "Extraction intelligente :"
-#~ msgstr "Intelligente Extraktion:"
-
-#~ msgid ""
-#~ "Les tableaux seront automatiquement détectés"
-#~ " et convertis en feuilles Excel. "
-#~ "L'OCR permet de reconnaître le texte "
-#~ "dans les documents scannés."
-#~ msgstr ""
-#~ "Tabellen werden automatisch erkannt und "
-#~ "in Excel-Blätter konvertiert. OCR "
-#~ "ermöglicht die Texterkennung in gescannten "
-#~ "Dokumenten."
-
-#~ msgid "Extraire vers Excel"
-#~ msgstr "Bild zu Excel"
-
-#~ msgid "Extraction en cours..."
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "Analyse et extraction des données..."
-#~ msgstr "Datenanalyse und -extraktion..."
-
-#~ msgid "Lignes extraites"
-#~ msgstr "Zeilen extrahiert"
-
-#~ msgid "Colonnes"
-#~ msgstr "Spalten"
-
-#~ msgid "Recherche de tableaux dans le document..."
-#~ msgstr "Suche nach Tabellen im Dokument..."
-
-#~ msgid "Votre fichier Excel est prêt au téléchargement"
-#~ msgstr "Ihre Excel-Datei ist bereit zum Herunterladen"
-
-#~ msgid "Tableaux"
-#~ msgstr "Tabellen"
-
-#~ msgid "Cellules"
-#~ msgstr "Zellen"
-
-#~ msgid "Feuilles"
-#~ msgstr "Blätter"
-
-#~ msgid "Analyse du document..."
-#~ msgstr "Dokumentenanalyse..."
-
-#~ msgid "Détection des zones de texte"
-#~ msgstr "Erkennung von Textbereichen"
-
-#~ msgid "Recherche de tableaux..."
-#~ msgstr "Tabellensuche..."
-
-#~ msgid "Identification des structures tabulaires"
-#~ msgstr "Identifizierung tabellarischer Strukturen"
-
-#~ msgid "Extraction des données..."
-#~ msgstr "Datenextraktion..."
-
-#~ msgid "Récupération du contenu des cellules"
-#~ msgstr "Abrufen des Zelleninhalts"
-
-#~ msgid "Traitement OCR..."
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "Reconnaissance de texte dans les images"
-#~ msgstr "Texterkennung in Bildern"
-
-#~ msgid "Organisation en feuilles Excel"
-#~ msgstr "Organisation in Excel-Blättern"
-
-#~ msgid "Téléchargez votre fichier PDF"
-#~ msgstr "Eine PDF-Datei drehen"
-
-#~ msgid "Sélectionnez le PDF à convertir en HTML"
-#~ msgstr "Wählen Sie das PDF für die Konvertierung in HTML aus"
-
-#~ msgid "Format accepté : PDF"
-#~ msgstr "Akzeptiertes Format: PDF"
-
-#~ msgid "Format de sortie :"
-#~ msgstr "Ausgabeformat:"
-
-#~ msgid "Un seul fichier HTML"
-#~ msgstr "Einzelne HTML-Datei"
-
-#~ msgid "Plusieurs fichiers (une par page)"
-#~ msgstr "Mehrere Dateien (eine pro Seite)"
-
-#~ msgid "Archive ZIP"
-#~ msgstr "ZIP-Archiv"
-
-#~ msgid "Inclure les styles CSS"
-#~ msgstr "CSS-Stile einfügen"
-
-#~ msgid "Conserver les images"
-#~ msgstr "Bilder beibehalten"
-
-#~ msgid "Convertir en HTML"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Veuillez patienter pendant le traitement de votre PDF"
-#~ msgstr "Bitte warten Sie, während Ihr PDF verarbeitet wird"
-
-#~ msgid "Votre fichier HTML est prêt à être téléchargé"
-#~ msgstr "Ihre HTML-Datei ist bereit zum Herunterladen"
-
-#~ msgid "Convertir un autre PDF"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Transformez chaque page de votre PDF en image (PNG ou JPG)"
-#~ msgstr "Wandeln Sie jede Seite Ihres PDFs in ein Bild um (PNG oder JPG)"
-
-#~ msgid "Format d'image"
-#~ msgstr "Bildformat"
-
-#~ msgid "PNG (qualité supérieure, sans perte)"
-#~ msgstr "PNG (hohe Qualität, verlustfrei)"
-
-#~ msgid "JPG (taille réduite, compression)"
-#~ msgstr "JPG (reduzierte Größe, komprimiert)"
-
-#~ msgid "Le PNG préserve la qualité, le JPG est plus léger"
-#~ msgstr "PNG bewahrt die Qualität, JPG ist leichter"
-
-#~ msgid "Résolution (DPI)"
-#~ msgstr "Auflösung (DPI)"
-
-#~ msgid "72 DPI (web, léger)"
-#~ msgstr "72 DPI (Web, leicht)"
-
-#~ msgid "150 DPI (standard)"
-#~ msgstr "150 DPI (Standard)"
-
-#~ msgid "300 DPI (haute qualité, impression)"
-#~ msgstr "300 DPI (hohe Qualität, Druck)"
-
-#~ msgid "600 DPI (très haute qualité)"
-#~ msgstr "600 DPI (sehr hohe Qualität)"
-
-#~ msgid "Plus de DPI = meilleure qualité, fichier plus gros"
-#~ msgstr "Mehr DPI = bessere Qualität, größere Datei"
-
-#~ msgid "Qualité (pour JPG)"
-#~ msgstr "Qualität (für JPG)"
-
-#~ msgid "Haute (90-100%)"
-#~ msgstr "Hoch (90-100%%)"
-
-#~ msgid "Moyenne (70-80%)"
-#~ msgstr "Mittel (70-80%)"
-
-#~ msgid "Basse (50-60%)"
-#~ msgstr "Niedrig (50-60%)"
-
-#~ msgid "Uniquement pour le format JPG"
-#~ msgstr "Nur für das JPG-Format"
-
-#~ msgid "Pages à convertir"
-#~ msgstr "Konvertieren"
-
-#~ msgid "Ex: 1,3-5 ou laisser vide pour toutes"
-#~ msgstr "Bsp: 1,3-5 oder leer lassen für alle"
-
-#~ msgid "Exemples : \"1,3-5,7\" ou \"all\" pour toutes les pages"
-#~ msgstr "Beispiele: \"1,3-5,7\" oder \"all\" für alle Seiten"
-
-#~ msgid "Fichier ZIP unique"
-#~ msgstr "Einzelne ZIP-Datei"
-
-#~ msgid "Regroupe toutes les images dans une archive ZIP"
-#~ msgstr "Gruppiert alle Bilder in einem ZIP-Archiv"
-
-#~ msgid "Convertir en images"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Analyse et conversion des pages..."
-#~ msgstr "Seitenanalyse und -konvertierung..."
-
-#~ msgid "Pages totales"
-#~ msgstr "Seiten insgesamt"
-
-#~ msgid "Pages converties"
-#~ msgstr "Andere Konvertierungen"
-
-#~ msgid "Taille estimée"
-#~ msgstr "Geschätzte Größe"
-
-#~ msgid "Chargement du PDF..."
-#~ msgstr "PDF wird geladen..."
-
-#~ msgid "Vos images sont prêtes au téléchargement"
-#~ msgstr "Ihre Bilder sind bereit zum Herunterladen"
-
-#~ msgid "Télécharger les images"
-#~ msgstr "Bilder herunterladen"
-
-#~ msgid "Aperçu des images générées"
-#~ msgstr "Vorschau der generierten Bilder"
-
-#~ msgid "Résolution"
-#~ msgstr "Auflösung"
-
-#~ msgid "Taille totale"
-#~ msgstr "Gesamtgröße"
-
-#~ msgid "Conversion de la page"
-#~ msgstr "Seitenkonvertierung"
-
-#~ msgid "convertie en"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid ""
-#~ "Le format PDF/A garantit la pérennité"
-#~ " de vos documents pour l'archivage à"
-#~ " long terme"
-#~ msgstr "Das PDF/A-Format gewährleistet die Langzeitarchivierung Ihrer Dokumente"
-
-#~ msgid "Options de conversion PDF/A"
-#~ msgstr "Alle Konvertierungen"
-
-#~ msgid "PDF/A-1b (2005) - Niveau B (basique)"
-#~ msgstr "PDF/A-1b (2005) - Stufe B (einfach)"
-
-#~ msgid "PDF/A-1a (2005) - Niveau A (accessible)"
-#~ msgstr "PDF/A-1a (2005) - Stufe A (barrierefrei)"
-
-#~ msgid "PDF/A-2b (2011) - Niveau B (recommandé)"
-#~ msgstr "PDF/A-2b (2011) - Stufe B (empfohlen)"
-
-#~ msgid "PDF/A-2u (2011) - Unicode"
-#~ msgstr "PDF/A-2u (2011) - Unicode"
-
-#~ msgid "PDF/A-3b (2012) - Niveau B"
-#~ msgstr "PDF/A-3b (2012) - Stufe B"
-
-#~ msgid "PDF/A-3u (2012) - Unicode"
-#~ msgstr "PDF/A-3u (2012) - Unicode"
-
-#~ msgid "PDF/A-2"
-#~ msgstr "PDF/A-2"
-
-#~ msgid "est recommandé pour la plupart des usages."
-#~ msgstr "wird für die meisten Anwendungen empfohlen."
-
-#~ msgid "PDF/A-3"
-#~ msgstr "PDF/A-3"
-
-#~ msgid "permet d'incorporer des fichiers non-PDF/A."
-#~ msgstr "PDF-Dateien zusammenführen"
-
-#~ msgid "Qu'est-ce que le format PDF/A ?"
-#~ msgstr "Was ist das PDF/A-Format?"
-
-#~ msgid ""
-#~ "Le PDF/A est une version standardisée"
-#~ " du PDF conçue pour l'archivage à "
-#~ "long terme. Il garantit que votre "
-#~ "document sera exactement le même dans"
-#~ " 10, 20 ou 50 ans, indépendamment "
-#~ "des logiciels utilisés."
-#~ msgstr ""
-#~ "PDF/A ist eine standardisierte Version "
-#~ "von PDF, die für die "
-#~ "Langzeitarchivierung entwickelt wurde. Sie "
-#~ "garantiert, dass Ihr Dokument in 10, "
-#~ "20 oder 50 Jahren genau gleich "
-#~ "aussieht, unabhängig von der verwendeten "
-#~ "Software."
-
-#~ msgid "Attention :"
-#~ msgstr "Achtung:"
-
-#~ msgid ""
-#~ "La conversion en PDF/A peut modifier "
-#~ "légèrement l'apparence du document pour "
-#~ "garantir sa pérennité. Les fonctionnalités "
-#~ "interactives (formulaires, JavaScript) seront "
-#~ "supprimées."
-#~ msgstr ""
-#~ "Die Konvertierung in PDF/A kann das "
-#~ "Erscheinungsbild des Dokuments leicht "
-#~ "verändern, um seine Beständigkeit zu "
-#~ "gewährleisten. Interaktive Funktionen (Formulare,"
-#~ " JavaScript) werden entfernt."
-
-#~ msgid "Auto-contenu"
-#~ msgstr "Eigenständig"
-
-#~ msgid "Toutes les polices sont incorporées"
-#~ msgstr "Alle Schriftarten sind eingebettet"
-
-#~ msgid "Sans dépendance"
-#~ msgstr "Keine Abhängigkeiten"
-
-#~ msgid "Pas de liens externes"
-#~ msgstr "Keine externen Links"
-
-#~ msgid "Métadonnées"
-#~ msgstr "Metadaten"
-
-#~ msgid "Informations d'archivage"
-#~ msgstr "Archivierungsinformationen"
-
-#~ msgid "Standardisé"
-#~ msgstr "Standardisiert"
-
-#~ msgid "ISO 19005"
-#~ msgstr "ISO 19005"
-
-#~ msgid "Convertir en PDF/A"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Conversion en PDF/A en cours..."
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "Analyse et conversion du document..."
-#~ msgstr "Dokumentenanalyse und -konvertierung..."
-
-#~ msgid "Polices incorporées"
-#~ msgstr "Eingebettete Schriftarten"
-
-#~ msgid "Conformité"
-#~ msgstr "Konformität"
-
-#~ msgid "Vérification de la conformité PDF/A..."
-#~ msgstr "Prüfung der PDF/A-Konformität..."
-
-#~ msgid "Votre document PDF/A est prêt pour l'archivage"
-#~ msgstr "Ihr PDF/A-Dokument ist bereit für die Archivierung"
-
-#~ msgid "Télécharger PDF/A"
-#~ msgstr "PDF schützen"
-
-#~ msgid "Document certifié PDF/A"
-#~ msgstr "Zertifiziertes PDF/A-Dokument"
-
-#~ msgid "Version: PDF/A-2b • Pages: 0 • Date:"
-#~ msgstr "Version: PDF/A-2b • Seiten: 0 • Datum:"
-
-#~ msgid "Conforme à la norme ISO 19005 pour l'archivage électronique"
-#~ msgstr "Konform mit der Norm ISO 19005 für die elektronische Archivierung"
-
-#~ msgid "Taille PDF/A"
-#~ msgstr "PDF-Werkzeuge"
-
-#~ msgid "Conversion"
-#~ msgstr "Version"
-
-#~ msgid "Incorporation des polices - Page"
-#~ msgstr "Einbettung der Schriftarten - Seite"
-
-#~ msgid "Validation de la conformité..."
-#~ msgstr "Validierung der Konformität..."
-
-#~ msgid "Version:"
-#~ msgstr "Version"
-
-#~ msgid "Pages:"
-#~ msgstr "Seiten:"
-
-#~ msgid "Date:"
-#~ msgstr "Datum:"
-
-#~ msgid "Transformez chaque page de votre PDF en diapositives modifiables"
-#~ msgstr "Verwandeln Sie jede Seite Ihres PDFs in bearbeitbare Folien"
-
-#~ msgid "Mise en page"
-#~ msgstr "Seitenlayout"
-
-#~ msgid "Une page par diapositive"
-#~ msgstr "Eine Seite pro Folie"
-
-#~ msgid "Plusieurs pages par diapositive"
-#~ msgstr "Mehrere Seiten pro Folie"
-
-#~ msgid "Document de distribution (2 pages/feuille)"
-#~ msgstr "Handzettel (2 Seiten/Blatt)"
-
-#~ msgid "Choisissez comment organiser vos pages"
-#~ msgstr "Wählen Sie, wie Ihre Seiten organisiert werden sollen"
-
-#~ msgid "Format de diapositive"
-#~ msgstr "Foliengröße"
-
-#~ msgid "Standard (4:3) - Écrans classiques"
-#~ msgstr "Standard (4:3) - Klassische Bildschirme"
-
-#~ msgid "Widescreen (16:9) - Écrans larges"
-#~ msgstr "Breitbild (16:9) - Breitbildschirme"
-
-#~ msgid "Letter (21,6 x 27,9 cm)"
-#~ msgstr "Letter (21,6 x 27,9 cm)"
-
-#~ msgid "Adapté à votre support de projection"
-#~ msgstr "Angepasst an Ihr Projektionsmedium"
-
-#~ msgid "Les images du PDF seront intégrées à la présentation"
-#~ msgstr "Die Bilder des PDFs werden in die Präsentation eingebunden"
-
-#~ msgid "Texte éditable"
-#~ msgstr "Editierbarer Text"
-
-#~ msgid "Le texte pourra être modifié dans PowerPoint"
-#~ msgstr "Der Text kann in PowerPoint bearbeitet werden"
-
-#~ msgid "Format PowerPoint :"
-#~ msgstr "PowerPoint zu PDF"
-
-#~ msgid ""
-#~ "Le fichier généré est au format "
-#~ "PPTX, compatible avec PowerPoint 2007 et"
-#~ " versions ultérieures, ainsi qu'avec "
-#~ "LibreOffice et Google Slides."
-#~ msgstr ""
-#~ "Die generierte Datei liegt im PPTX-"
-#~ "Format vor, kompatibel mit PowerPoint "
-#~ "2007 und neueren Versionen sowie mit "
-#~ "LibreOffice und Google Slides."
-
-#~ msgid "Convertir en PowerPoint"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Création de votre présentation PowerPoint..."
-#~ msgstr "Erstellung Ihrer PowerPoint-Präsentation..."
-
-#~ msgid "Diapositives"
-#~ msgstr "Folien"
-
-#~ msgid "Images intégrées"
-#~ msgstr "Eingebundene Bilder"
-
-#~ msgid "Votre présentation PowerPoint est prête"
-#~ msgstr "Ihre PowerPoint-Präsentation ist fertig"
-
-#~ msgid "Télécharger PowerPoint"
-#~ msgstr "PowerPoint herunterladen"
-
-#~ msgid "Taille"
-#~ msgstr "Größe"
-
-#~ msgid "Mode"
-#~ msgstr "Modus"
-
-#~ msgid "1 page/diapo"
-#~ msgstr "1 Seite/Folie"
-
-#~ msgid "Aperçu des premières diapositives"
-#~ msgstr "Vorschau der ersten Folien"
-
-#~ msgid "Création des diapositives (page"
-#~ msgstr "Folien werden erstellt (Seite"
-
-#~ msgid "2 pages/diapo"
-#~ msgstr "2 Seiten/Folie"
-
-#~ msgid "Document"
-#~ msgstr "Dokument"
-
-#~ msgid "Diapo"
-#~ msgstr "Folie"
-
-#~ msgid "Sélectionnez le PDF dont vous voulez extraire le texte"
-#~ msgstr "Wählen Sie das PDF aus, aus dem Sie Text extrahieren möchten"
-
-#~ msgid "Ajouter des marqueurs de page"
-#~ msgstr "Seitenmarkierungen hinzufügen"
-
-#~ msgid "Extraire toutes les pages"
-#~ msgstr "Alle Seiten extrahieren"
-
-#~ msgid "Pages à extraire :"
-#~ msgstr "Zu extrahierende Seiten:"
-
-#~ msgid "Exemple: 1-5,8,11-13"
-#~ msgstr "Beispiel: 1-5,8,11-13"
-
-#~ msgid "Spécifiez les pages à extraire (ex: 1-3,5,7-9)"
-#~ msgstr "Geben Sie die zu extrahierenden Seiten an (z.B. 1-3,5,7-9)"
-
-#~ msgid "Extraire le texte"
-#~ msgstr "Text extrahieren"
-
-#~ msgid "Veuillez patienter pendant l'extraction du texte"
-#~ msgstr "Bitte warten Sie während der Textextraktion"
-
-#~ msgid "Votre fichier texte est prêt à être téléchargé"
-#~ msgstr "Ihre Textdatei ist bereit zum Herunterladen"
-
-#~ msgid "Télécharger le texte"
-#~ msgstr "Text herunterladen"
-
-#~ msgid "Extraire un autre PDF"
-#~ msgstr "Ein anderes PDF extrahieren"
-
-#~ msgid "Veuillez spécifier les pages à extraire"
-#~ msgstr "Bitte geben Sie die zu extrahierenden Seiten an"
-
-#~ msgid "Format de pages invalide. Utilisez le format: 1-5,8,11-13"
-#~ msgstr "Ungültiges Seitenformat. Verwenden Sie das Format: 1-5,8,11-13"
-
-#~ msgid ""
-#~ "Transformez vos PDF en documents Word"
-#~ " modifiables avec mise en page "
-#~ "préservée"
-#~ msgstr ""
-#~ "Verwandeln Sie Ihre PDFs in bearbeitbare"
-#~ " Word-Dokumente mit beibehaltenem Layout"
-
-#~ msgid "Texte uniquement (plus léger)"
-#~ msgstr "Nur Text (leichter)"
-
-#~ msgid "Conserver la mise en page (recommandé)"
-#~ msgstr "Layout beibehalten (empfohlen)"
-
-#~ msgid "Texte et images (complet)"
-#~ msgstr "Text und Bilder (vollständig)"
-
-#~ msgid "Format Word :"
-#~ msgstr "Word-Format:"
-
-#~ msgid ""
-#~ "Le fichier généré est au format "
-#~ "DOCX, compatible avec Microsoft Word "
-#~ "2007 et versions ultérieures, ainsi "
-#~ "qu'avec LibreOffice et Google Docs."
-#~ msgstr ""
-#~ "Die generierte Datei liegt im DOCX-"
-#~ "Format vor, kompatibel mit Microsoft "
-#~ "Word 2007 und neueren Versionen sowie"
-#~ " mit LibreOffice und Google Docs."
-
-#~ msgid "Convertir en Word"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Paragraphes"
-#~ msgstr "Absätze"
-
-#~ msgid "Images détectées"
-#~ msgstr "Erkannte Bilder"
-
-#~ msgid "Votre document Word est prêt"
-#~ msgstr "Ihr Word-Dokument ist fertig"
-
-#~ msgid "Pages"
-#~ msgstr "Seiten"
-
-#~ msgid "Mots"
-#~ msgstr "Werkzeuge"
-
-#~ msgid "Caractères"
-#~ msgstr "Zeichen"
-
-#~ msgid "Aperçu du texte extrait"
-#~ msgstr "Vorschau des extrahierten Textes"
-
-#~ msgid ""
-#~ "Lorem ipsum dolor sit amet, consectetur"
-#~ " adipiscing elit. Sed do eiusmod "
-#~ "tempor incididunt ut labore et dolore"
-#~ " magna aliqua. Ut enim ad minim "
-#~ "veniam, quis nostrud exercitation ullamco "
-#~ "laboris nisi ut aliquip ex ea "
-#~ "commodo consequat."
-#~ msgstr ""
-#~ "Lorem ipsum dolor sit amet, consectetur"
-#~ " adipiscing elit. Sed do eiusmod "
-#~ "tempor incididunt ut labore et dolore"
-#~ " magna aliqua. Ut enim ad minim "
-#~ "veniam, quis nostrud exercitation ullamco "
-#~ "laboris nisi ut aliquip ex ea "
-#~ "commodo consequat."
-
-#~ msgid "Extraction de la page"
-#~ msgstr "Seitenextraktion"
-
-#~ msgid "Téléchargez vos images PNG"
-#~ msgstr "Laden Sie Ihre PNG-Bilder hoch"
-
-#~ msgid "Format accepté : PNG (jusqu'à 20 fichiers)"
-#~ msgstr "Akzeptiertes Format: PNG (bis zu 20 Dateien)"
-
-#~ msgid "Conserver la transparence"
-#~ msgstr "Transparenz beibehalten"
-
-#~ msgid "Transformez vos fichiers PPT/PPTX en documents PDF faciles à partager"
-#~ msgstr ""
-#~ "Verwandeln Sie Ihre PPT/PPTX-Dateien in"
-#~ " einfach zu teilende PDF-Dokumente"
-
-#~ msgid "Glissez-déposez vos fichiers PowerPoint ici"
-#~ msgstr "Ziehen Sie Ihre PowerPoint-Dateien hierher"
-
-#~ msgid "Formats acceptés : PPT, PPTX (jusqu'à 50MB par fichier, 5 fichiers max)"
-#~ msgstr "Akzeptierte Formate: PPT, PPTX (bis zu 50MB pro Datei, max. 5 Dateien)"
-
-#~ msgid "Inclure les notes"
-#~ msgstr "Notizen einfügen"
-
-#~ msgid "Les notes du présentateur seront incluses"
-#~ msgstr "Die Notizen des Präsentators werden eingefügt"
-
-#~ msgid "Inclure les commentaires"
-#~ msgstr "Kommentare einfügen"
-
-#~ msgid "Les commentaires seront visibles"
-#~ msgstr "Kommentare werden sichtbar sein"
-
-#~ msgid "Qualité du PDF"
-#~ msgstr "PDF-Qualität"
-
-#~ msgid "Haute (pour impression)"
-#~ msgstr "Hoch (für Druck)"
-
-#~ msgid "Moyenne (pour partage)"
-#~ msgstr "Mittel (zum Teilen)"
-
-#~ msgid "Basse (pour email)"
-#~ msgstr "Niedrig (für E-Mail)"
-
-#~ msgid "Influence la taille et la qualité"
-#~ msgstr "Beeinflusst Größe und Qualität"
-
-#~ msgid "Fichiers multiples"
-#~ msgstr "Mehrere Dateien"
-
-#~ msgid "PDF séparés (ZIP)"
-#~ msgstr "Separate PDFs (ZIP)"
-
-#~ msgid "Fusionner en un seul PDF"
-#~ msgstr "PDFs zusammenführen"
-
-#~ msgid "Choisissez comment traiter plusieurs fichiers"
-#~ msgstr "Wählen Sie, wie mehrere Dateien verarbeitet werden sollen"
-
-#~ msgid "Format PDF :"
-#~ msgstr "PDF-Format:"
-
-#~ msgid ""
-#~ "Compatible avec tous les lecteurs PDF."
-#~ " Les animations et transitions ne "
-#~ "sont pas conservées dans le PDF."
-#~ msgstr ""
-#~ "Kompatibel mit allen PDF-Readern. "
-#~ "Animationen und Übergänge bleiben im PDF"
-#~ " nicht erhalten."
-
-#~ msgid "Analyse et conversion de vos présentations..."
-#~ msgstr "Analyse und Konvertierung Ihrer Präsentationen..."
-
-#~ msgid "Fichiers traités"
-#~ msgstr "Verarbeitete PDFs"
-
-#~ msgid "Chargement des fichiers..."
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "Vos fichiers PDF sont prêts"
-#~ msgstr "Ihre PDF-Dateien sind fertig"
-
-#~ msgid "Fichiers convertis"
-#~ msgstr "Konvertierte Dateien"
-
-#~ msgid "PDF"
-#~ msgstr "PDF"
-
-#~ msgid "Veuillez sélectionner au moins un fichier PowerPoint"
-#~ msgstr "Bitte wählen Sie mindestens eine PowerPoint-Datei aus"
-
-#~ msgid "Conversion du fichier"
-#~ msgstr "Eine PDF-Datei drehen"
-
-#~ msgid "PDF unique"
-#~ msgstr "Einzelnes PDF"
-
-#~ msgid "PDFs (ZIP)"
-#~ msgstr "PDFs (ZIP)"
-
-#~ msgid "Téléchargez votre document"
-#~ msgstr "Laden Sie Ihr Dokument hoch"
-
-#~ msgid "Glissez-déposez votre document ici"
-#~ msgstr "Ziehen Sie Ihr Dokument hierher"
-
-#~ msgid "Formats acceptés : PDF, Word, Excel, Images (jusqu'à 50MB)"
-#~ msgstr "Akzeptierte Formate: PDF, Word, Excel, Bilder (bis zu 50MB)"
-
-#~ msgid "Configuration du formulaire"
-#~ msgstr "Formularkonfiguration"
-
-#~ msgid "Type de formulaire :"
-#~ msgstr "Formulartyp:"
-
-#~ msgid "Interactif (champs remplissables)"
-#~ msgstr "Interaktiv (ausfüllbare Felder)"
-
-#~ msgid "Imprimable (lignes pour écrire)"
-#~ msgstr "Druckbar (Linien zum Schreiben)"
-
-#~ msgid "Détection des champs :"
-#~ msgstr "Feldereckennung:"
-
-#~ msgid "Automatique (recommandé)"
-#~ msgstr "Automatisch (empfohlen)"
-
-#~ msgid "Cases à cocher"
-#~ msgstr "Kontrollkästchen"
-
-#~ msgid "Emplacements signature"
-#~ msgstr "Signaturfelder"
-
-#~ msgid "Manuel (je définis les champs)"
-#~ msgstr "Manuell (ich definiere die Felder)"
-
-#~ msgid "Détecter les champs"
-#~ msgstr "Felder erkennen"
-
-#~ msgid ""
-#~ "La détection automatique identifie les "
-#~ "zones de texte, cases à cocher et"
-#~ " emplacements de signature"
-#~ msgstr ""
-#~ "Die automatische Erkennung identifiziert "
-#~ "Textbereiche, Kontrollkästchen und Signaturfelder"
-
-#~ msgid "Aperçu du formulaire - Cliquez sur les champs pour les configurer"
-#~ msgstr "Formularvorschau - Klicken Sie auf die Felder, um sie zu konfigurieren"
-
-#~ msgid "Aperçu du document avec les champs détectés"
-#~ msgstr "Dokumentenvorschau mit erkannten Feldern"
-
-#~ msgid "Charger l'aperçu"
-#~ msgstr "Vorschau laden"
-
-#~ msgid "Champs détectés"
-#~ msgstr "Erkannte Felder"
-
-#~ msgid "Type"
-#~ msgstr "Typ"
-
-#~ msgid "Étiquette"
-#~ msgstr "Beschriftung"
-
-#~ msgid "Lancez la détection pour voir les champs"
-#~ msgstr "Starten Sie die Erkennung, um die Felder zu sehen"
-
-#~ msgid "Langue du formulaire :"
-#~ msgstr "Formularsprache:"
-
-#~ msgid "Couleur des champs :"
-#~ msgstr "Feldfarbe:"
-
-#~ msgid "Style des champs :"
-#~ msgstr "Feldstil:"
-
-#~ msgid "Souligné"
-#~ msgstr "Unterstrichen"
-
-#~ msgid "Encadré"
-#~ msgstr "Umrahmt"
-
-#~ msgid "Fond coloré"
-#~ msgstr "Farbiger Hintergrund"
-
-#~ msgid "Invisible"
-#~ msgstr "Verfügbar"
-
-#~ msgid "Ajouter des textes indicatifs (ex: \"Nom\", \"Prénom\"...)"
-#~ msgstr "Hinweistexte hinzufügen (z.B. \"Name\", \"Vorname\"...)"
-
-#~ msgid "Marquer les champs obligatoires (avec *)"
-#~ msgstr "Pflichtfelder markieren (mit *)"
-
-#~ msgid "Ajouter un bouton de soumission"
-#~ msgstr "Senden-Button hinzufügen"
-
-#~ msgid "Création du formulaire..."
-#~ msgstr "Formular wird erstellt..."
-
-#~ msgid "Analyse du document et création des champs interactifs"
-#~ msgstr "Dokumentenanalyse und Erstellung interaktiver Felder"
-
-#~ msgid "Analyse du document source..."
-#~ msgstr "Analyse des Quelldokuments..."
-
-#~ msgid "Formulaire créé !"
-#~ msgstr "Formular erstellt!"
-
-#~ msgid "Votre formulaire PDF interactif est prêt"
-#~ msgstr "Ihr interaktives PDF-Formular ist fertig"
-
-#~ msgid "Télécharger le formulaire"
-#~ msgstr "Formular herunterladen"
-
-#~ msgid "Créer un autre formulaire"
-#~ msgstr "Ein weiteres Formular erstellen"
-
-#~ msgid "Veuillez d'abord télécharger un document"
-#~ msgstr "Bitte laden Sie zuerst ein Dokument hoch"
-
-#~ msgid "Nom complet"
-#~ msgstr "Vollständiger Name"
-
-#~ msgid "Prénom"
-#~ msgstr "Vorname"
-
-#~ msgid "Adresse"
-#~ msgstr "Adresse"
-
-#~ msgid "Code postal"
-#~ msgstr "Postleitzahl"
-
-#~ msgid "Ville"
-#~ msgstr "Stadt"
-
-#~ msgid "Email"
-#~ msgstr "E-Mail"
-
-#~ msgid "Téléphone"
-#~ msgstr "Telefon"
-
-#~ msgid "J'accepte les conditions"
-#~ msgstr "Alle Konvertierungen"
-
-#~ msgid "Signature"
-#~ msgstr "Unterschrift"
-
-#~ msgid "Date"
-#~ msgstr "Datum"
-
-#~ msgid "Édition du champ - À implémenter"
-#~ msgstr "Feldbearbeitung - Zu implementieren"
-
-#~ msgid "Chargement de l'aperçu - À implémenter avec PDF.js"
-#~ msgstr "Vorschau wird geladen - Zu implementieren mit PDF.js"
-
-#~ msgid "Veuillez sélectionner un document"
-#~ msgstr "Bitte wählen Sie ein Dokument aus"
-
-#~ msgid "Conversion en PDF..."
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Détection des champs..."
-#~ msgstr "Feldererkennung..."
-
-#~ msgid "Création des champs interactifs..."
-#~ msgstr "Interaktive Felder werden erstellt..."
-
-#~ msgid "Ajout des propriétés du formulaire..."
-#~ msgstr "Formulareigenschaften werden hinzugefügt..."
-
-#~ msgid "Terminé !"
-#~ msgstr "Fertig!"
-
-#~ msgid "formulaire.pdf"
-#~ msgstr "formular.pdf"
-
-#~ msgid "Erreur lors de la création du formulaire :"
-#~ msgstr "Fehler beim Erstellen des Formulars:"
-
-#~ msgid ""
-#~ "Protégez votre PDF avec un mot de"
-#~ " passe pour empêcher toute ouverture "
-#~ "ou modification non autorisée."
-#~ msgstr ""
-#~ "Schützen Sie Ihr PDF mit einem "
-#~ "Passwort, um unbefugtes Öffnen oder "
-#~ "Bearbeiten zu verhindern."
-
-#~ msgid "Déposez votre PDF ici"
-#~ msgstr "Legen Sie Ihr PDF hier ab"
-
-#~ msgid "Glissez-déposez ou cliquez pour sélectionner"
-#~ msgstr "Ziehen Sie es hierher oder klicken Sie zum Auswählen"
-
-#~ msgid "PDF uniquement • Taille max : 50MB"
-#~ msgstr "Nur PDF • Max. Größe: 50MB"
-
-#~ msgid "Mot de passe d'ouverture"
-#~ msgstr "Öffnungspasswort"
-
-#~ msgid "Entrez un mot de passe"
-#~ msgstr "Passwort eingeben"
-
-#~ msgid "Le fichier nécessitera ce mot de passe pour être ouvert"
-#~ msgstr "Die Datei benötigt dieses Passwort zum Öffnen"
-
-#~ msgid "Confirmer le mot de passe"
-#~ msgstr "Passwort bestätigen"
-
-#~ msgid "Confirmez le mot de passe"
-#~ msgstr "Passwort bestätigen"
-
-#~ msgid "Mot de passe de modification (optionnel)"
-#~ msgstr "Bearbeitungspasswort (optional)"
-
-#~ msgid "Mot de passe propriétaire"
-#~ msgstr "Besitzerpasswort"
-
-#~ msgid "Permet de restreindre la modification"
-#~ msgstr "Ermöglicht die Einschränkung der Bearbeitung"
-
-#~ msgid "Permissions"
-#~ msgstr "Version"
-
-#~ msgid "Aucune restriction"
-#~ msgstr "Keine Registrierung erforderlich"
-
-#~ msgid "Impression uniquement"
-#~ msgstr "Nur Drucken"
-
-#~ msgid "Modification uniquement"
-#~ msgstr "Nur Bearbeiten"
-
-#~ msgid "Impression et modification"
-#~ msgstr "Drucken und Bearbeiten"
-
-#~ msgid ""
-#~ "Notez bien votre mot de passe. Il"
-#~ " n'y a aucun moyen de le "
-#~ "récupérer en cas d'oubli."
-#~ msgstr ""
-#~ "Merken Sie sich Ihr Passwort gut. "
-#~ "Es gibt keine Möglichkeit, es "
-#~ "wiederherzustellen, falls Sie es vergessen."
-
-#~ msgid "Protéger le PDF"
-#~ msgstr "PDF schützen"
-
-#~ msgid "Les mots de passe ne correspondent pas"
-#~ msgstr "Die Passwörter stimmen nicht überein"
-
-#~ msgid "Veuillez entrer un mot de passe"
-#~ msgstr "Bitte geben Sie ein Passwort ein"
-
-#~ msgid "Erreur"
-#~ msgstr "Fehler"
-
-#~ msgid "document_protege.pdf"
-#~ msgstr "dokument_geschuetzt.pdf"
-
-#~ msgid "Erreur:"
-#~ msgstr "Fehler:"
-
-#~ msgid "Options de caviardage"
-#~ msgstr "Schwärzungsoptionen"
-
-#~ msgid "Type de caviardage :"
-#~ msgstr "Schwärzungsart:"
-
-#~ msgid "Texte spécifique"
-#~ msgstr "Bestimmter Text"
-
-#~ msgid "Zone rectangulaire"
-#~ msgstr "Rechteckiger Bereich"
-
-#~ msgid "Motif (email, téléphone...)"
-#~ msgstr "Muster (E-Mail, Telefon...)"
-
-#~ msgid "Texte à caviarder :"
-#~ msgstr "Zu schwärzender Text:"
-
-#~ msgid "Ex: nom, prénom, adresse, numéro de carte..."
-#~ msgstr "Bsp: Name, Vorname, Adresse, Kartennummer..."
-
-#~ msgid "Ajouter"
-#~ msgstr "Hinzufügen"
-
-#~ msgid "confidentiel"
-#~ msgstr "Datenschutz"
-
-#~ msgid "secret"
-#~ msgstr "Geheimnis"
-
-#~ msgid ""
-#~ "Après avoir chargé votre PDF, vous "
-#~ "pourrez dessiner des zones à caviarder"
-#~ " sur l'aperçu."
-#~ msgstr ""
-#~ "Nachdem Sie Ihr PDF geladen haben, "
-#~ "können Sie in der Vorschau Bereiche "
-#~ "zum Schwärzen zeichnen."
-
-#~ msgid "Opaque"
-#~ msgstr "Undurchsichtig"
-
-#~ msgid "Transparent"
-#~ msgstr "Transparent"
-
-#~ msgid "Bordure :"
-#~ msgstr "Rand:"
-
-#~ msgid "Sans bordure"
-#~ msgstr "Ohne Rand"
-
-#~ msgid "Fine"
-#~ msgstr "Zusammenführen"
-
-#~ msgid "Épaisse"
-#~ msgstr "Dick"
-
-#~ msgid "Motifs à caviarder :"
-#~ msgstr "Zu schwärzende Muster:"
-
-#~ msgid "Adresses email"
-#~ msgstr "E-Mail-Adressen"
-
-#~ msgid "Numéros de téléphone"
-#~ msgstr "Telefonnummern"
-
-#~ msgid "Noms propres"
-#~ msgstr "Über uns"
-
-#~ msgid "Numéros de carte bancaire"
-#~ msgstr "Kreditkartennummern"
-
-#~ msgid "Numéros de sécurité sociale"
-#~ msgstr "Sozialversicherungsnummern"
-
-#~ msgid "Dates"
-#~ msgstr "Daten"
-
-#~ msgid "Pages à traiter :"
-#~ msgstr "Zu verarbeitende Seiten:"
-
-#~ msgid "Toutes les pages"
-#~ msgstr "Alle Konvertierungen"
-
-#~ msgid "Sélectionner des pages"
-#~ msgstr "PDFs zusammenführen"
-
-#~ msgid "Première page uniquement"
-#~ msgstr "Nur erste Seite"
-
-#~ msgid "Dernière page uniquement"
-#~ msgstr "Nur letzte Seite"
-
-#~ msgid "Plage de pages (si sélection) :"
-#~ msgstr "Seitenbereich (falls Auswahl):"
-
-#~ msgid "Ex: 1-5, 8, 11-13"
-#~ msgstr "Bsp: 1-5, 8, 11-13"
-
-#~ msgid "Aperçu du PDF - Dessinez les zones à caviarder"
-#~ msgstr "PDF-Vorschau - Zeichnen Sie die zu schwärzenden Bereiche"
-
-#~ msgid "Cliquez et faites glisser pour dessiner un rectangle de caviardage"
-#~ msgstr "Klicken und ziehen Sie, um ein Schwärzungsrechteck zu zeichnen"
-
-#~ msgid "Caviardage en cours..."
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "Analyse et suppression du contenu sensible"
-#~ msgstr "Analyse und Entfernung vertraulicher Inhalte"
-
-#~ msgid "Préparation..."
-#~ msgstr "Vorbereitung..."
-
-#~ msgid "Caviardage terminé !"
-#~ msgstr "Schwärzung abgeschlossen!"
-
-#~ msgid "Le contenu sensible a été supprimé définitivement"
-#~ msgstr "Vertrauliche Inhalte wurden dauerhaft entfernt"
-
-#~ msgid "Télécharger le PDF caviardé"
-#~ msgstr "Geschwärztes PDF herunterladen"
-
-#~ msgid "Caviarder un autre PDF"
-#~ msgstr "Ein PDF teilen"
-
-#~ msgid "Zones dessinées :"
-#~ msgstr "Gezeichnete Bereiche:"
-
-#~ msgid "Aucune zone dessinée"
-#~ msgstr "Keine Bereiche gezeichnet"
-
-#~ msgid "Zone"
-#~ msgstr "Bereich"
-
-#~ msgid "Erreur lors du chargement de l'aperçu PDF"
-#~ msgstr "Fehler beim Laden der PDF-Vorschau"
-
-#~ msgid "Recherche du contenu sensible..."
-#~ msgstr "Suche nach vertraulichen Inhalten..."
-
-#~ msgid "Application du caviardage..."
-#~ msgstr "Schwärzung wird angewendet..."
-
-#~ msgid "Erreur lors du caviardage :"
-#~ msgstr "Fehler beim Schwärzen:"
-
-#~ msgid "Options de signature"
-#~ msgstr "Signaturoptionen"
-
-#~ msgid "Type de signature :"
-#~ msgstr "Signaturtyp:"
-
-#~ msgid "Dessiner"
-#~ msgstr "Zeichnen"
-
-#~ msgid "Taper"
-#~ msgstr "Tippen"
-
-#~ msgid "Dessinez votre signature :"
-#~ msgstr "Zeichnen Sie Ihre Unterschrift:"
-
-#~ msgid "Effacer"
-#~ msgstr "Löschen"
-
-#~ msgid "Fin"
-#~ msgstr "Dünn"
-
-#~ msgid "Moyen"
-#~ msgstr "Mittel"
-
-#~ msgid "Épais"
-#~ msgstr "Dick"
-
-#~ msgid "Noir"
-#~ msgstr "Schwarz"
-
-#~ msgid "Bleu"
-#~ msgstr "Blau"
-
-#~ msgid "Rouge"
-#~ msgstr "Rot"
-
-#~ msgid "Vert"
-#~ msgstr "Konvertieren"
-
-#~ msgid "Tapez votre signature :"
-#~ msgstr "Geben Sie Ihre Unterschrift ein:"
-
-#~ msgid "Ex: Jean Dupont"
-#~ msgstr "Bsp: Max Mustermann"
-
-#~ msgid "Jean Dupont"
-#~ msgstr "Max Mustermann"
-
-#~ msgid "Style :"
-#~ msgstr "Stil:"
-
-#~ msgid "Script simple"
-#~ msgstr "Einfache Schreibschrift"
-
-#~ msgid "Standard"
-#~ msgstr "Standard"
-
-#~ msgid "Élégant"
-#~ msgstr "Elegant"
-
-#~ msgid "Petite"
-#~ msgstr "Klein"
-
-#~ msgid "Grande"
-#~ msgstr "Groß"
-
-#~ msgid "Très grande"
-#~ msgstr "Sehr groß"
-
-#~ msgid "Téléchargez une image de signature :"
-#~ msgstr "Laden Sie ein Signaturbild hoch:"
-
-#~ msgid "Glissez-déposez votre signature ici"
-#~ msgstr "Ziehen Sie Ihre Unterschrift hierher"
-
-#~ msgid "Formats acceptés : PNG, JPG, GIF (fond transparent recommandé)"
-#~ msgstr ""
-#~ "Akzeptierte Formate: PNG, JPG, GIF "
-#~ "(transparenter Hintergrund empfohlen)"
-
-#~ msgid "Page :"
-#~ msgstr "Seite:"
-
-#~ msgid "Aperçu de la signature :"
-#~ msgstr "Signaturvorschau:"
-
-#~ msgid "Ajouter la date automatiquement"
-#~ msgstr "Datum automatisch hinzufügen"
-
-#~ msgid "Ajouter un motif de signature"
-#~ msgstr "Signaturgrund hinzufügen"
-
-#~ msgid "Ex: Approbation, Accord, Certificat..."
-#~ msgstr "Bsp: Genehmigung, Zustimmung, Zertifikat..."
-
-#~ msgid "Signature en cours..."
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "Ajout de la signature au document"
-#~ msgstr "Signatur wird zum Dokument hinzugefügt"
-
-#~ msgid "Signature terminée !"
-#~ msgstr "Signatur abgeschlossen!"
-
-#~ msgid "Votre PDF signé est prêt à être téléchargé"
-#~ msgstr "Ihr signiertes PDF ist bereit zum Herunterladen"
-
-#~ msgid "Télécharger le PDF signé"
-#~ msgstr "Signiertes PDF herunterladen"
-
-#~ msgid "Signer un autre PDF"
-#~ msgstr "PDFs zusammenführen"
-
-#~ msgid "Canvas de signature introuvable"
-#~ msgstr "Signatur-Canvas nicht gefunden"
-
-#~ msgid "Erreur lors de la capture de la signature"
-#~ msgstr "Fehler beim Signieren:"
-
-#~ msgid "Veuillez saisir votre signature"
-#~ msgstr "Zeichnen Sie Ihre Unterschrift:"
-
-#~ msgid "Veuillez télécharger une image de signature"
-#~ msgstr "Bitte laden Sie ein Signaturbild hoch"
-
-#~ msgid "Erreur lors de la signature :"
-#~ msgstr "Fehler beim Signieren:"
-
-#~ msgid "Téléchargez votre fichier texte"
-#~ msgstr "Laden Sie Ihre Textdatei hoch"
-
-#~ msgid "ou collez votre texte directement"
-#~ msgstr "oder fügen Sie Ihren Text direkt ein"
-
-#~ msgid "Glissez-déposez votre fichier texte ici"
-#~ msgstr "Ziehen Sie Ihre Textdatei hierher"
-
-#~ msgid "Format accepté : TXT"
-#~ msgstr "Akzeptiertes Format: TXT"
-
-#~ msgid "Ou collez votre texte :"
-#~ msgstr "Oder fügen Sie Ihren Text ein:"
-
-#~ msgid "Collez votre texte ici..."
-#~ msgstr "Fügen Sie hier Ihren Text ein..."
-
-#~ msgid "Options de formatage"
-#~ msgstr "Formatierungsoptionen"
-
-#~ msgid "Interligne :"
-#~ msgstr "Zeilenhöhe:"
-
-#~ msgid "Simple"
-#~ msgstr "Einfach"
-
-#~ msgid "Double"
-#~ msgstr "Verfügbar"
-
-#~ msgid "Numéros de page"
-#~ msgstr "Seitenzahlen"
-
-#~ msgid "Veuillez patienter pendant le traitement de votre texte"
-#~ msgstr "Bitte warten Sie, während Ihr Text verarbeitet wird"
-
-#~ msgid "Convertir un autre texte"
-#~ msgstr "In PDF konvertieren"
-
-#~ msgid "Veuillez saisir du texte ou sélectionner un fichier"
-#~ msgstr "Bitte geben Sie Text ein oder wählen Sie eine Datei aus"
-
-#~ msgid "Déposez votre PDF protégé ici"
-#~ msgstr "Legen Sie Ihr geschütztes PDF hier ab"
-
-#~ msgid "Mot de passe du PDF"
-#~ msgstr "Ein PDF komprimieren"
-
-#~ msgid "Entrez le mot de passe si le PDF est protégé"
-#~ msgstr "Passwort eingeben, falls das PDF geschützt ist"
-
-#~ msgid "Laissez vide si le PDF n'a pas de mot de passe"
-#~ msgstr "Leer lassen, wenn das PDF kein Passwort hat"
-
-#~ msgid "Note :"
-#~ msgstr "Hinweis:"
-
-#~ msgid ""
-#~ "Cette opération ne fonctionne que si "
-#~ "vous connaissez le mot de passe du"
-#~ " PDF."
-#~ msgstr "Dieser Vorgang funktioniert nur, wenn Sie das Passwort des PDFs kennen."
-
-#~ msgid "Déverrouiller le PDF"
-#~ msgstr "PDF entsperren"
-
-#~ msgid "Erreur lors du déverrouillage"
-#~ msgstr "Fehler beim Entsperren"
-
-#~ msgid "document_deverrouille.pdf"
-#~ msgstr "PDF entsperren"
-
-#~ msgid ""
-#~ "Transformez vos fichiers DOC/DOCX en PDF"
-#~ " avec une mise en page préservée"
-#~ msgstr "Verwandeln Sie Ihre DOC/DOCX-Dateien in PDFs mit beibehaltenem Layout"
-
-#~ msgid "Glissez-déposez votre document Word ici"
-#~ msgstr "Ziehen Sie Ihr Word-Dokument hierher"
-
-#~ msgid "Formats acceptés : DOC, DOCX (jusqu'à 50MB)"
-#~ msgstr "Akzeptierte Formate: DOC, DOCX (bis zu 50MB)"
-
-#~ msgid "Format de page"
-#~ msgstr "Seitenformat"
-
-#~ msgid "A4 (210 × 297 mm)"
-#~ msgstr "A4 (210 × 297 mm)"
-
-#~ msgid "Letter (8.5 × 11 in)"
-#~ msgstr "Letter (8.5 × 11 Zoll)"
-
-#~ msgid "Legal (8.5 × 14 in)"
-#~ msgstr "Legal (8.5 × 14 Zoll)"
-
-#~ msgid "A3 (297 × 420 mm)"
-#~ msgstr "A3 (297 × 420 mm)"
-
-#~ msgid "A5 (148 × 210 mm)"
-#~ msgstr "A5 (148 × 210 mm)"
-
-#~ msgid "Format standard pour la plupart des documents"
-#~ msgstr "Standardformat für die meisten Dokumente"
-
-#~ msgid "Orientation"
-#~ msgstr "Administration"
-
-#~ msgid "Marges"
-#~ msgstr "Ränder"
-
-#~ msgid "Normales (2.5 cm)"
-#~ msgstr "Normal (2.5 cm)"
-
-#~ msgid "Étroites (1.3 cm)"
-#~ msgstr "Schmal (1.3 cm)"
-
-#~ msgid "Modérées (1.9 cm)"
-#~ msgstr "Mäßig (1.9 cm)"
-
-#~ msgid "Larges (5 cm)"
-#~ msgstr "Breit (5 cm)"
-
-#~ msgid "Espace entre le texte et les bords"
-#~ msgstr "Abstand zwischen Text und Rändern"
-
-#~ msgid "Qualité"
-#~ msgstr "Qualität"
-
-#~ msgid "Standard (équilibré)"
-#~ msgstr "Standard (ausgewogen)"
-
-#~ msgid "Optimisé écran (taille réduite)"
-#~ msgstr "Optimiert für Bildschirm (reduzierte Größe)"
-
-#~ msgid "Optimisé impression"
-#~ msgstr "Optimiert für Druck"
-
-#~ msgid "Influence la taille du fichier final"
-#~ msgstr "Beeinflusst die Größe der endgültigen Datei"
-
-#~ msgid "Préserve les polices, tableaux et styles"
-#~ msgstr "Bewahrt Schriftarten, Tabellen und Stile"
-
-#~ msgid "Inclure les signets"
-#~ msgstr "Lesezeichen einfügen"
-
-#~ msgid "Pour une navigation plus facile"
-#~ msgstr "Für eine einfachere Navigation"
-
-#~ msgid "Mot de passe"
-#~ msgstr "Passwort"
-
-#~ msgid "Min. 6 caractères"
-#~ msgstr "Mind. 6 Zeichen"
-
-#~ msgid "Visualisation seule"
-#~ msgstr "Nur Anzeige"
-
-#~ msgid "Impression autorisée"
-#~ msgstr "Drucken erlaubt"
-
-#~ msgid "Modification autorisée"
-#~ msgstr "Bearbeiten erlaubt"
-
-#~ msgid "Toutes permissions"
-#~ msgstr "Alle Konvertierungen"
-
-#~ msgid ""
-#~ "Compatible avec tous les lecteurs PDF."
-#~ " Les polices sont intégrées pour une"
-#~ " reproduction fidèle."
-#~ msgstr ""
-#~ "Kompatibel mit allen PDF-Readern. "
-#~ "Schriftarten sind für eine originalgetreue "
-#~ "Wiedergabe eingebettet."
-
-#~ msgid "Analyse et conversion de votre document Word..."
-#~ msgstr "Analyse und Konvertierung Ihres Word-Dokuments..."
-
-#~ msgid "Pages estimées"
-#~ msgstr "Geschätzte Seiten"
-
-#~ msgid "Lecture du document Word..."
-#~ msgstr "Word-Dokument wird gelesen..."
-
-#~ msgid "Votre PDF est prêt au téléchargement"
-#~ msgstr "Ihr PDF ist bereit zum Herunterladen"
-
-#~ msgid "document.pdf"
-#~ msgstr "dokument.pdf"
-
-#~ msgid "Taille: 0 MB | Pages: 0"
-#~ msgstr "Größe: 0 MB | Seiten: 0"
-
-#~ msgid "Détails"
-#~ msgstr "Werkzeuge"
-
-#~ msgid "Format: A4<br>Orientation: Portrait<br>Qualité: Standard"
-#~ msgstr "Format: A4<br>Ausrichtung: Hochformat<br>Qualität: Standard"
-
-#~ msgid "Télécharger PDF"
-#~ msgstr "PDF schützen"
-
-#~ msgid "Veuillez sélectionner un document Word"
-#~ msgstr "Bitte wählen Sie ein Word-Dokument aus"
-
-#~ msgid "Analyse de la structure"
-#~ msgstr "Strukturanalyse"
-
-#~ msgid "Extraction des styles..."
-#~ msgstr "Stile werden extrahiert..."
-
-#~ msgid "Préservation des polices"
-#~ msgstr "Schriftarten werden beibehalten"
-
-#~ msgid "Traitement des images..."
-#~ msgstr "Verarbeitung läuft..."
-
-#~ msgid "Optimisation des graphiques"
-#~ msgstr "Grafikoptimierung"
-
-#~ msgid "Génération du PDF..."
-#~ msgstr "PDF drehen"
-
-#~ msgid "Création des pages"
-#~ msgstr "Seiten werden erstellt"
-
-#~ msgid "Application des paramètres..."
-#~ msgstr "Einstellungen werden angewendet..."
-
-#~ msgid "Configuration finale"
-#~ msgstr "Abschließende Konfiguration"
-
-#~ msgid "Taille:"
-#~ msgstr "Größe:"
-
-#~ msgid "Format:"
-#~ msgstr "Format:"
-
-#~ msgid "Orientation:"
-#~ msgstr "Administration"
-
-#~ msgid "Qualité:"
-#~ msgstr "Qualität:"
-
-#~ msgid "Page non trouvée - PDF Fusion Pro"
-#~ msgstr "Seite nicht gefunden - PDF Fusion Pro"
-
-#~ msgid "Page non trouvée"
-#~ msgstr "Seite nicht gefunden"
-
-#~ msgid "Désolé, la page que vous recherchez n'existe pas ou a été déplacée."
-#~ msgstr ""
-#~ "Entschuldigung, die von Ihnen gesuchte "
-#~ "Seite existiert nicht oder wurde "
-#~ "verschoben."
-
-#~ msgid "Chemin demandé :"
-#~ msgstr "Angeforderter Pfad:"
-
-#~ msgid "Fichier trop volumineux - PDF Fusion Pro"
-#~ msgstr "Datei zu groß - PDF Fusion Pro"
-
-#~ msgid ""
-#~ "Le fichier que vous avez tenté de"
-#~ " télécharger dépasse la limite autorisée."
-#~ msgstr ""
-#~ "Die Datei, die Sie hochzuladen versucht"
-#~ " haben, überschreitet das zulässige Limit."
-
-#~ msgid "Limite : 50 Mo maximum"
-#~ msgstr "Limit: max. 50 MB"
-
-#~ msgid "Suggestions :"
-#~ msgstr "Vorschläge:"
-
-#~ msgid "Compressez votre fichier avant de le télécharger"
-#~ msgstr "Komprimieren Sie Ihre Datei vor dem Hochladen"
-
-#~ msgid "Divisez votre fichier en plusieurs parties plus petites"
-#~ msgstr "Teilen Sie Ihre Datei in mehrere kleinere Teile"
-
-#~ msgid "Vérifiez que votre fichier ne dépasse pas 50 Mo"
-#~ msgstr "Stellen Sie sicher, dass Ihre Datei 50 MB nicht überschreitet"
-
-#~ msgid "Taille max : 50 Mo"
-#~ msgstr "Max. Größe: 50 MB"
-
-#~ msgid "Erreur serveur - PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid "Erreur interne du serveur"
-#~ msgstr "Interner Serverfehler"
-
-#~ msgid ""
-#~ "Désolé, une erreur inattendue s'est "
-#~ "produite. Notre équipe technique a été"
-#~ " informée."
-#~ msgstr ""
-#~ "Entschuldigung, es ist ein unerwarteter "
-#~ "Fehler aufgetreten. Unser technisches Team "
-#~ "wurde informiert."
-
-#~ msgid "Heure :"
-#~ msgstr "Uhrzeit:"
-
-#~ msgid "Non disponible"
-#~ msgstr "Verfügbar"
-
-#~ msgid "Référence :"
-#~ msgstr "Referenz:"
-
-#~ msgid "ERR-"
-#~ msgstr "ERR-"
-
-#~ msgid "Besoin d'aide ?"
-#~ msgstr "Hilfe benötigt?"
-
-#~ msgid "Si le problème persiste, n'hésitez pas à nous contacter."
-#~ msgstr ""
-#~ "Wenn das Problem weiterhin besteht, "
-#~ "zögern Sie nicht, uns zu kontaktieren."
-
-#~ msgid "Nous contacter"
-#~ msgstr "Kontakt"
-
-#~ msgid ""
-#~ "Cette erreur a été automatiquement "
-#~ "enregistrée et sera analysée par nos "
-#~ "équipes."
-#~ msgstr ""
-#~ "Dieser Fehler wurde automatisch protokolliert"
-#~ " und wird von unseren Teams "
-#~ "analysiert."
-
-#~ msgid "À propos de PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid "Notre mission"
-#~ msgstr "Unsere Mission"
-
-#~ msgid ""
-#~ "Offrir un outil PDF en ligne "
-#~ "performant, intuitif et respectueux de "
-#~ "votre vie privée."
-#~ msgstr ""
-#~ "Ein leistungsstarkes, intuitives und "
-#~ "datenschutzkonformes Online-PDF-Tool anbieten."
-
-#~ msgid "Caractéristiques principales"
-#~ msgstr "Hauptmerkmale"
-
-#~ msgid "Combine plusieurs fichiers PDF en un seul document organisé."
-#~ msgstr "Mehrere PDFs zu einem organisierten Dokument zusammenführen"
-
-#~ msgid "Divisez vos PDF par page, par plage ou selon des pages spécifiques."
-#~ msgstr "Teilen Sie Ihre PDFs nach Seite, Bereich oder bestimmten Seiten."
-
-#~ msgid "Faites pivoter des pages spécifiques ou l'ensemble du document."
-#~ msgstr "Bestimmte Seiten oder das gesamte Dokument drehen"
-
-#~ msgid "Réduisez la taille de vos fichiers PDF sans perte de qualité notable."
-#~ msgstr "Reduzieren Sie die Größe Ihrer PDFs ohne merklichen Qualitätsverlust"
-
-#~ msgid "Nos engagements"
-#~ msgstr "Unsere Versprechen"
-
-#~ msgid "Sécurité"
-#~ msgstr "Sicherheit"
-
-#~ msgid ""
-#~ "Tous les traitements sont effectués en"
-#~ " mémoire. Aucun fichier n'est stocké "
-#~ "sur nos serveurs."
-#~ msgstr ""
-#~ "Alle Verarbeitungen erfolgen im "
-#~ "Arbeitsspeicher. Es werden keine Dateien "
-#~ "auf unseren Servern gespeichert."
-
-#~ msgid "Performance"
-#~ msgstr "Leistung"
-
-#~ msgid "Interface optimisée pour une expérience utilisateur fluide et rapide."
-#~ msgstr "Optimierte Oberfläche für ein flüssiges und schnelles Benutzererlebnis."
-
-#~ msgid ""
-#~ "Nous ne collectons pas de données "
-#~ "personnelles liées au contenu de vos "
-#~ "fichiers."
-#~ msgstr ""
-#~ "Wir erheben keine personenbezogenen Daten "
-#~ "im Zusammenhang mit dem Inhalt Ihrer "
-#~ "Dateien."
-
-#~ msgid "Gratuité"
-#~ msgstr "Kostenlosigkeit"
-
-#~ msgid ""
-#~ "Service entièrement gratuit, financé par "
-#~ "des publicités discrètes et non "
-#~ "intrusives."
-#~ msgstr ""
-#~ "Komplett kostenloser Service, finanziert durch"
-#~ " dezente, nicht aufdringliche Werbung."
-
-#~ msgid "Développeur"
-#~ msgstr "Entwickler"
-
-#~ msgid "Technologies utilisées :"
-#~ msgstr "Verwendete Technologien:"
-
-#~ msgid "Python, Flask, PyPDF2, Bootstrap 5, JavaScript moderne."
-#~ msgstr "Python, Flask, PyPDF2, Bootstrap 5, modernes JavaScript."
-
-#~ msgid "Une question ou suggestion ?"
-#~ msgstr "Eine Frage oder ein Vorschlag?"
-
-#~ msgid "Nous sommes à votre écoute pour améliorer le service."
-#~ msgstr "Wir sind für Sie da, um den Service zu verbessern."
-
-#~ msgid "Utiliser le formulaire de contact"
-#~ msgstr "Kontaktformular verwenden"
-
-#~ msgid "Formulaire de contact :"
-#~ msgstr "Kontaktformular:"
-
-#~ msgid ""
-#~ "Utilisez ce formulaire pour nous "
-#~ "contacter directement. Nous vous répondrons"
-#~ " dans les meilleurs délais."
-#~ msgstr ""
-#~ "Nutzen Sie dieses Formular, um uns "
-#~ "direkt zu kontaktieren. Wir werden Ihnen"
-#~ " so schnell wie möglich antworten."
-
-#~ msgid "Formulaire de Contact"
-#~ msgstr "Kontaktformular"
-
-#~ msgid ""
-#~ "Remplissez ce formulaire pour nous "
-#~ "contacter. Tous les champs marqués d'un"
-#~ " astérisque (*) sont obligatoires."
-#~ msgstr ""
-#~ "Füllen Sie dieses Formular aus, um "
-#~ "uns zu kontaktieren. Alle mit einem "
-#~ "Sternchen (*) markierten Felder sind "
-#~ "Pflichtfelder."
-
-#~ msgid "Message enregistré avec succès !"
-#~ msgstr "Nachricht erfolgreich gespeichert!"
-
-#~ msgid "Référence:"
-#~ msgstr "Referenz:"
-
-#~ msgid "Merci pour votre message."
-#~ msgstr "Danke für Ihre Nachricht."
-
-#~ msgid ""
-#~ "Nous avons bien reçu votre demande "
-#~ "et nous vous répondrons dans les "
-#~ "plus brefs délais."
-#~ msgstr ""
-#~ "Wir haben Ihre Anfrage erhalten und "
-#~ "werden Ihnen so schnell wie möglich "
-#~ "antworten."
-
-#~ msgid "Envoyer un autre message"
-#~ msgstr "Eine weitere Nachricht senden"
-
-#~ msgid "Votre prénom et nom"
-#~ msgstr "Ihr Vor- und Nachname"
-
-#~ msgid "Adresse email"
-#~ msgstr "E-Mail-Adresse"
-
-#~ msgid "Nous ne partagerons jamais votre email avec des tiers."
-#~ msgstr "Wir geben Ihre E-Mail-Adresse niemals an Dritte weiter."
-
-#~ msgid "Numéro de téléphone (optionnel)"
-#~ msgstr "Telefonnummer (optional)"
-
-#~ msgid "Pour un contact plus rapide si nécessaire."
-#~ msgstr "Für eine schnellere Kontaktaufnahme bei Bedarf."
-
-#~ msgid "Sujet de votre message"
-#~ msgstr "Betreff Ihrer Nachricht"
-
-#~ msgid "Sélectionnez un sujet"
-#~ msgstr "Wählen Sie einen Betreff"
-
-#~ msgid "Signaler un bug ou un problème technique"
-#~ msgstr "Einen Fehler oder ein technisches Problem melden"
-
-#~ msgid "Proposer une amélioration fonctionnelle"
-#~ msgstr "Eine funktionale Verbesserung vorschlagen"
-
-#~ msgid "Demande de partenariat"
-#~ msgstr "Partnerschaftsanfrage"
-
-#~ msgid "Autre demande"
-#~ msgstr "Sonstige Anfrage"
-
-#~ msgid "Votre message"
-#~ msgstr "Ihre Nachricht"
-
-#~ msgid "Décrivez votre demande en détail..."
-#~ msgstr "Beschreiben Sie Ihre Anfrage detailliert..."
-
-#~ msgid "Maximum 2000 caractères. Soyez aussi précis que possible."
-#~ msgstr "Maximal 2000 Zeichen. Bitte seien Sie so genau wie möglich."
-
-#~ msgid "Envoyer le message"
-#~ msgstr "Nachricht senden"
-
-#~ msgid "Information importante :"
-#~ msgstr "Wichtige Information:"
-
-#~ msgid ""
-#~ "Cette application traite vos fichiers "
-#~ "PDF uniquement en mémoire. Aucun fichier"
-#~ " n'est stocké de manière permanente "
-#~ "sur nos serveurs."
-#~ msgstr ""
-#~ "Diese Anwendung verarbeitet Ihre PDF-"
-#~ "Dateien nur im Arbeitsspeicher. Es "
-#~ "werden keine Dateien dauerhaft auf "
-#~ "unseren Servern gespeichert."
-
-#~ msgid "Éditeur du service"
-#~ msgstr "Dienstanbieter"
-
-#~ msgid ""
-#~ "%(app_name)s est développé et maintenu "
-#~ "par %(developer_name)s, un développeur "
-#~ "passionné par la création d'outils web"
-#~ " utiles et accessibles."
-#~ msgstr ""
-#~ "%(app_name)s est développé et maintenu "
-#~ "par %(developer_name)s, un développeur "
-#~ "passionné par la création d'outils web"
-#~ " utiles et accessibles."
-
-#~ msgid "Pour nous contacter :"
-#~ msgstr "Um uns zu kontaktieren:"
-
-#~ msgid "Utilisez notre"
-#~ msgstr "Benutzer"
-
-#~ msgid "Nous répondons généralement dans les 48 heures."
-#~ msgstr "Wir antworten in der Regel innerhalb von 48 Stunden."
-
-#~ msgid "Hébergement"
-#~ msgstr "Hosting"
-
-#~ msgid ""
-#~ "Ce service est hébergé sur la "
-#~ "plateforme %(hosting)s (<a "
-#~ "href=\"https://%(domain)s\" target=\"_blank\">(domain)s</a>)."
-#~ msgstr ""
-#~ "Dieser Dienst wird auf der Plattform "
-#~ "%(hosting)s (<a href=\"https://%(domain)s\" "
-#~ "target=\"_blank\">%(domain)s</a>) gehostet."
-
-#~ msgid ""
-#~ "Les serveurs sont localisés dans des "
-#~ "centres de données sécurisés et "
-#~ "conformes aux normes européennes de "
-#~ "protection des données."
-#~ msgstr ""
-#~ "Die Server befinden sich in sicheren "
-#~ "Rechenzentren, die den europäischen "
-#~ "Datenschutzstandards entsprechen."
-
-#~ msgid "Propriété intellectuelle"
-#~ msgstr "Geistiges Eigentum"
-
-#~ msgid ""
-#~ "L'ensemble des contenus présents sur ce"
-#~ " site (design, code source, interfaces, "
-#~ "textes, graphismes) est protégé par les"
-#~ " lois relatives à la propriété "
-#~ "intellectuelle."
-#~ msgstr ""
-#~ "Alle Inhalte dieser Website (Design, "
-#~ "Quellcode, Oberflächen, Texte, Grafiken) sind"
-#~ " durch die Gesetze zum geistigen "
-#~ "Eigentum geschützt."
-
-#~ msgid ""
-#~ "Toute reproduction, modification, distribution "
-#~ "ou exploitation non autorisée est "
-#~ "strictement interdite."
-#~ msgstr ""
-#~ "Jede nicht autorisierte Vervielfältigung, "
-#~ "Modifikation, Verbreitung oder Nutzung ist "
-#~ "strengstens untersagt."
-
-#~ msgid "Responsabilité"
-#~ msgstr "Haftung"
-
-#~ msgid ""
-#~ "L'utilisateur reste l'unique responsable des"
-#~ " fichiers PDF qu'il téléverse et "
-#~ "traite via ce service."
-#~ msgstr ""
-#~ "Der Benutzer bleibt allein verantwortlich "
-#~ "für die PDF-Dateien, die er über"
-#~ " diesen Dienst hochlädt und verarbeitet."
-
-#~ msgid ""
-#~ "Il s'engage à ne pas utiliser le"
-#~ " service pour des contenus illicites "
-#~ "ou protégés par des droits d'auteur "
-#~ "sans autorisation."
-#~ msgstr ""
-#~ "Er verpflichtet sich, den Dienst nicht"
-#~ " für illegale Inhalte oder urheberrechtlich"
-#~ " geschütztes Material ohne Genehmigung zu"
-#~ " nutzen."
-
-#~ msgid "Disponibilité du service"
-#~ msgstr "Verfügbarkeit des Dienstes"
-
-#~ msgid ""
-#~ "Nous nous efforçons d'assurer une "
-#~ "disponibilité continue du service, mais "
-#~ "ne pouvons garantir un fonctionnement "
-#~ "ininterrompu."
-#~ msgstr ""
-#~ "Wir bemühen uns um eine kontinuierliche"
-#~ " Verfügbarkeit des Dienstes, können jedoch"
-#~ " einen unterbrechungsfreien Betrieb nicht "
-#~ "garantieren."
-
-#~ msgid ""
-#~ "Des périodes de maintenance technique "
-#~ "peuvent être nécessaires pour améliorer "
-#~ "le service."
-#~ msgstr ""
-#~ "Technische Wartungsarbeiten können zur "
-#~ "Verbesserung des Dienstes erforderlich sein."
-
-#~ msgid "Respect de votre vie privée"
-#~ msgstr "Schutz Ihrer Privatsphäre"
-
-#~ msgid ""
-#~ "Votre confidentialité est notre priorité. "
-#~ "Cette politique explique comment nous "
-#~ "collectons, utilisons et protégeons vos "
-#~ "informations."
-#~ msgstr ""
-#~ "Ihre Vertraulichkeit hat für uns oberste"
-#~ " Priorität. Diese Richtlinie erklärt, wie"
-#~ " wir Ihre Informationen sammeln, verwenden"
-#~ " und schützen."
-
-#~ msgid "Engagement de confidentialité :"
-#~ msgstr "Datenschutz"
-
-#~ msgid ""
-#~ "Nous ne stockons jamais le contenu "
-#~ "de vos fichiers PDF. Tous les "
-#~ "traitements sont effectués en mémoire "
-#~ "vive et les fichiers sont supprimés "
-#~ "immédiatement après traitement."
-#~ msgstr ""
-#~ "Wir speichern niemals den Inhalt Ihrer"
-#~ " PDF-Dateien. Alle Verarbeitungen erfolgen"
-#~ " im Arbeitsspeicher und die Dateien "
-#~ "werden unmittelbar nach der Verarbeitung "
-#~ "gelöscht."
-
-#~ msgid "Données collectées"
-#~ msgstr "Erhobene Daten"
-
-#~ msgid "Données techniques"
-#~ msgstr "Technische Daten"
-
-#~ msgid ""
-#~ "Nous collectons des données techniques "
-#~ "anonymes pour améliorer le service :"
-#~ msgstr "Wir erheben anonyme technische Daten zur Verbesserung des Dienstes:"
-
-#~ msgid "Type d'opération effectuée (fusion, division, rotation, compression)"
-#~ msgstr ""
-#~ "Art der durchgeführten Operation "
-#~ "(Zusammenführen, Teilen, Drehen, Komprimieren)"
-
-#~ msgid "Nombre de pages traitées"
-#~ msgstr "Anzahl der verarbeiteten Seiten"
-
-#~ msgid "Heure et date des opérations (anonymisées)"
-#~ msgstr "Uhrzeit und Datum der Operationen (anonymisiert)"
-
-#~ msgid "Informations sur le navigateur et l'appareil (type, version)"
-#~ msgstr "Informationen über Browser und Gerät (Typ, Version)"
-
-#~ msgid "Cookies"
-#~ msgstr "Cookies"
-
-#~ msgid "Nous utilisons uniquement des cookies techniques essentiels :"
-#~ msgstr "Wir verwenden nur essentielle technische Cookies:"
-
-#~ msgid "Session cookie :"
-#~ msgstr "Session-Cookie:"
-
-#~ msgid "Pour maintenir votre session de travail"
-#~ msgstr "Zur Aufrechterhaltung Ihrer Arbeitssitzung"
-
-#~ msgid "Préférences :"
-#~ msgstr "Präferenzen:"
-
-#~ msgid "Pour mémoriser vos paramètres d'interface"
-#~ msgstr "Zum Speichern Ihrer Oberflächeneinstellungen"
-
-#~ msgid "Publicité — Google AdSense"
-#~ msgstr "Werbung — Google AdSense"
-
-#~ msgid ""
-#~ "Ce site utilise <strong>Google "
-#~ "AdSense</strong> (ID: %(adsense_id)s) pour "
-#~ "afficher des publicités pertinentes."
-#~ msgstr ""
-#~ "Diese Website verwendet <strong>Google "
-#~ "AdSense</strong> (ID: %(adsense_id)s) um "
-#~ "relevante Werbung anzuzeigen."
-
-#~ msgid ""
-#~ "Google utilise des cookies pour "
-#~ "personnaliser les annonces en fonction "
-#~ "de votre navigation sur ce site et"
-#~ " d'autres sites web."
-#~ msgstr ""
-#~ "Google verwendet Cookies, um Anzeigen "
-#~ "basierend auf Ihrem Surfverhalten auf "
-#~ "dieser und anderen Websites zu "
-#~ "personalisieren."
-
-#~ msgid "Vous pouvez désactiver la personnalisation des annonces via les"
-#~ msgstr "Sie können die Personalisierung von Anzeigen über die"
-
-#~ msgid "paramètres des annonces Google"
-#~ msgstr "Google Anzeigeneinstellungen"
-
-#~ msgid "Vos droits (RGPD)"
-#~ msgstr "Ihre Rechte (DSGVO)"
-
-#~ msgid ""
-#~ "Conformément au Règlement Général sur la"
-#~ " Protection des Données (RGPD), vous "
-#~ "disposez des droits suivants :"
-#~ msgstr ""
-#~ "Gemäß der Datenschutz-Grundverordnung (DSGVO)"
-#~ " haben Sie folgende Rechte:"
-
-#~ msgid "Droit d'accès à vos données"
-#~ msgstr "Recht auf Zugang zu Ihren Daten"
-
-#~ msgid "Droit de rectification"
-#~ msgstr "Recht auf Berichtigung"
-
-#~ msgid "Droit à l'effacement"
-#~ msgstr "Recht auf Löschung"
-
-#~ msgid "Droit à la limitation du traitement"
-#~ msgstr "Recht auf Einschränkung der Verarbeitung"
-
-#~ msgid "Droit à la portabilité des données"
-#~ msgstr "Recht auf Datenübertragbarkeit"
-
-#~ msgid "Pour exercer ces droits, utilisez notre"
-#~ msgstr "Um diese Rechte auszuüben, nutzen Sie unser"
-
-#~ msgid "en précisant \"Exercice de droits RGPD\" dans le sujet."
-#~ msgstr "und geben Sie im Betreff \"Ausübung von DSGVO-Rechten\" an."
-
-#~ msgid "Sécurité des données"
-#~ msgstr "Datensicherheit"
-
-#~ msgid ""
-#~ "Nous mettons en œuvre des mesures "
-#~ "de sécurité techniques et organisationnelles"
-#~ " appropriées pour protéger vos données "
-#~ "contre tout accès non autorisé, "
-#~ "altération ou destruction."
-#~ msgstr ""
-#~ "Wir setzen angemessene technische und "
-#~ "organisatorische Sicherheitsmaßnahmen um, um "
-#~ "Ihre Daten vor unbefugtem Zugriff, "
-#~ "Veränderung oder Zerstörung zu schützen."
-
-#~ msgid "Acceptation des conditions"
-#~ msgstr "Annahme der Bedingungen"
-
-#~ msgid ""
-#~ "En utilisant le service %(app_name)s, "
-#~ "vous acceptez pleinement et sans réserve"
-#~ " les présentes conditions d'utilisation."
-#~ msgstr ""
-#~ "Durch die Nutzung des Dienstes "
-#~ "%(app_name)s stimmen Sie vorbehaltlos und "
-#~ "uneingeschränkt diesen Nutzungsbedingungen zu."
-
-#~ msgid "Avertissement important :"
-#~ msgstr "Wichtiger Hinweis:"
-
-#~ msgid ""
-#~ "Ce service est fourni \"tel quel\". "
-#~ "Nous déclinons toute responsabilité concernant"
-#~ " les fichiers traités par l'utilisateur."
-#~ msgstr ""
-#~ "Dieser Dienst wird \"wie besehen\" "
-#~ "bereitgestellt. Wir lehnen jede Haftung "
-#~ "bezüglich der vom Benutzer verarbeiteten "
-#~ "Dateien ab."
-
-#~ msgid "Usage autorisé"
-#~ msgstr "Erlaubte Nutzung"
-
-#~ msgid ""
-#~ "Vous vous engagez à utiliser le "
-#~ "service de manière responsable et légale"
-#~ " :"
-#~ msgstr ""
-#~ "Sie verpflichten sich, den Dienst "
-#~ "verantwortungsvoll und legal zu nutzen:"
-
-#~ msgid "Interdictions"
-#~ msgstr "Verbotenes"
-
-#~ msgid ""
-#~ "Téléverser des fichiers contenant des "
-#~ "données illicites ou protégés par des"
-#~ " droits d'auteur sans autorisation"
-#~ msgstr ""
-#~ "Hochladen von Dateien mit illegalen "
-#~ "Daten oder urheberrechtlich geschütztem "
-#~ "Material ohne Genehmigung"
-
-#~ msgid "Utiliser le service pour des activités frauduleuses ou malveillantes"
-#~ msgstr "Nutzung des Dienstes für betrügerische oder böswillige Aktivitäten"
-
-#~ msgid "Tenter de contourner les mesures de sécurité du service"
-#~ msgstr "Versuch, die Sicherheitsmaßnahmen des Dienstes zu umgehen"
-
-#~ msgid "Surcharger délibérément le service (attaques DoS/DDoS)"
-#~ msgstr "Absichtliche Überlastung des Dienstes (DoS/DDoS-Angriffe)"
-
-#~ msgid ""
-#~ "Réutiliser le contenu du service à "
-#~ "des fins commerciales sans autorisation"
-#~ msgstr ""
-#~ "Wiederverwendung von Dienstinhalten zu "
-#~ "kommerziellen Zwecken ohne Genehmigung"
-
-#~ msgid "Obligations"
-#~ msgstr "Pflichten"
-
-#~ msgid "Respecter les droits de propriété intellectuelle des documents traités"
-#~ msgstr "Beachtung der geistigen Eigentumsrechte der verarbeiteten Dokumente"
-
-#~ msgid "Assurer la confidentialité de vos propres fichiers"
-#~ msgstr "Sicherstellung der Vertraulichkeit Ihrer eigenen Dateien"
-
-#~ msgid "Utiliser le service conformément à sa destination première"
-#~ msgstr "Nutzung des Dienstes gemäß seinem ursprünglichen Zweck"
-
-#~ msgid "Limitation de responsabilité"
-#~ msgstr "Haftungsbeschränkung"
-
-#~ msgid ""
-#~ "Le service est fourni sans aucune "
-#~ "garantie, expresse ou implicite, y "
-#~ "compris, mais sans s'y limiter, les "
-#~ "garanties de qualité marchande, d'adéquation"
-#~ " à un usage particulier et de "
-#~ "non-contrefaçon."
-#~ msgstr ""
-#~ "Der Dienst wird ohne jegliche "
-#~ "Gewährleistung, weder ausdrücklich noch "
-#~ "stillschweigend, bereitgestellt, einschließlich, "
-#~ "aber nicht beschränkt auf, die "
-#~ "stillschweigenden Gewährleistungen der "
-#~ "Marktgängigkeit, der Eignung für einen "
-#~ "bestimmten Zweck und der Nichtverletzung "
-#~ "von Rechten Dritter."
-
-#~ msgid "En aucun cas, %(developer_name)s ne pourra être tenu responsable :"
-#~ msgstr "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
-
-#~ msgid ""
-#~ "Des dommages directs ou indirects "
-#~ "résultant de l'utilisation ou de "
-#~ "l'impossibilité d'utiliser le service"
-#~ msgstr ""
-#~ "Direkte oder indirekte Schäden, die sich"
-#~ " aus der Nutzung oder der "
-#~ "Unmöglichkeit der Nutzung des Dienstes "
-#~ "ergeben"
-
-#~ msgid "De la perte ou de l'altération des fichiers PDF traités"
-#~ msgstr "Verlust oder Veränderung der verarbeiteten PDF-Dateien"
-
-#~ msgid "Des conséquences de l'utilisation des fichiers générés par le service"
-#~ msgstr "Folgen aus der Nutzung der vom Dienst generierten Dateien"
-
-#~ msgid "Modifications des conditions"
-#~ msgstr "Änderungen der Bedingungen"
-
-#~ msgid ""
-#~ "Nous nous réservons le droit de "
-#~ "modifier ces conditions d'utilisation à "
-#~ "tout moment."
-#~ msgstr ""
-#~ "Wir behalten uns das Recht vor, "
-#~ "diese Nutzungsbedingungen jederzeit zu ändern."
-
-#~ msgid ""
-#~ "Les utilisateurs seront informés des "
-#~ "changements significatifs via une notification"
-#~ " sur le site."
-#~ msgstr ""
-#~ "Benutzer werden über wesentliche Änderungen"
-#~ " durch eine Benachrichtigung auf der "
-#~ "Website informiert."
-
-#~ msgid ""
-#~ "Le service, son code source, son "
-#~ "design et son contenu sont la "
-#~ "propriété exclusive de %(developer_name)s."
-#~ msgstr ""
-#~ "Der Dienst, sein Quellcode, sein Design"
-#~ " und sein Inhalt sind ausschließliches "
-#~ "Eigentum von %(developer_name)s."
-
-#~ msgid ""
-#~ "Toute reproduction, même partielle, est "
-#~ "interdite sans autorisation préalable écrite."
-#~ msgstr ""
-#~ "Jede Vervielfältigung, auch auszugsweise, ist"
-#~ " ohne vorherige schriftliche Genehmigung "
-#~ "untersagt."
-
-#~ msgid "Pour toute question concernant ces conditions :"
-#~ msgstr "Bei Fragen zu diesen Bedingungen:"
-
-#~ msgid "Nous contacter via le formulaire"
-#~ msgstr "Kontaktieren Sie uns über das Formular"
-
-#~ msgid "Compresser PDF - PDF Fusion Pro"
-#~ msgstr "Ein PDF komprimieren"
-
-#~ msgid "Réduisez la taille de vos fichiers PDF tout en conservant la qualité."
-#~ msgstr "Reduzieren Sie die Größe Ihrer PDFs ohne merklichen Qualitätsverlust"
-
-#~ msgid "Compresser un PDF"
-#~ msgstr "Ein PDF komprimieren"
-
-#~ msgid "Déposez votre fichier PDF et obtenez une version plus légère."
-#~ msgstr "Legen Sie Ihre PDF-Datei ab und erhalten Sie eine leichtere Version."
-
-#~ msgid "Glissez-déposez votre fichier ou cliquez pour parcourir"
-#~ msgstr "Ziehen Sie Ihre Datei hierher oder klicken Sie zum Durchsuchen"
-
-#~ msgid "Niveau de compression"
-#~ msgstr "Komprimierungsstufe"
-
-#~ msgid "Faible"
-#~ msgstr "Niedrig"
-
-#~ msgid "Fort"
-#~ msgstr "Hoch"
-
-#~ msgid "Compression plus forte = fichier plus petit, qualité réduite"
-#~ msgstr "Stärkere Komprimierung = kleinere Datei, reduzierte Qualität"
-
-#~ msgid "Compresser le PDF"
-#~ msgstr "PDF komprimieren"
-
-#~ msgid "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
-#~ msgstr "Startseite - PDF Fusion Pro – Kostenlose PDF-Werkzeuge"
-
-#~ msgid ""
-#~ "Tous les outils PDF en un seul "
-#~ "endroit : fusionner, diviser, tourner, "
-#~ "compresser et convertir des fichiers "
-#~ "PDF. 100%% gratuit, sécurisé et sans "
-#~ "inscription."
-#~ msgstr ""
-
-#~ msgid "Transformez vos PDFs en toute simplicité"
-#~ msgstr "Verwandeln Sie Ihre PDFs mit Leichtigkeit"
-
-#~ msgid ""
-#~ "Outil PDF tout-en-un : fusion, "
-#~ "division, rotation, compression et conversion."
-#~ " Rapide, sécurisé et 100%% gratuit."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Aucune inscription requise – vos "
-#~ "fichiers ne quittent jamais votre "
-#~ "navigateur."
-#~ msgstr ""
-#~ "Keine Registrierung erforderlich – Ihre "
-#~ "Dateien verlassen niemals Ihren Browser."
-
-#~ msgid "Fusionner des fichiers PDF"
-#~ msgstr "PDF-Dateien zusammenführen"
-
-#~ msgid "Combine plusieurs PDF en un seul document organisé"
-#~ msgstr "Mehrere PDFs zu einem organisierten Dokument zusammenführen"
-
-#~ msgid "Fusionner des PDF"
-#~ msgstr "PDFs zusammenführen"
-
-#~ msgid "Accédez à l'outil de fusion PDF"
-#~ msgstr "Zugang zum PDF-Zusammenführungswerkzeug"
-
-#~ msgid "Diviser un fichier PDF"
-#~ msgstr "Eine PDF-Datei teilen"
-
-#~ msgid "Extrayez des pages spécifiques ou divisez par plages"
-#~ msgstr "Bestimmte Seiten extrahieren oder nach Bereichen teilen"
-
-#~ msgid "Diviser un PDF"
-#~ msgstr "Ein PDF teilen"
-
-#~ msgid "Accédez à l'outil de division PDF"
-#~ msgstr "Zugang zum PDF-Teilungswerkzeug"
-
-#~ msgid "Tourner un fichier PDF"
-#~ msgstr "Eine PDF-Datei drehen"
-
-#~ msgid "Faites pivoter des pages spécifiques ou l'ensemble du document"
-#~ msgstr "Bestimmte Seiten oder das gesamte Dokument drehen"
-
-#~ msgid "Tourner un PDF"
-#~ msgstr "Ein PDF drehen"
-
-#~ msgid "Accédez à l'outil de rotation PDF"
-#~ msgstr "Zugang zum PDF-Drehungswerkzeug"
-
-#~ msgid "Compresser un fichier PDF"
-#~ msgstr "Eine PDF-Datei komprimieren"
-
-#~ msgid "Réduisez la taille de vos PDFs sans perte de qualité notable"
-#~ msgstr "Reduzieren Sie die Größe Ihrer PDFs ohne merklichen Qualitätsverlust"
-
-#~ msgid "Accédez à l'outil de compression PDF"
-#~ msgstr "Zugang zum PDF-Komprimierungswerkzeug"
-
-#~ msgid "Convertisseur universel"
-#~ msgstr "Universal-Konverter"
-
-#~ msgid ""
-#~ "Convertissez vos fichiers Word, Excel, "
-#~ "PowerPoint et images en PDF et "
-#~ "vice-versa"
-#~ msgstr ""
-#~ "Konvertieren Sie Ihre Word-, Excel-, "
-#~ "PowerPoint- und Bilddateien in PDF und"
-#~ " umgekehrt"
-
-#~ msgid "PDF Fusion Pro en chiffres"
-#~ msgstr "PDF Fusion Pro in Zahlen"
-
-#~ msgid "Utilisateurs"
-#~ msgstr "Benutzer"
-
-#~ msgid "PDF traités"
-#~ msgstr "Verarbeitete PDFs"
-
-#~ msgid "Satisfaction"
-#~ msgstr "Zufriedenheit"
-
-#~ msgid "Disponible"
-#~ msgstr "Verfügbar"
-
-#~ msgid "Votre solution PDF tout-en-un, 100%% gratuite et sécurisée"
-#~ msgstr "Ihre All-in-One-PDF-Lösung, 100%% kostenlos und sicher"
-
-#~ msgid ""
-#~ "PDF Fusion Pro est la plateforme "
-#~ "idéale pour tous vos besoins en "
-#~ "manipulation de fichiers PDF. Que vous"
-#~ " ayez besoin de <strong>fusionner plusieurs"
-#~ " documents</strong>, <strong>diviser un PDF "
-#~ "volumineux</strong>, <strong>tourner des pages "
-#~ "mal orientées</strong> ou <strong>compresser "
-#~ "des fichiers pour les partager</strong>, "
-#~ "nos outils sont là pour vous "
-#~ "aider."
-#~ msgstr "Ihre All-in-One PDF-Lösung, 100%% kostenlos und sicher"
-
-#~ msgid "Aucune inscription requise"
-#~ msgstr "Keine Registrierung erforderlich"
-
-#~ msgid "Chiffrement SSL et suppression automatique des fichiers"
-#~ msgstr "SSL-Verschlüsselung und automatische Dateilöschung"
-
-#~ msgid "Fusionner PDF - PDF Fusion Pro"
-#~ msgstr "PDFs zusammenführen"
-
-#~ msgid ""
-#~ "Fusionnez plusieurs fichiers PDF en un"
-#~ " seul document, facilement et rapidement."
-#~ msgstr "Mehrere PDFs zu einem organisierten Dokument zusammenführen"
-
-#~ msgid "Fusionner plusieurs PDF"
-#~ msgstr "PDFs zusammenführen"
-
-#~ msgid "Déposez vos fichiers PDF et obtenez un document unique fusionné."
-#~ msgstr ""
-#~ "Legen Sie Ihre PDF-Dateien ab und"
-#~ " erhalten Sie ein einziges "
-#~ "zusammengeführtes Dokument."
-
-#~ msgid "Déposez vos PDF ici"
-#~ msgstr "Legen Sie Ihre PDFs hier ab"
-
-#~ msgid "Glissez-déposez vos fichiers ou cliquez pour parcourir"
-#~ msgstr "Ziehen Sie Ihre Dateien hierher oder klicken Sie zum Durchsuchen"
-
-#~ msgid "Fusionner les PDF"
-#~ msgstr "PDFs zusammenführen"
-
-#~ msgid "Tourner PDF - PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid "Corrigez l'orientation de vos fichiers PDF en quelques clics."
-#~ msgstr "Korrigieren Sie die Ausrichtung Ihrer PDF-Dateien mit wenigen Klicks."
-
-#~ msgid "Déposez votre fichier PDF et choisissez l'angle de rotation."
-#~ msgstr "Legen Sie Ihre PDF-Datei ab und wählen Sie den Drehwinkel."
-
-#~ msgid "Pages à tourner"
-#~ msgstr "Drehen"
-
-#~ msgid "Ex: 1,3-5 ou 'all' pour toutes"
-#~ msgstr "Bsp: 1,3-5 oder 'all' für alle"
-
-#~ msgid "Format: numéros séparés par des virgules, plages avec tiret"
-#~ msgstr "Format: durch Kommas getrennte Zahlen, Bereiche mit Bindestrich"
-
-#~ msgid "Angle de rotation"
-#~ msgstr "Drehwinkel"
-
-#~ msgid "Tourner le PDF"
-#~ msgstr "PDF drehen"
-
-#~ msgid "Diviser PDF - PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid ""
-#~ "Divisez vos fichiers PDF en plusieurs"
-#~ " documents selon les pages sélectionnées."
-#~ msgstr ""
-#~ "Teilen Sie Ihre PDF-Dateien basierend"
-#~ " auf ausgewählten Seiten in mehrere "
-#~ "Dokumente."
-
-#~ msgid "Déposez votre fichier PDF et sélectionnez les pages à extraire."
-#~ msgstr ""
-#~ "Legen Sie Ihre PDF-Datei ab und"
-#~ " wählen Sie die zu extrahierenden "
-#~ "Seiten aus."
-
-#~ msgid "Pages à extraire"
-#~ msgstr "Zu extrahierende Seiten"
-
-#~ msgid ""
-#~ "Format: numéros séparés par des "
-#~ "virgules, plages avec tiret. Ex: "
-#~ "\"1,3-5\""
-#~ msgstr ""
-#~ "Format: durch Kommas getrennte Zahlen, "
-#~ "Bereiche mit Bindestrich. Bsp: \"1,3-5\""
-
-#~ msgid "Diviser le PDF"
-#~ msgstr "PDF teilen"
-
-#~ msgid "Convertissez vos feuilles Excel en PDF"
-#~ msgstr "Konvertieren Sie Ihr Word-Dokument in PDF"
-
-#~ msgid "JPG vers PDF"
-#~ msgstr "JPG zu PDF"
-
-#~ msgid "PNG vers PDF"
-#~ msgstr "PNG zu PDF"
-
-#~ msgid "TXT vers PDF"
-#~ msgstr "TXT zu PDF"
-
-#~ msgid "Extrayez le texte de vos PDF en documents Word"
-#~ msgstr "Extrahieren Sie Text aus Ihren Bildern"
-
-#~ msgid "Convertissez les pages de vos PDF en images"
-#~ msgstr "Universal-Konverter"
-
-#~ msgid "PDF vers HTML"
-#~ msgstr "PDF zu HTML"
-
-#~ msgid "PDF vers TXT"
-#~ msgstr "PDF zu TXT"
-
-#~ msgid "Extrayez le texte de vos PDF en fichiers texte"
-#~ msgstr "Extrahieren Sie Text aus Ihren Bildern"
-
-#~ msgid "Exportez vos feuilles Excel en CSV"
-#~ msgstr "Ziehen Sie Ihre Excel-Dateien hierher"
-
-#~ msgid "Excel vers PDF"
-#~ msgstr "Excel zu PDF"
-
-#~ msgid "PowerPoint vers PDF"
-#~ msgstr "PowerPoint zu PDF"
-
-#~ msgid "Image vers PDF"
-#~ msgstr "Bild zu PDF"
-
-#~ msgid "HTML vers PDF"
-#~ msgstr "HTML zu PDF"
-
-#~ msgid "PDF vers DOC"
-#~ msgstr "PDF zu DOC"
-
-#~ msgid "PDF vers Excel"
-#~ msgstr "PDF zu Excel"
-
-#~ msgid "PDF vers PowerPoint"
-#~ msgstr "PDF zu PowerPoint"
-
-#~ msgid "PDF vers Image"
-#~ msgstr "PDF zu Bild"
-
-#~ msgid "PDF vers PDF/A"
-#~ msgstr "PDF zu PDF/A"
-
-#~ msgid "Caviarder PDF"
-#~ msgstr "PDF schwärzen"
-
-#~ msgid "Éditer PDF"
-#~ msgstr "PDF bearbeiten"
-
-#~ msgid "Signer PDF"
-#~ msgstr "PDF signieren"
-
-#~ msgid "Préparer formulaire PDF"
-#~ msgstr "PDF-Formular vorbereiten"
-
-#~ msgid "Image vers Word"
-#~ msgstr "Bild zu Word"
-
-#~ msgid "Image vers Excel"
-#~ msgstr "Bild zu Excel"
-
-#~ msgid "CSV vers Excel"
-#~ msgstr "CSV zu Excel"
-
-#~ msgid "Excel vers CSV"
-#~ msgstr "Excel zu CSV"
-
-#~ msgid "Téléphone (optionnel)"
-#~ msgstr "Telefon (optional)"
-
-#~ msgid "Sujet"
-#~ msgstr "Betreff"
-
-#~ msgid "Signaler un bug"
-#~ msgstr "PDFs zusammenführen"
-
-#~ msgid "Proposer une amélioration"
-#~ msgstr "Schlagen Sie eine Verbesserung vor"
-
-#~ msgid "Partenariat"
-#~ msgstr "Partnerschaft"
-
-#~ msgid "Autre"
-#~ msgstr "Andere"
-
-#~ msgid "Message"
-#~ msgstr "Nachricht"
-
-#~ msgid "OCR PDF"
-#~ msgstr "OCR PDF"
 

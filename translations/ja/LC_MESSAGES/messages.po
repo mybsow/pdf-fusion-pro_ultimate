@@ -2,15 +2,16 @@
 # Copyright (C) 2026 PDF Fusion Pro
 # This file is distributed under the same license as the PDF Fusion Pro
 # project.
+
 msgid ""
 msgstr ""
-"Project-Id-Version: PDF Fusion Pro 1.0\n"
-"Report-Msgid-Bugs-To: support@pdffusionpro.com\n"
-"POT-Creation-Date: 2026-03-17 15:01+0000\n"
-"PO-Revision-Date: 2026-02-18 10:30+0000\n"
-"Last-Translator: <banousow@gmail.com>\n"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-03-17 16:04+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ja\n"
-"Language-Team: Japanese <ja@li.org>\n"
+"Language-Team: ja <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -18,17 +19,16 @@ msgstr ""
 "Generated-By: Babel 2.14.0\n"
 
 #: app.py:450 templates/conversion/index.html:104
-#, fuzzy
+
 msgid "Convertisseur de fichiers"
 msgstr "PowerPointプレゼンテーションをPDFに変換"
 
-#: app.py:479
-#, fuzzy
+#: app.py:479 blueprints/conversion.py:278
+
 msgid "Word vers PDF"
 msgstr "Word → PDF"
 
 #: app.py:480 templates/base.html:266 templates/base.html:409
-#, fuzzy
 msgid "Fusionner PDF"
 msgstr "PDFを結合"
 
@@ -63,18 +63,18 @@ msgstr "評価例"
 
 #: blueprints/admin.py:157 blueprints/admin.py:461 templates/base.html:243
 #: templates/base_legal.html:242
+
 msgid "Accueil"
 msgstr "いらっしゃいませ"
 
 #: blueprints/admin.py:159 blueprints/admin.py:463
 #: templates/legal/about.html:24
-#, fuzzy
+
 msgid "Fusion PDF"
 msgstr "PDFを結合"
 
 #: blueprints/admin.py:161 blueprints/admin.py:465
 #: templates/legal/about.html:36
-#, fuzzy
 msgid "Division PDF"
 msgstr "PDFを結合"
 
@@ -145,8 +145,336 @@ msgid "✅ Fichier contacts.json réinitialisé (était vide)"
 msgstr "✅ contacts.json ファイルがリセットされました (空でした)"
 
 #: blueprints/admin.py:664
+
 msgid "✅ Fichier contacts.json créé"
 msgstr "✅ Contacts.json ファイルが作成されました"
+
+#: blueprints/conversion.py:279
+msgid "Convertissez vos documents Word en PDF"
+msgstr "Word文書をPDFに変換"
+
+#: blueprints/conversion.py:280 blueprints/conversion.py:379
+#: blueprints/conversion.py:551
+msgid "Word"
+msgstr ""
+
+#: blueprints/conversion.py:281 blueprints/conversion.py:293
+#: blueprints/conversion.py:305 blueprints/conversion.py:317
+#: blueprints/conversion.py:329 blueprints/conversion.py:341
+#: blueprints/conversion.py:353 blueprints/conversion.py:365
+#: blueprints/conversion.py:378 blueprints/conversion.py:390
+#: blueprints/conversion.py:402 blueprints/conversion.py:414
+#: blueprints/conversion.py:426 blueprints/conversion.py:438
+#: blueprints/conversion.py:450 blueprints/conversion.py:462
+#: blueprints/conversion.py:476 blueprints/conversion.py:477
+#: blueprints/conversion.py:488 blueprints/conversion.py:489
+#: blueprints/conversion.py:500 blueprints/conversion.py:501
+#: blueprints/conversion.py:512 blueprints/conversion.py:513
+#: blueprints/conversion.py:524 blueprints/conversion.py:525
+#: templates/conversion/powerpoint_to_pdf.html:199
+
+msgid "PDF"
+msgstr "PDF"
+
+#: blueprints/conversion.py:290
+
+msgid "Excel vers PDF"
+msgstr "Excel → PDF"
+
+#: blueprints/conversion.py:291
+msgid "Convertissez vos feuilles Excel en PDF"
+msgstr "Word文書をPDFに変換"
+
+#: blueprints/conversion.py:292 blueprints/conversion.py:403
+#: blueprints/conversion.py:563 blueprints/conversion.py:575
+#: blueprints/conversion.py:586
+
+msgid "Excel"
+msgstr ""
+
+#: blueprints/conversion.py:302
+msgid "PowerPoint vers PDF"
+msgstr "PowerPoint → PDF"
+
+#: blueprints/conversion.py:303 templates/conversion/powerpoint_to_pdf.html:10
+
+msgid "Convertissez vos présentations PowerPoint en PDF"
+msgstr "PowerPointプレゼンテーションをPDFに変換"
+
+#: blueprints/conversion.py:304 blueprints/conversion.py:415
+
+msgid "PowerPoint"
+msgstr "PowerPoint → PDF"
+
+#: blueprints/conversion.py:314
+
+msgid "Image vers PDF"
+msgstr "画像 → PDF"
+
+#: blueprints/conversion.py:315
+
+msgid "Convertissez vos images en document PDF"
+msgstr "PDFをWord文書に変換"
+
+#: blueprints/conversion.py:316 blueprints/conversion.py:427
+#: blueprints/conversion.py:550 blueprints/conversion.py:562
+
+msgid "Image"
+msgstr "余白"
+
+#: blueprints/conversion.py:326
+
+msgid "JPG vers PDF"
+msgstr "Word → PDF"
+
+#: blueprints/conversion.py:327
+msgid "Convertissez vos images JPG en PDF"
+msgstr "PowerPointプレゼンテーションをPDFに変換"
+
+#: blueprints/conversion.py:328
+
+msgid "JPG"
+msgstr ""
+
+#: blueprints/conversion.py:338
+
+msgid "PNG vers PDF"
+msgstr "Word → PDF"
+
+#: blueprints/conversion.py:339
+msgid "Convertissez vos images PNG en PDF"
+msgstr "PowerPointプレゼンテーションをPDFに変換"
+
+#: blueprints/conversion.py:340
+
+msgid "PNG"
+msgstr ""
+
+#: blueprints/conversion.py:350
+
+msgid "HTML vers PDF"
+msgstr "Word → PDF"
+
+#: blueprints/conversion.py:351
+msgid "Convertissez vos pages HTML en PDF"
+msgstr "PowerPointプレゼンテーションをPDFに変換"
+
+#: blueprints/conversion.py:352 blueprints/conversion.py:451
+
+msgid "HTML"
+msgstr ""
+
+#: blueprints/conversion.py:362
+
+msgid "TXT vers PDF"
+msgstr "Word → PDF"
+
+#: blueprints/conversion.py:363
+msgid "Convertissez vos fichiers texte en PDF"
+msgstr "PowerPointプレゼンテーションをPDFに変換"
+
+#: blueprints/conversion.py:364 blueprints/conversion.py:463
+msgid "TXT"
+msgstr ""
+
+#: blueprints/conversion.py:376 templates/conversion/word_to_pdf.html:265
+
+msgid "PDF vers Word"
+msgstr "PDF → Word"
+
+#: blueprints/conversion.py:377
+
+msgid "Extrayez le texte de vos PDF en documents Word"
+msgstr "画像からテキストを抽出"
+
+#: blueprints/conversion.py:388
+
+msgid "PDF vers DOC"
+msgstr "PDF to DOCX"
+
+#: blueprints/conversion.py:389
+msgid "Convertissez vos PDF en documents Word (format DOC)"
+msgstr "PDFをWord文書に変換"
+
+#: blueprints/conversion.py:391
+
+msgid "DOC"
+msgstr ""
+
+#: blueprints/conversion.py:400
+
+msgid "PDF vers Excel"
+msgstr "PDF → Excel"
+
+#: blueprints/conversion.py:401
+
+msgid "Extrayez les tableaux de vos PDF en feuilles Excel"
+msgstr "ドキュメントから表を抽出しExcelシートに"
+
+#: blueprints/conversion.py:412
+
+msgid "PDF vers PowerPoint"
+msgstr "PDF → Word"
+
+#: blueprints/conversion.py:413
+
+msgid "Convertissez vos PDF en présentations PowerPoint modifiables"
+msgstr "PDFをPowerPointプレゼンテーションに変換"
+
+#: blueprints/conversion.py:424
+
+msgid "PDF vers Image"
+msgstr "PDF → 画像"
+
+#: blueprints/conversion.py:425
+
+msgid "Convertissez les pages de vos PDF en images"
+msgstr "ユニバーサルコンバーター"
+
+#: blueprints/conversion.py:436
+
+msgid "PDF vers PDF/A"
+msgstr "PDF → PDF/A"
+
+#: blueprints/conversion.py:437
+
+msgid "Convertissez vos PDF en format PDF/A pour l'archivage"
+msgstr "PDFをアーカイブ形式に変換"
+
+#: blueprints/conversion.py:439
+
+msgid "PDF/A"
+msgstr "PDF/A-3"
+
+#: blueprints/conversion.py:448
+
+msgid "PDF vers HTML"
+msgstr "PDF → Word"
+
+#: blueprints/conversion.py:449
+
+msgid "Convertissez vos PDF en pages HTML"
+msgstr "ユニバーサルコンバーター"
+
+#: blueprints/conversion.py:460
+
+msgid "PDF vers TXT"
+msgstr "PDF to DOCX"
+
+#: blueprints/conversion.py:461
+msgid "Extrayez le texte de vos PDF en fichiers texte"
+msgstr "画像からテキストを抽出"
+
+#: blueprints/conversion.py:474 templates/base.html:270
+
+msgid "Protéger PDF"
+msgstr "PDF保護"
+
+#: blueprints/conversion.py:475
+msgid "Ajoutez un mot de passe pour protéger vos PDF"
+msgstr "パスワードと制限を追加"
+
+#: blueprints/conversion.py:486 templates/base.html:271
+
+msgid "Déverrouiller PDF"
+msgstr "PDFロック解除"
+
+#: blueprints/conversion.py:487
+
+msgid "Retirez la protection des PDF"
+msgstr "PDFファイルのパスワード保護を解除します。"
+
+#: blueprints/conversion.py:498
+
+msgid "Caviarder PDF"
+msgstr "画像 → PDF"
+
+#: blueprints/conversion.py:499
+
+msgid "Supprimez définitivement le contenu sensible de votre PDF"
+msgstr "ドキュメントから機密コンテンツを完全に削除"
+
+#: blueprints/conversion.py:510
+
+msgid "Éditer PDF"
+msgstr "PDF分割"
+
+#: blueprints/conversion.py:511
+
+msgid "Modifiez ou ajoutez du texte, des images et des pages à votre PDF"
+msgstr "ドキュメントを編集、テキストや画像を追加"
+
+#: blueprints/conversion.py:522
+
+msgid "Signer PDF"
+msgstr "PDFを結合"
+
+#: blueprints/conversion.py:523
+
+msgid "Ajoutez votre signature électronique à votre PDF"
+msgstr "ドキュメントに電子署名を追加"
+
+#: blueprints/conversion.py:534
+
+msgid "Préparer formulaire PDF"
+msgstr "PDFフォームを作成"
+
+#: blueprints/conversion.py:535 templates/conversion/prepare_form.html:11
+msgid "Transformez vos documents en formulaires PDF interactifs"
+msgstr "ドキュメントをインタラクティブなPDFフォームに変換"
+
+#: blueprints/conversion.py:536 templates/conversion/pdf_to_ppt.html:330
+
+msgid "Document"
+msgstr "書類"
+
+#: blueprints/conversion.py:537
+
+msgid "PDF Formulaire"
+msgstr "PDFフォームを作成"
+
+#: blueprints/conversion.py:548
+
+msgid "Image vers Word"
+msgstr "画像 → Word"
+
+#: blueprints/conversion.py:549
+
+msgid "Extrayez le texte des images en documents Word"
+msgstr "画像からテキストを抽出"
+
+#: blueprints/conversion.py:560
+
+msgid "Image vers Excel"
+msgstr "画像 → Excel"
+
+#: blueprints/conversion.py:561
+
+msgid "Extrayez les tableaux des images en Excel"
+msgstr "ドキュメントから表を抽出しExcelシートに"
+
+#: blueprints/conversion.py:572
+
+msgid "CSV vers Excel"
+msgstr "CSV → Excel"
+
+#: blueprints/conversion.py:573
+msgid "Convertissez vos fichiers CSV en Excel"
+msgstr "Excelに変換するファイルを選択"
+
+#: blueprints/conversion.py:574 blueprints/conversion.py:587
+
+msgid "CSV"
+msgstr ""
+
+#: blueprints/conversion.py:584
+
+msgid "Excel vers CSV"
+msgstr "Excel → CSV"
+
+#: blueprints/conversion.py:585
+msgid "Exportez vos feuilles Excel en CSV"
+msgstr "Excelに変換するファイルを選択"
 
 #: blueprints/legal/routes.py:205
 msgid "Veuillez remplir tous les champs obligatoires."
@@ -191,11 +519,11 @@ msgid "Informations légales"
 msgstr "法的情報"
 
 #: blueprints/legal/routes.py:247
+
 msgid "Politique de Confidentialité"
 msgstr "プライバシーポリシー"
 
 #: blueprints/legal/routes.py:248
-#, fuzzy
 msgid "Protection des données"
 msgstr "PDFファイルのパスワード保護を解除します。"
 
@@ -360,10 +688,11 @@ msgid "PDF Fusion Pro - Outils PDF Gratuits"
 msgstr "PDF Fusion Pro - 無料の PDF ツール"
 
 #: templates/base.html:10
+
 msgid ""
 "Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos "
 "fichiers en ligne. Rapide, sécurisé et sans installation."
-msgstr ""
+msgstr "オールインワンPDFツール：結合、分割、回転、圧縮、変換。高速、安全、完全無料。"
 
 #: templates/base.html:12
 msgid ""
@@ -372,11 +701,11 @@ msgid ""
 msgstr ""
 
 #: templates/base.html:17
+
 msgid "PDF Fusion Pro - Convertisseur de fichiers"
 msgstr "PDF Fusion Pro - ファイルコンバーター"
 
 #: templates/base.html:18
-#, fuzzy
 msgid "Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne"
 msgstr "PowerPointプレゼンテーションをPDFに変換"
 
@@ -387,6 +716,7 @@ msgstr "PDF フュージョン プロ"
 
 #: templates/base.html:250 templates/base_legal.html:278
 #: templates/conversion/conversion_base.html:197
+
 msgid "Convertir"
 msgstr "変換する"
 
@@ -398,99 +728,90 @@ msgstr "変換する"
 #: templates/conversion/powerpoint_to_pdf.html:90
 #: templates/conversion/txt_to_pdf.html:93
 #: templates/conversion/word_to_pdf.html:157
-#, fuzzy
+
 msgid "Convertir en PDF"
 msgstr "PowerPointプレゼンテーションをPDFに変換"
 
 #: templates/base.html:254
-#, fuzzy
+
 msgid "Word en PDF"
 msgstr "Word → PDF"
 
 #: templates/base.html:255
-#, fuzzy
+
 msgid "Excel en PDF"
 msgstr "Excel → PDF"
 
 #: templates/base.html:256
-#, fuzzy
+
 msgid "PowerPoint en PDF"
 msgstr "PowerPoint → PDF"
 
 #: templates/base.html:257
-#, fuzzy
+
 msgid "Image en PDF"
 msgstr "画像 → PDF"
 
 #: templates/base.html:259
-#, fuzzy
+
 msgid "Convertir depuis PDF"
 msgstr "画像 → PDF"
 
 #: templates/base.html:260
-#, fuzzy
+
 msgid "PDF en Word"
 msgstr "PDF → Word"
 
 #: templates/base.html:261
-#, fuzzy
+
 msgid "PDF en Excel"
 msgstr "PDF → Excel"
 
 #: templates/base.html:262
-#, fuzzy
+
 msgid "PDF en Image"
 msgstr "PDF → 画像"
 
 #: templates/base.html:263
-#, fuzzy
+
 msgid "PDF en PDF/A"
 msgstr "PDF → PDF/A"
 
 #: templates/base.html:265
-#, fuzzy
+
 msgid "Outils PDF"
 msgstr "バージョン"
 
 #: templates/base.html:267 templates/base.html:410
-#, fuzzy
+
 msgid "Diviser PDF"
 msgstr "PDF分割"
 
 #: templates/base.html:268 templates/base.html:412
-#, fuzzy
 msgid "Compresser PDF"
 msgstr "PDF保護"
 
-#: templates/base.html:270
-msgid "Protéger PDF"
-msgstr "PDF保護"
-
-#: templates/base.html:271
-msgid "Déverrouiller PDF"
-msgstr "PDFロック解除"
-
 #: templates/base.html:273
+
 msgid "Autres conversions"
 msgstr "その他の変換"
 
 #: templates/base.html:274
-#, fuzzy
+
 msgid "Image en Word"
 msgstr "画像 → Word"
 
 #: templates/base.html:275
-#, fuzzy
+
 msgid "Image en Excel"
 msgstr "画像 → Excel"
 
 #: templates/base.html:276
-#, fuzzy
+
 msgid "CSV en Excel"
 msgstr "CSV → Excel"
 
 #: templates/base.html:277
-#, fuzzy
 msgid "Excel en CSV"
 msgstr "Excel → CSV"
 
@@ -532,11 +853,11 @@ msgid ""
 msgstr ""
 
 #: templates/base.html:407
+
 msgid "Outils"
 msgstr "ツール"
 
 #: templates/base.html:411
-#, fuzzy
 msgid "Tourner PDF"
 msgstr "PDF分割"
 
@@ -654,21 +975,21 @@ msgid "Notre système le convertit automatiquement en %(to_format)s."
 msgstr "私たちのシステムはそれを自動的に %(to_format)s に変換します。"
 
 #: templates/conversion/conversion_base.html:247
+
 msgid "Téléchargez ensuite votre fichier converti."
 msgstr "次に、変換されたファイルをダウンロードします。"
 
 #: templates/conversion/csv_to_excel.html:10
-#, fuzzy
+
 msgid "Téléchargez vos fichiers CSV"
 msgstr "Excelに変換するファイルを選択"
 
 #: templates/conversion/csv_to_excel.html:11
-#, fuzzy
+
 msgid "Sélectionnez les fichiers à convertir en Excel"
 msgstr "Excelに変換するファイルを選択"
 
 #: templates/conversion/csv_to_excel.html:21
-#, fuzzy
 msgid "Glissez-déposez vos fichiers CSV ici"
 msgstr "Excelに変換するファイルを選択"
 
@@ -752,11 +1073,11 @@ msgid "Encodage :"
 msgstr "エンコーディング："
 
 #: templates/conversion/csv_to_excel.html:60
+
 msgid "La première ligne contient les en-têtes"
 msgstr "最初の行にはヘッダーが含まれます"
 
 #: templates/conversion/csv_to_excel.html:70
-#, fuzzy
 msgid "Convertir en Excel"
 msgstr "Excelに変換するファイルを選択"
 
@@ -858,11 +1179,11 @@ msgstr "変換中のエラー:"
 #: templates/conversion/edit_pdf.html:10
 #: templates/conversion/redact_pdf.html:10
 #: templates/conversion/sign_pdf.html:10
+
 msgid "Téléchargez votre PDF"
 msgstr "PDFをダウンロード"
 
 #: templates/conversion/edit_pdf.html:11
-#, fuzzy
 msgid "Modifiez, ajoutez du texte ou des images à votre document"
 msgstr "ドキュメントを編集、テキストや画像を追加"
 
@@ -1063,11 +1384,11 @@ msgid "Votre PDF modifié est prêt à être téléchargé"
 msgstr "編集した PDF をダウンロードする準備ができました"
 
 #: templates/conversion/edit_pdf.html:253
+
 msgid "Télécharger le PDF modifié"
 msgstr "変更された PDF をダウンロードする"
 
 #: templates/conversion/edit_pdf.html:257
-#, fuzzy
 msgid "Éditer un autre PDF"
 msgstr "PDF分割"
 
@@ -1090,22 +1411,22 @@ msgid "Veuillez sélectionner une image à insérer"
 msgstr "挿入する画像を選択してください"
 
 #: templates/conversion/edit_pdf.html:409
+
 msgid "Erreur lors de l'édition :"
 msgstr "編集中のエラー:"
 
 #: templates/conversion/excel_to_csv.html:10
 #: templates/conversion/excel_to_pdf.html:10
-#, fuzzy
 msgid "Téléchargez vos fichiers Excel"
 msgstr "Excelに変換するファイルを選択"
 
 #: templates/conversion/excel_to_csv.html:11
+
 msgid "Sélectionnez les fichiers à convertir en CSV"
 msgstr "CSVに変換するファイルを選択してください"
 
 #: templates/conversion/excel_to_csv.html:21
 #: templates/conversion/excel_to_pdf.html:21
-#, fuzzy
 msgid "Glissez-déposez vos fichiers Excel ici"
 msgstr "Excelに変換するファイルを選択"
 
@@ -1143,11 +1464,11 @@ msgstr "CSV ファイルをダウンロードする準備ができました"
 
 #: templates/conversion/excel_to_csv.html:148
 #: templates/conversion/excel_to_pdf.html:131
+
 msgid "Veuillez sélectionner au moins un fichier Excel"
 msgstr "少なくとも 1 つの Excel ファイルを選択してください"
 
 #: templates/conversion/excel_to_pdf.html:11
-#, fuzzy
 msgid "Sélectionnez les fichiers à convertir en PDF"
 msgstr "PowerPointプレゼンテーションをPDFに変換"
 
@@ -1262,6 +1583,7 @@ msgstr "ファイルが処理されるまでお待ちください"
 #: templates/conversion/jpg_to_pdf.html:104
 #: templates/conversion/png_to_pdf.html:104
 #: templates/conversion/txt_to_pdf.html:119
+
 msgid "Votre PDF est prêt à être téléchargé"
 msgstr "PDF をダウンロードする準備ができました"
 
@@ -1269,7 +1591,6 @@ msgstr "PDF をダウンロードする準備ができました"
 #: templates/conversion/jpg_to_pdf.html:106
 #: templates/conversion/png_to_pdf.html:106
 #: templates/conversion/txt_to_pdf.html:121
-#, fuzzy
 msgid "Télécharger le PDF"
 msgstr "PDF保護"
 
@@ -1282,11 +1603,11 @@ msgid "Veuillez sélectionner un fichier ou coller du code HTML"
 msgstr "ファイルを選択するか、HTML コードを貼り付けてください"
 
 #: templates/conversion/image_to_excel.html:10
+
 msgid "Téléchargez votre image ou PDF"
 msgstr "画像または PDF をアップロードする"
 
 #: templates/conversion/image_to_excel.html:11
-#, fuzzy
 msgid "Extrayez les tableaux de vos documents en feuilles Excel"
 msgstr "ドキュメントから表を抽出しExcelシートに"
 
@@ -1378,11 +1699,11 @@ msgid "cellule(s)"
 msgstr "セル"
 
 #: templates/conversion/image_to_excel.html:119
+
 msgid "Prêt pour extraction"
 msgstr "抽出の準備ができました"
 
 #: templates/conversion/image_to_excel.html:126
-#, fuzzy
 msgid "Extraire les tableaux"
 msgstr "ドキュメントから表を抽出しExcelシートに"
 
@@ -1419,12 +1740,12 @@ msgid "Aperçu des données"
 msgstr "データの概要"
 
 #: templates/conversion/image_to_excel.html:202
+
 msgid "lignes extraites"
 msgstr "抽出された行"
 
 #: templates/conversion/image_to_excel.html:209
 #: templates/conversion/pdf_to_excel.html:164
-#, fuzzy
 msgid "Télécharger Excel"
 msgstr "画像 → Excel"
 
@@ -1479,13 +1800,13 @@ msgid "Erreur lors de l'extraction :"
 msgstr "抽出中のエラー:"
 
 #: templates/conversion/image_to_pdf.html:10
+
 msgid "Téléchargez vos images"
 msgstr "画像をアップロードする"
 
 #: templates/conversion/image_to_pdf.html:11
 #: templates/conversion/jpg_to_pdf.html:11
 #: templates/conversion/png_to_pdf.html:11
-#, fuzzy
 msgid "Sélectionnez les images à convertir en PDF"
 msgstr "PowerPointプレゼンテーションをPDFに変換"
 
@@ -1496,10 +1817,11 @@ msgid "Glissez-déposez vos images ici"
 msgstr "ここに画像をドラッグ アンド ドロップします"
 
 #: templates/conversion/image_to_pdf.html:26
+
 msgid ""
 "Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par "
 "fichier)"
-msgstr ""
+msgstr "使用できる形式: JPG、PNG、BMP、TIFF、WEBP、PDF (最大 50MB)"
 
 #: templates/conversion/image_to_pdf.html:49
 #: templates/conversion/jpg_to_pdf.html:57
@@ -1518,13 +1840,13 @@ msgstr "平均"
 
 #: templates/conversion/image_to_pdf.html:53
 #: templates/conversion/jpg_to_pdf.html:61
+
 msgid "Basse (fichier plus petit)"
 msgstr "低い (ファイルが小さい)"
 
 #: templates/conversion/image_to_pdf.html:69
 #: templates/conversion/jpg_to_pdf.html:68
 #: templates/conversion/png_to_pdf.html:68
-#, fuzzy
 msgid "Fusionner toutes les images en un seul PDF"
 msgstr "PDFをWord文書に変換"
 
@@ -1558,16 +1880,16 @@ msgid "images..."
 msgstr "写真..."
 
 #: templates/conversion/image_to_pdf.html:194
+
 msgid "images terminé"
 msgstr "完成した画像"
 
 #: templates/conversion/image_to_word.html:10
-#, fuzzy
+
 msgid "Extrayez le texte de vos images"
 msgstr "画像からテキストを抽出"
 
 #: templates/conversion/image_to_word.html:11
-#, fuzzy
 msgid "Convertissez images et PDF en documents Word éditables avec OCR"
 msgstr "PDFをWord文書に変換"
 
@@ -1933,7 +2255,7 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/jpg_to_pdf.html:10
-#, fuzzy
+
 msgid "Téléchargez vos images JPG"
 msgstr "PowerPointプレゼンテーションをPDFに変換"
 
@@ -1963,19 +2285,20 @@ msgstr "高 (推奨)"
 
 #: templates/conversion/jpg_to_pdf.html:146
 #: templates/conversion/png_to_pdf.html:142
+
 msgid "Veuillez sélectionner des fichiers"
 msgstr "ファイルを選択してください"
 
 #: templates/conversion/pdf_to_doc.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en DOC"
 msgstr "ユニバーサルコンバーター"
 
 #: templates/conversion/pdf_to_doc.html:11
+
 msgid ""
 "Transformez vos documents PDF en format Word compatible avec les "
 "anciennes versions"
-msgstr ""
+msgstr "ドキュメントをインタラクティブなPDFフォームに変換"
 
 #: templates/conversion/pdf_to_doc.html:26
 #: templates/conversion/pdf_to_excel.html:26
@@ -2041,11 +2364,11 @@ msgid "Compatible avec Microsoft Word 97-2003 et les anciennes versions."
 msgstr "Microsoft Word 97-2003 以前のバージョンと互換性があります。"
 
 #: templates/conversion/pdf_to_doc.html:91
+
 msgid "Pour un format plus récent, utilisez"
 msgstr "新しい形式の場合は、次を使用します。"
 
 #: templates/conversion/pdf_to_doc.html:91
-#, fuzzy
 msgid "PDF vers DOCX"
 msgstr "PDF to DOCX"
 
@@ -2145,21 +2468,21 @@ msgid "Génération du document..."
 msgstr "ドキュメントを生成しています..."
 
 #: templates/conversion/pdf_to_doc.html:277
+
 msgid "Création du fichier DOC"
 msgstr "DOCファイルの作成"
 
 #: templates/conversion/pdf_to_excel.html:10
-#, fuzzy
+
 msgid "Extrayez les tableaux de votre PDF"
 msgstr "ドキュメントから表を抽出しExcelシートに"
 
 #: templates/conversion/pdf_to_excel.html:11
-#, fuzzy
+
 msgid "Convertissez vos tableaux PDF en feuilles de calcul Excel"
 msgstr "ドキュメントから表を抽出しExcelシートに"
 
 #: templates/conversion/pdf_to_excel.html:44
-#, fuzzy
 msgid "Extraire les tableaux uniquement"
 msgstr "ドキュメントから表を抽出しExcelシートに"
 
@@ -2202,7 +2525,7 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/pdf_to_excel.html:93
-#, fuzzy
+
 msgid "Extraire vers Excel"
 msgstr "画像 → Excel"
 
@@ -2315,11 +2638,11 @@ msgid "Inclure les styles CSS"
 msgstr "CSS スタイルを含める"
 
 #: templates/conversion/pdf_to_html.html:67
+
 msgid "Conserver les images"
 msgstr "画像を保存する"
 
 #: templates/conversion/pdf_to_html.html:77
-#, fuzzy
 msgid "Convertir en HTML"
 msgstr "ユニバーサルコンバーター"
 
@@ -2332,11 +2655,11 @@ msgid "Votre fichier HTML est prêt à être téléchargé"
 msgstr "HTML ファイルをダウンロードする準備ができました"
 
 #: templates/conversion/pdf_to_html.html:109
+
 msgid "Convertir un autre PDF"
 msgstr "別の PDF を変換する"
 
 #: templates/conversion/pdf_to_image.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en images"
 msgstr "ユニバーサルコンバーター"
 
@@ -2385,11 +2708,11 @@ msgid "Plus de DPI = meilleure qualité, fichier plus gros"
 msgstr "DPI が高い = 品質が向上し、ファイルが大きくなります"
 
 #: templates/conversion/pdf_to_image.html:62
+
 msgid "Qualité (pour JPG)"
 msgstr "品質（JPGの場合）"
 
 #: templates/conversion/pdf_to_image.html:64
-#, fuzzy
 msgid "Haute (90-100%)"
 msgstr "高 (90-100 %%)"
 
@@ -2422,11 +2745,11 @@ msgid "Fichier ZIP unique"
 msgstr "単一の ZIP ファイル"
 
 #: templates/conversion/pdf_to_image.html:82
+
 msgid "Regroupe toutes les images dans une archive ZIP"
 msgstr "すべての画像を ZIP アーカイブにグループ化します"
 
 #: templates/conversion/pdf_to_image.html:92
-#, fuzzy
 msgid "Convertir en images"
 msgstr "ユニバーサルコンバーター"
 
@@ -2477,11 +2800,11 @@ msgid "Conversion de la page"
 msgstr "ページ変換"
 
 #: templates/conversion/pdf_to_image.html:281
+
 msgid "convertie en"
 msgstr "に変換"
 
 #: templates/conversion/pdf_to_pdfa.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en format d'archivage"
 msgstr "PDFをアーカイブ形式に変換"
 
@@ -2492,12 +2815,11 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/pdf_to_pdfa.html:37
-#, fuzzy
+
 msgid "Options de conversion PDF/A"
 msgstr "PDF → PDF/A"
 
 #: templates/conversion/pdf_to_pdfa.html:42
-#, fuzzy
 msgid "Version PDF/A"
 msgstr "PDF → PDF/A"
 
@@ -2616,16 +2938,16 @@ msgid "Conformité"
 msgstr "コンプライアンス"
 
 #: templates/conversion/pdf_to_pdfa.html:169
+
 msgid "Vérification de la conformité PDF/A..."
 msgstr "PDF/A 準拠の検証..."
 
 #: templates/conversion/pdf_to_pdfa.html:183
-#, fuzzy
+
 msgid "Votre document PDF/A est prêt pour l'archivage"
 msgstr "PDFをアーカイブ形式に変換"
 
 #: templates/conversion/pdf_to_pdfa.html:188
-#, fuzzy
 msgid "Télécharger PDF/A"
 msgstr "PDF保護"
 
@@ -2667,11 +2989,11 @@ msgid "Pages:"
 msgstr "ページ:"
 
 #: templates/conversion/pdf_to_pdfa.html:355
+
 msgid "Date:"
 msgstr "日付："
 
 #: templates/conversion/pdf_to_ppt.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en présentation PowerPoint"
 msgstr "PDFをPowerPointプレゼンテーションに変換"
 
@@ -2728,11 +3050,11 @@ msgid "Texte éditable"
 msgstr "編集可能なテキスト"
 
 #: templates/conversion/pdf_to_ppt.html:79
+
 msgid "Le texte pourra être modifié dans PowerPoint"
 msgstr "テキストはPowerPointで編集できます"
 
 #: templates/conversion/pdf_to_ppt.html:89
-#, fuzzy
 msgid "Format PowerPoint :"
 msgstr "PDF → Word"
 
@@ -2743,12 +3065,11 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/pdf_to_ppt.html:96
-#, fuzzy
+
 msgid "Convertir en PowerPoint"
 msgstr "PDF → Word"
 
 #: templates/conversion/pdf_to_ppt.html:113
-#, fuzzy
 msgid "Création de votre présentation PowerPoint..."
 msgstr "PowerPointプレゼンテーションをPDFに変換"
 
@@ -2761,16 +3082,16 @@ msgstr "スライド"
 
 #: templates/conversion/pdf_to_ppt.html:140
 #: templates/conversion/powerpoint_to_pdf.html:134
+
 msgid "Images intégrées"
 msgstr "埋め込み画像"
 
 #: templates/conversion/pdf_to_ppt.html:162
-#, fuzzy
+
 msgid "Votre présentation PowerPoint est prête"
 msgstr "PowerPointプレゼンテーションをPDFに変換"
 
 #: templates/conversion/pdf_to_ppt.html:167
-#, fuzzy
 msgid "Télécharger PowerPoint"
 msgstr "PDF → Word"
 
@@ -2799,10 +3120,6 @@ msgstr "スライドの作成 (ページ"
 #: templates/conversion/pdf_to_ppt.html:330
 msgid "2 pages/diapo"
 msgstr "2 ページ/スライド"
-
-#: templates/conversion/pdf_to_ppt.html:330
-msgid "Document"
-msgstr "書類"
 
 #: templates/conversion/pdf_to_ppt.html:346
 msgid "Diapo"
@@ -2857,19 +3174,20 @@ msgid "Veuillez spécifier les pages à extraire"
 msgstr "抽出するページを指定してください"
 
 #: templates/conversion/pdf_to_txt.html:170
+
 msgid "Format de pages invalide. Utilisez le format: 1-5,8,11-13"
 msgstr "無効なページ形式です。使用フォーマット：1-5、8、11-13"
 
 #: templates/conversion/pdf_to_word.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en document Word"
 msgstr "PDFをWord文書に変換"
 
 #: templates/conversion/pdf_to_word.html:11
+
 msgid ""
 "Transformez vos PDF en documents Word modifiables avec mise en page "
 "préservée"
-msgstr ""
+msgstr "DOC/DOCX ファイルをレイアウトを保持した PDF に変換します"
 
 #: templates/conversion/pdf_to_word.html:44
 msgid "Texte uniquement (plus léger)"
@@ -2898,16 +3216,16 @@ msgid "Convertir en Word"
 msgstr "Wordに変換"
 
 #: templates/conversion/pdf_to_word.html:133
+
 msgid "Paragraphes"
 msgstr "段落"
 
 #: templates/conversion/pdf_to_word.html:141
-#, fuzzy
+
 msgid "Images détectées"
 msgstr "画像 → Excel"
 
 #: templates/conversion/pdf_to_word.html:163
-#, fuzzy
 msgid "Votre document Word est prêt"
 msgstr "Word文書をPDFに変換"
 
@@ -2936,11 +3254,11 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/pdf_to_word.html:281
+
 msgid "Extraction de la page"
 msgstr "ページの抽出"
 
 #: templates/conversion/png_to_pdf.html:10
-#, fuzzy
 msgid "Téléchargez vos images PNG"
 msgstr "PowerPointプレゼンテーションをPDFに変換"
 
@@ -2951,10 +3269,6 @@ msgstr "受け入れ可能な形式: PNG (最大 20 ファイル)"
 #: templates/conversion/png_to_pdf.html:60
 msgid "Conserver la transparence"
 msgstr "透明性を維持する"
-
-#: templates/conversion/powerpoint_to_pdf.html:10
-msgid "Convertissez vos présentations PowerPoint en PDF"
-msgstr "PowerPointプレゼンテーションをPDFに変換"
 
 #: templates/conversion/powerpoint_to_pdf.html:11
 msgid "Transformez vos fichiers PPT/PPTX en documents PDF faciles à partager"
@@ -3053,10 +3367,6 @@ msgstr "PDF ファイルの準備ができました"
 msgid "Fichiers convertis"
 msgstr "変換されたファイル"
 
-#: templates/conversion/powerpoint_to_pdf.html:199
-msgid "PDF"
-msgstr "PDF"
-
 #: templates/conversion/powerpoint_to_pdf.html:241
 msgid "Veuillez sélectionner au moins un fichier PowerPoint"
 msgstr "少なくとも 1 つの PowerPoint ファイルを選択してください"
@@ -3077,11 +3387,6 @@ msgstr "PDF（ZIP）"
 msgid "Téléchargez votre document"
 msgstr "ドキュメントをアップロードする"
 
-#: templates/conversion/prepare_form.html:11
-#, fuzzy
-msgid "Transformez vos documents en formulaires PDF interactifs"
-msgstr "ドキュメントをインタラクティブなPDFフォームに変換"
-
 #: templates/conversion/prepare_form.html:21
 msgid "Glissez-déposez votre document ici"
 msgstr "ここにドキュメントをドラッグ アンド ドロップします"
@@ -3091,11 +3396,11 @@ msgid "Formats acceptés : PDF, Word, Excel, Images (jusqu'à 50MB)"
 msgstr "受け入れ可能な形式: PDF、Word、Excel、画像 (最大 50MB)"
 
 #: templates/conversion/prepare_form.html:36
+
 msgid "Configuration du formulaire"
 msgstr "フォーム構成"
 
 #: templates/conversion/prepare_form.html:41
-#, fuzzy
 msgid "Type de formulaire :"
 msgstr "PDFフォームを作成"
 
@@ -3163,11 +3468,11 @@ msgstr "ラベル"
 
 #: templates/conversion/prepare_form.html:110
 #: templates/conversion/prepare_form.html:376
+
 msgid "Lancez la détection pour voir les champs"
 msgstr "検出を実行してフィールドを確認します"
 
 #: templates/conversion/prepare_form.html:121
-#, fuzzy
 msgid "Langue du formulaire :"
 msgstr "PDFフォームを作成"
 
@@ -3204,11 +3509,11 @@ msgid "Marquer les champs obligatoires (avec *)"
 msgstr "必須フィールドにマークを付けます (*)"
 
 #: templates/conversion/prepare_form.html:161
+
 msgid "Ajouter un bouton de soumission"
 msgstr "送信ボタンを追加する"
 
 #: templates/conversion/prepare_form.html:170
-#, fuzzy
 msgid "Créer le formulaire PDF"
 msgstr "PDFフォームを作成"
 
@@ -3230,16 +3535,16 @@ msgid "Formulaire créé !"
 msgstr "フォームが作成されました!"
 
 #: templates/conversion/prepare_form.html:200
+
 msgid "Votre formulaire PDF interactif est prêt"
 msgstr "インタラクティブな PDF フォームが完成しました"
 
 #: templates/conversion/prepare_form.html:202
-#, fuzzy
+
 msgid "Télécharger le formulaire"
 msgstr "PDFフォームを作成"
 
 #: templates/conversion/prepare_form.html:206
-#, fuzzy
 msgid "Créer un autre formulaire"
 msgstr "PDFフォームを作成"
 
@@ -3316,11 +3621,11 @@ msgid "Ajout des propriétés du formulaire..."
 msgstr "フォームのプロパティを追加しています..."
 
 #: templates/conversion/prepare_form.html:332
+
 msgid "Terminé !"
 msgstr "終了した ！"
 
 #: templates/conversion/prepare_form.html:346
-#, fuzzy
 msgid "formulaire.pdf"
 msgstr "PDFフォームを作成"
 
@@ -3412,7 +3717,7 @@ msgstr ""
 
 #: templates/conversion/protect_pdf.html:81
 #: templates/conversion/word_to_pdf.html:118
-#, fuzzy
+
 msgid "Protéger le PDF"
 msgstr "PDF保護"
 
@@ -3434,11 +3739,11 @@ msgstr "document_protect.pdf"
 
 #: templates/conversion/protect_pdf.html:198
 #: templates/conversion/unlock_pdf.html:144
+
 msgid "Erreur:"
 msgstr "エラー："
 
 #: templates/conversion/redact_pdf.html:11
-#, fuzzy
 msgid "Supprimez définitivement le contenu sensible de votre document"
 msgstr "ドキュメントから機密コンテンツを完全に削除"
 
@@ -3459,11 +3764,11 @@ msgid "Zone rectangulaire"
 msgstr "長方形の領域"
 
 #: templates/conversion/redact_pdf.html:55
+
 msgid "Motif (email, téléphone...)"
 msgstr "理由（メール、電話など）"
 
 #: templates/conversion/redact_pdf.html:62
-#, fuzzy
 msgid "Texte à caviarder :"
 msgstr "画像 → PDF"
 
@@ -3510,11 +3815,11 @@ msgid "Fine"
 msgstr "大丈夫"
 
 #: templates/conversion/redact_pdf.html:108
+
 msgid "Épaisse"
 msgstr "厚い"
 
 #: templates/conversion/redact_pdf.html:116
-#, fuzzy
 msgid "Motifs à caviarder :"
 msgstr "画像 → PDF"
 
@@ -3575,11 +3880,11 @@ msgid "Aperçu du PDF - Dessinez les zones à caviarder"
 msgstr "PDF プレビュー - 編集する領域を描画します"
 
 #: templates/conversion/redact_pdf.html:190
+
 msgid "Cliquez et faites glisser pour dessiner un rectangle de caviardage"
 msgstr "クリックしてドラッグして墨消し長方形を描画します"
 
 #: templates/conversion/redact_pdf.html:198
-#, fuzzy
 msgid "Caviarder le PDF"
 msgstr "画像 → PDF"
 
@@ -3592,11 +3897,11 @@ msgid "Analyse et suppression du contenu sensible"
 msgstr "機密コンテンツのスキャンと削除"
 
 #: templates/conversion/redact_pdf.html:217
+
 msgid "Préparation..."
 msgstr "準備..."
 
 #: templates/conversion/redact_pdf.html:227
-#, fuzzy
 msgid "Caviardage terminé !"
 msgstr "画像 → PDF"
 
@@ -3605,11 +3910,11 @@ msgid "Le contenu sensible a été supprimé définitivement"
 msgstr "機密コンテンツは完全に削除されました"
 
 #: templates/conversion/redact_pdf.html:230
+
 msgid "Télécharger le PDF caviardé"
 msgstr "編集された PDF をダウンロード"
 
 #: templates/conversion/redact_pdf.html:234
-#, fuzzy
 msgid "Caviarder un autre PDF"
 msgstr "画像 → PDF"
 
@@ -3638,11 +3943,11 @@ msgid "Application du caviardage..."
 msgstr "編集の適用..."
 
 #: templates/conversion/redact_pdf.html:516
+
 msgid "Erreur lors du caviardage :"
 msgstr "編集中のエラー:"
 
 #: templates/conversion/sign_pdf.html:11
-#, fuzzy
 msgid "Ajoutez votre signature électronique au document"
 msgstr "ドキュメントに電子署名を追加"
 
@@ -3768,11 +4073,11 @@ msgid "Ajouter un motif de signature"
 msgstr "署名パターンを追加する"
 
 #: templates/conversion/sign_pdf.html:174
+
 msgid "Ex: Approbation, Accord, Certificat..."
 msgstr "例: 承認、同意、証明書..."
 
 #: templates/conversion/sign_pdf.html:182
-#, fuzzy
 msgid "Signer le PDF"
 msgstr "PDFを結合"
 
@@ -3793,11 +4098,11 @@ msgid "Votre PDF signé est prêt à être téléchargé"
 msgstr "署名済み PDF をダウンロードする準備ができました"
 
 #: templates/conversion/sign_pdf.html:213
+
 msgid "Télécharger le PDF signé"
 msgstr "署名済みの PDF をダウンロードする"
 
 #: templates/conversion/sign_pdf.html:217
-#, fuzzy
 msgid "Signer un autre PDF"
 msgstr "PDFを結合"
 
@@ -3818,11 +4123,11 @@ msgid "Veuillez télécharger une image de signature"
 msgstr "署名画像をアップロードしてください"
 
 #: templates/conversion/sign_pdf.html:455
+
 msgid "Erreur lors de la signature :"
 msgstr "署名時のエラー:"
 
 #: templates/conversion/txt_to_pdf.html:10
-#, fuzzy
 msgid "Téléchargez votre fichier texte"
 msgstr "PowerPointプレゼンテーションをPDFに変換"
 
@@ -3875,11 +4180,11 @@ msgid "Convertir un autre texte"
 msgstr "別のテキストを変換する"
 
 #: templates/conversion/txt_to_pdf.html:177
+
 msgid "Veuillez saisir du texte ou sélectionner un fichier"
 msgstr "テキストを入力するか、ファイルを選択してください"
 
 #: templates/conversion/unlock_pdf.html:18
-#, fuzzy
 msgid "Retirez la protection par mot de passe de vos fichiers PDF."
 msgstr "PDFファイルのパスワード保護を解除します。"
 
@@ -3910,21 +4215,21 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/unlock_pdf.html:53
-#, fuzzy
+
 msgid "Déverrouiller le PDF"
 msgstr "PDFロック解除"
 
 #: templates/conversion/unlock_pdf.html:119
+
 msgid "Erreur lors du déverrouillage"
 msgstr "ロック解除中にエラーが発生しました"
 
 #: templates/conversion/unlock_pdf.html:128
-#, fuzzy
+
 msgid "document_deverrouille.pdf"
 msgstr "PDFロック解除"
 
 #: templates/conversion/word_to_pdf.html:10
-#, fuzzy
 msgid "Convertissez votre document Word en PDF"
 msgstr "Word文書をPDFに変換"
 
@@ -4026,11 +4331,11 @@ msgid "Inclure les signets"
 msgstr "ブックマークを含める"
 
 #: templates/conversion/word_to_pdf.html:107
+
 msgid "Pour une navigation plus facile"
 msgstr "ナビゲーションを容易にするために"
 
 #: templates/conversion/word_to_pdf.html:119
-#, fuzzy
 msgid "Ajouter un mot de passe et des restrictions"
 msgstr "パスワードと制限を追加"
 
@@ -4094,17 +4399,13 @@ msgid "Détails"
 msgstr "詳細"
 
 #: templates/conversion/word_to_pdf.html:244
+
 msgid "Format: A4<br>Orientation: Portrait<br>Qualité: Standard"
 msgstr "フォーマット: A4<br>向き: 縦<br>品質: 標準"
 
 #: templates/conversion/word_to_pdf.html:253
-#, fuzzy
 msgid "Télécharger PDF"
 msgstr "PDF保護"
-
-#: templates/conversion/word_to_pdf.html:265
-msgid "PDF vers Word"
-msgstr "PDF → Word"
 
 #: templates/conversion/word_to_pdf.html:298
 msgid "Veuillez sélectionner un document Word"
@@ -4902,7 +5203,7 @@ msgstr "PDF を簡単に変換"
 msgid ""
 "Outil PDF tout-en-un : fusion, division, rotation, compression et "
 "conversion. Rapide, sécurisé et entièrement gratuit."
-msgstr ""
+msgstr "オールインワンPDFツール：結合、分割、回転、圧縮、変換。高速、安全、完全無料。"
 
 #: templates/pdf/index.html:13
 msgid ""
@@ -4915,29 +5216,29 @@ msgid "Fusionner des fichiers PDF"
 msgstr "PDF ファイルを結合する"
 
 #: templates/pdf/index.html:24
+
 msgid "Combine plusieurs PDF en un seul document organisé"
 msgstr "複数の PDF を 1 つの整理されたドキュメントに結合します"
 
 #: templates/pdf/index.html:28
-#, fuzzy
 msgid "Fusionner des PDF"
 msgstr "PDFを結合"
 
 #: templates/pdf/index.html:31
+
 msgid "Accédez à l'outil de fusion PDF"
 msgstr "PDF結合ツールにアクセスする"
 
 #: templates/pdf/index.html:41
-#, fuzzy
 msgid "Diviser un fichier PDF"
 msgstr "PDFロック解除"
 
 #: templates/pdf/index.html:42
+
 msgid "Extrayez des pages spécifiques ou divisez par plages"
 msgstr "特定のページを抽出または範囲で分割"
 
 #: templates/pdf/index.html:46 templates/pdf/split.html:8
-#, fuzzy
 msgid "Diviser un PDF"
 msgstr "PDF分割"
 
@@ -4958,11 +5259,11 @@ msgid "Tourner un PDF"
 msgstr "PDF を回転する"
 
 #: templates/pdf/index.html:67
+
 msgid "Accédez à l'outil de rotation PDF"
 msgstr "PDF回転ツールにアクセスする"
 
 #: templates/pdf/index.html:77
-#, fuzzy
 msgid "Compresser un fichier PDF"
 msgstr "PowerPointプレゼンテーションをPDFに変換"
 
@@ -4975,11 +5276,12 @@ msgid "Accédez à l'outil de compression PDF"
 msgstr "PDF圧縮ツールにアクセスする"
 
 #: templates/pdf/index.html:97
+
 msgid "Convertisseur universel"
 msgstr "ユニバーサルコンバーター"
 
 #: templates/pdf/index.html:98
-#, fuzzy
+
 msgid ""
 "Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et "
 "vice-versa"
@@ -5002,11 +5304,11 @@ msgid "Satisfaction"
 msgstr "満足"
 
 #: templates/pdf/index.html:132
+
 msgid "Disponible"
 msgstr "利用可能"
 
 #: templates/pdf/index.html:145
-#, fuzzy
 msgid "Votre solution PDF tout-en-un, entièrement gratuite et sécurisée"
 msgstr "オールインワンPDFソリューション、完全無料で安全"
 
@@ -5033,10 +5335,11 @@ msgid "Fusionner PDF - PDF Fusion Pro"
 msgstr "PDF を結合 - PDF Fusion Pro"
 
 #: templates/pdf/merge.html:4
+
 msgid ""
 "Fusionnez plusieurs fichiers PDF en un seul document, facilement et "
 "rapidement."
-msgstr ""
+msgstr "複数の PDF ファイルを 1 つの整理されたドキュメントに結合します。"
 
 #: templates/pdf/merge.html:8
 msgid "Fusionner plusieurs PDF"
@@ -5051,11 +5354,11 @@ msgid "Déposez vos PDF ici"
 msgstr "ここからPDFを送信してください"
 
 #: templates/pdf/merge.html:17
+
 msgid "Glissez-déposez vos fichiers ou cliquez pour parcourir"
 msgstr "ファイルをドラッグ アンド ドロップするか、クリックして参照します"
 
 #: templates/pdf/merge.html:28
-#, fuzzy
 msgid "Fusionner les PDF"
 msgstr "PDFを結合"
 
@@ -5096,10 +5399,11 @@ msgid "Diviser PDF - PDF Fusion Pro"
 msgstr "PDF の分割 - PDF Fusion Pro"
 
 #: templates/pdf/split.html:4
+
 msgid ""
 "Divisez vos fichiers PDF en plusieurs documents selon les pages "
 "sélectionnées."
-msgstr ""
+msgstr "ファイルを小さな部分に分割します"
 
 #: templates/pdf/split.html:9
 msgid "Déposez votre fichier PDF et sélectionnez les pages à extraire."
@@ -5110,3647 +5414,11 @@ msgid "Pages à extraire"
 msgstr "抽出するページ"
 
 #: templates/pdf/split.html:30
+
 msgid "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\""
 msgstr "形式: 数値はカンマで区切られ、範囲はハイフンで区切られます。例：「1.3-5」"
 
 #: templates/pdf/split.html:36
-#, fuzzy
 msgid "Diviser le PDF"
 msgstr "PDF分割"
-
-#~ msgid "Convertisseur de fichiers"
-#~ msgstr "ユニバーサルコンバーター"
-
-#~ msgid "Date inconnue"
-#~ msgstr "不明な日付"
-
-#~ msgid "s"
-#~ msgstr "秒"
-
-#~ msgid "à l'instant"
-#~ msgstr "たった今"
-
-#~ msgid "Mot de passe incorrect"
-#~ msgstr "パスワードが正しくありません"
-
-#~ msgid "🔄 Régénération des stats du dashboard..."
-#~ msgstr "🔄 ダッシュボード統計を再生成中..."
-
-#~ msgid "Ratings chargés"
-#~ msgstr "評価を読み込みました"
-
-#~ msgid "Exemple rating"
-#~ msgstr "評価例"
-
-#~ msgid "Accueil"
-#~ msgstr "ホーム"
-
-#~ msgid "Fusion PDF"
-#~ msgstr "PDF結合"
-
-#~ msgid "Division PDF"
-#~ msgstr "PDF分割"
-
-#~ msgid "Rotation PDF"
-#~ msgstr "PDF回転"
-
-#~ msgid "Compression PDF"
-#~ msgstr "PDF圧縮"
-
-#~ msgid "DEBUG - Nombre de ratings"
-#~ msgstr "デバッグ - 評価数"
-
-#~ msgid "DEBUG - Répertoire ratings"
-#~ msgstr "デバッグ - 評価ディレクトリ"
-
-#~ msgid "DEBUG - Fichiers dans ratings"
-#~ msgstr "デバッグ - 評価ディレクトリ内のファイル"
-
-#~ msgid "Stats régénérées"
-#~ msgstr "統計を再生成しました"
-
-#~ msgid "messages"
-#~ msgstr "メッセージ"
-
-#~ msgid "ratings"
-#~ msgstr "評価"
-
-#~ msgid "Erreur lors de la génération des stats"
-#~ msgstr "統計生成中にエラーが発生しました"
-
-#~ msgid "Messages Archivés"
-#~ msgstr "アーカイブ済みメッセージ"
-
-#~ msgid "Messages de Contact"
-#~ msgstr "お問い合わせメッセージ"
-
-#~ msgid "Message non trouvé"
-#~ msgstr "メッセージが見つかりません"
-
-#~ msgid "Évaluations Non Vues"
-#~ msgstr "未読の評価"
-
-#~ msgid "Toutes les Évaluations"
-#~ msgstr "すべての変換"
-
-#~ msgid "✅ Fichier contacts.json est valide"
-#~ msgstr "✅ contacts.json ファイルは有効です"
-
-#~ msgid "✅ Fichier contacts.json réinitialisé (était vide)"
-#~ msgstr "✅ contacts.json ファイルをリセットしました（空でした）"
-
-#~ msgid "✅ Fichier contacts.json créé"
-#~ msgstr "✅ contacts.json ファイルを作成しました"
-
-#~ msgid "Veuillez remplir tous les champs obligatoires."
-#~ msgstr "必須項目をすべて入力してください。"
-
-#~ msgid "Veuillez entrer une adresse email valide."
-#~ msgstr "パスワードを入力してください"
-
-#~ msgid "Votre message a été envoyé avec succès !"
-#~ msgstr "メッセージは正常に送信されました！"
-
-#~ msgid "Une erreur technique est survenue. Veuillez réessayer."
-#~ msgstr "技術的なエラーが発生しました。もう一度お試しください。"
-
-#~ msgid "Contact"
-#~ msgstr "お問い合わせ"
-
-#~ msgid "Formulaire de contact"
-#~ msgstr "お問い合わせフォーム"
-
-#~ msgid "Contactez-nous via notre formulaire"
-#~ msgstr "フォームからお問い合わせください"
-
-#~ msgid "Mentions Légales"
-#~ msgstr "法的通知"
-
-#~ msgid "Information légale"
-#~ msgstr "法的通知"
-
-#~ msgid "Informations légales"
-#~ msgstr "法的通知"
-
-#~ msgid "Politique de Confidentialité"
-#~ msgstr "プライバシー"
-
-#~ msgid "Protection des données"
-#~ msgstr "データ保護"
-
-#~ msgid "Comment nous protégeons vos données"
-#~ msgstr "お客様のデータの保護方法"
-
-#~ msgid "Conditions d'Utilisation"
-#~ msgstr "利用規約"
-
-#~ msgid "Règles d'usage"
-#~ msgstr "利用規約"
-
-#~ msgid "Conditions d'utilisation du service"
-#~ msgstr "利用規約"
-
-#~ msgid "À Propos"
-#~ msgstr "概要"
-
-#~ msgid "Notre histoire"
-#~ msgstr "私たちについて"
-
-#~ msgid "Découvrez PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid "Fichier invalide"
-#~ msgstr "無効なファイル"
-
-#~ msgid "Fichier vide"
-#~ msgstr "空のファイル"
-
-#~ msgid "Fichier trop volumineux"
-#~ msgstr "ファイルサイズが大きすぎます"
-
-#~ msgid "Fichier corrompu ou non-PDF"
-#~ msgstr "ファイルが破損しているか、PDFではありません"
-
-#~ msgid "%(filename)s n'est pas un PDF"
-#~ msgstr "%%(filename)s n'est pas un PDF"
-
-#~ msgid "%(filename)s est vide"
-#~ msgstr "%%(filename)s est vide"
-
-#~ msgid "%(filename)s est corrompu ou non-PDF"
-#~ msgstr "%%(filename)s est corrompu ou non-PDF"
-
-#~ msgid "Aucun fichier"
-#~ msgstr "PDFファイルを回転"
-
-#~ msgid "Au moins 2 PDF requis"
-#~ msgstr "少なくとも2つのPDFファイルが必要です"
-
-#~ msgid "Maximum %(max)d fichiers"
-#~ msgstr "Maximum %%(max)d fichiers"
-
-#~ msgid "Fichier %(name)s contient trop de pages"
-#~ msgstr "Fichier %%(name)s contient trop de pages"
-
-#~ msgid "Erreur interne serveur"
-#~ msgstr "サーバー内部エラー"
-
-#~ msgid "Fichier contient trop de pages"
-#~ msgstr "ファイルのページ数が多すぎます"
-
-#~ msgid "Format non supporté"
-#~ msgstr "サポートされていない形式です"
-
-#~ msgid "OCR non disponible"
-#~ msgstr "利用可能"
-
-#~ msgid "Données manquantes"
-#~ msgstr "データが不足しています"
-
-#~ msgid "Note invalide (1-5)"
-#~ msgstr "無効な評価 (1-5)"
-
-#~ msgid "Merci pour votre évaluation !"
-#~ msgstr "評価いただきありがとうございます！"
-
-#~ msgid "Fermer"
-#~ msgstr "閉じる"
-
-#~ msgid "Votre avis compte !"
-#~ msgstr "あなたの意見をお聞かせください！"
-
-#~ msgid "Comment évaluez-vous votre expérience avec notre outil PDF ?"
-#~ msgstr "当社のPDFツールのご体験はいかがでしたか？"
-
-#~ msgid "Merci ! Avez-vous des suggestions d’amélioration ?"
-#~ msgstr "ありがとうございます！改善点のご提案はありますか？"
-
-#~ msgid "Envoyer mon évaluation"
-#~ msgstr "評価を送信する"
-
-#~ msgid "Peut-être plus tard"
-#~ msgstr "後でする"
-
-#~ msgid "Évaluer l’application"
-#~ msgstr "アプリを評価する"
-
-#~ msgid "Donnez votre avis"
-#~ msgstr "意見を送信"
-
-#~ msgid "Merci pour votre retour !"
-#~ msgstr "フィードバックありがとうございます！"
-
-#~ msgid "Votre évaluation nous aide à améliorer notre service."
-#~ msgstr "お客様の評価はサービス向上の役に立ちます。"
-
-#~ msgid "Une erreur est survenue. Veuillez réessayer."
-#~ msgstr "エラーが発生しました。もう一度お試しください。"
-
-#~ msgid "PDF Fusion Pro - Outils PDF Gratuits"
-#~ msgstr "PDF Fusion Pro - 無料PDFツール"
-
-#~ msgid ""
-#~ "Outils PDF gratuits pour fusionner, "
-#~ "diviser, compresser et convertir vos "
-#~ "fichiers en ligne. Rapide, sécurisé et"
-#~ " sans installation."
-#~ msgstr "PDFファイルを結合、分割、圧縮、変換する無料オンラインツール。高速、安全、インストール不要。"
-
-#~ msgid ""
-#~ "PDF, convertisseur, fusionner, diviser, "
-#~ "compresser, OCR, Word, Excel, PowerPoint, "
-#~ "image"
-#~ msgstr "PDF、コンバーター、結合、分割、圧縮、OCR、Word、Excel、PowerPoint、画像"
-
-#~ msgid "PDF Fusion Pro - Convertisseur de fichiers"
-#~ msgstr "PDF Fusion Pro - ファイルコンバーター"
-
-#~ msgid ""
-#~ "Convertissez gratuitement vos fichiers PDF,"
-#~ " Word, Excel, images en ligne"
-#~ msgstr "PDF、Word、Excel、画像ファイルをオンラインで無料変換"
-
-#~ msgid "PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid "Convertir"
-#~ msgstr "変換"
-
-#~ msgid "Convertir en PDF"
-#~ msgstr "PDFに変換"
-
-#~ msgid "Convertir depuis PDF"
-#~ msgstr "PDFから変換"
-
-#~ msgid "PDF en Word"
-#~ msgstr "PDF → Word"
-
-#~ msgid "Outils PDF"
-#~ msgstr "PDFツール"
-
-#~ msgid "Fusionner PDF"
-#~ msgstr "PDF結合"
-
-#~ msgid "Compresser PDF"
-#~ msgstr "PDF圧縮"
-
-#~ msgid "Autres conversions"
-#~ msgstr "その他の変換"
-
-#~ msgid "Toutes les conversions"
-#~ msgstr "すべての変換"
-
-#~ msgid "Fusionner"
-#~ msgstr "結合"
-
-#~ msgid "Diviser"
-#~ msgstr "分割"
-
-#~ msgid "Tourner"
-#~ msgstr "回転"
-
-#~ msgid "Compresser"
-#~ msgstr "圧縮"
-
-#~ msgid "À propos"
-#~ msgstr "概要"
-
-#~ msgid ""
-#~ "Outils PDF gratuits en ligne. "
-#~ "Convertissez, fusionnez, divisez et compressez"
-#~ " vos fichiers PDF."
-#~ msgstr "無料のオンラインPDFツール。PDFファイルの変換、結合、分割、圧縮ができます。"
-
-#~ msgid ""
-#~ "Vos fichiers sont traités de manière "
-#~ "sécurisée et supprimés automatiquement."
-#~ msgstr "ファイルは安全に処理され、自動的に削除されます。"
-
-#~ msgid "Outils"
-#~ msgstr "ツール"
-
-#~ msgid "Tourner PDF"
-#~ msgstr "PDF回転"
-
-#~ msgid "Mentions légales"
-#~ msgstr "法的通知"
-
-#~ msgid "Confidentialité"
-#~ msgstr "プライバシー"
-
-#~ msgid "Conditions d'utilisation"
-#~ msgstr "利用規約"
-
-#~ msgid "Tous droits réservés."
-#~ msgstr "全著作権所有。"
-
-#~ msgid "Version"
-#~ msgstr "バージョン"
-
-#~ msgid "Hébergé sur Render"
-#~ msgstr "Renderでホスト"
-
-#~ msgid "Chargement..."
-#~ msgstr "PDFを読み込み中..."
-
-#~ msgid "Traitement en cours..."
-#~ msgstr "処理中..."
-
-#~ msgid "Veuillez patienter"
-#~ msgstr "しばらくお待ちください"
-
-#~ msgid "Conditions"
-#~ msgstr "ログイン"
-
-#~ msgid "Retour à l'accueil"
-#~ msgstr "ホームに戻る"
-
-#~ msgid "caractères"
-#~ msgstr "文字"
-
-#~ msgid "Télécharger"
-#~ msgstr "ダウンロード"
-
-#~ msgid "Sécurisé"
-#~ msgstr "安全"
-
-#~ msgid "Vos fichiers sont supprimés après conversion"
-#~ msgstr "変換後、ファイルは削除されます"
-
-#~ msgid "Rapide"
-#~ msgstr "高速"
-
-#~ msgid "Conversion en quelques secondes"
-#~ msgstr "数秒で変換"
-
-#~ msgid "Confidentiel"
-#~ msgstr "プライバシー"
-
-#~ msgid "Personne n'accède à vos fichiers"
-#~ msgstr "PDFファイルを結合"
-
-#~ msgid "Accessible"
-#~ msgstr "ホーム"
-
-#~ msgid "Utilisez depuis n'importe où"
-#~ msgstr "どこからでも利用可能"
-
-#~ msgid "Comment ça marche ?"
-#~ msgstr "使い方"
-
-#~ msgid "Téléchargez votre fichier %(from_format)s."
-#~ msgstr "Téléchargez votre fichier %%(from_format)s."
-
-#~ msgid "Notre système le convertit automatiquement en %(to_format)s."
-#~ msgstr "Notre système le convertit automatiquement en %%(to_format)s."
-
-#~ msgid "Téléchargez ensuite votre fichier converti."
-#~ msgstr "次に、変換されたファイルをダウンロードします。"
-
-#~ msgid "Téléchargez vos fichiers CSV"
-#~ msgstr "CSVファイルをアップロード"
-
-#~ msgid "Glissez-déposez vos fichiers CSV ici"
-#~ msgstr "ここにCSVファイルをドラッグ＆ドロップ"
-
-#~ msgid "ou"
-#~ msgstr "または"
-
-#~ msgid "Formats acceptés : CSV, TXT (jusqu'à 50MB par fichier)"
-#~ msgstr "対応形式: CSV, TXT (各ファイル最大50MB)"
-
-#~ msgid "Options de conversion"
-#~ msgstr "すべての変換"
-
-#~ msgid "Séparateur :"
-#~ msgstr "区切り文字:"
-
-#~ msgid "Virgule (,)"
-#~ msgstr "カンマ (,)"
-
-#~ msgid "Point-virgule (;)"
-#~ msgstr "セミコロン (;)"
-
-#~ msgid "Tabulation"
-#~ msgstr "タブ"
-
-#~ msgid "Pipe (|)"
-#~ msgstr "パイプ (|)"
-
-#~ msgid "Encodage :"
-#~ msgstr "エンコーディング:"
-
-#~ msgid "La première ligne contient les en-têtes"
-#~ msgstr "最初の行を見出しとして扱う"
-
-#~ msgid "Convertir en Excel"
-#~ msgstr "PDFに変換"
-
-#~ msgid "Réinitialiser"
-#~ msgstr "リセット"
-
-#~ msgid "Conversion en cours..."
-#~ msgstr "処理中..."
-
-#~ msgid "Veuillez patienter pendant le traitement de vos fichiers"
-#~ msgstr "ファイルを処理中です。お待ちください"
-
-#~ msgid "Conversion terminée !"
-#~ msgstr "変換完了！"
-
-#~ msgid "Votre fichier Excel est prêt à être téléchargé"
-#~ msgstr "Excelファイルのダウンロード準備ができました"
-
-#~ msgid "Convertir d'autres fichiers"
-#~ msgstr "PDFファイルを結合"
-
-#~ msgid "Veuillez sélectionner au moins un fichier CSV"
-#~ msgstr "少なくとも1つのCSVファイルを選択してください"
-
-#~ msgid "Erreur lors de la conversion :"
-#~ msgstr "変換エラー:"
-
-#~ msgid "Téléchargez votre PDF"
-#~ msgstr "PDFをアップロード"
-
-#~ msgid "Glissez-déposez votre fichier PDF ici"
-#~ msgstr "ここにPDFファイルをドラッグ＆ドロップ"
-
-#~ msgid "Formats acceptés : PDF (jusqu'à 100MB)"
-#~ msgstr "対応形式: PDF (最大100MB)"
-
-#~ msgid "Ajouter du texte"
-#~ msgstr "テキストを追加"
-
-#~ msgid "Ajouter une image"
-#~ msgstr "画像を追加"
-
-#~ msgid "Gérer les pages"
-#~ msgstr "ページ管理"
-
-#~ msgid "Ajouter du texte au PDF"
-#~ msgstr "PDFにテキストを追加"
-
-#~ msgid "Texte à ajouter :"
-#~ msgstr "追加するテキスト:"
-
-#~ msgid "Saisissez votre texte ici..."
-#~ msgstr "ここにテキストを入力..."
-
-#~ msgid "Page d'insertion :"
-#~ msgstr "管理"
-
-#~ msgid "Position :"
-#~ msgstr "位置:"
-
-#~ msgid "Taille :"
-#~ msgstr "サイズ:"
-
-#~ msgid "Couleur :"
-#~ msgstr "色:"
-
-#~ msgid "Police :"
-#~ msgstr "フォント:"
-
-#~ msgid "Times New Roman"
-#~ msgstr "Times New Roman"
-
-#~ msgid "Helvetica Gras"
-#~ msgstr "Helvetica 太字"
-
-#~ msgid "Helvetica Italique"
-#~ msgstr "Helvetica 斜体"
-
-#~ msgid "Ajouter une image au PDF"
-#~ msgstr "PDFファイルを回転"
-
-#~ msgid "Glissez-déposez votre image ici"
-#~ msgstr "ここに画像をドラッグ＆ドロップ"
-
-#~ msgid "Taille originale"
-#~ msgstr "元のサイズ"
-
-#~ msgid "Ajuster à la page"
-#~ msgstr "ページに合わせる"
-
-#~ msgid "Personnalisée"
-#~ msgstr "カスタム"
-
-#~ msgid "Position X :"
-#~ msgstr "X 位置:"
-
-#~ msgid "Position Y :"
-#~ msgstr "Y 位置:"
-
-#~ msgid "Gestion des pages"
-#~ msgstr "法的通知"
-
-#~ msgid "Action :"
-#~ msgstr "満足度"
-
-#~ msgid "Réorganiser"
-#~ msgstr "並べ替え"
-
-#~ msgid "Supprimer"
-#~ msgstr "削除"
-
-#~ msgid "Rotation"
-#~ msgstr "PDF回転"
-
-#~ msgid "Faites glisser les pages pour les réorganiser"
-#~ msgstr "ページをドラッグして並べ替えます"
-
-#~ msgid "Page"
-#~ msgstr "ページ"
-
-#~ msgid "Pages à supprimer :"
-#~ msgstr "削除するページ:"
-
-#~ msgid "Ex: 1-3, 5, 7-9"
-#~ msgstr "例: 1-3, 5, 7-9"
-
-#~ msgid "Attention : La suppression est définitive"
-#~ msgstr "注意: 削除は元に戻せません"
-
-#~ msgid "Pages à tourner :"
-#~ msgstr "回転するページ:"
-
-#~ msgid "Angle :"
-#~ msgstr "角度:"
-
-#~ msgid "horaire"
-#~ msgstr "時計回り"
-
-#~ msgid "antihoraire"
-#~ msgstr "反時計回り"
-
-#~ msgid "Appliquer les modifications"
-#~ msgstr "変更を適用"
-
-#~ msgid "Édition en cours..."
-#~ msgstr "処理中..."
-
-#~ msgid "Application des modifications au document"
-#~ msgstr "ドキュメントに変更を適用中"
-
-#~ msgid "Édition terminée !"
-#~ msgstr "編集完了！"
-
-#~ msgid "Votre PDF modifié est prêt à être téléchargé"
-#~ msgstr "編集済みPDFのダウンロード準備ができました"
-
-#~ msgid "Télécharger le PDF modifié"
-#~ msgstr "編集済みPDFをダウンロード"
-
-#~ msgid "Éditer un autre PDF"
-#~ msgstr "PDFを分割"
-
-#~ msgid "Veuillez sélectionner un fichier PDF"
-#~ msgstr "PDFファイルを回転"
-
-#~ msgid "Veuillez sélectionner une image à insérer"
-#~ msgstr "ファイルを選択してください"
-
-#~ msgid "Erreur lors de l'édition :"
-#~ msgstr "編集中にエラーが発生しました:"
-
-#~ msgid "Téléchargez vos fichiers Excel"
-#~ msgstr "Excelファイルをアップロード"
-
-#~ msgid "Sélectionnez les fichiers à convertir en CSV"
-#~ msgstr "CSVに変換するファイルを選択"
-
-#~ msgid "Formats acceptés : XLS, XLSX (jusqu'à 50MB par fichier)"
-#~ msgstr "対応形式: XLS, XLSX (各ファイル最大50MB)"
-
-#~ msgid "Feuille à exporter :"
-#~ msgstr "エクスポートするシート:"
-
-#~ msgid "Première feuille"
-#~ msgstr "最初のシート"
-
-#~ msgid "Toutes les feuilles (archive ZIP)"
-#~ msgstr "全シート (ZIPアーカイブ)"
-
-#~ msgid "Inclure les en-têtes"
-#~ msgstr "見出しを含める"
-
-#~ msgid "Ajouter BOM UTF-8 (compatible Excel)"
-#~ msgstr "UTF-8 BOMを追加する (Excel互換)"
-
-#~ msgid "Convertir en CSV"
-#~ msgstr "PDFに変換"
-
-#~ msgid "Vos fichiers CSV sont prêts à être téléchargés"
-#~ msgstr "CSVファイルのダウンロード準備ができました"
-
-#~ msgid "Veuillez sélectionner au moins un fichier Excel"
-#~ msgstr "少なくとも1つのExcelファイルを選択してください"
-
-#~ msgid "Sélectionnez les fichiers à convertir en PDF"
-#~ msgstr "PDFファイルを結合"
-
-#~ msgid "Formats acceptés : XLS, XLSX, XLSM (jusqu'à 50MB par fichier)"
-#~ msgstr "対応形式: XLS, XLSX, XLSM (各ファイル最大50MB)"
-
-#~ msgid "Orientation :"
-#~ msgstr "PDF回転"
-
-#~ msgid "Portrait"
-#~ msgstr "処理済みPDF"
-
-#~ msgid "Paysage"
-#~ msgstr "横"
-
-#~ msgid "Format de page :"
-#~ msgstr "ページ形式:"
-
-#~ msgid "Letter"
-#~ msgstr "レター"
-
-#~ msgid "Vos fichiers PDF sont prêts à être téléchargés"
-#~ msgstr "PDFファイルのダウンロード準備ができました"
-
-#~ msgid "Téléchargez votre fichier HTML"
-#~ msgstr "HTMLファイルをアップロード"
-
-#~ msgid "ou collez votre code directement"
-#~ msgstr "またはコードを直接貼り付け"
-
-#~ msgid "Glissez-déposez votre fichier HTML ici"
-#~ msgstr "ここにHTMLファイルをドラッグ＆ドロップ"
-
-#~ msgid "Formats acceptés : HTML, HTM"
-#~ msgstr "対応形式: HTML, HTM"
-
-#~ msgid "Ou collez votre code HTML :"
-#~ msgstr "またはHTMLコードを貼り付け:"
-
-#~ msgid ""
-#~ "&lt;!DOCTYPE html&gt;\n"
-#~ "&lt;html&gt;\n"
-#~ "&lt;head&gt;\n"
-#~ "    &lt;title&gt;Ma page&lt;/title&gt;\n"
-#~ "&lt;/head&gt;\n"
-#~ "&lt;body&gt;\n"
-#~ "    &lt;h1&gt;Titre&lt;/h1&gt;\n"
-#~ "    &lt;p&gt;Contenu...&lt;/p&gt;\n"
-#~ "&lt;/body&gt;\n"
-#~ "&lt;/html&gt;"
-#~ msgstr ""
-#~ "&lt;!DOCTYPE html&gt;\n"
-#~ "&lt;html&gt;\n"
-#~ "&lt;head&gt;\n"
-#~ "    &lt;title&gt;マイページ&lt;/title&gt;\n"
-#~ "&lt;/head&gt;\n"
-#~ "&lt;body&gt;\n"
-#~ "    &lt;h1&gt;タイトル&lt;/h1&gt;\n"
-#~ "    &lt;p&gt;コンテンツ...&lt;/p&gt;\n"
-#~ "&lt;/body&gt;\n"
-#~ "&lt;/html&gt;"
-
-#~ msgid "Lettre"
-#~ msgstr "レター"
-
-#~ msgid "Marges (mm) :"
-#~ msgstr "余白 (mm):"
-
-#~ msgid "Inclure les images"
-#~ msgstr "画像を含める"
-
-#~ msgid "Activer JavaScript"
-#~ msgstr "JavaScriptを有効にする"
-
-#~ msgid "Veuillez patienter pendant le traitement de votre fichier"
-#~ msgstr "ファイルを処理中です。お待ちください"
-
-#~ msgid "Votre PDF est prêt à être téléchargé"
-#~ msgstr "PDFのダウンロード準備ができました"
-
-#~ msgid "Télécharger le PDF"
-#~ msgstr "PDF保護"
-
-#~ msgid "Convertir un autre fichier"
-#~ msgstr "PDFに変換"
-
-#~ msgid "Veuillez sélectionner un fichier ou coller du code HTML"
-#~ msgstr "ファイルを選択するか、HTMLコードを貼り付けてください"
-
-#~ msgid "Téléchargez votre image ou PDF"
-#~ msgstr "画像またはPDFをアップロード"
-
-#~ msgid "Glissez-déposez votre fichier ici"
-#~ msgstr "ここにファイルをドラッグ＆ドロップ"
-
-#~ msgid "Formats acceptés : JPG, PNG, BMP, TIFF, WEBP, PDF (jusqu'à 50MB)"
-#~ msgstr "対応形式: JPG, PNG, BMP, TIFF, WEBP, PDF (最大50MB)"
-
-#~ msgid "Options d'extraction"
-#~ msgstr "利用規約"
-
-#~ msgid "Mode d'extraction"
-#~ msgstr "抽出モード"
-
-#~ msgid "Automatique"
-#~ msgstr "自動"
-
-#~ msgid "Détection intelligente des tableaux"
-#~ msgstr "インテリジェントな表検出"
-
-#~ msgid "Grille"
-#~ msgstr "グリッド"
-
-#~ msgid "Extraction par grille fixe"
-#~ msgstr "固定グリッド抽出"
-
-#~ msgid "Options"
-#~ msgstr "ツール"
-
-#~ msgid "Détecter les en-têtes"
-#~ msgstr "見出しを検出"
-
-#~ msgid "Fusionner les cellules"
-#~ msgstr "PDFを結合"
-
-#~ msgid "Précision OCR"
-#~ msgstr "OCR精度"
-
-#~ msgid "Haute (plus lent)"
-#~ msgstr "高 (遅い)"
-
-#~ msgid "Moyenne (équilibré)"
-#~ msgstr "中 (バランス)"
-
-#~ msgid "Basse (plus rapide)"
-#~ msgstr "低 (速い)"
-
-#~ msgid "Format de sortie"
-#~ msgstr "出力形式"
-
-#~ msgid "Excel (XLSX)"
-#~ msgstr "Excel (XLSX)"
-
-#~ msgid "tableau(x) détecté(s)"
-#~ msgstr "検出された表"
-
-#~ msgid "cellule(s)"
-#~ msgstr "セル"
-
-#~ msgid "Prêt pour extraction"
-#~ msgstr "抽出準備完了"
-
-#~ msgid "Extraire les tableaux"
-#~ msgstr "表を抽出"
-
-#~ msgid "Analyse des tableaux en cours"
-#~ msgstr "表を分析中"
-
-#~ msgid "Détection des structures tabulaires..."
-#~ msgstr "表構造を検出中..."
-
-#~ msgid "Tableaux détectés"
-#~ msgstr "表を検出しました"
-
-#~ msgid "Cellules extraites"
-#~ msgstr "抽出されたセル"
-
-#~ msgid "Confiance"
-#~ msgstr "お問い合わせ"
-
-#~ msgid "Extraction terminée !"
-#~ msgstr "抽出完了！"
-
-#~ msgid "Aperçu des données"
-#~ msgstr "データプレビュー"
-
-#~ msgid "lignes extraites"
-#~ msgstr "抽出された行"
-
-#~ msgid "Télécharger Excel"
-#~ msgstr "Excelをダウンロード"
-
-#~ msgid "Nouvelle extraction"
-#~ msgstr "新規抽出"
-
-#~ msgid "Veuillez sélectionner un fichier"
-#~ msgstr "ファイルを選択してください"
-
-#~ msgid "Prétraitement de l'image..."
-#~ msgstr "処理中..."
-
-#~ msgid "Détection des contours..."
-#~ msgstr "輪郭を検出中..."
-
-#~ msgid "Identification des lignes..."
-#~ msgstr "行・列を識別中..."
-
-#~ msgid "Extraction du contenu..."
-#~ msgstr "コンテンツを抽出中..."
-
-#~ msgid "Structuration des données..."
-#~ msgstr "データを構造化中..."
-
-#~ msgid "Finalisation..."
-#~ msgstr "管理"
-
-#~ msgid "Erreur lors de l'extraction :"
-#~ msgstr "抽出エラー:"
-
-#~ msgid "Téléchargez vos images"
-#~ msgstr "画像をアップロード"
-
-#~ msgid "Sélectionnez les images à convertir en PDF"
-#~ msgstr "PDFに変換する画像を選択"
-
-#~ msgid "Glissez-déposez vos images ici"
-#~ msgstr "ここに画像をドラッグ＆ドロップ"
-
-#~ msgid ""
-#~ "Formats acceptés : JPG, PNG, BMP, "
-#~ "GIF, TIFF, WEBP (jusqu'à 50MB par "
-#~ "fichier)"
-#~ msgstr "対応形式: JPG、PNG、BMP、GIF、TIFF、WEBP (ファイルあたり最大50MB)"
-
-#~ msgid "Qualité :"
-#~ msgstr "品質:"
-
-#~ msgid "Haute (fichier plus gros)"
-#~ msgstr "高 (ファイル大)"
-
-#~ msgid "Moyenne"
-#~ msgstr "中"
-
-#~ msgid "Basse (fichier plus petit)"
-#~ msgstr "低 (ファイル小)"
-
-#~ msgid "Fusionner toutes les images en un seul PDF"
-#~ msgstr "全ての画像を1つのPDFに結合"
-
-#~ msgid "Veuillez patienter pendant le traitement de vos images"
-#~ msgstr "画像を処理中です。お待ちください"
-
-#~ msgid "Traitement de 0/{total} images..."
-#~ msgstr "Traitement de 0/{total} images..."
-
-#~ msgid "Convertir d'autres images"
-#~ msgstr "PDFから変換"
-
-#~ msgid "Veuillez sélectionner au moins une image"
-#~ msgstr "少なくとも1つの画像を選択してください"
-
-#~ msgid "Traitement de"
-#~ msgstr "処理中..."
-
-#~ msgid "images..."
-#~ msgstr "画像..."
-
-#~ msgid "images terminé"
-#~ msgstr "画像 → PDF"
-
-#~ msgid "Convertissez images et PDF en documents Word éditables avec OCR"
-#~ msgstr "OCRで画像やPDFを編集可能なWord文書に変換"
-
-#~ msgid "Glissez-déposez vos fichiers ici"
-#~ msgstr "ファイルをここにドラッグ＆ドロップしてください"
-
-#~ msgid "Paramètres OCR avancés"
-#~ msgstr "高度なOCR設定"
-
-#~ msgid "Langues de reconnaissance"
-#~ msgstr "認識言語"
-
-#~ msgid "Français"
-#~ msgstr "フランス語"
-
-#~ msgid "Anglais"
-#~ msgstr "英語"
-
-#~ msgid "Espagnol"
-#~ msgstr "スペイン語"
-
-#~ msgid "Allemand"
-#~ msgstr "ドイツ語"
-
-#~ msgid "Italien"
-#~ msgstr "イタリア語"
-
-#~ msgid "Portugais"
-#~ msgstr "ポルトガル語"
-
-#~ msgid "Niveau de confiance OCR"
-#~ msgstr "OCR信頼度レベル"
-
-#~ msgid "Bas (plus de texte)"
-#~ msgstr "低 (より多くのテキスト)"
-
-#~ msgid "Haut (plus précis)"
-#~ msgstr "高 (より正確)"
-
-#~ msgid "Conserver la mise en page"
-#~ msgstr "レイアウトを保持"
-
-#~ msgid "Maintient les paragraphes et colonnes"
-#~ msgstr "段落と列を維持"
-
-#~ msgid "Prétraitement d'image"
-#~ msgstr "画像前処理"
-
-#~ msgid "Aucun"
-#~ msgstr "なし"
-
-#~ msgid "Niveaux de gris"
-#~ msgstr "グレースケール"
-
-#~ msgid "Binarisation (recommandé)"
-#~ msgstr "二値化 (推奨)"
-
-#~ msgid "Réduction du bruit"
-#~ msgstr "ノイズ軽減"
-
-#~ msgid "Correction inclinaison"
-#~ msgstr "傾き補正"
-
-#~ msgid "DOCX (Word moderne)"
-#~ msgstr "DOCX (最新Word)"
-
-#~ msgid "DOC (Word ancien)"
-#~ msgstr "DOC (旧バージョンWord)"
-
-#~ msgid "TXT (texte brut)"
-#~ msgstr "TXT (プレーンテキスト)"
-
-#~ msgid "RTF (format riche)"
-#~ msgstr "RTF (リッチテキスト)"
-
-#~ msgid "Extraire et convertir en Word"
-#~ msgstr "PDFに変換"
-
-#~ msgid "Extraction OCR en cours"
-#~ msgstr "処理中..."
-
-#~ msgid "Analyse du document et reconnaissance de texte..."
-#~ msgstr "ドキュメント分析とテキスト認識中..."
-
-#~ msgid "Recherche des zones de texte..."
-#~ msgstr "テキスト領域を検索中..."
-
-#~ msgid "Extraction réussie !"
-#~ msgstr "抽出成功！"
-
-#~ msgid "Votre document Word est prêt au téléchargement"
-#~ msgstr "Word文書のダウンロード準備ができました"
-
-#~ msgid "Télécharger Word"
-#~ msgstr "Wordをダウンロード"
-
-#~ msgid "Caractères extraits"
-#~ msgstr "抽出された文字数"
-
-#~ msgid "Mots détectés"
-#~ msgstr "検出された単語数"
-
-#~ msgid "Lignes"
-#~ msgstr "行数"
-
-#~ msgid "Optimisation de l'image pour l'OCR"
-#~ msgstr "OCR用に画像を最適化中"
-
-#~ msgid "Analyse des zones de texte..."
-#~ msgstr "テキスト領域を分析中..."
-
-#~ msgid "Détection des paragraphes et colonnes"
-#~ msgstr "段落と列を検出中"
-
-#~ msgid "Reconnaissance des caractères..."
-#~ msgstr "文字を認識中..."
-
-#~ msgid "Analyse des formes et patterns"
-#~ msgstr "形状とパターンを分析中"
-
-#~ msgid "Correction orthographique..."
-#~ msgstr "スペルチェック中..."
-
-#~ msgid "Vérification du vocabulaire"
-#~ msgstr "語彙を検証中"
-
-#~ msgid "Structuration du document..."
-#~ msgstr "ドキュメントを構造化中..."
-
-#~ msgid "Organisation en paragraphes"
-#~ msgstr "段落に整理中"
-
-#~ msgid "Préparation du document Word"
-#~ msgstr "Word文書を準備中"
-
-#~ msgid "Document prêt"
-#~ msgstr "ドキュメント準備完了"
-
-#~ msgid "Transformez vos documents en tous formats, gratuitement et en ligne"
-#~ msgstr "ドキュメントをあらゆる形式に無料でオンライン変換"
-
-#~ msgid ""
-#~ "Convertissez PDF, Word, Excel, PowerPoint, "
-#~ "images et plus encore. Simple, rapide"
-#~ " et sécurisé."
-#~ msgstr "Word、Excel、PowerPoint、画像ファイルをPDFに変換、またはPDFから変換"
-
-#~ msgid "Découvrir les outils"
-#~ msgstr "ツールを見る"
-
-#~ msgid "Outils de conversion"
-#~ msgstr "すべての変換"
-
-#~ msgid "Gratuit"
-#~ msgstr "無料"
-
-#~ msgid "Max par fichier"
-#~ msgstr "ファイル最大"
-
-#~ msgid "Conversions illimitées"
-#~ msgstr "変換回数無制限"
-
-#~ msgid "outils disponibles"
-#~ msgstr "利用可能"
-
-#~ msgid "Fichiers traités localement et supprimés après conversion"
-#~ msgstr "ファイルはローカル処理され、変換後に削除"
-
-#~ msgid "Conversion en quelques secondes, sans attente"
-#~ msgstr "待ち時間なし、数秒で変換"
-
-#~ msgid "Multiplateforme"
-#~ msgstr "マルチプラットフォーム"
-
-#~ msgid "Compatible avec tous les navigateurs modernes"
-#~ msgstr "すべてのモダンブラウザに対応"
-
-#~ msgid "Illimité"
-#~ msgstr "無制限"
-
-#~ msgid "Aucune limite sur le nombre de conversions"
-#~ msgstr "変換回数に制限なし"
-
-#~ msgid "Toutes les conversions disponibles"
-#~ msgstr "すべての変換"
-
-#~ msgid "Utiliser"
-#~ msgstr "ユーザー数"
-
-#~ msgid "Choisissez votre outil de conversion"
-#~ msgstr "変換ツールを選択"
-
-#~ msgid "Téléchargez votre fichier source"
-#~ msgstr "ソースファイルをアップロード"
-
-#~ msgid "Configurez les options (si besoin)"
-#~ msgstr "オプションを設定 (必要に応じて)"
-
-#~ msgid "Lancez la conversion"
-#~ msgstr "その他の変換"
-
-#~ msgid "Téléchargez votre fichier converti"
-#~ msgstr "変換されたファイルをダウンロード"
-
-#~ msgid "Important :"
-#~ msgstr "重要:"
-
-#~ msgid "Les fichiers sont automatiquement supprimés après 1 heure"
-#~ msgstr "ファイルは1時間後に自動削除されます"
-
-#~ msgid "Liens rapides"
-#~ msgstr "クイックリンク"
-
-#~ msgid "Dépendances système"
-#~ msgstr "システム依存関係"
-
-#~ msgid "Nettoyer fichiers temporaires"
-#~ msgstr "一時ファイルをクリーンアップ"
-
-#~ msgid "Vérifier l'état du service"
-#~ msgstr "サービス状態を確認"
-
-#~ msgid "Questions fréquentes"
-#~ msgstr "よくある質問"
-
-#~ msgid "Les fichiers sont-ils sécurisés ?"
-#~ msgstr "ファイルは安全ですか？"
-
-#~ msgid ""
-#~ "Oui, tous les fichiers sont traités "
-#~ "localement et automatiquement supprimés après"
-#~ " 1 heure. Nous ne stockons jamais "
-#~ "vos documents sur nos serveurs."
-#~ msgstr "はい、すべてのファイルはローカル処理され、1時間後に自動削除されます。お客様のドキュメントをサーバーに保存することは決してありません。"
-
-#~ msgid "Quelles sont les limites de taille ?"
-#~ msgstr "サイズ制限はありますか？"
-
-#~ msgid ""
-#~ "Taille maximale par fichier : 50MB. "
-#~ "Nombre maximum de fichiers par "
-#~ "conversion : variable selon l'outil (de"
-#~ " 1 à 20)."
-#~ msgstr "ファイル最大サイズ: 50MB。変換あたりの最大ファイル数: ツールにより異なります (1〜20)。"
-
-#~ msgid "Combien de temps dure une conversion ?"
-#~ msgstr "変換にはどのくらい時間がかかりますか？"
-
-#~ msgid ""
-#~ "La plupart des conversions prennent "
-#~ "moins de 30 secondes. Pour les "
-#~ "gros fichiers ou les conversions "
-#~ "complexes (OCR), comptez 1 à 2 "
-#~ "minutes."
-#~ msgstr "ほとんどの変換は30秒以内です。大きなファイルや複雑な変換(OCR)の場合は1〜2分かかることがあります。"
-
-#~ msgid "Quels formats sont supportés ?"
-#~ msgstr "どの形式がサポートされていますか？"
-
-#~ msgid ""
-#~ "Nous supportons plus de 20 formats "
-#~ ": PDF, DOC, DOCX, XLS, XLSX, PPT,"
-#~ " PPTX, JPG, PNG, GIF, BMP, TIFF, "
-#~ "CSV, et plus encore."
-#~ msgstr ""
-#~ "20以上の形式をサポート: PDF, DOC, DOCX, XLS, XLSX,"
-#~ " PPT, PPTX, JPG, PNG, GIF, BMP, "
-#~ "TIFF, CSV など。"
-
-#~ msgid "Téléchargez vos images JPG"
-#~ msgstr "JPG画像をアップロード"
-
-#~ msgid "Formats acceptés : JPG, JPEG (jusqu'à 20 fichiers)"
-#~ msgstr "対応形式: JPG, JPEG (最大20ファイル)"
-
-#~ msgid "A4 (21 x 29,7 cm)"
-#~ msgstr "A4 (21 x 29.7 cm)"
-
-#~ msgid "Lettre (21,6 x 27,9 cm)"
-#~ msgstr "レター (21.6 x 27.9 cm)"
-
-#~ msgid "Legal (21,6 x 35,6 cm)"
-#~ msgstr "リーガル (21.6 x 35.6 cm)"
-
-#~ msgid "Haute (recommandé)"
-#~ msgstr "高 (推奨)"
-
-#~ msgid "Veuillez sélectionner des fichiers"
-#~ msgstr "PDFファイルを結合"
-
-#~ msgid "Convertissez votre PDF en DOC"
-#~ msgstr "PDFに変換"
-
-#~ msgid ""
-#~ "Transformez vos documents PDF en format"
-#~ " Word compatible avec les anciennes "
-#~ "versions"
-#~ msgstr "PDF文書を古いバージョン互換のWord形式に変換"
-
-#~ msgid "Format accepté : PDF (jusqu'à 50MB)"
-#~ msgstr "対応形式: PDF (最大50MB)"
-
-#~ msgid "Texte uniquement"
-#~ msgstr "テキストのみ"
-
-#~ msgid "Texte et images"
-#~ msgstr "テキストと画像"
-
-#~ msgid "Choisissez le niveau de détail à conserver"
-#~ msgstr "保持する詳細レベルを選択"
-
-#~ msgid "Langue du document"
-#~ msgstr "ドキュメントの言語"
-
-#~ msgid "Améliore la reconnaissance du texte"
-#~ msgstr "テキスト認識を向上"
-
-#~ msgid "Détecter les tableaux"
-#~ msgstr "表を検出"
-
-#~ msgid "Convertit automatiquement les tableaux en format Word"
-#~ msgstr "表を自動的にWord形式に変換"
-
-#~ msgid "Conserver la mise en forme"
-#~ msgstr "書式を保持"
-
-#~ msgid "Maintient les polices, tailles et styles"
-#~ msgstr "フォント、サイズ、スタイルを維持"
-
-#~ msgid "Format DOC :"
-#~ msgstr "DOC形式:"
-
-#~ msgid "Compatible avec Microsoft Word 97-2003 et les anciennes versions."
-#~ msgstr "Microsoft Word 97-2003 および以前のバージョンと互換性があります。"
-
-#~ msgid "Pour un format plus récent, utilisez"
-#~ msgstr "より新しい形式には、次を使用してください"
-
-#~ msgid "Convertir en DOC"
-#~ msgstr "PDFに変換"
-
-#~ msgid "Analyse et conversion de votre PDF..."
-#~ msgstr "PDFを分析・変換中..."
-
-#~ msgid "Extraction du texte..."
-#~ msgstr "テキストを抽出中..."
-
-#~ msgid "Conversion réussie !"
-#~ msgstr "変換成功！"
-
-#~ msgid "Votre document DOC est prêt au téléchargement"
-#~ msgstr "DOC文書のダウンロード準備ができました"
-
-#~ msgid "Télécharger DOC"
-#~ msgstr "DOCをダウンロード"
-
-#~ msgid "Nouvelle conversion"
-#~ msgstr "すべての変換"
-
-#~ msgid "Pages traitées"
-#~ msgstr "処理済みPDF"
-
-#~ msgid "Taille du fichier"
-#~ msgstr "ファイルサイズ"
-
-#~ msgid "Format"
-#~ msgstr "形式"
-
-#~ msgid "Analyse du PDF..."
-#~ msgstr "PDFを分析中..."
-
-#~ msgid "Lecture de la structure du document"
-#~ msgstr "ドキュメント構造を読み取り中"
-
-#~ msgid "Récupération du contenu textuel"
-#~ msgstr "テキストコンテンツを取得中"
-
-#~ msgid "Conservation de la mise en page..."
-#~ msgstr "レイアウトを保持中..."
-
-#~ msgid "Préservation des paragraphes et styles"
-#~ msgstr "段落とスタイルを保持中"
-
-#~ msgid "Traitement des tableaux..."
-#~ msgstr "処理中..."
-
-#~ msgid "Conversion des structures tabulaires"
-#~ msgstr "表構造を変換中"
-
-#~ msgid "Génération du document..."
-#~ msgstr "ドキュメントを生成中..."
-
-#~ msgid "Création du fichier DOC"
-#~ msgstr "PDFファイルを結合"
-
-#~ msgid "Extrayez les tableaux de votre PDF"
-#~ msgstr "PDFから表を抽出"
-
-#~ msgid "Convertissez vos tableaux PDF en feuilles de calcul Excel"
-#~ msgstr "PDFの表をExcelスプレッドシートに変換"
-
-#~ msgid "Extraire les tableaux uniquement"
-#~ msgstr "表のみ抽出"
-
-#~ msgid "Extraire tout le texte"
-#~ msgstr "すべてのテキストを抽出"
-
-#~ msgid "Détection intelligente"
-#~ msgstr "インテリジェント検出"
-
-#~ msgid "Choisissez comment extraire les données"
-#~ msgstr "データ抽出方法を選択"
-
-#~ msgid "Améliore la reconnaissance OCR"
-#~ msgstr "OCR認識を向上"
-
-#~ msgid "Activer l'OCR"
-#~ msgstr "OCRを有効化"
-
-#~ msgid "Pour les PDF scannés ou les images"
-#~ msgstr "スキャンされたPDFや画像向け"
-
-#~ msgid "Maintient les styles et couleurs"
-#~ msgstr "スタイルと色を維持"
-
-#~ msgid "Extraction intelligente :"
-#~ msgstr "インテリジェント抽出:"
-
-#~ msgid ""
-#~ "Les tableaux seront automatiquement détectés"
-#~ " et convertis en feuilles Excel. "
-#~ "L'OCR permet de reconnaître le texte "
-#~ "dans les documents scannés."
-#~ msgstr "表は自動的に検出され、Excelシートに変換されます。OCRによりスキャン文書内のテキストを認識できます。"
-
-#~ msgid "Extraire vers Excel"
-#~ msgstr "画像 → Excel"
-
-#~ msgid "Extraction en cours..."
-#~ msgstr "処理中..."
-
-#~ msgid "Analyse et extraction des données..."
-#~ msgstr "データ分析と抽出中..."
-
-#~ msgid "Lignes extraites"
-#~ msgstr "抽出された行"
-
-#~ msgid "Colonnes"
-#~ msgstr "列数"
-
-#~ msgid "Recherche de tableaux dans le document..."
-#~ msgstr "ドキュメント内の表を検索中..."
-
-#~ msgid "Votre fichier Excel est prêt au téléchargement"
-#~ msgstr "Excelファイルのダウンロード準備ができました"
-
-#~ msgid "Tableaux"
-#~ msgstr "表の数"
-
-#~ msgid "Cellules"
-#~ msgstr "セル数"
-
-#~ msgid "Feuilles"
-#~ msgstr "シート数"
-
-#~ msgid "Analyse du document..."
-#~ msgstr "ドキュメントを分析中..."
-
-#~ msgid "Détection des zones de texte"
-#~ msgstr "テキスト領域を検出中"
-
-#~ msgid "Recherche de tableaux..."
-#~ msgstr "表を検索中..."
-
-#~ msgid "Identification des structures tabulaires"
-#~ msgstr "表構造を識別中"
-
-#~ msgid "Extraction des données..."
-#~ msgstr "データを抽出中..."
-
-#~ msgid "Récupération du contenu des cellules"
-#~ msgstr "セルの内容を取得中"
-
-#~ msgid "Traitement OCR..."
-#~ msgstr "処理中..."
-
-#~ msgid "Reconnaissance de texte dans les images"
-#~ msgstr "画像内のテキストを認識中"
-
-#~ msgid "Organisation en feuilles Excel"
-#~ msgstr "Excelシートに整理中"
-
-#~ msgid "Téléchargez votre fichier PDF"
-#~ msgstr "PDFファイルを回転"
-
-#~ msgid "Sélectionnez le PDF à convertir en HTML"
-#~ msgstr "HTMLに変換するPDFを選択"
-
-#~ msgid "Format accepté : PDF"
-#~ msgstr "対応形式: PDF"
-
-#~ msgid "Format de sortie :"
-#~ msgstr "出力形式:"
-
-#~ msgid "Un seul fichier HTML"
-#~ msgstr "単一HTMLファイル"
-
-#~ msgid "Plusieurs fichiers (une par page)"
-#~ msgstr "複数ファイル (ページごと)"
-
-#~ msgid "Archive ZIP"
-#~ msgstr "ZIPアーカイブ"
-
-#~ msgid "Inclure les styles CSS"
-#~ msgstr "CSSスタイルを含める"
-
-#~ msgid "Conserver les images"
-#~ msgstr "画像を保持"
-
-#~ msgid "Convertir en HTML"
-#~ msgstr "PDFに変換"
-
-#~ msgid "Veuillez patienter pendant le traitement de votre PDF"
-#~ msgstr "PDFを処理中です。お待ちください"
-
-#~ msgid "Votre fichier HTML est prêt à être téléchargé"
-#~ msgstr "HTMLファイルのダウンロード準備ができました"
-
-#~ msgid "Convertir un autre PDF"
-#~ msgstr "PDFに変換"
-
-#~ msgid "Transformez chaque page de votre PDF en image (PNG ou JPG)"
-#~ msgstr "PDFの各ページを画像(PNGまたはJPG)に変換"
-
-#~ msgid "Format d'image"
-#~ msgstr "画像形式"
-
-#~ msgid "PNG (qualité supérieure, sans perte)"
-#~ msgstr "PNG (高品質、可逆圧縮)"
-
-#~ msgid "JPG (taille réduite, compression)"
-#~ msgstr "JPG (ファイル小、圧縮あり)"
-
-#~ msgid "Le PNG préserve la qualité, le JPG est plus léger"
-#~ msgstr "PNGは品質を保持、JPGは軽量"
-
-#~ msgid "Résolution (DPI)"
-#~ msgstr "解像度 (DPI)"
-
-#~ msgid "72 DPI (web, léger)"
-#~ msgstr "72 DPI (ウェブ、軽量)"
-
-#~ msgid "150 DPI (standard)"
-#~ msgstr "150 DPI (標準)"
-
-#~ msgid "300 DPI (haute qualité, impression)"
-#~ msgstr "300 DPI (高品質、印刷用)"
-
-#~ msgid "600 DPI (très haute qualité)"
-#~ msgstr "600 DPI (超高品質)"
-
-#~ msgid "Plus de DPI = meilleure qualité, fichier plus gros"
-#~ msgstr "高DPI = 高品質、大容量ファイル"
-
-#~ msgid "Qualité (pour JPG)"
-#~ msgstr "品質 (JPG用)"
-
-#~ msgid "Haute (90-100%)"
-#~ msgstr "高 (90-100%%)"
-
-#~ msgid "Moyenne (70-80%)"
-#~ msgstr "中 (70-80%)"
-
-#~ msgid "Basse (50-60%)"
-#~ msgstr "低 (50-60%)"
-
-#~ msgid "Uniquement pour le format JPG"
-#~ msgstr "JPG形式のみ"
-
-#~ msgid "Pages à convertir"
-#~ msgstr "変換"
-
-#~ msgid "Ex: 1,3-5 ou laisser vide pour toutes"
-#~ msgstr "例: 1,3-5 または空欄ですべてのページ"
-
-#~ msgid "Exemples : \"1,3-5,7\" ou \"all\" pour toutes les pages"
-#~ msgstr "例: \"1,3-5,7\" または \"all\" ですべてのページ"
-
-#~ msgid "Fichier ZIP unique"
-#~ msgstr "単一ZIPファイル"
-
-#~ msgid "Regroupe toutes les images dans une archive ZIP"
-#~ msgstr "すべての画像を1つのZIPアーカイブにまとめる"
-
-#~ msgid "Convertir en images"
-#~ msgstr "PDFに変換"
-
-#~ msgid "Analyse et conversion des pages..."
-#~ msgstr "ページを分析・変換中..."
-
-#~ msgid "Pages totales"
-#~ msgstr "総ページ数"
-
-#~ msgid "Pages converties"
-#~ msgstr "その他の変換"
-
-#~ msgid "Taille estimée"
-#~ msgstr "推定サイズ"
-
-#~ msgid "Chargement du PDF..."
-#~ msgstr "PDFを読み込み中..."
-
-#~ msgid "Vos images sont prêtes au téléchargement"
-#~ msgstr "画像のダウンロード準備ができました"
-
-#~ msgid "Télécharger les images"
-#~ msgstr "画像をダウンロード"
-
-#~ msgid "Aperçu des images générées"
-#~ msgstr "生成された画像のプレビュー"
-
-#~ msgid "Résolution"
-#~ msgstr "解像度"
-
-#~ msgid "Taille totale"
-#~ msgstr "合計サイズ"
-
-#~ msgid "Conversion de la page"
-#~ msgstr "ページ変換"
-
-#~ msgid "convertie en"
-#~ msgstr "PDFに変換"
-
-#~ msgid ""
-#~ "Le format PDF/A garantit la pérennité"
-#~ " de vos documents pour l'archivage à"
-#~ " long terme"
-#~ msgstr "PDF/A形式は長期保存に適したドキュメントの将来性を保証します"
-
-#~ msgid "Options de conversion PDF/A"
-#~ msgstr "すべての変換"
-
-#~ msgid "PDF/A-1b (2005) - Niveau B (basique)"
-#~ msgstr "PDF/A-1b (2005) - レベルB (基本)"
-
-#~ msgid "PDF/A-1a (2005) - Niveau A (accessible)"
-#~ msgstr "PDF/A-1a (2005) - レベルA (アクセシブル)"
-
-#~ msgid "PDF/A-2b (2011) - Niveau B (recommandé)"
-#~ msgstr "PDF/A-2b (2011) - レベルB (推奨)"
-
-#~ msgid "PDF/A-2u (2011) - Unicode"
-#~ msgstr "PDF/A-2u (2011) - Unicode"
-
-#~ msgid "PDF/A-3b (2012) - Niveau B"
-#~ msgstr "PDF/A-3b (2012) - レベルB"
-
-#~ msgid "PDF/A-3u (2012) - Unicode"
-#~ msgstr "PDF/A-3u (2012) - Unicode"
-
-#~ msgid "PDF/A-2"
-#~ msgstr "PDF/A-2"
-
-#~ msgid "est recommandé pour la plupart des usages."
-#~ msgstr "はほとんどの用途に推奨されます。"
-
-#~ msgid "PDF/A-3"
-#~ msgstr "PDF/A-3"
-
-#~ msgid "permet d'incorporer des fichiers non-PDF/A."
-#~ msgstr "PDFファイルを結合"
-
-#~ msgid "Qu'est-ce que le format PDF/A ?"
-#~ msgstr "PDF/A形式とは？"
-
-#~ msgid ""
-#~ "Le PDF/A est une version standardisée"
-#~ " du PDF conçue pour l'archivage à "
-#~ "long terme. Il garantit que votre "
-#~ "document sera exactement le même dans"
-#~ " 10, 20 ou 50 ans, indépendamment "
-#~ "des logiciels utilisés."
-#~ msgstr "PDF/Aは長期保存用に設計された標準化されたPDFバージョンです。使用するソフトウェアに関係なく、10年後、20年後、50年後もドキュメントが完全に同じであることを保証します。"
-
-#~ msgid "Attention :"
-#~ msgstr "注意:"
-
-#~ msgid ""
-#~ "La conversion en PDF/A peut modifier "
-#~ "légèrement l'apparence du document pour "
-#~ "garantir sa pérennité. Les fonctionnalités "
-#~ "interactives (formulaires, JavaScript) seront "
-#~ "supprimées."
-#~ msgstr "PDF/Aへの変換は、将来性を保証するためにドキュメントの外観をわずかに変更する場合があります。対話機能（フォーム、JavaScript）は削除されます。"
-
-#~ msgid "Auto-contenu"
-#~ msgstr "自己完結型"
-
-#~ msgid "Toutes les polices sont incorporées"
-#~ msgstr "すべてのフォントが埋め込まれています"
-
-#~ msgid "Sans dépendance"
-#~ msgstr "依存関係なし"
-
-#~ msgid "Pas de liens externes"
-#~ msgstr "外部リンクなし"
-
-#~ msgid "Métadonnées"
-#~ msgstr "メタデータ"
-
-#~ msgid "Informations d'archivage"
-#~ msgstr "アーカイブ情報"
-
-#~ msgid "Standardisé"
-#~ msgstr "標準化"
-
-#~ msgid "ISO 19005"
-#~ msgstr "ISO 19005"
-
-#~ msgid "Convertir en PDF/A"
-#~ msgstr "PDFに変換"
-
-#~ msgid "Conversion en PDF/A en cours..."
-#~ msgstr "処理中..."
-
-#~ msgid "Analyse et conversion du document..."
-#~ msgstr "ドキュメントを分析・変換中..."
-
-#~ msgid "Polices incorporées"
-#~ msgstr "埋め込みフォント"
-
-#~ msgid "Conformité"
-#~ msgstr "準拠状況"
-
-#~ msgid "Vérification de la conformité PDF/A..."
-#~ msgstr "PDF/A準拠を検証中..."
-
-#~ msgid "Votre document PDF/A est prêt pour l'archivage"
-#~ msgstr "PDF/A文書の保存準備ができました"
-
-#~ msgid "Télécharger PDF/A"
-#~ msgstr "PDF保護"
-
-#~ msgid "Document certifié PDF/A"
-#~ msgstr "PDF/A認証ドキュメント"
-
-#~ msgid "Version: PDF/A-2b • Pages: 0 • Date:"
-#~ msgstr "バージョン: PDF/A-2b • ページ数: 0 • 日付:"
-
-#~ msgid "Conforme à la norme ISO 19005 pour l'archivage électronique"
-#~ msgstr "電子保存のためのISO 19005規格に準拠"
-
-#~ msgid "Taille PDF/A"
-#~ msgstr "PDFツール"
-
-#~ msgid "Conversion"
-#~ msgstr "バージョン"
-
-#~ msgid "Incorporation des polices - Page"
-#~ msgstr "フォント埋め込み中 - ページ"
-
-#~ msgid "Validation de la conformité..."
-#~ msgstr "準拠状況を検証中..."
-
-#~ msgid "Version:"
-#~ msgstr "バージョン"
-
-#~ msgid "Pages:"
-#~ msgstr "ページ数:"
-
-#~ msgid "Date:"
-#~ msgstr "日付:"
-
-#~ msgid "Transformez chaque page de votre PDF en diapositives modifiables"
-#~ msgstr "PDFの各ページを編集可能なスライドに変換"
-
-#~ msgid "Mise en page"
-#~ msgstr "ページレイアウト"
-
-#~ msgid "Une page par diapositive"
-#~ msgstr "1ページにつき1スライド"
-
-#~ msgid "Plusieurs pages par diapositive"
-#~ msgstr "1スライドに複数ページ"
-
-#~ msgid "Document de distribution (2 pages/feuille)"
-#~ msgstr "配布資料 (用紙1枚あたり2ページ)"
-
-#~ msgid "Choisissez comment organiser vos pages"
-#~ msgstr "ページの整理方法を選択"
-
-#~ msgid "Format de diapositive"
-#~ msgstr "スライド形式"
-
-#~ msgid "Standard (4:3) - Écrans classiques"
-#~ msgstr "標準 (4:3) - 従来の画面"
-
-#~ msgid "Widescreen (16:9) - Écrans larges"
-#~ msgstr "ワイドスクリーン (16:9) - ワイド画面"
-
-#~ msgid "Letter (21,6 x 27,9 cm)"
-#~ msgstr "レター (21.6 x 27.9 cm)"
-
-#~ msgid "Adapté à votre support de projection"
-#~ msgstr "投影メディアに合わせる"
-
-#~ msgid "Les images du PDF seront intégrées à la présentation"
-#~ msgstr "PDFの画像はプレゼンテーションに埋め込まれます"
-
-#~ msgid "Texte éditable"
-#~ msgstr "編集可能なテキスト"
-
-#~ msgid "Le texte pourra être modifié dans PowerPoint"
-#~ msgstr "テキストはPowerPointで編集可能"
-
-#~ msgid "Format PowerPoint :"
-#~ msgstr "PowerPoint → PDF"
-
-#~ msgid ""
-#~ "Le fichier généré est au format "
-#~ "PPTX, compatible avec PowerPoint 2007 et"
-#~ " versions ultérieures, ainsi qu'avec "
-#~ "LibreOffice et Google Slides."
-#~ msgstr "生成されるファイルはPPTX形式で、PowerPoint 2007以降、LibreOffice、Google Slidesと互換性があります。"
-
-#~ msgid "Convertir en PowerPoint"
-#~ msgstr "PDFに変換"
-
-#~ msgid "Création de votre présentation PowerPoint..."
-#~ msgstr "PowerPointプレゼンテーションを作成中..."
-
-#~ msgid "Diapositives"
-#~ msgstr "スライド数"
-
-#~ msgid "Images intégrées"
-#~ msgstr "埋め込み画像数"
-
-#~ msgid "Votre présentation PowerPoint est prête"
-#~ msgstr "PowerPointプレゼンテーションの準備ができました"
-
-#~ msgid "Télécharger PowerPoint"
-#~ msgstr "PowerPointをダウンロード"
-
-#~ msgid "Taille"
-#~ msgstr "サイズ"
-
-#~ msgid "Mode"
-#~ msgstr "モード"
-
-#~ msgid "1 page/diapo"
-#~ msgstr "1ページ/スライド"
-
-#~ msgid "Aperçu des premières diapositives"
-#~ msgstr "最初のスライドのプレビュー"
-
-#~ msgid "Création des diapositives (page"
-#~ msgstr "スライド作成中 (ページ"
-
-#~ msgid "2 pages/diapo"
-#~ msgstr "2ページ/スライド"
-
-#~ msgid "Document"
-#~ msgstr "ドキュメント"
-
-#~ msgid "Diapo"
-#~ msgstr "スライド"
-
-#~ msgid "Sélectionnez le PDF dont vous voulez extraire le texte"
-#~ msgstr "テキストを抽出するPDFを選択"
-
-#~ msgid "Ajouter des marqueurs de page"
-#~ msgstr "ページマーカーを追加"
-
-#~ msgid "Extraire toutes les pages"
-#~ msgstr "すべてのページを抽出"
-
-#~ msgid "Pages à extraire :"
-#~ msgstr "抽出するページ:"
-
-#~ msgid "Exemple: 1-5,8,11-13"
-#~ msgstr "例: 1-5,8,11-13"
-
-#~ msgid "Spécifiez les pages à extraire (ex: 1-3,5,7-9)"
-#~ msgstr "抽出するページを指定 (例: 1-3,5,7-9)"
-
-#~ msgid "Extraire le texte"
-#~ msgstr "テキストを抽出"
-
-#~ msgid "Veuillez patienter pendant l'extraction du texte"
-#~ msgstr "テキスト抽出中です。お待ちください"
-
-#~ msgid "Votre fichier texte est prêt à être téléchargé"
-#~ msgstr "テキストファイルのダウンロード準備ができました"
-
-#~ msgid "Télécharger le texte"
-#~ msgstr "テキストをダウンロード"
-
-#~ msgid "Extraire un autre PDF"
-#~ msgstr "別のPDFを抽出"
-
-#~ msgid "Veuillez spécifier les pages à extraire"
-#~ msgstr "抽出するページを指定してください"
-
-#~ msgid "Format de pages invalide. Utilisez le format: 1-5,8,11-13"
-#~ msgstr "無効なページ形式です。形式を使用してください: 1-5,8,11-13"
-
-#~ msgid ""
-#~ "Transformez vos PDF en documents Word"
-#~ " modifiables avec mise en page "
-#~ "préservée"
-#~ msgstr "レイアウトを保持したまま、PDFを編集可能なWord文書に変換"
-
-#~ msgid "Texte uniquement (plus léger)"
-#~ msgstr "テキストのみ (軽量)"
-
-#~ msgid "Conserver la mise en page (recommandé)"
-#~ msgstr "レイアウトを保持 (推奨)"
-
-#~ msgid "Texte et images (complet)"
-#~ msgstr "テキストと画像 (完全)"
-
-#~ msgid "Format Word :"
-#~ msgstr "Word形式:"
-
-#~ msgid ""
-#~ "Le fichier généré est au format "
-#~ "DOCX, compatible avec Microsoft Word "
-#~ "2007 et versions ultérieures, ainsi "
-#~ "qu'avec LibreOffice et Google Docs."
-#~ msgstr ""
-#~ "生成されるファイルはDOCX形式で、Microsoft Word 2007以降、LibreOffice、Google"
-#~ " Docsと互換性があります。"
-
-#~ msgid "Convertir en Word"
-#~ msgstr "PDFに変換"
-
-#~ msgid "Paragraphes"
-#~ msgstr "段落数"
-
-#~ msgid "Images détectées"
-#~ msgstr "検出された画像数"
-
-#~ msgid "Votre document Word est prêt"
-#~ msgstr "Word文書の準備ができました"
-
-#~ msgid "Pages"
-#~ msgstr "ページ数"
-
-#~ msgid "Mots"
-#~ msgstr "ツール"
-
-#~ msgid "Caractères"
-#~ msgstr "文字数"
-
-#~ msgid "Aperçu du texte extrait"
-#~ msgstr "抽出されたテキストのプレビュー"
-
-#~ msgid ""
-#~ "Lorem ipsum dolor sit amet, consectetur"
-#~ " adipiscing elit. Sed do eiusmod "
-#~ "tempor incididunt ut labore et dolore"
-#~ " magna aliqua. Ut enim ad minim "
-#~ "veniam, quis nostrud exercitation ullamco "
-#~ "laboris nisi ut aliquip ex ea "
-#~ "commodo consequat."
-#~ msgstr ""
-#~ "Lorem ipsum dolor sit amet, consectetur"
-#~ " adipiscing elit. Sed do eiusmod "
-#~ "tempor incididunt ut labore et dolore"
-#~ " magna aliqua. Ut enim ad minim "
-#~ "veniam, quis nostrud exercitation ullamco "
-#~ "laboris nisi ut aliquip ex ea "
-#~ "commodo consequat."
-
-#~ msgid "Extraction de la page"
-#~ msgstr "ページ抽出中"
-
-#~ msgid "Téléchargez vos images PNG"
-#~ msgstr "PNG画像をアップロード"
-
-#~ msgid "Format accepté : PNG (jusqu'à 20 fichiers)"
-#~ msgstr "対応形式: PNG (最大20ファイル)"
-
-#~ msgid "Conserver la transparence"
-#~ msgstr "透明度を保持"
-
-#~ msgid "Transformez vos fichiers PPT/PPTX en documents PDF faciles à partager"
-#~ msgstr "PPT/PPTXファイルを共有しやすいPDF文書に変換"
-
-#~ msgid "Glissez-déposez vos fichiers PowerPoint ici"
-#~ msgstr "ここにPowerPointファイルをドラッグ＆ドロップ"
-
-#~ msgid "Formats acceptés : PPT, PPTX (jusqu'à 50MB par fichier, 5 fichiers max)"
-#~ msgstr "対応形式: PPT, PPTX (各ファイル最大50MB、最大5ファイル)"
-
-#~ msgid "Inclure les notes"
-#~ msgstr "ノートを含める"
-
-#~ msgid "Les notes du présentateur seront incluses"
-#~ msgstr "発表者のノートが含まれます"
-
-#~ msgid "Inclure les commentaires"
-#~ msgstr "コメントを含める"
-
-#~ msgid "Les commentaires seront visibles"
-#~ msgstr "コメントが表示されます"
-
-#~ msgid "Qualité du PDF"
-#~ msgstr "PDF品質"
-
-#~ msgid "Haute (pour impression)"
-#~ msgstr "高 (印刷用)"
-
-#~ msgid "Moyenne (pour partage)"
-#~ msgstr "中 (共有用)"
-
-#~ msgid "Basse (pour email)"
-#~ msgstr "低 (メール用)"
-
-#~ msgid "Influence la taille et la qualité"
-#~ msgstr "サイズと品質に影響します"
-
-#~ msgid "Fichiers multiples"
-#~ msgstr "複数ファイル"
-
-#~ msgid "PDF séparés (ZIP)"
-#~ msgstr "個別PDF (ZIP)"
-
-#~ msgid "Fusionner en un seul PDF"
-#~ msgstr "PDFを結合"
-
-#~ msgid "Choisissez comment traiter plusieurs fichiers"
-#~ msgstr "複数ファイルの処理方法を選択"
-
-#~ msgid "Format PDF :"
-#~ msgstr "PDF形式:"
-
-#~ msgid ""
-#~ "Compatible avec tous les lecteurs PDF."
-#~ " Les animations et transitions ne "
-#~ "sont pas conservées dans le PDF."
-#~ msgstr "すべてのPDFリーダーと互換性があります。アニメーションとトランジションはPDFに保持されません。"
-
-#~ msgid "Analyse et conversion de vos présentations..."
-#~ msgstr "プレゼンテーションを分析・変換中..."
-
-#~ msgid "Fichiers traités"
-#~ msgstr "処理済みPDF"
-
-#~ msgid "Chargement des fichiers..."
-#~ msgstr "処理中..."
-
-#~ msgid "Vos fichiers PDF sont prêts"
-#~ msgstr "PDFファイルの準備ができました"
-
-#~ msgid "Fichiers convertis"
-#~ msgstr "変換済みファイル"
-
-#~ msgid "PDF"
-#~ msgstr "PDF"
-
-#~ msgid "Veuillez sélectionner au moins un fichier PowerPoint"
-#~ msgstr "少なくとも1つのPowerPointファイルを選択してください"
-
-#~ msgid "Conversion du fichier"
-#~ msgstr "PDFファイルを回転"
-
-#~ msgid "PDF unique"
-#~ msgstr "単一PDF"
-
-#~ msgid "PDFs (ZIP)"
-#~ msgstr "PDFファイル (ZIP)"
-
-#~ msgid "Téléchargez votre document"
-#~ msgstr "ドキュメントをアップロード"
-
-#~ msgid "Glissez-déposez votre document ici"
-#~ msgstr "ここにドキュメントをドラッグ＆ドロップ"
-
-#~ msgid "Formats acceptés : PDF, Word, Excel, Images (jusqu'à 50MB)"
-#~ msgstr "対応形式: PDF, Word, Excel, 画像 (最大50MB)"
-
-#~ msgid "Configuration du formulaire"
-#~ msgstr "フォーム設定"
-
-#~ msgid "Type de formulaire :"
-#~ msgstr "フォームタイプ:"
-
-#~ msgid "Interactif (champs remplissables)"
-#~ msgstr "インタラクティブ (入力可能フィールド)"
-
-#~ msgid "Imprimable (lignes pour écrire)"
-#~ msgstr "印刷用 (記入線)"
-
-#~ msgid "Détection des champs :"
-#~ msgstr "フィールド検出:"
-
-#~ msgid "Automatique (recommandé)"
-#~ msgstr "自動 (推奨)"
-
-#~ msgid "Cases à cocher"
-#~ msgstr "チェックボックス"
-
-#~ msgid "Emplacements signature"
-#~ msgstr "署名欄"
-
-#~ msgid "Manuel (je définis les champs)"
-#~ msgstr "手動 (フィールドを定義)"
-
-#~ msgid "Détecter les champs"
-#~ msgstr "フィールドを検出"
-
-#~ msgid ""
-#~ "La détection automatique identifie les "
-#~ "zones de texte, cases à cocher et"
-#~ " emplacements de signature"
-#~ msgstr "自動検出はテキスト領域、チェックボックス、署名欄を識別します"
-
-#~ msgid "Aperçu du formulaire - Cliquez sur les champs pour les configurer"
-#~ msgstr "フォームプレビュー - フィールドをクリックして設定"
-
-#~ msgid "Aperçu du document avec les champs détectés"
-#~ msgstr "検出されたフィールド付きドキュメントプレビュー"
-
-#~ msgid "Charger l'aperçu"
-#~ msgstr "プレビューを読み込む"
-
-#~ msgid "Champs détectés"
-#~ msgstr "検出されたフィールド"
-
-#~ msgid "Type"
-#~ msgstr "タイプ"
-
-#~ msgid "Étiquette"
-#~ msgstr "ラベル"
-
-#~ msgid "Lancez la détection pour voir les champs"
-#~ msgstr "検出を実行してフィールドを表示"
-
-#~ msgid "Langue du formulaire :"
-#~ msgstr "フォーム言語:"
-
-#~ msgid "Couleur des champs :"
-#~ msgstr "フィールドの色:"
-
-#~ msgid "Style des champs :"
-#~ msgstr "フィールドスタイル:"
-
-#~ msgid "Souligné"
-#~ msgstr "下線"
-
-#~ msgid "Encadré"
-#~ msgstr "枠線"
-
-#~ msgid "Fond coloré"
-#~ msgstr "色付き背景"
-
-#~ msgid "Invisible"
-#~ msgstr "利用可能"
-
-#~ msgid "Ajouter des textes indicatifs (ex: \"Nom\", \"Prénom\"...)"
-#~ msgstr "説明テキストを追加 (例: \"姓\", \"名\"...)"
-
-#~ msgid "Marquer les champs obligatoires (avec *)"
-#~ msgstr "必須フィールドをマーク (* 付き)"
-
-#~ msgid "Ajouter un bouton de soumission"
-#~ msgstr "送信ボタンを追加"
-
-#~ msgid "Création du formulaire..."
-#~ msgstr "フォーム作成中..."
-
-#~ msgid "Analyse du document et création des champs interactifs"
-#~ msgstr "ドキュメント分析とインタラクティブフィールド作成中"
-
-#~ msgid "Analyse du document source..."
-#~ msgstr "ソースドキュメントを分析中..."
-
-#~ msgid "Formulaire créé !"
-#~ msgstr "フォーム作成完了！"
-
-#~ msgid "Votre formulaire PDF interactif est prêt"
-#~ msgstr "インタラクティブPDFフォームの準備ができました"
-
-#~ msgid "Télécharger le formulaire"
-#~ msgstr "フォームをダウンロード"
-
-#~ msgid "Créer un autre formulaire"
-#~ msgstr "別のフォームを作成"
-
-#~ msgid "Veuillez d'abord télécharger un document"
-#~ msgstr "まずドキュメントをアップロードしてください"
-
-#~ msgid "Nom complet"
-#~ msgstr "フルネーム"
-
-#~ msgid "Prénom"
-#~ msgstr "名"
-
-#~ msgid "Adresse"
-#~ msgstr "住所"
-
-#~ msgid "Code postal"
-#~ msgstr "郵便番号"
-
-#~ msgid "Ville"
-#~ msgstr "市区町村"
-
-#~ msgid "Email"
-#~ msgstr "メールアドレス"
-
-#~ msgid "Téléphone"
-#~ msgstr "電話番号"
-
-#~ msgid "J'accepte les conditions"
-#~ msgstr "すべての変換"
-
-#~ msgid "Signature"
-#~ msgstr "署名"
-
-#~ msgid "Date"
-#~ msgstr "日付"
-
-#~ msgid "Édition du champ - À implémenter"
-#~ msgstr "フィールド編集 - 未実装"
-
-#~ msgid "Chargement de l'aperçu - À implémenter avec PDF.js"
-#~ msgstr "プレビュー読み込み中 - PDF.jsで実装予定"
-
-#~ msgid "Veuillez sélectionner un document"
-#~ msgstr "ドキュメントを選択してください"
-
-#~ msgid "Conversion en PDF..."
-#~ msgstr "PDFに変換"
-
-#~ msgid "Détection des champs..."
-#~ msgstr "フィールド検出中..."
-
-#~ msgid "Création des champs interactifs..."
-#~ msgstr "インタラクティブフィールド作成中..."
-
-#~ msgid "Ajout des propriétés du formulaire..."
-#~ msgstr "フォームプロパティ追加中..."
-
-#~ msgid "Terminé !"
-#~ msgstr "完了！"
-
-#~ msgid "formulaire.pdf"
-#~ msgstr "formulaire.pdf"
-
-#~ msgid "Erreur lors de la création du formulaire :"
-#~ msgstr "フォーム作成エラー:"
-
-#~ msgid ""
-#~ "Protégez votre PDF avec un mot de"
-#~ " passe pour empêcher toute ouverture "
-#~ "ou modification non autorisée."
-#~ msgstr "パスワードでPDFを保護し、不正な開封や変更を防ぎます。"
-
-#~ msgid "Déposez votre PDF ici"
-#~ msgstr "ここにPDFを配置"
-
-#~ msgid "Glissez-déposez ou cliquez pour sélectionner"
-#~ msgstr "ドラッグ＆ドロップ、またはクリックして選択"
-
-#~ msgid "PDF uniquement • Taille max : 50MB"
-#~ msgstr "PDFのみ • 最大サイズ: 50MB"
-
-#~ msgid "Mot de passe d'ouverture"
-#~ msgstr "開封パスワード"
-
-#~ msgid "Entrez un mot de passe"
-#~ msgstr "パスワードを入力"
-
-#~ msgid "Le fichier nécessitera ce mot de passe pour être ouvert"
-#~ msgstr "ファイルを開くにはこのパスワードが必要です"
-
-#~ msgid "Confirmer le mot de passe"
-#~ msgstr "パスワードを確認"
-
-#~ msgid "Confirmez le mot de passe"
-#~ msgstr "パスワードを確認"
-
-#~ msgid "Mot de passe de modification (optionnel)"
-#~ msgstr "変更パスワード (任意)"
-
-#~ msgid "Mot de passe propriétaire"
-#~ msgstr "所有者パスワード"
-
-#~ msgid "Permet de restreindre la modification"
-#~ msgstr "変更を制限できます"
-
-#~ msgid "Permissions"
-#~ msgstr "バージョン"
-
-#~ msgid "Aucune restriction"
-#~ msgstr "登録不要"
-
-#~ msgid "Impression uniquement"
-#~ msgstr "印刷のみ許可"
-
-#~ msgid "Modification uniquement"
-#~ msgstr "変更のみ許可"
-
-#~ msgid "Impression et modification"
-#~ msgstr "印刷と変更を許可"
-
-#~ msgid ""
-#~ "Notez bien votre mot de passe. Il"
-#~ " n'y a aucun moyen de le "
-#~ "récupérer en cas d'oubli."
-#~ msgstr "パスワードを必ずメモしてください。忘れた場合、復元する方法はありません。"
-
-#~ msgid "Protéger le PDF"
-#~ msgstr "PDF保護"
-
-#~ msgid "Les mots de passe ne correspondent pas"
-#~ msgstr "パスワードが一致しません"
-
-#~ msgid "Veuillez entrer un mot de passe"
-#~ msgstr "パスワードを入力してください"
-
-#~ msgid "Erreur"
-#~ msgstr "エラー"
-
-#~ msgid "document_protege.pdf"
-#~ msgstr "document_protege.pdf"
-
-#~ msgid "Erreur:"
-#~ msgstr "エラー:"
-
-#~ msgid "Options de caviardage"
-#~ msgstr "墨消しオプション"
-
-#~ msgid "Type de caviardage :"
-#~ msgstr "墨消しタイプ:"
-
-#~ msgid "Texte spécifique"
-#~ msgstr "特定テキスト"
-
-#~ msgid "Zone rectangulaire"
-#~ msgstr "矩形領域"
-
-#~ msgid "Motif (email, téléphone...)"
-#~ msgstr "パターン (メール、電話...)"
-
-#~ msgid "Texte à caviarder :"
-#~ msgstr "墨消しするテキスト:"
-
-#~ msgid "Ex: nom, prénom, adresse, numéro de carte..."
-#~ msgstr "例: 姓、名、住所、カード番号..."
-
-#~ msgid "Ajouter"
-#~ msgstr "追加"
-
-#~ msgid "confidentiel"
-#~ msgstr "プライバシー"
-
-#~ msgid "secret"
-#~ msgstr "秘密"
-
-#~ msgid ""
-#~ "Après avoir chargé votre PDF, vous "
-#~ "pourrez dessiner des zones à caviarder"
-#~ " sur l'aperçu."
-#~ msgstr "PDFを読み込んだ後、プレビュー上で墨消しする領域を描画できます。"
-
-#~ msgid "Opaque"
-#~ msgstr "不透明"
-
-#~ msgid "Transparent"
-#~ msgstr "透明"
-
-#~ msgid "Bordure :"
-#~ msgstr "枠線:"
-
-#~ msgid "Sans bordure"
-#~ msgstr "枠線なし"
-
-#~ msgid "Fine"
-#~ msgstr "結合"
-
-#~ msgid "Épaisse"
-#~ msgstr "太い"
-
-#~ msgid "Motifs à caviarder :"
-#~ msgstr "墨消しするパターン:"
-
-#~ msgid "Adresses email"
-#~ msgstr "メールアドレス"
-
-#~ msgid "Numéros de téléphone"
-#~ msgstr "電話番号"
-
-#~ msgid "Noms propres"
-#~ msgstr "概要"
-
-#~ msgid "Numéros de carte bancaire"
-#~ msgstr "クレジットカード番号"
-
-#~ msgid "Numéros de sécurité sociale"
-#~ msgstr "社会保障番号"
-
-#~ msgid "Dates"
-#~ msgstr "日付"
-
-#~ msgid "Pages à traiter :"
-#~ msgstr "処理するページ:"
-
-#~ msgid "Toutes les pages"
-#~ msgstr "すべての変換"
-
-#~ msgid "Sélectionner des pages"
-#~ msgstr "PDFを結合"
-
-#~ msgid "Première page uniquement"
-#~ msgstr "最初のページのみ"
-
-#~ msgid "Dernière page uniquement"
-#~ msgstr "最後のページのみ"
-
-#~ msgid "Plage de pages (si sélection) :"
-#~ msgstr "ページ範囲 (選択した場合):"
-
-#~ msgid "Ex: 1-5, 8, 11-13"
-#~ msgstr "例: 1-5, 8, 11-13"
-
-#~ msgid "Aperçu du PDF - Dessinez les zones à caviarder"
-#~ msgstr "PDFプレビュー - 墨消し領域を描画してください"
-
-#~ msgid "Cliquez et faites glisser pour dessiner un rectangle de caviardage"
-#~ msgstr "クリック＆ドラッグで墨消し矩形を描画"
-
-#~ msgid "Caviardage en cours..."
-#~ msgstr "処理中..."
-
-#~ msgid "Analyse et suppression du contenu sensible"
-#~ msgstr "機密コンテンツの分析と削除"
-
-#~ msgid "Préparation..."
-#~ msgstr "準備中..."
-
-#~ msgid "Caviardage terminé !"
-#~ msgstr "墨消し完了！"
-
-#~ msgid "Le contenu sensible a été supprimé définitivement"
-#~ msgstr "機密コンテンツは完全に削除されました"
-
-#~ msgid "Télécharger le PDF caviardé"
-#~ msgstr "墨消し済みPDFをダウンロード"
-
-#~ msgid "Caviarder un autre PDF"
-#~ msgstr "PDFを分割"
-
-#~ msgid "Zones dessinées :"
-#~ msgstr "描画された領域:"
-
-#~ msgid "Aucune zone dessinée"
-#~ msgstr "描画された領域はありません"
-
-#~ msgid "Zone"
-#~ msgstr "領域"
-
-#~ msgid "Erreur lors du chargement de l'aperçu PDF"
-#~ msgstr "PDFプレビューの読み込みエラー"
-
-#~ msgid "Recherche du contenu sensible..."
-#~ msgstr "機密コンテンツを検索中..."
-
-#~ msgid "Application du caviardage..."
-#~ msgstr "墨消しを適用中..."
-
-#~ msgid "Erreur lors du caviardage :"
-#~ msgstr "墨消しエラー:"
-
-#~ msgid "Options de signature"
-#~ msgstr "署名オプション"
-
-#~ msgid "Type de signature :"
-#~ msgstr "署名タイプ:"
-
-#~ msgid "Dessiner"
-#~ msgstr "描画"
-
-#~ msgid "Taper"
-#~ msgstr "入力"
-
-#~ msgid "Dessinez votre signature :"
-#~ msgstr "署名を描画:"
-
-#~ msgid "Effacer"
-#~ msgstr "消去"
-
-#~ msgid "Fin"
-#~ msgstr "細い"
-
-#~ msgid "Moyen"
-#~ msgstr "中"
-
-#~ msgid "Épais"
-#~ msgstr "太い"
-
-#~ msgid "Noir"
-#~ msgstr "黒"
-
-#~ msgid "Bleu"
-#~ msgstr "青"
-
-#~ msgid "Rouge"
-#~ msgstr "赤"
-
-#~ msgid "Vert"
-#~ msgstr "変換"
-
-#~ msgid "Tapez votre signature :"
-#~ msgstr "署名を入力:"
-
-#~ msgid "Ex: Jean Dupont"
-#~ msgstr "例: 山田 太郎"
-
-#~ msgid "Jean Dupont"
-#~ msgstr "山田 太郎"
-
-#~ msgid "Style :"
-#~ msgstr "スタイル:"
-
-#~ msgid "Script simple"
-#~ msgstr "シンプル筆記体"
-
-#~ msgid "Standard"
-#~ msgstr "標準"
-
-#~ msgid "Élégant"
-#~ msgstr "エレガント"
-
-#~ msgid "Petite"
-#~ msgstr "小"
-
-#~ msgid "Grande"
-#~ msgstr "大"
-
-#~ msgid "Très grande"
-#~ msgstr "特大"
-
-#~ msgid "Téléchargez une image de signature :"
-#~ msgstr "署名画像をアップロード:"
-
-#~ msgid "Glissez-déposez votre signature ici"
-#~ msgstr "ここに署名をドラッグ＆ドロップ"
-
-#~ msgid "Formats acceptés : PNG, JPG, GIF (fond transparent recommandé)"
-#~ msgstr "対応形式: PNG, JPG, GIF (透明背景推奨)"
-
-#~ msgid "Page :"
-#~ msgstr "ページ:"
-
-#~ msgid "Aperçu de la signature :"
-#~ msgstr "署名プレビュー:"
-
-#~ msgid "Ajouter la date automatiquement"
-#~ msgstr "日付を自動追加"
-
-#~ msgid "Ajouter un motif de signature"
-#~ msgstr "署名理由を追加"
-
-#~ msgid "Ex: Approbation, Accord, Certificat..."
-#~ msgstr "例: 承認、同意、証明書..."
-
-#~ msgid "Signature en cours..."
-#~ msgstr "処理中..."
-
-#~ msgid "Ajout de la signature au document"
-#~ msgstr "ドキュメントに署名を追加中"
-
-#~ msgid "Signature terminée !"
-#~ msgstr "署名完了！"
-
-#~ msgid "Votre PDF signé est prêt à être téléchargé"
-#~ msgstr "署名済みPDFのダウンロード準備ができました"
-
-#~ msgid "Télécharger le PDF signé"
-#~ msgstr "署名済みPDFをダウンロード"
-
-#~ msgid "Signer un autre PDF"
-#~ msgstr "PDFを結合"
-
-#~ msgid "Canvas de signature introuvable"
-#~ msgstr "署名キャンバスが見つかりません"
-
-#~ msgid "Erreur lors de la capture de la signature"
-#~ msgstr "署名エラー:"
-
-#~ msgid "Veuillez saisir votre signature"
-#~ msgstr "署名を描画:"
-
-#~ msgid "Veuillez télécharger une image de signature"
-#~ msgstr "署名画像をアップロードしてください"
-
-#~ msgid "Erreur lors de la signature :"
-#~ msgstr "署名エラー:"
-
-#~ msgid "Téléchargez votre fichier texte"
-#~ msgstr "テキストファイルをアップロード"
-
-#~ msgid "ou collez votre texte directement"
-#~ msgstr "またはテキストを直接貼り付け"
-
-#~ msgid "Glissez-déposez votre fichier texte ici"
-#~ msgstr "ここにテキストファイルをドラッグ＆ドロップ"
-
-#~ msgid "Format accepté : TXT"
-#~ msgstr "対応形式: TXT"
-
-#~ msgid "Ou collez votre texte :"
-#~ msgstr "またはテキストを貼り付け:"
-
-#~ msgid "Collez votre texte ici..."
-#~ msgstr "ここにテキストを貼り付け..."
-
-#~ msgid "Options de formatage"
-#~ msgstr "書式設定オプション"
-
-#~ msgid "Interligne :"
-#~ msgstr "行間:"
-
-#~ msgid "Simple"
-#~ msgstr "単一"
-
-#~ msgid "Double"
-#~ msgstr "利用可能"
-
-#~ msgid "Numéros de page"
-#~ msgstr "ページ番号"
-
-#~ msgid "Veuillez patienter pendant le traitement de votre texte"
-#~ msgstr "テキストを処理中です。お待ちください"
-
-#~ msgid "Convertir un autre texte"
-#~ msgstr "PDFに変換"
-
-#~ msgid "Veuillez saisir du texte ou sélectionner un fichier"
-#~ msgstr "テキストを入力するか、ファイルを選択してください"
-
-#~ msgid "Déposez votre PDF protégé ici"
-#~ msgstr "ここに保護されたPDFを配置"
-
-#~ msgid "Mot de passe du PDF"
-#~ msgstr "PDFを圧縮"
-
-#~ msgid "Entrez le mot de passe si le PDF est protégé"
-#~ msgstr "PDFが保護されている場合はパスワードを入力"
-
-#~ msgid "Laissez vide si le PDF n'a pas de mot de passe"
-#~ msgstr "PDFにパスワードがない場合は空欄"
-
-#~ msgid "Note :"
-#~ msgstr "注:"
-
-#~ msgid ""
-#~ "Cette opération ne fonctionne que si "
-#~ "vous connaissez le mot de passe du"
-#~ " PDF."
-#~ msgstr "この操作はPDFのパスワードを知っている場合にのみ機能します。"
-
-#~ msgid "Déverrouiller le PDF"
-#~ msgstr "PDFロック解除"
-
-#~ msgid "Erreur lors du déverrouillage"
-#~ msgstr "ロック解除エラー"
-
-#~ msgid "document_deverrouille.pdf"
-#~ msgstr "PDFロック解除"
-
-#~ msgid ""
-#~ "Transformez vos fichiers DOC/DOCX en PDF"
-#~ " avec une mise en page préservée"
-#~ msgstr "レイアウトを保持したままDOC/DOCXファイルをPDFに変換"
-
-#~ msgid "Glissez-déposez votre document Word ici"
-#~ msgstr "ここにWord文書をドラッグ＆ドロップ"
-
-#~ msgid "Formats acceptés : DOC, DOCX (jusqu'à 50MB)"
-#~ msgstr "対応形式: DOC, DOCX (最大50MB)"
-
-#~ msgid "Format de page"
-#~ msgstr "ページ形式"
-
-#~ msgid "A4 (210 × 297 mm)"
-#~ msgstr "A4 (210 × 297 mm)"
-
-#~ msgid "Letter (8.5 × 11 in)"
-#~ msgstr "レター (8.5 × 11 インチ)"
-
-#~ msgid "Legal (8.5 × 14 in)"
-#~ msgstr "リーガル (8.5 × 14 インチ)"
-
-#~ msgid "A3 (297 × 420 mm)"
-#~ msgstr "A3 (297 × 420 mm)"
-
-#~ msgid "A5 (148 × 210 mm)"
-#~ msgstr "A5 (148 × 210 mm)"
-
-#~ msgid "Format standard pour la plupart des documents"
-#~ msgstr "ほとんどのドキュメントの標準形式"
-
-#~ msgid "Orientation"
-#~ msgstr "管理"
-
-#~ msgid "Marges"
-#~ msgstr "余白"
-
-#~ msgid "Normales (2.5 cm)"
-#~ msgstr "標準 (2.5 cm)"
-
-#~ msgid "Étroites (1.3 cm)"
-#~ msgstr "狭い (1.3 cm)"
-
-#~ msgid "Modérées (1.9 cm)"
-#~ msgstr "中程度 (1.9 cm)"
-
-#~ msgid "Larges (5 cm)"
-#~ msgstr "広い (5 cm)"
-
-#~ msgid "Espace entre le texte et les bords"
-#~ msgstr "テキストと端の間のスペース"
-
-#~ msgid "Qualité"
-#~ msgstr "品質"
-
-#~ msgid "Standard (équilibré)"
-#~ msgstr "標準 (バランス)"
-
-#~ msgid "Optimisé écran (taille réduite)"
-#~ msgstr "画面用最適化 (ファイル小)"
-
-#~ msgid "Optimisé impression"
-#~ msgstr "印刷用最適化"
-
-#~ msgid "Influence la taille du fichier final"
-#~ msgstr "最終ファイルのサイズに影響します"
-
-#~ msgid "Préserve les polices, tableaux et styles"
-#~ msgstr "フォント、表、スタイルを保持"
-
-#~ msgid "Inclure les signets"
-#~ msgstr "しおりを含める"
-
-#~ msgid "Pour une navigation plus facile"
-#~ msgstr "より簡単なナビゲーションのため"
-
-#~ msgid "Mot de passe"
-#~ msgstr "パスワード"
-
-#~ msgid "Min. 6 caractères"
-#~ msgstr "最小6文字"
-
-#~ msgid "Visualisation seule"
-#~ msgstr "表示のみ"
-
-#~ msgid "Impression autorisée"
-#~ msgstr "印刷許可"
-
-#~ msgid "Modification autorisée"
-#~ msgstr "変更許可"
-
-#~ msgid "Toutes permissions"
-#~ msgstr "すべての変換"
-
-#~ msgid ""
-#~ "Compatible avec tous les lecteurs PDF."
-#~ " Les polices sont intégrées pour une"
-#~ " reproduction fidèle."
-#~ msgstr "すべてのPDFリーダーと互換性があります。フォントは忠実な再現のために埋め込まれています。"
-
-#~ msgid "Analyse et conversion de votre document Word..."
-#~ msgstr "Word文書を分析・変換中..."
-
-#~ msgid "Pages estimées"
-#~ msgstr "推定ページ数"
-
-#~ msgid "Lecture du document Word..."
-#~ msgstr "Word文書を読み取り中..."
-
-#~ msgid "Votre PDF est prêt au téléchargement"
-#~ msgstr "PDFのダウンロード準備ができました"
-
-#~ msgid "document.pdf"
-#~ msgstr "document.pdf"
-
-#~ msgid "Taille: 0 MB | Pages: 0"
-#~ msgstr "サイズ: 0 MB | ページ数: 0"
-
-#~ msgid "Détails"
-#~ msgstr "ツール"
-
-#~ msgid "Format: A4<br>Orientation: Portrait<br>Qualité: Standard"
-#~ msgstr "形式: A4<br>向き: 縦<br>品質: 標準"
-
-#~ msgid "Télécharger PDF"
-#~ msgstr "PDF保護"
-
-#~ msgid "Veuillez sélectionner un document Word"
-#~ msgstr "Word文書を選択してください"
-
-#~ msgid "Analyse de la structure"
-#~ msgstr "構造分析中"
-
-#~ msgid "Extraction des styles..."
-#~ msgstr "スタイル抽出中..."
-
-#~ msgid "Préservation des polices"
-#~ msgstr "フォント保持中"
-
-#~ msgid "Traitement des images..."
-#~ msgstr "処理中..."
-
-#~ msgid "Optimisation des graphiques"
-#~ msgstr "グラフィック最適化中"
-
-#~ msgid "Génération du PDF..."
-#~ msgstr "PDF回転"
-
-#~ msgid "Création des pages"
-#~ msgstr "ページ作成中"
-
-#~ msgid "Application des paramètres..."
-#~ msgstr "設定を適用中..."
-
-#~ msgid "Configuration finale"
-#~ msgstr "最終設定"
-
-#~ msgid "Taille:"
-#~ msgstr "サイズ:"
-
-#~ msgid "Format:"
-#~ msgstr "形式:"
-
-#~ msgid "Orientation:"
-#~ msgstr "管理"
-
-#~ msgid "Qualité:"
-#~ msgstr "品質:"
-
-#~ msgid "Page non trouvée - PDF Fusion Pro"
-#~ msgstr "ページが見つかりません - PDF Fusion Pro"
-
-#~ msgid "Page non trouvée"
-#~ msgstr "ページが見つかりません"
-
-#~ msgid "Désolé, la page que vous recherchez n'existe pas ou a été déplacée."
-#~ msgstr "お探しのページは存在しないか、移動された可能性があります。"
-
-#~ msgid "Chemin demandé :"
-#~ msgstr "リクエストされたパス:"
-
-#~ msgid "Fichier trop volumineux - PDF Fusion Pro"
-#~ msgstr "ファイルサイズ超過 - PDF Fusion Pro"
-
-#~ msgid ""
-#~ "Le fichier que vous avez tenté de"
-#~ " télécharger dépasse la limite autorisée."
-#~ msgstr "アップロードしようとしたファイルが許可された制限を超えています。"
-
-#~ msgid "Limite : 50 Mo maximum"
-#~ msgstr "制限: 最大50MB"
-
-#~ msgid "Suggestions :"
-#~ msgstr "提案:"
-
-#~ msgid "Compressez votre fichier avant de le télécharger"
-#~ msgstr "アップロード前にファイルを圧縮してください"
-
-#~ msgid "Divisez votre fichier en plusieurs parties plus petites"
-#~ msgstr "ファイルをより小さな複数の部分に分割してください"
-
-#~ msgid "Vérifiez que votre fichier ne dépasse pas 50 Mo"
-#~ msgstr "ファイルが50MBを超えていないか確認してください"
-
-#~ msgid "Taille max : 50 Mo"
-#~ msgstr "最大サイズ: 50MB"
-
-#~ msgid "Erreur serveur - PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid "Erreur interne du serveur"
-#~ msgstr "サーバー内部エラー"
-
-#~ msgid ""
-#~ "Désolé, une erreur inattendue s'est "
-#~ "produite. Notre équipe technique a été"
-#~ " informée."
-#~ msgstr "申し訳ございません、予期せぬエラーが発生しました。技術チームに通知されました。"
-
-#~ msgid "Heure :"
-#~ msgstr "時間:"
-
-#~ msgid "Non disponible"
-#~ msgstr "利用可能"
-
-#~ msgid "Référence :"
-#~ msgstr "参照:"
-
-#~ msgid "ERR-"
-#~ msgstr "ERR-"
-
-#~ msgid "Besoin d'aide ?"
-#~ msgstr "サポートが必要ですか？"
-
-#~ msgid "Si le problème persiste, n'hésitez pas à nous contacter."
-#~ msgstr "問題が解決しない場合は、お気軽にお問い合わせください。"
-
-#~ msgid "Nous contacter"
-#~ msgstr "お問い合わせ"
-
-#~ msgid ""
-#~ "Cette erreur a été automatiquement "
-#~ "enregistrée et sera analysée par nos "
-#~ "équipes."
-#~ msgstr "このエラーは自動的に記録され、チームによって分析されます。"
-
-#~ msgid "À propos de PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid "Notre mission"
-#~ msgstr "私たちの使命"
-
-#~ msgid ""
-#~ "Offrir un outil PDF en ligne "
-#~ "performant, intuitif et respectueux de "
-#~ "votre vie privée."
-#~ msgstr "高性能で直感的、かつプライバシーを尊重するオンラインPDFツールを提供すること。"
-
-#~ msgid "Caractéristiques principales"
-#~ msgstr "主な特徴"
-
-#~ msgid "Combine plusieurs fichiers PDF en un seul document organisé."
-#~ msgstr "複数のPDFを1つの整理された文書に結合"
-
-#~ msgid "Divisez vos PDF par page, par plage ou selon des pages spécifiques."
-#~ msgstr "ページ単位、範囲、または特定のページでPDFを分割します。"
-
-#~ msgid "Faites pivoter des pages spécifiques ou l'ensemble du document."
-#~ msgstr "特定のページまたは文書全体を回転"
-
-#~ msgid "Réduisez la taille de vos fichiers PDF sans perte de qualité notable."
-#~ msgstr "品質を損なわずにPDFサイズを削減"
-
-#~ msgid "Nos engagements"
-#~ msgstr "私たちの約束"
-
-#~ msgid "Sécurité"
-#~ msgstr "セキュリティ"
-
-#~ msgid ""
-#~ "Tous les traitements sont effectués en"
-#~ " mémoire. Aucun fichier n'est stocké "
-#~ "sur nos serveurs."
-#~ msgstr "すべての処理はメモリ上で行われます。ファイルがサーバーに保存されることはありません。"
-
-#~ msgid "Performance"
-#~ msgstr "パフォーマンス"
-
-#~ msgid "Interface optimisée pour une expérience utilisateur fluide et rapide."
-#~ msgstr "スムーズで高速なユーザー体験のために最適化されたインターフェース。"
-
-#~ msgid ""
-#~ "Nous ne collectons pas de données "
-#~ "personnelles liées au contenu de vos "
-#~ "fichiers."
-#~ msgstr "ファイルの内容に関する個人データは収集しません。"
-
-#~ msgid "Gratuité"
-#~ msgstr "無料"
-
-#~ msgid ""
-#~ "Service entièrement gratuit, financé par "
-#~ "des publicités discrètes et non "
-#~ "intrusives."
-#~ msgstr "完全無料のサービス、控えめで邪魔にならない広告によって運営されています。"
-
-#~ msgid "Développeur"
-#~ msgstr "開発者"
-
-#~ msgid "Technologies utilisées :"
-#~ msgstr "使用技術:"
-
-#~ msgid "Python, Flask, PyPDF2, Bootstrap 5, JavaScript moderne."
-#~ msgstr "Python, Flask, PyPDF2, Bootstrap 5, モダンJavaScript。"
-
-#~ msgid "Une question ou suggestion ?"
-#~ msgstr "ご質問やご提案はありますか？"
-
-#~ msgid "Nous sommes à votre écoute pour améliorer le service."
-#~ msgstr "サービス改善のため、お客様の声をお待ちしています。"
-
-#~ msgid "Utiliser le formulaire de contact"
-#~ msgstr "お問い合わせフォームを使用"
-
-#~ msgid "Formulaire de contact :"
-#~ msgstr "お問い合わせフォーム:"
-
-#~ msgid ""
-#~ "Utilisez ce formulaire pour nous "
-#~ "contacter directement. Nous vous répondrons"
-#~ " dans les meilleurs délais."
-#~ msgstr "このフォームを使用して直接お問い合わせください。できるだけ早くご返信いたします。"
-
-#~ msgid "Formulaire de Contact"
-#~ msgstr "お問い合わせフォーム"
-
-#~ msgid ""
-#~ "Remplissez ce formulaire pour nous "
-#~ "contacter. Tous les champs marqués d'un"
-#~ " astérisque (*) sont obligatoires."
-#~ msgstr "このフォームに記入してお問い合わせください。アスタリスク(*)の付いた項目はすべて必須です。"
-
-#~ msgid "Message enregistré avec succès !"
-#~ msgstr "メッセージは正常に保存されました！"
-
-#~ msgid "Référence:"
-#~ msgstr "参照:"
-
-#~ msgid "Merci pour votre message."
-#~ msgstr "メッセージありがとうございます。"
-
-#~ msgid ""
-#~ "Nous avons bien reçu votre demande "
-#~ "et nous vous répondrons dans les "
-#~ "plus brefs délais."
-#~ msgstr "リクエストを承りました。できるだけ早くご返信いたします。"
-
-#~ msgid "Envoyer un autre message"
-#~ msgstr "別のメッセージを送信"
-
-#~ msgid "Votre prénom et nom"
-#~ msgstr "あなたの名前"
-
-#~ msgid "Adresse email"
-#~ msgstr "メールアドレス"
-
-#~ msgid "Nous ne partagerons jamais votre email avec des tiers."
-#~ msgstr "あなたのメールアドレスを第三者と共有することは決してありません。"
-
-#~ msgid "Numéro de téléphone (optionnel)"
-#~ msgstr "電話番号 (任意)"
-
-#~ msgid "Pour un contact plus rapide si nécessaire."
-#~ msgstr "必要に応じて、より迅速な連絡のため。"
-
-#~ msgid "Sujet de votre message"
-#~ msgstr "メッセージの件名"
-
-#~ msgid "Sélectionnez un sujet"
-#~ msgstr "件名を選択"
-
-#~ msgid "Signaler un bug ou un problème technique"
-#~ msgstr "バグや技術的な問題を報告"
-
-#~ msgid "Proposer une amélioration fonctionnelle"
-#~ msgstr "機能改善を提案"
-
-#~ msgid "Demande de partenariat"
-#~ msgstr "パートナーシップのお問い合わせ"
-
-#~ msgid "Autre demande"
-#~ msgstr "その他のお問い合わせ"
-
-#~ msgid "Votre message"
-#~ msgstr "メッセージ本文"
-
-#~ msgid "Décrivez votre demande en détail..."
-#~ msgstr "リクエストの詳細を説明してください..."
-
-#~ msgid "Maximum 2000 caractères. Soyez aussi précis que possible."
-#~ msgstr "最大2000文字。できるだけ具体的にご記入ください。"
-
-#~ msgid "Envoyer le message"
-#~ msgstr "メッセージを送信"
-
-#~ msgid "Information importante :"
-#~ msgstr "重要情報:"
-
-#~ msgid ""
-#~ "Cette application traite vos fichiers "
-#~ "PDF uniquement en mémoire. Aucun fichier"
-#~ " n'est stocké de manière permanente "
-#~ "sur nos serveurs."
-#~ msgstr "このアプリケーションはPDFファイルをメモリ上でのみ処理します。ファイルがサーバーに永続的に保存されることはありません。"
-
-#~ msgid "Éditeur du service"
-#~ msgstr "サービス提供者"
-
-#~ msgid ""
-#~ "%(app_name)s est développé et maintenu "
-#~ "par %(developer_name)s, un développeur "
-#~ "passionné par la création d'outils web"
-#~ " utiles et accessibles."
-#~ msgstr "%(app_name)sは、便利でアクセスしやすいウェブツールの作成に情熱を注ぐ開発者%(developer_name)sによって開発・維持されています。"
-
-#~ msgid "Pour nous contacter :"
-#~ msgstr "お問い合わせ先:"
-
-#~ msgid "Utilisez notre"
-#~ msgstr "ユーザー数"
-
-#~ msgid "Nous répondons généralement dans les 48 heures."
-#~ msgstr "通常48時間以内にご返信いたします。"
-
-#~ msgid "Hébergement"
-#~ msgstr "ホスティング"
-
-#~ msgid ""
-#~ "Ce service est hébergé sur la "
-#~ "plateforme %(hosting)s (<a "
-#~ "href=\"https://%(domain)s\" target=\"_blank\">(domain)s</a>)."
-#~ msgstr ""
-#~ "このサービスは、%(hosting)sプラットフォーム(<a href=\"https://%(domain)s\" "
-#~ "target=\"_blank\">%(domain)s</a>)にホスティングされています。"
-
-#~ msgid ""
-#~ "Les serveurs sont localisés dans des "
-#~ "centres de données sécurisés et "
-#~ "conformes aux normes européennes de "
-#~ "protection des données."
-#~ msgstr "サーバーは安全なデータセンターに設置され、欧州のデータ保護基準に準拠しています。"
-
-#~ msgid "Propriété intellectuelle"
-#~ msgstr "知的財産権"
-
-#~ msgid ""
-#~ "L'ensemble des contenus présents sur ce"
-#~ " site (design, code source, interfaces, "
-#~ "textes, graphismes) est protégé par les"
-#~ " lois relatives à la propriété "
-#~ "intellectuelle."
-#~ msgstr "このサイト上のすべてのコンテンツ（デザイン、ソースコード、インターフェース、テキスト、グラフィック）は、知的財産権に関する法律によって保護されています。"
-
-#~ msgid ""
-#~ "Toute reproduction, modification, distribution "
-#~ "ou exploitation non autorisée est "
-#~ "strictement interdite."
-#~ msgstr "無断複製、改変、配布、または利用は固く禁じられています。"
-
-#~ msgid "Responsabilité"
-#~ msgstr "責任"
-
-#~ msgid ""
-#~ "L'utilisateur reste l'unique responsable des"
-#~ " fichiers PDF qu'il téléverse et "
-#~ "traite via ce service."
-#~ msgstr "ユーザーは、このサービスを介してアップロードおよび処理するPDFファイルに対して単独で責任を負います。"
-
-#~ msgid ""
-#~ "Il s'engage à ne pas utiliser le"
-#~ " service pour des contenus illicites "
-#~ "ou protégés par des droits d'auteur "
-#~ "sans autorisation."
-#~ msgstr "ユーザーは、違法なコンテンツや許可なく著作権で保護されたコンテンツに本サービスを使用しないことに同意します。"
-
-#~ msgid "Disponibilité du service"
-#~ msgstr "サービス可用性"
-
-#~ msgid ""
-#~ "Nous nous efforçons d'assurer une "
-#~ "disponibilité continue du service, mais "
-#~ "ne pouvons garantir un fonctionnement "
-#~ "ininterrompu."
-#~ msgstr "継続的なサービス提供に努めていますが、中断のない動作を保証することはできません。"
-
-#~ msgid ""
-#~ "Des périodes de maintenance technique "
-#~ "peuvent être nécessaires pour améliorer "
-#~ "le service."
-#~ msgstr "サービス向上のため、技術メンテナンス期間が必要になる場合があります。"
-
-#~ msgid "Respect de votre vie privée"
-#~ msgstr "プライバシーの尊重"
-
-#~ msgid ""
-#~ "Votre confidentialité est notre priorité. "
-#~ "Cette politique explique comment nous "
-#~ "collectons, utilisons et protégeons vos "
-#~ "informations."
-#~ msgstr "お客様の機密保持が最優先です。このポリシーでは、お客様の情報の収集、利用、保護方法について説明します。"
-
-#~ msgid "Engagement de confidentialité :"
-#~ msgstr "プライバシー"
-
-#~ msgid ""
-#~ "Nous ne stockons jamais le contenu "
-#~ "de vos fichiers PDF. Tous les "
-#~ "traitements sont effectués en mémoire "
-#~ "vive et les fichiers sont supprimés "
-#~ "immédiatement après traitement."
-#~ msgstr "お客様のPDFファイルの内容を保存することは決してありません。すべての処理はメモリ上で行われ、ファイルは処理後すぐに削除されます。"
-
-#~ msgid "Données collectées"
-#~ msgstr "収集されるデータ"
-
-#~ msgid "Données techniques"
-#~ msgstr "技術データ"
-
-#~ msgid ""
-#~ "Nous collectons des données techniques "
-#~ "anonymes pour améliorer le service :"
-#~ msgstr "サービス改善のため、匿名の技術データを収集します:"
-
-#~ msgid "Type d'opération effectuée (fusion, division, rotation, compression)"
-#~ msgstr "実行された操作の種類（結合、分割、回転、圧縮）"
-
-#~ msgid "Nombre de pages traitées"
-#~ msgstr "処理されたページ数"
-
-#~ msgid "Heure et date des opérations (anonymisées)"
-#~ msgstr "操作の日時（匿名化）"
-
-#~ msgid "Informations sur le navigateur et l'appareil (type, version)"
-#~ msgstr "ブラウザとデバイス情報（種類、バージョン）"
-
-#~ msgid "Cookies"
-#~ msgstr "Cookie"
-
-#~ msgid "Nous utilisons uniquement des cookies techniques essentiels :"
-#~ msgstr "必要な技術的Cookieのみを使用します:"
-
-#~ msgid "Session cookie :"
-#~ msgstr "セッションCookie:"
-
-#~ msgid "Pour maintenir votre session de travail"
-#~ msgstr "作業セッションを維持するため"
-
-#~ msgid "Préférences :"
-#~ msgstr "設定:"
-
-#~ msgid "Pour mémoriser vos paramètres d'interface"
-#~ msgstr "インターフェース設定を記憶するため"
-
-#~ msgid "Publicité — Google AdSense"
-#~ msgstr "広告 — Google AdSense"
-
-#~ msgid ""
-#~ "Ce site utilise <strong>Google "
-#~ "AdSense</strong> (ID: %(adsense_id)s) pour "
-#~ "afficher des publicités pertinentes."
-#~ msgstr ""
-#~ "このサイトは、関連性の高い広告を表示するために<strong>Google AdSense</strong>（ID: "
-#~ "%(adsense_id)s）を使用しています。"
-
-#~ msgid ""
-#~ "Google utilise des cookies pour "
-#~ "personnaliser les annonces en fonction "
-#~ "de votre navigation sur ce site et"
-#~ " d'autres sites web."
-#~ msgstr "GoogleはCookieを使用して、お客様の本サイトおよび他のウェブサイトでの閲覧履歴に基づいて広告をパーソナライズします。"
-
-#~ msgid "Vous pouvez désactiver la personnalisation des annonces via les"
-#~ msgstr "広告のパーソナライズは、以下から無効にできます。"
-
-#~ msgid "paramètres des annonces Google"
-#~ msgstr "Googleの広告設定"
-
-#~ msgid "Vos droits (RGPD)"
-#~ msgstr "お客様の権利 (GDPR)"
-
-#~ msgid ""
-#~ "Conformément au Règlement Général sur la"
-#~ " Protection des Données (RGPD), vous "
-#~ "disposez des droits suivants :"
-#~ msgstr "一般データ保護規則(GDPR)に従い、お客様には以下の権利があります:"
-
-#~ msgid "Droit d'accès à vos données"
-#~ msgstr "データへのアクセス権"
-
-#~ msgid "Droit de rectification"
-#~ msgstr "訂正権"
-
-#~ msgid "Droit à l'effacement"
-#~ msgstr "消去権（忘れられる権利）"
-
-#~ msgid "Droit à la limitation du traitement"
-#~ msgstr "処理制限権"
-
-#~ msgid "Droit à la portabilité des données"
-#~ msgstr "データポータビリティ権"
-
-#~ msgid "Pour exercer ces droits, utilisez notre"
-#~ msgstr "これらの権利を行使するには、件名に「GDPR権利行使」と明記して、"
-
-#~ msgid "en précisant \"Exercice de droits RGPD\" dans le sujet."
-#~ msgstr "をご利用ください。"
-
-#~ msgid "Sécurité des données"
-#~ msgstr "データセキュリティ"
-
-#~ msgid ""
-#~ "Nous mettons en œuvre des mesures "
-#~ "de sécurité techniques et organisationnelles"
-#~ " appropriées pour protéger vos données "
-#~ "contre tout accès non autorisé, "
-#~ "altération ou destruction."
-#~ msgstr "お客様のデータを不正アクセス、改ざん、または破壊から保護するために、適切な技術的および組織的セキュリティ対策を実施しています。"
-
-#~ msgid "Acceptation des conditions"
-#~ msgstr "利用規約への同意"
-
-#~ msgid ""
-#~ "En utilisant le service %(app_name)s, "
-#~ "vous acceptez pleinement et sans réserve"
-#~ " les présentes conditions d'utilisation."
-#~ msgstr "%(app_name)sサービスをご利用になることで、本利用規約に完全かつ無条件で同意したものとみなされます。"
-
-#~ msgid "Avertissement important :"
-#~ msgstr "重要なお知らせ:"
-
-#~ msgid ""
-#~ "Ce service est fourni \"tel quel\". "
-#~ "Nous déclinons toute responsabilité concernant"
-#~ " les fichiers traités par l'utilisateur."
-#~ msgstr "本サービスは「現状有姿」で提供されます。ユーザーが処理したファイルに関する一切の責任を負いません。"
-
-#~ msgid "Usage autorisé"
-#~ msgstr "許可される利用"
-
-#~ msgid ""
-#~ "Vous vous engagez à utiliser le "
-#~ "service de manière responsable et légale"
-#~ " :"
-#~ msgstr "お客様は、責任を持って合法的にサービスを利用することに同意します:"
-
-#~ msgid "Interdictions"
-#~ msgstr "禁止事項"
-
-#~ msgid ""
-#~ "Téléverser des fichiers contenant des "
-#~ "données illicites ou protégés par des"
-#~ " droits d'auteur sans autorisation"
-#~ msgstr "違法なデータを含むファイル、または許可なく著作権で保護されたファイルをアップロードすること"
-
-#~ msgid "Utiliser le service pour des activités frauduleuses ou malveillantes"
-#~ msgstr "不正または悪意のある活動にサービスを使用すること"
-
-#~ msgid "Tenter de contourner les mesures de sécurité du service"
-#~ msgstr "サービスのセキュリティ対策を回避しようとすること"
-
-#~ msgid "Surcharger délibérément le service (attaques DoS/DDoS)"
-#~ msgstr "意図的にサービスに過負荷をかけること (DoS/DDoS攻撃)"
-
-#~ msgid ""
-#~ "Réutiliser le contenu du service à "
-#~ "des fins commerciales sans autorisation"
-#~ msgstr "許可なくサービスのコンテンツを商業目的で再利用すること"
-
-#~ msgid "Obligations"
-#~ msgstr "義務"
-
-#~ msgid "Respecter les droits de propriété intellectuelle des documents traités"
-#~ msgstr "処理する文書の知的財産権を尊重すること"
-
-#~ msgid "Assurer la confidentialité de vos propres fichiers"
-#~ msgstr "自身のファイルの機密性を確保すること"
-
-#~ msgid "Utiliser le service conformément à sa destination première"
-#~ msgstr "本来の目的に従ってサービスを利用すること"
-
-#~ msgid "Limitation de responsabilité"
-#~ msgstr "責任の制限"
-
-#~ msgid ""
-#~ "Le service est fourni sans aucune "
-#~ "garantie, expresse ou implicite, y "
-#~ "compris, mais sans s'y limiter, les "
-#~ "garanties de qualité marchande, d'adéquation"
-#~ " à un usage particulier et de "
-#~ "non-contrefaçon."
-#~ msgstr "本サービスは、商品性、特定目的への適合性、および非侵害の保証を含むがこれらに限定されない、明示または黙示を問わず、いかなる保証もなく提供されます。"
-
-#~ msgid "En aucun cas, %(developer_name)s ne pourra être tenu responsable :"
-#~ msgstr "En aucun cas, %%(developer_name)s ne pourra être tenu responsable :"
-
-#~ msgid ""
-#~ "Des dommages directs ou indirects "
-#~ "résultant de l'utilisation ou de "
-#~ "l'impossibilité d'utiliser le service"
-#~ msgstr "サービスの利用、または利用できないことから生じる直接的または間接的な損害"
-
-#~ msgid "De la perte ou de l'altération des fichiers PDF traités"
-#~ msgstr "処理されたPDFファイルの紛失または改ざん"
-
-#~ msgid "Des conséquences de l'utilisation des fichiers générés par le service"
-#~ msgstr "サービスによって生成されたファイルの使用の結果"
-
-#~ msgid "Modifications des conditions"
-#~ msgstr "利用規約の変更"
-
-#~ msgid ""
-#~ "Nous nous réservons le droit de "
-#~ "modifier ces conditions d'utilisation à "
-#~ "tout moment."
-#~ msgstr "当社は、いつでもこれらの利用規約を変更する権利を留保します。"
-
-#~ msgid ""
-#~ "Les utilisateurs seront informés des "
-#~ "changements significatifs via une notification"
-#~ " sur le site."
-#~ msgstr "重要な変更については、サイト上の通知を通じてユーザーに通知されます。"
-
-#~ msgid ""
-#~ "Le service, son code source, son "
-#~ "design et son contenu sont la "
-#~ "propriété exclusive de %(developer_name)s."
-#~ msgstr "本サービス、そのソースコード、デザイン、およびコンテンツは、%(developer_name)sの独占的財産です。"
-
-#~ msgid ""
-#~ "Toute reproduction, même partielle, est "
-#~ "interdite sans autorisation préalable écrite."
-#~ msgstr "事前の書面による許可なく、たとえ一部であっても複製することを禁じます。"
-
-#~ msgid "Pour toute question concernant ces conditions :"
-#~ msgstr "これらの条件に関するご質問は:"
-
-#~ msgid "Nous contacter via le formulaire"
-#~ msgstr "フォームからお問い合わせください"
-
-#~ msgid "Compresser PDF - PDF Fusion Pro"
-#~ msgstr "PDFを圧縮"
-
-#~ msgid "Réduisez la taille de vos fichiers PDF tout en conservant la qualité."
-#~ msgstr "品質を損なわずにPDFサイズを削減"
-
-#~ msgid "Compresser un PDF"
-#~ msgstr "PDFを圧縮"
-
-#~ msgid "Déposez votre fichier PDF et obtenez une version plus légère."
-#~ msgstr "PDFファイルを配置すると、軽量バージョンが得られます。"
-
-#~ msgid "Glissez-déposez votre fichier ou cliquez pour parcourir"
-#~ msgstr "ファイルをドラッグ＆ドロップ、またはクリックして参照"
-
-#~ msgid "Niveau de compression"
-#~ msgstr "圧縮レベル"
-
-#~ msgid "Faible"
-#~ msgstr "低"
-
-#~ msgid "Fort"
-#~ msgstr "高"
-
-#~ msgid "Compression plus forte = fichier plus petit, qualité réduite"
-#~ msgstr "強い圧縮 = ファイル小、品質低下"
-
-#~ msgid "Compresser le PDF"
-#~ msgstr "PDF圧縮"
-
-#~ msgid "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
-#~ msgstr "ホーム - PDF Fusion Pro – 無料PDFツール"
-
-#~ msgid ""
-#~ "Tous les outils PDF en un seul "
-#~ "endroit : fusionner, diviser, tourner, "
-#~ "compresser et convertir des fichiers "
-#~ "PDF. 100%% gratuit, sécurisé et sans "
-#~ "inscription."
-#~ msgstr ""
-
-#~ msgid "Transformez vos PDFs en toute simplicité"
-#~ msgstr "PDFを簡単に変換"
-
-#~ msgid ""
-#~ "Outil PDF tout-en-un : fusion, "
-#~ "division, rotation, compression et conversion."
-#~ " Rapide, sécurisé et 100%% gratuit."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Aucune inscription requise – vos "
-#~ "fichiers ne quittent jamais votre "
-#~ "navigateur."
-#~ msgstr "登録不要 – ファイルはブラウザから離れることはありません。"
-
-#~ msgid "Fusionner des fichiers PDF"
-#~ msgstr "PDFファイルを結合"
-
-#~ msgid "Combine plusieurs PDF en un seul document organisé"
-#~ msgstr "複数のPDFを1つの整理された文書に結合"
-
-#~ msgid "Fusionner des PDF"
-#~ msgstr "PDFを結合"
-
-#~ msgid "Accédez à l'outil de fusion PDF"
-#~ msgstr "PDF結合ツールへ"
-
-#~ msgid "Diviser un fichier PDF"
-#~ msgstr "PDFファイルを分割"
-
-#~ msgid "Extrayez des pages spécifiques ou divisez par plages"
-#~ msgstr "特定のページを抽出するか、範囲で分割"
-
-#~ msgid "Diviser un PDF"
-#~ msgstr "PDFを分割"
-
-#~ msgid "Accédez à l'outil de division PDF"
-#~ msgstr "PDF分割ツールへ"
-
-#~ msgid "Tourner un fichier PDF"
-#~ msgstr "PDFファイルを回転"
-
-#~ msgid "Faites pivoter des pages spécifiques ou l'ensemble du document"
-#~ msgstr "特定のページまたは文書全体を回転"
-
-#~ msgid "Tourner un PDF"
-#~ msgstr "PDFを回転"
-
-#~ msgid "Accédez à l'outil de rotation PDF"
-#~ msgstr "PDF回転ツールへ"
-
-#~ msgid "Compresser un fichier PDF"
-#~ msgstr "PDFファイルを圧縮"
-
-#~ msgid "Réduisez la taille de vos PDFs sans perte de qualité notable"
-#~ msgstr "品質を損なわずにPDFサイズを削減"
-
-#~ msgid "Accédez à l'outil de compression PDF"
-#~ msgstr "PDF圧縮ツールへ"
-
-#~ msgid "Convertisseur universel"
-#~ msgstr "ユニバーサルコンバーター"
-
-#~ msgid ""
-#~ "Convertissez vos fichiers Word, Excel, "
-#~ "PowerPoint et images en PDF et "
-#~ "vice-versa"
-#~ msgstr "Word、Excel、PowerPoint、画像ファイルをPDFに変換、またはPDFから変換"
-
-#~ msgid "PDF Fusion Pro en chiffres"
-#~ msgstr "PDF Fusion Proの数字"
-
-#~ msgid "Utilisateurs"
-#~ msgstr "ユーザー数"
-
-#~ msgid "PDF traités"
-#~ msgstr "処理済みPDF"
-
-#~ msgid "Satisfaction"
-#~ msgstr "満足度"
-
-#~ msgid "Disponible"
-#~ msgstr "利用可能"
-
-#~ msgid "Votre solution PDF tout-en-un, 100%% gratuite et sécurisée"
-#~ msgstr "オールインワンのPDFソリューション、100%%無料で安全"
-
-#~ msgid ""
-#~ "PDF Fusion Pro est la plateforme "
-#~ "idéale pour tous vos besoins en "
-#~ "manipulation de fichiers PDF. Que vous"
-#~ " ayez besoin de <strong>fusionner plusieurs"
-#~ " documents</strong>, <strong>diviser un PDF "
-#~ "volumineux</strong>, <strong>tourner des pages "
-#~ "mal orientées</strong> ou <strong>compresser "
-#~ "des fichiers pour les partager</strong>, "
-#~ "nos outils sont là pour vous "
-#~ "aider."
-#~ msgstr ""
-#~ "PDF Fusion "
-#~ "Proは、すべてのPDFファイル操作ニーズに最適なプラットフォームです。<strong>複数の文書を結合</strong>、<strong>大きなPDFを分割</strong>、<strong>向きの間違ったページを回転</strong>、<strong>共有用にファイルを圧縮</strong>する必要がある場合でも、当社のツールがお役に立ちます。"
-
-#~ msgid "Aucune inscription requise"
-#~ msgstr "登録不要"
-
-#~ msgid "Chiffrement SSL et suppression automatique des fichiers"
-#~ msgstr "SSL暗号化と自動ファイル削除"
-
-#~ msgid "Fusionner PDF - PDF Fusion Pro"
-#~ msgstr "PDFを結合"
-
-#~ msgid ""
-#~ "Fusionnez plusieurs fichiers PDF en un"
-#~ " seul document, facilement et rapidement."
-#~ msgstr "複数のPDFを1つの整理された文書に結合"
-
-#~ msgid "Fusionner plusieurs PDF"
-#~ msgstr "PDFを結合"
-
-#~ msgid "Déposez vos fichiers PDF et obtenez un document unique fusionné."
-#~ msgstr "PDFファイルを配置すると、結合された単一のドキュメントが得られます。"
-
-#~ msgid "Déposez vos PDF ici"
-#~ msgstr "ここにPDFを配置"
-
-#~ msgid "Glissez-déposez vos fichiers ou cliquez pour parcourir"
-#~ msgstr "ファイルをドラッグ＆ドロップ、またはクリックして参照"
-
-#~ msgid "Fusionner les PDF"
-#~ msgstr "PDFを結合"
-
-#~ msgid "Tourner PDF - PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid "Corrigez l'orientation de vos fichiers PDF en quelques clics."
-#~ msgstr "数回のクリックでPDFファイルの向きを修正します。"
-
-#~ msgid "Déposez votre fichier PDF et choisissez l'angle de rotation."
-#~ msgstr "PDFファイルを配置し、回転角度を選択します。"
-
-#~ msgid "Pages à tourner"
-#~ msgstr "回転"
-
-#~ msgid "Ex: 1,3-5 ou 'all' pour toutes"
-#~ msgstr "例: 1,3-5 または 'all' ですべて"
-
-#~ msgid "Format: numéros séparés par des virgules, plages avec tiret"
-#~ msgstr "形式: 数字はカンマ区切り、範囲はハイフン"
-
-#~ msgid "Angle de rotation"
-#~ msgstr "回転角度"
-
-#~ msgid "Tourner le PDF"
-#~ msgstr "PDF回転"
-
-#~ msgid "Diviser PDF - PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid ""
-#~ "Divisez vos fichiers PDF en plusieurs"
-#~ " documents selon les pages sélectionnées."
-#~ msgstr "選択したページに従って、PDFファイルを複数のドキュメントに分割します。"
-
-#~ msgid "Déposez votre fichier PDF et sélectionnez les pages à extraire."
-#~ msgstr "PDFファイルを配置し、抽出するページを選択します。"
-
-#~ msgid "Pages à extraire"
-#~ msgstr "抽出するページ"
-
-#~ msgid ""
-#~ "Format: numéros séparés par des "
-#~ "virgules, plages avec tiret. Ex: "
-#~ "\"1,3-5\""
-#~ msgstr "形式: 数字はカンマ区切り、範囲はハイフン。例: \"1,3-5\""
-
-#~ msgid "Diviser le PDF"
-#~ msgstr "PDF分割"
-
-#~ msgid "Convertissez vos feuilles Excel en PDF"
-#~ msgstr "Word文書をPDFに変換"
-
-#~ msgid "JPG vers PDF"
-#~ msgstr "JPGからPDFへ"
-
-#~ msgid "PNG vers PDF"
-#~ msgstr "PNGからPDFへ"
-
-#~ msgid "TXT vers PDF"
-#~ msgstr "TXTからPDFへ"
-
-#~ msgid "Extrayez le texte de vos PDF en documents Word"
-#~ msgstr "画像からテキストを抽出"
-
-#~ msgid "Convertissez les pages de vos PDF en images"
-#~ msgstr "ユニバーサルコンバーター"
-
-#~ msgid "PDF vers HTML"
-#~ msgstr "PDFからHTMLへ"
-
-#~ msgid "PDF vers TXT"
-#~ msgstr "PDFからTXTへ"
-
-#~ msgid "Extrayez le texte de vos PDF en fichiers texte"
-#~ msgstr "画像からテキストを抽出"
-
-#~ msgid "Exportez vos feuilles Excel en CSV"
-#~ msgstr "ここにExcelファイルをドラッグ＆ドロップ"
-
-#~ msgid "Excel vers PDF"
-#~ msgstr "ExcelからPDFへ"
-
-#~ msgid "PowerPoint vers PDF"
-#~ msgstr "PowerPointからPDFへ"
-
-#~ msgid "Image vers PDF"
-#~ msgstr "画像からPDFへ"
-
-#~ msgid "HTML vers PDF"
-#~ msgstr "HTMLからPDFへ"
-
-#~ msgid "PDF vers DOC"
-#~ msgstr "PDFからDOCへ"
-
-#~ msgid "PDF vers Excel"
-#~ msgstr "PDFからExcelへ"
-
-#~ msgid "PDF vers PowerPoint"
-#~ msgstr "PDFからPowerPointへ"
-
-#~ msgid "PDF vers Image"
-#~ msgstr "PDFから画像へ"
-
-#~ msgid "PDF vers PDF/A"
-#~ msgstr "PDFからPDF/Aへ"
-
-#~ msgid "Caviarder PDF"
-#~ msgstr "PDFを墨消し"
-
-#~ msgid "Éditer PDF"
-#~ msgstr "PDFを編集"
-
-#~ msgid "Signer PDF"
-#~ msgstr "PDFに署名"
-
-#~ msgid "Préparer formulaire PDF"
-#~ msgstr "PDFフォームを準備"
-
-#~ msgid "Image vers Word"
-#~ msgstr "画像からWordへ"
-
-#~ msgid "Image vers Excel"
-#~ msgstr "画像からExcelへ"
-
-#~ msgid "CSV vers Excel"
-#~ msgstr "CSVからExcelへ"
-
-#~ msgid "Excel vers CSV"
-#~ msgstr "ExcelからCSVへ"
-
-#~ msgid "Téléphone (optionnel)"
-#~ msgstr "電話（オプション）"
-
-#~ msgid "Sujet"
-#~ msgstr "主題"
-
-#~ msgid "Signaler un bug"
-#~ msgstr "PDFを結合"
-
-#~ msgid "Proposer une amélioration"
-#~ msgstr "改善を提案する"
-
-#~ msgid "Partenariat"
-#~ msgstr "パートナーシップ"
-
-#~ msgid "Autre"
-#~ msgstr "他の"
-
-#~ msgid "Message"
-#~ msgstr "メッセージ"
-
-#~ msgid "OCR PDF"
-#~ msgstr "OCR PDF認識"
 

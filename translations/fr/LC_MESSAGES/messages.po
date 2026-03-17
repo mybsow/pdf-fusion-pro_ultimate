@@ -2,15 +2,16 @@
 # Copyright (C) 2026 PDF Fusion Pro
 # This file is distributed under the same license as the PDF Fusion Pro
 # project.
+
 msgid ""
 msgstr ""
-"Project-Id-Version: PDF Fusion Pro 1.0\n"
-"Report-Msgid-Bugs-To: support@pdffusionpro.com\n"
-"POT-Creation-Date: 2026-03-17 15:01+0000\n"
-"PO-Revision-Date: 2026-03-03 12:00+0000\n"
-"Last-Translator: <banousow@gmail.com>\n"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-03-17 16:04+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
-"Language-Team: French <fr@li.org>\n"
+"Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -18,17 +19,16 @@ msgstr ""
 "Generated-By: Babel 2.14.0\n"
 
 #: app.py:450 templates/conversion/index.html:104
-#, fuzzy
+
 msgid "Convertisseur de fichiers"
 msgstr "Convertissez vos présentations PowerPoint en PDF"
 
-#: app.py:479
-#, fuzzy
+#: app.py:479 blueprints/conversion.py:278
+
 msgid "Word vers PDF"
 msgstr "Word en PDF"
 
 #: app.py:480 templates/base.html:266 templates/base.html:409
-#, fuzzy
 msgid "Fusionner PDF"
 msgstr "Signer le PDF"
 
@@ -63,18 +63,18 @@ msgstr ""
 
 #: blueprints/admin.py:157 blueprints/admin.py:461 templates/base.html:243
 #: templates/base_legal.html:242
+
 msgid "Accueil"
 msgstr ""
 
 #: blueprints/admin.py:159 blueprints/admin.py:463
 #: templates/legal/about.html:24
-#, fuzzy
+
 msgid "Fusion PDF"
 msgstr "Signer le PDF"
 
 #: blueprints/admin.py:161 blueprints/admin.py:465
 #: templates/legal/about.html:36
-#, fuzzy
 msgid "Division PDF"
 msgstr "Signer le PDF"
 
@@ -145,8 +145,334 @@ msgid "✅ Fichier contacts.json réinitialisé (était vide)"
 msgstr ""
 
 #: blueprints/admin.py:664
+
 msgid "✅ Fichier contacts.json créé"
 msgstr ""
+
+#: blueprints/conversion.py:279
+msgid "Convertissez vos documents Word en PDF"
+msgstr "Convertissez votre document Word en PDF"
+
+#: blueprints/conversion.py:280 blueprints/conversion.py:379
+#: blueprints/conversion.py:551
+msgid "Word"
+msgstr ""
+
+#: blueprints/conversion.py:281 blueprints/conversion.py:293
+#: blueprints/conversion.py:305 blueprints/conversion.py:317
+#: blueprints/conversion.py:329 blueprints/conversion.py:341
+#: blueprints/conversion.py:353 blueprints/conversion.py:365
+#: blueprints/conversion.py:378 blueprints/conversion.py:390
+#: blueprints/conversion.py:402 blueprints/conversion.py:414
+#: blueprints/conversion.py:426 blueprints/conversion.py:438
+#: blueprints/conversion.py:450 blueprints/conversion.py:462
+#: blueprints/conversion.py:476 blueprints/conversion.py:477
+#: blueprints/conversion.py:488 blueprints/conversion.py:489
+#: blueprints/conversion.py:500 blueprints/conversion.py:501
+#: blueprints/conversion.py:512 blueprints/conversion.py:513
+#: blueprints/conversion.py:524 blueprints/conversion.py:525
+#: templates/conversion/powerpoint_to_pdf.html:199
+
+msgid "PDF"
+msgstr ""
+
+#: blueprints/conversion.py:290
+
+msgid "Excel vers PDF"
+msgstr "Excel en PDF"
+
+#: blueprints/conversion.py:291
+msgid "Convertissez vos feuilles Excel en PDF"
+msgstr "Convertissez votre document Word en PDF"
+
+#: blueprints/conversion.py:292 blueprints/conversion.py:403
+#: blueprints/conversion.py:563 blueprints/conversion.py:575
+#: blueprints/conversion.py:586
+
+msgid "Excel"
+msgstr ""
+
+#: blueprints/conversion.py:302
+msgid "PowerPoint vers PDF"
+msgstr "PowerPoint en PDF"
+
+#: blueprints/conversion.py:303 templates/conversion/powerpoint_to_pdf.html:10
+
+msgid "Convertissez vos présentations PowerPoint en PDF"
+msgstr "Convertissez vos présentations PowerPoint en PDF"
+
+#: blueprints/conversion.py:304 blueprints/conversion.py:415
+
+msgid "PowerPoint"
+msgstr "PowerPoint en PDF"
+
+#: blueprints/conversion.py:314
+
+msgid "Image vers PDF"
+msgstr "Image en PDF"
+
+#: blueprints/conversion.py:315
+msgid "Convertissez vos images en document PDF"
+msgstr "Convertissez votre PDF en document Word"
+
+#: blueprints/conversion.py:316 blueprints/conversion.py:427
+#: blueprints/conversion.py:550 blueprints/conversion.py:562
+
+msgid "Image"
+msgstr ""
+
+#: blueprints/conversion.py:326
+
+msgid "JPG vers PDF"
+msgstr "Word en PDF"
+
+#: blueprints/conversion.py:327
+msgid "Convertissez vos images JPG en PDF"
+msgstr "Convertissez vos présentations PowerPoint en PDF"
+
+#: blueprints/conversion.py:328
+
+msgid "JPG"
+msgstr ""
+
+#: blueprints/conversion.py:338
+
+msgid "PNG vers PDF"
+msgstr "Word en PDF"
+
+#: blueprints/conversion.py:339
+msgid "Convertissez vos images PNG en PDF"
+msgstr "Convertissez vos présentations PowerPoint en PDF"
+
+#: blueprints/conversion.py:340
+
+msgid "PNG"
+msgstr ""
+
+#: blueprints/conversion.py:350
+
+msgid "HTML vers PDF"
+msgstr "Word en PDF"
+
+#: blueprints/conversion.py:351
+msgid "Convertissez vos pages HTML en PDF"
+msgstr "Convertissez vos présentations PowerPoint en PDF"
+
+#: blueprints/conversion.py:352 blueprints/conversion.py:451
+
+msgid "HTML"
+msgstr ""
+
+#: blueprints/conversion.py:362
+
+msgid "TXT vers PDF"
+msgstr "Word en PDF"
+
+#: blueprints/conversion.py:363
+msgid "Convertissez vos fichiers texte en PDF"
+msgstr "Convertissez vos présentations PowerPoint en PDF"
+
+#: blueprints/conversion.py:364 blueprints/conversion.py:463
+msgid "TXT"
+msgstr ""
+
+#: blueprints/conversion.py:376 templates/conversion/word_to_pdf.html:265
+
+msgid "PDF vers Word"
+msgstr "PDF vers DOCX"
+
+#: blueprints/conversion.py:377
+
+msgid "Extrayez le texte de vos PDF en documents Word"
+msgstr "Extrayez le texte de vos images"
+
+#: blueprints/conversion.py:388
+
+msgid "PDF vers DOC"
+msgstr "PDF vers DOCX"
+
+#: blueprints/conversion.py:389
+msgid "Convertissez vos PDF en documents Word (format DOC)"
+msgstr "Convertissez votre PDF en document Word"
+
+#: blueprints/conversion.py:391
+
+msgid "DOC"
+msgstr ""
+
+#: blueprints/conversion.py:400
+
+msgid "PDF vers Excel"
+msgstr "PDF en Excel"
+
+#: blueprints/conversion.py:401
+
+msgid "Extrayez les tableaux de vos PDF en feuilles Excel"
+msgstr "Extrayez les tableaux de vos documents en feuilles Excel"
+
+#: blueprints/conversion.py:412
+
+msgid "PDF vers PowerPoint"
+msgstr "PDF vers DOCX"
+
+#: blueprints/conversion.py:413
+
+msgid "Convertissez vos PDF en présentations PowerPoint modifiables"
+msgstr "Convertissez votre PDF en présentation PowerPoint"
+
+#: blueprints/conversion.py:424
+
+msgid "PDF vers Image"
+msgstr "PDF en Image"
+
+#: blueprints/conversion.py:425
+
+msgid "Convertissez les pages de vos PDF en images"
+msgstr "Convertissez votre PDF en images"
+
+#: blueprints/conversion.py:436
+
+msgid "PDF vers PDF/A"
+msgstr "PDF en PDF/A"
+
+#: blueprints/conversion.py:437
+msgid "Convertissez vos PDF en format PDF/A pour l'archivage"
+msgstr "Convertissez votre PDF en format d'archivage"
+
+#: blueprints/conversion.py:439
+
+msgid "PDF/A"
+msgstr ""
+
+#: blueprints/conversion.py:448
+
+msgid "PDF vers HTML"
+msgstr "PDF vers DOCX"
+
+#: blueprints/conversion.py:449
+
+msgid "Convertissez vos PDF en pages HTML"
+msgstr "Convertissez votre PDF en images"
+
+#: blueprints/conversion.py:460
+
+msgid "PDF vers TXT"
+msgstr "PDF vers DOCX"
+
+#: blueprints/conversion.py:461
+msgid "Extrayez le texte de vos PDF en fichiers texte"
+msgstr "Extrayez le texte de vos images"
+
+#: blueprints/conversion.py:474 templates/base.html:270
+
+msgid "Protéger PDF"
+msgstr "Protéger le PDF"
+
+#: blueprints/conversion.py:475
+msgid "Ajoutez un mot de passe pour protéger vos PDF"
+msgstr "Ajouter un mot de passe et des restrictions"
+
+#: blueprints/conversion.py:486 templates/base.html:271
+
+msgid "Déverrouiller PDF"
+msgstr "Déverrouiller le PDF"
+
+#: blueprints/conversion.py:487
+
+msgid "Retirez la protection des PDF"
+msgstr "Retirez la protection par mot de passe de vos fichiers PDF."
+
+#: blueprints/conversion.py:498
+
+msgid "Caviarder PDF"
+msgstr "Caviarder le PDF"
+
+#: blueprints/conversion.py:499
+
+msgid "Supprimez définitivement le contenu sensible de votre PDF"
+msgstr "Supprimez définitivement le contenu sensible de votre document"
+
+#: blueprints/conversion.py:510
+
+msgid "Éditer PDF"
+msgstr "Diviser le PDF"
+
+#: blueprints/conversion.py:511
+
+msgid "Modifiez ou ajoutez du texte, des images et des pages à votre PDF"
+msgstr "Modifiez, ajoutez du texte ou des images à votre document"
+
+#: blueprints/conversion.py:522
+
+msgid "Signer PDF"
+msgstr "Signer le PDF"
+
+#: blueprints/conversion.py:523
+
+msgid "Ajoutez votre signature électronique à votre PDF"
+msgstr "Ajoutez votre signature électronique au document"
+
+#: blueprints/conversion.py:534
+
+msgid "Préparer formulaire PDF"
+msgstr "Créer le formulaire PDF"
+
+#: blueprints/conversion.py:535 templates/conversion/prepare_form.html:11
+msgid "Transformez vos documents en formulaires PDF interactifs"
+msgstr "Transformez vos documents en formulaires PDF interactifs"
+
+#: blueprints/conversion.py:536 templates/conversion/pdf_to_ppt.html:330
+
+msgid "Document"
+msgstr ""
+
+#: blueprints/conversion.py:537
+
+msgid "PDF Formulaire"
+msgstr "Créer le formulaire PDF"
+
+#: blueprints/conversion.py:548
+
+msgid "Image vers Word"
+msgstr "Image en Word"
+
+#: blueprints/conversion.py:549
+
+msgid "Extrayez le texte des images en documents Word"
+msgstr "Extrayez le texte de vos images"
+
+#: blueprints/conversion.py:560
+
+msgid "Image vers Excel"
+msgstr "Image en Excel"
+
+#: blueprints/conversion.py:561
+
+msgid "Extrayez les tableaux des images en Excel"
+msgstr "Extrayez les tableaux de vos documents en feuilles Excel"
+
+#: blueprints/conversion.py:572
+
+msgid "CSV vers Excel"
+msgstr "CSV en Excel"
+
+#: blueprints/conversion.py:573
+msgid "Convertissez vos fichiers CSV en Excel"
+msgstr "Sélectionnez les fichiers à convertir en Excel"
+
+#: blueprints/conversion.py:574 blueprints/conversion.py:587
+
+msgid "CSV"
+msgstr ""
+
+#: blueprints/conversion.py:584
+
+msgid "Excel vers CSV"
+msgstr "Excel en CSV"
+
+#: blueprints/conversion.py:585
+msgid "Exportez vos feuilles Excel en CSV"
+msgstr "Sélectionnez les fichiers à convertir en Excel"
 
 #: blueprints/legal/routes.py:205
 msgid "Veuillez remplir tous les champs obligatoires."
@@ -191,11 +517,11 @@ msgid "Informations légales"
 msgstr ""
 
 #: blueprints/legal/routes.py:247
+
 msgid "Politique de Confidentialité"
 msgstr ""
 
 #: blueprints/legal/routes.py:248
-#, fuzzy
 msgid "Protection des données"
 msgstr "Retirez la protection par mot de passe de vos fichiers PDF."
 
@@ -360,10 +686,13 @@ msgid "PDF Fusion Pro - Outils PDF Gratuits"
 msgstr ""
 
 #: templates/base.html:10
+
 msgid ""
 "Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos "
 "fichiers en ligne. Rapide, sécurisé et sans installation."
 msgstr ""
+"Outil PDF tout-en-un : fusion, division, rotation, compression et "
+"conversion. Rapide, sécurisé et entièrement gratuit."
 
 #: templates/base.html:12
 msgid ""
@@ -372,11 +701,11 @@ msgid ""
 msgstr ""
 
 #: templates/base.html:17
+
 msgid "PDF Fusion Pro - Convertisseur de fichiers"
 msgstr ""
 
 #: templates/base.html:18
-#, fuzzy
 msgid "Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne"
 msgstr "Convertissez vos présentations PowerPoint en PDF"
 
@@ -387,6 +716,7 @@ msgstr ""
 
 #: templates/base.html:250 templates/base_legal.html:278
 #: templates/conversion/conversion_base.html:197
+
 msgid "Convertir"
 msgstr ""
 
@@ -398,99 +728,90 @@ msgstr ""
 #: templates/conversion/powerpoint_to_pdf.html:90
 #: templates/conversion/txt_to_pdf.html:93
 #: templates/conversion/word_to_pdf.html:157
-#, fuzzy
+
 msgid "Convertir en PDF"
 msgstr "Convertissez vos présentations PowerPoint en PDF"
 
 #: templates/base.html:254
-#, fuzzy
+
 msgid "Word en PDF"
 msgstr "Word en PDF"
 
 #: templates/base.html:255
-#, fuzzy
+
 msgid "Excel en PDF"
 msgstr "Excel en PDF"
 
 #: templates/base.html:256
-#, fuzzy
+
 msgid "PowerPoint en PDF"
 msgstr "PowerPoint en PDF"
 
 #: templates/base.html:257
-#, fuzzy
+
 msgid "Image en PDF"
 msgstr "Image en PDF"
 
 #: templates/base.html:259
-#, fuzzy
+
 msgid "Convertir depuis PDF"
 msgstr "Caviarder le PDF"
 
 #: templates/base.html:260
-#, fuzzy
+
 msgid "PDF en Word"
 msgstr "PDF vers DOCX"
 
 #: templates/base.html:261
-#, fuzzy
+
 msgid "PDF en Excel"
 msgstr "PDF en Excel"
 
 #: templates/base.html:262
-#, fuzzy
+
 msgid "PDF en Image"
 msgstr "PDF en Image"
 
 #: templates/base.html:263
-#, fuzzy
+
 msgid "PDF en PDF/A"
 msgstr "PDF en PDF/A"
 
 #: templates/base.html:265
-#, fuzzy
+
 msgid "Outils PDF"
 msgstr "Version PDF/A"
 
 #: templates/base.html:267 templates/base.html:410
-#, fuzzy
+
 msgid "Diviser PDF"
 msgstr "Diviser le PDF"
 
 #: templates/base.html:268 templates/base.html:412
-#, fuzzy
 msgid "Compresser PDF"
 msgstr "Protéger le PDF"
 
-#: templates/base.html:270
-msgid "Protéger PDF"
-msgstr "Protéger le PDF"
-
-#: templates/base.html:271
-msgid "Déverrouiller PDF"
-msgstr "Déverrouiller le PDF"
-
 #: templates/base.html:273
+
 msgid "Autres conversions"
 msgstr ""
 
 #: templates/base.html:274
-#, fuzzy
+
 msgid "Image en Word"
 msgstr "Image en Word"
 
 #: templates/base.html:275
-#, fuzzy
+
 msgid "Image en Excel"
 msgstr "Image en Excel"
 
 #: templates/base.html:276
-#, fuzzy
+
 msgid "CSV en Excel"
 msgstr "CSV en Excel"
 
 #: templates/base.html:277
-#, fuzzy
 msgid "Excel en CSV"
 msgstr "Excel en CSV"
 
@@ -532,11 +853,11 @@ msgid ""
 msgstr ""
 
 #: templates/base.html:407
+
 msgid "Outils"
 msgstr ""
 
 #: templates/base.html:411
-#, fuzzy
 msgid "Tourner PDF"
 msgstr "Diviser le PDF"
 
@@ -654,21 +975,21 @@ msgid "Notre système le convertit automatiquement en %(to_format)s."
 msgstr ""
 
 #: templates/conversion/conversion_base.html:247
+
 msgid "Téléchargez ensuite votre fichier converti."
 msgstr ""
 
 #: templates/conversion/csv_to_excel.html:10
-#, fuzzy
+
 msgid "Téléchargez vos fichiers CSV"
 msgstr "Sélectionnez les fichiers à convertir en Excel"
 
 #: templates/conversion/csv_to_excel.html:11
-#, fuzzy
+
 msgid "Sélectionnez les fichiers à convertir en Excel"
 msgstr "Sélectionnez les fichiers à convertir en Excel"
 
 #: templates/conversion/csv_to_excel.html:21
-#, fuzzy
 msgid "Glissez-déposez vos fichiers CSV ici"
 msgstr "Sélectionnez les fichiers à convertir en Excel"
 
@@ -752,11 +1073,11 @@ msgid "Encodage :"
 msgstr ""
 
 #: templates/conversion/csv_to_excel.html:60
+
 msgid "La première ligne contient les en-têtes"
 msgstr ""
 
 #: templates/conversion/csv_to_excel.html:70
-#, fuzzy
 msgid "Convertir en Excel"
 msgstr "Sélectionnez les fichiers à convertir en Excel"
 
@@ -858,11 +1179,11 @@ msgstr ""
 #: templates/conversion/edit_pdf.html:10
 #: templates/conversion/redact_pdf.html:10
 #: templates/conversion/sign_pdf.html:10
+
 msgid "Téléchargez votre PDF"
 msgstr ""
 
 #: templates/conversion/edit_pdf.html:11
-#, fuzzy
 msgid "Modifiez, ajoutez du texte ou des images à votre document"
 msgstr "Modifiez, ajoutez du texte ou des images à votre document"
 
@@ -1063,11 +1384,11 @@ msgid "Votre PDF modifié est prêt à être téléchargé"
 msgstr ""
 
 #: templates/conversion/edit_pdf.html:253
+
 msgid "Télécharger le PDF modifié"
 msgstr ""
 
 #: templates/conversion/edit_pdf.html:257
-#, fuzzy
 msgid "Éditer un autre PDF"
 msgstr "Diviser le PDF"
 
@@ -1090,22 +1411,22 @@ msgid "Veuillez sélectionner une image à insérer"
 msgstr ""
 
 #: templates/conversion/edit_pdf.html:409
+
 msgid "Erreur lors de l'édition :"
 msgstr ""
 
 #: templates/conversion/excel_to_csv.html:10
 #: templates/conversion/excel_to_pdf.html:10
-#, fuzzy
 msgid "Téléchargez vos fichiers Excel"
 msgstr "Sélectionnez les fichiers à convertir en Excel"
 
 #: templates/conversion/excel_to_csv.html:11
+
 msgid "Sélectionnez les fichiers à convertir en CSV"
 msgstr ""
 
 #: templates/conversion/excel_to_csv.html:21
 #: templates/conversion/excel_to_pdf.html:21
-#, fuzzy
 msgid "Glissez-déposez vos fichiers Excel ici"
 msgstr "Sélectionnez les fichiers à convertir en Excel"
 
@@ -1143,11 +1464,11 @@ msgstr ""
 
 #: templates/conversion/excel_to_csv.html:148
 #: templates/conversion/excel_to_pdf.html:131
+
 msgid "Veuillez sélectionner au moins un fichier Excel"
 msgstr ""
 
 #: templates/conversion/excel_to_pdf.html:11
-#, fuzzy
 msgid "Sélectionnez les fichiers à convertir en PDF"
 msgstr "Convertissez vos présentations PowerPoint en PDF"
 
@@ -1262,6 +1583,7 @@ msgstr ""
 #: templates/conversion/jpg_to_pdf.html:104
 #: templates/conversion/png_to_pdf.html:104
 #: templates/conversion/txt_to_pdf.html:119
+
 msgid "Votre PDF est prêt à être téléchargé"
 msgstr ""
 
@@ -1269,7 +1591,6 @@ msgstr ""
 #: templates/conversion/jpg_to_pdf.html:106
 #: templates/conversion/png_to_pdf.html:106
 #: templates/conversion/txt_to_pdf.html:121
-#, fuzzy
 msgid "Télécharger le PDF"
 msgstr "Protéger le PDF"
 
@@ -1282,11 +1603,11 @@ msgid "Veuillez sélectionner un fichier ou coller du code HTML"
 msgstr ""
 
 #: templates/conversion/image_to_excel.html:10
+
 msgid "Téléchargez votre image ou PDF"
 msgstr ""
 
 #: templates/conversion/image_to_excel.html:11
-#, fuzzy
 msgid "Extrayez les tableaux de vos documents en feuilles Excel"
 msgstr "Extrayez les tableaux de vos documents en feuilles Excel"
 
@@ -1378,11 +1699,11 @@ msgid "cellule(s)"
 msgstr ""
 
 #: templates/conversion/image_to_excel.html:119
+
 msgid "Prêt pour extraction"
 msgstr ""
 
 #: templates/conversion/image_to_excel.html:126
-#, fuzzy
 msgid "Extraire les tableaux"
 msgstr "Extrayez les tableaux de vos documents en feuilles Excel"
 
@@ -1419,12 +1740,12 @@ msgid "Aperçu des données"
 msgstr ""
 
 #: templates/conversion/image_to_excel.html:202
+
 msgid "lignes extraites"
 msgstr ""
 
 #: templates/conversion/image_to_excel.html:209
 #: templates/conversion/pdf_to_excel.html:164
-#, fuzzy
 msgid "Télécharger Excel"
 msgstr "Image en Excel"
 
@@ -1479,13 +1800,13 @@ msgid "Erreur lors de l'extraction :"
 msgstr ""
 
 #: templates/conversion/image_to_pdf.html:10
+
 msgid "Téléchargez vos images"
 msgstr ""
 
 #: templates/conversion/image_to_pdf.html:11
 #: templates/conversion/jpg_to_pdf.html:11
 #: templates/conversion/png_to_pdf.html:11
-#, fuzzy
 msgid "Sélectionnez les images à convertir en PDF"
 msgstr "Convertissez vos présentations PowerPoint en PDF"
 
@@ -1518,13 +1839,13 @@ msgstr ""
 
 #: templates/conversion/image_to_pdf.html:53
 #: templates/conversion/jpg_to_pdf.html:61
+
 msgid "Basse (fichier plus petit)"
 msgstr ""
 
 #: templates/conversion/image_to_pdf.html:69
 #: templates/conversion/jpg_to_pdf.html:68
 #: templates/conversion/png_to_pdf.html:68
-#, fuzzy
 msgid "Fusionner toutes les images en un seul PDF"
 msgstr "Convertissez votre PDF en document Word"
 
@@ -1558,16 +1879,16 @@ msgid "images..."
 msgstr ""
 
 #: templates/conversion/image_to_pdf.html:194
+
 msgid "images terminé"
 msgstr ""
 
 #: templates/conversion/image_to_word.html:10
-#, fuzzy
+
 msgid "Extrayez le texte de vos images"
 msgstr "Extrayez le texte de vos images"
 
 #: templates/conversion/image_to_word.html:11
-#, fuzzy
 msgid "Convertissez images et PDF en documents Word éditables avec OCR"
 msgstr "Convertissez votre PDF en document Word"
 
@@ -1933,7 +2254,7 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/jpg_to_pdf.html:10
-#, fuzzy
+
 msgid "Téléchargez vos images JPG"
 msgstr "Convertissez vos présentations PowerPoint en PDF"
 
@@ -1963,19 +2284,20 @@ msgstr ""
 
 #: templates/conversion/jpg_to_pdf.html:146
 #: templates/conversion/png_to_pdf.html:142
+
 msgid "Veuillez sélectionner des fichiers"
 msgstr ""
 
 #: templates/conversion/pdf_to_doc.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en DOC"
 msgstr "Convertissez votre PDF en images"
 
 #: templates/conversion/pdf_to_doc.html:11
+
 msgid ""
 "Transformez vos documents PDF en format Word compatible avec les "
 "anciennes versions"
-msgstr ""
+msgstr "Transformez vos documents en formulaires PDF interactifs"
 
 #: templates/conversion/pdf_to_doc.html:26
 #: templates/conversion/pdf_to_excel.html:26
@@ -2041,11 +2363,11 @@ msgid "Compatible avec Microsoft Word 97-2003 et les anciennes versions."
 msgstr ""
 
 #: templates/conversion/pdf_to_doc.html:91
+
 msgid "Pour un format plus récent, utilisez"
 msgstr ""
 
 #: templates/conversion/pdf_to_doc.html:91
-#, fuzzy
 msgid "PDF vers DOCX"
 msgstr "PDF vers DOCX"
 
@@ -2145,21 +2467,21 @@ msgid "Génération du document..."
 msgstr ""
 
 #: templates/conversion/pdf_to_doc.html:277
+
 msgid "Création du fichier DOC"
 msgstr ""
 
 #: templates/conversion/pdf_to_excel.html:10
-#, fuzzy
+
 msgid "Extrayez les tableaux de votre PDF"
 msgstr "Extrayez les tableaux de vos documents en feuilles Excel"
 
 #: templates/conversion/pdf_to_excel.html:11
-#, fuzzy
+
 msgid "Convertissez vos tableaux PDF en feuilles de calcul Excel"
 msgstr "Extrayez les tableaux de vos documents en feuilles Excel"
 
 #: templates/conversion/pdf_to_excel.html:44
-#, fuzzy
 msgid "Extraire les tableaux uniquement"
 msgstr "Extrayez les tableaux de vos documents en feuilles Excel"
 
@@ -2202,7 +2524,7 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/pdf_to_excel.html:93
-#, fuzzy
+
 msgid "Extraire vers Excel"
 msgstr "Image en Excel"
 
@@ -2315,11 +2637,11 @@ msgid "Inclure les styles CSS"
 msgstr ""
 
 #: templates/conversion/pdf_to_html.html:67
+
 msgid "Conserver les images"
 msgstr ""
 
 #: templates/conversion/pdf_to_html.html:77
-#, fuzzy
 msgid "Convertir en HTML"
 msgstr "Convertissez votre PDF en images"
 
@@ -2332,11 +2654,11 @@ msgid "Votre fichier HTML est prêt à être téléchargé"
 msgstr ""
 
 #: templates/conversion/pdf_to_html.html:109
+
 msgid "Convertir un autre PDF"
 msgstr ""
 
 #: templates/conversion/pdf_to_image.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en images"
 msgstr "Convertissez votre PDF en images"
 
@@ -2421,11 +2743,11 @@ msgid "Fichier ZIP unique"
 msgstr ""
 
 #: templates/conversion/pdf_to_image.html:82
+
 msgid "Regroupe toutes les images dans une archive ZIP"
 msgstr ""
 
 #: templates/conversion/pdf_to_image.html:92
-#, fuzzy
 msgid "Convertir en images"
 msgstr "Convertissez votre PDF en images"
 
@@ -2476,11 +2798,11 @@ msgid "Conversion de la page"
 msgstr ""
 
 #: templates/conversion/pdf_to_image.html:281
+
 msgid "convertie en"
 msgstr ""
 
 #: templates/conversion/pdf_to_pdfa.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en format d'archivage"
 msgstr "Convertissez votre PDF en format d'archivage"
 
@@ -2491,12 +2813,11 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/pdf_to_pdfa.html:37
-#, fuzzy
+
 msgid "Options de conversion PDF/A"
 msgstr "PDF en PDF/A"
 
 #: templates/conversion/pdf_to_pdfa.html:42
-#, fuzzy
 msgid "Version PDF/A"
 msgstr "PDF en PDF/A"
 
@@ -2615,16 +2936,16 @@ msgid "Conformité"
 msgstr ""
 
 #: templates/conversion/pdf_to_pdfa.html:169
+
 msgid "Vérification de la conformité PDF/A..."
 msgstr ""
 
 #: templates/conversion/pdf_to_pdfa.html:183
-#, fuzzy
+
 msgid "Votre document PDF/A est prêt pour l'archivage"
 msgstr "Convertissez votre PDF en format d'archivage"
 
 #: templates/conversion/pdf_to_pdfa.html:188
-#, fuzzy
 msgid "Télécharger PDF/A"
 msgstr "Protéger le PDF"
 
@@ -2666,11 +2987,11 @@ msgid "Pages:"
 msgstr ""
 
 #: templates/conversion/pdf_to_pdfa.html:355
+
 msgid "Date:"
 msgstr ""
 
 #: templates/conversion/pdf_to_ppt.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en présentation PowerPoint"
 msgstr "Convertissez votre PDF en présentation PowerPoint"
 
@@ -2727,11 +3048,11 @@ msgid "Texte éditable"
 msgstr ""
 
 #: templates/conversion/pdf_to_ppt.html:79
+
 msgid "Le texte pourra être modifié dans PowerPoint"
 msgstr ""
 
 #: templates/conversion/pdf_to_ppt.html:89
-#, fuzzy
 msgid "Format PowerPoint :"
 msgstr "PDF vers DOCX"
 
@@ -2742,12 +3063,11 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/pdf_to_ppt.html:96
-#, fuzzy
+
 msgid "Convertir en PowerPoint"
 msgstr "PDF vers DOCX"
 
 #: templates/conversion/pdf_to_ppt.html:113
-#, fuzzy
 msgid "Création de votre présentation PowerPoint..."
 msgstr "Convertissez vos présentations PowerPoint en PDF"
 
@@ -2760,16 +3080,16 @@ msgstr ""
 
 #: templates/conversion/pdf_to_ppt.html:140
 #: templates/conversion/powerpoint_to_pdf.html:134
+
 msgid "Images intégrées"
 msgstr ""
 
 #: templates/conversion/pdf_to_ppt.html:162
-#, fuzzy
+
 msgid "Votre présentation PowerPoint est prête"
 msgstr "Convertissez vos présentations PowerPoint en PDF"
 
 #: templates/conversion/pdf_to_ppt.html:167
-#, fuzzy
 msgid "Télécharger PowerPoint"
 msgstr "PDF vers DOCX"
 
@@ -2797,10 +3117,6 @@ msgstr ""
 
 #: templates/conversion/pdf_to_ppt.html:330
 msgid "2 pages/diapo"
-msgstr ""
-
-#: templates/conversion/pdf_to_ppt.html:330
-msgid "Document"
 msgstr ""
 
 #: templates/conversion/pdf_to_ppt.html:346
@@ -2856,19 +3172,20 @@ msgid "Veuillez spécifier les pages à extraire"
 msgstr ""
 
 #: templates/conversion/pdf_to_txt.html:170
+
 msgid "Format de pages invalide. Utilisez le format: 1-5,8,11-13"
 msgstr ""
 
 #: templates/conversion/pdf_to_word.html:10
-#, fuzzy
 msgid "Convertissez votre PDF en document Word"
 msgstr "Convertissez votre PDF en document Word"
 
 #: templates/conversion/pdf_to_word.html:11
+
 msgid ""
 "Transformez vos PDF en documents Word modifiables avec mise en page "
 "préservée"
-msgstr ""
+msgstr "Convertissez votre PDF en document Word"
 
 #: templates/conversion/pdf_to_word.html:44
 msgid "Texte uniquement (plus léger)"
@@ -2897,16 +3214,16 @@ msgid "Convertir en Word"
 msgstr ""
 
 #: templates/conversion/pdf_to_word.html:133
+
 msgid "Paragraphes"
 msgstr ""
 
 #: templates/conversion/pdf_to_word.html:141
-#, fuzzy
+
 msgid "Images détectées"
 msgstr "Image en Excel"
 
 #: templates/conversion/pdf_to_word.html:163
-#, fuzzy
 msgid "Votre document Word est prêt"
 msgstr "Convertissez votre document Word en PDF"
 
@@ -2935,11 +3252,11 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/pdf_to_word.html:281
+
 msgid "Extraction de la page"
 msgstr ""
 
 #: templates/conversion/png_to_pdf.html:10
-#, fuzzy
 msgid "Téléchargez vos images PNG"
 msgstr "Convertissez vos présentations PowerPoint en PDF"
 
@@ -2950,10 +3267,6 @@ msgstr ""
 #: templates/conversion/png_to_pdf.html:60
 msgid "Conserver la transparence"
 msgstr ""
-
-#: templates/conversion/powerpoint_to_pdf.html:10
-msgid "Convertissez vos présentations PowerPoint en PDF"
-msgstr "Convertissez vos présentations PowerPoint en PDF"
 
 #: templates/conversion/powerpoint_to_pdf.html:11
 msgid "Transformez vos fichiers PPT/PPTX en documents PDF faciles à partager"
@@ -3052,10 +3365,6 @@ msgstr ""
 msgid "Fichiers convertis"
 msgstr ""
 
-#: templates/conversion/powerpoint_to_pdf.html:199
-msgid "PDF"
-msgstr ""
-
 #: templates/conversion/powerpoint_to_pdf.html:241
 msgid "Veuillez sélectionner au moins un fichier PowerPoint"
 msgstr ""
@@ -3076,11 +3385,6 @@ msgstr ""
 msgid "Téléchargez votre document"
 msgstr ""
 
-#: templates/conversion/prepare_form.html:11
-#, fuzzy
-msgid "Transformez vos documents en formulaires PDF interactifs"
-msgstr "Transformez vos documents en formulaires PDF interactifs"
-
 #: templates/conversion/prepare_form.html:21
 msgid "Glissez-déposez votre document ici"
 msgstr ""
@@ -3090,11 +3394,11 @@ msgid "Formats acceptés : PDF, Word, Excel, Images (jusqu'à 50MB)"
 msgstr ""
 
 #: templates/conversion/prepare_form.html:36
+
 msgid "Configuration du formulaire"
 msgstr ""
 
 #: templates/conversion/prepare_form.html:41
-#, fuzzy
 msgid "Type de formulaire :"
 msgstr "Créer le formulaire PDF"
 
@@ -3162,11 +3466,11 @@ msgstr ""
 
 #: templates/conversion/prepare_form.html:110
 #: templates/conversion/prepare_form.html:376
+
 msgid "Lancez la détection pour voir les champs"
 msgstr ""
 
 #: templates/conversion/prepare_form.html:121
-#, fuzzy
 msgid "Langue du formulaire :"
 msgstr "Créer le formulaire PDF"
 
@@ -3203,11 +3507,11 @@ msgid "Marquer les champs obligatoires (avec *)"
 msgstr ""
 
 #: templates/conversion/prepare_form.html:161
+
 msgid "Ajouter un bouton de soumission"
 msgstr ""
 
 #: templates/conversion/prepare_form.html:170
-#, fuzzy
 msgid "Créer le formulaire PDF"
 msgstr "Créer le formulaire PDF"
 
@@ -3229,16 +3533,16 @@ msgid "Formulaire créé !"
 msgstr ""
 
 #: templates/conversion/prepare_form.html:200
+
 msgid "Votre formulaire PDF interactif est prêt"
 msgstr ""
 
 #: templates/conversion/prepare_form.html:202
-#, fuzzy
+
 msgid "Télécharger le formulaire"
 msgstr "Créer le formulaire PDF"
 
 #: templates/conversion/prepare_form.html:206
-#, fuzzy
 msgid "Créer un autre formulaire"
 msgstr "Créer le formulaire PDF"
 
@@ -3315,11 +3619,11 @@ msgid "Ajout des propriétés du formulaire..."
 msgstr ""
 
 #: templates/conversion/prepare_form.html:332
+
 msgid "Terminé !"
 msgstr ""
 
 #: templates/conversion/prepare_form.html:346
-#, fuzzy
 msgid "formulaire.pdf"
 msgstr "Créer le formulaire PDF"
 
@@ -3411,7 +3715,7 @@ msgstr ""
 
 #: templates/conversion/protect_pdf.html:81
 #: templates/conversion/word_to_pdf.html:118
-#, fuzzy
+
 msgid "Protéger le PDF"
 msgstr "Protéger le PDF"
 
@@ -3433,11 +3737,11 @@ msgstr ""
 
 #: templates/conversion/protect_pdf.html:198
 #: templates/conversion/unlock_pdf.html:144
+
 msgid "Erreur:"
 msgstr ""
 
 #: templates/conversion/redact_pdf.html:11
-#, fuzzy
 msgid "Supprimez définitivement le contenu sensible de votre document"
 msgstr "Supprimez définitivement le contenu sensible de votre document"
 
@@ -3458,11 +3762,11 @@ msgid "Zone rectangulaire"
 msgstr ""
 
 #: templates/conversion/redact_pdf.html:55
+
 msgid "Motif (email, téléphone...)"
 msgstr ""
 
 #: templates/conversion/redact_pdf.html:62
-#, fuzzy
 msgid "Texte à caviarder :"
 msgstr "Caviarder le PDF"
 
@@ -3509,11 +3813,11 @@ msgid "Fine"
 msgstr ""
 
 #: templates/conversion/redact_pdf.html:108
+
 msgid "Épaisse"
 msgstr ""
 
 #: templates/conversion/redact_pdf.html:116
-#, fuzzy
 msgid "Motifs à caviarder :"
 msgstr "Caviarder le PDF"
 
@@ -3574,11 +3878,11 @@ msgid "Aperçu du PDF - Dessinez les zones à caviarder"
 msgstr ""
 
 #: templates/conversion/redact_pdf.html:190
+
 msgid "Cliquez et faites glisser pour dessiner un rectangle de caviardage"
 msgstr ""
 
 #: templates/conversion/redact_pdf.html:198
-#, fuzzy
 msgid "Caviarder le PDF"
 msgstr "Caviarder le PDF"
 
@@ -3591,11 +3895,11 @@ msgid "Analyse et suppression du contenu sensible"
 msgstr ""
 
 #: templates/conversion/redact_pdf.html:217
+
 msgid "Préparation..."
 msgstr ""
 
 #: templates/conversion/redact_pdf.html:227
-#, fuzzy
 msgid "Caviardage terminé !"
 msgstr "Caviarder le PDF"
 
@@ -3604,11 +3908,11 @@ msgid "Le contenu sensible a été supprimé définitivement"
 msgstr ""
 
 #: templates/conversion/redact_pdf.html:230
+
 msgid "Télécharger le PDF caviardé"
 msgstr ""
 
 #: templates/conversion/redact_pdf.html:234
-#, fuzzy
 msgid "Caviarder un autre PDF"
 msgstr "Caviarder le PDF"
 
@@ -3637,11 +3941,11 @@ msgid "Application du caviardage..."
 msgstr ""
 
 #: templates/conversion/redact_pdf.html:516
+
 msgid "Erreur lors du caviardage :"
 msgstr ""
 
 #: templates/conversion/sign_pdf.html:11
-#, fuzzy
 msgid "Ajoutez votre signature électronique au document"
 msgstr "Ajoutez votre signature électronique au document"
 
@@ -3767,11 +4071,11 @@ msgid "Ajouter un motif de signature"
 msgstr ""
 
 #: templates/conversion/sign_pdf.html:174
+
 msgid "Ex: Approbation, Accord, Certificat..."
 msgstr ""
 
 #: templates/conversion/sign_pdf.html:182
-#, fuzzy
 msgid "Signer le PDF"
 msgstr "Signer le PDF"
 
@@ -3792,11 +4096,11 @@ msgid "Votre PDF signé est prêt à être téléchargé"
 msgstr ""
 
 #: templates/conversion/sign_pdf.html:213
+
 msgid "Télécharger le PDF signé"
 msgstr ""
 
 #: templates/conversion/sign_pdf.html:217
-#, fuzzy
 msgid "Signer un autre PDF"
 msgstr "Signer le PDF"
 
@@ -3817,11 +4121,11 @@ msgid "Veuillez télécharger une image de signature"
 msgstr ""
 
 #: templates/conversion/sign_pdf.html:455
+
 msgid "Erreur lors de la signature :"
 msgstr ""
 
 #: templates/conversion/txt_to_pdf.html:10
-#, fuzzy
 msgid "Téléchargez votre fichier texte"
 msgstr "Convertissez vos présentations PowerPoint en PDF"
 
@@ -3874,11 +4178,11 @@ msgid "Convertir un autre texte"
 msgstr ""
 
 #: templates/conversion/txt_to_pdf.html:177
+
 msgid "Veuillez saisir du texte ou sélectionner un fichier"
 msgstr ""
 
 #: templates/conversion/unlock_pdf.html:18
-#, fuzzy
 msgid "Retirez la protection par mot de passe de vos fichiers PDF."
 msgstr "Retirez la protection par mot de passe de vos fichiers PDF."
 
@@ -3909,21 +4213,21 @@ msgid ""
 msgstr ""
 
 #: templates/conversion/unlock_pdf.html:53
-#, fuzzy
+
 msgid "Déverrouiller le PDF"
 msgstr "Déverrouiller le PDF"
 
 #: templates/conversion/unlock_pdf.html:119
+
 msgid "Erreur lors du déverrouillage"
 msgstr ""
 
 #: templates/conversion/unlock_pdf.html:128
-#, fuzzy
+
 msgid "document_deverrouille.pdf"
 msgstr "Déverrouiller le PDF"
 
 #: templates/conversion/word_to_pdf.html:10
-#, fuzzy
 msgid "Convertissez votre document Word en PDF"
 msgstr "Convertissez votre document Word en PDF"
 
@@ -4025,11 +4329,11 @@ msgid "Inclure les signets"
 msgstr ""
 
 #: templates/conversion/word_to_pdf.html:107
+
 msgid "Pour une navigation plus facile"
 msgstr ""
 
 #: templates/conversion/word_to_pdf.html:119
-#, fuzzy
 msgid "Ajouter un mot de passe et des restrictions"
 msgstr "Ajouter un mot de passe et des restrictions"
 
@@ -4093,17 +4397,13 @@ msgid "Détails"
 msgstr ""
 
 #: templates/conversion/word_to_pdf.html:244
+
 msgid "Format: A4<br>Orientation: Portrait<br>Qualité: Standard"
 msgstr ""
 
 #: templates/conversion/word_to_pdf.html:253
-#, fuzzy
 msgid "Télécharger PDF"
 msgstr "Protéger le PDF"
-
-#: templates/conversion/word_to_pdf.html:265
-msgid "PDF vers Word"
-msgstr "PDF vers DOCX"
 
 #: templates/conversion/word_to_pdf.html:298
 msgid "Veuillez sélectionner un document Word"
@@ -4902,6 +5202,8 @@ msgid ""
 "Outil PDF tout-en-un : fusion, division, rotation, compression et "
 "conversion. Rapide, sécurisé et entièrement gratuit."
 msgstr ""
+"Outil PDF tout-en-un : fusion, division, rotation, compression et "
+"conversion. Rapide, sécurisé et entièrement gratuit."
 
 #: templates/pdf/index.html:13
 msgid ""
@@ -4914,29 +5216,29 @@ msgid "Fusionner des fichiers PDF"
 msgstr ""
 
 #: templates/pdf/index.html:24
+
 msgid "Combine plusieurs PDF en un seul document organisé"
 msgstr ""
 
 #: templates/pdf/index.html:28
-#, fuzzy
 msgid "Fusionner des PDF"
 msgstr "Signer le PDF"
 
 #: templates/pdf/index.html:31
+
 msgid "Accédez à l'outil de fusion PDF"
 msgstr ""
 
 #: templates/pdf/index.html:41
-#, fuzzy
 msgid "Diviser un fichier PDF"
 msgstr "Déverrouiller le PDF"
 
 #: templates/pdf/index.html:42
+
 msgid "Extrayez des pages spécifiques ou divisez par plages"
 msgstr ""
 
 #: templates/pdf/index.html:46 templates/pdf/split.html:8
-#, fuzzy
 msgid "Diviser un PDF"
 msgstr "Diviser le PDF"
 
@@ -4957,11 +5259,11 @@ msgid "Tourner un PDF"
 msgstr ""
 
 #: templates/pdf/index.html:67
+
 msgid "Accédez à l'outil de rotation PDF"
 msgstr ""
 
 #: templates/pdf/index.html:77
-#, fuzzy
 msgid "Compresser un fichier PDF"
 msgstr "Convertissez vos présentations PowerPoint en PDF"
 
@@ -4974,11 +5276,12 @@ msgid "Accédez à l'outil de compression PDF"
 msgstr ""
 
 #: templates/pdf/index.html:97
+
 msgid "Convertisseur universel"
 msgstr ""
 
 #: templates/pdf/index.html:98
-#, fuzzy
+
 msgid ""
 "Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et "
 "vice-versa"
@@ -5001,11 +5304,11 @@ msgid "Satisfaction"
 msgstr ""
 
 #: templates/pdf/index.html:132
+
 msgid "Disponible"
 msgstr ""
 
 #: templates/pdf/index.html:145
-#, fuzzy
 msgid "Votre solution PDF tout-en-un, entièrement gratuite et sécurisée"
 msgstr "Votre solution PDF tout-en-un, entièrement gratuite et sécurisée"
 
@@ -5050,11 +5353,11 @@ msgid "Déposez vos PDF ici"
 msgstr ""
 
 #: templates/pdf/merge.html:17
+
 msgid "Glissez-déposez vos fichiers ou cliquez pour parcourir"
 msgstr ""
 
 #: templates/pdf/merge.html:28
-#, fuzzy
 msgid "Fusionner les PDF"
 msgstr "Signer le PDF"
 
@@ -5109,3830 +5412,11 @@ msgid "Pages à extraire"
 msgstr ""
 
 #: templates/pdf/split.html:30
+
 msgid "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\""
 msgstr ""
 
 #: templates/pdf/split.html:36
-#, fuzzy
 msgid "Diviser le PDF"
 msgstr "Diviser le PDF"
-
-#~ msgid "Convertisseur de fichiers"
-#~ msgstr "Convertisseur de fichiers"
-
-#~ msgid "Date inconnue"
-#~ msgstr "Date inconnue"
-
-#~ msgid "s"
-#~ msgstr "s"
-
-#~ msgid "à l'instant"
-#~ msgstr "à l'instant"
-
-#~ msgid "Mot de passe incorrect"
-#~ msgstr "Mot de passe incorrect"
-
-#~ msgid "🔄 Régénération des stats du dashboard..."
-#~ msgstr "🔄 Régénération des stats du dashboard..."
-
-#~ msgid "Ratings chargés"
-#~ msgstr "Évaluations chargées"
-
-#~ msgid "Exemple rating"
-#~ msgstr "Exemple d'évaluation"
-
-#~ msgid "Accueil"
-#~ msgstr "Accueil"
-
-#~ msgid "Fusion PDF"
-#~ msgstr "Fusionner les PDF"
-
-#~ msgid "Division PDF"
-#~ msgstr "Version PDF/A"
-
-#~ msgid "Rotation PDF"
-#~ msgstr "Pivoter PDF"
-
-#~ msgid "Compression PDF"
-#~ msgstr "Compresser PDF"
-
-#~ msgid "DEBUG - Nombre de ratings"
-#~ msgstr "DEBUG - Nombre d'évaluations"
-
-#~ msgid "DEBUG - Répertoire ratings"
-#~ msgstr "DEBUG - Répertoire des évaluations"
-
-#~ msgid "DEBUG - Fichiers dans ratings"
-#~ msgstr "DEBUG - Fichiers dans le dossier ratings"
-
-#~ msgid "Stats régénérées"
-#~ msgstr "Stats régénérées"
-
-#~ msgid "messages"
-#~ msgstr "messages"
-
-#~ msgid "ratings"
-#~ msgstr "évaluations"
-
-#~ msgid "Erreur lors de la génération des stats"
-#~ msgstr "Erreur lors de la génération des stats"
-
-#~ msgid "Messages Archivés"
-#~ msgstr "Messages archivés"
-
-#~ msgid "Messages de Contact"
-#~ msgstr "Messages de contact"
-
-#~ msgid "Message non trouvé"
-#~ msgstr "Message non trouvé"
-
-#~ msgid "Évaluations Non Vues"
-#~ msgstr "Évaluations non vues"
-
-#~ msgid "Toutes les Évaluations"
-#~ msgstr "Toutes les évaluations"
-
-#~ msgid "✅ Fichier contacts.json est valide"
-#~ msgstr "✅ Fichier contacts.json valide"
-
-#~ msgid "✅ Fichier contacts.json réinitialisé (était vide)"
-#~ msgstr "✅ Fichier contacts.json réinitialisé (était vide)"
-
-#~ msgid "✅ Fichier contacts.json créé"
-#~ msgstr "✅ Fichier contacts.json créé"
-
-#~ msgid "Veuillez remplir tous les champs obligatoires."
-#~ msgstr "Veuillez remplir tous les champs obligatoires."
-
-#~ msgid "Veuillez entrer une adresse email valide."
-#~ msgstr "Veuillez entrer un mot de passe"
-
-#~ msgid "Votre message a été envoyé avec succès !"
-#~ msgstr "Votre message a été envoyé avec succès !"
-
-#~ msgid "Une erreur technique est survenue. Veuillez réessayer."
-#~ msgstr "Une erreur technique est survenue. Veuillez réessayer."
-
-#~ msgid "Contact"
-#~ msgstr "Contact"
-
-#~ msgid "Formulaire de contact"
-#~ msgstr "Formulaire de contact"
-
-#~ msgid "Contactez-nous via notre formulaire"
-#~ msgstr "Contactez-nous via notre formulaire"
-
-#~ msgid "Mentions Légales"
-#~ msgstr "Mentions Légales"
-
-#~ msgid "Information légale"
-#~ msgstr "Informations d'archivage"
-
-#~ msgid "Informations légales"
-#~ msgstr "Informations d'archivage"
-
-#~ msgid "Politique de Confidentialité"
-#~ msgstr "Engagement de confidentialité :"
-
-#~ msgid "Protection des données"
-#~ msgstr "Protection des données"
-
-#~ msgid "Comment nous protégeons vos données"
-#~ msgstr "Comment nous protégeons vos données"
-
-#~ msgid "Conditions d'Utilisation"
-#~ msgstr "Correction d'inclinaison"
-
-#~ msgid "Règles d'usage"
-#~ msgstr "Règles d'usage"
-
-#~ msgid "Conditions d'utilisation du service"
-#~ msgstr "Disponibilité du service"
-
-#~ msgid "À Propos"
-#~ msgstr "Noms propres"
-
-#~ msgid "Notre histoire"
-#~ msgstr "Notre histoire"
-
-#~ msgid "Découvrez PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid "Fichier invalide"
-#~ msgstr "Fichier invalide"
-
-#~ msgid "Fichier vide"
-#~ msgstr "Fichier vide"
-
-#~ msgid "Fichier trop volumineux"
-#~ msgstr "Fichier trop volumineux"
-
-#~ msgid "Fichier corrompu ou non-PDF"
-#~ msgstr "Fichier corrompu ou non-PDF"
-
-#~ msgid "%(filename)s n'est pas un PDF"
-#~ msgstr "%(filename)s n'est pas un PDF"
-
-#~ msgid "%(filename)s est vide"
-#~ msgstr "%(filename)s est vide"
-
-#~ msgid "%(filename)s est corrompu ou non-PDF"
-#~ msgstr "%(filename)s est corrompu ou non-PDF"
-
-#~ msgid "Aucun fichier"
-#~ msgstr "Taille du fichier"
-
-#~ msgid "Au moins 2 PDF requis"
-#~ msgstr "Au moins 2 PDF requis"
-
-#~ msgid "Maximum %(max)d fichiers"
-#~ msgstr "Maximum %(max)d fichiers"
-
-#~ msgid "Fichier %(name)s contient trop de pages"
-#~ msgstr "Le fichier %(name)s contient trop de pages"
-
-#~ msgid "Erreur interne serveur"
-#~ msgstr "Erreur interne du serveur"
-
-#~ msgid "Fichier contient trop de pages"
-#~ msgstr "Le fichier contient trop de pages"
-
-#~ msgid "Format non supporté"
-#~ msgstr "Format non supporté"
-
-#~ msgid "OCR non disponible"
-#~ msgstr "Non disponible"
-
-#~ msgid "Données manquantes"
-#~ msgstr "Données manquantes"
-
-#~ msgid "Note invalide (1-5)"
-#~ msgstr "Note invalide (1-5)"
-
-#~ msgid "Merci pour votre évaluation !"
-#~ msgstr "Merci pour votre évaluation !"
-
-#~ msgid "Fermer"
-#~ msgstr "Fermer"
-
-#~ msgid "Votre avis compte !"
-#~ msgstr "Votre avis compte !"
-
-#~ msgid "Comment évaluez-vous votre expérience avec notre outil PDF ?"
-#~ msgstr "Comment évaluez-vous votre expérience avec notre outil PDF ?"
-
-#~ msgid "Merci ! Avez-vous des suggestions d’amélioration ?"
-#~ msgstr "Merci ! Avez-vous des suggestions d'amélioration ?"
-
-#~ msgid "Envoyer mon évaluation"
-#~ msgstr "Envoyer mon évaluation"
-
-#~ msgid "Peut-être plus tard"
-#~ msgstr "Peut-être plus tard"
-
-#~ msgid "Évaluer l’application"
-#~ msgstr "Évaluer l'application"
-
-#~ msgid "Donnez votre avis"
-#~ msgstr "Donnez votre avis"
-
-#~ msgid "Merci pour votre retour !"
-#~ msgstr "Merci pour votre retour !"
-
-#~ msgid "Votre évaluation nous aide à améliorer notre service."
-#~ msgstr "Votre évaluation nous aide à améliorer notre service."
-
-#~ msgid "Une erreur est survenue. Veuillez réessayer."
-#~ msgstr "Une erreur est survenue. Veuillez réessayer."
-
-#~ msgid "PDF Fusion Pro - Outils PDF Gratuits"
-#~ msgstr "PDF Fusion Pro - Outils PDF Gratuits"
-
-#~ msgid ""
-#~ "Outils PDF gratuits pour fusionner, "
-#~ "diviser, compresser et convertir vos "
-#~ "fichiers en ligne. Rapide, sécurisé et"
-#~ " sans installation."
-#~ msgstr ""
-#~ "Outils PDF gratuits pour fusionner, "
-#~ "diviser, compresser et convertir vos "
-#~ "fichiers en ligne. Rapide, sécurisé et"
-#~ " sans installation."
-
-#~ msgid ""
-#~ "PDF, convertisseur, fusionner, diviser, "
-#~ "compresser, OCR, Word, Excel, PowerPoint, "
-#~ "image"
-#~ msgstr ""
-#~ "PDF, convertisseur, fusionner, diviser, "
-#~ "compresser, OCR, Word, Excel, PowerPoint, "
-#~ "image"
-
-#~ msgid "PDF Fusion Pro - Convertisseur de fichiers"
-#~ msgstr "Convertisseur de fichiers"
-
-#~ msgid ""
-#~ "Convertissez gratuitement vos fichiers PDF,"
-#~ " Word, Excel, images en ligne"
-#~ msgstr ""
-#~ "Convertissez gratuitement vos fichiers PDF,"
-#~ " Word, Excel, images en ligne"
-
-#~ msgid "PDF Fusion Pro"
-#~ msgstr "PDF Fusion Pro"
-
-#~ msgid "Convertir"
-#~ msgstr "Convertir"
-
-#~ msgid "Convertir en PDF"
-#~ msgstr "Convertir en PDF/A"
-
-#~ msgid "Convertir depuis PDF"
-#~ msgstr "Convertir en PDF/A"
-
-#~ msgid "PDF en Word"
-#~ msgstr "PDF en Word"
-
-#~ msgid "Outils PDF"
-#~ msgstr "Déverrouiller PDF"
-
-#~ msgid "Fusionner PDF"
-#~ msgstr "Fusionner les PDF"
-
-#~ msgid "Compresser PDF"
-#~ msgstr "Compresser PDF"
-
-#~ msgid "Autres conversions"
-#~ msgstr "Autres conversions"
-
-#~ msgid "Toutes les conversions"
-#~ msgstr "Autres conversions"
-
-#~ msgid "Fusionner"
-#~ msgstr "Fusionner les PDF"
-
-#~ msgid "Diviser"
-#~ msgstr "Diviser"
-
-#~ msgid "Tourner"
-#~ msgstr "Pivoter le PDF"
-
-#~ msgid "Compresser"
-#~ msgstr "Compresser"
-
-#~ msgid "À propos"
-#~ msgstr "Noms propres"
-
-#~ msgid ""
-#~ "Outils PDF gratuits en ligne. "
-#~ "Convertissez, fusionnez, divisez et compressez"
-#~ " vos fichiers PDF."
-#~ msgstr ""
-#~ "Outils PDF gratuits en ligne. "
-#~ "Convertissez, fusionnez, divisez et compressez"
-#~ " vos fichiers PDF."
-
-#~ msgid ""
-#~ "Vos fichiers sont traités de manière "
-#~ "sécurisée et supprimés automatiquement."
-#~ msgstr ""
-#~ "Vos fichiers sont traités de manière "
-#~ "sécurisée et supprimés automatiquement."
-
-#~ msgid "Outils"
-#~ msgstr "Utiliser"
-
-#~ msgid "Tourner PDF"
-#~ msgstr "Pivoter le PDF"
-
-#~ msgid "Mentions légales"
-#~ msgstr "Mentions légales"
-
-#~ msgid "Confidentialité"
-#~ msgstr "confidentiel"
-
-#~ msgid "Conditions d'utilisation"
-#~ msgstr "Correction d'inclinaison"
-
-#~ msgid "Tous droits réservés."
-#~ msgstr "Tous droits réservés."
-
-#~ msgid "Version"
-#~ msgstr "Version"
-
-#~ msgid "Hébergé sur Render"
-#~ msgstr "Hébergé sur Render"
-
-#~ msgid "Chargement..."
-#~ msgstr "Chargement du PDF..."
-
-#~ msgid "Traitement en cours..."
-#~ msgstr "Traitement OCR..."
-
-#~ msgid "Veuillez patienter"
-#~ msgstr "Veuillez patienter"
-
-#~ msgid "Conditions"
-#~ msgstr "Options"
-
-#~ msgid "Retour à l'accueil"
-#~ msgstr "Retour à l'accueil"
-
-#~ msgid "caractères"
-#~ msgstr "caractères"
-
-#~ msgid "Télécharger"
-#~ msgstr "Télécharger"
-
-#~ msgid "Sécurisé"
-#~ msgstr "Sécurisé"
-
-#~ msgid "Vos fichiers sont supprimés après conversion"
-#~ msgstr "Vos fichiers sont supprimés après conversion"
-
-#~ msgid "Rapide"
-#~ msgstr "Rapide"
-
-#~ msgid "Conversion en quelques secondes"
-#~ msgstr "Conversion en quelques secondes"
-
-#~ msgid "Confidentiel"
-#~ msgstr "confidentiel"
-
-#~ msgid "Personne n'accède à vos fichiers"
-#~ msgstr "Personne n'accède à vos fichiers"
-
-#~ msgid "Accessible"
-#~ msgstr "Faible"
-
-#~ msgid "Utilisez depuis n'importe où"
-#~ msgstr "Utilisez depuis n'importe où"
-
-#~ msgid "Comment ça marche ?"
-#~ msgstr "Comment ça marche ?"
-
-#~ msgid "Téléchargez votre fichier %(from_format)s."
-#~ msgstr "Téléchargez votre fichier %(from_format)s."
-
-#~ msgid "Notre système le convertit automatiquement en %(to_format)s."
-#~ msgstr "Notre système le convertit automatiquement en %(to_format)s."
-
-#~ msgid "Téléchargez ensuite votre fichier converti."
-#~ msgstr "Téléchargez ensuite votre fichier converti."
-
-#~ msgid "Téléchargez vos fichiers CSV"
-#~ msgstr "Téléchargez vos fichiers CSV"
-
-#~ msgid "Glissez-déposez vos fichiers CSV ici"
-#~ msgstr "Glissez-déposez vos fichiers CSV ici"
-
-#~ msgid "ou"
-#~ msgstr "ou"
-
-#~ msgid "Formats acceptés : CSV, TXT (jusqu'à 50MB par fichier)"
-#~ msgstr "Formats acceptés : CSV, TXT (jusqu'à 50 Mo par fichier)"
-
-#~ msgid "Options de conversion"
-#~ msgstr "Autres conversions"
-
-#~ msgid "Séparateur :"
-#~ msgstr "Séparateur :"
-
-#~ msgid "Virgule (,)"
-#~ msgstr "Virgule (,)"
-
-#~ msgid "Point-virgule (;)"
-#~ msgstr "Point-virgule (;)"
-
-#~ msgid "Tabulation"
-#~ msgstr "Tabulation"
-
-#~ msgid "Pipe (|)"
-#~ msgstr "Pipe (|)"
-
-#~ msgid "Encodage :"
-#~ msgstr "Encodage :"
-
-#~ msgid "La première ligne contient les en-têtes"
-#~ msgstr "La première ligne contient les en-têtes"
-
-#~ msgid "Convertir en Excel"
-#~ msgstr "Convertir en Excel"
-
-#~ msgid "Réinitialiser"
-#~ msgstr "Réinitialiser"
-
-#~ msgid "Conversion en cours..."
-#~ msgstr "Conversion en PDF/A en cours..."
-
-#~ msgid "Veuillez patienter pendant le traitement de vos fichiers"
-#~ msgstr "Veuillez patienter pendant le traitement de vos fichiers"
-
-#~ msgid "Conversion terminée !"
-#~ msgstr "Conversion terminée !"
-
-#~ msgid "Votre fichier Excel est prêt à être téléchargé"
-#~ msgstr "Votre fichier Excel est prêt à être téléchargé"
-
-#~ msgid "Convertir d'autres fichiers"
-#~ msgstr "Convertir un autre fichier"
-
-#~ msgid "Veuillez sélectionner au moins un fichier CSV"
-#~ msgstr "Veuillez sélectionner au moins un fichier CSV"
-
-#~ msgid "Erreur lors de la conversion :"
-#~ msgstr "Erreur lors de la conversion :"
-
-#~ msgid "Téléchargez votre PDF"
-#~ msgstr "Téléchargez votre PDF"
-
-#~ msgid "Glissez-déposez votre fichier PDF ici"
-#~ msgstr "Glissez-déposez votre fichier PDF ici"
-
-#~ msgid "Formats acceptés : PDF (jusqu'à 100MB)"
-#~ msgstr "Formats acceptés : PDF (jusqu'à 100 Mo)"
-
-#~ msgid "Ajouter du texte"
-#~ msgstr "Ajouter du texte"
-
-#~ msgid "Ajouter une image"
-#~ msgstr "Ajouter une image"
-
-#~ msgid "Gérer les pages"
-#~ msgstr "Gérer les pages"
-
-#~ msgid "Ajouter du texte au PDF"
-#~ msgstr "Ajouter du texte au PDF"
-
-#~ msgid "Texte à ajouter :"
-#~ msgstr "Texte à ajouter :"
-
-#~ msgid "Saisissez votre texte ici..."
-#~ msgstr "Saisissez votre texte ici..."
-
-#~ msgid "Page d'insertion :"
-#~ msgstr "Page d'insertion :"
-
-#~ msgid "Position :"
-#~ msgstr "Position :"
-
-#~ msgid "Taille :"
-#~ msgstr "Taille :"
-
-#~ msgid "Couleur :"
-#~ msgstr "Couleur :"
-
-#~ msgid "Police :"
-#~ msgstr "Police :"
-
-#~ msgid "Times New Roman"
-#~ msgstr "Times New Roman"
-
-#~ msgid "Helvetica Gras"
-#~ msgstr "Helvetica Gras"
-
-#~ msgid "Helvetica Italique"
-#~ msgstr "Helvetica Italique"
-
-#~ msgid "Ajouter une image au PDF"
-#~ msgstr "Ajouter une image au PDF"
-
-#~ msgid "Glissez-déposez votre image ici"
-#~ msgstr "Glissez-déposez votre image ici"
-
-#~ msgid "Taille originale"
-#~ msgstr "Taille originale"
-
-#~ msgid "Ajuster à la page"
-#~ msgstr "Ajuster à la page"
-
-#~ msgid "Personnalisée"
-#~ msgstr "Personnalisée"
-
-#~ msgid "Position X :"
-#~ msgstr "Position X :"
-
-#~ msgid "Position Y :"
-#~ msgstr "Position Y :"
-
-#~ msgid "Gestion des pages"
-#~ msgstr "Gestion des pages"
-
-#~ msgid "Action :"
-#~ msgstr "Action :"
-
-#~ msgid "Réorganiser"
-#~ msgstr "Réorganiser"
-
-#~ msgid "Supprimer"
-#~ msgstr "Supprimer"
-
-#~ msgid "Rotation"
-#~ msgstr "Rotation"
-
-#~ msgid "Faites glisser les pages pour les réorganiser"
-#~ msgstr "Faites glisser les pages pour les réorganiser"
-
-#~ msgid "Page"
-#~ msgstr "Page"
-
-#~ msgid "Pages à supprimer :"
-#~ msgstr "Pages à supprimer :"
-
-#~ msgid "Ex: 1-3, 5, 7-9"
-#~ msgstr "Ex: 1-3, 5, 7-9"
-
-#~ msgid "Attention : La suppression est définitive"
-#~ msgstr "Attention : La suppression est définitive"
-
-#~ msgid "Pages à tourner :"
-#~ msgstr "Pages à pivoter :"
-
-#~ msgid "Angle :"
-#~ msgstr "Angle :"
-
-#~ msgid "horaire"
-#~ msgstr "horaire"
-
-#~ msgid "antihoraire"
-#~ msgstr "antihoraire"
-
-#~ msgid "Appliquer les modifications"
-#~ msgstr "Appliquer les modifications"
-
-#~ msgid "Édition en cours..."
-#~ msgstr "Édition en cours..."
-
-#~ msgid "Application des modifications au document"
-#~ msgstr "Application des modifications au document"
-
-#~ msgid "Édition terminée !"
-#~ msgstr "Édition terminée !"
-
-#~ msgid "Votre PDF modifié est prêt à être téléchargé"
-#~ msgstr "Votre PDF modifié est prêt à être téléchargé"
-
-#~ msgid "Télécharger le PDF modifié"
-#~ msgstr "Télécharger le PDF modifié"
-
-#~ msgid "Éditer un autre PDF"
-#~ msgstr "Éditer un autre PDF"
-
-#~ msgid "Veuillez sélectionner un fichier PDF"
-#~ msgstr "Veuillez sélectionner un fichier"
-
-#~ msgid "Veuillez sélectionner une image à insérer"
-#~ msgstr "Veuillez sélectionner un fichier"
-
-#~ msgid "Erreur lors de l'édition :"
-#~ msgstr "Erreur lors de l'édition :"
-
-#~ msgid "Téléchargez vos fichiers Excel"
-#~ msgstr "Téléchargez vos fichiers Excel"
-
-#~ msgid "Sélectionnez les fichiers à convertir en CSV"
-#~ msgstr "Sélectionnez les fichiers à convertir en CSV"
-
-#~ msgid "Formats acceptés : XLS, XLSX (jusqu'à 50MB par fichier)"
-#~ msgstr "Formats acceptés : XLS, XLSX (jusqu'à 50 Mo par fichier)"
-
-#~ msgid "Feuille à exporter :"
-#~ msgstr "Feuille à exporter :"
-
-#~ msgid "Première feuille"
-#~ msgstr "Première feuille"
-
-#~ msgid "Toutes les feuilles (archive ZIP)"
-#~ msgstr "Toutes les feuilles (archive ZIP)"
-
-#~ msgid "Inclure les en-têtes"
-#~ msgstr "Inclure les en-têtes"
-
-#~ msgid "Ajouter BOM UTF-8 (compatible Excel)"
-#~ msgstr "Ajouter BOM UTF-8 (compatible Excel)"
-
-#~ msgid "Convertir en CSV"
-#~ msgstr "Convertir en CSV"
-
-#~ msgid "Vos fichiers CSV sont prêts à être téléchargés"
-#~ msgstr "Vos fichiers CSV sont prêts à être téléchargés"
-
-#~ msgid "Veuillez sélectionner au moins un fichier Excel"
-#~ msgstr "Veuillez sélectionner au moins un fichier Excel"
-
-#~ msgid "Sélectionnez les fichiers à convertir en PDF"
-#~ msgstr "Sélectionnez les fichiers à convertir en CSV"
-
-#~ msgid "Formats acceptés : XLS, XLSX, XLSM (jusqu'à 50MB par fichier)"
-#~ msgstr "Formats acceptés : XLS, XLSX, XLSM (jusqu'à 50 Mo par fichier)"
-
-#~ msgid "Orientation :"
-#~ msgstr "Orientation :"
-
-#~ msgid "Portrait"
-#~ msgstr "Portrait"
-
-#~ msgid "Paysage"
-#~ msgstr "Paysage"
-
-#~ msgid "Format de page :"
-#~ msgstr "Format de page :"
-
-#~ msgid "Letter"
-#~ msgstr "Lettre"
-
-#~ msgid "Vos fichiers PDF sont prêts à être téléchargés"
-#~ msgstr "Vos fichiers PDF sont prêts à être téléchargés"
-
-#~ msgid "Téléchargez votre fichier HTML"
-#~ msgstr "Téléchargez votre fichier HTML"
-
-#~ msgid "ou collez votre code directement"
-#~ msgstr "ou collez votre code directement"
-
-#~ msgid "Glissez-déposez votre fichier HTML ici"
-#~ msgstr "Glissez-déposez votre fichier HTML ici"
-
-#~ msgid "Formats acceptés : HTML, HTM"
-#~ msgstr "Formats acceptés : HTML, HTM"
-
-#~ msgid "Ou collez votre code HTML :"
-#~ msgstr "Ou collez votre code HTML :"
-
-#~ msgid ""
-#~ "&lt;!DOCTYPE html&gt;\n"
-#~ "&lt;html&gt;\n"
-#~ "&lt;head&gt;\n"
-#~ "    &lt;title&gt;Ma page&lt;/title&gt;\n"
-#~ "&lt;/head&gt;\n"
-#~ "&lt;body&gt;\n"
-#~ "    &lt;h1&gt;Titre&lt;/h1&gt;\n"
-#~ "    &lt;p&gt;Contenu...&lt;/p&gt;\n"
-#~ "&lt;/body&gt;\n"
-#~ "&lt;/html&gt;"
-#~ msgstr ""
-#~ "&lt;!DOCTYPE html&gt;\n"
-#~ "&lt;html&gt;\n"
-#~ "&lt;head&gt;\n"
-#~ "    &lt;title&gt;Ma page&lt;/title&gt;\n"
-#~ "&lt;/head&gt;\n"
-#~ "&lt;body&gt;\n"
-#~ "    &lt;h1&gt;Titre&lt;/h1&gt;\n"
-#~ "    &lt;p&gt;Contenu...&lt;/p&gt;\n"
-#~ "&lt;/body&gt;\n"
-#~ "&lt;/html&gt;"
-
-#~ msgid "Lettre"
-#~ msgstr "Lettre"
-
-#~ msgid "Marges (mm) :"
-#~ msgstr "Marges (mm) :"
-
-#~ msgid "Inclure les images"
-#~ msgstr "Inclure les images"
-
-#~ msgid "Activer JavaScript"
-#~ msgstr "Activer JavaScript"
-
-#~ msgid "Veuillez patienter pendant le traitement de votre fichier"
-#~ msgstr "Veuillez patienter pendant le traitement de votre fichier"
-
-#~ msgid "Votre PDF est prêt à être téléchargé"
-#~ msgstr "Votre PDF est prêt à être téléchargé"
-
-#~ msgid "Télécharger le PDF"
-#~ msgstr "Télécharger le PDF"
-
-#~ msgid "Convertir un autre fichier"
-#~ msgstr "Convertir un autre fichier"
-
-#~ msgid "Veuillez sélectionner un fichier ou coller du code HTML"
-#~ msgstr "Veuillez sélectionner un fichier ou coller du code HTML"
-
-#~ msgid "Téléchargez votre image ou PDF"
-#~ msgstr "Téléchargez votre image ou PDF"
-
-#~ msgid "Glissez-déposez votre fichier ici"
-#~ msgstr "Glissez-déposez votre fichier ici"
-
-#~ msgid "Formats acceptés : JPG, PNG, BMP, TIFF, WEBP, PDF (jusqu'à 50MB)"
-#~ msgstr "Formats acceptés : JPG, PNG, BMP, TIFF, WEBP, PDF (jusqu'à 50 Mo)"
-
-#~ msgid "Options d'extraction"
-#~ msgstr "Mode d'extraction"
-
-#~ msgid "Mode d'extraction"
-#~ msgstr "Mode d'extraction"
-
-#~ msgid "Automatique"
-#~ msgstr "Automatique"
-
-#~ msgid "Détection intelligente des tableaux"
-#~ msgstr "Détection intelligente des tableaux"
-
-#~ msgid "Grille"
-#~ msgstr "Grille"
-
-#~ msgid "Extraction par grille fixe"
-#~ msgstr "Extraction par grille fixe"
-
-#~ msgid "Options"
-#~ msgstr "Options"
-
-#~ msgid "Détecter les en-têtes"
-#~ msgstr "Détecter les en-têtes"
-
-#~ msgid "Fusionner les cellules"
-#~ msgstr "Fusionner les cellules"
-
-#~ msgid "Précision OCR"
-#~ msgstr "Précision OCR"
-
-#~ msgid "Haute (plus lent)"
-#~ msgstr "Haute (plus lent)"
-
-#~ msgid "Moyenne (équilibré)"
-#~ msgstr "Moyenne (équilibré)"
-
-#~ msgid "Basse (plus rapide)"
-#~ msgstr "Basse (plus rapide)"
-
-#~ msgid "Format de sortie"
-#~ msgstr "Format de sortie"
-
-#~ msgid "Excel (XLSX)"
-#~ msgstr "Excel (XLSX)"
-
-#~ msgid "tableau(x) détecté(s)"
-#~ msgstr "tableau(x) détecté(s)"
-
-#~ msgid "cellule(s)"
-#~ msgstr "cellule(s)"
-
-#~ msgid "Prêt pour extraction"
-#~ msgstr "Prêt pour extraction"
-
-#~ msgid "Extraire les tableaux"
-#~ msgstr "Extraire les tableaux"
-
-#~ msgid "Analyse des tableaux en cours"
-#~ msgstr "Analyse des tableaux en cours"
-
-#~ msgid "Détection des structures tabulaires..."
-#~ msgstr "Détection des structures tabulaires..."
-
-#~ msgid "Tableaux détectés"
-#~ msgstr "Tableaux détectés"
-
-#~ msgid "Cellules extraites"
-#~ msgstr "Cellules extraites"
-
-#~ msgid "Confiance"
-#~ msgstr "Confiance"
-
-#~ msgid "Extraction terminée !"
-#~ msgstr "Extraction terminée !"
-
-#~ msgid "Aperçu des données"
-#~ msgstr "Aperçu des données"
-
-#~ msgid "lignes extraites"
-#~ msgstr "lignes extraites"
-
-#~ msgid "Télécharger Excel"
-#~ msgstr "Télécharger Excel"
-
-#~ msgid "Nouvelle extraction"
-#~ msgstr "Nouvelle extraction"
-
-#~ msgid "Veuillez sélectionner un fichier"
-#~ msgstr "Veuillez sélectionner un fichier"
-
-#~ msgid "Prétraitement de l'image..."
-#~ msgstr "Prétraitement de l'image..."
-
-#~ msgid "Détection des contours..."
-#~ msgstr "Détection des contours..."
-
-#~ msgid "Identification des lignes..."
-#~ msgstr "Identification des lignes..."
-
-#~ msgid "Extraction du contenu..."
-#~ msgstr "Extraction du contenu..."
-
-#~ msgid "Structuration des données..."
-#~ msgstr "Structuration des données..."
-
-#~ msgid "Finalisation..."
-#~ msgstr "Finalisation..."
-
-#~ msgid "Erreur lors de l'extraction :"
-#~ msgstr "Erreur lors de l'extraction :"
-
-#~ msgid "Téléchargez vos images"
-#~ msgstr "Téléchargez vos images"
-
-#~ msgid "Sélectionnez les images à convertir en PDF"
-#~ msgstr "Sélectionnez les images à convertir en PDF"
-
-#~ msgid "Glissez-déposez vos images ici"
-#~ msgstr "Glissez-déposez vos images ici"
-
-#~ msgid ""
-#~ "Formats acceptés : JPG, PNG, BMP, "
-#~ "GIF, TIFF, WEBP (jusqu'à 50MB par "
-#~ "fichier)"
-#~ msgstr ""
-#~ "Formats acceptés : JPG, PNG, BMP, "
-#~ "GIF, TIFF, WEBP (jusqu'à 50 Mo par"
-#~ " fichier)"
-
-#~ msgid "Qualité :"
-#~ msgstr "Qualité :"
-
-#~ msgid "Haute (fichier plus gros)"
-#~ msgstr "Haute (fichier plus gros)"
-
-#~ msgid "Moyenne"
-#~ msgstr "Moyenne"
-
-#~ msgid "Basse (fichier plus petit)"
-#~ msgstr "Basse (fichier plus petit)"
-
-#~ msgid "Fusionner toutes les images en un seul PDF"
-#~ msgstr "Fusionner toutes les images en un seul PDF"
-
-#~ msgid "Veuillez patienter pendant le traitement de vos images"
-#~ msgstr "Veuillez patienter pendant le traitement de vos images"
-
-#~ msgid "Traitement de 0/{total} images..."
-#~ msgstr "Traitement de 0/{total} images..."
-
-#~ msgid "Convertir d'autres images"
-#~ msgstr "Convertir d'autres images"
-
-#~ msgid "Veuillez sélectionner au moins une image"
-#~ msgstr "Veuillez sélectionner au moins une image"
-
-#~ msgid "Traitement de"
-#~ msgstr "Traitement de"
-
-#~ msgid "images..."
-#~ msgstr "images..."
-
-#~ msgid "images terminé"
-#~ msgstr "images terminées"
-
-#~ msgid "Convertissez images et PDF en documents Word éditables avec OCR"
-#~ msgstr "Convertissez images et PDF en documents Word éditables avec OCR"
-
-#~ msgid "Glissez-déposez vos fichiers ici"
-#~ msgstr "Glissez-déposez vos fichiers ici"
-
-#~ msgid "Paramètres OCR avancés"
-#~ msgstr "Paramètres OCR avancés"
-
-#~ msgid "Langues de reconnaissance"
-#~ msgstr "Langues de reconnaissance"
-
-#~ msgid "Français"
-#~ msgstr "Français"
-
-#~ msgid "Anglais"
-#~ msgstr "Anglais"
-
-#~ msgid "Espagnol"
-#~ msgstr "Espagnol"
-
-#~ msgid "Allemand"
-#~ msgstr "Allemand"
-
-#~ msgid "Italien"
-#~ msgstr "Italien"
-
-#~ msgid "Portugais"
-#~ msgstr "Portugais"
-
-#~ msgid "Niveau de confiance OCR"
-#~ msgstr "Niveau de confiance OCR"
-
-#~ msgid "Bas (plus de texte)"
-#~ msgstr "Bas (plus de texte)"
-
-#~ msgid "Haut (plus précis)"
-#~ msgstr "Haut (plus précis)"
-
-#~ msgid "Conserver la mise en page"
-#~ msgstr "Conserver la mise en page"
-
-#~ msgid "Maintient les paragraphes et colonnes"
-#~ msgstr "Maintient les paragraphes et colonnes"
-
-#~ msgid "Prétraitement d'image"
-#~ msgstr "Prétraitement d'image"
-
-#~ msgid "Aucun"
-#~ msgstr "Aucun"
-
-#~ msgid "Niveaux de gris"
-#~ msgstr "Niveaux de gris"
-
-#~ msgid "Binarisation (recommandé)"
-#~ msgstr "Binarisation (recommandé)"
-
-#~ msgid "Réduction du bruit"
-#~ msgstr "Réduction du bruit"
-
-#~ msgid "Correction inclinaison"
-#~ msgstr "Correction d'inclinaison"
-
-#~ msgid "DOCX (Word moderne)"
-#~ msgstr "DOCX (Word moderne)"
-
-#~ msgid "DOC (Word ancien)"
-#~ msgstr "DOC (Word ancien)"
-
-#~ msgid "TXT (texte brut)"
-#~ msgstr "TXT (texte brut)"
-
-#~ msgid "RTF (format riche)"
-#~ msgstr "RTF (format riche)"
-
-#~ msgid "Extraire et convertir en Word"
-#~ msgstr "Extraire et convertir en Word"
-
-#~ msgid "Extraction OCR en cours"
-#~ msgstr "Extraction OCR en cours"
-
-#~ msgid "Analyse du document et reconnaissance de texte..."
-#~ msgstr "Analyse du document et reconnaissance de texte..."
-
-#~ msgid "Recherche des zones de texte..."
-#~ msgstr "Recherche des zones de texte..."
-
-#~ msgid "Extraction réussie !"
-#~ msgstr "Extraction réussie !"
-
-#~ msgid "Votre document Word est prêt au téléchargement"
-#~ msgstr "Votre document Word est prêt au téléchargement"
-
-#~ msgid "Télécharger Word"
-#~ msgstr "Télécharger Word"
-
-#~ msgid "Caractères extraits"
-#~ msgstr "Caractères extraits"
-
-#~ msgid "Mots détectés"
-#~ msgstr "Mots détectés"
-
-#~ msgid "Lignes"
-#~ msgstr "Lignes"
-
-#~ msgid "Optimisation de l'image pour l'OCR"
-#~ msgstr "Optimisation de l'image pour l'OCR"
-
-#~ msgid "Analyse des zones de texte..."
-#~ msgstr "Analyse des zones de texte..."
-
-#~ msgid "Détection des paragraphes et colonnes"
-#~ msgstr "Détection des paragraphes et colonnes"
-
-#~ msgid "Reconnaissance des caractères..."
-#~ msgstr "Reconnaissance des caractères..."
-
-#~ msgid "Analyse des formes et patterns"
-#~ msgstr "Analyse des formes et motifs"
-
-#~ msgid "Correction orthographique..."
-#~ msgstr "Correction orthographique..."
-
-#~ msgid "Vérification du vocabulaire"
-#~ msgstr "Vérification du vocabulaire"
-
-#~ msgid "Structuration du document..."
-#~ msgstr "Structuration du document..."
-
-#~ msgid "Organisation en paragraphes"
-#~ msgstr "Organisation en paragraphes"
-
-#~ msgid "Préparation du document Word"
-#~ msgstr "Préparation du document Word"
-
-#~ msgid "Document prêt"
-#~ msgstr "Document prêt"
-
-#~ msgid "Transformez vos documents en tous formats, gratuitement et en ligne"
-#~ msgstr "Transformez vos documents en tous formats, gratuitement et en ligne"
-
-#~ msgid ""
-#~ "Convertissez PDF, Word, Excel, PowerPoint, "
-#~ "images et plus encore. Simple, rapide"
-#~ " et sécurisé."
-#~ msgstr ""
-#~ "Convertissez PDF, Word, Excel, PowerPoint, "
-#~ "images et plus encore. Simple, rapide"
-#~ " et sécurisé."
-
-#~ msgid "Découvrir les outils"
-#~ msgstr "Découvrir les outils"
-
-#~ msgid "Outils de conversion"
-#~ msgstr "Autres conversions"
-
-#~ msgid "Gratuit"
-#~ msgstr "Gratuit"
-
-#~ msgid "Max par fichier"
-#~ msgstr "Max par fichier"
-
-#~ msgid "Conversions illimitées"
-#~ msgstr "Conversions illimitées"
-
-#~ msgid "outils disponibles"
-#~ msgstr "Non disponible"
-
-#~ msgid "Fichiers traités localement et supprimés après conversion"
-#~ msgstr "Fichiers traités localement et supprimés après conversion"
-
-#~ msgid "Conversion en quelques secondes, sans attente"
-#~ msgstr "Conversion en quelques secondes, sans attente"
-
-#~ msgid "Multiplateforme"
-#~ msgstr "Multiplateforme"
-
-#~ msgid "Compatible avec tous les navigateurs modernes"
-#~ msgstr "Compatible avec tous les navigateurs modernes"
-
-#~ msgid "Illimité"
-#~ msgstr "Illimité"
-
-#~ msgid "Aucune limite sur le nombre de conversions"
-#~ msgstr "Aucune limite sur le nombre de conversions"
-
-#~ msgid "Toutes les conversions disponibles"
-#~ msgstr "Toutes les conversions disponibles"
-
-#~ msgid "Utiliser"
-#~ msgstr "Utiliser"
-
-#~ msgid "Choisissez votre outil de conversion"
-#~ msgstr "Choisissez votre outil de conversion"
-
-#~ msgid "Téléchargez votre fichier source"
-#~ msgstr "Téléchargez votre fichier source"
-
-#~ msgid "Configurez les options (si besoin)"
-#~ msgstr "Configurez les options (si besoin)"
-
-#~ msgid "Lancez la conversion"
-#~ msgstr "Lancez la conversion"
-
-#~ msgid "Téléchargez votre fichier converti"
-#~ msgstr "Téléchargez votre fichier converti"
-
-#~ msgid "Important :"
-#~ msgstr "Important :"
-
-#~ msgid "Les fichiers sont automatiquement supprimés après 1 heure"
-#~ msgstr "Les fichiers sont automatiquement supprimés après 1 heure"
-
-#~ msgid "Liens rapides"
-#~ msgstr "Liens rapides"
-
-#~ msgid "Dépendances système"
-#~ msgstr "Dépendances système"
-
-#~ msgid "Nettoyer fichiers temporaires"
-#~ msgstr "Nettoyer les fichiers temporaires"
-
-#~ msgid "Vérifier l'état du service"
-#~ msgstr "Vérifier l'état du service"
-
-#~ msgid "Questions fréquentes"
-#~ msgstr "Questions fréquentes"
-
-#~ msgid "Les fichiers sont-ils sécurisés ?"
-#~ msgstr "Les fichiers sont-ils sécurisés ?"
-
-#~ msgid ""
-#~ "Oui, tous les fichiers sont traités "
-#~ "localement et automatiquement supprimés après"
-#~ " 1 heure. Nous ne stockons jamais "
-#~ "vos documents sur nos serveurs."
-#~ msgstr ""
-#~ "Oui, tous les fichiers sont traités "
-#~ "localement et automatiquement supprimés après"
-#~ " 1 heure. Nous ne stockons jamais "
-#~ "vos documents sur nos serveurs."
-
-#~ msgid "Quelles sont les limites de taille ?"
-#~ msgstr "Quelles sont les limites de taille ?"
-
-#~ msgid ""
-#~ "Taille maximale par fichier : 50MB. "
-#~ "Nombre maximum de fichiers par "
-#~ "conversion : variable selon l'outil (de"
-#~ " 1 à 20)."
-#~ msgstr ""
-#~ "Taille maximale par fichier : 50 "
-#~ "Mo. Nombre maximum de fichiers par "
-#~ "conversion : variable selon l'outil (de"
-#~ " 1 à 20)."
-
-#~ msgid "Combien de temps dure une conversion ?"
-#~ msgstr "Combien de temps dure une conversion ?"
-
-#~ msgid ""
-#~ "La plupart des conversions prennent "
-#~ "moins de 30 secondes. Pour les "
-#~ "gros fichiers ou les conversions "
-#~ "complexes (OCR), comptez 1 à 2 "
-#~ "minutes."
-#~ msgstr ""
-#~ "La plupart des conversions prennent "
-#~ "moins de 30 secondes. Pour les "
-#~ "gros fichiers ou les conversions "
-#~ "complexes (OCR), comptez 1 à 2 "
-#~ "minutes."
-
-#~ msgid "Quels formats sont supportés ?"
-#~ msgstr "Quels formats sont supportés ?"
-
-#~ msgid ""
-#~ "Nous supportons plus de 20 formats "
-#~ ": PDF, DOC, DOCX, XLS, XLSX, PPT,"
-#~ " PPTX, JPG, PNG, GIF, BMP, TIFF, "
-#~ "CSV, et plus encore."
-#~ msgstr ""
-#~ "Nous supportons plus de 20 formats "
-#~ ": PDF, DOC, DOCX, XLS, XLSX, PPT,"
-#~ " PPTX, JPG, PNG, GIF, BMP, TIFF, "
-#~ "CSV, et plus encore."
-
-#~ msgid "Téléchargez vos images JPG"
-#~ msgstr "Téléchargez vos images JPG"
-
-#~ msgid "Formats acceptés : JPG, JPEG (jusqu'à 20 fichiers)"
-#~ msgstr "Formats acceptés : JPG, JPEG (jusqu'à 20 fichiers)"
-
-#~ msgid "A4 (21 x 29,7 cm)"
-#~ msgstr "A4 (21 x 29,7 cm)"
-
-#~ msgid "Lettre (21,6 x 27,9 cm)"
-#~ msgstr "Lettre (21,6 x 27,9 cm)"
-
-#~ msgid "Legal (21,6 x 35,6 cm)"
-#~ msgstr "Legal (21,6 x 35,6 cm)"
-
-#~ msgid "Haute (recommandé)"
-#~ msgstr "Haute (recommandé)"
-
-#~ msgid "Veuillez sélectionner des fichiers"
-#~ msgstr "Veuillez sélectionner un fichier"
-
-#~ msgid "Convertissez votre PDF en DOC"
-#~ msgstr "Convertissez votre PDF en DOC"
-
-#~ msgid ""
-#~ "Transformez vos documents PDF en format"
-#~ " Word compatible avec les anciennes "
-#~ "versions"
-#~ msgstr ""
-#~ "Transformez vos documents PDF en format"
-#~ " Word compatible avec les anciennes "
-#~ "versions"
-
-#~ msgid "Format accepté : PDF (jusqu'à 50MB)"
-#~ msgstr "Format accepté : PDF (jusqu'à 50 Mo)"
-
-#~ msgid "Texte uniquement"
-#~ msgstr "Texte uniquement"
-
-#~ msgid "Texte et images"
-#~ msgstr "Texte et images"
-
-#~ msgid "Choisissez le niveau de détail à conserver"
-#~ msgstr "Choisissez le niveau de détail à conserver"
-
-#~ msgid "Langue du document"
-#~ msgstr "Langue du document"
-
-#~ msgid "Améliore la reconnaissance du texte"
-#~ msgstr "Améliore la reconnaissance du texte"
-
-#~ msgid "Détecter les tableaux"
-#~ msgstr "Détecter les tableaux"
-
-#~ msgid "Convertit automatiquement les tableaux en format Word"
-#~ msgstr "Convertit automatiquement les tableaux en format Word"
-
-#~ msgid "Conserver la mise en forme"
-#~ msgstr "Conserver la mise en forme"
-
-#~ msgid "Maintient les polices, tailles et styles"
-#~ msgstr "Maintient les polices, tailles et styles"
-
-#~ msgid "Format DOC :"
-#~ msgstr "Format DOC :"
-
-#~ msgid "Compatible avec Microsoft Word 97-2003 et les anciennes versions."
-#~ msgstr "Compatible avec Microsoft Word 97-2003 et les anciennes versions."
-
-#~ msgid "Pour un format plus récent, utilisez"
-#~ msgstr "Pour un format plus récent, utilisez"
-
-#~ msgid "Convertir en DOC"
-#~ msgstr "Convertir en DOC"
-
-#~ msgid "Analyse et conversion de votre PDF..."
-#~ msgstr "Analyse et conversion de votre PDF..."
-
-#~ msgid "Extraction du texte..."
-#~ msgstr "Extraction du texte..."
-
-#~ msgid "Conversion réussie !"
-#~ msgstr "Conversion réussie !"
-
-#~ msgid "Votre document DOC est prêt au téléchargement"
-#~ msgstr "Votre document DOC est prêt au téléchargement"
-
-#~ msgid "Télécharger DOC"
-#~ msgstr "Télécharger DOC"
-
-#~ msgid "Nouvelle conversion"
-#~ msgstr "Toutes les conversions"
-
-#~ msgid "Pages traitées"
-#~ msgstr "Pages estimées"
-
-#~ msgid "Taille du fichier"
-#~ msgstr "Taille du fichier"
-
-#~ msgid "Format"
-#~ msgstr "Format"
-
-#~ msgid "Analyse du PDF..."
-#~ msgstr "Analyse du PDF..."
-
-#~ msgid "Lecture de la structure du document"
-#~ msgstr "Lecture de la structure du document"
-
-#~ msgid "Récupération du contenu textuel"
-#~ msgstr "Récupération du contenu textuel"
-
-#~ msgid "Conservation de la mise en page..."
-#~ msgstr "Conservation de la mise en page..."
-
-#~ msgid "Préservation des paragraphes et styles"
-#~ msgstr "Préservation des paragraphes et styles"
-
-#~ msgid "Traitement des tableaux..."
-#~ msgstr "Traitement des tableaux..."
-
-#~ msgid "Conversion des structures tabulaires"
-#~ msgstr "Conversion des structures tabulaires"
-
-#~ msgid "Génération du document..."
-#~ msgstr "Génération du document..."
-
-#~ msgid "Création du fichier DOC"
-#~ msgstr "Création du fichier DOC"
-
-#~ msgid "Extrayez les tableaux de votre PDF"
-#~ msgstr "Extrayez les tableaux de votre PDF"
-
-#~ msgid "Convertissez vos tableaux PDF en feuilles de calcul Excel"
-#~ msgstr "Convertissez vos tableaux PDF en feuilles de calcul Excel"
-
-#~ msgid "Extraire les tableaux uniquement"
-#~ msgstr "Extraire les tableaux uniquement"
-
-#~ msgid "Extraire tout le texte"
-#~ msgstr "Extraire tout le texte"
-
-#~ msgid "Détection intelligente"
-#~ msgstr "Détection intelligente"
-
-#~ msgid "Choisissez comment extraire les données"
-#~ msgstr "Choisissez comment extraire les données"
-
-#~ msgid "Améliore la reconnaissance OCR"
-#~ msgstr "Améliore la reconnaissance OCR"
-
-#~ msgid "Activer l'OCR"
-#~ msgstr "Activer l'OCR"
-
-#~ msgid "Pour les PDF scannés ou les images"
-#~ msgstr "Pour les PDF scannés ou les images"
-
-#~ msgid "Maintient les styles et couleurs"
-#~ msgstr "Maintient les styles et couleurs"
-
-#~ msgid "Extraction intelligente :"
-#~ msgstr "Extraction intelligente :"
-
-#~ msgid ""
-#~ "Les tableaux seront automatiquement détectés"
-#~ " et convertis en feuilles Excel. "
-#~ "L'OCR permet de reconnaître le texte "
-#~ "dans les documents scannés."
-#~ msgstr ""
-#~ "Les tableaux seront automatiquement détectés"
-#~ " et convertis en feuilles Excel. "
-#~ "L'OCR permet de reconnaître le texte "
-#~ "dans les documents scannés."
-
-#~ msgid "Extraire vers Excel"
-#~ msgstr "Extraire le texte"
-
-#~ msgid "Extraction en cours..."
-#~ msgstr "Extraction en cours..."
-
-#~ msgid "Analyse et extraction des données..."
-#~ msgstr "Analyse et extraction des données..."
-
-#~ msgid "Lignes extraites"
-#~ msgstr "Lignes extraites"
-
-#~ msgid "Colonnes"
-#~ msgstr "Colonnes"
-
-#~ msgid "Recherche de tableaux dans le document..."
-#~ msgstr "Recherche de tableaux dans le document..."
-
-#~ msgid "Votre fichier Excel est prêt au téléchargement"
-#~ msgstr "Votre fichier Excel est prêt au téléchargement"
-
-#~ msgid "Tableaux"
-#~ msgstr "Tableaux"
-
-#~ msgid "Cellules"
-#~ msgstr "Cellules"
-
-#~ msgid "Feuilles"
-#~ msgstr "Feuilles"
-
-#~ msgid "Analyse du document..."
-#~ msgstr "Analyse du document..."
-
-#~ msgid "Détection des zones de texte"
-#~ msgstr "Détection des zones de texte"
-
-#~ msgid "Recherche de tableaux..."
-#~ msgstr "Recherche de tableaux..."
-
-#~ msgid "Identification des structures tabulaires"
-#~ msgstr "Identification des structures tabulaires"
-
-#~ msgid "Extraction des données..."
-#~ msgstr "Extraction des données..."
-
-#~ msgid "Récupération du contenu des cellules"
-#~ msgstr "Récupération du contenu des cellules"
-
-#~ msgid "Traitement OCR..."
-#~ msgstr "Traitement OCR..."
-
-#~ msgid "Reconnaissance de texte dans les images"
-#~ msgstr "Reconnaissance de texte dans les images"
-
-#~ msgid "Organisation en feuilles Excel"
-#~ msgstr "Organisation en feuilles Excel"
-
-#~ msgid "Téléchargez votre fichier PDF"
-#~ msgstr "Téléchargez votre fichier HTML"
-
-#~ msgid "Sélectionnez le PDF à convertir en HTML"
-#~ msgstr "Sélectionnez le PDF à convertir en HTML"
-
-#~ msgid "Format accepté : PDF"
-#~ msgstr "Format accepté : PDF"
-
-#~ msgid "Format de sortie :"
-#~ msgstr "Format de sortie :"
-
-#~ msgid "Un seul fichier HTML"
-#~ msgstr "Un seul fichier HTML"
-
-#~ msgid "Plusieurs fichiers (une par page)"
-#~ msgstr "Plusieurs fichiers (un par page)"
-
-#~ msgid "Archive ZIP"
-#~ msgstr "Archive ZIP"
-
-#~ msgid "Inclure les styles CSS"
-#~ msgstr "Inclure les styles CSS"
-
-#~ msgid "Conserver les images"
-#~ msgstr "Conserver les images"
-
-#~ msgid "Convertir en HTML"
-#~ msgstr "Convertir en HTML"
-
-#~ msgid "Veuillez patienter pendant le traitement de votre PDF"
-#~ msgstr "Veuillez patienter pendant le traitement de votre PDF"
-
-#~ msgid "Votre fichier HTML est prêt à être téléchargé"
-#~ msgstr "Votre fichier HTML est prêt à être téléchargé"
-
-#~ msgid "Convertir un autre PDF"
-#~ msgstr "Convertir un autre PDF"
-
-#~ msgid "Transformez chaque page de votre PDF en image (PNG ou JPG)"
-#~ msgstr "Transformez chaque page de votre PDF en image (PNG ou JPG)"
-
-#~ msgid "Format d'image"
-#~ msgstr "Format d'image"
-
-#~ msgid "PNG (qualité supérieure, sans perte)"
-#~ msgstr "PNG (qualité supérieure, sans perte)"
-
-#~ msgid "JPG (taille réduite, compression)"
-#~ msgstr "JPG (taille réduite, compression)"
-
-#~ msgid "Le PNG préserve la qualité, le JPG est plus léger"
-#~ msgstr "Le PNG préserve la qualité, le JPG est plus léger"
-
-#~ msgid "Résolution (DPI)"
-#~ msgstr "Résolution (DPI)"
-
-#~ msgid "72 DPI (web, léger)"
-#~ msgstr "72 DPI (web, léger)"
-
-#~ msgid "150 DPI (standard)"
-#~ msgstr "150 DPI (standard)"
-
-#~ msgid "300 DPI (haute qualité, impression)"
-#~ msgstr "300 DPI (haute qualité, impression)"
-
-#~ msgid "600 DPI (très haute qualité)"
-#~ msgstr "600 DPI (très haute qualité)"
-
-#~ msgid "Plus de DPI = meilleure qualité, fichier plus gros"
-#~ msgstr "Plus de DPI = meilleure qualité, fichier plus gros"
-
-#~ msgid "Qualité (pour JPG)"
-#~ msgstr "Qualité (pour JPG)"
-
-#~ msgid "Haute (90-100%)"
-#~ msgstr "Haute (90-100%%)"
-
-#~ msgid "Moyenne (70-80%)"
-#~ msgstr "Moyenne (70-80%%)"
-
-#~ msgid "Basse (50-60%)"
-#~ msgstr "Basse (50-60%%)"
-
-#~ msgid "Uniquement pour le format JPG"
-#~ msgstr "Uniquement pour le format JPG"
-
-#~ msgid "Pages à convertir"
-#~ msgstr "Pages à convertir"
-
-#~ msgid "Ex: 1,3-5 ou laisser vide pour toutes"
-#~ msgstr "Ex: 1,3-5 ou laisser vide pour toutes"
-
-#~ msgid "Exemples : \"1,3-5,7\" ou \"all\" pour toutes les pages"
-#~ msgstr "Exemples : \"1,3-5,7\" ou \"all\" pour toutes les pages"
-
-#~ msgid "Fichier ZIP unique"
-#~ msgstr "Fichier ZIP unique"
-
-#~ msgid "Regroupe toutes les images dans une archive ZIP"
-#~ msgstr "Regroupe toutes les images dans une archive ZIP"
-
-#~ msgid "Convertir en images"
-#~ msgstr "Convertir en images"
-
-#~ msgid "Analyse et conversion des pages..."
-#~ msgstr "Analyse et conversion des pages..."
-
-#~ msgid "Pages totales"
-#~ msgstr "Pages totales"
-
-#~ msgid "Pages converties"
-#~ msgstr "Pages converties"
-
-#~ msgid "Taille estimée"
-#~ msgstr "Taille estimée"
-
-#~ msgid "Chargement du PDF..."
-#~ msgstr "Chargement du PDF..."
-
-#~ msgid "Vos images sont prêtes au téléchargement"
-#~ msgstr "Vos images sont prêtes au téléchargement"
-
-#~ msgid "Télécharger les images"
-#~ msgstr "Télécharger les images"
-
-#~ msgid "Aperçu des images générées"
-#~ msgstr "Aperçu des images générées"
-
-#~ msgid "Résolution"
-#~ msgstr "Résolution"
-
-#~ msgid "Taille totale"
-#~ msgstr "Taille totale"
-
-#~ msgid "Conversion de la page"
-#~ msgstr "Conversion de la page"
-
-#~ msgid "convertie en"
-#~ msgstr "convertie en"
-
-#~ msgid ""
-#~ "Le format PDF/A garantit la pérennité"
-#~ " de vos documents pour l'archivage à"
-#~ " long terme"
-#~ msgstr ""
-#~ "Le format PDF/A garantit la pérennité"
-#~ " de vos documents pour l'archivage à"
-#~ " long terme"
-
-#~ msgid "Options de conversion PDF/A"
-#~ msgstr "Préparation de la conversion..."
-
-#~ msgid "PDF/A-1b (2005) - Niveau B (basique)"
-#~ msgstr "PDF/A-1b (2005) - Niveau B (basique)"
-
-#~ msgid "PDF/A-1a (2005) - Niveau A (accessible)"
-#~ msgstr "PDF/A-1a (2005) - Niveau A (accessible)"
-
-#~ msgid "PDF/A-2b (2011) - Niveau B (recommandé)"
-#~ msgstr "PDF/A-2b (2011) - Niveau B (recommandé)"
-
-#~ msgid "PDF/A-2u (2011) - Unicode"
-#~ msgstr "PDF/A-2u (2011) - Unicode"
-
-#~ msgid "PDF/A-3b (2012) - Niveau B"
-#~ msgstr "PDF/A-3b (2012) - Niveau B"
-
-#~ msgid "PDF/A-3u (2012) - Unicode"
-#~ msgstr "PDF/A-3u (2012) - Unicode"
-
-#~ msgid "PDF/A-2"
-#~ msgstr "PDF/A-2"
-
-#~ msgid "est recommandé pour la plupart des usages."
-#~ msgstr "est recommandé pour la plupart des usages."
-
-#~ msgid "PDF/A-3"
-#~ msgstr "PDF/A-3"
-
-#~ msgid "permet d'incorporer des fichiers non-PDF/A."
-#~ msgstr "permet d'incorporer des fichiers non-PDF/A."
-
-#~ msgid "Qu'est-ce que le format PDF/A ?"
-#~ msgstr "Qu'est-ce que le format PDF/A ?"
-
-#~ msgid ""
-#~ "Le PDF/A est une version standardisée"
-#~ " du PDF conçue pour l'archivage à "
-#~ "long terme. Il garantit que votre "
-#~ "document sera exactement le même dans"
-#~ " 10, 20 ou 50 ans, indépendamment "
-#~ "des logiciels utilisés."
-#~ msgstr ""
-#~ "Le PDF/A est une version standardisée"
-#~ " du PDF conçue pour l'archivage à "
-#~ "long terme. Il garantit que votre "
-#~ "document sera exactement le même dans"
-#~ " 10, 20 ou 50 ans, indépendamment "
-#~ "des logiciels utilisés."
-
-#~ msgid "Attention :"
-#~ msgstr "Attention :"
-
-#~ msgid ""
-#~ "La conversion en PDF/A peut modifier "
-#~ "légèrement l'apparence du document pour "
-#~ "garantir sa pérennité. Les fonctionnalités "
-#~ "interactives (formulaires, JavaScript) seront "
-#~ "supprimées."
-#~ msgstr ""
-#~ "La conversion en PDF/A peut modifier "
-#~ "légèrement l'apparence du document pour "
-#~ "garantir sa pérennité. Les fonctionnalités "
-#~ "interactives (formulaires, JavaScript) seront "
-#~ "supprimées."
-
-#~ msgid "Auto-contenu"
-#~ msgstr "Auto-contenu"
-
-#~ msgid "Toutes les polices sont incorporées"
-#~ msgstr "Toutes les polices sont incorporées"
-
-#~ msgid "Sans dépendance"
-#~ msgstr "Sans dépendance"
-
-#~ msgid "Pas de liens externes"
-#~ msgstr "Pas de liens externes"
-
-#~ msgid "Métadonnées"
-#~ msgstr "Métadonnées"
-
-#~ msgid "Informations d'archivage"
-#~ msgstr "Informations d'archivage"
-
-#~ msgid "Standardisé"
-#~ msgstr "Standardisé"
-
-#~ msgid "ISO 19005"
-#~ msgstr "ISO 19005"
-
-#~ msgid "Convertir en PDF/A"
-#~ msgstr "Convertir en PDF/A"
-
-#~ msgid "Conversion en PDF/A en cours..."
-#~ msgstr "Conversion en PDF/A en cours..."
-
-#~ msgid "Analyse et conversion du document..."
-#~ msgstr "Analyse et conversion du document..."
-
-#~ msgid "Polices incorporées"
-#~ msgstr "Polices incorporées"
-
-#~ msgid "Conformité"
-#~ msgstr "Conformité"
-
-#~ msgid "Vérification de la conformité PDF/A..."
-#~ msgstr "Vérification de la conformité PDF/A..."
-
-#~ msgid "Votre document PDF/A est prêt pour l'archivage"
-#~ msgstr "Votre document PDF/A est prêt pour l'archivage"
-
-#~ msgid "Télécharger PDF/A"
-#~ msgstr "Télécharger PDF/A"
-
-#~ msgid "Document certifié PDF/A"
-#~ msgstr "Document certifié PDF/A"
-
-#~ msgid "Version: PDF/A-2b • Pages: 0 • Date:"
-#~ msgstr "Version: PDF/A-2b • Pages: 0 • Date:"
-
-#~ msgid "Conforme à la norme ISO 19005 pour l'archivage électronique"
-#~ msgstr "Conforme à la norme ISO 19005 pour l'archivage électronique"
-
-#~ msgid "Taille PDF/A"
-#~ msgstr "Taille :"
-
-#~ msgid "Conversion"
-#~ msgstr "Conversion"
-
-#~ msgid "Incorporation des polices - Page"
-#~ msgstr "Incorporation des polices - Page"
-
-#~ msgid "Validation de la conformité..."
-#~ msgstr "Validation de la conformité..."
-
-#~ msgid "Version:"
-#~ msgstr "Version :"
-
-#~ msgid "Pages:"
-#~ msgstr "Pages :"
-
-#~ msgid "Date:"
-#~ msgstr "Date :"
-
-#~ msgid "Transformez chaque page de votre PDF en diapositives modifiables"
-#~ msgstr "Transformez chaque page de votre PDF en diapositives modifiables"
-
-#~ msgid "Mise en page"
-#~ msgstr "Mise en page"
-
-#~ msgid "Une page par diapositive"
-#~ msgstr "Une page par diapositive"
-
-#~ msgid "Plusieurs pages par diapositive"
-#~ msgstr "Plusieurs pages par diapositive"
-
-#~ msgid "Document de distribution (2 pages/feuille)"
-#~ msgstr "Document de distribution (2 pages/feuille)"
-
-#~ msgid "Choisissez comment organiser vos pages"
-#~ msgstr "Choisissez comment organiser vos pages"
-
-#~ msgid "Format de diapositive"
-#~ msgstr "Format de diapositive"
-
-#~ msgid "Standard (4:3) - Écrans classiques"
-#~ msgstr "Standard (4:3) - Écrans classiques"
-
-#~ msgid "Widescreen (16:9) - Écrans larges"
-#~ msgstr "Widescreen (16:9) - Écrans larges"
-
-#~ msgid "Letter (21,6 x 27,9 cm)"
-#~ msgstr "Lettre (21,6 x 27,9 cm)"
-
-#~ msgid "Adapté à votre support de projection"
-#~ msgstr "Adapté à votre support de projection"
-
-#~ msgid "Les images du PDF seront intégrées à la présentation"
-#~ msgstr "Les images du PDF seront intégrées à la présentation"
-
-#~ msgid "Texte éditable"
-#~ msgstr "Texte éditable"
-
-#~ msgid "Le texte pourra être modifié dans PowerPoint"
-#~ msgstr "Le texte pourra être modifié dans PowerPoint"
-
-#~ msgid "Format PowerPoint :"
-#~ msgstr "Format PowerPoint :"
-
-#~ msgid ""
-#~ "Le fichier généré est au format "
-#~ "PPTX, compatible avec PowerPoint 2007 et"
-#~ " versions ultérieures, ainsi qu'avec "
-#~ "LibreOffice et Google Slides."
-#~ msgstr ""
-#~ "Le fichier généré est au format "
-#~ "PPTX, compatible avec PowerPoint 2007 et"
-#~ " versions ultérieures, ainsi qu'avec "
-#~ "LibreOffice et Google Slides."
-
-#~ msgid "Convertir en PowerPoint"
-#~ msgstr "Convertir en PowerPoint"
-
-#~ msgid "Création de votre présentation PowerPoint..."
-#~ msgstr "Création de votre présentation PowerPoint..."
-
-#~ msgid "Diapositives"
-#~ msgstr "Diapositives"
-
-#~ msgid "Images intégrées"
-#~ msgstr "Images intégrées"
-
-#~ msgid "Votre présentation PowerPoint est prête"
-#~ msgstr "Votre présentation PowerPoint est prête"
-
-#~ msgid "Télécharger PowerPoint"
-#~ msgstr "Télécharger PowerPoint"
-
-#~ msgid "Taille"
-#~ msgstr "Taille"
-
-#~ msgid "Mode"
-#~ msgstr "Mode"
-
-#~ msgid "1 page/diapo"
-#~ msgstr "1 page/diapo"
-
-#~ msgid "Aperçu des premières diapositives"
-#~ msgstr "Aperçu des premières diapositives"
-
-#~ msgid "Création des diapositives (page"
-#~ msgstr "Création des diapositives (page"
-
-#~ msgid "2 pages/diapo"
-#~ msgstr "2 pages/diapo"
-
-#~ msgid "Document"
-#~ msgstr "Document"
-
-#~ msgid "Diapo"
-#~ msgstr "Diapo"
-
-#~ msgid "Sélectionnez le PDF dont vous voulez extraire le texte"
-#~ msgstr "Sélectionnez le PDF dont vous voulez extraire le texte"
-
-#~ msgid "Ajouter des marqueurs de page"
-#~ msgstr "Ajouter des marqueurs de page"
-
-#~ msgid "Extraire toutes les pages"
-#~ msgstr "Extraire toutes les pages"
-
-#~ msgid "Pages à extraire :"
-#~ msgstr "Pages à extraire :"
-
-#~ msgid "Exemple: 1-5,8,11-13"
-#~ msgstr "Exemple: 1-5,8,11-13"
-
-#~ msgid "Spécifiez les pages à extraire (ex: 1-3,5,7-9)"
-#~ msgstr "Spécifiez les pages à extraire (ex: 1-3,5,7-9)"
-
-#~ msgid "Extraire le texte"
-#~ msgstr "Extraire le texte"
-
-#~ msgid "Veuillez patienter pendant l'extraction du texte"
-#~ msgstr "Veuillez patienter pendant l'extraction du texte"
-
-#~ msgid "Votre fichier texte est prêt à être téléchargé"
-#~ msgstr "Votre fichier texte est prêt à être téléchargé"
-
-#~ msgid "Télécharger le texte"
-#~ msgstr "Télécharger le texte"
-
-#~ msgid "Extraire un autre PDF"
-#~ msgstr "Extraire un autre PDF"
-
-#~ msgid "Veuillez spécifier les pages à extraire"
-#~ msgstr "Veuillez spécifier les pages à extraire"
-
-#~ msgid "Format de pages invalide. Utilisez le format: 1-5,8,11-13"
-#~ msgstr "Format de pages invalide. Utilisez le format: 1-5,8,11-13"
-
-#~ msgid ""
-#~ "Transformez vos PDF en documents Word"
-#~ " modifiables avec mise en page "
-#~ "préservée"
-#~ msgstr ""
-#~ "Transformez vos PDF en documents Word"
-#~ " modifiables avec mise en page "
-#~ "préservée"
-
-#~ msgid "Texte uniquement (plus léger)"
-#~ msgstr "Texte uniquement (plus léger)"
-
-#~ msgid "Conserver la mise en page (recommandé)"
-#~ msgstr "Conserver la mise en page (recommandé)"
-
-#~ msgid "Texte et images (complet)"
-#~ msgstr "Texte et images (complet)"
-
-#~ msgid "Format Word :"
-#~ msgstr "Format Word :"
-
-#~ msgid ""
-#~ "Le fichier généré est au format "
-#~ "DOCX, compatible avec Microsoft Word "
-#~ "2007 et versions ultérieures, ainsi "
-#~ "qu'avec LibreOffice et Google Docs."
-#~ msgstr ""
-#~ "Le fichier généré est au format "
-#~ "DOCX, compatible avec Microsoft Word "
-#~ "2007 et versions ultérieures, ainsi "
-#~ "qu'avec LibreOffice et Google Docs."
-
-#~ msgid "Convertir en Word"
-#~ msgstr "Convertir en Word"
-
-#~ msgid "Paragraphes"
-#~ msgstr "Paragraphes"
-
-#~ msgid "Images détectées"
-#~ msgstr "Images détectées"
-
-#~ msgid "Votre document Word est prêt"
-#~ msgstr "Votre document Word est prêt"
-
-#~ msgid "Pages"
-#~ msgstr "Pages"
-
-#~ msgid "Mots"
-#~ msgstr "Mots"
-
-#~ msgid "Caractères"
-#~ msgstr "Caractères"
-
-#~ msgid "Aperçu du texte extrait"
-#~ msgstr "Aperçu du texte extrait"
-
-#~ msgid ""
-#~ "Lorem ipsum dolor sit amet, consectetur"
-#~ " adipiscing elit. Sed do eiusmod "
-#~ "tempor incididunt ut labore et dolore"
-#~ " magna aliqua. Ut enim ad minim "
-#~ "veniam, quis nostrud exercitation ullamco "
-#~ "laboris nisi ut aliquip ex ea "
-#~ "commodo consequat."
-#~ msgstr ""
-#~ "Lorem ipsum dolor sit amet, consectetur"
-#~ " adipiscing elit. Sed do eiusmod "
-#~ "tempor incididunt ut labore et dolore"
-#~ " magna aliqua. Ut enim ad minim "
-#~ "veniam, quis nostrud exercitation ullamco "
-#~ "laboris nisi ut aliquip ex ea "
-#~ "commodo consequat."
-
-#~ msgid "Extraction de la page"
-#~ msgstr "Extraction de la page"
-
-#~ msgid "Téléchargez vos images PNG"
-#~ msgstr "Téléchargez vos images PNG"
-
-#~ msgid "Format accepté : PNG (jusqu'à 20 fichiers)"
-#~ msgstr "Format accepté : PNG (jusqu'à 20 fichiers)"
-
-#~ msgid "Conserver la transparence"
-#~ msgstr "Conserver la transparence"
-
-#~ msgid "Transformez vos fichiers PPT/PPTX en documents PDF faciles à partager"
-#~ msgstr "Transformez vos fichiers PPT/PPTX en documents PDF faciles à partager"
-
-#~ msgid "Glissez-déposez vos fichiers PowerPoint ici"
-#~ msgstr "Glissez-déposez vos fichiers PowerPoint ici"
-
-#~ msgid "Formats acceptés : PPT, PPTX (jusqu'à 50MB par fichier, 5 fichiers max)"
-#~ msgstr ""
-#~ "Formats acceptés : PPT, PPTX (jusqu'à"
-#~ " 50 Mo par fichier, 5 fichiers "
-#~ "max)"
-
-#~ msgid "Inclure les notes"
-#~ msgstr "Inclure les notes"
-
-#~ msgid "Les notes du présentateur seront incluses"
-#~ msgstr "Les notes du présentateur seront incluses"
-
-#~ msgid "Inclure les commentaires"
-#~ msgstr "Inclure les commentaires"
-
-#~ msgid "Les commentaires seront visibles"
-#~ msgstr "Les commentaires seront visibles"
-
-#~ msgid "Qualité du PDF"
-#~ msgstr "Qualité du PDF"
-
-#~ msgid "Haute (pour impression)"
-#~ msgstr "Haute (pour impression)"
-
-#~ msgid "Moyenne (pour partage)"
-#~ msgstr "Moyenne (pour partage)"
-
-#~ msgid "Basse (pour email)"
-#~ msgstr "Basse (pour email)"
-
-#~ msgid "Influence la taille et la qualité"
-#~ msgstr "Influence la taille et la qualité"
-
-#~ msgid "Fichiers multiples"
-#~ msgstr "Fichiers multiples"
-
-#~ msgid "PDF séparés (ZIP)"
-#~ msgstr "PDF séparés (ZIP)"
-
-#~ msgid "Fusionner en un seul PDF"
-#~ msgstr "Fusionner en un seul PDF"
-
-#~ msgid "Choisissez comment traiter plusieurs fichiers"
-#~ msgstr "Choisissez comment traiter plusieurs fichiers"
-
-#~ msgid "Format PDF :"
-#~ msgstr "Format PDF :"
-
-#~ msgid ""
-#~ "Compatible avec tous les lecteurs PDF."
-#~ " Les animations et transitions ne "
-#~ "sont pas conservées dans le PDF."
-#~ msgstr ""
-#~ "Compatible avec tous les lecteurs PDF."
-#~ " Les animations et transitions ne "
-#~ "sont pas conservées dans le PDF."
-
-#~ msgid "Analyse et conversion de vos présentations..."
-#~ msgstr "Analyse et conversion de vos présentations..."
-
-#~ msgid "Fichiers traités"
-#~ msgstr "Fichiers traités"
-
-#~ msgid "Chargement des fichiers..."
-#~ msgstr "Chargement des fichiers..."
-
-#~ msgid "Vos fichiers PDF sont prêts"
-#~ msgstr "Vos fichiers PDF sont prêts"
-
-#~ msgid "Fichiers convertis"
-#~ msgstr "Fichiers convertis"
-
-#~ msgid "PDF"
-#~ msgstr "PDF"
-
-#~ msgid "Veuillez sélectionner au moins un fichier PowerPoint"
-#~ msgstr "Veuillez sélectionner au moins un fichier PowerPoint"
-
-#~ msgid "Conversion du fichier"
-#~ msgstr "Conversion du fichier"
-
-#~ msgid "PDF unique"
-#~ msgstr "PDF unique"
-
-#~ msgid "PDFs (ZIP)"
-#~ msgstr "PDFs (ZIP)"
-
-#~ msgid "Téléchargez votre document"
-#~ msgstr "Téléchargez votre document"
-
-#~ msgid "Glissez-déposez votre document ici"
-#~ msgstr "Glissez-déposez votre document ici"
-
-#~ msgid "Formats acceptés : PDF, Word, Excel, Images (jusqu'à 50MB)"
-#~ msgstr "Formats acceptés : PDF, Word, Excel, Images (jusqu'à 50 Mo)"
-
-#~ msgid "Configuration du formulaire"
-#~ msgstr "Configuration du formulaire"
-
-#~ msgid "Type de formulaire :"
-#~ msgstr "Type de formulaire :"
-
-#~ msgid "Interactif (champs remplissables)"
-#~ msgstr "Interactif (champs remplissables)"
-
-#~ msgid "Imprimable (lignes pour écrire)"
-#~ msgstr "Imprimable (lignes pour écrire)"
-
-#~ msgid "Détection des champs :"
-#~ msgstr "Détection des champs :"
-
-#~ msgid "Automatique (recommandé)"
-#~ msgstr "Automatique (recommandé)"
-
-#~ msgid "Cases à cocher"
-#~ msgstr "Cases à cocher"
-
-#~ msgid "Emplacements signature"
-#~ msgstr "Emplacements signature"
-
-#~ msgid "Manuel (je définis les champs)"
-#~ msgstr "Manuel (je définis les champs)"
-
-#~ msgid "Détecter les champs"
-#~ msgstr "Détecter les champs"
-
-#~ msgid ""
-#~ "La détection automatique identifie les "
-#~ "zones de texte, cases à cocher et"
-#~ " emplacements de signature"
-#~ msgstr ""
-#~ "La détection automatique identifie les "
-#~ "zones de texte, cases à cocher et"
-#~ " emplacements de signature"
-
-#~ msgid "Aperçu du formulaire - Cliquez sur les champs pour les configurer"
-#~ msgstr "Aperçu du formulaire - Cliquez sur les champs pour les configurer"
-
-#~ msgid "Aperçu du document avec les champs détectés"
-#~ msgstr "Aperçu du document avec les champs détectés"
-
-#~ msgid "Charger l'aperçu"
-#~ msgstr "Charger l'aperçu"
-
-#~ msgid "Champs détectés"
-#~ msgstr "Champs détectés"
-
-#~ msgid "Type"
-#~ msgstr "Type"
-
-#~ msgid "Étiquette"
-#~ msgstr "Étiquette"
-
-#~ msgid "Lancez la détection pour voir les champs"
-#~ msgstr "Lancez la détection pour voir les champs"
-
-#~ msgid "Langue du formulaire :"
-#~ msgstr "Langue du formulaire :"
-
-#~ msgid "Couleur des champs :"
-#~ msgstr "Couleur des champs :"
-
-#~ msgid "Style des champs :"
-#~ msgstr "Style des champs :"
-
-#~ msgid "Souligné"
-#~ msgstr "Souligné"
-
-#~ msgid "Encadré"
-#~ msgstr "Encadré"
-
-#~ msgid "Fond coloré"
-#~ msgstr "Fond coloré"
-
-#~ msgid "Invisible"
-#~ msgstr "Invisible"
-
-#~ msgid "Ajouter des textes indicatifs (ex: \"Nom\", \"Prénom\"...)"
-#~ msgstr "Ajouter des textes indicatifs (ex: \"Nom\", \"Prénom\"...)"
-
-#~ msgid "Marquer les champs obligatoires (avec *)"
-#~ msgstr "Marquer les champs obligatoires (avec *)"
-
-#~ msgid "Ajouter un bouton de soumission"
-#~ msgstr "Ajouter un bouton de soumission"
-
-#~ msgid "Création du formulaire..."
-#~ msgstr "Création du formulaire..."
-
-#~ msgid "Analyse du document et création des champs interactifs"
-#~ msgstr "Analyse du document et création des champs interactifs"
-
-#~ msgid "Analyse du document source..."
-#~ msgstr "Analyse du document source..."
-
-#~ msgid "Formulaire créé !"
-#~ msgstr "Formulaire créé !"
-
-#~ msgid "Votre formulaire PDF interactif est prêt"
-#~ msgstr "Votre formulaire PDF interactif est prêt"
-
-#~ msgid "Télécharger le formulaire"
-#~ msgstr "Télécharger le formulaire"
-
-#~ msgid "Créer un autre formulaire"
-#~ msgstr "Créer un autre formulaire"
-
-#~ msgid "Veuillez d'abord télécharger un document"
-#~ msgstr "Veuillez d'abord télécharger un document"
-
-#~ msgid "Nom complet"
-#~ msgstr "Nom complet"
-
-#~ msgid "Prénom"
-#~ msgstr "Prénom"
-
-#~ msgid "Adresse"
-#~ msgstr "Adresse"
-
-#~ msgid "Code postal"
-#~ msgstr "Code postal"
-
-#~ msgid "Ville"
-#~ msgstr "Ville"
-
-#~ msgid "Email"
-#~ msgstr "Email"
-
-#~ msgid "Téléphone"
-#~ msgstr "Téléphone"
-
-#~ msgid "J'accepte les conditions"
-#~ msgstr "J'accepte les conditions"
-
-#~ msgid "Signature"
-#~ msgstr "Signature"
-
-#~ msgid "Date"
-#~ msgstr "Date"
-
-#~ msgid "Édition du champ - À implémenter"
-#~ msgstr "Édition du champ - À implémenter"
-
-#~ msgid "Chargement de l'aperçu - À implémenter avec PDF.js"
-#~ msgstr "Chargement de l'aperçu - À implémenter avec PDF.js"
-
-#~ msgid "Veuillez sélectionner un document"
-#~ msgstr "Veuillez sélectionner un document"
-
-#~ msgid "Conversion en PDF..."
-#~ msgstr "Conversion en PDF..."
-
-#~ msgid "Détection des champs..."
-#~ msgstr "Détection des champs..."
-
-#~ msgid "Création des champs interactifs..."
-#~ msgstr "Création des champs interactifs..."
-
-#~ msgid "Ajout des propriétés du formulaire..."
-#~ msgstr "Ajout des propriétés du formulaire..."
-
-#~ msgid "Terminé !"
-#~ msgstr "Terminé !"
-
-#~ msgid "formulaire.pdf"
-#~ msgstr "formulaire.pdf"
-
-#~ msgid "Erreur lors de la création du formulaire :"
-#~ msgstr "Erreur lors de la création du formulaire :"
-
-#~ msgid ""
-#~ "Protégez votre PDF avec un mot de"
-#~ " passe pour empêcher toute ouverture "
-#~ "ou modification non autorisée."
-#~ msgstr ""
-#~ "Protégez votre PDF avec un mot de"
-#~ " passe pour empêcher toute ouverture "
-#~ "ou modification non autorisée."
-
-#~ msgid "Déposez votre PDF ici"
-#~ msgstr "Déposez votre PDF ici"
-
-#~ msgid "Glissez-déposez ou cliquez pour sélectionner"
-#~ msgstr "Glissez-déposez ou cliquez pour sélectionner"
-
-#~ msgid "PDF uniquement • Taille max : 50MB"
-#~ msgstr "PDF uniquement • Taille max : 50 Mo"
-
-#~ msgid "Mot de passe d'ouverture"
-#~ msgstr "Mot de passe d'ouverture"
-
-#~ msgid "Entrez un mot de passe"
-#~ msgstr "Entrez un mot de passe"
-
-#~ msgid "Le fichier nécessitera ce mot de passe pour être ouvert"
-#~ msgstr "Le fichier nécessitera ce mot de passe pour être ouvert"
-
-#~ msgid "Confirmer le mot de passe"
-#~ msgstr "Confirmer le mot de passe"
-
-#~ msgid "Confirmez le mot de passe"
-#~ msgstr "Confirmez le mot de passe"
-
-#~ msgid "Mot de passe de modification (optionnel)"
-#~ msgstr "Mot de passe de modification (optionnel)"
-
-#~ msgid "Mot de passe propriétaire"
-#~ msgstr "Mot de passe propriétaire"
-
-#~ msgid "Permet de restreindre la modification"
-#~ msgstr "Permet de restreindre la modification"
-
-#~ msgid "Permissions"
-#~ msgstr "Permissions"
-
-#~ msgid "Aucune restriction"
-#~ msgstr "Aucune restriction"
-
-#~ msgid "Impression uniquement"
-#~ msgstr "Impression uniquement"
-
-#~ msgid "Modification uniquement"
-#~ msgstr "Modification uniquement"
-
-#~ msgid "Impression et modification"
-#~ msgstr "Impression et modification"
-
-#~ msgid ""
-#~ "Notez bien votre mot de passe. Il"
-#~ " n'y a aucun moyen de le "
-#~ "récupérer en cas d'oubli."
-#~ msgstr ""
-#~ "Notez bien votre mot de passe. Il"
-#~ " n'y a aucun moyen de le "
-#~ "récupérer en cas d'oubli."
-
-#~ msgid "Protéger le PDF"
-#~ msgstr "Protéger le PDF"
-
-#~ msgid "Les mots de passe ne correspondent pas"
-#~ msgstr "Les mots de passe ne correspondent pas"
-
-#~ msgid "Veuillez entrer un mot de passe"
-#~ msgstr "Veuillez entrer un mot de passe"
-
-#~ msgid "Erreur"
-#~ msgstr "Erreur"
-
-#~ msgid "document_protege.pdf"
-#~ msgstr "document_protege.pdf"
-
-#~ msgid "Erreur:"
-#~ msgstr "Erreur :"
-
-#~ msgid "Options de caviardage"
-#~ msgstr "Options de caviardage"
-
-#~ msgid "Type de caviardage :"
-#~ msgstr "Type de caviardage :"
-
-#~ msgid "Texte spécifique"
-#~ msgstr "Texte spécifique"
-
-#~ msgid "Zone rectangulaire"
-#~ msgstr "Zone rectangulaire"
-
-#~ msgid "Motif (email, téléphone...)"
-#~ msgstr "Motif (email, téléphone...)"
-
-#~ msgid "Texte à caviarder :"
-#~ msgstr "Texte à caviarder :"
-
-#~ msgid "Ex: nom, prénom, adresse, numéro de carte..."
-#~ msgstr "Ex: nom, prénom, adresse, numéro de carte..."
-
-#~ msgid "Ajouter"
-#~ msgstr "Ajouter"
-
-#~ msgid "confidentiel"
-#~ msgstr "confidentiel"
-
-#~ msgid "secret"
-#~ msgstr "secret"
-
-#~ msgid ""
-#~ "Après avoir chargé votre PDF, vous "
-#~ "pourrez dessiner des zones à caviarder"
-#~ " sur l'aperçu."
-#~ msgstr ""
-#~ "Après avoir chargé votre PDF, vous "
-#~ "pourrez dessiner des zones à caviarder"
-#~ " sur l'aperçu."
-
-#~ msgid "Opaque"
-#~ msgstr "Opaque"
-
-#~ msgid "Transparent"
-#~ msgstr "Transparent"
-
-#~ msgid "Bordure :"
-#~ msgstr "Bordure :"
-
-#~ msgid "Sans bordure"
-#~ msgstr "Sans bordure"
-
-#~ msgid "Fine"
-#~ msgstr "Fine"
-
-#~ msgid "Épaisse"
-#~ msgstr "Épaisse"
-
-#~ msgid "Motifs à caviarder :"
-#~ msgstr "Motifs à caviarder :"
-
-#~ msgid "Adresses email"
-#~ msgstr "Adresses email"
-
-#~ msgid "Numéros de téléphone"
-#~ msgstr "Numéros de téléphone"
-
-#~ msgid "Noms propres"
-#~ msgstr "Noms propres"
-
-#~ msgid "Numéros de carte bancaire"
-#~ msgstr "Numéros de carte bancaire"
-
-#~ msgid "Numéros de sécurité sociale"
-#~ msgstr "Numéros de sécurité sociale"
-
-#~ msgid "Dates"
-#~ msgstr "Dates"
-
-#~ msgid "Pages à traiter :"
-#~ msgstr "Pages à traiter :"
-
-#~ msgid "Toutes les pages"
-#~ msgstr "Toutes les pages"
-
-#~ msgid "Sélectionner des pages"
-#~ msgstr "Sélectionner des pages"
-
-#~ msgid "Première page uniquement"
-#~ msgstr "Première page uniquement"
-
-#~ msgid "Dernière page uniquement"
-#~ msgstr "Dernière page uniquement"
-
-#~ msgid "Plage de pages (si sélection) :"
-#~ msgstr "Plage de pages (si sélection) :"
-
-#~ msgid "Ex: 1-5, 8, 11-13"
-#~ msgstr "Ex: 1-5, 8, 11-13"
-
-#~ msgid "Aperçu du PDF - Dessinez les zones à caviarder"
-#~ msgstr "Aperçu du PDF - Dessinez les zones à caviarder"
-
-#~ msgid "Cliquez et faites glisser pour dessiner un rectangle de caviardage"
-#~ msgstr "Cliquez et faites glisser pour dessiner un rectangle de caviardage"
-
-#~ msgid "Caviardage en cours..."
-#~ msgstr "Caviardage en cours..."
-
-#~ msgid "Analyse et suppression du contenu sensible"
-#~ msgstr "Analyse et suppression du contenu sensible"
-
-#~ msgid "Préparation..."
-#~ msgstr "Préparation..."
-
-#~ msgid "Caviardage terminé !"
-#~ msgstr "Caviardage terminé !"
-
-#~ msgid "Le contenu sensible a été supprimé définitivement"
-#~ msgstr "Le contenu sensible a été supprimé définitivement"
-
-#~ msgid "Télécharger le PDF caviardé"
-#~ msgstr "Télécharger le PDF caviardé"
-
-#~ msgid "Caviarder un autre PDF"
-#~ msgstr "Caviarder un autre PDF"
-
-#~ msgid "Zones dessinées :"
-#~ msgstr "Zones dessinées :"
-
-#~ msgid "Aucune zone dessinée"
-#~ msgstr "Aucune zone dessinée"
-
-#~ msgid "Zone"
-#~ msgstr "Zone"
-
-#~ msgid "Erreur lors du chargement de l'aperçu PDF"
-#~ msgstr "Erreur lors du chargement de l'aperçu PDF"
-
-#~ msgid "Recherche du contenu sensible..."
-#~ msgstr "Recherche du contenu sensible..."
-
-#~ msgid "Application du caviardage..."
-#~ msgstr "Application du caviardage..."
-
-#~ msgid "Erreur lors du caviardage :"
-#~ msgstr "Erreur lors du caviardage :"
-
-#~ msgid "Options de signature"
-#~ msgstr "Options de signature"
-
-#~ msgid "Type de signature :"
-#~ msgstr "Type de signature :"
-
-#~ msgid "Dessiner"
-#~ msgstr "Dessiner"
-
-#~ msgid "Taper"
-#~ msgstr "Taper"
-
-#~ msgid "Dessinez votre signature :"
-#~ msgstr "Dessinez votre signature :"
-
-#~ msgid "Effacer"
-#~ msgstr "Effacer"
-
-#~ msgid "Fin"
-#~ msgstr "Fin"
-
-#~ msgid "Moyen"
-#~ msgstr "Moyen"
-
-#~ msgid "Épais"
-#~ msgstr "Épais"
-
-#~ msgid "Noir"
-#~ msgstr "Noir"
-
-#~ msgid "Bleu"
-#~ msgstr "Bleu"
-
-#~ msgid "Rouge"
-#~ msgstr "Rouge"
-
-#~ msgid "Vert"
-#~ msgstr "Vert"
-
-#~ msgid "Tapez votre signature :"
-#~ msgstr "Tapez votre signature :"
-
-#~ msgid "Ex: Jean Dupont"
-#~ msgstr "Ex: Jean Dupont"
-
-#~ msgid "Jean Dupont"
-#~ msgstr "Jean Dupont"
-
-#~ msgid "Style :"
-#~ msgstr "Style :"
-
-#~ msgid "Script simple"
-#~ msgstr "Script simple"
-
-#~ msgid "Standard"
-#~ msgstr "Standard"
-
-#~ msgid "Élégant"
-#~ msgstr "Élégant"
-
-#~ msgid "Petite"
-#~ msgstr "Petite"
-
-#~ msgid "Grande"
-#~ msgstr "Grande"
-
-#~ msgid "Très grande"
-#~ msgstr "Très grande"
-
-#~ msgid "Téléchargez une image de signature :"
-#~ msgstr "Téléchargez une image de signature :"
-
-#~ msgid "Glissez-déposez votre signature ici"
-#~ msgstr "Glissez-déposez votre signature ici"
-
-#~ msgid "Formats acceptés : PNG, JPG, GIF (fond transparent recommandé)"
-#~ msgstr "Formats acceptés : PNG, JPG, GIF (fond transparent recommandé)"
-
-#~ msgid "Page :"
-#~ msgstr "Page :"
-
-#~ msgid "Aperçu de la signature :"
-#~ msgstr "Aperçu de la signature :"
-
-#~ msgid "Ajouter la date automatiquement"
-#~ msgstr "Ajouter la date automatiquement"
-
-#~ msgid "Ajouter un motif de signature"
-#~ msgstr "Ajouter un motif de signature"
-
-#~ msgid "Ex: Approbation, Accord, Certificat..."
-#~ msgstr "Ex: Approbation, Accord, Certificat..."
-
-#~ msgid "Signature en cours..."
-#~ msgstr "Signature en cours..."
-
-#~ msgid "Ajout de la signature au document"
-#~ msgstr "Ajout de la signature au document"
-
-#~ msgid "Signature terminée !"
-#~ msgstr "Signature terminée !"
-
-#~ msgid "Votre PDF signé est prêt à être téléchargé"
-#~ msgstr "Votre PDF signé est prêt à être téléchargé"
-
-#~ msgid "Télécharger le PDF signé"
-#~ msgstr "Télécharger le PDF signé"
-
-#~ msgid "Signer un autre PDF"
-#~ msgstr "Signer un autre PDF"
-
-#~ msgid "Canvas de signature introuvable"
-#~ msgstr "Canvas de signature introuvable"
-
-#~ msgid "Erreur lors de la capture de la signature"
-#~ msgstr "Erreur lors de la signature :"
-
-#~ msgid "Veuillez saisir votre signature"
-#~ msgstr "Dessinez votre signature :"
-
-#~ msgid "Veuillez télécharger une image de signature"
-#~ msgstr "Veuillez télécharger une image de signature"
-
-#~ msgid "Erreur lors de la signature :"
-#~ msgstr "Erreur lors de la signature :"
-
-#~ msgid "Téléchargez votre fichier texte"
-#~ msgstr "Téléchargez votre fichier texte"
-
-#~ msgid "ou collez votre texte directement"
-#~ msgstr "ou collez votre texte directement"
-
-#~ msgid "Glissez-déposez votre fichier texte ici"
-#~ msgstr "Glissez-déposez votre fichier texte ici"
-
-#~ msgid "Format accepté : TXT"
-#~ msgstr "Format accepté : TXT"
-
-#~ msgid "Ou collez votre texte :"
-#~ msgstr "Ou collez votre texte :"
-
-#~ msgid "Collez votre texte ici..."
-#~ msgstr "Collez votre texte ici..."
-
-#~ msgid "Options de formatage"
-#~ msgstr "Options de formatage"
-
-#~ msgid "Interligne :"
-#~ msgstr "Interligne :"
-
-#~ msgid "Simple"
-#~ msgstr "Simple"
-
-#~ msgid "Double"
-#~ msgstr "Double"
-
-#~ msgid "Numéros de page"
-#~ msgstr "Numéros de page"
-
-#~ msgid "Veuillez patienter pendant le traitement de votre texte"
-#~ msgstr "Veuillez patienter pendant le traitement de votre texte"
-
-#~ msgid "Convertir un autre texte"
-#~ msgstr "Convertir un autre texte"
-
-#~ msgid "Veuillez saisir du texte ou sélectionner un fichier"
-#~ msgstr "Veuillez saisir du texte ou sélectionner un fichier"
-
-#~ msgid "Déposez votre PDF protégé ici"
-#~ msgstr "Déposez votre PDF protégé ici"
-
-#~ msgid "Mot de passe du PDF"
-#~ msgstr "Mot de passe du PDF"
-
-#~ msgid "Entrez le mot de passe si le PDF est protégé"
-#~ msgstr "Entrez le mot de passe si le PDF est protégé"
-
-#~ msgid "Laissez vide si le PDF n'a pas de mot de passe"
-#~ msgstr "Laissez vide si le PDF n'a pas de mot de passe"
-
-#~ msgid "Note :"
-#~ msgstr "Note :"
-
-#~ msgid ""
-#~ "Cette opération ne fonctionne que si "
-#~ "vous connaissez le mot de passe du"
-#~ " PDF."
-#~ msgstr ""
-#~ "Cette opération ne fonctionne que si "
-#~ "vous connaissez le mot de passe du"
-#~ " PDF."
-
-#~ msgid "Déverrouiller le PDF"
-#~ msgstr "Déverrouiller le PDF"
-
-#~ msgid "Erreur lors du déverrouillage"
-#~ msgstr "Erreur lors du déverrouillage"
-
-#~ msgid "document_deverrouille.pdf"
-#~ msgstr "document_deverrouille.pdf"
-
-#~ msgid ""
-#~ "Transformez vos fichiers DOC/DOCX en PDF"
-#~ " avec une mise en page préservée"
-#~ msgstr ""
-#~ "Transformez vos fichiers DOC/DOCX en PDF"
-#~ " avec une mise en page préservée"
-
-#~ msgid "Glissez-déposez votre document Word ici"
-#~ msgstr "Glissez-déposez votre document Word ici"
-
-#~ msgid "Formats acceptés : DOC, DOCX (jusqu'à 50MB)"
-#~ msgstr "Formats acceptés : DOC, DOCX (jusqu'à 50 Mo)"
-
-#~ msgid "Format de page"
-#~ msgstr "Format de page"
-
-#~ msgid "A4 (210 × 297 mm)"
-#~ msgstr "A4 (210 × 297 mm)"
-
-#~ msgid "Letter (8.5 × 11 in)"
-#~ msgstr "Lettre (8.5 × 11 in)"
-
-#~ msgid "Legal (8.5 × 14 in)"
-#~ msgstr "Legal (8.5 × 14 in)"
-
-#~ msgid "A3 (297 × 420 mm)"
-#~ msgstr "A3 (297 × 420 mm)"
-
-#~ msgid "A5 (148 × 210 mm)"
-#~ msgstr "A5 (148 × 210 mm)"
-
-#~ msgid "Format standard pour la plupart des documents"
-#~ msgstr "Format standard pour la plupart des documents"
-
-#~ msgid "Orientation"
-#~ msgstr "Orientation"
-
-#~ msgid "Marges"
-#~ msgstr "Marges"
-
-#~ msgid "Normales (2.5 cm)"
-#~ msgstr "Normales (2.5 cm)"
-
-#~ msgid "Étroites (1.3 cm)"
-#~ msgstr "Étroites (1.3 cm)"
-
-#~ msgid "Modérées (1.9 cm)"
-#~ msgstr "Modérées (1.9 cm)"
-
-#~ msgid "Larges (5 cm)"
-#~ msgstr "Larges (5 cm)"
-
-#~ msgid "Espace entre le texte et les bords"
-#~ msgstr "Espace entre le texte et les bords"
-
-#~ msgid "Qualité"
-#~ msgstr "Qualité"
-
-#~ msgid "Standard (équilibré)"
-#~ msgstr "Standard (équilibré)"
-
-#~ msgid "Optimisé écran (taille réduite)"
-#~ msgstr "Optimisé écran (taille réduite)"
-
-#~ msgid "Optimisé impression"
-#~ msgstr "Optimisé impression"
-
-#~ msgid "Influence la taille du fichier final"
-#~ msgstr "Influence la taille du fichier final"
-
-#~ msgid "Préserve les polices, tableaux et styles"
-#~ msgstr "Préserve les polices, tableaux et styles"
-
-#~ msgid "Inclure les signets"
-#~ msgstr "Inclure les signets"
-
-#~ msgid "Pour une navigation plus facile"
-#~ msgstr "Pour une navigation plus facile"
-
-#~ msgid "Mot de passe"
-#~ msgstr "Mot de passe"
-
-#~ msgid "Min. 6 caractères"
-#~ msgstr "Min. 6 caractères"
-
-#~ msgid "Visualisation seule"
-#~ msgstr "Visualisation seule"
-
-#~ msgid "Impression autorisée"
-#~ msgstr "Impression autorisée"
-
-#~ msgid "Modification autorisée"
-#~ msgstr "Modification autorisée"
-
-#~ msgid "Toutes permissions"
-#~ msgstr "Toutes permissions"
-
-#~ msgid ""
-#~ "Compatible avec tous les lecteurs PDF."
-#~ " Les polices sont intégrées pour une"
-#~ " reproduction fidèle."
-#~ msgstr ""
-#~ "Compatible avec tous les lecteurs PDF."
-#~ " Les polices sont intégrées pour une"
-#~ " reproduction fidèle."
-
-#~ msgid "Analyse et conversion de votre document Word..."
-#~ msgstr "Analyse et conversion de votre document Word..."
-
-#~ msgid "Pages estimées"
-#~ msgstr "Pages estimées"
-
-#~ msgid "Lecture du document Word..."
-#~ msgstr "Lecture du document Word..."
-
-#~ msgid "Votre PDF est prêt au téléchargement"
-#~ msgstr "Votre PDF est prêt au téléchargement"
-
-#~ msgid "document.pdf"
-#~ msgstr "document.pdf"
-
-#~ msgid "Taille: 0 MB | Pages: 0"
-#~ msgstr "Taille: 0 Mo | Pages: 0"
-
-#~ msgid "Détails"
-#~ msgstr "Détails"
-
-#~ msgid "Format: A4<br>Orientation: Portrait<br>Qualité: Standard"
-#~ msgstr "Format: A4<br>Orientation: Portrait<br>Qualité: Standard"
-
-#~ msgid "Télécharger PDF"
-#~ msgstr "Télécharger PDF"
-
-#~ msgid "Veuillez sélectionner un document Word"
-#~ msgstr "Veuillez sélectionner un document Word"
-
-#~ msgid "Analyse de la structure"
-#~ msgstr "Analyse de la structure"
-
-#~ msgid "Extraction des styles..."
-#~ msgstr "Extraction des styles..."
-
-#~ msgid "Préservation des polices"
-#~ msgstr "Préservation des polices"
-
-#~ msgid "Traitement des images..."
-#~ msgstr "Traitement des images..."
-
-#~ msgid "Optimisation des graphiques"
-#~ msgstr "Optimisation des graphiques"
-
-#~ msgid "Génération du PDF..."
-#~ msgstr "Génération du PDF..."
-
-#~ msgid "Création des pages"
-#~ msgstr "Création des pages"
-
-#~ msgid "Application des paramètres..."
-#~ msgstr "Application des paramètres..."
-
-#~ msgid "Configuration finale"
-#~ msgstr "Configuration finale"
-
-#~ msgid "Taille:"
-#~ msgstr "Taille :"
-
-#~ msgid "Format:"
-#~ msgstr "Format :"
-
-#~ msgid "Orientation:"
-#~ msgstr "Orientation :"
-
-#~ msgid "Qualité:"
-#~ msgstr "Qualité :"
-
-#~ msgid "Page non trouvée - PDF Fusion Pro"
-#~ msgstr "Page non trouvée - PDF Fusion Pro"
-
-#~ msgid "Page non trouvée"
-#~ msgstr "Page non trouvée"
-
-#~ msgid "Désolé, la page que vous recherchez n'existe pas ou a été déplacée."
-#~ msgstr "Désolé, la page que vous recherchez n'existe pas ou a été déplacée."
-
-#~ msgid "Chemin demandé :"
-#~ msgstr "Chemin demandé :"
-
-#~ msgid "Fichier trop volumineux - PDF Fusion Pro"
-#~ msgstr "Fichier trop volumineux - PDF Fusion Pro"
-
-#~ msgid ""
-#~ "Le fichier que vous avez tenté de"
-#~ " télécharger dépasse la limite autorisée."
-#~ msgstr ""
-#~ "Le fichier que vous avez tenté de"
-#~ " télécharger dépasse la limite autorisée."
-
-#~ msgid "Limite : 50 Mo maximum"
-#~ msgstr "Limite : 50 Mo maximum"
-
-#~ msgid "Suggestions :"
-#~ msgstr "Suggestions :"
-
-#~ msgid "Compressez votre fichier avant de le télécharger"
-#~ msgstr "Compressez votre fichier avant de le télécharger"
-
-#~ msgid "Divisez votre fichier en plusieurs parties plus petites"
-#~ msgstr "Divisez votre fichier en plusieurs parties plus petites"
-
-#~ msgid "Vérifiez que votre fichier ne dépasse pas 50 Mo"
-#~ msgstr "Vérifiez que votre fichier ne dépasse pas 50 Mo"
-
-#~ msgid "Taille max : 50 Mo"
-#~ msgstr "Taille max : 50 Mo"
-
-#~ msgid "Erreur serveur - PDF Fusion Pro"
-#~ msgstr "Erreur serveur - PDF Fusion Pro"
-
-#~ msgid "Erreur interne du serveur"
-#~ msgstr "Erreur interne du serveur"
-
-#~ msgid ""
-#~ "Désolé, une erreur inattendue s'est "
-#~ "produite. Notre équipe technique a été"
-#~ " informée."
-#~ msgstr ""
-#~ "Désolé, une erreur inattendue s'est "
-#~ "produite. Notre équipe technique a été"
-#~ " informée."
-
-#~ msgid "Heure :"
-#~ msgstr "Heure :"
-
-#~ msgid "Non disponible"
-#~ msgstr "Non disponible"
-
-#~ msgid "Référence :"
-#~ msgstr "Référence :"
-
-#~ msgid "ERR-"
-#~ msgstr "ERR-"
-
-#~ msgid "Besoin d'aide ?"
-#~ msgstr "Besoin d'aide ?"
-
-#~ msgid "Si le problème persiste, n'hésitez pas à nous contacter."
-#~ msgstr "Si le problème persiste, n'hésitez pas à nous contacter."
-
-#~ msgid "Nous contacter"
-#~ msgstr "Nous contacter"
-
-#~ msgid ""
-#~ "Cette erreur a été automatiquement "
-#~ "enregistrée et sera analysée par nos "
-#~ "équipes."
-#~ msgstr ""
-#~ "Cette erreur a été automatiquement "
-#~ "enregistrée et sera analysée par nos "
-#~ "équipes."
-
-#~ msgid "À propos de PDF Fusion Pro"
-#~ msgstr "À propos de PDF Fusion Pro"
-
-#~ msgid "Notre mission"
-#~ msgstr "Notre mission"
-
-#~ msgid ""
-#~ "Offrir un outil PDF en ligne "
-#~ "performant, intuitif et respectueux de "
-#~ "votre vie privée."
-#~ msgstr ""
-#~ "Offrir un outil PDF en ligne "
-#~ "performant, intuitif et respectueux de "
-#~ "votre vie privée."
-
-#~ msgid "Caractéristiques principales"
-#~ msgstr "Caractéristiques principales"
-
-#~ msgid "Combine plusieurs fichiers PDF en un seul document organisé."
-#~ msgstr "Combine plusieurs fichiers PDF en un seul document organisé."
-
-#~ msgid "Divisez vos PDF par page, par plage ou selon des pages spécifiques."
-#~ msgstr "Divisez vos PDF par page, par plage ou selon des pages spécifiques."
-
-#~ msgid "Faites pivoter des pages spécifiques ou l'ensemble du document."
-#~ msgstr "Faites pivoter des pages spécifiques ou l'ensemble du document."
-
-#~ msgid "Réduisez la taille de vos fichiers PDF sans perte de qualité notable."
-#~ msgstr "Réduisez la taille de vos fichiers PDF sans perte de qualité notable."
-
-#~ msgid "Nos engagements"
-#~ msgstr "Nos engagements"
-
-#~ msgid "Sécurité"
-#~ msgstr "Sécurité"
-
-#~ msgid ""
-#~ "Tous les traitements sont effectués en"
-#~ " mémoire. Aucun fichier n'est stocké "
-#~ "sur nos serveurs."
-#~ msgstr ""
-#~ "Tous les traitements sont effectués en"
-#~ " mémoire. Aucun fichier n'est stocké "
-#~ "sur nos serveurs."
-
-#~ msgid "Performance"
-#~ msgstr "Performance"
-
-#~ msgid "Interface optimisée pour une expérience utilisateur fluide et rapide."
-#~ msgstr "Interface optimisée pour une expérience utilisateur fluide et rapide."
-
-#~ msgid ""
-#~ "Nous ne collectons pas de données "
-#~ "personnelles liées au contenu de vos "
-#~ "fichiers."
-#~ msgstr ""
-#~ "Nous ne collectons pas de données "
-#~ "personnelles liées au contenu de vos "
-#~ "fichiers."
-
-#~ msgid "Gratuité"
-#~ msgstr "Gratuité"
-
-#~ msgid ""
-#~ "Service entièrement gratuit, financé par "
-#~ "des publicités discrètes et non "
-#~ "intrusives."
-#~ msgstr ""
-#~ "Service entièrement gratuit, financé par "
-#~ "des publicités discrètes et non "
-#~ "intrusives."
-
-#~ msgid "Développeur"
-#~ msgstr "Développeur"
-
-#~ msgid "Technologies utilisées :"
-#~ msgstr "Technologies utilisées :"
-
-#~ msgid "Python, Flask, PyPDF2, Bootstrap 5, JavaScript moderne."
-#~ msgstr "Python, Flask, PyPDF2, Bootstrap 5, JavaScript moderne."
-
-#~ msgid "Une question ou suggestion ?"
-#~ msgstr "Une question ou suggestion ?"
-
-#~ msgid "Nous sommes à votre écoute pour améliorer le service."
-#~ msgstr "Nous sommes à votre écoute pour améliorer le service."
-
-#~ msgid "Utiliser le formulaire de contact"
-#~ msgstr "Utiliser le formulaire de contact"
-
-#~ msgid "Formulaire de contact :"
-#~ msgstr "Formulaire de contact :"
-
-#~ msgid ""
-#~ "Utilisez ce formulaire pour nous "
-#~ "contacter directement. Nous vous répondrons"
-#~ " dans les meilleurs délais."
-#~ msgstr ""
-#~ "Utilisez ce formulaire pour nous "
-#~ "contacter directement. Nous vous répondrons"
-#~ " dans les meilleurs délais."
-
-#~ msgid "Formulaire de Contact"
-#~ msgstr "Formulaire de contact"
-
-#~ msgid ""
-#~ "Remplissez ce formulaire pour nous "
-#~ "contacter. Tous les champs marqués d'un"
-#~ " astérisque (*) sont obligatoires."
-#~ msgstr ""
-#~ "Remplissez ce formulaire pour nous "
-#~ "contacter. Tous les champs marqués d'un"
-#~ " astérisque (*) sont obligatoires."
-
-#~ msgid "Message enregistré avec succès !"
-#~ msgstr "Message enregistré avec succès !"
-
-#~ msgid "Référence:"
-#~ msgstr "Référence :"
-
-#~ msgid "Merci pour votre message."
-#~ msgstr "Merci pour votre message."
-
-#~ msgid ""
-#~ "Nous avons bien reçu votre demande "
-#~ "et nous vous répondrons dans les "
-#~ "plus brefs délais."
-#~ msgstr ""
-#~ "Nous avons bien reçu votre demande "
-#~ "et nous vous répondrons dans les "
-#~ "plus brefs délais."
-
-#~ msgid "Envoyer un autre message"
-#~ msgstr "Envoyer un autre message"
-
-#~ msgid "Votre prénom et nom"
-#~ msgstr "Votre prénom et nom"
-
-#~ msgid "Adresse email"
-#~ msgstr "Adresse email"
-
-#~ msgid "Nous ne partagerons jamais votre email avec des tiers."
-#~ msgstr "Nous ne partagerons jamais votre email avec des tiers."
-
-#~ msgid "Numéro de téléphone (optionnel)"
-#~ msgstr "Numéro de téléphone (optionnel)"
-
-#~ msgid "Pour un contact plus rapide si nécessaire."
-#~ msgstr "Pour un contact plus rapide si nécessaire."
-
-#~ msgid "Sujet de votre message"
-#~ msgstr "Sujet de votre message"
-
-#~ msgid "Sélectionnez un sujet"
-#~ msgstr "Sélectionnez un sujet"
-
-#~ msgid "Signaler un bug ou un problème technique"
-#~ msgstr "Signaler un bug ou un problème technique"
-
-#~ msgid "Proposer une amélioration fonctionnelle"
-#~ msgstr "Proposer une amélioration fonctionnelle"
-
-#~ msgid "Demande de partenariat"
-#~ msgstr "Demande de partenariat"
-
-#~ msgid "Autre demande"
-#~ msgstr "Autre demande"
-
-#~ msgid "Votre message"
-#~ msgstr "Votre message"
-
-#~ msgid "Décrivez votre demande en détail..."
-#~ msgstr "Décrivez votre demande en détail..."
-
-#~ msgid "Maximum 2000 caractères. Soyez aussi précis que possible."
-#~ msgstr "Maximum 2000 caractères. Soyez aussi précis que possible."
-
-#~ msgid "Envoyer le message"
-#~ msgstr "Envoyer le message"
-
-#~ msgid "Information importante :"
-#~ msgstr "Information importante :"
-
-#~ msgid ""
-#~ "Cette application traite vos fichiers "
-#~ "PDF uniquement en mémoire. Aucun fichier"
-#~ " n'est stocké de manière permanente "
-#~ "sur nos serveurs."
-#~ msgstr ""
-#~ "Cette application traite vos fichiers "
-#~ "PDF uniquement en mémoire. Aucun fichier"
-#~ " n'est stocké de manière permanente "
-#~ "sur nos serveurs."
-
-#~ msgid "Éditeur du service"
-#~ msgstr "Éditeur du service"
-
-#~ msgid ""
-#~ "%(app_name)s est développé et maintenu "
-#~ "par %(developer_name)s, un développeur "
-#~ "passionné par la création d'outils web"
-#~ " utiles et accessibles."
-#~ msgstr ""
-#~ "%(app_name)s est développé et maintenu "
-#~ "par %(developer_name)s, un développeur "
-#~ "passionné par la création d'outils web"
-#~ " utiles et accessibles."
-
-#~ msgid "Pour nous contacter :"
-#~ msgstr "Pour nous contacter :"
-
-#~ msgid "Utilisez notre"
-#~ msgstr "Utilisez notre"
-
-#~ msgid "Nous répondons généralement dans les 48 heures."
-#~ msgstr "Nous répondons généralement dans les 48 heures."
-
-#~ msgid "Hébergement"
-#~ msgstr "Hébergement"
-
-#~ msgid ""
-#~ "Ce service est hébergé sur la "
-#~ "plateforme %(hosting)s (<a "
-#~ "href=\"https://%(domain)s\" target=\"_blank\">(domain)s</a>)."
-#~ msgstr ""
-#~ "Ce service est hébergé sur la "
-#~ "plateforme %(hosting)s (<a "
-#~ "href=\"https://%(domain)s\" target=\"_blank\">%(domain)s</a>)."
-
-#~ msgid ""
-#~ "Les serveurs sont localisés dans des "
-#~ "centres de données sécurisés et "
-#~ "conformes aux normes européennes de "
-#~ "protection des données."
-#~ msgstr ""
-#~ "Les serveurs sont localisés dans des "
-#~ "centres de données sécurisés et "
-#~ "conformes aux normes européennes de "
-#~ "protection des données."
-
-#~ msgid "Propriété intellectuelle"
-#~ msgstr "Propriété intellectuelle"
-
-#~ msgid ""
-#~ "L'ensemble des contenus présents sur ce"
-#~ " site (design, code source, interfaces, "
-#~ "textes, graphismes) est protégé par les"
-#~ " lois relatives à la propriété "
-#~ "intellectuelle."
-#~ msgstr ""
-#~ "L'ensemble des contenus présents sur ce"
-#~ " site (design, code source, interfaces, "
-#~ "textes, graphismes) est protégé par les"
-#~ " lois relatives à la propriété "
-#~ "intellectuelle."
-
-#~ msgid ""
-#~ "Toute reproduction, modification, distribution "
-#~ "ou exploitation non autorisée est "
-#~ "strictement interdite."
-#~ msgstr ""
-#~ "Toute reproduction, modification, distribution "
-#~ "ou exploitation non autorisée est "
-#~ "strictement interdite."
-
-#~ msgid "Responsabilité"
-#~ msgstr "Responsabilité"
-
-#~ msgid ""
-#~ "L'utilisateur reste l'unique responsable des"
-#~ " fichiers PDF qu'il téléverse et "
-#~ "traite via ce service."
-#~ msgstr ""
-#~ "L'utilisateur reste l'unique responsable des"
-#~ " fichiers PDF qu'il téléverse et "
-#~ "traite via ce service."
-
-#~ msgid ""
-#~ "Il s'engage à ne pas utiliser le"
-#~ " service pour des contenus illicites "
-#~ "ou protégés par des droits d'auteur "
-#~ "sans autorisation."
-#~ msgstr ""
-#~ "Il s'engage à ne pas utiliser le"
-#~ " service pour des contenus illicites "
-#~ "ou protégés par des droits d'auteur "
-#~ "sans autorisation."
-
-#~ msgid "Disponibilité du service"
-#~ msgstr "Disponibilité du service"
-
-#~ msgid ""
-#~ "Nous nous efforçons d'assurer une "
-#~ "disponibilité continue du service, mais "
-#~ "ne pouvons garantir un fonctionnement "
-#~ "ininterrompu."
-#~ msgstr ""
-#~ "Nous nous efforçons d'assurer une "
-#~ "disponibilité continue du service, mais "
-#~ "ne pouvons garantir un fonctionnement "
-#~ "ininterrompu."
-
-#~ msgid ""
-#~ "Des périodes de maintenance technique "
-#~ "peuvent être nécessaires pour améliorer "
-#~ "le service."
-#~ msgstr ""
-#~ "Des périodes de maintenance technique "
-#~ "peuvent être nécessaires pour améliorer "
-#~ "le service."
-
-#~ msgid "Respect de votre vie privée"
-#~ msgstr "Respect de votre vie privée"
-
-#~ msgid ""
-#~ "Votre confidentialité est notre priorité. "
-#~ "Cette politique explique comment nous "
-#~ "collectons, utilisons et protégeons vos "
-#~ "informations."
-#~ msgstr ""
-#~ "Votre confidentialité est notre priorité. "
-#~ "Cette politique explique comment nous "
-#~ "collectons, utilisons et protégeons vos "
-#~ "informations."
-
-#~ msgid "Engagement de confidentialité :"
-#~ msgstr "Engagement de confidentialité :"
-
-#~ msgid ""
-#~ "Nous ne stockons jamais le contenu "
-#~ "de vos fichiers PDF. Tous les "
-#~ "traitements sont effectués en mémoire "
-#~ "vive et les fichiers sont supprimés "
-#~ "immédiatement après traitement."
-#~ msgstr ""
-#~ "Nous ne stockons jamais le contenu "
-#~ "de vos fichiers PDF. Tous les "
-#~ "traitements sont effectués en mémoire "
-#~ "vive et les fichiers sont supprimés "
-#~ "immédiatement après traitement."
-
-#~ msgid "Données collectées"
-#~ msgstr "Données collectées"
-
-#~ msgid "Données techniques"
-#~ msgstr "Données techniques"
-
-#~ msgid ""
-#~ "Nous collectons des données techniques "
-#~ "anonymes pour améliorer le service :"
-#~ msgstr ""
-#~ "Nous collectons des données techniques "
-#~ "anonymes pour améliorer le service :"
-
-#~ msgid "Type d'opération effectuée (fusion, division, rotation, compression)"
-#~ msgstr "Type d'opération effectuée (fusion, division, rotation, compression)"
-
-#~ msgid "Nombre de pages traitées"
-#~ msgstr "Nombre de pages traitées"
-
-#~ msgid "Heure et date des opérations (anonymisées)"
-#~ msgstr "Heure et date des opérations (anonymisées)"
-
-#~ msgid "Informations sur le navigateur et l'appareil (type, version)"
-#~ msgstr "Informations sur le navigateur et l'appareil (type, version)"
-
-#~ msgid "Cookies"
-#~ msgstr "Cookies"
-
-#~ msgid "Nous utilisons uniquement des cookies techniques essentiels :"
-#~ msgstr "Nous utilisons uniquement des cookies techniques essentiels :"
-
-#~ msgid "Session cookie :"
-#~ msgstr "Cookie de session :"
-
-#~ msgid "Pour maintenir votre session de travail"
-#~ msgstr "Pour maintenir votre session de travail"
-
-#~ msgid "Préférences :"
-#~ msgstr "Préférences :"
-
-#~ msgid "Pour mémoriser vos paramètres d'interface"
-#~ msgstr "Pour mémoriser vos paramètres d'interface"
-
-#~ msgid "Publicité — Google AdSense"
-#~ msgstr "Publicité — Google AdSense"
-
-#~ msgid ""
-#~ "Ce site utilise <strong>Google "
-#~ "AdSense</strong> (ID: %(adsense_id)s) pour "
-#~ "afficher des publicités pertinentes."
-#~ msgstr ""
-#~ "Ce site utilise <strong>Google "
-#~ "AdSense</strong> (ID: %(adsense_id)s) pour "
-#~ "afficher des publicités pertinentes."
-
-#~ msgid ""
-#~ "Google utilise des cookies pour "
-#~ "personnaliser les annonces en fonction "
-#~ "de votre navigation sur ce site et"
-#~ " d'autres sites web."
-#~ msgstr ""
-#~ "Google utilise des cookies pour "
-#~ "personnaliser les annonces en fonction "
-#~ "de votre navigation sur ce site et"
-#~ " d'autres sites web."
-
-#~ msgid "Vous pouvez désactiver la personnalisation des annonces via les"
-#~ msgstr "Vous pouvez désactiver la personnalisation des annonces via les"
-
-#~ msgid "paramètres des annonces Google"
-#~ msgstr "paramètres des annonces Google"
-
-#~ msgid "Vos droits (RGPD)"
-#~ msgstr "Vos droits (RGPD)"
-
-#~ msgid ""
-#~ "Conformément au Règlement Général sur la"
-#~ " Protection des Données (RGPD), vous "
-#~ "disposez des droits suivants :"
-#~ msgstr ""
-#~ "Conformément au Règlement Général sur la"
-#~ " Protection des Données (RGPD), vous "
-#~ "disposez des droits suivants :"
-
-#~ msgid "Droit d'accès à vos données"
-#~ msgstr "Droit d'accès à vos données"
-
-#~ msgid "Droit de rectification"
-#~ msgstr "Droit de rectification"
-
-#~ msgid "Droit à l'effacement"
-#~ msgstr "Droit à l'effacement"
-
-#~ msgid "Droit à la limitation du traitement"
-#~ msgstr "Droit à la limitation du traitement"
-
-#~ msgid "Droit à la portabilité des données"
-#~ msgstr "Droit à la portabilité des données"
-
-#~ msgid "Pour exercer ces droits, utilisez notre"
-#~ msgstr "Pour exercer ces droits, utilisez notre"
-
-#~ msgid "en précisant \"Exercice de droits RGPD\" dans le sujet."
-#~ msgstr "en précisant \"Exercice de droits RGPD\" dans le sujet."
-
-#~ msgid "Sécurité des données"
-#~ msgstr "Sécurité des données"
-
-#~ msgid ""
-#~ "Nous mettons en œuvre des mesures "
-#~ "de sécurité techniques et organisationnelles"
-#~ " appropriées pour protéger vos données "
-#~ "contre tout accès non autorisé, "
-#~ "altération ou destruction."
-#~ msgstr ""
-#~ "Nous mettons en œuvre des mesures "
-#~ "de sécurité techniques et organisationnelles"
-#~ " appropriées pour protéger vos données "
-#~ "contre tout accès non autorisé, "
-#~ "altération ou destruction."
-
-#~ msgid "Acceptation des conditions"
-#~ msgstr "Acceptation des conditions"
-
-#~ msgid ""
-#~ "En utilisant le service %(app_name)s, "
-#~ "vous acceptez pleinement et sans réserve"
-#~ " les présentes conditions d'utilisation."
-#~ msgstr ""
-#~ "En utilisant le service %(app_name)s, "
-#~ "vous acceptez pleinement et sans réserve"
-#~ " les présentes conditions d'utilisation."
-
-#~ msgid "Avertissement important :"
-#~ msgstr "Avertissement important :"
-
-#~ msgid ""
-#~ "Ce service est fourni \"tel quel\". "
-#~ "Nous déclinons toute responsabilité concernant"
-#~ " les fichiers traités par l'utilisateur."
-#~ msgstr ""
-#~ "Ce service est fourni \"tel quel\". "
-#~ "Nous déclinons toute responsabilité concernant"
-#~ " les fichiers traités par l'utilisateur."
-
-#~ msgid "Usage autorisé"
-#~ msgstr "Usage autorisé"
-
-#~ msgid ""
-#~ "Vous vous engagez à utiliser le "
-#~ "service de manière responsable et légale"
-#~ " :"
-#~ msgstr ""
-#~ "Vous vous engagez à utiliser le "
-#~ "service de manière responsable et légale"
-#~ " :"
-
-#~ msgid "Interdictions"
-#~ msgstr "Interdictions"
-
-#~ msgid ""
-#~ "Téléverser des fichiers contenant des "
-#~ "données illicites ou protégés par des"
-#~ " droits d'auteur sans autorisation"
-#~ msgstr ""
-#~ "Téléverser des fichiers contenant des "
-#~ "données illicites ou protégés par des"
-#~ " droits d'auteur sans autorisation"
-
-#~ msgid "Utiliser le service pour des activités frauduleuses ou malveillantes"
-#~ msgstr "Utiliser le service pour des activités frauduleuses ou malveillantes"
-
-#~ msgid "Tenter de contourner les mesures de sécurité du service"
-#~ msgstr "Tenter de contourner les mesures de sécurité du service"
-
-#~ msgid "Surcharger délibérément le service (attaques DoS/DDoS)"
-#~ msgstr "Surcharger délibérément le service (attaques DoS/DDoS)"
-
-#~ msgid ""
-#~ "Réutiliser le contenu du service à "
-#~ "des fins commerciales sans autorisation"
-#~ msgstr ""
-#~ "Réutiliser le contenu du service à "
-#~ "des fins commerciales sans autorisation"
-
-#~ msgid "Obligations"
-#~ msgstr "Obligations"
-
-#~ msgid "Respecter les droits de propriété intellectuelle des documents traités"
-#~ msgstr "Respecter les droits de propriété intellectuelle des documents traités"
-
-#~ msgid "Assurer la confidentialité de vos propres fichiers"
-#~ msgstr "Assurer la confidentialité de vos propres fichiers"
-
-#~ msgid "Utiliser le service conformément à sa destination première"
-#~ msgstr "Utiliser le service conformément à sa destination première"
-
-#~ msgid "Limitation de responsabilité"
-#~ msgstr "Limitation de responsabilité"
-
-#~ msgid ""
-#~ "Le service est fourni sans aucune "
-#~ "garantie, expresse ou implicite, y "
-#~ "compris, mais sans s'y limiter, les "
-#~ "garanties de qualité marchande, d'adéquation"
-#~ " à un usage particulier et de "
-#~ "non-contrefaçon."
-#~ msgstr ""
-#~ "Le service est fourni sans aucune "
-#~ "garantie, expresse ou implicite, y "
-#~ "compris, mais sans s'y limiter, les "
-#~ "garanties de qualité marchande, d'adéquation"
-#~ " à un usage particulier et de "
-#~ "non-contrefaçon."
-
-#~ msgid "En aucun cas, %(developer_name)s ne pourra être tenu responsable :"
-#~ msgstr "En aucun cas, %(developer_name)s ne pourra être tenu responsable :"
-
-#~ msgid ""
-#~ "Des dommages directs ou indirects "
-#~ "résultant de l'utilisation ou de "
-#~ "l'impossibilité d'utiliser le service"
-#~ msgstr ""
-#~ "Des dommages directs ou indirects "
-#~ "résultant de l'utilisation ou de "
-#~ "l'impossibilité d'utiliser le service"
-
-#~ msgid "De la perte ou de l'altération des fichiers PDF traités"
-#~ msgstr "De la perte ou de l'altération des fichiers PDF traités"
-
-#~ msgid "Des conséquences de l'utilisation des fichiers générés par le service"
-#~ msgstr "Des conséquences de l'utilisation des fichiers générés par le service"
-
-#~ msgid "Modifications des conditions"
-#~ msgstr "Modifications des conditions"
-
-#~ msgid ""
-#~ "Nous nous réservons le droit de "
-#~ "modifier ces conditions d'utilisation à "
-#~ "tout moment."
-#~ msgstr ""
-#~ "Nous nous réservons le droit de "
-#~ "modifier ces conditions d'utilisation à "
-#~ "tout moment."
-
-#~ msgid ""
-#~ "Les utilisateurs seront informés des "
-#~ "changements significatifs via une notification"
-#~ " sur le site."
-#~ msgstr ""
-#~ "Les utilisateurs seront informés des "
-#~ "changements significatifs via une notification"
-#~ " sur le site."
-
-#~ msgid ""
-#~ "Le service, son code source, son "
-#~ "design et son contenu sont la "
-#~ "propriété exclusive de %(developer_name)s."
-#~ msgstr ""
-#~ "Le service, son code source, son "
-#~ "design et son contenu sont la "
-#~ "propriété exclusive de %(developer_name)s."
-
-#~ msgid ""
-#~ "Toute reproduction, même partielle, est "
-#~ "interdite sans autorisation préalable écrite."
-#~ msgstr ""
-#~ "Toute reproduction, même partielle, est "
-#~ "interdite sans autorisation préalable écrite."
-
-#~ msgid "Pour toute question concernant ces conditions :"
-#~ msgstr "Pour toute question concernant ces conditions :"
-
-#~ msgid "Nous contacter via le formulaire"
-#~ msgstr "Nous contacter via le formulaire"
-
-#~ msgid "Compresser PDF - PDF Fusion Pro"
-#~ msgstr "Compresser PDF - PDF Fusion Pro"
-
-#~ msgid "Réduisez la taille de vos fichiers PDF tout en conservant la qualité."
-#~ msgstr "Réduisez la taille de vos fichiers PDF tout en conservant la qualité."
-
-#~ msgid "Compresser un PDF"
-#~ msgstr "Compresser un PDF"
-
-#~ msgid "Déposez votre fichier PDF et obtenez une version plus légère."
-#~ msgstr "Déposez votre fichier PDF et obtenez une version plus légère."
-
-#~ msgid "Glissez-déposez votre fichier ou cliquez pour parcourir"
-#~ msgstr "Glissez-déposez votre fichier ou cliquez pour parcourir"
-
-#~ msgid "Niveau de compression"
-#~ msgstr "Niveau de compression"
-
-#~ msgid "Faible"
-#~ msgstr "Faible"
-
-#~ msgid "Fort"
-#~ msgstr "Fort"
-
-#~ msgid "Compression plus forte = fichier plus petit, qualité réduite"
-#~ msgstr "Compression plus forte = fichier plus petit, qualité réduite"
-
-#~ msgid "Compresser le PDF"
-#~ msgstr "Compresser le PDF"
-
-#~ msgid "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
-#~ msgstr "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
-
-#~ msgid ""
-#~ "Tous les outils PDF en un seul "
-#~ "endroit : fusionner, diviser, tourner, "
-#~ "compresser et convertir des fichiers "
-#~ "PDF. 100%% gratuit, sécurisé et sans "
-#~ "inscription."
-#~ msgstr ""
-
-#~ msgid "Transformez vos PDFs en toute simplicité"
-#~ msgstr "Transformez vos PDFs en toute simplicité"
-
-#~ msgid ""
-#~ "Outil PDF tout-en-un : fusion, "
-#~ "division, rotation, compression et conversion."
-#~ " Rapide, sécurisé et 100%% gratuit."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Aucune inscription requise – vos "
-#~ "fichiers ne quittent jamais votre "
-#~ "navigateur."
-#~ msgstr ""
-#~ "Aucune inscription requise – vos "
-#~ "fichiers ne quittent jamais votre "
-#~ "navigateur."
-
-#~ msgid "Fusionner des fichiers PDF"
-#~ msgstr "Fusionner plusieurs PDF"
-
-#~ msgid "Combine plusieurs PDF en un seul document organisé"
-#~ msgstr "Combine plusieurs fichiers PDF en un seul document organisé."
-
-#~ msgid "Fusionner des PDF"
-#~ msgstr "Fusionner les PDF"
-
-#~ msgid "Accédez à l'outil de fusion PDF"
-#~ msgstr "Accédez à l'outil de fusion PDF"
-
-#~ msgid "Diviser un fichier PDF"
-#~ msgstr "Diviser le PDF"
-
-#~ msgid "Extrayez des pages spécifiques ou divisez par plages"
-#~ msgstr "Extrayez des pages spécifiques ou divisez par plages"
-
-#~ msgid "Diviser un PDF"
-#~ msgstr "Diviser le PDF"
-
-#~ msgid "Accédez à l'outil de division PDF"
-#~ msgstr "Accédez à l'outil de division PDF"
-
-#~ msgid "Tourner un fichier PDF"
-#~ msgstr "Pivoter le PDF"
-
-#~ msgid "Faites pivoter des pages spécifiques ou l'ensemble du document"
-#~ msgstr "Faites pivoter des pages spécifiques ou l'ensemble du document."
-
-#~ msgid "Tourner un PDF"
-#~ msgstr "Pivoter le PDF"
-
-#~ msgid "Accédez à l'outil de rotation PDF"
-#~ msgstr "Accédez à l'outil de rotation PDF"
-
-#~ msgid "Compresser un fichier PDF"
-#~ msgstr "Compresser un PDF"
-
-#~ msgid "Réduisez la taille de vos PDFs sans perte de qualité notable"
-#~ msgstr "Réduisez la taille de vos fichiers PDF sans perte de qualité notable."
-
-#~ msgid "Accédez à l'outil de compression PDF"
-#~ msgstr "Accédez à l'outil de compression PDF"
-
-#~ msgid "Convertisseur universel"
-#~ msgstr "Convertisseur de fichiers"
-
-#~ msgid ""
-#~ "Convertissez vos fichiers Word, Excel, "
-#~ "PowerPoint et images en PDF et "
-#~ "vice-versa"
-#~ msgstr ""
-#~ "Convertissez vos fichiers Word, Excel, "
-#~ "PowerPoint et images en PDF et "
-#~ "vice-versa"
-
-#~ msgid "PDF Fusion Pro en chiffres"
-#~ msgstr "PDF Fusion Pro en chiffres"
-
-#~ msgid "Utilisateurs"
-#~ msgstr "Utiliser"
-
-#~ msgid "PDF traités"
-#~ msgstr "Fichiers traités"
-
-#~ msgid "Satisfaction"
-#~ msgstr "Satisfaction"
-
-#~ msgid "Disponible"
-#~ msgstr "Non disponible"
-
-#~ msgid "Votre solution PDF tout-en-un, 100%% gratuite et sécurisée"
-#~ msgstr "Votre solution PDF tout-en-un, 100%% gratuite et sécurisée"
-
-#~ msgid ""
-#~ "PDF Fusion Pro est la plateforme "
-#~ "idéale pour tous vos besoins en "
-#~ "manipulation de fichiers PDF. Que vous"
-#~ " ayez besoin de <strong>fusionner plusieurs"
-#~ " documents</strong>, <strong>diviser un PDF "
-#~ "volumineux</strong>, <strong>tourner des pages "
-#~ "mal orientées</strong> ou <strong>compresser "
-#~ "des fichiers pour les partager</strong>, "
-#~ "nos outils sont là pour vous "
-#~ "aider."
-#~ msgstr ""
-#~ "PDF Fusion Pro est la plateforme "
-#~ "idéale pour tous vos besoins en "
-#~ "manipulation de fichiers PDF. Que vous"
-#~ " ayez besoin de <strong>fusionner plusieurs"
-#~ " documents</strong>, <strong>diviser un PDF "
-#~ "volumineux</strong>, <strong>pivoter des pages "
-#~ "mal orientées</strong> ou <strong>compresser "
-#~ "des fichiers pour les partager</strong>, "
-#~ "nos outils sont là pour vous "
-#~ "aider."
-
-#~ msgid "Aucune inscription requise"
-#~ msgstr "Aucune restriction"
-
-#~ msgid "Chiffrement SSL et suppression automatique des fichiers"
-#~ msgstr "Chiffrement SSL et suppression automatique des fichiers"
-
-#~ msgid "Fusionner PDF - PDF Fusion Pro"
-#~ msgstr "Pivoter PDF - PDF Fusion Pro"
-
-#~ msgid ""
-#~ "Fusionnez plusieurs fichiers PDF en un"
-#~ " seul document, facilement et rapidement."
-#~ msgstr "Combine plusieurs fichiers PDF en un seul document organisé."
-
-#~ msgid "Fusionner plusieurs PDF"
-#~ msgstr "Fusionner plusieurs PDF"
-
-#~ msgid "Déposez vos fichiers PDF et obtenez un document unique fusionné."
-#~ msgstr "Déposez vos fichiers PDF et obtenez un document unique fusionné."
-
-#~ msgid "Déposez vos PDF ici"
-#~ msgstr "Déposez vos PDF ici"
-
-#~ msgid "Glissez-déposez vos fichiers ou cliquez pour parcourir"
-#~ msgstr "Glissez-déposez vos fichiers ou cliquez pour parcourir"
-
-#~ msgid "Fusionner les PDF"
-#~ msgstr "Fusionner les PDF"
-
-#~ msgid "Tourner PDF - PDF Fusion Pro"
-#~ msgstr "Pivoter PDF - PDF Fusion Pro"
-
-#~ msgid "Corrigez l'orientation de vos fichiers PDF en quelques clics."
-#~ msgstr "Corrigez l'orientation de vos fichiers PDF en quelques clics."
-
-#~ msgid "Déposez votre fichier PDF et choisissez l'angle de rotation."
-#~ msgstr "Déposez votre fichier PDF et choisissez l'angle de rotation."
-
-#~ msgid "Pages à tourner"
-#~ msgstr "Pages à pivoter"
-
-#~ msgid "Ex: 1,3-5 ou 'all' pour toutes"
-#~ msgstr "Ex: 1,3-5 ou 'all' pour toutes"
-
-#~ msgid "Format: numéros séparés par des virgules, plages avec tiret"
-#~ msgstr "Format: numéros séparés par des virgules, plages avec tiret"
-
-#~ msgid "Angle de rotation"
-#~ msgstr "Angle de rotation"
-
-#~ msgid "Tourner le PDF"
-#~ msgstr "Pivoter le PDF"
-
-#~ msgid "Diviser PDF - PDF Fusion Pro"
-#~ msgstr "Diviser PDF - PDF Fusion Pro"
-
-#~ msgid ""
-#~ "Divisez vos fichiers PDF en plusieurs"
-#~ " documents selon les pages sélectionnées."
-#~ msgstr ""
-#~ "Divisez vos fichiers PDF en plusieurs"
-#~ " documents selon les pages sélectionnées."
-
-#~ msgid "Déposez votre fichier PDF et sélectionnez les pages à extraire."
-#~ msgstr "Déposez votre fichier PDF et sélectionnez les pages à extraire."
-
-#~ msgid "Pages à extraire"
-#~ msgstr "Pages à extraire"
-
-#~ msgid ""
-#~ "Format: numéros séparés par des "
-#~ "virgules, plages avec tiret. Ex: "
-#~ "\"1,3-5\""
-#~ msgstr ""
-#~ "Format: numéros séparés par des "
-#~ "virgules, plages avec tiret. Ex: "
-#~ "\"1,3-5\""
-
-#~ msgid "Diviser le PDF"
-#~ msgstr "Diviser le PDF"
-
-#~ msgid "Convertissez vos feuilles Excel en PDF"
-#~ msgstr "Convertissez votre document Word en PDF"
-
-#~ msgid "JPG vers PDF"
-#~ msgstr "Protéger le PDF"
-
-#~ msgid "PNG vers PDF"
-#~ msgstr "Protéger le PDF"
-
-#~ msgid "TXT vers PDF"
-#~ msgstr "Version PDF/A"
-
-#~ msgid "Extrayez le texte de vos PDF en documents Word"
-#~ msgstr "Extrayez le texte de vos images"
-
-#~ msgid "Convertissez les pages de vos PDF en images"
-#~ msgstr "Convertissez votre PDF en images"
-
-#~ msgid "PDF vers HTML"
-#~ msgstr "PDF vers DOCX"
-
-#~ msgid "PDF vers TXT"
-#~ msgstr "PDF vers DOCX"
-
-#~ msgid "Extrayez le texte de vos PDF en fichiers texte"
-#~ msgstr "Extrayez le texte de vos images"
-
-#~ msgid "Exportez vos feuilles Excel en CSV"
-#~ msgstr "Glissez-déposez vos fichiers Excel ici"
-
-#~ msgid "Téléphone (optionnel)"
-#~ msgstr ""
-
-#~ msgid "Sujet"
-#~ msgstr ""
-
-#~ msgid "Signaler un bug"
-#~ msgstr "Signer le PDF"
-
-#~ msgid "Proposer une amélioration"
-#~ msgstr ""
-
-#~ msgid "Partenariat"
-#~ msgstr ""
-
-#~ msgid "Autre"
-#~ msgstr ""
-
-#~ msgid "Message"
-#~ msgstr ""
-
-#~ msgid "OCR PDF"
-#~ msgstr "OCR PDF"
-
-#~ msgid "Haute (90-100 %)"
-#~ msgstr ""
 
