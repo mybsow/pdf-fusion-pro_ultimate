@@ -3750,21 +3750,51 @@ def convert_image_to_excel(file_input, form_data=None):
                 logger.info(f"[IMG2XLS] Lignes tableau: {len(table_data)}, aperçu: {table_data[:2]}")
 
                 # ── Trouver la ligne d'en-tête ───────────────────────────────
-                # La ligne d'en-tête est celle avec le plus de colonnes remplies
                 if table_data:
-                    header_idx = max(
-                        range(min(5, len(table_data))),
-                        key=lambda i: sum(1 for c in table_data[i] if c.strip())
-                    )
+                    n_cols_total = len(table_data[0])
+
+                    # ✅ Scorer chaque ligne candidate comme en-tête :
+                    # - nombre de colonnes remplies (plus = mieux)
+                    # - position dans le tableau (éviter les premières lignes titre)
+                    # - pas de dates (les en-têtes ne sont pas des dates)
+                    import re as _re
+                    date_pattern = _re.compile(r'\d{2}/\d{2}/\d{4}')
+                    number_pattern = _re.compile(r'^\d+$')
+
+                    def header_score(row, idx):
+                        filled = sum(1 for c in row if c.strip())
+                        has_dates = sum(1 for c in row if date_pattern.search(c))
+                        has_numbers = sum(1 for c in row if number_pattern.match(c.strip()))
+                        # Pénaliser les lignes avec dates/chiffres seuls
+                        # Favoriser les lignes avec beaucoup de texte non-numérique
+                        return filled - has_dates * 2 - has_numbers * 2
+
+                    # Chercher l'en-tête parmi les 6 premières lignes
+                    candidates = list(enumerate(table_data[:6]))
+                    header_idx = max(candidates, key=lambda x: header_score(x[1], x[0]))[0]
+
+                    logger.info(f"[IMG2XLS] En-tête détecté ligne {header_idx}: {table_data[header_idx]}")
+
                     headers = [
                         c.strip() if c.strip() else f"Col{i+1}"
                         for i, c in enumerate(table_data[header_idx])
                     ]
-                    data_rows = [
-                        r for j, r in enumerate(table_data)
-                        if j != header_idx
-                        and any(c.strip() for c in r)
-                    ]
+
+                    # ✅ Garder uniquement les lignes APRÈS l'en-tête
+                    # ET ignorer les lignes qui semblent être des titres
+                    # (peu de colonnes remplies par rapport à l'en-tête)
+                    min_filled = sum(1 for c in table_data[header_idx] if c.strip()) * 0.3
+
+                    data_rows = []
+                    for j, r in enumerate(table_data):
+                        if j <= header_idx:
+                            continue  # ignorer titre + en-tête
+                        filled = sum(1 for c in r if c.strip())
+                        if filled < max(2, min_filled):
+                            logger.info(f"[IMG2XLS] Ligne {j} ignorée (trop vide): {r}")
+                            continue
+                        data_rows.append(r)
+
                     df = pd.DataFrame(data_rows, columns=headers)
                     logger.info(f"[IMG2XLS] DataFrame: {df.shape}, colonnes={list(df.columns)}")
 
