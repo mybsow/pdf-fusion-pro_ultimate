@@ -3737,50 +3737,69 @@ def convert_image_to_excel(file_input, form_data=None):
 
             ref_tops = sorted(rows_left_dict.keys())  # tops de référence = les lignes réelles
             col1_rows = [" ".join(rows_left_dict[t]) for t in ref_tops]
+            
             logger.info(f"[IMG2XLS] Col1 ({len(col1_rows)} lignes): {col1_rows}")
             logger.info(f"[IMG2XLS] Tops référence: {ref_tops}")
 
             # ✅ OCR bande droite ligne par ligne selon les tops de référence
             line_height = int(img_h * 0.08)  # hauteur approximative d'une ligne
-            col2_rows = []
+
+            # ✅ Détecter le meilleur mode OCR sur la 1ère ligne non vide
+            import re
+            best_psm = "7"
+            best_mode = "binarized"
+            if ref_tops:
+                y1 = max(0, ref_tops[0] - line_height // 2)
+                y2 = min(img_h, ref_tops[0] + line_height // 2)
+                test_crop = band_right.crop((0, y1, band_right.width, y2))
+                test_bin = test_crop.convert("L").point(
+                    lambda x: 0 if x < 128 else 255, mode="L"
+                ).convert("RGB")
+                best_score = 0
+                for img_test, label in [("binarized", test_bin), ("original", test_crop)]:
+                    for psm in ["7", "6"]:
+                        try:
+                            text = pytesseract.image_to_string(
+                                test_bin if label == "binarized" else test_crop,
+                                lang=ocr_lang, config=f"--oem 3 --psm {psm}"
+                            ).strip()
+                            text = re.sub(r'[|\.]+', '', text).strip()
+                            if len(text) > best_score:
+                                best_score = len(text)
+                                best_psm = psm
+                                best_mode = label
+                        except Exception:
+                            pass
+                logger.info(f"[IMG2XLS] Meilleur mode détecté: {best_mode} psm={best_psm}")
+
+            # Boucle principale — 1 seul appel par ligne
             for ref_top in ref_tops:
                 y1 = max(0,     ref_top - line_height // 2)
                 y2 = min(img_h, ref_top + line_height // 2)
                 line_crop = band_right.crop((0, y1, band_right.width, y2))
-
-                best_text = ""
-                best_count = 0
-                for img_test, label in [
-                    (line_crop, "original"),
-                    (line_crop.convert("L").point(
+                if best_mode == "binarized":
+                    img_test = line_crop.convert("L").point(
                         lambda x: 0 if x < 128 else 255, mode="L"
-                    ).convert("RGB"), "binarized"),
-                ]:
-                    for psm in ["7", "8", "6"]:
-                        try:
-                            text = pytesseract.image_to_string(
-                                img_test, lang=ocr_lang,
-                                config=f"--oem 3 --psm {psm}"
-                            ).strip()
-                            text = " ".join(text.split())
-                            if len(text) > best_count:
-                                best_count = len(text)
-                                best_text = text
-                        except Exception:
-                            pass
-
-                # Nettoyage artefacts OCR
-                import re
+                    ).convert("RGB")
+                else:
+                    img_test = line_crop
+                try:
+                    best_text = pytesseract.image_to_string(
+                        img_test, lang=ocr_lang,
+                        config=f"--oem 3 --psm {best_psm}"
+                    ).strip()
+                    best_text = " ".join(best_text.split())
+                except Exception:
+                    best_text = ""
                 best_text = re.sub(r'[|\.]+', '', best_text).strip()
-                best_text = re.sub(r'^[Tl1|]+([A-Z])', r'\1', best_text).strip()
-
+                best_text = re.sub(r'^[Tl1]+([A-Za-z])', lambda m: m.group(1).upper(), best_text).strip()
                 col2_rows.append(best_text)
                 logger.info(f"[IMG2XLS] Ligne top={ref_top}: '{best_text}'")
 
-            # ✅ Nettoyage de l'en-tête (1ère ligne = nom de colonne)
+            # ✅ Nettoyage de l'en-tête
             if col2_rows:
                 header = re.sub(r'[|\.]+', '', col2_rows[0]).strip()
-                header = re.sub(r'^[Tl1|]+([A-Z])', r'\1', header).strip()
+                header = re.sub(r'^[Tl1]+([A-Za-z])', lambda m: m.group(1).upper(), header).strip()
                 header = header.upper()
                 col2_rows[0] = header if header else "Col2"
 
@@ -3846,13 +3865,15 @@ def convert_image_to_excel(file_input, form_data=None):
         # ══ EXPORT EXCEL ═════════════════════════════════════════════════════
         logger.info(f"[IMG2XLS] Export Excel: {df.shape}")
         output = BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            # Feuille principale
             df.to_excel(writer, index=False, sheet_name="OCR_Data")
-            ws = writer.sheets["OCR_Data"]
-            for col in ws.columns:
-                max_len = max((len(str(cell.value)) for cell in col if cell.value), default=10)
-                ws.column_dimensions[col[0].column_letter].width = min(max_len + 2, 60)
+            worksheet = writer.sheets["OCR_Data"]
+            for i, col in enumerate(df.columns):
+                max_len = max(df[col].astype(str).map(len).max(), len(str(col))) + 2
+                worksheet.set_column(i, i, min(max_len, 60))
 
+            # Feuille résumé
             summary = pd.DataFrame({
                 "Propriété": ["Fichier source", "Dimensions", "Mode couleur",
                               "Langue OCR", "Mode extraction", "Seuil confiance",
@@ -3870,9 +3891,9 @@ def convert_image_to_excel(file_input, form_data=None):
                 ],
             })
             summary.to_excel(writer, index=False, sheet_name="Résumé")
-            ws2 = writer.sheets["Résumé"]
-            ws2.column_dimensions["A"].width = 22
-            ws2.column_dimensions["B"].width = 45
+            ws_resume = writer.sheets["Résumé"]
+            ws_resume.set_column(0, 0, 22)
+            ws_resume.set_column(1, 1, 45)
 
         output.seek(0)
         size = output.getbuffer().nbytes
@@ -3930,7 +3951,7 @@ def convert_csv_to_excel(files, form_data=None):
     summary = []
  
     try:
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        with pd.ExcelWriter(output, engine="openpyxl", engine_kwargs={"write_only": False}) as writer:
             from openpyxl.styles import Font, PatternFill, Alignment
             from openpyxl.utils import get_column_letter
  
