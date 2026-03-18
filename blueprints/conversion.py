@@ -3789,7 +3789,7 @@ def convert_image_to_excel(file_input, form_data=None):
                         import re as _re
                         date_pattern = _re.compile(r'\d{2}/\d{2}/\d{4}')
                         number_pattern = _re.compile(r'^\d+$')
-
+                        n_cols_total = n_cols  # ✅ rendre visible dans header_score
                         def header_score(row, idx):
                             filled = sum(1 for c in row if c.strip())
                             has_dates = sum(1 for c in row if date_pattern.search(c))
