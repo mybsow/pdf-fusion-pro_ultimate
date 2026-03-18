@@ -3744,12 +3744,10 @@ def convert_image_to_excel(file_input, form_data=None):
             line_height = int(img_h * 0.08)  # hauteur approximative d'une ligne
             col2_rows = []
             for ref_top in ref_tops:
-                # Découper une bande horizontale autour de ce top
                 y1 = max(0,     ref_top - line_height // 2)
                 y2 = min(img_h, ref_top + line_height // 2)
                 line_crop = band_right.crop((0, y1, band_right.width, y2))
-                
-                # OCR sur cette seule ligne
+
                 best_text = ""
                 best_count = 0
                 for img_test, label in [
@@ -3758,22 +3756,33 @@ def convert_image_to_excel(file_input, form_data=None):
                         lambda x: 0 if x < 128 else 255, mode="L"
                     ).convert("RGB"), "binarized"),
                 ]:
-                    for psm in ["7", "8", "6"]:  # psm 7=ligne, 8=mot, 6=bloc
+                    for psm in ["7", "8", "6"]:
                         try:
                             text = pytesseract.image_to_string(
                                 img_test, lang=ocr_lang,
                                 config=f"--oem 3 --psm {psm}"
                             ).strip()
-                            # Nettoyer les artefacts
                             text = " ".join(text.split())
                             if len(text) > best_count:
                                 best_count = len(text)
                                 best_text = text
                         except Exception:
                             pass
-                
+
+                # Nettoyage artefacts OCR
+                import re
+                best_text = re.sub(r'[|\.]+', '', best_text).strip()
+                best_text = re.sub(r'^[Tl1|]+([A-Z])', r'\1', best_text).strip()
+
                 col2_rows.append(best_text)
                 logger.info(f"[IMG2XLS] Ligne top={ref_top}: '{best_text}'")
+
+            # ✅ Nettoyage de l'en-tête (1ère ligne = nom de colonne)
+            if col2_rows:
+                header = re.sub(r'[|\.]+', '', col2_rows[0]).strip()
+                header = re.sub(r'^[Tl1|]+([A-Z])', r'\1', header).strip()
+                header = header.upper()
+                col2_rows[0] = header if header else "Col2"
 
             logger.info(f"[IMG2XLS] Col2 final ({len(col2_rows)} lignes): {col2_rows}")
 
