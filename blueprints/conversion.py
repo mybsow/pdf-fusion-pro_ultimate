@@ -3620,40 +3620,65 @@ def convert_image_to_excel(file_input, form_data=None):
         else:
             tess_cfg = "--oem 3 --psm 6"
 
-# ══ MODE TABLEAU ════════════════════════════════════════════════════
+        # ══ MODE TABLEAU ════════════════════════════════════════════════════
         if detect_tables or extraction_mode in ("auto", "table", "block"):
 
-            # ✅ Fonctions internes
             def ocr_band(img_band, lang, conf_thr):
-                try:
-                    d = pytesseract.image_to_data(
-                        img_band, lang=lang, output_type=Output.DICT,
-                        config="--oem 3 --psm 4"
-                    )
-                except Exception:
-                    try:
-                        d = pytesseract.image_to_data(
-                            img_band, lang=lang, output_type=Output.DICT,
-                            config="--oem 3 --psm 6"
-                        )
-                    except Exception:
-                        return []
-                words = []
-                for i, text in enumerate(d["text"]):
-                    if not text or not text.strip():
-                        continue
-                    try:
-                        conf = int(d["conf"][i])
-                    except (ValueError, TypeError):
-                        conf = -1
-                    if conf < conf_thr:
-                        continue
-                    words.append({
-                        "text": text.strip(),
-                        "top": d["top"][i],
-                        "left": d["left"][i],
-                    })
-                return words
+                """OCR d'une bande avec binarisation forcée."""
+                gray = img_band.convert("L")
+                arr = np.array(gray, dtype=np.uint8)
+
+                # Seuil Otsu
+                hist, _ = np.histogram(arr.flatten(), bins=256, range=(0, 255))
+                total = arr.size
+                sum_t = np.dot(np.arange(256), hist).astype(float)
+                sumB, wB, max_var, threshold = 0.0, 0, 0.0, 127
+                for t in range(256):
+                    wB += hist[t]
+                    if wB == 0: continue
+                    wF = total - wB
+                    if wF == 0: break
+                    sumB += t * hist[t]
+                    mB = sumB / wB
+                    mF = (sum_t - sumB) / wF
+                    var = wB * wF * (mB - mF) ** 2
+                    if var > max_var:
+                        max_var, threshold = var, t
+
+                binarized = gray.point(lambda x: 0 if x < threshold else 255, mode="L")
+                img_clean = binarized.convert("RGB")
+
+                results = {}
+                for label, img_test in [("binarized", img_clean), ("original", img_band)]:
+                    for psm in ["4", "6"]:
+                        try:
+                            d = pytesseract.image_to_data(
+                                img_test, lang=lang, output_type=Output.DICT,
+                                config=f"--oem 3 --psm {psm}"
+                            )
+                            words = []
+                            for i, text in enumerate(d["text"]):
+                                if not text or not text.strip():
+                                    continue
+                                try:
+                                    conf = int(d["conf"][i])
+                                except (ValueError, TypeError):
+                                    conf = -1
+                                if conf < conf_thr:
+                                    continue
+                                words.append({
+                                    "text": text.strip(),
+                                    "top": d["top"][i],
+                                    "left": d["left"][i],
+                                })
+                            results[f"{label}_psm{psm}"] = words
+                        except Exception:
+                            results[f"{label}_psm{psm}"] = []
+
+                best_key = max(results, key=lambda k: len(results[k]))
+                best = results[best_key]
+                logger.info(f"[IMG2XLS] ocr_band best={best_key}: {len(best)} mots, scores={[(k, len(v)) for k,v in results.items()]}")
+                return best
 
             def group_by_rows(words, row_threshold):
                 rows = {}
@@ -3670,7 +3695,7 @@ def convert_image_to_excel(file_input, form_data=None):
                     rows[key].append(w["text"])
                 return [" ".join(ws) for _, ws in sorted(rows.items())]
 
-            # ✅ Détecter la frontière verticale par projection
+            # Détecter la frontière verticale par projection
             import numpy as np
             gray = np.array(processed.convert("L"))
             col_darkness = (255 - gray).sum(axis=0)
@@ -3682,10 +3707,9 @@ def convert_image_to_excel(file_input, form_data=None):
             split_x = mid_start + int(np.argmin(valley_region))
             logger.info(f"[IMG2XLS] Frontière colonne détectée: x={split_x} (sur {img_w}px)")
 
-            # ✅ OCR séparé sur chaque bande
             margin = 10
-            band_left  = processed.crop((0,                  0, split_x + margin, img_h))
-            band_right = processed.crop((split_x - margin,   0, img_w,            img_h))
+            band_left  = processed.crop((0,                0, split_x + margin, img_h))
+            band_right = processed.crop((split_x - margin, 0, img_w,            img_h))
 
             words_left  = ocr_band(band_left,  ocr_lang, confidence_thr)
             words_right = ocr_band(band_right, ocr_lang, confidence_thr)
@@ -3693,7 +3717,6 @@ def convert_image_to_excel(file_input, form_data=None):
             logger.info(f"[IMG2XLS] Bande gauche: {len(words_left)} mots: {[w['text'] for w in words_left[:5]]}")
             logger.info(f"[IMG2XLS] Bande droite: {len(words_right)} mots: {[w['text'] for w in words_right[:5]]}")
 
-            # ✅ Regrouper par lignes
             row_thr = max(15, int(img_h * 0.03))
             col1_rows = group_by_rows(words_left,  row_thr)
             col2_rows = group_by_rows(words_right, row_thr)
@@ -3701,7 +3724,6 @@ def convert_image_to_excel(file_input, form_data=None):
             logger.info(f"[IMG2XLS] Col1: {col1_rows}")
             logger.info(f"[IMG2XLS] Col2: {col2_rows}")
 
-            # ✅ Aligner les deux colonnes
             max_rows = max(len(col1_rows), len(col2_rows), 1)
             col1_rows += [""] * (max_rows - len(col1_rows))
             col2_rows += [""] * (max_rows - len(col2_rows))
