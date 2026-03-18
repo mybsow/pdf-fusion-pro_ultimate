@@ -1402,7 +1402,7 @@ def convert_pdf_to_word(file, form_data=None):
     original = file.filename
     form_data = form_data or {}
     ocr_fallback = str(form_data.get("ocr","true")).lower() == "true"
-    language = form_data.get("language","fra")
+    language = form_data.get("language","fra+eng")
     ocr_lang = build_ocr_lang_string(language)
     temp_dir = create_temp_directory("pdf2word_")
  
@@ -3553,10 +3553,10 @@ def convert_image_to_excel(file_input, form_data=None):
             return {"error": f"Impossible d'ouvrir l'image : {e}"}
 
         # ── Paramètres ──────────────────────────────────────────────────────
-        language       = form_data.get("language", "fra")
+        language       = form_data.get("language", "fra+eng")
         detect_tables  = str(form_data.get("detect_tables", "true")).lower() == "true"
         enhance_image  = str(form_data.get("enhance_image", "true")).lower() == "true"
-        confidence_thr = max(10, int(form_data.get("confidence", "20")))
+        confidence_thr = max(0, int(form_data.get("confidence", "10")))  # seuil à 10 par défaut
         extraction_mode = form_data.get("extractionMode", "auto")
         df = None  # ✅ initialisation
 
@@ -3599,9 +3599,10 @@ def convert_image_to_excel(file_input, form_data=None):
             logger.info(f"[IMG2XLS] Lancement Tesseract psm 6, lang={ocr_lang}")
             try:
                 data = pytesseract.image_to_data(
-                    processed, lang=ocr_lang,
+                    processed,
+                    lang=ocr_lang,
                     output_type=Output.DICT,
-                    config="--oem 3 --psm 6",
+                    config="--oem 3 --psm 6 -c tessedit_char_whitelist=",  # pas de whitelist restrictive
                 )
                 logger.info(f"[IMG2XLS] Tesseract OK: {len(data['text'])} tokens")
             except pytesseract.TesseractError as e:
@@ -3658,7 +3659,7 @@ def convert_image_to_excel(file_input, form_data=None):
                     col_boundaries = [0]
                     for j in range(1, len(unique_lefts)):
                         gap = unique_lefts[j] - unique_lefts[j-1]
-                        if gap > img_w * 0.05:
+                        if gap > img_w * 0.05:  # img_w = processed.size[0] = 1029 ✅
                             col_boundaries.append((unique_lefts[j] + unique_lefts[j-1]) // 2)
                     col_boundaries.append(img_w)
                 else:
