@@ -3765,16 +3765,26 @@ def convert_image_to_excel(file_input, form_data=None):
                         filled = sum(1 for c in row if c.strip())
                         has_dates = sum(1 for c in row if date_pattern.search(c))
                         has_numbers = sum(1 for c in row if number_pattern.match(c.strip()))
-                        # ✅ Colonnes consécutives remplies depuis la gauche
                         consecutive = 0
                         for c in row:
                             if c.strip():
                                 consecutive += 1
                             else:
                                 break
-                        return filled + consecutive * 0.5 - has_dates * 3 - has_numbers * 3
 
-                    # ✅ Chercher dans toutes les lignes
+                        # ✅ Si la ligne remplit >50% des colonnes,
+                        # c'est un candidat sérieux — ne pas trop pénaliser
+                        fill_ratio = filled / max(n_cols_total, 1)
+                        if fill_ratio > 0.5:
+                            # Ligne dense : pénalité réduite sur dates/nombres
+                            # car l'en-tête peut contenir "Début", "Fin" etc.
+                            penalty = has_dates * 1 + has_numbers * 1
+                        else:
+                            # Ligne sparse : pénalité forte (titre, sous-titre)
+                            penalty = has_dates * 3 + has_numbers * 3
+
+                        return filled * 2 + consecutive * 0.5 - penalty
+
                     header_idx = max(
                         enumerate(table_data),
                         key=lambda x: header_score(x[1], x[0])
@@ -3782,7 +3792,7 @@ def convert_image_to_excel(file_input, form_data=None):
 
                     logger.info(
                         f"[IMG2XLS] Scores candidats: "
-                        f"{[(i, header_score(r, i), sum(1 for c in r if c.strip())) for i, r in enumerate(table_data[:6])]}"
+                        f"{[(i, round(header_score(r, i), 1), sum(1 for c in r if c.strip())) for i, r in enumerate(table_data[:6])]}"
                     )
                     logger.info(f"[IMG2XLS] En-tête détecté ligne {header_idx}: {table_data[header_idx]}")
 
