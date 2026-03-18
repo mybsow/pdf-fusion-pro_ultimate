@@ -3620,109 +3620,106 @@ def convert_image_to_excel(file_input, form_data=None):
         else:
             tess_cfg = "--oem 3 --psm 6"
 
-        # ══ MODE TABLEAU ════════════════════════════════════════════════════
+# ══ MODE TABLEAU ════════════════════════════════════════════════════
         if detect_tables or extraction_mode in ("auto", "table", "block"):
-            logger.info(f"[IMG2XLS] Lancement Tesseract psm 6, lang={ocr_lang}")
-            try:
-                data = pytesseract.image_to_data(
-                    processed,
-                    lang=ocr_lang,
-                    output_type=Output.DICT,
-                    config="--oem 3 --psm 6 -c tessedit_char_whitelist=",  # pas de whitelist restrictive
-                )
-                logger.info(f"[IMG2XLS] Tesseract OK: {len(data['text'])} tokens")
-            except pytesseract.TesseractError as e:
-                logger.warning(f"[IMG2XLS] Tesseract psm6 failed: {e}, fallback psm3")
-                data = pytesseract.image_to_data(
-                    processed, lang=ocr_lang,
-                    output_type=Output.DICT,
-                    config="--oem 3 --psm 3",
-                )
 
-            row_threshold = max(15, int(img_h * 0.03))
-            logger.info(f"[IMG2XLS] row_threshold={row_threshold}, img={img_w}x{img_h}")
-
-            all_words = []
-            for i, text in enumerate(data["text"]):
-                if not text or not text.strip():
-                    continue
+            # ✅ Fonctions internes
+            def ocr_band(img_band, lang, conf_thr):
                 try:
-                    conf = int(data["conf"][i])
-                except (ValueError, TypeError):
-                    conf = -1
-                if conf < confidence_thr:
-                    continue
-                all_words.append({
-                    "text": text.strip(),
-                    "left": data["left"][i],
-                    "top": data["top"][i],
-                    "width": data["width"][i],
-                    "right": data["left"][i] + data["width"][i],
-                })
+                    d = pytesseract.image_to_data(
+                        img_band, lang=lang, output_type=Output.DICT,
+                        config="--oem 3 --psm 4"
+                    )
+                except Exception:
+                    try:
+                        d = pytesseract.image_to_data(
+                            img_band, lang=lang, output_type=Output.DICT,
+                            config="--oem 3 --psm 6"
+                        )
+                    except Exception:
+                        return []
+                words = []
+                for i, text in enumerate(d["text"]):
+                    if not text or not text.strip():
+                        continue
+                    try:
+                        conf = int(d["conf"][i])
+                    except (ValueError, TypeError):
+                        conf = -1
+                    if conf < conf_thr:
+                        continue
+                    words.append({
+                        "text": text.strip(),
+                        "top": d["top"][i],
+                        "left": d["left"][i],
+                    })
+                return words
 
-            logger.info(f"[IMG2XLS] Mots retenus: {len(all_words)}")
-
-            if all_words:
-                rows_dict = {}
-                for word in all_words:
-                    top = word["top"]
-                    row_key = None
-                    for existing_top in rows_dict:
-                        if abs(top - existing_top) <= row_threshold:
-                            row_key = existing_top
+            def group_by_rows(words, row_threshold):
+                rows = {}
+                for w in words:
+                    top = w["top"]
+                    key = None
+                    for k in rows:
+                        if abs(top - k) <= row_threshold:
+                            key = k
                             break
-                    if row_key is None:
-                        row_key = top
-                        rows_dict[row_key] = []
-                    rows_dict[row_key].append(word)
+                    if key is None:
+                        key = top
+                        rows[key] = []
+                    rows[key].append(w["text"])
+                return [" ".join(ws) for _, ws in sorted(rows.items())]
 
-                logger.info(f"[IMG2XLS] Lignes groupées: {len(rows_dict)}")
-                sorted_rows = sorted(rows_dict.items(), key=lambda x: x[0])
+            # ✅ Détecter la frontière verticale par projection
+            import numpy as np
+            gray = np.array(processed.convert("L"))
+            col_darkness = (255 - gray).sum(axis=0)
+            kernel = 20
+            smoothed = np.convolve(col_darkness, np.ones(kernel)/kernel, mode='same')
+            mid_start = img_w // 4
+            mid_end   = 3 * img_w // 4
+            valley_region = smoothed[mid_start:mid_end]
+            split_x = mid_start + int(np.argmin(valley_region))
+            logger.info(f"[IMG2XLS] Frontière colonne détectée: x={split_x} (sur {img_w}px)")
 
-                all_lefts = [w["left"] for _, words in sorted_rows for w in words]
-                if all_lefts:
-                    unique_lefts = sorted(set(all_lefts))
-                    col_boundaries = [0]
-                    for j in range(1, len(unique_lefts)):
-                        gap = unique_lefts[j] - unique_lefts[j-1]
-                        if gap > img_w * 0.05:  # img_w = processed.size[0] = 1029 ✅
-                            col_boundaries.append((unique_lefts[j] + unique_lefts[j-1]) // 2)
-                    col_boundaries.append(img_w)
+            # ✅ OCR séparé sur chaque bande
+            margin = 10
+            band_left  = processed.crop((0,                  0, split_x + margin, img_h))
+            band_right = processed.crop((split_x - margin,   0, img_w,            img_h))
+
+            words_left  = ocr_band(band_left,  ocr_lang, confidence_thr)
+            words_right = ocr_band(band_right, ocr_lang, confidence_thr)
+
+            logger.info(f"[IMG2XLS] Bande gauche: {len(words_left)} mots: {[w['text'] for w in words_left[:5]]}")
+            logger.info(f"[IMG2XLS] Bande droite: {len(words_right)} mots: {[w['text'] for w in words_right[:5]]}")
+
+            # ✅ Regrouper par lignes
+            row_thr = max(15, int(img_h * 0.03))
+            col1_rows = group_by_rows(words_left,  row_thr)
+            col2_rows = group_by_rows(words_right, row_thr)
+
+            logger.info(f"[IMG2XLS] Col1: {col1_rows}")
+            logger.info(f"[IMG2XLS] Col2: {col2_rows}")
+
+            # ✅ Aligner les deux colonnes
+            max_rows = max(len(col1_rows), len(col2_rows), 1)
+            col1_rows += [""] * (max_rows - len(col1_rows))
+            col2_rows += [""] * (max_rows - len(col2_rows))
+
+            table_data = [list(row) for row in zip(col1_rows, col2_rows)
+                          if any(c.strip() for c in row)]
+
+            logger.info(f"[IMG2XLS] Lignes tableau: {len(table_data)}, aperçu: {table_data[:3]}")
+
+            if table_data:
+                if len(table_data) >= 2:
+                    headers = [c if c.strip() else f"Col{i+1}"
+                               for i, c in enumerate(table_data[0])]
+                    df = pd.DataFrame(table_data[1:], columns=headers)
                 else:
-                    col_boundaries = [0, img_w]
-
-                n_cols = len(col_boundaries) - 1
-                logger.info(f"[IMG2XLS] Colonnes: {n_cols}, boundaries={col_boundaries}")
-
-                def assign_col(left):
-                    for ci in range(len(col_boundaries) - 1):
-                        if col_boundaries[ci] <= left < col_boundaries[ci + 1]:
-                            return ci
-                    return len(col_boundaries) - 2
-
-                table_data = []
-                for _, words in sorted_rows:
-                    row = [""] * n_cols
-                    for word in sorted(words, key=lambda w: w["left"]):
-                        ci = assign_col(word["left"])
-                        if row[ci]:
-                            row[ci] += " " + word["text"]
-                        else:
-                            row[ci] = word["text"]
-                    if any(cell.strip() for cell in row):
-                        table_data.append(row)
-
-                logger.info(f"[IMG2XLS] Lignes tableau: {len(table_data)}, aperçu: {table_data[:2]}")
-
-                if table_data:
-                    max_cols = max(len(r) for r in table_data)
-                    padded = [r + [""] * (max_cols - len(r)) for r in table_data]
-                    if len(padded) >= 2:
-                        headers = [c if c.strip() else f"Col{i+1}" for i, c in enumerate(padded[0])]
-                        df = pd.DataFrame(padded[1:], columns=headers)
-                    else:
-                        df = pd.DataFrame(padded, columns=[f"Col{i+1}" for i in range(max_cols)])
-                    logger.info(f"[IMG2XLS] DataFrame: {df.shape}, colonnes={list(df.columns)}")
+                    df = pd.DataFrame(table_data,
+                                      columns=[f"Col{i+1}" for i in range(2)])
+                logger.info(f"[IMG2XLS] DataFrame: {df.shape}, colonnes={list(df.columns)}")
 
         # ══ MODE TEXTE fallback ══════════════════════════════════════════════
         if df is None:
