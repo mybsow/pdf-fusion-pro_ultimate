@@ -3740,29 +3740,42 @@ def convert_image_to_excel(file_input, form_data=None):
             logger.info(f"[IMG2XLS] Col1 ({len(col1_rows)} lignes): {col1_rows}")
             logger.info(f"[IMG2XLS] Tops référence: {ref_tops}")
 
-            # ✅ Aligner la colonne droite sur les tops de référence
-            # Utiliser un threshold plus large pour le matching inter-colonnes
-            align_thr = max(20, int(img_h * 0.025))
-            col2_rows = [""] * len(ref_tops)
-            for w in words_right:
-                top = w["top"]
-                # Trouver le top de référence le plus proche
-                best_i = None
-                best_dist = float("inf")
-                for i, ref_top in enumerate(ref_tops):
-                    dist = abs(top - ref_top)
-                    if dist < best_dist:
-                        best_dist = dist
-                        best_i = i
-                if best_i is not None and best_dist <= align_thr:
-                    if col2_rows[best_i]:
-                        col2_rows[best_i] += " " + w["text"]
-                    else:
-                        col2_rows[best_i] = w["text"]
-                else:
-                    logger.info(f"[IMG2XLS] Mot droite non aligné: '{w['text']}' top={top}, dist_min={best_dist:.0f}")
+            # ✅ OCR bande droite ligne par ligne selon les tops de référence
+            line_height = int(img_h * 0.08)  # hauteur approximative d'une ligne
+            col2_rows = []
+            for ref_top in ref_tops:
+                # Découper une bande horizontale autour de ce top
+                y1 = max(0,     ref_top - line_height // 2)
+                y2 = min(img_h, ref_top + line_height // 2)
+                line_crop = band_right.crop((0, y1, band_right.width, y2))
+                
+                # OCR sur cette seule ligne
+                best_text = ""
+                best_count = 0
+                for img_test, label in [
+                    (line_crop, "original"),
+                    (line_crop.convert("L").point(
+                        lambda x: 0 if x < 128 else 255, mode="L"
+                    ).convert("RGB"), "binarized"),
+                ]:
+                    for psm in ["7", "8", "6"]:  # psm 7=ligne, 8=mot, 6=bloc
+                        try:
+                            text = pytesseract.image_to_string(
+                                img_test, lang=ocr_lang,
+                                config=f"--oem 3 --psm {psm}"
+                            ).strip()
+                            # Nettoyer les artefacts
+                            text = " ".join(text.split())
+                            if len(text) > best_count:
+                                best_count = len(text)
+                                best_text = text
+                        except Exception:
+                            pass
+                
+                col2_rows.append(best_text)
+                logger.info(f"[IMG2XLS] Ligne top={ref_top}: '{best_text}'")
 
-            logger.info(f"[IMG2XLS] Col2 ({len(col2_rows)} lignes): {col2_rows}")
+            logger.info(f"[IMG2XLS] Col2 final ({len(col2_rows)} lignes): {col2_rows}")
 
             table_data = [list(row) for row in zip(col1_rows, col2_rows)
                           if any(c.strip() for c in row)]
