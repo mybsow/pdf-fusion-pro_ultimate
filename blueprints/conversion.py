@@ -3717,16 +3717,52 @@ def convert_image_to_excel(file_input, form_data=None):
             logger.info(f"[IMG2XLS] Bande gauche: {len(words_left)} mots: {[w['text'] for w in words_left[:5]]}")
             logger.info(f"[IMG2XLS] Bande droite: {len(words_right)} mots: {[w['text'] for w in words_right[:5]]}")
 
-            row_thr = max(15, int(img_h * 0.03))
-            col1_rows = group_by_rows(words_left,  row_thr)
-            col2_rows = group_by_rows(words_right, row_thr)
+            # ✅ Utiliser un row_threshold petit pour ne pas fusionner les lignes
+            row_thr = max(10, int(img_h * 0.015))  # 1.5% au lieu de 3%
+            logger.info(f"[IMG2XLS] row_threshold={row_thr}")
 
-            logger.info(f"[IMG2XLS] Col1: {col1_rows}")
-            logger.info(f"[IMG2XLS] Col2: {col2_rows}")
+            # ✅ Grouper la colonne gauche par lignes → donne les tops de référence
+            rows_left_dict = {}
+            for w in words_left:
+                top = w["top"]
+                key = None
+                for k in rows_left_dict:
+                    if abs(top - k) <= row_thr:
+                        key = k
+                        break
+                if key is None:
+                    key = top
+                    rows_left_dict[key] = []
+                rows_left_dict[key].append(w["text"])
 
-            max_rows = max(len(col1_rows), len(col2_rows), 1)
-            col1_rows += [""] * (max_rows - len(col1_rows))
-            col2_rows += [""] * (max_rows - len(col2_rows))
+            ref_tops = sorted(rows_left_dict.keys())  # tops de référence = les lignes réelles
+            col1_rows = [" ".join(rows_left_dict[t]) for t in ref_tops]
+            logger.info(f"[IMG2XLS] Col1 ({len(col1_rows)} lignes): {col1_rows}")
+            logger.info(f"[IMG2XLS] Tops référence: {ref_tops}")
+
+            # ✅ Aligner la colonne droite sur les tops de référence
+            # Utiliser un threshold plus large pour le matching inter-colonnes
+            align_thr = max(20, int(img_h * 0.025))
+            col2_rows = [""] * len(ref_tops)
+            for w in words_right:
+                top = w["top"]
+                # Trouver le top de référence le plus proche
+                best_i = None
+                best_dist = float("inf")
+                for i, ref_top in enumerate(ref_tops):
+                    dist = abs(top - ref_top)
+                    if dist < best_dist:
+                        best_dist = dist
+                        best_i = i
+                if best_i is not None and best_dist <= align_thr:
+                    if col2_rows[best_i]:
+                        col2_rows[best_i] += " " + w["text"]
+                    else:
+                        col2_rows[best_i] = w["text"]
+                else:
+                    logger.info(f"[IMG2XLS] Mot droite non aligné: '{w['text']}' top={top}, dist_min={best_dist:.0f}")
+
+            logger.info(f"[IMG2XLS] Col2 ({len(col2_rows)} lignes): {col2_rows}")
 
             table_data = [list(row) for row in zip(col1_rows, col2_rows)
                           if any(c.strip() for c in row)]
