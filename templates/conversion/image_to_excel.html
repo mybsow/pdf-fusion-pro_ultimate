@@ -89,6 +89,16 @@
                         <strong>{{ _('Fusionner les cellules') }}</strong>
                     </label>
                 </div>
+                
+                <!-- ✅ Ajouter ici -->
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" 
+                           id="hasHeader" 
+                           checked>
+                    <label class="form-check-label" for="hasHeader">
+                        <strong>{{ _('Le tableau a une ligne d\'en-tête') }}</strong>
+                    </label>
+                </div>
             </div>
 
             <div class="col-md-6">
@@ -297,6 +307,7 @@ function startConversion() {
     formData.append('mergeCells', document.getElementById('mergeCells').checked ? 'true' : 'false');
     formData.append('ocrAccuracy', document.getElementById('ocrAccuracy').value);
     formData.append('outputFormat', document.getElementById('outputFormat').value);
+    formData.append('hasHeader', document.getElementById('hasHeader').checked ? 'true' : 'false');
 
     updateStep(2);
 
