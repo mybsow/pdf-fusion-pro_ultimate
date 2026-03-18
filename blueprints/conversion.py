@@ -3737,7 +3737,7 @@ def convert_image_to_excel(file_input, form_data=None):
 
             ref_tops = sorted(rows_left_dict.keys())  # tops de référence = les lignes réelles
             col1_rows = [" ".join(rows_left_dict[t]) for t in ref_tops]
-            
+
             logger.info(f"[IMG2XLS] Col1 ({len(col1_rows)} lignes): {col1_rows}")
             logger.info(f"[IMG2XLS] Tops référence: {ref_tops}")
 
@@ -3756,21 +3756,24 @@ def convert_image_to_excel(file_input, form_data=None):
                     lambda x: 0 if x < 128 else 255, mode="L"
                 ).convert("RGB")
                 best_score = 0
-                for img_test, label in [("binarized", test_bin), ("original", test_crop)]:
+                for img_test, label in [("binarized", test_bin), ("original", test_crop)]:  # ✅ ordre corrigé
                     for psm in ["7", "6"]:
                         try:
                             text = pytesseract.image_to_string(
-                                test_bin if label == "binarized" else test_crop,
-                                lang=ocr_lang, config=f"--oem 3 --psm {psm}"
+                                img_test, lang=ocr_lang,  # ✅ img_test au lieu de test_bin/test_crop
+                                config=f"--oem 3 --psm {psm}"
                             ).strip()
                             text = re.sub(r'[|\.]+', '', text).strip()
                             if len(text) > best_score:
                                 best_score = len(text)
                                 best_psm = psm
-                                best_mode = label
+                                best_mode = label  # ✅ label = "binarized" ou "original"
                         except Exception:
                             pass
                 logger.info(f"[IMG2XLS] Meilleur mode détecté: {best_mode} psm={best_psm}")
+            
+            # ✅ Initialisation obligatoire avant la boucle
+            col2_rows = []
 
             # Boucle principale — 1 seul appel par ligne
             for ref_top in ref_tops:
