@@ -3558,6 +3558,7 @@ def convert_image_to_excel(file_input, form_data=None):
         enhance_image  = str(form_data.get("enhance_image", "true")).lower() == "true"
         confidence_thr = max(0, int(form_data.get("confidence", "10")))  # seuil à 10 par défaut
         extraction_mode = form_data.get("extractionMode", "auto")
+        has_header = str(form_data.get("hasHeader", "true")).lower() == "true"
         df = None  # ✅ initialisation
 
         logger.info(f"[IMG2XLS] Params: lang={language}, mode={extraction_mode}, conf={confidence_thr}")
@@ -3662,11 +3663,43 @@ def convert_image_to_excel(file_input, form_data=None):
 
             logger.info(f"[IMG2XLS] Mots retenus: {len(all_words)}")
 
+            # ── Fusionner les mots proches sur la même ligne ─────────────
+            merge_dist = img_w * 0.03
+            row_thr = max(10, int(img_h * 0.02))
+            rows_raw = {}
+            for word in all_words:
+                top = word["top"]
+                key = None
+                for k in rows_raw:
+                    if abs(top - k) <= row_thr:
+                        key = k
+                        break
+                if key is None:
+                    key = top
+                    rows_raw[key] = []
+                rows_raw[key].append(word)
+
+            merged_words = []
+            for top_key, words_in_row in rows_raw.items():
+                sorted_w = sorted(words_in_row, key=lambda w: w["left"])
+                current = dict(sorted_w[0])
+                for nxt in sorted_w[1:]:
+                    gap = nxt["left"] - (current["left"] + current.get("width", 50))
+                    if gap < merge_dist:
+                        current["text"] += " " + nxt["text"]
+                        current["width"] = (nxt["left"] + nxt.get("width", 50)) - current["left"]
+                    else:
+                        merged_words.append(current)
+                        current = dict(nxt)
+                merged_words.append(current)
+
+            logger.info(f"[IMG2XLS] Mots après fusion: {len(merged_words)} (avant: {len(all_words)})")
+            all_words = merged_words
+
             if all_words:
-                
+
                 # ── Détecter les colonnes par clustering adaptatif ───────────
                 all_lefts = sorted(set(w["left"] for w in all_words))
-
                 # ✅ Calculer le gap minimum adaptatif
                 # Basé sur la distribution réelle des gaps entre positions X
                 if len(all_lefts) > 1:
@@ -3751,70 +3784,60 @@ def convert_image_to_excel(file_input, form_data=None):
 
                 # ── Trouver la ligne d'en-tête ───────────────────────────────
                 if table_data:
-                    n_cols_total = len(table_data[0])
+                    if has_header:
+                        # Détection automatique de l'en-tête
+                        import re as _re
+                        date_pattern = _re.compile(r'\d{2}/\d{2}/\d{4}')
+                        number_pattern = _re.compile(r'^\d+$')
 
-                    # ✅ Scorer chaque ligne candidate comme en-tête :
-                    # - nombre de colonnes remplies (plus = mieux)
-                    # - position dans le tableau (éviter les premières lignes titre)
-                    # - pas de dates (les en-têtes ne sont pas des dates)
-                    import re as _re
-                    date_pattern = _re.compile(r'\d{2}/\d{2}/\d{4}')
-                    number_pattern = _re.compile(r'^\d+$')
-
-                    def header_score(row, idx):
-                        filled = sum(1 for c in row if c.strip())
-                        has_dates = sum(1 for c in row if date_pattern.search(c))
-                        has_numbers = sum(1 for c in row if number_pattern.match(c.strip()))
-                        consecutive = 0
-                        for c in row:
-                            if c.strip():
-                                consecutive += 1
+                        def header_score(row, idx):
+                            filled = sum(1 for c in row if c.strip())
+                            has_dates = sum(1 for c in row if date_pattern.search(c))
+                            has_numbers = sum(1 for c in row if number_pattern.match(c.strip()))
+                            consecutive = 0
+                            for c in row:
+                                if c.strip():
+                                    consecutive += 1
+                                else:
+                                    break
+                            fill_ratio = filled / max(n_cols_total, 1)
+                            if fill_ratio > 0.5:
+                                penalty = has_dates * 1 + has_numbers * 1
                             else:
-                                break
+                                penalty = has_dates * 3 + has_numbers * 3
+                            return filled * 2 + consecutive * 0.5 - penalty
 
-                        # ✅ Si la ligne remplit >50% des colonnes,
-                        # c'est un candidat sérieux — ne pas trop pénaliser
-                        fill_ratio = filled / max(n_cols_total, 1)
-                        if fill_ratio > 0.5:
-                            # Ligne dense : pénalité réduite sur dates/nombres
-                            # car l'en-tête peut contenir "Début", "Fin" etc.
-                            penalty = has_dates * 1 + has_numbers * 1
-                        else:
-                            # Ligne sparse : pénalité forte (titre, sous-titre)
-                            penalty = has_dates * 3 + has_numbers * 3
+                        header_idx = max(
+                            enumerate(table_data),
+                            key=lambda x: header_score(x[1], x[0])
+                        )[0]
 
-                        return filled * 2 + consecutive * 0.5 - penalty
+                        logger.info(
+                            f"[IMG2XLS] Scores: "
+                            f"{[(i, round(header_score(r, i), 1), sum(1 for c in r if c.strip())) for i, r in enumerate(table_data[:6])]}"
+                        )
+                        logger.info(f"[IMG2XLS] En-tête ligne {header_idx}: {table_data[header_idx]}")
 
-                    header_idx = max(
-                        enumerate(table_data),
-                        key=lambda x: header_score(x[1], x[0])
-                    )[0]
+                        headers = [
+                            c.strip() if c.strip() else f"Col{i+1}"
+                            for i, c in enumerate(table_data[header_idx])
+                        ]
+                        min_filled = sum(1 for c in table_data[header_idx] if c.strip()) * 0.3
+                        data_rows = []
+                        for j, r in enumerate(table_data):
+                            if j <= header_idx:
+                                continue
+                            filled = sum(1 for c in r if c.strip())
+                            if filled < max(2, min_filled):
+                                logger.info(f"[IMG2XLS] Ligne {j} ignorée: {r}")
+                                continue
+                            data_rows.append(r)
 
-                    logger.info(
-                        f"[IMG2XLS] Scores candidats: "
-                        f"{[(i, round(header_score(r, i), 1), sum(1 for c in r if c.strip())) for i, r in enumerate(table_data[:6])]}"
-                    )
-                    logger.info(f"[IMG2XLS] En-tête détecté ligne {header_idx}: {table_data[header_idx]}")
-
-                    headers = [
-                        c.strip() if c.strip() else f"Col{i+1}"
-                        for i, c in enumerate(table_data[header_idx])
-                    ]
-
-                    # ✅ Garder uniquement les lignes APRÈS l'en-tête
-                    # ET ignorer les lignes qui semblent être des titres
-                    # (peu de colonnes remplies par rapport à l'en-tête)
-                    min_filled = sum(1 for c in table_data[header_idx] if c.strip()) * 0.3
-
-                    data_rows = []
-                    for j, r in enumerate(table_data):
-                        if j <= header_idx:
-                            continue  # ignorer titre + en-tête
-                        filled = sum(1 for c in r if c.strip())
-                        if filled < max(2, min_filled):
-                            logger.info(f"[IMG2XLS] Ligne {j} ignorée (trop vide): {r}")
-                            continue
-                        data_rows.append(r)
+                    else:
+                        # ✅ Pas d'en-tête : colonnes génériques
+                        headers = [f"Col{i+1}" for i in range(n_cols)]
+                        data_rows = [r for r in table_data if any(c.strip() for c in r)]
+                        logger.info(f"[IMG2XLS] Mode sans en-tête: {len(data_rows)} lignes")
 
                     df = pd.DataFrame(data_rows, columns=headers)
                     logger.info(f"[IMG2XLS] DataFrame: {df.shape}, colonnes={list(df.columns)}")
