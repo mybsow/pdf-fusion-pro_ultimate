@@ -3563,21 +3563,63 @@ def convert_image_to_excel(file_input, form_data=None):
         logger.info(f"[IMG2XLS] Params: lang={language}, mode={extraction_mode}, conf={confidence_thr}")
 
         lang_map = {
-            "fra": "fra", "en": "eng", "es": "spa", "de": "deu", "it": "ita",
-            "pt": "por", "ru": "rus", "ar": "ara", "zh": "chi_sim", "ja": "jpn", "nl": "nld",
+            "fra": "fra", "eng": "eng", "en": "eng",   # ✅ les deux clés
+            "es": "spa", "spa": "spa",
+            "de": "deu", "deu": "deu",
+            "it": "ita", "ita": "ita",
+            "pt": "por", "por": "por",
+            "ru": "rus", "ar": "ara",
+            "zh": "chi_sim", "ja": "jpn", "nl": "nld", "nld": "nld",
         }
-        ocr_lang = "+".join(
-            lang_map.get(l.strip(), "fra")
-            for l in (language.split("+") if "+" in language else [language])
-        )
+        # Dédoublonner les langues après mapping
+        mapped = []
+        seen = set()
+        for l in (language.split("+") if "+" in language else [language]):
+            t = lang_map.get(l.strip(), l.strip())
+            if t not in seen:
+                seen.add(t)
+                mapped.append(t)
+        ocr_lang = "+".join(mapped)
 
         # ── Prétraitement ────────────────────────────────────────────────────
+        # Par — tester les deux et garder le meilleur résultat
         try:
-            processed = preprocess_for_ocr(img_orig, enhance_image=enhance_image, deskew=False, binarize=False)
-            logger.info(f"[IMG2XLS] Prétraitement OK: {processed.size}")
+            processed_enhanced = preprocess_for_ocr(img_orig, enhance_image=enhance_image, deskew=False, binarize=False)
         except Exception as e:
             logger.error(f"[IMG2XLS] Erreur prétraitement: {e}")
-            processed = _ensure_rgb(img_orig)
+            processed_enhanced = _ensure_rgb(img_orig)
+
+        # Tester directement sur l'image brute RGB (sans filtre)
+        processed_raw = _ensure_rgb(img_orig)
+        # Upscale si trop petite (Tesseract performe mieux au-dessus de 300dpi ~1200px)
+        w, h = processed_raw.size
+        if max(w, h) < 1200:
+            scale = 1200 / max(w, h)
+            processed_raw = processed_raw.resize(
+                (int(w * scale), int(h * scale)), Image.Resampling.LANCZOS
+            )
+
+        # Compter les tokens sur les deux versions, garder la meilleure
+        def _count_tokens(img):
+            try:
+                d = pytesseract.image_to_data(img, lang="fra+eng", output_type=Output.DICT, config="--oem 3 --psm 6")
+                return sum(1 for t, c in zip(d["text"], d["conf"])
+                        if t and t.strip() and _safe_int(c) >= 10)
+            except Exception:
+                return 0
+
+        def _safe_int(v):
+            try: return int(v)
+            except: return -1
+
+        tokens_enhanced = _count_tokens(processed_enhanced)
+        tokens_raw      = _count_tokens(processed_raw)
+        logger.info(f"[IMG2XLS] Tokens enhanced={tokens_enhanced}, raw={tokens_raw}")
+
+        processed = processed_enhanced if tokens_enhanced >= tokens_raw else processed_raw
+        logger.info(f"[IMG2XLS] Image choisie: {'enhanced' if tokens_enhanced >= tokens_raw else 'raw'}, size={processed.size}")
+
+        img_w, img_h = processed.size
 
         tmp_enhanced = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
         processed.save(tmp_enhanced.name, "PNG")
