@@ -3675,8 +3675,15 @@ def convert_image_to_excel(file_input, form_data=None):
                     # Gap minimum = médiane des gaps / 2
                     # Sépare les mots d'une même colonne (petits gaps)
                     # des colonnes différentes (grands gaps)
-                    median_gap = sorted(gaps)[len(gaps) // 2]
-                    gap_min = max(median_gap * 1.5, img_w * 0.01)  # au moins 1% largeur
+                    # Par — utiliser le 75e percentile plutôt que la médiane
+                    # La médiane capture les petits gaps intra-cellule
+                    # Le 75e percentile capture mieux les vrais séparateurs de colonnes
+                    gaps_sorted = sorted(gaps)
+                    p75_gap = gaps_sorted[int(len(gaps_sorted) * 0.75)]
+                    p25_gap = gaps_sorted[int(len(gaps_sorted) * 0.25)]
+                    # Si grande variance → seuil = entre p25 et p75
+                    # Si faible variance → seuil fixe basé sur largeur image
+                    gap_min = max(p75_gap * 0.8, img_w * 0.02)  # au moins 2% largeur
                 else:
                     gap_min = img_w * 0.03
 
@@ -3826,8 +3833,9 @@ def convert_image_to_excel(file_input, form_data=None):
             df.to_excel(writer, index=False, sheet_name="OCR_Data")
             worksheet = writer.sheets["OCR_Data"]
             for i, col in enumerate(df.columns):
-                max_len = max(df[col].astype(str).map(len).max(), len(str(col))) + 2
-                worksheet.set_column(i, i, min(max_len, 60))
+                col_data = df.iloc[:, i].astype(str)  # ✅ accès par index, pas par nom
+                max_len = max(col_data.map(len).max(), len(str(col))) + 2
+                worksheet.set_column(i, i, min(int(max_len), 60))
 
             # Feuille résumé
             summary = pd.DataFrame({
