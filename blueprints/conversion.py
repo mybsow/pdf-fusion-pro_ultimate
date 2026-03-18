@@ -3597,18 +3597,19 @@ def convert_image_to_excel(file_input, form_data=None):
 
         img_w, img_h = processed.size
 
+        extraction_mode   = form_data.get("extractionMode", "auto")
+        df = None  # ✅ initialisation obligatoire
+
         # ── Configuration Tesseract ──────────────────────────────────────────
         if extraction_mode == "sparse":
             tess_cfg = "--oem 3 --psm 11"
         elif extraction_mode in ("block", "table"):
             tess_cfg = "--oem 3 --psm 6"
         else:
-            tess_cfg = "--oem 3 --psm 3"  # auto
-
-        df = None  # sera défini ci-dessous
+            tess_cfg = "--oem 3 --psm 6"  # ✅ psm 6 par défaut, bien meilleur pour les tableaux
 
         # ══ MODE TABLEAU ════════════════════════════════════════════════════
-        if detect_tables or extraction_mode == "table":
+        if detect_tables or extraction_mode in ("auto", "table", "block"):
             logger.info("Détection tableau (psm 6)...")
 
             try:
@@ -3627,11 +3628,11 @@ def convert_image_to_excel(file_input, form_data=None):
                     config="--oem 3 --psm 3",
                 )
 
-            # Regrouper par lignes
-            # row_threshold adaptatif : ~2% de la hauteur image, borné entre 10 et 40
-            row_threshold = max(10, min(int(img_h * 0.02), 40))
-            rows_dict: Dict[int, List[Dict]] = {}
-
+            # ✅ row_threshold plus généreux : 3% de la hauteur, minimum 15px
+            row_threshold = max(15, int(img_h * 0.03))
+            
+            # ✅ Collecter tous les mots avec leur position (left, top)
+            all_words = []
             for i, text in enumerate(data["text"]):
                 if not text or not text.strip():
                     continue
@@ -3641,50 +3642,89 @@ def convert_image_to_excel(file_input, form_data=None):
                     conf = -1
                 if conf < confidence_thr:
                     continue
+                all_words.append({
+                    "text": text.strip(),
+                    "left": data["left"][i],
+                    "top": data["top"][i],
+                    "width": data["width"][i],
+                    "right": data["left"][i] + data["width"][i],
+                })
 
-                top  = data["top"][i]
-                left = data["left"][i]
+            if all_words:
+                # ✅ Regrouper par lignes (même top ± row_threshold)
+                rows_dict = {}
+                for word in all_words:
+                    top = word["top"]
+                    row_key = None
+                    for existing_top in rows_dict:
+                        if abs(top - existing_top) <= row_threshold:
+                            row_key = existing_top
+                            break
+                    if row_key is None:
+                        row_key = top
+                        rows_dict[row_key] = []
+                    rows_dict[row_key].append(word)
 
-                # Trouver la ligne
-                row_key = None
-                for existing_top in rows_dict:
-                    if abs(top - existing_top) <= row_threshold:
-                        row_key = existing_top
-                        break
-                if row_key is None:
-                    row_key = top
-                    rows_dict[row_key] = []
+                logger.info(f"Lignes détectées: {len(rows_dict)}")
 
-                rows_dict[row_key].append({"text": text.strip(), "left": left})
+                if rows_dict:
+                    sorted_rows = sorted(rows_dict.items(), key=lambda x: x[0])
 
-            logger.info(f"Lignes détectées: {len(rows_dict)}")
-
-            if rows_dict:
-                sorted_rows = sorted(rows_dict.items(), key=lambda x: x[0])
-                table_data = [
-                    [w["text"] for w in sorted(words, key=lambda w: w["left"])]
-                    for _, words in sorted_rows
-                    if words
-                ]
-
-                if table_data:
-                    max_cols = max(len(r) for r in table_data)
-                    # Padding colonnes manquantes
-                    padded = [r + [""] * (max_cols - len(r)) for r in table_data]
-
-                    # Détection en-têtes : 1ère ligne non-vide significativement
-                    # différente des autres (heuristique simple)
-                    if len(padded) >= 2:
-                        headers = [c if c.strip() else f"Col{i+1}"
-                                   for i, c in enumerate(padded[0])]
-                        df = pd.DataFrame(padded[1:], columns=headers)
+                    # ✅ Détecter les colonnes par clustering des positions X
+                    # Collecter toutes les positions "left" pour trouver les frontières
+                    all_lefts = [w["left"] for _, words in sorted_rows for w in words]
+                    
+                    # Trouver les gaps importants entre positions X → frontières de colonnes
+                    if all_lefts:
+                        unique_lefts = sorted(set(all_lefts))
+                        col_boundaries = [0]
+                        for j in range(1, len(unique_lefts)):
+                            gap = unique_lefts[j] - unique_lefts[j-1]
+                            if gap > img_w * 0.05:  # gap > 5% de la largeur = nouvelle colonne
+                                col_boundaries.append((unique_lefts[j] + unique_lefts[j-1]) // 2)
+                        col_boundaries.append(img_w)
                     else:
-                        cols = [f"Col{i+1}" for i in range(max_cols)]
-                        df = pd.DataFrame(padded, columns=cols)
+                        col_boundaries = [0, img_w]
 
-        # ══ MODE TEXTE (fallback ou mode explicite) ══════════════════════════
+                    n_cols = len(col_boundaries) - 1
+                    logger.info(f"Colonnes détectées: {n_cols} (boundaries: {col_boundaries})")
+
+                    def assign_col(left):
+                        for ci in range(len(col_boundaries) - 1):
+                            if col_boundaries[ci] <= left < col_boundaries[ci + 1]:
+                                return ci
+                        return len(col_boundaries) - 2
+
+                    # ✅ Construire la grille : pour chaque ligne, un mot par colonne
+                    table_data = []
+                    for _, words in sorted_rows:
+                        row = [""] * n_cols
+                        for word in sorted(words, key=lambda w: w["left"]):
+                            ci = assign_col(word["left"])
+                            if row[ci]:
+                                row[ci] += " " + word["text"]
+                            else:
+                                row[ci] = word["text"]
+                        # Ignorer les lignes complètement vides
+                        if any(cell.strip() for cell in row):
+                            table_data.append(row)
+
+                    if table_data:
+                        max_cols = max(len(r) for r in table_data)
+                        padded = [r + [""] * (max_cols - len(r)) for r in table_data]
+
+                        # ✅ Détection en-tête : 1ère ligne non vide
+                        if len(padded) >= 2:
+                            headers = [c if c.strip() else f"Col{i+1}"
+                                    for i, c in enumerate(padded[0])]
+                            df = pd.DataFrame(padded[1:], columns=headers)
+                        else:
+                            cols = [f"Col{i+1}" for i in range(max_cols)]
+                            df = pd.DataFrame(padded, columns=cols)
+
+        # ══ MODE TEXTE (fallback uniquement si detect_tables a échoué) ══════
         if df is None:
-            logger.info(f"OCR texte libre (config={tess_cfg})...")
+            logger.info(f"Fallback OCR texte libre (config={tess_cfg})...")
             try:
                 raw = pytesseract.image_to_string(processed, lang=ocr_lang, config=tess_cfg)
             except pytesseract.TesseractError as e:
@@ -3692,9 +3732,8 @@ def convert_image_to_excel(file_input, form_data=None):
                 raw = ""
 
             lines = [l.strip() for l in raw.split("\n") if l.strip()]
-
             if lines:
-                # Tenter de détecter un séparateur CSV
+                # Tentative séparateur CSV
                 sep = None
                 if lines:
                     sample = lines[0]
@@ -3704,7 +3743,6 @@ def convert_image_to_excel(file_input, form_data=None):
                         sep = ";"
                     elif "," in sample and sample.count(",") >= 2:
                         sep = ","
-
                 if sep and len(lines) > 1:
                     try:
                         parsed = [l.split(sep) for l in lines]
@@ -3719,15 +3757,13 @@ def convert_image_to_excel(file_input, form_data=None):
                 else:
                     df = pd.DataFrame({"Texte extrait": lines})
             else:
-                # Aucun texte détecté → DataFrame informatif
                 df = pd.DataFrame({
                     "Information": [
                         "Aucun texte détecté dans l'image",
                         "Conseils :",
                         "1. Vérifiez la qualité de l'image (netteté, contraste)",
                         f"2. Langue sélectionnée : {ocr_lang}",
-                        "3. Essayez le mode 'Tableau' pour des données structurées",
-                        "4. Augmentez le contraste avant la conversion",
+                        "3. Essayez avec une image plus contrastée",
                     ]
                 })
 
