@@ -3765,14 +3765,25 @@ def convert_image_to_excel(file_input, form_data=None):
                         filled = sum(1 for c in row if c.strip())
                         has_dates = sum(1 for c in row if date_pattern.search(c))
                         has_numbers = sum(1 for c in row if number_pattern.match(c.strip()))
-                        # Pénaliser les lignes avec dates/chiffres seuls
-                        # Favoriser les lignes avec beaucoup de texte non-numérique
-                        return filled - has_dates * 2 - has_numbers * 2
+                        # ✅ Colonnes consécutives remplies depuis la gauche
+                        consecutive = 0
+                        for c in row:
+                            if c.strip():
+                                consecutive += 1
+                            else:
+                                break
+                        return filled + consecutive * 0.5 - has_dates * 3 - has_numbers * 3
 
-                    # Chercher l'en-tête parmi les 6 premières lignes
-                    candidates = list(enumerate(table_data[:6]))
-                    header_idx = max(candidates, key=lambda x: header_score(x[1], x[0]))[0]
+                    # ✅ Chercher dans toutes les lignes
+                    header_idx = max(
+                        enumerate(table_data),
+                        key=lambda x: header_score(x[1], x[0])
+                    )[0]
 
+                    logger.info(
+                        f"[IMG2XLS] Scores candidats: "
+                        f"{[(i, header_score(r, i), sum(1 for c in r if c.strip())) for i, r in enumerate(table_data[:6])]}"
+                    )
                     logger.info(f"[IMG2XLS] En-tête détecté ligne {header_idx}: {table_data[header_idx]}")
 
                     headers = [
