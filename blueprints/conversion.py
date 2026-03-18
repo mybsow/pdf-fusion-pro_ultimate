@@ -3582,51 +3582,35 @@ def convert_image_to_excel(file_input, form_data=None):
         ocr_lang = "+".join(mapped)
 
         # ── Prétraitement ────────────────────────────────────────────────────
-        # Par — tester les deux et garder le meilleur résultat
-        try:
-            processed_enhanced = preprocess_for_ocr(img_orig, enhance_image=enhance_image, deskew=False, binarize=False)
-        except Exception as e:
-            logger.error(f"[IMG2XLS] Erreur prétraitement: {e}")
-            processed_enhanced = _ensure_rgb(img_orig)
+        # ✅ RGBA → RGB fond blanc AVANT tout traitement
+        if img_orig.mode in ("RGBA", "LA", "P"):
+            background = Image.new("RGB", img_orig.size, (255, 255, 255))
+            if img_orig.mode == "P":
+                img_conv = img_orig.convert("RGBA")
+            else:
+                img_conv = img_orig
+            if img_conv.mode in ("RGBA", "LA"):
+                background.paste(img_conv, mask=img_conv.split()[-1])
+            else:
+                background.paste(img_conv)
+            img_rgb = background
+        else:
+            img_rgb = img_orig.convert("RGB")
 
-        # Tester directement sur l'image brute RGB (sans filtre)
-        processed_raw = _ensure_rgb(img_orig)
-        # Upscale si trop petite (Tesseract performe mieux au-dessus de 300dpi ~1200px)
-        w, h = processed_raw.size
-        if max(w, h) < 1200:
-            scale = 1200 / max(w, h)
-            processed_raw = processed_raw.resize(
-                (int(w * scale), int(h * scale)), Image.Resampling.LANCZOS
-            )
+        # ✅ Upscale simple sans filtre destructeur (Tesseract veut ~300dpi)
+        w, h = img_rgb.size
+        target = 2400  # plus généreux que 1200
+        if max(w, h) < target:
+            scale = target / max(w, h)
+            new_w, new_h = int(w * scale), int(h * scale)
+            processed = img_rgb.resize((new_w, new_h), Image.Resampling.LANCZOS)
+            logger.info(f"[IMG2XLS] Upscale: {w}x{h} → {new_w}x{new_h}")
+        else:
+            processed = img_rgb
 
-        # Compter les tokens sur les deux versions, garder la meilleure
-        def _count_tokens(img):
-            try:
-                d = pytesseract.image_to_data(img, lang="fra+eng", output_type=Output.DICT, config="--oem 3 --psm 6")
-                return sum(1 for t, c in zip(d["text"], d["conf"])
-                        if t and t.strip() and _safe_int(c) >= 10)
-            except Exception:
-                return 0
-
-        def _safe_int(v):
-            try: return int(v)
-            except: return -1
-
-        tokens_enhanced = _count_tokens(processed_enhanced)
-        tokens_raw      = _count_tokens(processed_raw)
-        logger.info(f"[IMG2XLS] Tokens enhanced={tokens_enhanced}, raw={tokens_raw}")
-
-        processed = processed_enhanced if tokens_enhanced >= tokens_raw else processed_raw
-        logger.info(f"[IMG2XLS] Image choisie: {'enhanced' if tokens_enhanced >= tokens_raw else 'raw'}, size={processed.size}")
-
+        logger.info(f"[IMG2XLS] Image prête: {processed.size}, mode={processed.mode}")
         img_w, img_h = processed.size
-
-        tmp_enhanced = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-        processed.save(tmp_enhanced.name, "PNG")
-        tmp_enhanced.close()
-        temp_files.append(tmp_enhanced.name)
-
-        img_w, img_h = processed.size
+        
 
         # ── Configuration Tesseract ──────────────────────────────────────────
         if extraction_mode == "sparse":
