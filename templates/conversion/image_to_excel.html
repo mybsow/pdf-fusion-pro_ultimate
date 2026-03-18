@@ -226,7 +226,6 @@ function updateStep(step) {
 }
 
 function showError(message) {
-    // Chercher ou créer une zone d'erreur
     let errorDiv = document.getElementById('conversionError');
     if (!errorDiv) {
         errorDiv = document.createElement('div');
@@ -243,15 +242,56 @@ function showError(message) {
     errorDiv.style.display = 'block';
 }
 
+// ✅ CORRECTIF : n'utilise pas les méthodes patchées de l'UploadManager
+// mais lit directement la liste de fichiers et surveille le DOM
+function getUploadedFiles() {
+    const manager = window.uploadManagers?.['imageExcelUploadZone'];
+    if (manager && typeof manager.getFiles === 'function') {
+        return manager.getFiles();
+    }
+    // Fallback : lire l'input file directement
+    const input = document.querySelector('#imageExcelUploadZone .file-input');
+    return input && input.files.length > 0 ? Array.from(input.files) : [];
+}
+
+function syncButtonState() {
+    const files = getUploadedFiles();
+    const convertBtn = document.getElementById('convertBtn');
+    const tableStats = document.getElementById('tableStats');
+    if (!convertBtn) return;
+
+    if (files.length > 0) {
+        convertBtn.disabled = false;
+        if (tableStats) {
+            tableStats.style.display = 'block';
+            const tables = Math.max(1, Math.floor(files[0].size / (512 * 1024)));
+            document.getElementById('tablesCount').textContent = tables;
+            document.getElementById('cellsCount').textContent = tables * 30;
+        }
+    } else {
+        convertBtn.disabled = true;
+        if (tableStats) tableStats.style.display = 'none';
+    }
+}
+
 function startConversion() {
-    const uploadManager = window.uploadManagers?.['imageExcelUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
+    const files = getUploadedFiles();
+    if (!files || files.length === 0) {
         showError('{{ _("Veuillez sélectionner un fichier") }}');
         return;
     }
 
     const formData = new FormData();
-    formData.append('file', uploadManager.getFiles()[0]);
+    // ✅ Gérer les deux types possibles : FileStorage (UploadManager) ou File (input)
+    const fileObj = files[0];
+    if (fileObj instanceof File) {
+        formData.append('file', fileObj);
+    } else if (fileObj && typeof fileObj.file !== 'undefined') {
+        formData.append('file', fileObj.file || fileObj);
+    } else {
+        formData.append('file', fileObj);
+    }
+
     formData.append('extractionMode', document.querySelector('input[name="extractionMode"]:checked')?.value || 'auto');
     formData.append('detectHeaders', document.getElementById('detectHeaders').checked ? 'true' : 'false');
     formData.append('mergeCells', document.getElementById('mergeCells').checked ? 'true' : 'false');
@@ -260,11 +300,9 @@ function startConversion() {
 
     updateStep(2);
 
-    // ✅ Barre de progression simple (pas de simulation infinie)
     let progress = 0;
     const progressBar = document.getElementById('analysisProgress');
     const analysisMessage = document.getElementById('analysisMessage');
-
     const messages = [
         '{{ _("Prétraitement de l\'image...") }}',
         '{{ _("Détection des contours...") }}',
@@ -272,17 +310,15 @@ function startConversion() {
         '{{ _("Extraction du contenu...") }}',
         '{{ _("Structuration des données...") }}'
     ];
-
     let msgIndex = 0;
-    // ✅ Progresser jusqu'à 90% max — les 10% restants attendent la vraie réponse
     const progressInterval = setInterval(() => {
         if (progress < 90) {
             progress += 5;
             if (progressBar) progressBar.style.width = progress + '%';
-            if (analysisMessage && msgIndex < messages.length) {
+            if (analysisMessage && Math.floor(msgIndex) < messages.length) {
                 analysisMessage.textContent = messages[Math.floor(msgIndex)];
-                msgIndex += 0.4;
             }
+            msgIndex += 0.4;
         }
     }, 600);
 
@@ -291,8 +327,7 @@ function startConversion() {
         body: formData
     })
     .then(async response => {
-        clearInterval(progressInterval);  // ✅ Stopper la progression simulée
-
+        clearInterval(progressInterval);
         if (progressBar) progressBar.style.width = '100%';
         if (analysisMessage) analysisMessage.textContent = '{{ _("Finalisation...") }}';
 
@@ -300,38 +335,24 @@ function startConversion() {
             const errorText = await response.text();
             throw new Error(errorText || 'Erreur serveur ' + response.status);
         }
-
-        // ✅ Vérifier que c'est bien un fichier (pas une page HTML d'erreur)
         const contentType = response.headers.get('Content-Type') || '';
         if (contentType.includes('text/html')) {
-            const html = await response.text();
-            // Extraire le message flash si présent
-            const match = html.match(/alert-danger[\s\S]*?<\/div>/);
             throw new Error('Le serveur a retourné une erreur. Vérifiez le fichier.');
         }
-
         const blob = await response.blob();
-
-        if (blob.size === 0) {
-            throw new Error('Fichier téléchargé vide.');
-        }
+        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
 
         downloadUrl = window.URL.createObjectURL(blob);
-
-        // Nom du fichier
         const contentDisposition = response.headers.get('Content-Disposition') || '';
         let filename = 'extraction.xlsx';
         const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match && match[1]) {
-            filename = match[1].replace(/['"]/g, '');
-        }
+        if (match && match[1]) filename = match[1].replace(/['"]/g, '');
 
         const downloadLink = document.getElementById('downloadLink');
         if (downloadLink) {
             downloadLink.href = downloadUrl;
             downloadLink.setAttribute('download', filename);
         }
-
         updateStep(3);
     })
     .catch(error => {
@@ -347,66 +368,49 @@ function resetConversion() {
         window.URL.revokeObjectURL(downloadUrl);
         downloadUrl = null;
     }
-
-    const uploadManager = window.uploadManagers?.['imageExcelUploadZone'];
-    if (uploadManager) {
-        // Vider les fichiers
-        const files = uploadManager.getFiles();
+    const manager = window.uploadManagers?.['imageExcelUploadZone'];
+    if (manager && typeof manager.getFiles === 'function') {
+        const files = manager.getFiles();
         for (let i = files.length - 1; i >= 0; i--) {
-            uploadManager.removeFile(i);
+            if (typeof manager.removeFile === 'function') manager.removeFile(i);
         }
     }
-
     const errorDiv = document.getElementById('conversionError');
     if (errorDiv) errorDiv.style.display = 'none';
-
     document.getElementById('tableStats').style.display = 'none';
-
     const progressBar = document.getElementById('analysisProgress');
     if (progressBar) progressBar.style.width = '0%';
-
+    syncButtonState();
     updateStep(1);
 }
 
-// ✅ Activer le bouton quand un fichier est sélectionné
 document.addEventListener('DOMContentLoaded', function () {
-    function tryBindUploadManager(attempts) {
-        const uploadManager = window.uploadManagers?.['imageExcelUploadZone'];
+    // ✅ CORRECTIF PRINCIPAL : MutationObserver sur #fileInfo
+    // au lieu de patcher les méthodes de l'UploadManager
+    const fileInfoEl = document.getElementById('fileInfo');
+    const thumbnailEl = document.getElementById('imageExcelUploadZoneThumbnails');
 
-        if (uploadManager) {
-            const originalHandleFiles = uploadManager.handleFiles.bind(uploadManager);
-            uploadManager.handleFiles = function (fileList) {
-                originalHandleFiles(fileList);
-                const convertBtn = document.getElementById('convertBtn');
-                if (convertBtn) convertBtn.disabled = this.getFiles().length === 0;
-
-                if (this.getFiles().length > 0) {
-                    document.getElementById('tableStats').style.display = 'block';
-                    const file = this.getFiles()[0];
-                    const tables = Math.max(1, Math.floor(file.size / (512 * 1024)));
-                    document.getElementById('tablesCount').textContent = tables;
-                    document.getElementById('cellsCount').textContent = tables * 30;
-                } else {
-                    document.getElementById('tableStats').style.display = 'none';
-                }
-            };
-
-            const originalRemoveFile = uploadManager.removeFile.bind(uploadManager);
-            uploadManager.removeFile = function (index) {
-                originalRemoveFile(index);
-                const convertBtn = document.getElementById('convertBtn');
-                if (convertBtn) convertBtn.disabled = this.getFiles().length === 0;
-                if (this.getFiles().length === 0) {
-                    document.getElementById('tableStats').style.display = 'none';
-                }
-            };
-        } else if (attempts > 0) {
-            // ✅ Retry si uploadManagers pas encore initialisé
-            setTimeout(() => tryBindUploadManager(attempts - 1), 300);
-        }
+    if (fileInfoEl) {
+        const observer = new MutationObserver(() => syncButtonState());
+        observer.observe(fileInfoEl, { childList: true, subtree: true, characterData: true });
+    }
+    if (thumbnailEl) {
+        const observer2 = new MutationObserver(() => syncButtonState());
+        observer2.observe(thumbnailEl, { childList: true, subtree: true });
     }
 
-    tryBindUploadManager(10);
+    // ✅ Écoute aussi l'input file directement (drag & drop natif)
+    const fileInput = document.querySelector('#imageExcelUploadZone .file-input');
+    if (fileInput) {
+        fileInput.addEventListener('change', () => syncButtonState());
+    }
+
+    // ✅ Polling léger en backup (100ms pendant 5s, puis s'arrête)
+    let polls = 0;
+    const poller = setInterval(() => {
+        syncButtonState();
+        if (++polls >= 50) clearInterval(poller);
+    }, 100);
 });
 
 window.addEventListener('beforeunload', () => {
