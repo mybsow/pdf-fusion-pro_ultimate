@@ -3621,207 +3621,160 @@ def convert_image_to_excel(file_input, form_data=None):
             tess_cfg = "--oem 3 --psm 6"
 
         # ══ MODE TABLEAU ════════════════════════════════════════════════════
+        # ══ MODE TABLEAU — algorithme générique multi-colonnes ═══════════════
         if detect_tables or extraction_mode in ("auto", "table", "block"):
+            import re
 
-            def ocr_band(img_band, lang, conf_thr):
-                """OCR d'une bande avec binarisation forcée."""
-                gray = img_band.convert("L")
-                arr = np.array(gray, dtype=np.uint8)
+            logger.info(f"[IMG2XLS] Lancement Tesseract psm 4, lang={ocr_lang}")
+            try:
+                data = pytesseract.image_to_data(
+                    processed, lang=ocr_lang, output_type=Output.DICT,
+                    config="--oem 3 --psm 4 -c preserve_interword_spaces=1",
+                )
+            except pytesseract.TesseractError as e:
+                logger.warning(f"[IMG2XLS] psm4 failed: {e}, fallback psm6")
+                data = pytesseract.image_to_data(
+                    processed, lang=ocr_lang, output_type=Output.DICT,
+                    config="--oem 3 --psm 6",
+                )
 
-                # Seuil Otsu
-                hist, _ = np.histogram(arr.flatten(), bins=256, range=(0, 255))
-                total = arr.size
-                sum_t = np.dot(np.arange(256), hist).astype(float)
-                sumB, wB, max_var, threshold = 0.0, 0, 0.0, 127
-                for t in range(256):
-                    wB += hist[t]
-                    if wB == 0: continue
-                    wF = total - wB
-                    if wF == 0: break
-                    sumB += t * hist[t]
-                    mB = sumB / wB
-                    mF = (sum_t - sumB) / wF
-                    var = wB * wF * (mB - mF) ** 2
-                    if var > max_var:
-                        max_var, threshold = var, t
+            logger.info(f"[IMG2XLS] Tesseract OK: {len(data['text'])} tokens")
 
-                binarized = gray.point(lambda x: 0 if x < threshold else 255, mode="L")
-                img_clean = binarized.convert("RGB")
+            # ── Collecter les mots valides ───────────────────────────────────
+            all_words = []
+            conf_scores = []
+            for i, text in enumerate(data["text"]):
+                if not text or not text.strip():
+                    continue
+                try:
+                    conf = int(data["conf"][i])
+                except (ValueError, TypeError):
+                    conf = -1
+                if conf < confidence_thr:
+                    continue
+                all_words.append({
+                    "text": text.strip(),
+                    "left": data["left"][i],
+                    "top":  data["top"][i],
+                    "conf": conf,
+                })
+                conf_scores.append(conf)
 
-                results = {}
-                for label, img_test in [("binarized", img_clean), ("original", img_band)]:
-                    for psm in ["4", "6"]:
-                        try:
-                            d = pytesseract.image_to_data(
-                                img_test, lang=lang, output_type=Output.DICT,
-                                config=f"--oem 3 --psm {psm}"
-                            )
-                            words = []
-                            for i, text in enumerate(d["text"]):
-                                if not text or not text.strip():
-                                    continue
-                                try:
-                                    conf = int(d["conf"][i])
-                                except (ValueError, TypeError):
-                                    conf = -1
-                                if conf < conf_thr:
-                                    continue
-                                words.append({
-                                    "text": text.strip(),
-                                    "top": d["top"][i],
-                                    "left": d["left"][i],
-                                })
-                            results[f"{label}_psm{psm}"] = words
-                        except Exception:
-                            results[f"{label}_psm{psm}"] = []
+            logger.info(f"[IMG2XLS] Mots retenus: {len(all_words)}")
 
-                best_key = max(results, key=lambda k: len(results[k]))
-                best = results[best_key]
-                logger.info(f"[IMG2XLS] ocr_band best={best_key}: {len(best)} mots, scores={[(k, len(v)) for k,v in results.items()]}")
-                return best
+            if all_words:
+                
+                # ── Détecter les colonnes par clustering adaptatif ───────────
+                all_lefts = sorted(set(w["left"] for w in all_words))
 
-            def group_by_rows(words, row_threshold):
-                rows = {}
-                for w in words:
-                    top = w["top"]
+                # ✅ Calculer le gap minimum adaptatif
+                # Basé sur la distribution réelle des gaps entre positions X
+                if len(all_lefts) > 1:
+                    gaps = [all_lefts[i] - all_lefts[i-1]
+                            for i in range(1, len(all_lefts))]
+                    # Gap minimum = médiane des gaps / 2
+                    # Sépare les mots d'une même colonne (petits gaps)
+                    # des colonnes différentes (grands gaps)
+                    median_gap = sorted(gaps)[len(gaps) // 2]
+                    gap_min = max(median_gap * 1.5, img_w * 0.01)  # au moins 1% largeur
+                else:
+                    gap_min = img_w * 0.03
+
+                logger.info(f"[IMG2XLS] gap_min adaptatif: {gap_min:.0f}px "
+                            f"(img_w={img_w}, médiane gaps={sorted(gaps)[len(gaps)//2] if len(all_lefts)>1 else 0})")
+
+                col_centers = [all_lefts[0]]
+                for i in range(1, len(all_lefts)):
+                    gap = all_lefts[i] - all_lefts[i-1]
+                    if gap > gap_min:
+                        col_centers.append(all_lefts[i])
+                    else:
+                        col_centers[-1] = (col_centers[-1] + all_lefts[i]) // 2
+
+                # Créer les boundaries entre centres
+                col_boundaries = [0]
+                for i in range(1, len(col_centers)):
+                    col_boundaries.append((col_centers[i-1] + col_centers[i]) // 2)
+                col_boundaries.append(img_w)
+
+                n_cols = len(col_centers)
+                logger.info(f"[IMG2XLS] Colonnes détectées: {n_cols}, centers={col_centers}")
+
+                def assign_col(left):
+                    for ci in range(len(col_boundaries) - 1):
+                        if col_boundaries[ci] <= left < col_boundaries[ci + 1]:
+                            return ci
+                    return n_cols - 1
+
+                # ── Regrouper les mots par lignes ────────────────────────────
+                row_thr = max(10, int(img_h * 0.02))
+                rows_dict = {}
+                for word in all_words:
+                    top = word["top"]
                     key = None
-                    for k in rows:
-                        if abs(top - k) <= row_threshold:
+                    for k in rows_dict:
+                        if abs(top - k) <= row_thr:
                             key = k
                             break
                     if key is None:
                         key = top
-                        rows[key] = []
-                    rows[key].append(w["text"])
-                return [" ".join(ws) for _, ws in sorted(rows.items())]
+                        rows_dict[key] = []
+                    rows_dict[key].append(word)
 
-            # Détecter la frontière verticale par projection
-            import numpy as np
-            gray = np.array(processed.convert("L"))
-            col_darkness = (255 - gray).sum(axis=0)
-            kernel = 20
-            smoothed = np.convolve(col_darkness, np.ones(kernel)/kernel, mode='same')
-            mid_start = img_w // 4
-            mid_end   = 3 * img_w // 4
-            valley_region = smoothed[mid_start:mid_end]
-            split_x = mid_start + int(np.argmin(valley_region))
-            logger.info(f"[IMG2XLS] Frontière colonne détectée: x={split_x} (sur {img_w}px)")
+                logger.info(f"[IMG2XLS] Lignes groupées: {len(rows_dict)}")
 
-            margin = 10
-            band_left  = processed.crop((0,                0, split_x + margin, img_h))
-            band_right = processed.crop((split_x - margin, 0, img_w,            img_h))
+                # ── Construire la grille ─────────────────────────────────────
+                table_data = []
+                for _, words_in_row in sorted(rows_dict.items()):
+                    row = [""] * n_cols
+                    for word in sorted(words_in_row, key=lambda w: w["left"]):
+                        ci = assign_col(word["left"])
+                        # Nettoyage artefacts OCR
+                        clean = re.sub(r'^[|>\[\]]+$', '', word["text"]).strip()
+                        if not clean:
+                            continue
+                        if row[ci]:
+                            row[ci] += " " + clean
+                        else:
+                            row[ci] = clean
+                    if any(cell.strip() for cell in row):
+                        table_data.append(row)
 
-            words_left  = ocr_band(band_left,  ocr_lang, confidence_thr)
-            words_right = ocr_band(band_right, ocr_lang, confidence_thr)
+                logger.info(f"[IMG2XLS] Lignes tableau: {len(table_data)}, aperçu: {table_data[:2]}")
 
-            logger.info(f"[IMG2XLS] Bande gauche: {len(words_left)} mots: {[w['text'] for w in words_left[:5]]}")
-            logger.info(f"[IMG2XLS] Bande droite: {len(words_right)} mots: {[w['text'] for w in words_right[:5]]}")
+                # ── Trouver la ligne d'en-tête ───────────────────────────────
+                # La ligne d'en-tête est celle avec le plus de colonnes remplies
+                if table_data:
+                    header_idx = max(
+                        range(min(5, len(table_data))),
+                        key=lambda i: sum(1 for c in table_data[i] if c.strip())
+                    )
+                    headers = [
+                        c.strip() if c.strip() else f"Col{i+1}"
+                        for i, c in enumerate(table_data[header_idx])
+                    ]
+                    data_rows = [
+                        r for j, r in enumerate(table_data)
+                        if j != header_idx
+                        and any(c.strip() for c in r)
+                    ]
+                    df = pd.DataFrame(data_rows, columns=headers)
+                    logger.info(f"[IMG2XLS] DataFrame: {df.shape}, colonnes={list(df.columns)}")
 
-            # ✅ Utiliser un row_threshold petit pour ne pas fusionner les lignes
-            row_thr = max(10, int(img_h * 0.015))  # 1.5% au lieu de 3%
-            logger.info(f"[IMG2XLS] row_threshold={row_thr}")
-
-            # ✅ Grouper la colonne gauche par lignes → donne les tops de référence
-            rows_left_dict = {}
-            for w in words_left:
-                top = w["top"]
-                key = None
-                for k in rows_left_dict:
-                    if abs(top - k) <= row_thr:
-                        key = k
-                        break
-                if key is None:
-                    key = top
-                    rows_left_dict[key] = []
-                rows_left_dict[key].append(w["text"])
-
-            ref_tops = sorted(rows_left_dict.keys())  # tops de référence = les lignes réelles
-            col1_rows = [" ".join(rows_left_dict[t]) for t in ref_tops]
-
-            logger.info(f"[IMG2XLS] Col1 ({len(col1_rows)} lignes): {col1_rows}")
-            logger.info(f"[IMG2XLS] Tops référence: {ref_tops}")
-
-            # ✅ OCR bande droite ligne par ligne selon les tops de référence
-            line_height = int(img_h * 0.08)  # hauteur approximative d'une ligne
-
-            # ✅ Détecter le meilleur mode OCR sur la 1ère ligne non vide
-            import re
-            best_psm = "7"
-            best_mode = "binarized"
-            if ref_tops:
-                y1 = max(0, ref_tops[0] - line_height // 2)
-                y2 = min(img_h, ref_tops[0] + line_height // 2)
-                test_crop = band_right.crop((0, y1, band_right.width, y2))
-                test_bin = test_crop.convert("L").point(
-                    lambda x: 0 if x < 128 else 255, mode="L"
-                ).convert("RGB")
-                best_score = 0
-                for img_test, label in [("binarized", test_bin), ("original", test_crop)]:  # ✅ ordre corrigé
-                    for psm in ["7", "6"]:
-                        try:
-                            text = pytesseract.image_to_string(
-                                img_test, lang=ocr_lang,  # ✅ img_test au lieu de test_bin/test_crop
-                                config=f"--oem 3 --psm {psm}"
-                            ).strip()
-                            text = re.sub(r'[|\.]+', '', text).strip()
-                            if len(text) > best_score:
-                                best_score = len(text)
-                                best_psm = psm
-                                best_mode = label  # ✅ label = "binarized" ou "original"
-                        except Exception:
-                            pass
-                logger.info(f"[IMG2XLS] Meilleur mode détecté: {best_mode} psm={best_psm}")
-            
-            # ✅ Initialisation obligatoire avant la boucle
-            col2_rows = []
-
-            # Boucle principale — 1 seul appel par ligne
-            for ref_top in ref_tops:
-                y1 = max(0,     ref_top - line_height // 2)
-                y2 = min(img_h, ref_top + line_height // 2)
-                line_crop = band_right.crop((0, y1, band_right.width, y2))
-                if best_mode == "binarized":
-                    img_test = line_crop.convert("L").point(
-                        lambda x: 0 if x < 128 else 255, mode="L"
-                    ).convert("RGB")
+                # ── Calcul confiance ─────────────────────────────────────────
+                if conf_scores:
+                    filled = sum(1 for r in (data_rows if df is not None else [])
+                                 for c in r if c.strip())
+                    total_cells = max(len(data_rows) * n_cols, 1) if df is not None else 1
+                    fill_ratio = filled / total_cells
+                    confidence_score = int(
+                        np.mean(conf_scores) * (0.6 + 0.4 * fill_ratio)
+                    )
+                    confidence_score = max(0, min(100, confidence_score))
                 else:
-                    img_test = line_crop
-                try:
-                    best_text = pytesseract.image_to_string(
-                        img_test, lang=ocr_lang,
-                        config=f"--oem 3 --psm {best_psm}"
-                    ).strip()
-                    best_text = " ".join(best_text.split())
-                except Exception:
-                    best_text = ""
-                best_text = re.sub(r'[|\.]+', '', best_text).strip()
-                best_text = re.sub(r'^[Tl1]+([A-Za-z])', lambda m: m.group(1).upper(), best_text).strip()
-                col2_rows.append(best_text)
-                logger.info(f"[IMG2XLS] Ligne top={ref_top}: '{best_text}'")
+                    confidence_score = 0
 
-            # ✅ Nettoyage de l'en-tête
-            if col2_rows:
-                header = re.sub(r'[|\.]+', '', col2_rows[0]).strip()
-                header = re.sub(r'^[Tl1]+([A-Za-z])', lambda m: m.group(1).upper(), header).strip()
-                header = header.upper()
-                col2_rows[0] = header if header else "Col2"
-
-            logger.info(f"[IMG2XLS] Col2 final ({len(col2_rows)} lignes): {col2_rows}")
-
-            table_data = [list(row) for row in zip(col1_rows, col2_rows)
-                          if any(c.strip() for c in row)]
-
-            logger.info(f"[IMG2XLS] Lignes tableau: {len(table_data)}, aperçu: {table_data[:3]}")
-
-            if table_data:
-                if len(table_data) >= 2:
-                    headers = [c if c.strip() else f"Col{i+1}"
-                               for i, c in enumerate(table_data[0])]
-                    df = pd.DataFrame(table_data[1:], columns=headers)
-                else:
-                    df = pd.DataFrame(table_data,
-                                      columns=[f"Col{i+1}" for i in range(2)])
-                logger.info(f"[IMG2XLS] DataFrame: {df.shape}, colonnes={list(df.columns)}")
+                logger.info(f"[IMG2XLS] Confiance: {confidence_score}%")
 
         # ══ MODE TEXTE fallback ══════════════════════════════════════════════
         if df is None:
