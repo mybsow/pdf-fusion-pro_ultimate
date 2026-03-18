@@ -3912,6 +3912,13 @@ def convert_image_to_excel(file_input, form_data=None):
             as_attachment=True,
             download_name=f"{Path(original_filename).stem}.xlsx",
         )
+        # ✅ Ajouter les stats dans les headers
+        response.headers['X-Tables-Count'] = '1'
+        response.headers['X-Cells-Count'] = str(df.shape[0] * df.shape[1])
+        response.headers['X-Rows-Count'] = str(df.shape[0])
+        response.headers['X-Cols-Count'] = str(df.shape[1])
+        response.headers['X-Confidence'] = '85'
+        return response
 
     except Exception as e:
         logger.error(f"[IMG2XLS] EXCEPTION: {e}\n{traceback.format_exc()}")

@@ -327,34 +327,61 @@ function startConversion() {
         body: formData
     })
     .then(async response => {
-        clearInterval(progressInterval);
-        if (progressBar) progressBar.style.width = '100%';
-        if (analysisMessage) analysisMessage.textContent = '{{ _("Finalisation...") }}';
+            clearInterval(progressInterval);
+            if (progressBar) progressBar.style.width = '100%';
+            if (analysisMessage) analysisMessage.textContent = '{{ _("Finalisation...") }}';
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erreur serveur ' + response.status);
-        }
-        const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) {
-            throw new Error('Le serveur a retourné une erreur. Vérifiez le fichier.');
-        }
-        const blob = await response.blob();
-        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Erreur serveur ' + response.status);
+            }
+            const contentType = response.headers.get('Content-Type') || '';
+            if (contentType.includes('text/html')) {
+                throw new Error('Le serveur a retourné une erreur. Vérifiez le fichier.');
+            }
 
-        downloadUrl = window.URL.createObjectURL(blob);
-        const contentDisposition = response.headers.get('Content-Disposition') || '';
-        let filename = 'extraction.xlsx';
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match && match[1]) filename = match[1].replace(/['"]/g, '');
+            // ✅ Lire les stats depuis les headers
+            const tablesCount = response.headers.get('X-Tables-Count') || '1';
+            const cellsCount  = response.headers.get('X-Cells-Count')  || '0';
+            const rowsCount   = response.headers.get('X-Rows-Count')   || '0';
+            const colsCount   = response.headers.get('X-Cols-Count')   || '0';
+            const confidence  = response.headers.get('X-Confidence')   || '0';
 
-        const downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.setAttribute('download', filename);
-        }
-        updateStep(3);
-    })
+            // ✅ Mettre à jour les compteurs de l'étape 2
+            const detectedTables = document.getElementById('detectedTables');
+            const detectedCells  = document.getElementById('detectedCells');
+            const detectionConf  = document.getElementById('detectionConfidence');
+            if (detectedTables) detectedTables.textContent = tablesCount;
+            if (detectedCells)  detectedCells.textContent  = cellsCount;
+            if (detectionConf)  detectionConf.textContent  = confidence + '%';
+
+            const blob = await response.blob();
+            if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+
+            downloadUrl = window.URL.createObjectURL(blob);
+            const contentDisposition = response.headers.get('Content-Disposition') || '';
+            let filename = 'extraction.xlsx';
+            const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+            if (match && match[1]) filename = match[1].replace(/['"]/g, '');
+
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.setAttribute('download', filename);
+            }
+
+            // ✅ Mettre à jour le bandeau stats de l'étape 1 aussi
+            const tablesCountEl = document.getElementById('tablesCount');
+            const cellsCountEl  = document.getElementById('cellsCount');
+            if (tablesCountEl) tablesCountEl.textContent = tablesCount;
+            if (cellsCountEl)  cellsCountEl.textContent  = cellsCount;
+
+            // ✅ Mettre à jour totalRows dans l'aperçu
+            const totalRowsEl = document.getElementById('totalRows');
+            if (totalRowsEl) totalRowsEl.textContent = rowsCount + ' {{ _("lignes extraites") }}';
+
+            updateStep(3);
+        })
     .catch(error => {
         clearInterval(progressInterval);
         console.error('Erreur conversion:', error);
