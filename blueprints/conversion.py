@@ -3621,69 +3621,79 @@ def convert_image_to_excel(file_input, form_data=None):
         else:
             tess_cfg = "--oem 3 --psm 6"
 
-        # ══ MODE TABLEAU ════════════════════════════════════════════════════
-        # ══ MODE TABLEAU — algorithme générique multi-colonnes ═══════════════
+      # ══ MODE TABLEAU — algorithme générique multi-colonnes ═══════════════
         if detect_tables or extraction_mode in ("auto", "table", "block"):
             import re
 
-            logger.info(f"[IMG2XLS] Lancement Tesseract psm 4, lang={ocr_lang}")
+            logger.info(f"[IMG2XLS] Lancement OCR multi-pass, lang={ocr_lang}")
 
-            def run_tesseract(img_input):
+            def run_ocr_pass(img_input, cfg):
                 try:
                     return pytesseract.image_to_data(
-                        img_input, lang=ocr_lang, output_type=Output.DICT,
-                        config="--oem 3 --psm 4 -c preserve_interword_spaces=1",
-                    )
-                except pytesseract.TesseractError:
-                    try:
-                        return pytesseract.image_to_data(
-                            img_input, lang=ocr_lang, output_type=Output.DICT,
-                            config="--oem 3 --psm 6",
-                        )
-                    except Exception:
-                        return None
+                        img_input, lang=ocr_lang, output_type=Output.DICT, config=cfg)
+                except Exception:
+                    return None
 
             def _safe_int(v):
                 try: return int(v)
                 except: return -1
 
-            def count_valid(d):
-                if not d: return 0
-                return sum(1 for t, c in zip(d["text"], d["conf"])
-                          if t and t.strip() and _safe_int(c) >= confidence_thr)
+            # Pass 1 : psm 4 - texte normal
+            d1 = run_ocr_pass(processed, "--oem 3 --psm 4 -c preserve_interword_spaces=1")
 
-            # OCR normal
-            data_normal = run_tesseract(processed)
-            n_normal = count_valid(data_normal)
+            # Pass 2 : image inversée psm 6 - texte clair sur fond sombre
+            from PIL import ImageOps as _IOP
+            processed_inv = _IOP.invert(processed)
+            d2 = run_ocr_pass(processed_inv, "--oem 3 --psm 6")
 
-            # Base = OCR normal
-            data = data_normal if data_normal else {"text":[],"conf":[],"left":[],"top":[],"width":[],"height":[]}
+            # ── Fusionner les passes sans doublons ───────────────────────────
+            data = {"text": [], "conf": [], "left": [], "top": [], "width": [], "height": []}
+            seen_positions = []
 
-            logger.info(f"[IMG2XLS] Tesseract OK: {len(data['text'])} tokens total")
+            for d_pass in [d_p for d_p in [d1, d2] if d_p]:
+                heights = d_pass.get("height", [0] * len(d_pass["text"]))
+                for i in range(len(d_pass["text"])):
+                    t = d_pass["text"][i]
+                    if not t or not t.strip(): continue
+                    if _safe_int(d_pass["conf"][i]) < confidence_thr: continue
+                    left = d_pass["left"][i]
+                    top  = d_pass["top"][i]
+                  
+                    # Vérifier doublon
+                    is_dup = any(
+                        abs(left - sl) < 15 and abs(top - st) < 15
+                        for sl, st in seen_positions
+                    )
+                    if is_dup: continue
+                    seen_positions.append((left, top))
+                    data["text"].append(t)
+                    data["conf"].append(d_pass["conf"][i])
+                    data["left"].append(left)
+                    data["top"].append(top)
+                    data["width"].append(d_pass["width"][i])
+                    data["height"].append(heights[i])
+
+            logger.info(f"[IMG2XLS] OCR multi-pass: {len(data['text'])} tokens")
 
             # ── Collecter les mots valides ───────────────────────────────────
             all_words = []
             conf_scores = []
             for i, text in enumerate(data["text"]):
-                if not text or not text.strip():
-                    continue
-                try:
-                    conf = int(data["conf"][i])
-                except (ValueError, TypeError):
-                    conf = -1
-                if conf < confidence_thr:
-                    continue
+                if not text or not text.strip(): continue
+                conf = _safe_int(data["conf"][i])
+                if conf < confidence_thr: continue
                 all_words.append({
                     "text": text.strip(),
                     "left": data["left"][i],
                     "top":  data["top"][i],
                     "conf": conf,
+                    "width": data["width"][i],
                 })
                 conf_scores.append(conf)
 
             logger.info(f"[IMG2XLS] Mots retenus: {len(all_words)}")
 
-            # ── Fusionner les mots proches sur la même ligne ─────────────
+            # ── Fusionner les mots proches sur la même ligne ─────────────────
             merge_dist = img_w * 0.03
             row_thr = max(10, int(img_h * 0.02))
             rows_raw = {}
@@ -3717,31 +3727,18 @@ def convert_image_to_excel(file_input, form_data=None):
             all_words = merged_words
 
             if all_words:
-
                 # ── Détecter les colonnes par clustering adaptatif ───────────
                 all_lefts = sorted(set(w["left"] for w in all_words))
-                # ✅ Calculer le gap minimum adaptatif
-                # Basé sur la distribution réelle des gaps entre positions X
                 if len(all_lefts) > 1:
-                    gaps = [all_lefts[i] - all_lefts[i-1]
-                            for i in range(1, len(all_lefts))]
-                    # Gap minimum = médiane des gaps / 2
-                    # Sépare les mots d'une même colonne (petits gaps)
-                    # des colonnes différentes (grands gaps)
-                    # Par — utiliser le 75e percentile plutôt que la médiane
-                    # La médiane capture les petits gaps intra-cellule
-                    # Le 75e percentile capture mieux les vrais séparateurs de colonnes
+                    gaps = [all_lefts[i] - all_lefts[i-1] for i in range(1, len(all_lefts))]
                     gaps_sorted = sorted(gaps)
                     p75_gap = gaps_sorted[int(len(gaps_sorted) * 0.75)]
-                    p25_gap = gaps_sorted[int(len(gaps_sorted) * 0.25)]
-                    # Si grande variance → seuil = entre p25 et p75
-                    # Si faible variance → seuil fixe basé sur largeur image
-                    gap_min = max(p75_gap * 0.8, img_w * 0.02)  # au moins 2% largeur
+                    gap_min = max(p75_gap * 0.8, img_w * 0.02)
                 else:
+                    gaps = []
                     gap_min = img_w * 0.03
 
-                logger.info(f"[IMG2XLS] gap_min adaptatif: {gap_min:.0f}px "
-                            f"(img_w={img_w}, médiane gaps={sorted(gaps)[len(gaps)//2] if len(all_lefts)>1 else 0})")
+                logger.info(f"[IMG2XLS] gap_min adaptatif: {gap_min:.0f}px (img_w={img_w})")
 
                 col_centers = [all_lefts[0]]
                 for i in range(1, len(all_lefts)):
@@ -3751,7 +3748,6 @@ def convert_image_to_excel(file_input, form_data=None):
                     else:
                         col_centers[-1] = (col_centers[-1] + all_lefts[i]) // 2
 
-                # Créer les boundaries entre centres
                 col_boundaries = [0]
                 for i in range(1, len(col_centers)):
                     col_boundaries.append((col_centers[i-1] + col_centers[i]) // 2)
@@ -3767,7 +3763,6 @@ def convert_image_to_excel(file_input, form_data=None):
                     return n_cols - 1
 
                 # ── Regrouper les mots par lignes ────────────────────────────
-                row_thr = max(10, int(img_h * 0.02))
                 rows_dict = {}
                 for word in all_words:
                     top = word["top"]
@@ -3789,85 +3784,58 @@ def convert_image_to_excel(file_input, form_data=None):
                     row = [""] * n_cols
                     for word in sorted(words_in_row, key=lambda w: w["left"]):
                         ci = assign_col(word["left"])
-                        # Nettoyage artefacts OCR
                         clean = re.sub(r'^[|>\[\]]+$', '', word["text"]).strip()
-                        if not clean:
-                            continue
-                        if row[ci]:
-                            row[ci] += " " + clean
-                        else:
-                            row[ci] = clean
+                        if not clean: continue
+                        row[ci] = (row[ci] + " " + clean).strip() if row[ci] else clean
                     if any(cell.strip() for cell in row):
                         table_data.append(row)
 
                 logger.info(f"[IMG2XLS] Lignes tableau: {len(table_data)}, aperçu: {table_data[:2]}")
 
-                # ── Construire l'en-tête ──────────────────────────────────────
+                # ── Construire l'en-tête ─────────────────────────────────────
                 if table_data:
                     if has_header:
-                        # ✅ Stratégie : trouver la 1ère ligne dense = données réelles
-                        # puis extraire le préfixe textuel de chaque colonne
-                        # comme nom d'en-tête (ex: "Projet 1" → "Projet")
                         import re as _re2
 
                         min_fill = max(2, int(n_cols * 0.4))
-                        first_data_idx = 0
+                        header_idx = 0
                         for idx, row in enumerate(table_data):
                             if sum(1 for c in row if c.strip()) >= min_fill:
-                                first_data_idx = idx
+                                header_idx = idx
                                 break
 
-                        # ✅ Approche universelle : extraire le préfixe textuel
-                        # de la 1ère ligne de données comme nom de colonne
-                        import re as _re2
-                        header_from_band = None
+                        logger.info(f"[IMG2XLS] En-tête ligne {header_idx}: {table_data[header_idx]}")
 
-                        first_row = table_data[first_data_idx] if first_data_idx < len(table_data) else []
-                        headers = []
-                        for i, cell in enumerate(first_row):
-                            cell = cell.strip()
-                            prefix = _re2.match(r'^([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s\-\']+)', cell)
-                            if prefix:
-                                h = prefix.group(1).strip()
-                                headers.append(h if len(h) >= 2 else f"Col{i+1}")
-                            else:
-                                headers.append(f"Col{i+1}")
+                        header_row = table_data[header_idx]
+                        date_pat = _re2.compile(r'\d{2}/\d{2}/\d{4}')
+                        num_pat  = _re2.compile(r'^\d+$')
 
-                        logger.info(f"[IMG2XLS] En-têtes finales: {headers}")
+                        has_dates   = sum(1 for c in header_row if date_pat.search(c))
+                        has_numbers = sum(1 for c in header_row if num_pat.match(c.strip()))
+                        filled      = sum(1 for c in header_row if c.strip())
 
-                        data_rows = []
-                        for j, r in enumerate(table_data):
-                            if j < first_data_idx:
-                                continue
-                            if sum(1 for c in r if c.strip()) >= max(2, int(n_cols * 0.3)):
-                                data_rows.append(r)
-
-                        # ✅ Fallback : extraire préfixe textuel depuis la 1ère ligne de données
-                        if not header_from_band:
-                            logger.info(f"[IMG2XLS] Fallback: extraction préfixe depuis données")
-                            first_row = table_data[first_data_idx] if first_data_idx < len(table_data) else []
+                        if has_dates == 0 and has_numbers == 0 and filled >= min_fill:
+                            headers = [c.strip() if c.strip() else f"Col{i+1}"
+                                      for i, c in enumerate(header_row)]
+                            first_data_idx = header_idx + 1
+                            logger.info(f"[IMG2XLS] En-tête directe: {headers}")
+                        else:
+                            first_data_idx = header_idx
                             headers = []
-                            for i, cell in enumerate(first_row):
-                                # Extraire le préfixe textuel (avant les chiffres/dates)
-                                # ex: "Projet 1" → "Projet", "05/01/2026" → "Col"
-                                prefix = _re2.match(r'^([A-Za-zÀ-ÿ\s]+)', cell.strip())
+                            for i, cell in enumerate(header_row):
+                                prefix = _re2.match(r'^([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s\-\']+)', cell.strip())
                                 if prefix:
                                     h = prefix.group(1).strip()
                                     headers.append(h if len(h) >= 2 else f"Col{i+1}")
                                 else:
                                     headers.append(f"Col{i+1}")
-                        else:
-                            headers = [c if len(c) >= 2 else f"Col{i+1}"
-                                      for i, c in enumerate(header_from_band)]
+                            logger.info(f"[IMG2XLS] En-tête depuis préfixe: {headers}")
 
-                        logger.info(f"[IMG2XLS] En-têtes finales: {headers}")
-
-                        # Données = toutes les lignes denses
+                        min_filled = max(2, int(filled * 0.3))
                         data_rows = []
                         for j, r in enumerate(table_data):
-                            if j < first_data_idx:
-                                continue
-                            if sum(1 for c in r if c.strip()) >= max(2, int(n_cols * 0.3)):
+                            if j < first_data_idx: continue
+                            if sum(1 for c in r if c.strip()) >= min_filled:
                                 data_rows.append(r)
 
                     else:
@@ -3880,13 +3848,11 @@ def convert_image_to_excel(file_input, form_data=None):
 
                 # ── Calcul confiance ─────────────────────────────────────────
                 if conf_scores:
-                    filled = sum(1 for r in (data_rows if df is not None else [])
-                                 for c in r if c.strip())
-                    total_cells = max(len(data_rows) * n_cols, 1) if df is not None else 1
-                    fill_ratio = filled / total_cells
-                    confidence_score = int(
-                        np.mean(conf_scores) * (0.6 + 0.4 * fill_ratio)
-                    )
+                    filled_cells = sum(1 for r in (data_rows if df is not None else [])
+                                       for c in r if c.strip())
+                    total_cells  = max(len(data_rows) * n_cols, 1) if df is not None else 1
+                    fill_ratio   = filled_cells / total_cells
+                    confidence_score = int(np.mean(conf_scores) * (0.6 + 0.4 * fill_ratio))
                     confidence_score = max(0, min(100, confidence_score))
                 else:
                     confidence_score = 0
