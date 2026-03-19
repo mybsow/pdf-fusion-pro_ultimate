@@ -3821,10 +3821,12 @@ def convert_image_to_excel(file_input, form_data=None):
                         header_from_band = None
                         try:
                             from PIL import ImageOps
+                            from pytesseract import Output as TessOutput
                             arr_orig = np.array(img_rgb)
                             h_orig_b, w_orig_b = arr_orig.shape[:2]
                             scale_w_b = img_w / w_orig_b
 
+                            # Détecter fond coloré universellement
                             r_ch = arr_orig[:,:,0].astype(int)
                             g_ch = arr_orig[:,:,1].astype(int)
                             b_ch = arr_orig[:,:,2].astype(int)
@@ -3846,38 +3848,61 @@ def convert_image_to_excel(file_input, form_data=None):
                                 y1_b, y2_b = largest
 
                                 band = img_rgb.crop((0, max(0,y1_b-2), w_orig_b, min(h_orig_b,y2_b+3)))
-                                col_bounds_orig_b = [int(cb / scale_w_b) for cb in col_boundaries]
+                                band_scale = 3
+                                band_up = band.resize((band.width*band_scale, band.height*band_scale), Image.Resampling.LANCZOS)
 
-                                header_cells = []
-                                for ci in range(len(col_bounds_orig_b)-1):
-                                    x1_b = max(0, col_bounds_orig_b[ci])
-                                    x2_b = min(band.width, col_bounds_orig_b[ci+1])
-                                    if x2_b <= x1_b:
-                                        header_cells.append(""); continue
+                                # Threshold texte clair → noir
+                                gray_arr = np.array(band_up.convert("L"))
+                                inv_gray = 255 - gray_arr
+                                thresh = (inv_gray > 100).astype(np.uint8) * 255
+                                thresh_img = Image.fromarray(thresh).convert("RGB")
 
-                                    cell = band.crop((x1_b, 0, x2_b, band.height))
-                                    cell_up = cell.resize((cell.width*4, cell.height*4), Image.Resampling.LANCZOS)
+                                # OCR avec positions mot par mot
+                                data_band = pytesseract.image_to_data(
+                                    thresh_img, lang=ocr_lang, output_type=TessOutput.DICT,
+                                    config="--oem 3 --psm 6"
+                                )
 
-                                    gray_arr = np.array(cell_up.convert("L"))
-                                    inv_gray = 255 - gray_arr
-                                    thresh = (inv_gray > 100).astype(np.uint8) * 255
-                                    thresh_img = Image.fromarray(thresh).convert("RGB")
+                                # Assigner chaque mot à sa colonne
+                                import re as _re2
+                                header_cells = [""] * n_cols
+                                for i in range(len(data_band["text"])):
+                                    t = data_band["text"][i]
+                                    if not t or not t.strip(): continue
+                                    try: c = int(data_band["conf"][i])
+                                    except: c = -1
+                                    if c < 20: continue
+                                    # Filtrer artefacts purs
+                                    if _re2.match(r'^[v\|>_\.\-=©°¥\[\]vVwW]+$', t): continue
+                                    if len(t) <= 1: continue
 
-                                    text = pytesseract.image_to_string(
-                                        thresh_img, lang=ocr_lang, config="--oem 3 --psm 7"
-                                    ).strip()
-                                    # Nettoyer artefacts OCR
-                                    text = _re2.sub(r'[+\|>_\-\[\]v\.,:;!?]+', ' ', text)
-                                    text = ' '.join(text.split())
-                                    header_cells.append(text)
+                                    # Convertir position X bande → image upscalée globale
+                                    left_up = int((data_band["left"][i] / band_scale) * scale_w_b)
 
-                                # ✅ Valider : au moins 40% des cellules ont du texte lisible
+                                    col_idx = n_cols - 1
+                                    for ci in range(len(col_boundaries)-1):
+                                        if col_boundaries[ci] <= left_up < col_boundaries[ci+1]:
+                                            col_idx = ci
+                                            break
+
+                                    if header_cells[col_idx]:
+                                        header_cells[col_idx] += " " + t
+                                    else:
+                                        header_cells[col_idx] = t
+
+                                # Nettoyer chaque cellule
+                                for i, hc in enumerate(header_cells):
+                                    hc = _re2.sub(r'\b[vVwW]\b', '', hc)
+                                    hc = _re2.sub(r'[_=\|©°¥>]+', ' ', hc)
+                                    hc = ' '.join(hc.split())
+                                    header_cells[i] = hc
+
                                 valid = sum(1 for c in header_cells if len(c) >= 2)
                                 if valid >= max(2, int(n_cols * 0.4)):
                                     header_from_band = header_cells
                                     logger.info(f"[IMG2XLS] En-tête bande validée ({valid}/{n_cols}): {header_from_band}")
                                 else:
-                                    logger.info(f"[IMG2XLS] En-tête bande rejetée ({valid}/{n_cols} valides)")
+                                    logger.info(f"[IMG2XLS] En-tête bande rejetée ({valid}/{n_cols})")
 
                         except Exception as e:
                             logger.warning(f"[IMG2XLS] Erreur OCR bande: {e}")
