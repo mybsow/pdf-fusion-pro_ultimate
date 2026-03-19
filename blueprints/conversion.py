@@ -3659,76 +3659,6 @@ def convert_image_to_excel(file_input, form_data=None):
             # Base = OCR normal
             data = data_normal if data_normal else {"text":[],"conf":[],"left":[],"top":[],"width":[],"height":[]}
 
-            # ✅ Détecter et OCR la bande d'en-tête sur fond sombre séparément
-            try:
-                from PIL import ImageOps
-                arr_orig = np.array(img_rgb)
-                h_orig, w_orig = arr_orig.shape[:2]
-                scale_factor = img_h / h_orig
-
-                # Pixels orange : R>150, G entre 60-160, B<80
-                orange_mask = (
-                    (arr_orig[:,:,0] > 150) &
-                    (arr_orig[:,:,1] > 60) & (arr_orig[:,:,1] < 160) &
-                    (arr_orig[:,:,2] < 80)
-                )
-                orange_rows = np.where(orange_mask.any(axis=1))[0]
-
-                if len(orange_rows) > 0:
-                    groups = []
-                    start = int(orange_rows[0])
-                    prev  = int(orange_rows[0])
-                    for r in orange_rows[1:]:
-                        r = int(r)
-                        if r - prev > 5:
-                            groups.append((start, prev))
-                            start = r
-                        prev = r
-                    groups.append((start, prev))
-
-                    largest = max(groups, key=lambda g: g[1]-g[0])
-                    y1_orig, y2_orig = largest
-                    logger.info(f"[IMG2XLS] Bande en-tête détectée: y={y1_orig}-{y2_orig} (orig)")
-
-                    band = img_rgb.crop((0, max(0, y1_orig-2), w_orig, min(h_orig, y2_orig+3)))
-                    bw, bh = band.size
-                    band_up = band.resize((bw*4, bh*4), Image.Resampling.LANCZOS)
-                    band_inv = ImageOps.invert(band_up)
-
-                    data_band = pytesseract.image_to_data(
-                        band_inv, lang=ocr_lang, output_type=Output.DICT,
-                        config="--oem 3 --psm 6"
-                    )
-
-                    band_words_added = 0
-                    heights_band = data_band.get("height", [10]*len(data_band["text"]))
-                    for i in range(len(data_band["text"])):
-                        t = data_band["text"][i]
-                        if not t or not t.strip(): continue
-                        try: c = int(data_band["conf"][i])
-                        except: c = -1
-                        if c < confidence_thr: continue
-
-                        left_orig_px = data_band["left"][i] / 4
-                        top_orig_px  = y1_orig + data_band["top"][i] / 4
-                        left_up   = int(left_orig_px * scale_factor)
-                        top_up    = int(top_orig_px  * scale_factor)
-
-                        data["text"].append(t)
-                        data["conf"].append(c)
-                        data["left"].append(left_up)
-                        data["top"].append(top_up)
-                        data["width"].append(int(data_band["width"][i] / 4 * scale_factor))
-                        data["height"].append(int(heights_band[i] / 4 * scale_factor))
-                        band_words_added += 1
-
-                    logger.info(f"[IMG2XLS] Bande en-tête: {band_words_added} mots ajoutés")
-                else:
-                    logger.info(f"[IMG2XLS] Aucune bande en-tête sur fond sombre détectée")
-
-            except Exception as e:
-                logger.warning(f"[IMG2XLS] Erreur extraction bande en-tête: {e}")
-
             logger.info(f"[IMG2XLS] Tesseract OK: {len(data['text'])} tokens total")
 
             # ── Collecter les mots valides ───────────────────────────────────
@@ -3875,46 +3805,119 @@ def convert_image_to_excel(file_input, form_data=None):
                 # ── Trouver la ligne d'en-tête ───────────────────────────────
                 if table_data:
                     if has_header:
-                        n_cols_total = n_cols
+                        # ✅ OCR cellule par cellule sur la bande en-tête
+                        # en utilisant les col_boundaries déjà calculées
+                        header_from_band = None
+                        try:
+                            from PIL import ImageOps
+                            import re as _re2
+                            arr_orig = np.array(img_rgb)
+                            h_orig_b, w_orig_b = arr_orig.shape[:2]
+                            scale_w_b = img_w / w_orig_b
 
-                        # ✅ Approche universelle : première ligne avec >= 40% colonnes remplies
-                        min_fill_for_header = max(2, int(n_cols_total * 0.4))
-                        header_idx = None
+                            # Détecter fond coloré
+                            r_ch = arr_orig[:,:,0].astype(int)
+                            g_ch = arr_orig[:,:,1].astype(int)
+                            b_ch = arr_orig[:,:,2].astype(int)
+                            max_rgb = np.maximum(np.maximum(r_ch, g_ch), b_ch)
+                            min_rgb = np.minimum(np.minimum(r_ch, g_ch), b_ch)
+                            colorful = (max_rgb - min_rgb > 40) & (max_rgb < 230)
+                            dark_rows = np.where(colorful.any(axis=1))[0]
 
-                        for idx, row in enumerate(table_data):
-                            filled = sum(1 for c in row if c.strip())
-                            if filled >= min_fill_for_header:
-                                header_idx = idx
-                                break
+                            if len(dark_rows) > 0:
+                                groups = []
+                                start = int(dark_rows[0])
+                                prev  = int(dark_rows[0])
+                                for r_idx in dark_rows[1:]:
+                                    r_idx = int(r_idx)
+                                    if r_idx - prev > 5:
+                                        groups.append((start, prev))
+                                        start = r_idx
+                                    prev = r_idx
+                                groups.append((start, prev))
+                                largest = max(groups, key=lambda g: g[1]-g[0])
+                                y1_b, y2_b = largest
 
-                        # Fallback : ligne la plus remplie parmi les 5 premières
-                        if header_idx is None:
-                            header_idx = max(
-                                range(min(5, len(table_data))),
-                                key=lambda i: sum(1 for c in table_data[i] if c.strip())
-                            )
+                                band = img_rgb.crop((0, max(0,y1_b-2), w_orig_b, min(h_orig_b,y2_b+3)))
+                                bw_b, bh_b = band.size
 
-                        logger.info(f"[IMG2XLS] En-tête ligne {header_idx}: {table_data[header_idx]}")
+                                # OCR cellule par cellule selon col_boundaries
+                                # Convertir col_boundaries (upscalées) en coordonnées originales
+                                col_bounds_orig_b = [int(cb / scale_w_b) for cb in col_boundaries]
 
-                        headers = [
-                            c.strip() if c.strip() else f"Col{i+1}"
-                            for i, c in enumerate(table_data[header_idx])
-                        ]
-                        min_filled = sum(1 for c in table_data[header_idx] if c.strip()) * 0.3
-                        data_rows = []
-                        for j, r in enumerate(table_data):
-                            if j <= header_idx:
-                                continue
-                            filled = sum(1 for c in r if c.strip())
-                            if filled < max(2, min_filled):
-                                logger.info(f"[IMG2XLS] Ligne {j} ignorée: {r}")
-                                continue
-                            data_rows.append(r)
+                                header_cells = []
+                                for ci in range(len(col_bounds_orig_b)-1):
+                                    x1_b = max(0, col_bounds_orig_b[ci])
+                                    x2_b = min(bw_b, col_bounds_orig_b[ci+1])
+                                    if x2_b <= x1_b:
+                                        header_cells.append(f"Col{ci+1}")
+                                        continue
+
+                                    cell = band.crop((x1_b, 0, x2_b, bh_b))
+                                    cw_b, ch_b = cell.size
+                                    cell_up = cell.resize((cw_b*4, ch_b*4), Image.Resampling.LANCZOS)
+
+                                    # Threshold texte clair → noir
+                                    gray_arr = np.array(cell_up.convert("L"))
+                                    inv_gray = 255 - gray_arr
+                                    thresh = (inv_gray > 100).astype(np.uint8) * 255
+                                    thresh_img = Image.fromarray(thresh).convert("RGB")
+
+                                    text = pytesseract.image_to_string(
+                                        thresh_img, lang=ocr_lang,
+                                        config="--oem 3 --psm 7"
+                                    ).strip()
+                                    # Nettoyer artefacts
+                                    text = _re2.sub(r'[+\|>_\-\[\]v]+', '', text).strip()
+                                    text = ' '.join(text.split())
+                                    header_cells.append(text if text else f"Col{ci+1}")
+
+                                if any(c for c in header_cells if c and not c.startswith("Col")):
+                                    header_from_band = header_cells
+                                    logger.info(f"[IMG2XLS] En-tête depuis bande: {header_from_band}")
+
+                        except Exception as e:
+                            logger.warning(f"[IMG2XLS] Erreur OCR bande en-tête: {e}")
+
+                        # Utiliser l'en-tête de la bande ou détecter dans table_data
+                        if header_from_band:
+                            headers = [c if c else f"Col{i+1}" for i, c in enumerate(header_from_band)]
+                            # Données = toutes les lignes après la 1ère dense
+                            min_fill = max(2, int(n_cols * 0.4))
+                            first_data_idx = 0
+                            for idx, row in enumerate(table_data):
+                                if sum(1 for c in row if c.strip()) >= min_fill:
+                                    first_data_idx = idx
+                                    break
+                            data_rows = []
+                            for j, r in enumerate(table_data):
+                                if j < first_data_idx:
+                                    continue
+                                if any(c.strip() for c in r):
+                                    data_rows.append(r)
+                        else:
+                            # Fallback : première ligne dense = en-tête
+                            min_fill_for_header = max(2, int(n_cols * 0.4))
+                            header_idx = 0
+                            for idx, row in enumerate(table_data):
+                                if sum(1 for c in row if c.strip()) >= min_fill_for_header:
+                                    header_idx = idx
+                                    break
+                            logger.info(f"[IMG2XLS] En-tête fallback ligne {header_idx}: {table_data[header_idx]}")
+                            headers = [c.strip() if c.strip() else f"Col{i+1}"
+                                      for i, c in enumerate(table_data[header_idx])]
+                            min_filled = sum(1 for c in table_data[header_idx] if c.strip()) * 0.3
+                            data_rows = []
+                            for j, r in enumerate(table_data):
+                                if j <= header_idx:
+                                    continue
+                                if sum(1 for c in r if c.strip()) >= max(2, min_filled):
+                                    data_rows.append(r)
                     else:
-                        # Pas d'en-tête : colonnes génériques
                         headers = [f"Col{i+1}" for i in range(n_cols)]
                         data_rows = [r for r in table_data if any(c.strip() for c in r)]
                         logger.info(f"[IMG2XLS] Mode sans en-tête: {len(data_rows)} lignes")
+
                     df = pd.DataFrame(data_rows, columns=headers)
                     logger.info(f"[IMG2XLS] DataFrame: {df.shape}, colonnes={list(df.columns)}")
 
