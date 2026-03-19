@@ -3654,41 +3654,82 @@ def convert_image_to_excel(file_input, form_data=None):
 
             # OCR normal
             data_normal = run_tesseract(processed)
-
-            # OCR image inversée (texte blanc sur fond sombre)
-            from PIL import ImageOps
-            processed_inv = ImageOps.invert(processed)
-            data_inv = run_tesseract(processed_inv)
-
             n_normal = count_valid(data_normal)
-            n_inv    = count_valid(data_inv)
-            logger.info(f"[IMG2XLS] OCR normal={n_normal} mots, inversé={n_inv} mots")
 
             # Base = OCR normal
             data = data_normal if data_normal else {"text":[],"conf":[],"left":[],"top":[],"width":[],"height":[]}
 
-            # Fusionner les lignes de l'image inversée non couvertes par l'OCR normal
-            if data_inv and n_inv > 0:
-                normal_tops = set()
-                for t, c, top in zip(data["text"], data["conf"], data["top"]):
-                    if t and t.strip() and _safe_int(c) >= confidence_thr:
-                        normal_tops.add(top // 20 * 20)
+            # ✅ Détecter et OCR la bande d'en-tête sur fond sombre séparément
+            try:
+                from PIL import ImageOps
+                arr_orig = np.array(img_rgb)
+                h_orig, w_orig = arr_orig.shape[:2]
+                scale_factor = img_h / h_orig
 
-                heights = data_inv.get("height", [0] * len(data_inv["text"]))
-                for i in range(len(data_inv["text"])):
-                    t = data_inv["text"][i]
-                    if not t or not t.strip(): continue
-                    if _safe_int(data_inv["conf"][i]) < confidence_thr: continue
-                    top = data_inv["top"][i]
-                    if top // 20 * 20 not in normal_tops:
+                # Pixels orange : R>150, G entre 60-160, B<80
+                orange_mask = (
+                    (arr_orig[:,:,0] > 150) &
+                    (arr_orig[:,:,1] > 60) & (arr_orig[:,:,1] < 160) &
+                    (arr_orig[:,:,2] < 80)
+                )
+                orange_rows = np.where(orange_mask.any(axis=1))[0]
+
+                if len(orange_rows) > 0:
+                    groups = []
+                    start = int(orange_rows[0])
+                    prev  = int(orange_rows[0])
+                    for r in orange_rows[1:]:
+                        r = int(r)
+                        if r - prev > 5:
+                            groups.append((start, prev))
+                            start = r
+                        prev = r
+                    groups.append((start, prev))
+
+                    largest = max(groups, key=lambda g: g[1]-g[0])
+                    y1_orig, y2_orig = largest
+                    logger.info(f"[IMG2XLS] Bande en-tête détectée: y={y1_orig}-{y2_orig} (orig)")
+
+                    band = img_rgb.crop((0, max(0, y1_orig-2), w_orig, min(h_orig, y2_orig+3)))
+                    bw, bh = band.size
+                    band_up = band.resize((bw*4, bh*4), Image.Resampling.LANCZOS)
+                    band_inv = ImageOps.invert(band_up)
+
+                    data_band = pytesseract.image_to_data(
+                        band_inv, lang=ocr_lang, output_type=Output.DICT,
+                        config="--oem 3 --psm 6"
+                    )
+
+                    band_words_added = 0
+                    heights_band = data_band.get("height", [10]*len(data_band["text"]))
+                    for i in range(len(data_band["text"])):
+                        t = data_band["text"][i]
+                        if not t or not t.strip(): continue
+                        try: c = int(data_band["conf"][i])
+                        except: c = -1
+                        if c < confidence_thr: continue
+
+                        left_orig_px = data_band["left"][i] / 4
+                        top_orig_px  = y1_orig + data_band["top"][i] / 4
+                        left_up   = int(left_orig_px * scale_factor)
+                        top_up    = int(top_orig_px  * scale_factor)
+
                         data["text"].append(t)
-                        data["conf"].append(data_inv["conf"][i])
-                        data["left"].append(data_inv["left"][i])
-                        data["top"].append(top)
-                        data["width"].append(data_inv["width"][i])
-                        data["height"].append(heights[i] if i < len(heights) else 0)
+                        data["conf"].append(c)
+                        data["left"].append(left_up)
+                        data["top"].append(top_up)
+                        data["width"].append(int(data_band["width"][i] / 4 * scale_factor))
+                        data["height"].append(int(heights_band[i] / 4 * scale_factor))
+                        band_words_added += 1
 
-            logger.info(f"[IMG2XLS] Tesseract OK: {len(data['text'])} tokens après fusion normal+inversé")
+                    logger.info(f"[IMG2XLS] Bande en-tête: {band_words_added} mots ajoutés")
+                else:
+                    logger.info(f"[IMG2XLS] Aucune bande en-tête sur fond sombre détectée")
+
+            except Exception as e:
+                logger.warning(f"[IMG2XLS] Erreur extraction bande en-tête: {e}")
+
+            logger.info(f"[IMG2XLS] Tesseract OK: {len(data['text'])} tokens total")
 
             # ── Collecter les mots valides ───────────────────────────────────
             all_words = []
