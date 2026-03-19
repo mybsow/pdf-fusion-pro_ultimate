@@ -3654,7 +3654,7 @@ def convert_image_to_excel(file_input, form_data=None):
                 df = pd.DataFrame({"Information": ["Aucun texte détecté — vérifiez la qualité de l'image"]})
             else:
                 # ── Fusionner mots proches sur la même ligne ─────────────
-                merge_dist = img_w * 0.03
+                merge_dist = img_w * 0.015  # 1.5% au lieu de 3%
                 row_thr    = max(10, int(img_h * 0.02))
 
                 rows_raw = {}
@@ -3684,12 +3684,29 @@ def convert_image_to_excel(file_input, form_data=None):
 
                 # ── Clustering adaptatif des colonnes ────────────────────
                 all_lefts = sorted(set(w["left"] for w in all_words))
+
                 if len(all_lefts) > 1:
                     gaps        = [all_lefts[i] - all_lefts[i-1] for i in range(1, len(all_lefts))]
                     gaps_sorted = sorted(gaps)
                     p75_gap     = gaps_sorted[int(len(gaps_sorted) * 0.75)]
                     gap_min     = max(p75_gap * 0.8, img_w * 0.02)
                 else:
+                    gap_min = img_w * 0.03
+
+                # Par
+                if len(all_lefts) > 1:
+                    gaps        = sorted([all_lefts[i] - all_lefts[i-1] for i in range(1, len(all_lefts))])
+                    # Trouver le premier saut naturel dans la distribution des gaps
+                    # (là où gap[i] > 1.8 * gap[i-1] ET gap[i] >= 15px)
+                    gap_min = img_w * 0.02  # défaut = 2% largeur
+                    for i in range(1, len(gaps)):
+                        if gaps[i] >= 15 and gaps[i] > gaps[i-1] * 1.8:
+                            gap_min = gaps[i-1] + (gaps[i] - gaps[i-1]) * 0.3
+                            break
+                    # Borne minimale absolue
+                    gap_min = max(gap_min, 12)
+                else:
+                    gaps    = []
                     gap_min = img_w * 0.03
 
                 logger.info(f"[IMG2XLS] gap_min={gap_min:.0f}px")
