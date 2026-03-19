@@ -3678,10 +3678,88 @@ def convert_image_to_excel(file_input, form_data=None):
             max_cols = max(len(r) for r in best)
             best = [r + [""]*(max_cols-len(r)) for r in best]
 
-            headers = best[0]
-            data = best[1:]
+        # ───────── HEADER INTELLIGENT ─────────
+        def detect_header_depth(table, max_scan=5):
+            import re
+        
+            scores = []
+            for i, row in enumerate(table[:max_scan]):
+                text_cells = sum(1 for c in row if c.strip())
+                digits = sum(1 for c in row if re.search(r'\d', c))
+        
+                score = text_cells * 2 - digits
+                scores.append(score)
+        
+            if not scores:
+                return 1
+        
+            threshold = max(scores) * 0.6
+            depth = 0
+        
+            for s in scores:
+                if s >= threshold:
+                    depth += 1
+                else:
+                    break
+        
+            return max(1, depth)
+        
+        
+        def merge_header_rows(table, depth):
+            n_cols = len(table[0])
+            merged = [""] * n_cols
+        
+            for col in range(n_cols):
+                parts = []
+                for r in range(depth):
+                    val = table[r][col].strip()
+                    if val:
+                        parts.append(val)
+        
+                merged[col] = " ".join(parts)
+        
+            return merged
+        
+        
+        def clean_headers(headers):
+            import re
+            clean = []
+        
+            for i, h in enumerate(headers):
+                h = re.sub(r'\s+', ' ', h).strip()
+                h = re.sub(r'[^\w\s\-/:%]', '', h)
+        
+                if not h or len(h) < 2:
+                    h = f"Col{i+1}"
+        
+                clean.append(h)
+        
+            return clean
+        
+        
+        def spread_headers(headers):
+            last = ""
+            for i in range(len(headers)):
+                if headers[i]:
+                    last = headers[i]
+                else:
+                    headers[i] = last
+            return headers
+        
+        
+        # ───────── APPLICATION ─────────
+        depth = detect_header_depth(best)
 
-            df = pd.DataFrame(data, columns=headers)
+        # supprimer lignes quasi vides
+        best = [r for r in best if sum(1 for c in r if c.strip()) >= 2]
+
+        headers = merge_header_rows(best, depth)
+        headers = clean_headers(headers)
+        headers = spread_headers(headers)
+        
+        data = best[depth:]
+        
+        df = pd.DataFrame(data, columns=headers)
 
         # ───────── EXPORT ─────────
         output = BytesIO()
