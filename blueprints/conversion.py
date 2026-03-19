@@ -3627,19 +3627,68 @@ def convert_image_to_excel(file_input, form_data=None):
             import re
 
             logger.info(f"[IMG2XLS] Lancement Tesseract psm 4, lang={ocr_lang}")
-            try:
-                data = pytesseract.image_to_data(
-                    processed, lang=ocr_lang, output_type=Output.DICT,
-                    config="--oem 3 --psm 4 -c preserve_interword_spaces=1",
-                )
-            except pytesseract.TesseractError as e:
-                logger.warning(f"[IMG2XLS] psm4 failed: {e}, fallback psm6")
-                data = pytesseract.image_to_data(
-                    processed, lang=ocr_lang, output_type=Output.DICT,
-                    config="--oem 3 --psm 6",
-                )
 
-            logger.info(f"[IMG2XLS] Tesseract OK: {len(data['text'])} tokens")
+            def run_tesseract(img_input):
+                try:
+                    return pytesseract.image_to_data(
+                        img_input, lang=ocr_lang, output_type=Output.DICT,
+                        config="--oem 3 --psm 4 -c preserve_interword_spaces=1",
+                    )
+                except pytesseract.TesseractError:
+                    try:
+                        return pytesseract.image_to_data(
+                            img_input, lang=ocr_lang, output_type=Output.DICT,
+                            config="--oem 3 --psm 6",
+                        )
+                    except Exception:
+                        return None
+
+            def _safe_int(v):
+                try: return int(v)
+                except: return -1
+
+            def count_valid(d):
+                if not d: return 0
+                return sum(1 for t, c in zip(d["text"], d["conf"])
+                          if t and t.strip() and _safe_int(c) >= confidence_thr)
+
+            # OCR normal
+            data_normal = run_tesseract(processed)
+
+            # OCR image inversée (texte blanc sur fond sombre)
+            from PIL import ImageOps
+            processed_inv = ImageOps.invert(processed)
+            data_inv = run_tesseract(processed_inv)
+
+            n_normal = count_valid(data_normal)
+            n_inv    = count_valid(data_inv)
+            logger.info(f"[IMG2XLS] OCR normal={n_normal} mots, inversé={n_inv} mots")
+
+            # Base = OCR normal
+            data = data_normal if data_normal else {"text":[],"conf":[],"left":[],"top":[],"width":[],"height":[]}
+
+            # Fusionner les lignes de l'image inversée non couvertes par l'OCR normal
+            if data_inv and n_inv > 0:
+                normal_tops = set()
+                for t, c, top in zip(data["text"], data["conf"], data["top"]):
+                    if t and t.strip() and _safe_int(c) >= confidence_thr:
+                        normal_tops.add(top // 20 * 20)
+
+                heights = data_inv.get("height", [0] * len(data_inv["text"]))
+                for i in range(len(data_inv["text"])):
+                    t = data_inv["text"][i]
+                    if not t or not t.strip(): continue
+                    if _safe_int(data_inv["conf"][i]) < confidence_thr: continue
+                    top = data_inv["top"][i]
+                    if top // 20 * 20 not in normal_tops:
+                        data["text"].append(t)
+                        data["conf"].append(data_inv["conf"][i])
+                        data["left"].append(data_inv["left"][i])
+                        data["top"].append(top)
+                        data["width"].append(data_inv["width"][i])
+                        data["height"].append(heights[i] if i < len(heights) else 0)
+
+            logger.info(f"[IMG2XLS] Tesseract OK: {len(data['text'])} tokens après fusion normal+inversé")
 
             # ── Collecter les mots valides ───────────────────────────────────
             all_words = []
