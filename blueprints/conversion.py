@@ -3515,269 +3515,490 @@ if __name__ == "__main__":
 # ──────────────────────────────────────────────────────────────────────────────
 # CONVERT IMAGE → EXCEL  (réécriture complète)
 # ──────────────────────────────────────────────────────────────────────────────
-def convert_image_to_excel(file_input, form_data=None):
-    if not HAS_PILLOW or not HAS_TESSERACT or not HAS_PANDAS:
-        return {"error": "Dépendances manquantes"}
-
-    import cv2
-    import numpy as np
-    import re
+def _extract_table_with_gemini(img_rgb, ocr_lang):
+    import base64, json, os
     from io import BytesIO
-    from pathlib import Path
-    import tempfile, os
-    from PIL import Image
-    import pytesseract
-    from pytesseract import Output
-    import pandas as pd
 
-    file_storage = file_input[0] if isinstance(file_input, list) else file_input
-    original_filename = file_storage.filename
-
-    tmp = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-    file_storage.save(tmp.name)
-    tmp.close()
+    api_key = os.environ.get("GEMINI_API_KEY", "")
+    if not api_key:
+        logger.warning("[IMG2XLS] GEMINI_API_KEY non définie")
+        return None
 
     try:
-        img_pil = Image.open(tmp.name).convert("RGB")
+        from google import genai
+        from google.genai import types
+    except ImportError:
+        logger.warning("[IMG2XLS] google-genai non installé")
+        return None
 
-        # ───────── UPSCALE ─────────
-        w, h = img_pil.size
-        if max(w, h) < 2400:
-            scale = 2400 / max(w, h)
-            img_pil = img_pil.resize((int(w*scale), int(h*scale)), Image.Resampling.LANCZOS)
-
-        img = np.array(img_pil)
-        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-
-        # ───────── OCR GLOBAL ─────────
-        ocr_data = pytesseract.image_to_data(
-            img_pil,
-            lang="fra+eng",
-            output_type=Output.DICT,
-            config="--oem 3 --psm 4"
-        )
-
-        words = []
-        for i, txt in enumerate(ocr_data["text"]):
-            if txt.strip() and int(ocr_data["conf"][i]) > 40:
-                x = ocr_data["left"][i]
-                y = ocr_data["top"][i]
-                w_ = ocr_data["width"][i]
-
-                words.append({
-                    "text": txt.strip(),
-                    "x": x,
-                    "y": y,
-                    "center": x + w_ // 2
-                })
-
-        # ───────── STRAT 1 : OPENCV GRID ─────────
-        def extract_opencv():
-            _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
-
-            h_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (40,1))
-            v_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1,40))
-
-            horizontal = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, h_kernel)
-            vertical = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, v_kernel)
-
-            mask = cv2.add(horizontal, vertical)
-
-            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-            cells = []
-            for c in contours:
-                x,y,wc,hc = cv2.boundingRect(c)
-                if wc > 40 and hc > 20:
-                    cells.append((x,y,wc,hc))
-
-            if len(cells) < 5:
-                return None
-
-            rows = {}
-            for x,y,wc,hc in cells:
-                key = min(rows.keys(), key=lambda k: abs(k-y)) if rows else y
-                if rows and abs(key-y) < 20:
-                    rows[key].append((x,y,wc,hc))
-                else:
-                    rows[y] = [(x,y,wc,hc)]
-
-            table = []
-            for k in sorted(rows.keys()):
-                row_cells = sorted(rows[k], key=lambda c: c[0])
-                row = []
-                for x,y,wc,hc in row_cells:
-                    roi = img_pil.crop((x,y,x+wc,y+hc))
-                    txt = pytesseract.image_to_string(roi, lang="fra+eng", config="--psm 6")
-                    row.append(re.sub(r'\s+', ' ', txt).strip())
-                table.append(row)
-
-            return table
-
-        # ───────── STRAT 2 : CLUSTERING OCR ─────────
-        def extract_cluster():
-            if not words:
-                return None
-
-            # cluster colonnes
-            centers = sorted([w["center"] for w in words])
-            cols = []
-            for c in centers:
-                placed = False
-                for col in cols:
-                    if abs(col["mean"] - c) < 50:
-                        col["vals"].append(c)
-                        col["mean"] = sum(col["vals"]) / len(col["vals"])
-                        placed = True
-                        break
-                if not placed:
-                    cols.append({"vals":[c], "mean":c})
-
-            col_centers = sorted([int(c["mean"]) for c in cols])
-
-            def assign_col(x):
-                return min(range(len(col_centers)), key=lambda i: abs(x-col_centers[i]))
-
-            # cluster lignes
-            rows = {}
-            for w in words:
-                key = min(rows.keys(), key=lambda k: abs(k-w["y"])) if rows else w["y"]
-                if rows and abs(key-w["y"]) < 15:
-                    rows[key].append(w)
-                else:
-                    rows[w["y"]] = [w]
-
-            table = []
-            for k in sorted(rows.keys()):
-                row = [""] * len(col_centers)
-                for w in rows[k]:
-                    col = assign_col(w["center"])
-                    row[col] += " " + w["text"]
-                table.append([c.strip() for c in row])
-
-            return table
-
-        # ───────── SCORING ─────────
-        def score(table):
-            if not table:
-                return 0
-            filled = sum(1 for r in table for c in r if c.strip())
-            total = len(table) * len(table[0])
-            return filled / total
-
-        t1 = extract_opencv()
-        t2 = extract_cluster()
-
-        best = t1 if score(t1) > score(t2) else t2
-
-        # ───────── FALLBACK TEXTE ─────────
-        if not best or score(best) < 0.2:
-            raw = pytesseract.image_to_string(img_pil, lang="fra+eng")
-            df = pd.DataFrame({"Texte": raw.split("\n")})
+    try:
+        # Redimensionner si trop grande
+        w, h = img_rgb.size
+        if max(w, h) > 1600:
+            scale    = 1600 / max(w, h)
+            img_send = img_rgb.resize((int(w*scale), int(h*scale)), Image.Resampling.LANCZOS)
         else:
-            max_cols = max(len(r) for r in best)
-            best = [r + [""]*(max_cols-len(r)) for r in best]
+            img_send = img_rgb
 
-        # ───────── HEADER INTELLIGENT ─────────
-        def detect_header_depth(table, max_scan=5):
-            import re
-        
-            scores = []
-            for i, row in enumerate(table[:max_scan]):
-                text_cells = sum(1 for c in row if c.strip())
-                digits = sum(1 for c in row if re.search(r'\d', c))
-        
-                score = text_cells * 2 - digits
-                scores.append(score)
-        
-            if not scores:
-                return 1
-        
-            threshold = max(scores) * 0.6
-            depth = 0
-        
-            for s in scores:
-                if s >= threshold:
-                    depth += 1
-                else:
+        buf = BytesIO()
+        img_send.save(buf, format="PNG", optimize=True)
+        img_bytes = buf.getvalue()
+
+        prompt = """Analyse ce tableau et extrais TOUTES les données.
+Retourne UNIQUEMENT un JSON valide avec cette structure exacte:
+{
+  "headers": ["nom_col1", "nom_col2", ...],
+  "rows": [
+    ["val1", "val2", ...],
+    ...
+  ]
+}
+Règles:
+- Inclure TOUS les en-têtes, même sur 2 lignes (concaténer avec espace)
+- Ne pas inclure les titres au-dessus du tableau
+- Cellule vide = ""
+- Retourner UNIQUEMENT le JSON, rien d'autre"""
+
+        client = genai.Client(api_key=api_key)
+
+        # Essayer plusieurs modèles dans l'ordre
+        models = [
+            "gemini-2.0-flash",
+            "gemini-2.0-flash-lite",
+            "gemini-1.5-flash",
+        ]
+
+        text = None
+        for model in models:
+            try:
+                response = client.models.generate_content(
+                    model=model,
+                    contents=[
+                        types.Content(
+                            role="user",
+                            parts=[
+                                types.Part.from_bytes(
+                                    data=img_bytes,
+                                    mime_type="image/png"
+                                ),
+                                types.Part.from_text(text=prompt),
+                            ]
+                        )
+                    ],
+                    config=types.GenerateContentConfig(
+                        temperature=0.1,
+                        max_output_tokens=4000,
+                    )
+                )
+                text = response.text.strip()
+                logger.info(f"[IMG2XLS] Gemini OK avec modèle: {model}")
+                break
+            except Exception as e:
+                logger.warning(f"[IMG2XLS] Gemini {model} échoué: {e}")
+                continue
+
+        if not text:
+            logger.warning("[IMG2XLS] Tous les modèles Gemini ont échoué")
+            return None
+
+        # Nettoyer les backticks markdown
+        if "```" in text:
+            for part in text.split("```"):
+                p = part.strip()
+                if p.startswith("json"): p = p[4:].strip()
+                if p.startswith("{"):
+                    text = p
                     break
-        
-            return max(1, depth)
-        
-        
-        def merge_header_rows(table, depth):
-            n_cols = len(table[0])
-            merged = [""] * n_cols
-        
-            for col in range(n_cols):
-                parts = []
-                for r in range(depth):
-                    val = table[r][col].strip()
-                    if val:
-                        parts.append(val)
-        
-                merged[col] = " ".join(parts)
-        
-            return merged
-        
-        
-        def clean_headers(headers):
+
+        data    = json.loads(text)
+        headers = data.get("headers", [])
+        rows    = data.get("rows", [])
+
+        if not headers and not rows:
+            return None
+
+        n_cols      = len(headers) if headers else (max(len(r) for r in rows) if rows else 0)
+        if n_cols == 0:
+            return None
+
+        rows_padded = [r + [""] * (n_cols - len(r)) for r in rows]
+        headers     = headers + [f"Col{i+1}" for i in range(len(headers), n_cols)]
+        df = pd.DataFrame(rows_padded, columns=headers)
+        logger.info(f"[IMG2XLS] Gemini Vision: {df.shape}, cols={list(df.columns)}")
+        return df
+
+    except Exception as e:
+        logger.warning(f"[IMG2XLS] Gemini échoué: {e}")
+        return None
+
+        # Nettoyer les backticks markdown
+        if "```" in text:
+            for part in text.split("```"):
+                p = part.strip()
+                if p.startswith("json"): p = p[4:].strip()
+                if p.startswith("{"):
+                    text = p
+                    break
+
+        data    = json.loads(text)
+        headers = data.get("headers", [])
+        rows    = data.get("rows", [])
+
+        if not headers and not rows:
+            return None
+
+        n_cols      = len(headers) if headers else (max(len(r) for r in rows) if rows else 0)
+        if n_cols == 0:
+            return None
+
+        rows_padded = [r + [""] * (n_cols - len(r)) for r in rows]
+        headers     = headers + [f"Col{i+1}" for i in range(len(headers), n_cols)]
+        df = pd.DataFrame(rows_padded, columns=headers)
+        logger.info(f"[IMG2XLS] Gemini Vision: {df.shape}, cols={list(df.columns)}")
+        return df
+
+    except Exception as e:
+        logger.warning(f"[IMG2XLS] Gemini échoué: {e}")
+        return None
+
+
+def convert_image_to_excel(file_input, form_data=None):
+    """
+    Convertit une image en Excel.
+    Stratégie 1 : Google Gemini Vision (IA gratuite)
+    Stratégie 2 : Tesseract OCR (fallback)
+    Stratégie 3 : Texte brut (dernier recours)
+    """
+    if not HAS_PILLOW or not HAS_PANDAS:
+        return {"error": "Dépendances manquantes (Pillow, pandas)"}
+
+    if isinstance(file_input, list):
+        if not file_input:
+            return {"error": "Aucun fichier fourni"}
+        file_storage = file_input[0]
+    else:
+        file_storage = file_input
+
+    if not hasattr(file_storage, "filename") or not hasattr(file_storage, "save"):
+        return {"error": "Objet fichier invalide"}
+
+    original_filename = file_storage.filename
+    form_data         = form_data or {}
+    temp_files        = []
+
+    try:
+        # ── Sauvegarde ──────────────────────────────────────────────────────
+        suffix = Path(original_filename).suffix or ".png"
+        tmp    = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
+        file_storage.save(tmp.name)
+        tmp.close()
+        temp_files.append(tmp.name)
+        logger.info(f"[IMG2XLS] Sauvegardé: {tmp.name} ({os.path.getsize(tmp.name)} octets)")
+
+        # ── Ouverture image ─────────────────────────────────────────────────
+        try:
+            img_orig = Image.open(tmp.name)
+            img_orig.load()
+            logger.info(f"[IMG2XLS] Image: {img_orig.size}, mode={img_orig.mode}")
+        except Exception as e:
+            return {"error": f"Impossible d'ouvrir l'image : {e}"}
+
+        # ── Paramètres ──────────────────────────────────────────────────────
+        language        = form_data.get("language", "fra+eng")
+        detect_tables   = str(form_data.get("detect_tables", "true")).lower() == "true"
+        confidence_thr  = max(0, int(form_data.get("confidence", "10")))
+        extraction_mode = form_data.get("extractionMode", "auto")
+        has_header      = str(form_data.get("hasHeader", "true")).lower() == "true"
+        use_ai          = str(form_data.get("useAI", "true")).lower() == "true"
+        df               = None
+        confidence_score = 0
+        extraction_method = "unknown"
+
+        lang_map = {
+            "fra":"fra","eng":"eng","en":"eng","es":"spa","spa":"spa",
+            "de":"deu","deu":"deu","it":"ita","ita":"ita","pt":"por","por":"por",
+            "ru":"rus","ar":"ara","zh":"chi_sim","ja":"jpn","nl":"nld","nld":"nld",
+        }
+        mapped, seen_l = [], set()
+        for l in (language.split("+") if "+" in language else [language]):
+            t = lang_map.get(l.strip(), l.strip())
+            if t not in seen_l: seen_l.add(t); mapped.append(t)
+        ocr_lang = "+".join(mapped)
+
+        logger.info(f"[IMG2XLS] Params: lang={ocr_lang}, mode={extraction_mode}, ai={use_ai}")
+
+        # ── RGBA → RGB fond blanc ───────────────────────────────────────────
+        if img_orig.mode in ("RGBA", "LA", "P"):
+            bg = Image.new("RGB", img_orig.size, (255, 255, 255))
+            img_conv = img_orig.convert("RGBA") if img_orig.mode == "P" else img_orig
+            if img_conv.mode in ("RGBA", "LA"):
+                bg.paste(img_conv, mask=img_conv.split()[-1])
+            else:
+                bg.paste(img_conv)
+            img_rgb = bg
+        else:
+            img_rgb = img_orig.convert("RGB")
+
+        # ══ STRATÉGIE 1 : Google Gemini Vision ══════════════════════════════
+        if use_ai:
+            logger.info("[IMG2XLS] Tentative Gemini Vision...")
+            df = _extract_table_with_gemini(img_rgb, ocr_lang)
+            if df is not None and not df.empty:
+                extraction_method = "gemini_vision"
+                confidence_score  = 95
+                logger.info(f"[IMG2XLS] Gemini réussi: {df.shape}")
+
+        # ══ STRATÉGIE 2 : Tesseract OCR ═════════════════════════════════════
+        if df is None and HAS_TESSERACT:
+            logger.info("[IMG2XLS] Fallback Tesseract...")
+            extraction_method = "tesseract"
+
+            # Upscale
+            w, h = img_rgb.size
+            if max(w, h) < 2400:
+                scale     = 2400 / max(w, h)
+                processed = img_rgb.resize((int(w*scale), int(h*scale)), Image.Resampling.LANCZOS)
+            else:
+                processed = img_rgb
+
+            img_w, img_h = processed.size
+
             import re
-            clean = []
-        
-            for i, h in enumerate(headers):
-                h = re.sub(r'\s+', ' ', h).strip()
-                h = re.sub(r'[^\w\s\-/:%]', '', h)
-        
-                if not h or len(h) < 2:
-                    h = f"Col{i+1}"
-        
-                clean.append(h)
-        
-            return clean
-        
-        
-        def spread_headers(headers):
-            last = ""
-            for i in range(len(headers)):
-                if headers[i]:
-                    last = headers[i]
+
+            def _safe_int(v):
+                try: return int(v)
+                except: return -1
+
+            data = None
+            for cfg in ["--oem 3 --psm 4 -c preserve_interword_spaces=1", "--oem 3 --psm 6"]:
+                try:
+                    data = pytesseract.image_to_data(
+                        processed, lang=ocr_lang,
+                        output_type=Output.DICT, config=cfg)
+                    break
+                except Exception:
+                    continue
+
+            if not data:
+                data = {"text":[],"conf":[],"left":[],"top":[],"width":[],"height":[]}
+
+            # Mots valides
+            all_words, conf_scores = [], []
+            for i, text in enumerate(data["text"]):
+                if not text or not text.strip(): continue
+                conf = _safe_int(data["conf"][i])
+                if conf < confidence_thr: continue
+                all_words.append({
+                    "text":  text.strip(),
+                    "left":  data["left"][i],
+                    "top":   data["top"][i],
+                    "conf":  conf,
+                    "width": data["width"][i],
+                })
+                conf_scores.append(conf)
+
+            logger.info(f"[IMG2XLS] Mots retenus: {len(all_words)}")
+
+            if all_words:
+                # Fusion mots proches (1.5% largeur)
+                merge_dist = img_w * 0.015
+                row_thr    = max(10, int(img_h * 0.02))
+
+                rows_raw = {}
+                for word in all_words:
+                    top = word["top"]
+                    key = next((k for k in rows_raw if abs(top - k) <= row_thr), None)
+                    if key is None: key = top; rows_raw[key] = []
+                    rows_raw[key].append(word)
+
+                merged_words = []
+                for _, wir in rows_raw.items():
+                    sw  = sorted(wir, key=lambda w: w["left"])
+                    cur = dict(sw[0])
+                    for nxt in sw[1:]:
+                        gap = nxt["left"] - (cur["left"] + cur.get("width", 50))
+                        if gap < merge_dist:
+                            cur["text"]  += " " + nxt["text"]
+                            cur["width"]  = (nxt["left"] + nxt.get("width", 50)) - cur["left"]
+                        else:
+                            merged_words.append(cur); cur = dict(nxt)
+                    merged_words.append(cur)
+
+                all_words = merged_words
+                logger.info(f"[IMG2XLS] Après fusion: {len(all_words)} mots")
+
+                # gap_min par saut naturel
+                all_lefts = sorted(set(w["left"] for w in all_words))
+                if len(all_lefts) > 1:
+                    gaps    = sorted([all_lefts[i]-all_lefts[i-1] for i in range(1, len(all_lefts))])
+                    gap_min = img_w * 0.02
+                    for i in range(1, len(gaps)):
+                        if gaps[i] >= 15 and gaps[i] > gaps[i-1] * 1.8:
+                            gap_min = gaps[i-1] + (gaps[i]-gaps[i-1]) * 0.3
+                            break
+                    gap_min = max(gap_min, 12)
                 else:
-                    headers[i] = last
-            return headers
-        
-        
-        # ───────── APPLICATION ─────────
-        depth = detect_header_depth(best)
+                    gap_min = img_w * 0.03
 
-        # supprimer lignes quasi vides
-        best = [r for r in best if sum(1 for c in r if c.strip()) >= 2]
+                logger.info(f"[IMG2XLS] gap_min={gap_min:.0f}px")
 
-        headers = merge_header_rows(best, depth)
-        headers = clean_headers(headers)
-        headers = spread_headers(headers)
-        
-        data = best[depth:]
-        
-        df = pd.DataFrame(data, columns=headers)
+                # Colonnes
+                col_centers = [all_lefts[0]]
+                for i in range(1, len(all_lefts)):
+                    if all_lefts[i] - all_lefts[i-1] > gap_min:
+                        col_centers.append(all_lefts[i])
+                    else:
+                        col_centers[-1] = (col_centers[-1] + all_lefts[i]) // 2
 
-        # ───────── EXPORT ─────────
+                col_boundaries = [0]
+                for i in range(1, len(col_centers)):
+                    col_boundaries.append((col_centers[i-1]+col_centers[i])//2)
+                col_boundaries.append(img_w)
+                n_cols = len(col_centers)
+                logger.info(f"[IMG2XLS] Colonnes: {n_cols}")
+
+                def assign_col(left):
+                    for ci in range(len(col_boundaries)-1):
+                        if col_boundaries[ci] <= left < col_boundaries[ci+1]:
+                            return ci
+                    return n_cols - 1
+
+                # Lignes
+                rows_dict = {}
+                for word in all_words:
+                    top = word["top"]
+                    key = next((k for k in rows_dict if abs(top-k) <= row_thr), None)
+                    if key is None: key = top; rows_dict[key] = []
+                    rows_dict[key].append(word)
+
+                # Grille
+                table_data = []
+                for _, wir in sorted(rows_dict.items()):
+                    row = [""] * n_cols
+                    for word in sorted(wir, key=lambda w: w["left"]):
+                        ci    = assign_col(word["left"])
+                        clean = re.sub(r'^[|>\[\]]+$', '', word["text"]).strip()
+                        if not clean: continue
+                        row[ci] = (row[ci]+" "+clean).strip() if row[ci] else clean
+                    if any(c.strip() for c in row):
+                        table_data.append(row)
+
+                logger.info(f"[IMG2XLS] Lignes tableau: {len(table_data)}")
+
+                # En-tête
+                if table_data:
+                    import re as _re2
+                    if has_header:
+                        min_fill   = max(2, int(n_cols*0.4))
+                        header_idx = next((i for i, r in enumerate(table_data)
+                                          if sum(1 for c in r if c.strip()) >= min_fill), 0)
+                        header_row  = table_data[header_idx]
+                        filled      = sum(1 for c in header_row if c.strip())
+                        has_dates   = sum(1 for c in header_row if _re2.search(r'\d{2}/\d{2}/\d{4}', c))
+                        has_numbers = sum(1 for c in header_row if _re2.match(r'^\d+$', c.strip()))
+
+                        if has_dates == 0 and has_numbers == 0 and filled >= min_fill:
+                            headers        = [c.strip() if c.strip() else f"Col{i+1}"
+                                              for i, c in enumerate(header_row)]
+                            first_data_idx = header_idx + 1
+                        else:
+                            first_data_idx = header_idx
+                            headers = []
+                            for i, cell in enumerate(header_row):
+                                pfx = _re2.match(r'^([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s\-\']+)', cell.strip())
+                                headers.append(pfx.group(1).strip()
+                                               if pfx and len(pfx.group(1).strip()) >= 2
+                                               else f"Col{i+1}")
+
+                        min_filled = max(2, int(filled*0.3))
+                        data_rows  = [r for j, r in enumerate(table_data)
+                                      if j >= first_data_idx
+                                      and sum(1 for c in r if c.strip()) >= min_filled]
+                    else:
+                        headers   = [f"Col{i+1}" for i in range(n_cols)]
+                        data_rows = [r for r in table_data if any(c.strip() for c in r)]
+
+                    df = pd.DataFrame(data_rows, columns=headers)
+
+                if conf_scores:
+                    confidence_score = max(0, min(100, int(np.mean(conf_scores)*0.85)))
+
+        # ══ STRATÉGIE 3 : Texte brut ════════════════════════════════════════
+        if df is None:
+            logger.info("[IMG2XLS] Fallback texte brut")
+            extraction_method = "text_fallback"
+            try:
+                img_for_ocr = processed if 'processed' in locals() else img_rgb
+                raw   = pytesseract.image_to_string(img_for_ocr, lang=ocr_lang,
+                                                    config="--oem 3 --psm 6")
+                lines = [l.strip() for l in raw.split("\n") if l.strip()]
+            except Exception:
+                lines = []
+            df = pd.DataFrame({"Texte extrait": lines}) if lines else \
+                 pd.DataFrame({"Information": ["Aucun texte détecté"]})
+
+        # ══ EXPORT EXCEL ═════════════════════════════════════════════════════
+        logger.info(f"[IMG2XLS] Export ({extraction_method}): {df.shape}")
         output = BytesIO()
+
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-            df.to_excel(writer, index=False)
+            df.to_excel(writer, index=False, sheet_name="OCR_Data")
+            ws = writer.sheets["OCR_Data"]
+            for i in range(len(df.columns)):
+                col_data = df.iloc[:, i].astype(str)
+                max_len  = max(col_data.map(len).max(), len(str(df.columns[i]))) + 2
+                ws.set_column(i, i, min(int(max_len), 60))
+
+            summary = pd.DataFrame({
+                "Propriété": ["Fichier source","Dimensions","Mode couleur",
+                               "Langue OCR","Méthode extraction","Seuil confiance",
+                               "Lignes","Colonnes","Date"],
+                "Valeur": [
+                    original_filename,
+                    f"{img_orig.width} × {img_orig.height} px",
+                    img_orig.mode, ocr_lang,
+                    extraction_method,
+                    str(confidence_thr),
+                    str(df.shape[0]), str(df.shape[1]),
+                    datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                ],
+            })
+            summary.to_excel(writer, index=False, sheet_name="Résumé")
+            ws2 = writer.sheets["Résumé"]
+            ws2.set_column(0, 0, 22)
+            ws2.set_column(1, 1, 45)
 
         output.seek(0)
+        size = output.getbuffer().nbytes
+        logger.info(f"[IMG2XLS] Excel généré: {size} octets")
 
-        return send_file(
+        if size < 1000:
+            return {"error": "Le fichier Excel généré est vide ou corrompu"}
+
+        response = send_file(
             output,
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             as_attachment=True,
             download_name=f"{Path(original_filename).stem}.xlsx",
         )
+        response.headers['X-Tables-Count']      = '1'
+        response.headers['X-Cells-Count']       = str(df.shape[0] * df.shape[1])
+        response.headers['X-Rows-Count']        = str(df.shape[0])
+        response.headers['X-Cols-Count']        = str(df.shape[1])
+        response.headers['X-Confidence']        = str(confidence_score)
+        response.headers['X-Extraction-Method'] = extraction_method
+        return response
+
+    except Exception as e:
+        logger.error(f"[IMG2XLS] EXCEPTION: {e}\n{traceback.format_exc()}")
+        return {"error": f"Erreur lors de la conversion : {e}"}
 
     finally:
-        if os.path.exists(tmp.name):
-            os.remove(tmp.name)
+        for tf in temp_files:
+            try:
+                if os.path.exists(tf): os.unlink(tf)
+            except Exception as ex:
+                logger.debug(f"[IMG2XLS] cleanup {tf}: {ex}")
 
 # ----- CSV -> EXCEL -----
 # ══════════════════════════════════════════════════════════════════════════════
