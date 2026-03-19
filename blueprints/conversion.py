@@ -3802,20 +3802,29 @@ def convert_image_to_excel(file_input, form_data=None):
 
                 logger.info(f"[IMG2XLS] Lignes tableau: {len(table_data)}, aperçu: {table_data[:2]}")
 
-                # ── Trouver la ligne d'en-tête ───────────────────────────────
+                # ── Construire l'en-tête ──────────────────────────────────────
                 if table_data:
                     if has_header:
-                        # ✅ OCR cellule par cellule sur la bande en-tête
-                        # en utilisant les col_boundaries déjà calculées
+                        # ✅ Stratégie : trouver la 1ère ligne dense = données réelles
+                        # puis extraire le préfixe textuel de chaque colonne
+                        # comme nom d'en-tête (ex: "Projet 1" → "Projet")
+                        import re as _re2
+
+                        min_fill = max(2, int(n_cols * 0.4))
+                        first_data_idx = 0
+                        for idx, row in enumerate(table_data):
+                            if sum(1 for c in row if c.strip()) >= min_fill:
+                                first_data_idx = idx
+                                break
+
+                        # ✅ Tenter d'abord l'OCR de la bande colorée cellule par cellule
                         header_from_band = None
                         try:
                             from PIL import ImageOps
-                            import re as _re2
                             arr_orig = np.array(img_rgb)
                             h_orig_b, w_orig_b = arr_orig.shape[:2]
                             scale_w_b = img_w / w_orig_b
 
-                            # Détecter fond coloré
                             r_ch = arr_orig[:,:,0].astype(int)
                             g_ch = arr_orig[:,:,1].astype(int)
                             b_ch = arr_orig[:,:,2].astype(int)
@@ -3826,93 +3835,81 @@ def convert_image_to_excel(file_input, form_data=None):
 
                             if len(dark_rows) > 0:
                                 groups = []
-                                start = int(dark_rows[0])
-                                prev  = int(dark_rows[0])
+                                start = int(dark_rows[0]); prev = int(dark_rows[0])
                                 for r_idx in dark_rows[1:]:
                                     r_idx = int(r_idx)
                                     if r_idx - prev > 5:
-                                        groups.append((start, prev))
-                                        start = r_idx
+                                        groups.append((start, prev)); start = r_idx
                                     prev = r_idx
                                 groups.append((start, prev))
                                 largest = max(groups, key=lambda g: g[1]-g[0])
                                 y1_b, y2_b = largest
 
                                 band = img_rgb.crop((0, max(0,y1_b-2), w_orig_b, min(h_orig_b,y2_b+3)))
-                                bw_b, bh_b = band.size
-
-                                # OCR cellule par cellule selon col_boundaries
-                                # Convertir col_boundaries (upscalées) en coordonnées originales
                                 col_bounds_orig_b = [int(cb / scale_w_b) for cb in col_boundaries]
 
                                 header_cells = []
                                 for ci in range(len(col_bounds_orig_b)-1):
                                     x1_b = max(0, col_bounds_orig_b[ci])
-                                    x2_b = min(bw_b, col_bounds_orig_b[ci+1])
+                                    x2_b = min(band.width, col_bounds_orig_b[ci+1])
                                     if x2_b <= x1_b:
-                                        header_cells.append(f"Col{ci+1}")
-                                        continue
+                                        header_cells.append(""); continue
 
-                                    cell = band.crop((x1_b, 0, x2_b, bh_b))
-                                    cw_b, ch_b = cell.size
-                                    cell_up = cell.resize((cw_b*4, ch_b*4), Image.Resampling.LANCZOS)
+                                    cell = band.crop((x1_b, 0, x2_b, band.height))
+                                    cell_up = cell.resize((cell.width*4, cell.height*4), Image.Resampling.LANCZOS)
 
-                                    # Threshold texte clair → noir
                                     gray_arr = np.array(cell_up.convert("L"))
                                     inv_gray = 255 - gray_arr
                                     thresh = (inv_gray > 100).astype(np.uint8) * 255
                                     thresh_img = Image.fromarray(thresh).convert("RGB")
 
                                     text = pytesseract.image_to_string(
-                                        thresh_img, lang=ocr_lang,
-                                        config="--oem 3 --psm 7"
+                                        thresh_img, lang=ocr_lang, config="--oem 3 --psm 7"
                                     ).strip()
-                                    # Nettoyer artefacts
-                                    text = _re2.sub(r'[+\|>_\-\[\]v]+', '', text).strip()
+                                    # Nettoyer artefacts OCR
+                                    text = _re2.sub(r'[+\|>_\-\[\]v\.,:;!?]+', ' ', text)
                                     text = ' '.join(text.split())
-                                    header_cells.append(text if text else f"Col{ci+1}")
+                                    header_cells.append(text)
 
-                                if any(c for c in header_cells if c and not c.startswith("Col")):
+                                # ✅ Valider : au moins 40% des cellules ont du texte lisible
+                                valid = sum(1 for c in header_cells if len(c) >= 2)
+                                if valid >= max(2, int(n_cols * 0.4)):
                                     header_from_band = header_cells
-                                    logger.info(f"[IMG2XLS] En-tête depuis bande: {header_from_band}")
+                                    logger.info(f"[IMG2XLS] En-tête bande validée ({valid}/{n_cols}): {header_from_band}")
+                                else:
+                                    logger.info(f"[IMG2XLS] En-tête bande rejetée ({valid}/{n_cols} valides)")
 
                         except Exception as e:
-                            logger.warning(f"[IMG2XLS] Erreur OCR bande en-tête: {e}")
+                            logger.warning(f"[IMG2XLS] Erreur OCR bande: {e}")
 
-                        # Utiliser l'en-tête de la bande ou détecter dans table_data
-                        if header_from_band:
-                            headers = [c if c else f"Col{i+1}" for i, c in enumerate(header_from_band)]
-                            # Données = toutes les lignes après la 1ère dense
-                            min_fill = max(2, int(n_cols * 0.4))
-                            first_data_idx = 0
-                            for idx, row in enumerate(table_data):
-                                if sum(1 for c in row if c.strip()) >= min_fill:
-                                    first_data_idx = idx
-                                    break
-                            data_rows = []
-                            for j, r in enumerate(table_data):
-                                if j < first_data_idx:
-                                    continue
-                                if any(c.strip() for c in r):
-                                    data_rows.append(r)
+                        # ✅ Fallback : extraire préfixe textuel depuis la 1ère ligne de données
+                        if not header_from_band:
+                            logger.info(f"[IMG2XLS] Fallback: extraction préfixe depuis données")
+                            first_row = table_data[first_data_idx] if first_data_idx < len(table_data) else []
+                            headers = []
+                            for i, cell in enumerate(first_row):
+                                # Extraire le préfixe textuel (avant les chiffres/dates)
+                                # ex: "Projet 1" → "Projet", "05/01/2026" → "Col"
+                                prefix = _re2.match(r'^([A-Za-zÀ-ÿ\s]+)', cell.strip())
+                                if prefix:
+                                    h = prefix.group(1).strip()
+                                    headers.append(h if len(h) >= 2 else f"Col{i+1}")
+                                else:
+                                    headers.append(f"Col{i+1}")
                         else:
-                            # Fallback : première ligne dense = en-tête
-                            min_fill_for_header = max(2, int(n_cols * 0.4))
-                            header_idx = 0
-                            for idx, row in enumerate(table_data):
-                                if sum(1 for c in row if c.strip()) >= min_fill_for_header:
-                                    header_idx = idx
-                                    break
-                            logger.info(f"[IMG2XLS] En-tête fallback ligne {header_idx}: {table_data[header_idx]}")
-                            headers = [c.strip() if c.strip() else f"Col{i+1}"
-                                      for i, c in enumerate(table_data[header_idx])]
-                            min_filled = sum(1 for c in table_data[header_idx] if c.strip()) * 0.3
-                            data_rows = []
-                            for j, r in enumerate(table_data):
-                                if j <= header_idx:
-                                    continue
-                                if sum(1 for c in r if c.strip()) >= max(2, min_filled):
-                                    data_rows.append(r)
+                            headers = [c if len(c) >= 2 else f"Col{i+1}"
+                                      for i, c in enumerate(header_from_band)]
+
+                        logger.info(f"[IMG2XLS] En-têtes finales: {headers}")
+
+                        # Données = toutes les lignes denses
+                        data_rows = []
+                        for j, r in enumerate(table_data):
+                            if j < first_data_idx:
+                                continue
+                            if sum(1 for c in r if c.strip()) >= max(2, int(n_cols * 0.3)):
+                                data_rows.append(r)
+
                     else:
                         headers = [f"Col{i+1}" for i in range(n_cols)]
                         data_rows = [r for r in table_data if any(c.strip() for c in r)]
@@ -4020,18 +4017,18 @@ def convert_image_to_excel(file_input, form_data=None):
             logger.error(f"[IMG2XLS] Fichier suspicieusement petit: {size} octets")
             return {"error": "Le fichier Excel généré est vide ou corrompu"}
 
-        return send_file(
+        response = send_file(
             output,
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             as_attachment=True,
             download_name=f"{Path(original_filename).stem}.xlsx",
         )
-        # ✅ Ajouter les stats dans les headers
+        # ✅ Stats dans les headers
         response.headers['X-Tables-Count'] = '1'
         response.headers['X-Cells-Count'] = str(df.shape[0] * df.shape[1])
         response.headers['X-Rows-Count'] = str(df.shape[0])
         response.headers['X-Cols-Count'] = str(df.shape[1])
-        response.headers['X-Confidence'] = '85'
+        response.headers['X-Confidence'] = str(confidence_score if 'confidence_score' in locals() else 85)
         return response
 
     except Exception as e:
