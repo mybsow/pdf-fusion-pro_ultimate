@@ -11,9 +11,9 @@
         <p class="text-muted">{{ _('Extrayez les tableaux de vos documents en feuilles Excel') }}</p>
     </div>
 
-    <!-- Zone d'upload avec UploadManager -->
-    <div id="imageExcelUploadZone" 
-         class="upload-zone-pro upload-zone" 
+    <!-- Zone d'upload -->
+    <div id="imageExcelUploadZone"
+         class="upload-zone-pro upload-zone"
          data-info-id="fileInfo"
          data-btn-id="convertBtn"
          style="cursor: pointer;">
@@ -22,7 +22,7 @@
         <p class="text-muted">{{ _('ou') }}</p>
         <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.bmp,.tiff,.tif,.webp,.pdf" style="display: none;">
         <p class="text-muted small mt-3">
-            <i class="fas fa-info-circle"></i> 
+            <i class="fas fa-info-circle"></i>
             {{ _('Formats acceptés : JPG, PNG, BMP, TIFF, WEBP, PDF (jusqu\'à 50MB)') }}
         </p>
     </div>
@@ -31,70 +31,69 @@
     <div id="fileInfo" class="file-list mt-4"></div>
     <div id="imageExcelUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
 
-    <!-- Options de détection de tableaux -->
+    <!-- Options -->
     <div class="file-info-card mt-4">
         <h5 class="mb-3">
             <i class="fas fa-cog me-2"></i>{{ _('Options d\'extraction') }}
         </h5>
-        
+
+        <!-- Bannière IA -->
+        <div id="aiBanner" class="alert alert-success d-flex align-items-center mb-4 py-2" style="border-radius:8px;">
+            <i class="fas fa-robot me-2 fs-5"></i>
+            <div class="flex-grow-1">
+                <strong>{{ _('Intelligence Artificielle activée') }}</strong>
+                <small class="d-block text-muted">{{ _('Google Gemini Vision — meilleure précision sur les tableaux complexes') }}</small>
+            </div>
+            <div class="form-check form-switch ms-3 mb-0">
+                <input class="form-check-input" type="checkbox" id="useAI" checked role="switch" style="cursor:pointer;">
+                <label class="form-check-label fw-bold" for="useAI" id="useAILabel">ON</label>
+            </div>
+        </div>
+
         <div class="row g-4">
             <div class="col-md-6">
                 <label class="form-label fw-bold mb-3">
                     <i class="fas fa-cogs me-1"></i>{{ _('Mode d\'extraction') }}
                 </label>
-                
+
                 <div class="form-check mb-2">
-                    <input class="form-check-input" type="radio" 
-                           name="extractionMode" 
-                           id="mode_auto" 
-                           value="auto" 
-                           checked>
+                    <input class="form-check-input" type="radio" name="extractionMode" id="mode_auto" value="auto" checked>
                     <label class="form-check-label" for="mode_auto">
                         <strong>{{ _('Automatique') }}</strong>
                         <small class="d-block text-muted">{{ _('Détection intelligente des tableaux') }}</small>
                     </label>
                 </div>
-                
+
                 <div class="form-check mb-2">
-                    <input class="form-check-input" type="radio" 
-                           name="extractionMode" 
-                           id="mode_grid" 
-                           value="grid">
+                    <input class="form-check-input" type="radio" name="extractionMode" id="mode_grid" value="grid">
                     <label class="form-check-label" for="mode_grid">
                         <strong>{{ _('Grille') }}</strong>
                         <small class="d-block text-muted">{{ _('Extraction par grille fixe') }}</small>
                     </label>
                 </div>
             </div>
-            
+
             <div class="col-md-6">
                 <label class="form-label fw-bold mb-3">
                     <i class="fas fa-filter me-1"></i>{{ _('Options') }}
                 </label>
-                
+
                 <div class="form-check form-switch mb-2">
-                    <input class="form-check-input" type="checkbox" 
-                           id="detectHeaders" 
-                           checked>
+                    <input class="form-check-input" type="checkbox" id="detectHeaders" checked>
                     <label class="form-check-label" for="detectHeaders">
                         <strong>{{ _('Détecter les en-têtes') }}</strong>
                     </label>
                 </div>
-                
+
                 <div class="form-check form-switch mb-2">
-                    <input class="form-check-input" type="checkbox" 
-                           id="mergeCells" 
-                           checked>
+                    <input class="form-check-input" type="checkbox" id="mergeCells" checked>
                     <label class="form-check-label" for="mergeCells">
                         <strong>{{ _('Fusionner les cellules') }}</strong>
                     </label>
                 </div>
-                
-                <!-- ✅ Ajouter ici -->
+
                 <div class="form-check form-switch mb-2">
-                    <input class="form-check-input" type="checkbox" 
-                           id="hasHeader" 
-                           checked>
+                    <input class="form-check-input" type="checkbox" id="hasHeader" checked>
                     <label class="form-check-label" for="hasHeader">
                         <strong>{{ _('Le tableau a une ligne d\'en-tête') }}</strong>
                     </label>
@@ -108,8 +107,9 @@
                     <option value="medium" selected>{{ _('Moyenne (équilibré)') }}</option>
                     <option value="low">{{ _('Basse (plus rapide)') }}</option>
                 </select>
+                <small class="text-muted">{{ _('Utilisé si l\'IA est désactivée') }}</small>
             </div>
-            
+
             <div class="col-md-6">
                 <label for="outputFormat" class="form-label fw-bold">{{ _('Format de sortie') }}</label>
                 <select class="form-select" id="outputFormat">
@@ -121,7 +121,7 @@
         </div>
     </div>
 
-    <!-- Statistiques de détection (affichées après upload) -->
+    <!-- Statistiques -->
     <div id="tableStats" class="alert alert-info mt-4" style="display: none;">
         <div class="d-flex justify-content-between align-items-center">
             <div><i class="fas fa-table me-2"></i><span id="tablesCount">0</span> {{ _('tableau(x) détecté(s)') }}</div>
@@ -130,7 +130,7 @@
         </div>
     </div>
 
-    <!-- Bouton de conversion -->
+    <!-- Boutons -->
     <div class="text-center mt-4">
         <button class="btn btn-success btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
             <i class="fas fa-search me-2"></i>{{ _('Extraire les tableaux') }}
@@ -145,18 +145,23 @@
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
         <div class="mb-4">
-            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
+            <i id="analysisIcon" class="fas fa-robot fa-4x text-success"></i>
         </div>
-        
-        <h3 class="mb-4">{{ _('Analyse des tableaux en cours') }}</h3>
-        <p class="text-muted mb-4" id="analysisMessage">
-            {{ _('Détection des structures tabulaires...') }}
-        </p>
-        
+
+        <h3 class="mb-4" id="analysisTitle">{{ _('Analyse IA en cours') }}</h3>
+        <p class="text-muted mb-4" id="analysisMessage">{{ _('Détection des structures tabulaires...') }}</p>
+
         <div class="progress-container mx-auto" style="max-width: 500px;">
             <div class="progress-bar" id="analysisProgress" style="width: 0%;"></div>
         </div>
-        
+
+        <!-- Badge méthode -->
+        <div class="mt-3">
+            <span id="methodBadge" class="badge bg-success fs-6 px-3 py-2">
+                <i class="fas fa-robot me-1"></i> {{ _('Google Gemini Vision') }}
+            </span>
+        </div>
+
         <div class="row mt-5 g-4">
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
@@ -186,19 +191,25 @@
     </div>
 </div>
 
-<!-- Étape 3: Résultat et téléchargement -->
+<!-- Étape 3: Résultat -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
         <div class="success-animation">
             <i class="fas fa-file-excel"></i>
         </div>
-        
+
         <h3 class="mb-3">{{ _('Extraction terminée !') }}</h3>
-        <p class="text-muted mb-4">
-            {{ _('Votre fichier Excel est prêt à être téléchargé') }}
-        </p>
-        
-        <!-- Aperçu des données -->
+
+        <!-- Badge méthode utilisée -->
+        <div class="mb-3">
+            <span id="resultMethodBadge" class="badge bg-success px-3 py-2">
+                <i class="fas fa-robot me-1"></i> {{ _('Extrait par Google Gemini Vision') }}
+            </span>
+        </div>
+
+        <p class="text-muted mb-4">{{ _('Votre fichier Excel est prêt à être téléchargé') }}</p>
+
+        <!-- Aperçu -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <h6 class="mb-3"><i class="fas fa-table me-1"></i>{{ _('Aperçu des données') }}</h6>
@@ -213,12 +224,11 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
             <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
                 <i class="fas fa-download me-2"></i>{{ _('Télécharger Excel') }}
             </a>
-            
             <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
                 <i class="fas fa-redo me-2"></i>{{ _('Nouvelle extraction') }}
             </button>
@@ -229,6 +239,32 @@
 <script>
 let downloadUrl = null;
 
+// ── Gestion switch IA ────────────────────────────────────────────────────────
+document.getElementById('useAI').addEventListener('change', function() {
+    const label  = document.getElementById('useAILabel');
+    const banner = document.getElementById('aiBanner');
+    const icon   = document.getElementById('analysisIcon');
+    const title  = document.getElementById('analysisTitle');
+    const badge  = document.getElementById('methodBadge');
+
+    if (this.checked) {
+        label.textContent = 'ON';
+        banner.className  = 'alert alert-success d-flex align-items-center mb-4 py-2';
+        if (icon)  { icon.className  = 'fas fa-robot fa-4x text-success'; }
+        if (title) { title.textContent = '{{ _("Analyse IA en cours") }}'; }
+        if (badge) { badge.className = 'badge bg-success fs-6 px-3 py-2';
+                     badge.innerHTML = '<i class="fas fa-robot me-1"></i> {{ _("Google Gemini Vision") }}'; }
+    } else {
+        label.textContent = 'OFF';
+        banner.className  = 'alert alert-secondary d-flex align-items-center mb-4 py-2';
+        if (icon)  { icon.className  = 'fas fa-cog fa-spin fa-4x text-primary'; }
+        if (title) { title.textContent = '{{ _("Analyse OCR en cours") }}'; }
+        if (badge) { badge.className = 'badge bg-secondary fs-6 px-3 py-2';
+                     badge.innerHTML = '<i class="fas fa-cog me-1"></i> {{ _("Tesseract OCR") }}'; }
+    }
+});
+
+// ── Navigation étapes ────────────────────────────────────────────────────────
 function updateStep(step) {
     document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
     document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
@@ -239,44 +275,38 @@ function showError(message) {
     let errorDiv = document.getElementById('conversionError');
     if (!errorDiv) {
         errorDiv = document.createElement('div');
-        errorDiv.id = 'conversionError';
+        errorDiv.id        = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
         errorDiv.innerHTML = `
             <i class="fas fa-exclamation-circle me-2"></i>
             <span id="conversionErrorMsg"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
         document.getElementById('step1Content').prepend(errorDiv);
     }
     document.getElementById('conversionErrorMsg').textContent = message;
     errorDiv.style.display = 'block';
 }
 
-// ✅ CORRECTIF : n'utilise pas les méthodes patchées de l'UploadManager
-// mais lit directement la liste de fichiers et surveille le DOM
+// ── Fichiers ─────────────────────────────────────────────────────────────────
 function getUploadedFiles() {
     const manager = window.uploadManagers?.['imageExcelUploadZone'];
-    if (manager && typeof manager.getFiles === 'function') {
-        return manager.getFiles();
-    }
-    // Fallback : lire l'input file directement
+    if (manager && typeof manager.getFiles === 'function') return manager.getFiles();
     const input = document.querySelector('#imageExcelUploadZone .file-input');
     return input && input.files.length > 0 ? Array.from(input.files) : [];
 }
 
 function syncButtonState() {
-    const files = getUploadedFiles();
+    const files      = getUploadedFiles();
     const convertBtn = document.getElementById('convertBtn');
     const tableStats = document.getElementById('tableStats');
     if (!convertBtn) return;
-
     if (files.length > 0) {
         convertBtn.disabled = false;
         if (tableStats) {
             tableStats.style.display = 'block';
-            const tables = Math.max(1, Math.floor(files[0].size / (512 * 1024)));
-            document.getElementById('tablesCount').textContent = tables;
-            document.getElementById('cellsCount').textContent = tables * 30;
+            const t = Math.max(1, Math.floor(files[0].size / (512 * 1024)));
+            document.getElementById('tablesCount').textContent = t;
+            document.getElementById('cellsCount').textContent  = t * 30;
         }
     } else {
         convertBtn.disabled = true;
@@ -284,6 +314,7 @@ function syncButtonState() {
     }
 }
 
+// ── Conversion ───────────────────────────────────────────────────────────────
 function startConversion() {
     const files = getUploadedFiles();
     if (!files || files.length === 0) {
@@ -291,108 +322,126 @@ function startConversion() {
         return;
     }
 
+    const useAI  = document.getElementById('useAI').checked;
     const formData = new FormData();
-    // ✅ Gérer les deux types possibles : FileStorage (UploadManager) ou File (input)
-    const fileObj = files[0];
-    if (fileObj instanceof File) {
-        formData.append('file', fileObj);
-    } else if (fileObj && typeof fileObj.file !== 'undefined') {
-        formData.append('file', fileObj.file || fileObj);
-    } else {
-        formData.append('file', fileObj);
-    }
+    const fileObj  = files[0];
+
+    if (fileObj instanceof File)                        formData.append('file', fileObj);
+    else if (fileObj && typeof fileObj.file !== 'undefined') formData.append('file', fileObj.file || fileObj);
+    else                                                formData.append('file', fileObj);
 
     formData.append('extractionMode', document.querySelector('input[name="extractionMode"]:checked')?.value || 'auto');
-    formData.append('detectHeaders', document.getElementById('detectHeaders').checked ? 'true' : 'false');
-    formData.append('mergeCells', document.getElementById('mergeCells').checked ? 'true' : 'false');
-    formData.append('ocrAccuracy', document.getElementById('ocrAccuracy').value);
-    formData.append('outputFormat', document.getElementById('outputFormat').value);
-    formData.append('hasHeader', document.getElementById('hasHeader').checked ? 'true' : 'false');
+    formData.append('detectHeaders',  document.getElementById('detectHeaders').checked ? 'true' : 'false');
+    formData.append('mergeCells',     document.getElementById('mergeCells').checked    ? 'true' : 'false');
+    formData.append('hasHeader',      document.getElementById('hasHeader').checked     ? 'true' : 'false');
+    formData.append('ocrAccuracy',    document.getElementById('ocrAccuracy').value);
+    formData.append('outputFormat',   document.getElementById('outputFormat').value);
+    formData.append('useAI',          useAI ? 'true' : 'false');
 
     updateStep(2);
 
-    let progress = 0;
-    const progressBar = document.getElementById('analysisProgress');
-    const analysisMessage = document.getElementById('analysisMessage');
-    const messages = [
+    // Messages adaptés à la méthode
+    const messages = useAI ? [
+        '{{ _("Envoi de l\'image à Gemini Vision...") }}',
+        '{{ _("Analyse IA du tableau...") }}',
+        '{{ _("Extraction des colonnes...") }}',
+        '{{ _("Structuration des données...") }}',
+        '{{ _("Génération du fichier Excel...") }}'
+    ] : [
         '{{ _("Prétraitement de l\'image...") }}',
         '{{ _("Détection des contours...") }}',
         '{{ _("Identification des lignes...") }}',
         '{{ _("Extraction du contenu...") }}',
         '{{ _("Structuration des données...") }}'
     ];
-    let msgIndex = 0;
+
+    let progress = 0, msgIndex = 0;
+    const progressBar     = document.getElementById('analysisProgress');
+    const analysisMessage = document.getElementById('analysisMessage');
+
     const progressInterval = setInterval(() => {
         if (progress < 90) {
-            progress += 5;
+            progress += useAI ? 3 : 5;  // IA plus lente → progression plus douce
             if (progressBar) progressBar.style.width = progress + '%';
-            if (analysisMessage && Math.floor(msgIndex) < messages.length) {
+            if (analysisMessage && Math.floor(msgIndex) < messages.length)
                 analysisMessage.textContent = messages[Math.floor(msgIndex)];
-            }
-            msgIndex += 0.4;
+            msgIndex += 0.35;
         }
-    }, 600);
+    }, useAI ? 800 : 600);
 
     fetch('{{ url_for("conversion.universal_converter", conversion_type="image-en-excel") }}', {
         method: 'POST',
         body: formData
     })
     .then(async response => {
-            clearInterval(progressInterval);
-            if (progressBar) progressBar.style.width = '100%';
-            if (analysisMessage) analysisMessage.textContent = '{{ _("Finalisation...") }}';
+        clearInterval(progressInterval);
+        if (progressBar) progressBar.style.width = '100%';
+        if (analysisMessage) analysisMessage.textContent = '{{ _("Finalisation...") }}';
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || 'Erreur serveur ' + response.status);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Erreur serveur ' + response.status);
+        }
+        const contentType = response.headers.get('Content-Type') || '';
+        if (contentType.includes('text/html'))
+            throw new Error('Le serveur a retourné une erreur. Vérifiez le fichier.');
+
+        // Stats depuis les headers
+        const tablesCount = response.headers.get('X-Tables-Count')      || '1';
+        const cellsCount  = response.headers.get('X-Cells-Count')       || '0';
+        const rowsCount   = response.headers.get('X-Rows-Count')        || '0';
+        const confidence  = response.headers.get('X-Confidence')        || '0';
+        const method      = response.headers.get('X-Extraction-Method') || 'tesseract';
+
+        // Mettre à jour compteurs
+        const detectedTables = document.getElementById('detectedTables');
+        const detectedCells  = document.getElementById('detectedCells');
+        const detectionConf  = document.getElementById('detectionConfidence');
+        if (detectedTables) detectedTables.textContent = tablesCount;
+        if (detectedCells)  detectedCells.textContent  = cellsCount;
+        if (detectionConf)  detectionConf.textContent  = confidence + '%';
+
+        // Badge résultat
+        const resultBadge = document.getElementById('resultMethodBadge');
+        if (resultBadge) {
+            if (method === 'gemini_vision') {
+                resultBadge.className = 'badge bg-success px-3 py-2';
+                resultBadge.innerHTML = '<i class="fas fa-robot me-1"></i> {{ _("Extrait par Google Gemini Vision") }}';
+            } else if (method === 'tesseract') {
+                resultBadge.className = 'badge bg-primary px-3 py-2';
+                resultBadge.innerHTML = '<i class="fas fa-cog me-1"></i> {{ _("Extrait par Tesseract OCR") }}';
+            } else {
+                resultBadge.className = 'badge bg-secondary px-3 py-2';
+                resultBadge.innerHTML = '<i class="fas fa-file-alt me-1"></i> {{ _("Extraction texte brut") }}';
             }
-            const contentType = response.headers.get('Content-Type') || '';
-            if (contentType.includes('text/html')) {
-                throw new Error('Le serveur a retourné une erreur. Vérifiez le fichier.');
-            }
+        }
 
-            // ✅ Lire les stats depuis les headers
-            const tablesCount = response.headers.get('X-Tables-Count') || '1';
-            const cellsCount  = response.headers.get('X-Cells-Count')  || '0';
-            const rowsCount   = response.headers.get('X-Rows-Count')   || '0';
-            const colsCount   = response.headers.get('X-Cols-Count')   || '0';
-            const confidence  = response.headers.get('X-Confidence')   || '0';
+        const blob = await response.blob();
+        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
 
-            // ✅ Mettre à jour les compteurs de l'étape 2
-            const detectedTables = document.getElementById('detectedTables');
-            const detectedCells  = document.getElementById('detectedCells');
-            const detectionConf  = document.getElementById('detectionConfidence');
-            if (detectedTables) detectedTables.textContent = tablesCount;
-            if (detectedCells)  detectedCells.textContent  = cellsCount;
-            if (detectionConf)  detectionConf.textContent  = confidence + '%';
+        downloadUrl = window.URL.createObjectURL(blob);
+        const contentDisposition = response.headers.get('Content-Disposition') || '';
+        let filename = 'extraction.xlsx';
+        const match  = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) filename = match[1].replace(/['"]/g, '');
 
-            const blob = await response.blob();
-            if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+        const downloadLink = document.getElementById('downloadLink');
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.setAttribute('download', filename);
+        }
 
-            downloadUrl = window.URL.createObjectURL(blob);
-            const contentDisposition = response.headers.get('Content-Disposition') || '';
-            let filename = 'extraction.xlsx';
-            const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-            if (match && match[1]) filename = match[1].replace(/['"]/g, '');
+        // Bandeau étape 1
+        const tEl = document.getElementById('tablesCount');
+        const cEl = document.getElementById('cellsCount');
+        if (tEl) tEl.textContent = tablesCount;
+        if (cEl) cEl.textContent = cellsCount;
 
-            const downloadLink = document.getElementById('downloadLink');
-            if (downloadLink) {
-                downloadLink.href = downloadUrl;
-                downloadLink.setAttribute('download', filename);
-            }
+        const totalRowsEl = document.getElementById('totalRows');
+        if (totalRowsEl) totalRowsEl.textContent = rowsCount + ' {{ _("lignes extraites") }}';
 
-            // ✅ Mettre à jour le bandeau stats de l'étape 1 aussi
-            const tablesCountEl = document.getElementById('tablesCount');
-            const cellsCountEl  = document.getElementById('cellsCount');
-            if (tablesCountEl) tablesCountEl.textContent = tablesCount;
-            if (cellsCountEl)  cellsCountEl.textContent  = cellsCount;
-
-            // ✅ Mettre à jour totalRows dans l'aperçu
-            const totalRowsEl = document.getElementById('totalRows');
-            if (totalRowsEl) totalRowsEl.textContent = rowsCount + ' {{ _("lignes extraites") }}';
-
-            updateStep(3);
-        })
+        updateStep(3);
+    })
     .catch(error => {
         clearInterval(progressInterval);
         console.error('Erreur conversion:', error);
@@ -402,16 +451,12 @@ function startConversion() {
 }
 
 function resetConversion() {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-        downloadUrl = null;
-    }
+    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
     const manager = window.uploadManagers?.['imageExcelUploadZone'];
     if (manager && typeof manager.getFiles === 'function') {
         const files = manager.getFiles();
-        for (let i = files.length - 1; i >= 0; i--) {
+        for (let i = files.length - 1; i >= 0; i--)
             if (typeof manager.removeFile === 'function') manager.removeFile(i);
-        }
     }
     const errorDiv = document.getElementById('conversionError');
     if (errorDiv) errorDiv.style.display = 'none';
@@ -422,28 +467,18 @@ function resetConversion() {
     updateStep(1);
 }
 
+// ── Observers ────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
-    // ✅ CORRECTIF PRINCIPAL : MutationObserver sur #fileInfo
-    // au lieu de patcher les méthodes de l'UploadManager
-    const fileInfoEl = document.getElementById('fileInfo');
+    const fileInfoEl  = document.getElementById('fileInfo');
     const thumbnailEl = document.getElementById('imageExcelUploadZoneThumbnails');
+    if (fileInfoEl)  new MutationObserver(() => syncButtonState())
+                         .observe(fileInfoEl,  { childList: true, subtree: true, characterData: true });
+    if (thumbnailEl) new MutationObserver(() => syncButtonState())
+                         .observe(thumbnailEl, { childList: true, subtree: true });
 
-    if (fileInfoEl) {
-        const observer = new MutationObserver(() => syncButtonState());
-        observer.observe(fileInfoEl, { childList: true, subtree: true, characterData: true });
-    }
-    if (thumbnailEl) {
-        const observer2 = new MutationObserver(() => syncButtonState());
-        observer2.observe(thumbnailEl, { childList: true, subtree: true });
-    }
-
-    // ✅ Écoute aussi l'input file directement (drag & drop natif)
     const fileInput = document.querySelector('#imageExcelUploadZone .file-input');
-    if (fileInput) {
-        fileInput.addEventListener('change', () => syncButtonState());
-    }
+    if (fileInput) fileInput.addEventListener('change', () => syncButtonState());
 
-    // ✅ Polling léger en backup (100ms pendant 5s, puis s'arrête)
     let polls = 0;
     const poller = setInterval(() => {
         syncButtonState();
@@ -455,5 +490,4 @@ window.addEventListener('beforeunload', () => {
     if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
 });
 </script>
-
 {% endblock %}
