@@ -3647,33 +3647,10 @@ def convert_image_to_excel(file_input, form_data=None):
             d2 = run_ocr_pass(processed_inv, "--oem 3 --psm 6")
 
             # ── Fusionner les passes sans doublons ───────────────────────────
-            data = {"text": [], "conf": [], "left": [], "top": [], "width": [], "height": []}
-            seen_positions = []
-
-            for d_pass in [d_p for d_p in [d1, d2] if d_p]:
-                heights = d_pass.get("height", [0] * len(d_pass["text"]))
-                for i in range(len(d_pass["text"])):
-                    t = d_pass["text"][i]
-                    if not t or not t.strip(): continue
-                    if _safe_int(d_pass["conf"][i]) < confidence_thr: continue
-                    left = d_pass["left"][i]
-                    top  = d_pass["top"][i]
-                  
-                    # Vérifier doublon
-                    is_dup = any(
-                        abs(left - sl) < 15 and abs(top - st) < 15
-                        for sl, st in seen_positions
-                    )
-                    if is_dup: continue
-                    seen_positions.append((left, top))
-                    data["text"].append(t)
-                    data["conf"].append(d_pass["conf"][i])
-                    data["left"].append(left)
-                    data["top"].append(top)
-                    data["width"].append(d_pass["width"][i])
-                    data["height"].append(heights[i])
-
-            logger.info(f"[IMG2XLS] OCR multi-pass: {len(data['text'])} tokens")
+            # ── Utiliser uniquement pass 1 pour la structure ─────────────────
+            # Pass 2 (inversé) pollue avec les artefacts d'icônes
+            data = d1 if d1 else {"text":[],"conf":[],"left":[],"top":[],"width":[],"height":[]}
+            logger.info(f"[IMG2XLS] OCR pass1: {len(data['text'])} tokens")
 
             # ── Collecter les mots valides ───────────────────────────────────
             all_words = []
