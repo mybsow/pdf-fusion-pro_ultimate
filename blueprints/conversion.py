@@ -3514,7 +3514,7 @@ if __name__ == "__main__":
     print("  - ai_restructure_text(text, api_key)")
 
 # ──────────────────────────────────────────────────────────────────────────────
-# CONVERT IMAGE → EXCEL (VERSION AMÉLIORÉE)
+# CONVERT IMAGE → EXCEL (VERSION UNIVERSELLE)
 # ──────────────────────────────────────────────────────────────────────────────
 def convert_image_to_excel(file_input, form_data=None):
     if not HAS_PILLOW or not HAS_TESSERACT or not HAS_PANDAS:
@@ -3554,13 +3554,10 @@ def convert_image_to_excel(file_input, form_data=None):
 
         # ── Paramètres ──────────────────────────────────────────────────────
         language = form_data.get("language", "fra+eng")
-        detect_tables = str(form_data.get("detect_tables", "true")).lower() == "true"
         confidence_thr = max(0, int(form_data.get("confidence", "10")))
-        extraction_mode = form_data.get("extractionMode", "auto")
         has_header = str(form_data.get("hasHeader", "true")).lower() == "true"
-        df = None
 
-        logger.info(f"[IMG2XLS] Params: lang={language}, mode={extraction_mode}, conf={confidence_thr}")
+        logger.info(f"[IMG2XLS] Params: lang={language}, conf={confidence_thr}")
 
         # Mapping des langues
         lang_map = {
@@ -3582,6 +3579,7 @@ def convert_image_to_excel(file_input, form_data=None):
         ocr_lang = "+".join(mapped)
 
         # ── Prétraitement image ─────────────────────────────────────────────
+        # Conversion en RGB avec fond blanc
         if img_orig.mode in ("RGBA", "LA", "P"):
             background = Image.new("RGB", img_orig.size, (255, 255, 255))
             if img_orig.mode == "P":
@@ -3596,7 +3594,7 @@ def convert_image_to_excel(file_input, form_data=None):
         else:
             img_rgb = img_orig.convert("RGB")
 
-        # Upscale
+        # Upscale si nécessaire
         w, h = img_rgb.size
         target = 2400
         if max(w, h) < target:
@@ -3608,245 +3606,40 @@ def convert_image_to_excel(file_input, form_data=None):
             processed = img_rgb
 
         logger.info(f"[IMG2XLS] Image prête: {processed.size}, mode={processed.mode}")
-        img_w, img_h = processed.size
 
-        # ══ MODE TABLEAU AMÉLIORÉ ════════════════════════════════════════════
-        if detect_tables or extraction_mode in ("auto", "table", "block"):
-            import re
-            from collections import defaultdict
-            import numpy as np
+        # ══ ANALYSE AUTOMATIQUE DU TYPE DE DOCUMENT ════════════════════════
+        doc_type, stats = analyze_document_type(processed)
+        logger.info(f"[IMG2XLS] Type détecté: {doc_type}")
+        logger.info(f"[IMG2XLS] Stats: {stats}")
 
-            logger.info(f"[IMG2XLS] Lancement OCR, lang={ocr_lang}")
+        # ══ EXTRACTION ADAPTATIVE ══════════════════════════════════════════
+        if doc_type == "table_structured":
+            # Tableau avec bordures claires
+            df = extract_structured_table(processed, ocr_lang, confidence_thr, has_header)
+        elif doc_type == "table_borderless":
+            # Tableau sans bordures (aligné)
+            df = extract_borderless_table(processed, ocr_lang, confidence_thr, has_header)
+        elif doc_type == "text_dense":
+            # Texte dense (paragraphes)
+            df = extract_paragraph_text(processed, ocr_lang, confidence_thr)
+        elif doc_type == "text_sparse":
+            # Texte dispersé (mots isolés)
+            df = extract_sparse_text(processed, ocr_lang, confidence_thr)
+        else:
+            # Fallback: extraction texte simple
+            df = extract_simple_text(processed, ocr_lang, confidence_thr)
 
-            # OCR avec préservation de la structure
-            ocr_data = pytesseract.image_to_data(
-                processed, lang=ocr_lang, output_type=Output.DICT,
-                config="--oem 3 --psm 6 -c preserve_interword_spaces=1"
-            )
-
-            # Étape 1: Filtrer et collecter les mots valides
-            all_words = []
-            conf_scores = []
-            for i, text in enumerate(ocr_data["text"]):
-                if not text or not text.strip():
-                    continue
-                conf = int(ocr_data["conf"][i])
-                if conf < confidence_thr:
-                    continue
-
-                # Nettoyage intelligent
-                clean_text = text.strip()
-                # Supprimer les caractères de bordure uniquement s'ils sont isolés
-                if re.match(r'^[\|\=\>\<\+]+$', clean_text):
-                    continue
-                
-                all_words.append({
-                    "text": clean_text,
-                    "left": ocr_data["left"][i],
-                    "top": ocr_data["top"][i],
-                    "width": ocr_data["width"][i],
-                    "height": ocr_data["height"][i],
-                    "conf": conf
-                })
-                conf_scores.append(conf)
-
-            logger.info(f"[IMG2XLS] Mots valides: {len(all_words)}")
-
-            if len(all_words) < 5:
-                # Pas assez de mots, fallback texte simple
-                df = pd.DataFrame({"Texte extrait": [w["text"] for w in all_words]})
-            else:
-                # Étape 2: Regrouper par lignes (tolérance adaptative)
-                all_tops = [w["top"] for w in all_words]
-                median_height = np.median([w["height"] for w in all_words if w["height"] > 0])
-                line_tolerance = max(8, int(median_height * 0.3))
-                
-                # Regroupement des lignes par proximité verticale
-                lines = []
-                used = set()
-                for i, w1 in enumerate(all_words):
-                    if i in used:
-                        continue
-                    line_words = [w1]
-                    used.add(i)
-                    for j, w2 in enumerate(all_words):
-                        if j in used:
-                            continue
-                        if abs(w2["top"] - w1["top"]) <= line_tolerance:
-                            line_words.append(w2)
-                            used.add(j)
-                    # Trier les mots de la ligne par position horizontale
-                    line_words.sort(key=lambda w: w["left"])
-                    lines.append(line_words)
-
-                logger.info(f"[IMG2XLS] Lignes détectées: {len(lines)}")
-
-                # Étape 3: Détection des colonnes par analyse des positions
-                all_lefts = [w["left"] for w in all_words]
-                
-                # Méthode de clustering améliorée: rechercher les pics dans l'histogramme
-                histogram = defaultdict(int)
-                for left in all_lefts:
-                    # Discrétiser la position
-                    bin_idx = left // 20
-                    histogram[bin_idx] += 1
-                
-                # Trouver les bins avec le plus de mots (ce sont les centres des colonnes)
-                sorted_bins = sorted(histogram.items(), key=lambda x: x[1], reverse=True)
-                # Garder les bins significatifs (au moins 10% du max)
-                max_count = sorted_bins[0][1] if sorted_bins else 0
-                significant_bins = [bin_idx for bin_idx, count in sorted_bins if count > max_count * 0.1]
-                significant_bins.sort()
-                
-                # Fusionner les bins proches
-                merged_bins = []
-                for bin_idx in significant_bins:
-                    if not merged_bins or bin_idx - merged_bins[-1] > 3:
-                        merged_bins.append(bin_idx)
-                
-                # Convertir les bins en positions approximatives
-                col_positions = [b * 20 + 10 for b in merged_bins]
-                
-                # Si pas assez de colonnes, utiliser la méthode des gaps
-                if len(col_positions) < 3:
-                    all_lefts.sort()
-                    gaps = [all_lefts[i] - all_lefts[i-1] for i in range(1, len(all_lefts))]
-                    if gaps:
-                        threshold = np.percentile(gaps, 75) * 0.7
-                        col_positions = [all_lefts[0]]
-                        for i in range(1, len(all_lefts)):
-                            if all_lefts[i] - all_lefts[i-1] > threshold:
-                                col_positions.append(all_lefts[i])
-                
-                n_cols = len(col_positions)
-                logger.info(f"[IMG2XLS] Colonnes détectées: {n_cols}")
-                
-                if n_cols < 2:
-                    # Si toujours pas de colonnes, format libre
-                    df = pd.DataFrame({"Texte extrait": [w["text"] for w in all_words]})
-                else:
-                    # Étape 4: Construire la grille
-                    # Définir les boundaries des colonnes
-                    boundaries = [0]
-                    for i in range(1, len(col_positions)):
-                        boundaries.append((col_positions[i-1] + col_positions[i]) // 2)
-                    boundaries.append(processed.width)
-                    
-                    def get_col_index(x):
-                        for i in range(len(boundaries)-1):
-                            if boundaries[i] <= x < boundaries[i+1]:
-                                return i
-                        return n_cols - 1
-                    
-                    # Créer la grille
-                    grid = []
-                    for line_words in lines:
-                        row = [""] * n_cols
-                        for word in line_words:
-                            col_idx = get_col_index(word["left"])
-                            if row[col_idx]:
-                                row[col_idx] += " " + word["text"]
-                            else:
-                                row[col_idx] = word["text"]
-                        grid.append(row)
-                    
-                    logger.info(f"[IMG2XLS] Grille initiale: {len(grid)} lignes")
-
-                    # ══ DÉTECTION INTELLIGENTE DE L'EN-TÊTE ═══════════════════
-                    
-                    # Fonction pour analyser une ligne
-                    def analyze_row(row):
-                        filled = sum(1 for c in row if c.strip())
-                        has_numbers = any(re.search(r'\d', c) for c in row if c.strip())
-                        has_dates = any(re.search(r'\d{2}/\d{2}/\d{4}', c) for c in row if c.strip())
-                        text_length = sum(len(c) for c in row if c.strip()) / max(filled, 1)
-                        
-                        # Score: plus de cellules remplies = mieux
-                        # Mais pénaliser si beaucoup de nombres (souvent données, pas en-tête)
-                        score = filled * 10
-                        if has_numbers:
-                            score -= filled * 3
-                        if has_dates:
-                            score -= filled * 5
-                        if text_length > 15:  # Texte trop long = probablement données
-                            score -= filled * 2
-                        
-                        # Bonus pour les mots typiques d'en-tête
-                        header_keywords = ['projet', 'catégorie', 'affecté', 'estimé', 'début', 'fin', 
-                                          'travail', 'durée', 'réel', 'notes', 'date', 'nom', 'statut']
-                        for cell in row:
-                            cell_lower = cell.lower()
-                            for kw in header_keywords:
-                                if kw in cell_lower:
-                                    score += 5
-                                    break
-                        
-                        return score
-                    
-                    # Chercher la meilleure ligne d'en-tête (parmi les 5 premières)
-                    header_candidates = []
-                    for i, row in enumerate(grid[:5]):
-                        if any(cell.strip() for cell in row):
-                            score = analyze_row(row)
-                            header_candidates.append((i, row, score))
-                    
-                    # Trier par score décroissant
-                    header_candidates.sort(key=lambda x: -x[2])
-                    
-                    if header_candidates and header_candidates[0][2] > 20:
-                        header_idx, header_row, score = header_candidates[0]
-                        logger.info(f"[IMG2XLS] En-tête ligne {header_idx} (score={score}): {header_row}")
-                        
-                        # Nettoyer l'en-tête
-                        headers = []
-                        for cell in header_row:
-                            # Enlever les caractères indésirables mais garder le sens
-                            clean = re.sub(r'^[\|\=\>\<\+]+|[\|\=\>\<\+]+$', '', cell.strip())
-                            clean = re.sub(r'[^\w\s\-\/]', ' ', clean)
-                            clean = re.sub(r'\s+', ' ', clean).strip()
-                            
-                            if clean and len(clean) >= 2:
-                                # Capitaliser intelligemment
-                                clean = clean[0].upper() + clean[1:] if len(clean) > 1 else clean.upper()
-                                headers.append(clean)
-                            else:
-                                headers.append(f"Colonne {len(headers)+1}")
-                        
-                        # Les données sont toutes les lignes sauf l'en-tête
-                        data_rows = [row for i, row in enumerate(grid) if i != header_idx and any(cell.strip() for cell in row)]
-                    else:
-                        # Pas de bonne en-tête trouvée, on utilise la première ligne remplie
-                        logger.info("[IMG2XLS] Pas d'en-tête claire, utilisation générique")
-                        headers = [f"Colonne {i+1}" for i in range(n_cols)]
-                        data_rows = [row for row in grid if any(cell.strip() for cell in row)]
-                    
-                    # Créer le DataFrame
-                    if data_rows:
-                        df = pd.DataFrame(data_rows, columns=headers)
-                        logger.info(f"[IMG2XLS] DataFrame final: {df.shape}")
-                        
-                        # Afficher un échantillon pour debug
-                        logger.info(f"[IMG2XLS] Aperçu:\n{df.head(2).to_string()}")
-                    else:
-                        df = pd.DataFrame({"Information": ["Aucune donnée tabulaire détectée"]})
-
-                # Calcul de la confiance
-                if conf_scores:
-                    confidence_score = int(np.mean(conf_scores))
-                else:
-                    confidence_score = 70
-
-        # ══ EXPORT EXCEL ═════════════════════════════════════════════════════
+        # ══ EXPORT EXCEL ═══════════════════════════════════════════════════
         logger.info(f"[IMG2XLS] Export Excel: {df.shape}")
         output = BytesIO()
+        
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
             # Feuille principale
-            df.to_excel(writer, index=False, sheet_name="OCR_Data")
-            worksheet = writer.sheets["OCR_Data"]
+            df.to_excel(writer, index=False, sheet_name="Données extraites")
+            worksheet = writer.sheets["Données extraites"]
             
             # Ajuster la largeur des colonnes
             for i, col in enumerate(df.columns):
-                # Calculer la largeur max
                 col_data = df.iloc[:, i].astype(str)
                 max_len = max(
                     col_data.map(len).max() if not col_data.empty else 0,
@@ -3856,14 +3649,23 @@ def convert_image_to_excel(file_input, form_data=None):
 
             # Feuille résumé
             summary = pd.DataFrame({
-                "Propriété": ["Fichier source", "Dimensions", "Mode couleur",
-                              "Langue OCR", "Seuil confiance",
-                              "Lignes", "Colonnes", "Date"],
+                "Propriété": [
+                    "Fichier source", "Dimensions", "Mode couleur",
+                    "Langue OCR", "Type de document", "Seuil confiance",
+                    "Lignes", "Colonnes", "Date"
+                ],
                 "Valeur": [
                     original_filename,
                     f"{img_orig.width} × {img_orig.height} px",
                     img_orig.mode,
                     ocr_lang,
+                    {
+                        "table_structured": "Tableau avec bordures",
+                        "table_borderless": "Tableau sans bordures",
+                        "text_dense": "Texte dense",
+                        "text_sparse": "Texte dispersé",
+                        "unknown": "Non déterminé"
+                    }.get(doc_type, doc_type),
                     str(confidence_thr),
                     str(df.shape[0]),
                     str(df.shape[1]),
@@ -3880,8 +3682,7 @@ def convert_image_to_excel(file_input, form_data=None):
         logger.info(f"[IMG2XLS] Fichier Excel généré: {size} octets")
 
         if size < 1000:
-            logger.error(f"[IMG2XLS] Fichier suspicieusement petit: {size} octets")
-            return {"error": "Le fichier Excel généré est vide ou corrompu"}
+            logger.warning(f"[IMG2XLS] Fichier petit: {size} octets")
 
         response = send_file(
             output,
@@ -3891,11 +3692,9 @@ def convert_image_to_excel(file_input, form_data=None):
         )
         
         # Stats dans les headers
-        response.headers['X-Tables-Count'] = '1'
-        response.headers['X-Cells-Count'] = str(df.shape[0] * df.shape[1])
+        response.headers['X-Document-Type'] = doc_type
         response.headers['X-Rows-Count'] = str(df.shape[0])
         response.headers['X-Cols-Count'] = str(df.shape[1])
-        response.headers['X-Confidence'] = str(confidence_score if 'confidence_score' in locals() else 85)
         
         return response
 
@@ -3910,6 +3709,462 @@ def convert_image_to_excel(file_input, form_data=None):
                     os.unlink(tf)
             except Exception as ex:
                 logger.debug(f"[IMG2XLS] cleanup {tf}: {ex}")
+
+
+# ══ FONCTIONS D'ANALYSE ET DE DÉTECTION ═════════════════════════════════════
+
+def analyze_document_type(img):
+    """
+    Analyse l'image pour déterminer le type de document.
+    Retourne: (type, statistiques)
+    Types: table_structured, table_borderless, text_dense, text_sparse, unknown
+    """
+    import numpy as np
+    from PIL import ImageOps
+    import pytesseract
+    from pytesseract import Output
+    
+    # Convertir en niveaux de gris
+    gray = img.convert('L')
+    img_array = np.array(gray)
+    h, w = img_array.shape
+    
+    # 1. Analyse des bordures
+    binary = img_array < 200  # Seuil adaptatif simple
+    horizontal_lines = 0
+    vertical_lines = 0
+    
+    # Détection de lignes horizontales
+    for y in range(0, h, max(1, h//20)):
+        line = binary[y, :]
+        runs = np.diff(np.concatenate(([0], line.astype(int), [0])))
+        starts = np.where(runs == 1)[0]
+        ends = np.where(runs == -1)[0]
+        lengths = ends - starts
+        if any(lengths > w * 0.3):
+            horizontal_lines += 1
+    
+    # Détection de lignes verticales
+    for x in range(0, w, max(1, w//20)):
+        line = binary[:, x]
+        runs = np.diff(np.concatenate(([0], line.astype(int), [0])))
+        starts = np.where(runs == 1)[0]
+        ends = np.where(runs == -1)[0]
+        lengths = ends - starts
+        if any(lengths > h * 0.3):
+            vertical_lines += 1
+    
+    has_borders = horizontal_lines > 2 and vertical_lines > 2
+    
+    # 2. Analyse OCR pour compter les mots
+    try:
+        data = pytesseract.image_to_data(img, output_type=Output.DICT, 
+                                        config="--oem 3 --psm 6")
+        words = [t for t in data["text"] if t.strip()]
+        word_count = len(words)
+        
+        # Analyser la disposition
+        lefts = [data["left"][i] for i, t in enumerate(data["text"]) if t.strip()]
+        tops = [data["top"][i] for i, t in enumerate(data["text"]) if t.strip()]
+        
+        if word_count == 0:
+            return "unknown", {"word_count": 0}
+        
+        # Densité de mots
+        area = w * h
+        density = word_count * 10000 / area
+        
+        # Alignement vertical (pour détecter les tableaux sans bordures)
+        if len(tops) > 5:
+            # Grouper par positions Y proches
+            tops_sorted = sorted(tops)
+            line_starts = [tops_sorted[0]]
+            for t in tops_sorted[1:]:
+                if t - line_starts[-1] > 20:
+                    line_starts.append(t)
+            line_count = len(line_starts)
+            
+            # Si plusieurs lignes avec des mots à des X similaires
+            if line_count > 2 and word_count / line_count > 2:
+                # Vérifier l'alignement des colonnes
+                col_alignment = check_column_alignment(data)
+                if col_alignment > 0.5:
+                    return "table_borderless", {
+                        "word_count": word_count,
+                        "density": density,
+                        "line_count": line_count,
+                        "col_alignment": col_alignment
+                    }
+    except:
+        word_count = 0
+        density = 0
+    
+    # Décision finale
+    stats = {
+        "word_count": word_count,
+        "density": density,
+        "has_borders": has_borders
+    }
+    
+    if has_borders and word_count > 10:
+        return "table_structured", stats
+    elif word_count > 20 and density > 2.0:
+        return "text_dense", stats
+    elif word_count > 5:
+        return "text_sparse", stats
+    else:
+        return "unknown", stats
+
+
+def check_column_alignment(ocr_data):
+    """
+    Vérifie si les mots sont alignés verticalement (indice de tableau sans bordures)
+    Retourne un score entre 0 et 1
+    """
+    import numpy as np
+    
+    texts = [t for t in ocr_data["text"] if t.strip()]
+    if len(texts) < 10:
+        return 0
+    
+    lefts = [ocr_data["left"][i] for i, t in enumerate(ocr_data["text"]) if t.strip()]
+    
+    # Grouper par positions X proches
+    lefts_sorted = sorted(lefts)
+    clusters = []
+    current = [lefts_sorted[0]]
+    
+    for x in lefts_sorted[1:]:
+        if x - current[-1] < 30:
+            current.append(x)
+        else:
+            if len(current) > 1:
+                clusters.append(current)
+            current = [x]
+    
+    if len(current) > 1:
+        clusters.append(current)
+    
+    # Score basé sur le nombre de clusters avec plusieurs mots
+    if len(clusters) == 0:
+        return 0
+    
+    aligned_words = sum(len(c) for c in clusters)
+    return aligned_words / len(texts)
+
+
+# ══ FONCTIONS D'EXTRACTION SPÉCIALISÉES ══════════════════════════════════════
+
+def extract_structured_table(img, lang, conf_thr, has_header):
+    """
+    Extraction de tableau avec bordures visibles
+    """
+    import pytesseract
+    import pandas as pd
+    import re
+    from pytesseract import Output
+    import numpy as np
+    
+    data = pytesseract.image_to_data(img, lang=lang, output_type=Output.DICT,
+                                     config="--oem 3 --psm 6")
+    
+    # Collecter les mots
+    words = []
+    for i, text in enumerate(data["text"]):
+        if text.strip() and int(data["conf"][i]) >= conf_thr:
+            words.append({
+                "text": text.strip(),
+                "left": data["left"][i],
+                "top": data["top"][i],
+                "width": data["width"][i],
+                "height": data["height"][i]
+            })
+    
+    if len(words) < 3:
+        return pd.DataFrame({"Information": ["Peu de texte détecté"]})
+    
+    # Regrouper par lignes
+    heights = [w["height"] for w in words if w["height"] > 0]
+    median_h = np.median(heights) if heights else 20
+    line_tolerance = max(8, median_h * 0.3)
+    
+    words_by_top = {}
+    for word in words:
+        assigned = False
+        for t in words_by_top.keys():
+            if abs(word["top"] - t) <= line_tolerance:
+                words_by_top[t].append(word)
+                assigned = True
+                break
+        if not assigned:
+            words_by_top[word["top"]] = [word]
+    
+    # Trier les lignes
+    lines = []
+    for top in sorted(words_by_top.keys()):
+        line_words = sorted(words_by_top[top], key=lambda w: w["left"])
+        lines.append(line_words)
+    
+    # Détecter les colonnes
+    all_lefts = []
+    for word in words:
+        all_lefts.append(word["left"])
+    
+    if len(all_lefts) < 2:
+        n_cols = 1
+        col_positions = [img.width / 2]
+    else:
+        # Clustering des positions X
+        all_lefts.sort()
+        gaps = [all_lefts[i] - all_lefts[i-1] for i in range(1, len(all_lefts))]
+        threshold = np.percentile(gaps, 75) * 0.7
+        
+        col_positions = [all_lefts[0]]
+        for i in range(1, len(all_lefts)):
+            if all_lefts[i] - all_lefts[i-1] > threshold:
+                col_positions.append(all_lefts[i])
+        
+        n_cols = len(col_positions)
+    
+    # Définir les boundaries
+    boundaries = [0]
+    for i in range(1, len(col_positions)):
+        boundaries.append((col_positions[i-1] + col_positions[i]) // 2)
+    boundaries.append(img.width)
+    
+    def get_col(x):
+        for i in range(len(boundaries)-1):
+            if boundaries[i] <= x < boundaries[i+1]:
+                return i
+        return n_cols - 1
+    
+    # Construire la grille
+    grid = []
+    for line_words in lines:
+        row = [""] * n_cols
+        for word in line_words:
+            col = get_col(word["left"])
+            if row[col]:
+                row[col] += " " + word["text"]
+            else:
+                row[col] = word["text"]
+        grid.append(row)
+    
+    # Gérer l'en-tête
+    if has_header and len(grid) > 1:
+        # La première ligne non vide est l'en-tête
+        header_row = grid[0]
+        data_rows = grid[1:]
+        
+        # Nettoyer l'en-tête
+        headers = []
+        for cell in header_row:
+            clean = re.sub(r'[^\w\s\-]', '', cell).strip()
+            if clean:
+                headers.append(clean[:50])  # Limiter la longueur
+            else:
+                headers.append(f"Colonne {len(headers)+1}")
+    else:
+        headers = [f"Colonne {i+1}" for i in range(n_cols)]
+        data_rows = grid
+    
+    return pd.DataFrame(data_rows, columns=headers)
+
+
+def extract_borderless_table(img, lang, conf_thr, has_header):
+    """
+    Extraction de tableau sans bordures (mots alignés)
+    """
+    import pytesseract
+    import pandas as pd
+    import re
+    from pytesseract import Output
+    import numpy as np
+    from collections import defaultdict
+    
+    data = pytesseract.image_to_data(img, lang=lang, output_type=Output.DICT,
+                                     config="--oem 3 --psm 4 -c preserve_interword_spaces=1")
+    
+    words = []
+    for i, text in enumerate(data["text"]):
+        if text.strip() and int(data["conf"][i]) >= conf_thr:
+            words.append({
+                "text": text.strip(),
+                "left": data["left"][i],
+                "top": data["top"][i],
+                "width": data["width"][i],
+                "height": data["height"][i]
+            })
+    
+    if len(words) < 3:
+        return pd.DataFrame({"Information": ["Peu de texte détecté"]})
+    
+    # Regroupement en lignes avec tolérance adaptative
+    heights = [w["height"] for w in words if w["height"] > 0]
+    median_h = np.median(heights) if heights else 20
+    line_tolerance = max(8, median_h * 0.4)
+    
+    lines_dict = defaultdict(list)
+    used = set()
+    
+    for i, w1 in enumerate(words):
+        if i in used:
+            continue
+        lines_dict[w1["top"]].append(w1)
+        used.add(i)
+        for j, w2 in enumerate(words):
+            if j in used:
+                continue
+            if abs(w2["top"] - w1["top"]) <= line_tolerance:
+                lines_dict[w1["top"]].append(w2)
+                used.add(j)
+    
+    # Trier les lignes
+    lines = []
+    for top in sorted(lines_dict.keys()):
+        line_words = sorted(lines_dict[top], key=lambda w: w["left"])
+        lines.append(line_words)
+    
+    # Détection avancée des colonnes par histogramme
+    all_lefts = [w["left"] for w in words]
+    histogram = defaultdict(int)
+    for left in all_lefts:
+        bin_idx = left // 15
+        histogram[bin_idx] += 1
+    
+    if histogram:
+        max_count = max(histogram.values())
+        significant = [b for b, c in histogram.items() if c > max_count * 0.15]
+        significant.sort()
+        
+        # Fusionner les bins proches
+        merged = []
+        for b in significant:
+            if not merged or b - merged[-1] > 2:
+                merged.append(b)
+        
+        col_positions = [b * 15 + 7 for b in merged]
+        n_cols = len(col_positions)
+    else:
+        n_cols = 1
+        col_positions = [img.width / 2]
+    
+    # Boundaries
+    boundaries = [0]
+    for i in range(1, len(col_positions)):
+        boundaries.append((col_positions[i-1] + col_positions[i]) // 2)
+    boundaries.append(img.width)
+    
+    def get_col(x):
+        for i in range(len(boundaries)-1):
+            if boundaries[i] <= x < boundaries[i+1]:
+                return i
+        return n_cols - 1
+    
+    # Construire la grille
+    grid = []
+    for line_words in lines:
+        row = [""] * n_cols
+        for word in line_words:
+            col = get_col(word["left"])
+            if row[col]:
+                row[col] += " " + word["text"]
+            else:
+                row[col] = word["text"]
+        grid.append(row)
+    
+    # Détection intelligente de l'en-tête
+    if has_header and len(grid) > 1:
+        # Chercher une ligne avec des textes courts et peu de nombres
+        def is_header_row(row):
+            filled = [c for c in row if c.strip()]
+            if len(filled) < n_cols * 0.5:
+                return False
+            # Compter les nombres
+            numbers = sum(1 for c in filled if any(ch.isdigit() for ch in c))
+            return numbers < len(filled) * 0.3
+        
+        header_idx = 0
+        for i, row in enumerate(grid[:3]):
+            if is_header_row(row):
+                header_idx = i
+                break
+        
+        header_row = grid[header_idx]
+        data_rows = [r for i, r in enumerate(grid) if i != header_idx]
+        
+        headers = []
+        for cell in header_row:
+            clean = re.sub(r'[^\w\s\-]', '', cell).strip()
+            if clean:
+                headers.append(clean[:50])
+            else:
+                headers.append(f"Colonne {len(headers)+1}")
+    else:
+        headers = [f"Colonne {i+1}" for i in range(n_cols)]
+        data_rows = grid
+    
+    return pd.DataFrame(data_rows, columns=headers)
+
+
+def extract_paragraph_text(img, lang, conf_thr):
+    """
+    Extraction de texte dense (paragraphes)
+    """
+    import pytesseract
+    import pandas as pd
+    
+    # PSM 6 pour texte uniforme
+    raw = pytesseract.image_to_string(img, lang=lang, 
+                                      config="--oem 3 --psm 6")
+    
+    lines = [l.strip() for l in raw.split("\n") if l.strip()]
+    
+    if not lines:
+        return pd.DataFrame({"Information": ["Aucun texte détecté"]})
+    
+    return pd.DataFrame({"Texte": lines})
+
+
+def extract_sparse_text(img, lang, conf_thr):
+    """
+    Extraction de texte dispersé (mots isolés)
+    """
+    import pytesseract
+    import pandas as pd
+    from pytesseract import Output
+    
+    # PSM 11 pour texte épars
+    data = pytesseract.image_to_data(img, lang=lang, output_type=Output.DICT,
+                                     config="--oem 3 --psm 11")
+    
+    words = []
+    for i, text in enumerate(data["text"]):
+        if text.strip() and int(data["conf"][i]) >= conf_thr:
+            words.append(text.strip())
+    
+    if not words:
+        return pd.DataFrame({"Information": ["Aucun mot détecté"]})
+    
+    return pd.DataFrame({"Mots détectés": words})
+
+
+def extract_simple_text(img, lang, conf_thr):
+    """
+    Extraction simple (fallback)
+    """
+    import pytesseract
+    import pandas as pd
+    
+    try:
+        raw = pytesseract.image_to_string(img, lang=lang)
+        lines = [l.strip() for l in raw.split("\n") if l.strip()]
+        if lines:
+            return pd.DataFrame({"Texte extrait": lines})
+        else:
+            return pd.DataFrame({"Information": ["Aucun texte détecté"]})
+    except:
+        return pd.DataFrame({"Information": ["Erreur lors de l'OCR"]})
 
 # ----- CSV -> EXCEL -----
 # ══════════════════════════════════════════════════════════════════════════════
