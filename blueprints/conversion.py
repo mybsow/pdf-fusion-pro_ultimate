@@ -3587,8 +3587,39 @@ Règles importantes:
             }
         }
 
-        resp = requests.post(url, json=payload, timeout=60)
-        resp.raise_for_status()
+        # ✅ Essayer plusieurs modèles par ordre de préférence
+        GEMINI_MODELS = [
+            "gemini-2.0-flash",
+            "gemini-2.0-flash-lite",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-flash-002",
+            "gemini-1.5-flash",
+        ]
+
+        last_error = None
+        resp = None
+        for model in GEMINI_MODELS:
+            try:
+                r = requests.post(url, json=payload, timeout=60)
+                if r.status_code == 404:
+                    logger.info(f"[IMG2XLS] Gemini modèle {model} non trouvé, essai suivant...")
+                    continue
+                r.raise_for_status()
+                resp = r
+                logger.info(f"[IMG2XLS] Gemini modèle utilisé: {model}")
+                break
+            except requests.exceptions.HTTPError as e:
+                if "404" in str(e):
+                    continue
+                last_error = e
+                break
+            except Exception as e:
+                last_error = e
+                break
+
+        if resp is None:
+            raise Exception(last_error or "Aucun modèle Gemini disponible")
+
         result = resp.json()
 
         # Extraire le texte de la réponse
