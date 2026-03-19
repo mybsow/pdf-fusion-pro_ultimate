@@ -3875,37 +3875,25 @@ def convert_image_to_excel(file_input, form_data=None):
                 # ── Trouver la ligne d'en-tête ───────────────────────────────
                 if table_data:
                     if has_header:
-                        # Détection automatique de l'en-tête
-                        import re as _re
-                        date_pattern = _re.compile(r'\d{2}/\d{2}/\d{4}')
-                        number_pattern = _re.compile(r'^\d+$')
-                        n_cols_total = n_cols  # ✅ rendre visible dans header_score
-                        def header_score(row, idx):
+                        n_cols_total = n_cols
+
+                        # ✅ Approche universelle : première ligne avec >= 40% colonnes remplies
+                        min_fill_for_header = max(2, int(n_cols_total * 0.4))
+                        header_idx = None
+
+                        for idx, row in enumerate(table_data):
                             filled = sum(1 for c in row if c.strip())
-                            has_dates = sum(1 for c in row if date_pattern.search(c))
-                            has_numbers = sum(1 for c in row if number_pattern.match(c.strip()))
-                            consecutive = 0
-                            for c in row:
-                                if c.strip():
-                                    consecutive += 1
-                                else:
-                                    break
-                            fill_ratio = filled / max(n_cols_total, 1)
-                            if fill_ratio > 0.5:
-                                penalty = has_dates * 1 + has_numbers * 1
-                            else:
-                                penalty = has_dates * 3 + has_numbers * 3
-                            return filled * 2 + consecutive * 0.5 - penalty
+                            if filled >= min_fill_for_header:
+                                header_idx = idx
+                                break
 
-                        header_idx = max(
-                            enumerate(table_data),
-                            key=lambda x: header_score(x[1], x[0])
-                        )[0]
+                        # Fallback : ligne la plus remplie parmi les 5 premières
+                        if header_idx is None:
+                            header_idx = max(
+                                range(min(5, len(table_data))),
+                                key=lambda i: sum(1 for c in table_data[i] if c.strip())
+                            )
 
-                        logger.info(
-                            f"[IMG2XLS] Scores: "
-                            f"{[(i, round(header_score(r, i), 1), sum(1 for c in r if c.strip())) for i, r in enumerate(table_data[:6])]}"
-                        )
                         logger.info(f"[IMG2XLS] En-tête ligne {header_idx}: {table_data[header_idx]}")
 
                         headers = [
@@ -3922,13 +3910,11 @@ def convert_image_to_excel(file_input, form_data=None):
                                 logger.info(f"[IMG2XLS] Ligne {j} ignorée: {r}")
                                 continue
                             data_rows.append(r)
-
                     else:
-                        # ✅ Pas d'en-tête : colonnes génériques
+                        # Pas d'en-tête : colonnes génériques
                         headers = [f"Col{i+1}" for i in range(n_cols)]
                         data_rows = [r for r in table_data if any(c.strip() for c in r)]
                         logger.info(f"[IMG2XLS] Mode sans en-tête: {len(data_rows)} lignes")
-
                     df = pd.DataFrame(data_rows, columns=headers)
                     logger.info(f"[IMG2XLS] DataFrame: {df.shape}, colonnes={list(df.columns)}")
 
