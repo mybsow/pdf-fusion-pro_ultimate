@@ -3817,95 +3817,30 @@ def convert_image_to_excel(file_input, form_data=None):
                                 first_data_idx = idx
                                 break
 
-                        # ✅ Tenter d'abord l'OCR de la bande colorée cellule par cellule
+                        # ✅ Approche universelle : extraire le préfixe textuel
+                        # de la 1ère ligne de données comme nom de colonne
+                        import re as _re2
                         header_from_band = None
-                        try:
-                            from PIL import ImageOps
-                            from pytesseract import Output as TessOutput
-                            arr_orig = np.array(img_rgb)
-                            h_orig_b, w_orig_b = arr_orig.shape[:2]
-                            scale_w_b = img_w / w_orig_b
 
-                            # Détecter fond coloré universellement
-                            r_ch = arr_orig[:,:,0].astype(int)
-                            g_ch = arr_orig[:,:,1].astype(int)
-                            b_ch = arr_orig[:,:,2].astype(int)
-                            max_rgb = np.maximum(np.maximum(r_ch, g_ch), b_ch)
-                            min_rgb = np.minimum(np.minimum(r_ch, g_ch), b_ch)
-                            colorful = (max_rgb - min_rgb > 40) & (max_rgb < 230)
-                            dark_rows = np.where(colorful.any(axis=1))[0]
+                        first_row = table_data[first_data_idx] if first_data_idx < len(table_data) else []
+                        headers = []
+                        for i, cell in enumerate(first_row):
+                            cell = cell.strip()
+                            prefix = _re2.match(r'^([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s\-\']+)', cell)
+                            if prefix:
+                                h = prefix.group(1).strip()
+                                headers.append(h if len(h) >= 2 else f"Col{i+1}")
+                            else:
+                                headers.append(f"Col{i+1}")
 
-                            if len(dark_rows) > 0:
-                                groups = []
-                                start = int(dark_rows[0]); prev = int(dark_rows[0])
-                                for r_idx in dark_rows[1:]:
-                                    r_idx = int(r_idx)
-                                    if r_idx - prev > 5:
-                                        groups.append((start, prev)); start = r_idx
-                                    prev = r_idx
-                                groups.append((start, prev))
-                                largest = max(groups, key=lambda g: g[1]-g[0])
-                                y1_b, y2_b = largest
+                        logger.info(f"[IMG2XLS] En-têtes finales: {headers}")
 
-                                band = img_rgb.crop((0, max(0,y1_b-2), w_orig_b, min(h_orig_b,y2_b+3)))
-                                band_scale = 3
-                                band_up = band.resize((band.width*band_scale, band.height*band_scale), Image.Resampling.LANCZOS)
-
-                                # Threshold texte clair → noir
-                                gray_arr = np.array(band_up.convert("L"))
-                                inv_gray = 255 - gray_arr
-                                thresh = (inv_gray > 100).astype(np.uint8) * 255
-                                thresh_img = Image.fromarray(thresh).convert("RGB")
-
-                                # OCR avec positions mot par mot
-                                data_band = pytesseract.image_to_data(
-                                    thresh_img, lang=ocr_lang, output_type=TessOutput.DICT,
-                                    config="--oem 3 --psm 6"
-                                )
-
-                                # Assigner chaque mot à sa colonne
-                                import re as _re2
-                                header_cells = [""] * n_cols
-                                for i in range(len(data_band["text"])):
-                                    t = data_band["text"][i]
-                                    if not t or not t.strip(): continue
-                                    try: c = int(data_band["conf"][i])
-                                    except: c = -1
-                                    if c < 20: continue
-                                    # Filtrer artefacts purs
-                                    if _re2.match(r'^[v\|>_\.\-=©°¥\[\]vVwW]+$', t): continue
-                                    if len(t) <= 1: continue
-
-                                    # Convertir position X bande → image upscalée globale
-                                    left_up = int((data_band["left"][i] / band_scale) * scale_w_b)
-
-                                    col_idx = n_cols - 1
-                                    for ci in range(len(col_boundaries)-1):
-                                        if col_boundaries[ci] <= left_up < col_boundaries[ci+1]:
-                                            col_idx = ci
-                                            break
-
-                                    if header_cells[col_idx]:
-                                        header_cells[col_idx] += " " + t
-                                    else:
-                                        header_cells[col_idx] = t
-
-                                # Nettoyer chaque cellule
-                                for i, hc in enumerate(header_cells):
-                                    hc = _re2.sub(r'\b[vVwW]\b', '', hc)
-                                    hc = _re2.sub(r'[_=\|©°¥>]+', ' ', hc)
-                                    hc = ' '.join(hc.split())
-                                    header_cells[i] = hc
-
-                                valid = sum(1 for c in header_cells if len(c) >= 2)
-                                if valid >= max(2, int(n_cols * 0.4)):
-                                    header_from_band = header_cells
-                                    logger.info(f"[IMG2XLS] En-tête bande validée ({valid}/{n_cols}): {header_from_band}")
-                                else:
-                                    logger.info(f"[IMG2XLS] En-tête bande rejetée ({valid}/{n_cols})")
-
-                        except Exception as e:
-                            logger.warning(f"[IMG2XLS] Erreur OCR bande: {e}")
+                        data_rows = []
+                        for j, r in enumerate(table_data):
+                            if j < first_data_idx:
+                                continue
+                            if sum(1 for c in r if c.strip()) >= max(2, int(n_cols * 0.3)):
+                                data_rows.append(r)
 
                         # ✅ Fallback : extraire préfixe textuel depuis la 1ère ligne de données
                         if not header_from_band:
