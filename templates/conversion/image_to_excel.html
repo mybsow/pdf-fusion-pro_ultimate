@@ -296,22 +296,33 @@ function getUploadedFiles() {
 }
 
 function syncButtonState() {
-    const files      = getUploadedFiles();
     const convertBtn = document.getElementById('convertBtn');
     const tableStats = document.getElementById('tableStats');
     if (!convertBtn) return;
-    if (files.length > 0) {
-        convertBtn.disabled = false;
-        if (tableStats) {
-            tableStats.style.display = 'block';
-            const t = Math.max(1, Math.floor(files[0].size / (512 * 1024)));
-            document.getElementById('tablesCount').textContent = t;
-            document.getElementById('cellsCount').textContent  = t * 30;
-        }
-    } else {
-        convertBtn.disabled = true;
-        if (tableStats) tableStats.style.display = 'none';
+
+    // Vérifier toutes les sources de fichiers
+    let hasFile = false;
+
+    const manager = window.uploadManagers?.['imageExcelUploadZone'];
+    if (manager && typeof manager.getFiles === 'function') {
+        hasFile = manager.getFiles().length > 0;
     }
+
+    if (!hasFile) {
+        const input = document.querySelector('#imageExcelUploadZone .file-input');
+        hasFile = input && input.files && input.files.length > 0;
+    }
+
+    if (!hasFile) {
+        // Vérifier si fileInfo ou thumbnails contiennent quelque chose
+        const fileInfo  = document.getElementById('fileInfo');
+        const thumbs    = document.getElementById('imageExcelUploadZoneThumbnails');
+        hasFile = (fileInfo  && fileInfo.children.length > 0) ||
+                  (thumbs    && thumbs.children.length > 0);
+    }
+
+    convertBtn.disabled = !hasFile;
+    if (tableStats) tableStats.style.display = hasFile ? 'block' : 'none';
 }
 
 // ── Conversion ───────────────────────────────────────────────────────────────
@@ -322,13 +333,49 @@ function startConversion() {
         return;
     }
 
-    const useAI  = document.getElementById('useAI').checked;
+    const useAI    = document.getElementById('useAI').checked;
     const formData = new FormData();
-    const fileObj  = files[0];
 
-    if (fileObj instanceof File)                        formData.append('file', fileObj);
-    else if (fileObj && typeof fileObj.file !== 'undefined') formData.append('file', fileObj.file || fileObj);
-    else                                                formData.append('file', fileObj);
+    // ✅ Chercher le fichier dans toutes les sources possibles
+    let fileFound = false;
+
+    // Source 1 : UploadManager
+    const manager = window.uploadManagers?.['imageExcelUploadZone'];
+    if (manager) {
+        const mFiles = typeof manager.getFiles === 'function' ? manager.getFiles() : [];
+        for (const f of mFiles) {
+            const fileObj = f instanceof File ? f : (f?.file || f?.raw || f);
+            if (fileObj instanceof File) {
+                formData.append('file', fileObj);
+                fileFound = true;
+                break;
+            }
+        }
+    }
+
+    // Source 2 : input file direct
+    if (!fileFound) {
+        const input = document.querySelector('#imageExcelUploadZone .file-input');
+        if (input && input.files && input.files.length > 0) {
+            formData.append('file', input.files[0]);
+            fileFound = true;
+        }
+    }
+
+    // Source 3 : fallback sur files[0]
+    if (!fileFound) {
+        const f = files[0];
+        const fileObj = f instanceof File ? f : (f?.file || f?.raw || f);
+        if (fileObj) {
+            formData.append('file', fileObj);
+            fileFound = true;
+        }
+    }
+
+    if (!fileFound) {
+        showError('{{ _("Impossible de lire le fichier. Réessayez.") }}');
+        return;
+    }
 
     formData.append('extractionMode', document.querySelector('input[name="extractionMode"]:checked')?.value || 'auto');
     formData.append('detectHeaders',  document.getElementById('detectHeaders').checked ? 'true' : 'false');
