@@ -5,28 +5,7 @@
 import os
 import sys
 import io
-import re# ── Utiliser uniquement pass 1 pour la structure ─────────────────
-            # Pass 2 (inversé) pollue avec les artefacts d'icônes
-            data = d1 if d1 else {"text":[],"conf":[],"left":[],"top":[],"width":[],"height":[]}
-            logger.info(f"[IMG2XLS] OCR pass1: {len(data['text'])} tokens")
-
-            # ── Collecter les mots valides ───────────────────────────────────
-            all_words = []
-            conf_scores = []
-            for i, text in enumerate(data["text"]):
-                if not text or not text.strip(): continue
-                conf = _safe_int(data["conf"][i])
-                if conf < confidence_thr: continue
-                all_words.append({
-                    "text": text.strip(),
-                    "left": data["left"][i],
-                    "top":  data["top"][i],
-                    "conf": conf,
-                    "width": data["width"][i],
-                })
-                conf_scores.append(conf)
-
-            logger.info(f"[IMG2XLS] Mots retenus: {len(all_words)}")
+import re
 import json
 import time
 import shutil
