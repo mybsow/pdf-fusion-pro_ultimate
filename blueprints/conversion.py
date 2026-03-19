@@ -3610,336 +3610,231 @@ def convert_image_to_excel(file_input, form_data=None):
         logger.info(f"[IMG2XLS] Image prête: {processed.size}, mode={processed.mode}")
         img_w, img_h = processed.size
 
-        # ══ MODE TABLEAU ════════════════════════════════════════════════════
+        # ══ MODE TABLEAU AMÉLIORÉ ════════════════════════════════════════════
         if detect_tables or extraction_mode in ("auto", "table", "block"):
             import re
+            from collections import defaultdict
             import numpy as np
 
-            logger.info(f"[IMG2XLS] Lancement OCR multi-pass, lang={ocr_lang}")
+            logger.info(f"[IMG2XLS] Lancement OCR, lang={ocr_lang}")
 
-            def run_ocr_pass(img_input, cfg):
-                try:
-                    return pytesseract.image_to_data(
-                        img_input, lang=ocr_lang, output_type=Output.DICT, config=cfg)
-                except Exception:
-                    return None
+            # OCR avec préservation de la structure
+            ocr_data = pytesseract.image_to_data(
+                processed, lang=ocr_lang, output_type=Output.DICT,
+                config="--oem 3 --psm 6 -c preserve_interword_spaces=1"
+            )
 
-            def _safe_int(v):
-                try:
-                    return int(v)
-                except:
-                    return -1
-
-            # Pass 1 : psm 4 - texte normal
-            d1 = run_ocr_pass(processed, "--oem 3 --psm 4 -c preserve_interword_spaces=1")
-
-            # Pass 2 : image inversée psm 6
-            from PIL import ImageOps as _IOP
-            processed_inv = _IOP.invert(processed)
-            d2 = run_ocr_pass(processed_inv, "--oem 3 --psm 6")
-
-            # Fusionner les passes
-            data = {"text": [], "conf": [], "left": [], "top": [], "width": [], "height": []}
-            seen_positions = []
-
-            for d_pass in [d_p for d_p in [d1, d2] if d_p]:
-                heights = d_pass.get("height", [0] * len(d_pass["text"]))
-                for i in range(len(d_pass["text"])):
-                    t = d_pass["text"][i]
-                    if not t or not t.strip():
-                        continue
-                    if _safe_int(d_pass["conf"][i]) < confidence_thr:
-                        continue
-                    left = d_pass["left"][i]
-                    top = d_pass["top"][i]
-
-                    is_dup = any(
-                        abs(left - sl) < 15 and abs(top - st) < 15
-                        for sl, st in seen_positions
-                    )
-                    if is_dup:
-                        continue
-                    seen_positions.append((left, top))
-                    data["text"].append(t)
-                    data["conf"].append(d_pass["conf"][i])
-                    data["left"].append(left)
-                    data["top"].append(top)
-                    data["width"].append(d_pass["width"][i])
-                    data["height"].append(heights[i])
-
-            logger.info(f"[IMG2XLS] OCR multi-pass: {len(data['text'])} tokens")
-
-            # Filtrer et nettoyer les mots
+            # Étape 1: Filtrer et collecter les mots valides
             all_words = []
             conf_scores = []
-            for i, text in enumerate(data["text"]):
+            for i, text in enumerate(ocr_data["text"]):
                 if not text or not text.strip():
                     continue
-                conf = _safe_int(data["conf"][i])
+                conf = int(ocr_data["conf"][i])
                 if conf < confidence_thr:
                     continue
 
-                # Nettoyage agressif
+                # Nettoyage intelligent
                 clean_text = text.strip()
-                
-                # Supprimer les caractères de bordure isolés
-                if re.match(r'^[\|\=\>\<\+\-\:\;\•\*]+$', clean_text):
+                # Supprimer les caractères de bordure uniquement s'ils sont isolés
+                if re.match(r'^[\|\=\>\<\+]+$', clean_text):
                     continue
                 
-                # Supprimer les caractères de bordure au début/fin
-                clean_text = re.sub(r'^[\|\=\>\<\+]+', '', clean_text)
-                clean_text = re.sub(r'[\|\=\>\<\+]+$', '', clean_text)
-                
-                # Remplacer les caractères problématiques
-                clean_text = clean_text.replace('|', '').replace('=', '').replace('>', '')
-                
-                if not clean_text:
-                    continue
-                    
                 all_words.append({
                     "text": clean_text,
-                    "left": data["left"][i],
-                    "top": data["top"][i],
-                    "conf": conf,
-                    "width": data["width"][i],
+                    "left": ocr_data["left"][i],
+                    "top": ocr_data["top"][i],
+                    "width": ocr_data["width"][i],
+                    "height": ocr_data["height"][i],
+                    "conf": conf
                 })
                 conf_scores.append(conf)
 
-            logger.info(f"[IMG2XLS] Mots retenus après filtrage: {len(all_words)}")
+            logger.info(f"[IMG2XLS] Mots valides: {len(all_words)}")
 
-            # Fusionner les mots proches
-            merge_dist = img_w * 0.02  # Réduit pour mieux séparer
-            row_thr = max(8, int(img_h * 0.015))
-            
-            rows_raw = {}
-            for word in all_words:
-                top = word["top"]
-                key = None
-                for k in rows_raw:
-                    if abs(top - k) <= row_thr:
-                        key = k
-                        break
-                if key is None:
-                    key = top
-                    rows_raw[key] = []
-                rows_raw[key].append(word)
+            if len(all_words) < 5:
+                # Pas assez de mots, fallback texte simple
+                df = pd.DataFrame({"Texte extrait": [w["text"] for w in all_words]})
+            else:
+                # Étape 2: Regrouper par lignes (tolérance adaptative)
+                all_tops = [w["top"] for w in all_words]
+                median_height = np.median([w["height"] for w in all_words if w["height"] > 0])
+                line_tolerance = max(8, int(median_height * 0.3))
+                
+                # Regroupement des lignes par proximité verticale
+                lines = []
+                used = set()
+                for i, w1 in enumerate(all_words):
+                    if i in used:
+                        continue
+                    line_words = [w1]
+                    used.add(i)
+                    for j, w2 in enumerate(all_words):
+                        if j in used:
+                            continue
+                        if abs(w2["top"] - w1["top"]) <= line_tolerance:
+                            line_words.append(w2)
+                            used.add(j)
+                    # Trier les mots de la ligne par position horizontale
+                    line_words.sort(key=lambda w: w["left"])
+                    lines.append(line_words)
 
-            merged_words = []
-            for top_key, words_in_row in rows_raw.items():
-                sorted_w = sorted(words_in_row, key=lambda w: w["left"])
-                current = dict(sorted_w[0])
-                for nxt in sorted_w[1:]:
-                    gap = nxt["left"] - (current["left"] + current.get("width", 50))
-                    if gap < merge_dist:
-                        current["text"] += " " + nxt["text"]
-                        current["width"] = (nxt["left"] + nxt.get("width", 50)) - current["left"]
-                    else:
-                        merged_words.append(current)
-                        current = dict(nxt)
-                merged_words.append(current)
+                logger.info(f"[IMG2XLS] Lignes détectées: {len(lines)}")
 
-            logger.info(f"[IMG2XLS] Mots après fusion: {len(merged_words)}")
-            all_words = merged_words
-
-            if all_words:
-                # Détection des colonnes
-                all_lefts = sorted(set(w["left"] for w in all_words))
-                if len(all_lefts) > 1:
+                # Étape 3: Détection des colonnes par analyse des positions
+                all_lefts = [w["left"] for w in all_words]
+                
+                # Méthode de clustering améliorée: rechercher les pics dans l'histogramme
+                histogram = defaultdict(int)
+                for left in all_lefts:
+                    # Discrétiser la position
+                    bin_idx = left // 20
+                    histogram[bin_idx] += 1
+                
+                # Trouver les bins avec le plus de mots (ce sont les centres des colonnes)
+                sorted_bins = sorted(histogram.items(), key=lambda x: x[1], reverse=True)
+                # Garder les bins significatifs (au moins 10% du max)
+                max_count = sorted_bins[0][1] if sorted_bins else 0
+                significant_bins = [bin_idx for bin_idx, count in sorted_bins if count > max_count * 0.1]
+                significant_bins.sort()
+                
+                # Fusionner les bins proches
+                merged_bins = []
+                for bin_idx in significant_bins:
+                    if not merged_bins or bin_idx - merged_bins[-1] > 3:
+                        merged_bins.append(bin_idx)
+                
+                # Convertir les bins en positions approximatives
+                col_positions = [b * 20 + 10 for b in merged_bins]
+                
+                # Si pas assez de colonnes, utiliser la méthode des gaps
+                if len(col_positions) < 3:
+                    all_lefts.sort()
                     gaps = [all_lefts[i] - all_lefts[i-1] for i in range(1, len(all_lefts))]
-                    gaps_sorted = sorted(gaps)
-                    p75_gap = gaps_sorted[int(len(gaps_sorted) * 0.75)]
-                    gap_min = max(p75_gap * 0.7, img_w * 0.015)
-                else:
-                    gap_min = img_w * 0.02
-
-                logger.info(f"[IMG2XLS] gap_min adaptatif: {gap_min:.0f}px")
-
-                col_centers = [all_lefts[0]]
-                for i in range(1, len(all_lefts)):
-                    gap = all_lefts[i] - all_lefts[i-1]
-                    if gap > gap_min:
-                        col_centers.append(all_lefts[i])
-                    else:
-                        col_centers[-1] = (col_centers[-1] + all_lefts[i]) // 2
-
-                col_boundaries = [0]
-                for i in range(1, len(col_centers)):
-                    col_boundaries.append((col_centers[i-1] + col_centers[i]) // 2)
-                col_boundaries.append(img_w)
-
-                n_cols = len(col_centers)
+                    if gaps:
+                        threshold = np.percentile(gaps, 75) * 0.7
+                        col_positions = [all_lefts[0]]
+                        for i in range(1, len(all_lefts)):
+                            if all_lefts[i] - all_lefts[i-1] > threshold:
+                                col_positions.append(all_lefts[i])
+                
+                n_cols = len(col_positions)
                 logger.info(f"[IMG2XLS] Colonnes détectées: {n_cols}")
-
-                def assign_col(left):
-                    for ci in range(len(col_boundaries) - 1):
-                        if col_boundaries[ci] <= left < col_boundaries[ci + 1]:
-                            return ci
-                    return n_cols - 1
-
-                # Regrouper par lignes
-                rows_dict = {}
-                for word in all_words:
-                    top = word["top"]
-                    key = None
-                    for k in rows_dict:
-                        if abs(top - k) <= row_thr:
-                            key = k
-                            break
-                    if key is None:
-                        key = top
-                        rows_dict[key] = []
-                    rows_dict[key].append(word)
-
-                logger.info(f"[IMG2XLS] Lignes groupées: {len(rows_dict)}")
-
-                # Construire la grille
-                table_data = []
-                for _, words_in_row in sorted(rows_dict.items()):
-                    row = [""] * n_cols
-                    for word in sorted(words_in_row, key=lambda w: w["left"]):
-                        ci = assign_col(word["left"])
-                        clean = word["text"].strip()
-                        if clean:
-                            row[ci] = (row[ci] + " " + clean).strip() if row[ci] else clean
-                    if any(cell.strip() for cell in row):
-                        table_data.append(row)
-
-                logger.info(f"[IMG2XLS] Lignes tableau: {len(table_data)}")
-
-                # ══ DÉTECTION AMÉLIORÉE DE L'EN-TÊTE ════════════════════════
-                if table_data and has_header:
+                
+                if n_cols < 2:
+                    # Si toujours pas de colonnes, format libre
+                    df = pd.DataFrame({"Texte extrait": [w["text"] for w in all_words]})
+                else:
+                    # Étape 4: Construire la grille
+                    # Définir les boundaries des colonnes
+                    boundaries = [0]
+                    for i in range(1, len(col_positions)):
+                        boundaries.append((col_positions[i-1] + col_positions[i]) // 2)
+                    boundaries.append(processed.width)
                     
-                    # Pattern pour reconnaître les en-têtes typiques
-                    header_patterns = [
-                        r'projet', r'cat[eé]gorie', r'affect[ée]', r'estim[ée]', 
-                        r'd[ée]but', r'fin', r'travail', r'dur[ée]e', r'r[ée]el',
-                        r'notes?', r'date', r'nom', r'titre', r'description'
-                    ]
+                    def get_col_index(x):
+                        for i in range(len(boundaries)-1):
+                            if boundaries[i] <= x < boundaries[i+1]:
+                                return i
+                        return n_cols - 1
                     
-                    # Analyser chaque ligne candidate
-                    header_candidates = []
-                    for idx, row in enumerate(table_data[:5]):  # Regarder seulement les premières lignes
-                        # Compter les cellules non vides
-                        non_empty = [c for c in row if c.strip()]
-                        empty_count = len(row) - len(non_empty)
+                    # Créer la grille
+                    grid = []
+                    for line_words in lines:
+                        row = [""] * n_cols
+                        for word in line_words:
+                            col_idx = get_col_index(word["left"])
+                            if row[col_idx]:
+                                row[col_idx] += " " + word["text"]
+                            else:
+                                row[col_idx] = word["text"]
+                        grid.append(row)
+                    
+                    logger.info(f"[IMG2XLS] Grille initiale: {len(grid)} lignes")
+
+                    # ══ DÉTECTION INTELLIGENTE DE L'EN-TÊTE ═══════════════════
+                    
+                    # Fonction pour analyser une ligne
+                    def analyze_row(row):
+                        filled = sum(1 for c in row if c.strip())
+                        has_numbers = any(re.search(r'\d', c) for c in row if c.strip())
+                        has_dates = any(re.search(r'\d{2}/\d{2}/\d{4}', c) for c in row if c.strip())
+                        text_length = sum(len(c) for c in row if c.strip()) / max(filled, 1)
                         
-                        # Calculer la longueur moyenne des cellules
-                        if non_empty:
-                            avg_len = sum(len(c) for c in non_empty) / len(non_empty)
-                        else:
-                            avg_len = 0
+                        # Score: plus de cellules remplies = mieux
+                        # Mais pénaliser si beaucoup de nombres (souvent données, pas en-tête)
+                        score = filled * 10
+                        if has_numbers:
+                            score -= filled * 3
+                        if has_dates:
+                            score -= filled * 5
+                        if text_length > 15:  # Texte trop long = probablement données
+                            score -= filled * 2
                         
-                        # Compter les mots qui ressemblent à des en-têtes
-                        header_match_count = 0
-                        for cell in non_empty:
+                        # Bonus pour les mots typiques d'en-tête
+                        header_keywords = ['projet', 'catégorie', 'affecté', 'estimé', 'début', 'fin', 
+                                          'travail', 'durée', 'réel', 'notes', 'date', 'nom', 'statut']
+                        for cell in row:
                             cell_lower = cell.lower()
-                            for pattern in header_patterns:
-                                if re.search(pattern, cell_lower):
-                                    header_match_count += 1
+                            for kw in header_keywords:
+                                if kw in cell_lower:
+                                    score += 5
                                     break
                         
-                        # Score composite
-                        score = 0
-                        score += len(non_empty) * 10  # Plus de cellules remplies = mieux
-                        score -= empty_count * 5       # Pénaliser les cellules vides
-                        score += header_match_count * 20  # Bonus pour les mots d'en-tête
-                        
-                        # Bonus pour des cellules courtes (en-tête typique)
-                        if 5 < avg_len < 20:
-                            score += 10
-                        
-                        # Bonus pour la première ligne si elle est bien remplie
-                        if idx == 0 and len(non_empty) > n_cols * 0.7:
-                            score += 15
-                        
-                        # Pénaliser les lignes avec des nombres uniquement
-                        number_count = sum(1 for c in non_empty if re.match(r'^[\d\s\/\-]+$', c))
-                        if number_count > len(non_empty) * 0.5:
-                            score -= 30
-                        
-                        # Pénaliser les caractères de bordure résiduels
-                        border_count = sum(1 for c in non_empty if re.search(r'[\|\=\>\<]', c))
-                        score -= border_count * 10
-                        
-                        header_candidates.append((idx, row, score))
+                        return score
+                    
+                    # Chercher la meilleure ligne d'en-tête (parmi les 5 premières)
+                    header_candidates = []
+                    for i, row in enumerate(grid[:5]):
+                        if any(cell.strip() for cell in row):
+                            score = analyze_row(row)
+                            header_candidates.append((i, row, score))
                     
                     # Trier par score décroissant
                     header_candidates.sort(key=lambda x: -x[2])
                     
-                    if header_candidates and header_candidates[0][2] > 50:
+                    if header_candidates and header_candidates[0][2] > 20:
                         header_idx, header_row, score = header_candidates[0]
                         logger.info(f"[IMG2XLS] En-tête ligne {header_idx} (score={score}): {header_row}")
                         
-                        # Nettoyer les cellules d'en-tête
+                        # Nettoyer l'en-tête
                         headers = []
-                        for i, cell in enumerate(header_row):
-                            # Nettoyage approfondi
-                            clean_cell = re.sub(r'^[\|\=\>\<\+]+|[\|\=\>\<\+]+$', '', cell.strip())
-                            clean_cell = re.sub(r'[^\w\s\-\/]', '', clean_cell)
-                            clean_cell = re.sub(r'\s+', ' ', clean_cell).strip()
+                        for cell in header_row:
+                            # Enlever les caractères indésirables mais garder le sens
+                            clean = re.sub(r'^[\|\=\>\<\+]+|[\|\=\>\<\+]+$', '', cell.strip())
+                            clean = re.sub(r'[^\w\s\-\/]', ' ', clean)
+                            clean = re.sub(r'\s+', ' ', clean).strip()
                             
-                            # Capitaliser intelligemment
-                            if clean_cell and len(clean_cell) >= 2:
-                                # Mettre en majuscule la première lettre
-                                clean_cell = clean_cell[0].upper() + clean_cell[1:] if len(clean_cell) > 1 else clean_cell.upper()
-                                headers.append(clean_cell)
+                            if clean and len(clean) >= 2:
+                                # Capitaliser intelligemment
+                                clean = clean[0].upper() + clean[1:] if len(clean) > 1 else clean.upper()
+                                headers.append(clean)
                             else:
-                                headers.append(f"Colonne {i+1}")
+                                headers.append(f"Colonne {len(headers)+1}")
                         
-                        logger.info(f"[IMG2XLS] En-tête nettoyée: {headers}")
-                        
-                        # Les données commencent après l'en-tête
-                        data_rows = [r for i, r in enumerate(table_data) if i > header_idx]
+                        # Les données sont toutes les lignes sauf l'en-tête
+                        data_rows = [row for i, row in enumerate(grid) if i != header_idx and any(cell.strip() for cell in row)]
                     else:
-                        # Fallback intelligent
-                        logger.info(f"[IMG2XLS] Aucune en-tête de qualité trouvée, utilisation générique")
+                        # Pas de bonne en-tête trouvée, on utilise la première ligne remplie
+                        logger.info("[IMG2XLS] Pas d'en-tête claire, utilisation générique")
                         headers = [f"Colonne {i+1}" for i in range(n_cols)]
-                        data_rows = table_data
-                else:
-                    headers = [f"Colonne {i+1}" for i in range(n_cols)]
-                    data_rows = [r for r in table_data if any(c.strip() for c in r)]
-                    logger.info(f"[IMG2XLS] Mode sans en-tête")
-
-                # Créer le DataFrame
-                if data_rows:
-                    df = pd.DataFrame(data_rows, columns=headers)
-                    logger.info(f"[IMG2XLS] DataFrame final: {df.shape}")
+                        data_rows = [row for row in grid if any(cell.strip() for cell in row)]
                     
-                    # Afficher un aperçu des colonnes pour debug
-                    logger.info(f"[IMG2XLS] Colonnes: {list(df.columns)}")
+                    # Créer le DataFrame
+                    if data_rows:
+                        df = pd.DataFrame(data_rows, columns=headers)
+                        logger.info(f"[IMG2XLS] DataFrame final: {df.shape}")
+                        
+                        # Afficher un échantillon pour debug
+                        logger.info(f"[IMG2XLS] Aperçu:\n{df.head(2).to_string()}")
+                    else:
+                        df = pd.DataFrame({"Information": ["Aucune donnée tabulaire détectée"]})
 
                 # Calcul de la confiance
                 if conf_scores:
-                    filled_cells = sum(1 for r in data_rows for c in r if c.strip())
-                    total_cells = max(len(data_rows) * n_cols, 1)
-                    fill_ratio = filled_cells / total_cells
-                    confidence_score = int(np.mean(conf_scores) * (0.6 + 0.4 * fill_ratio))
-                    confidence_score = max(0, min(100, confidence_score))
+                    confidence_score = int(np.mean(conf_scores))
                 else:
-                    confidence_score = 0
-
-                logger.info(f"[IMG2XLS] Confiance: {confidence_score}%")
-
-        # ══ MODE TEXTE fallback ══════════════════════════════════════════════
-        if df is None:
-            logger.info(f"[IMG2XLS] Fallback texte libre")
-            try:
-                raw = pytesseract.image_to_string(processed, lang=ocr_lang, config="--oem 3 --psm 6")
-            except pytesseract.TesseractError as e:
-                logger.error(f"[IMG2XLS] OCR fallback failed: {e}")
-                raw = ""
-
-            lines = [l.strip() for l in raw.split("\n") if l.strip()]
-            logger.info(f"[IMG2XLS] Lignes texte brut: {len(lines)}")
-
-            if lines:
-                df = pd.DataFrame({"Texte extrait": lines})
-            else:
-                df = pd.DataFrame({"Information": [
-                    "Aucun texte détecté",
-                    f"Langue: {ocr_lang}",
-                    "Vérifiez la qualité de l'image",
-                ]})
+                    confidence_score = 70
 
         # ══ EXPORT EXCEL ═════════════════════════════════════════════════════
         logger.info(f"[IMG2XLS] Export Excel: {df.shape}")
