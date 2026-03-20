@@ -3518,8 +3518,9 @@ if __name__ == "__main__":
 def convert_image_to_excel(file_input, form_data=None):
     """
     Convertit une image en Excel via Tesseract OCR.
-    Utilise les fonctions utilitaires : _ensure_rgb, preprocess_for_ocr,
-    ocr_get_words_positions.
+    - Clustering adaptatif des colonnes par saut naturel
+    - OCR séparé sur la bande d'en-tête colorée (PSM6 inversé)
+    - Utilise _ensure_rgb et preprocess_for_ocr si disponibles
     """
     if not HAS_PILLOW or not HAS_TESSERACT or not HAS_PANDAS:
         return {"error": "Dépendances manquantes (Pillow, Tesseract, pandas)"}
@@ -3577,55 +3578,89 @@ def convert_image_to_excel(file_input, form_data=None):
 
         logger.info(f"[IMG2XLS] Params: lang={ocr_lang}, mode={extraction_mode}, conf={confidence_thr}")
 
-        # ── RGBA → RGB fond blanc via _ensure_rgb ───────────────────────────
-        img_rgb = _ensure_rgb(img_orig)
+        # ── RGBA → RGB fond blanc ───────────────────────────────────────────
+        # Utilise _ensure_rgb si disponible, sinon fallback manuel
+        if callable(globals().get('_ensure_rgb')):
+            img_rgb = _ensure_rgb(img_orig)
+        else:
+            if img_orig.mode in ("RGBA", "LA", "P"):
+                bg = Image.new("RGB", img_orig.size, (255, 255, 255))
+                img_conv = img_orig.convert("RGBA") if img_orig.mode == "P" else img_orig
+                if img_conv.mode in ("RGBA", "LA"):
+                    bg.paste(img_conv, mask=img_conv.split()[-1])
+                else:
+                    bg.paste(img_conv)
+                img_rgb = bg
+            else:
+                img_rgb = img_orig.convert("RGB")
 
         # ── Upscale ─────────────────────────────────────────────────────────
-        w, h = img_rgb.size
-        if max(w, h) < 2400:
-            scale     = 2400 / max(w, h)
-            upscaled  = img_rgb.resize((int(w*scale), int(h*scale)), Image.Resampling.LANCZOS)
-            logger.info(f"[IMG2XLS] Upscale: {w}x{h} → {upscaled.size[0]}x{upscaled.size[1]}")
+        w_orig, h_orig = img_rgb.size
+        if max(w_orig, h_orig) < 2400:
+            scale     = 2400 / max(w_orig, h_orig)
+            upscaled  = img_rgb.resize(
+                (int(w_orig*scale), int(h_orig*scale)), Image.Resampling.LANCZOS)
+            logger.info(f"[IMG2XLS] Upscale: {w_orig}x{h_orig} → {upscaled.size[0]}x{upscaled.size[1]}")
         else:
             upscaled = img_rgb
 
-        # ── Prétraitement via preprocess_for_ocr ────────────────────────────
-        processed = preprocess_for_ocr(
-            upscaled,
-            enhance_image=True,
-            deskew=False,     # False = plus rapide, évite crashs OSD
-            binarize=False,   # False pour tableaux colorés
-            max_ocr_px=4000,
-        )
+        # ── Prétraitement ────────────────────────────────────────────────────
+        if callable(globals().get('preprocess_for_ocr')):
+            processed = preprocess_for_ocr(
+                upscaled, enhance_image=True,
+                deskew=False, binarize=False, max_ocr_px=4000)
+        else:
+            from PIL import ImageOps as _IOS, ImageFilter as _IIF, ImageEnhance as _IIE
+            processed = _IOS.autocontrast(upscaled, cutoff=1)
+            processed = processed.filter(_IIF.MedianFilter(size=3))
+            processed = _IIE.Sharpness(processed).enhance(1.5)
+
         img_w, img_h = processed.size
-        logger.info(f"[IMG2XLS] Image prête: {processed.size}, mode={processed.mode}")
+        logger.info(f"[IMG2XLS] Image prête: {processed.size}")
 
         # ══ MODE TABLEAU ════════════════════════════════════════════════════
         if detect_tables or extraction_mode in ("auto", "table", "block", "grid"):
             import re
 
-            # ── OCR via ocr_get_words_positions ──────────────────────────────
-            all_words = None
+            def _safe_int(v):
+                try: return int(v)
+                except: return -1
+
+            # ── OCR principal (données) ──────────────────────────────────────
+            data = None
             for cfg in [
                 "--oem 3 --psm 4 -c preserve_interword_spaces=1",
                 "--oem 3 --psm 6",
             ]:
                 try:
-                    all_words = ocr_get_words_positions(
-                        processed,
-                        ocr_lang=ocr_lang,
-                        config=cfg,
-                        min_conf=confidence_thr,
-                    )
-                    if all_words:
+                    data = pytesseract.image_to_data(
+                        processed, lang=ocr_lang,
+                        output_type=Output.DICT, config=cfg)
+                    if data and any(t.strip() for t in data.get("text", [])):
                         break
                 except Exception:
                     continue
 
-            if not all_words:
-                all_words = []
+            if not data:
+                data = {"text":[],"conf":[],"left":[],"top":[],"width":[],"height":[]}
 
-            conf_scores = [w["conf"] for w in all_words]
+            logger.info(f"[IMG2XLS] OCR: {len(data['text'])} tokens")
+
+            # ── Mots valides ─────────────────────────────────────────────────
+            all_words, conf_scores = [], []
+            for i, text in enumerate(data["text"]):
+                if not text or not text.strip(): continue
+                conf = _safe_int(data["conf"][i])
+                if conf < confidence_thr: continue
+                all_words.append({
+                    "text":  text.strip(),
+                    "left":  data["left"][i],
+                    "top":   data["top"][i],
+                    "conf":  conf,
+                    "width": data["width"][i],
+                })
+                conf_scores.append(conf)
+
             logger.info(f"[IMG2XLS] Mots retenus: {len(all_words)}")
 
             if not all_words:
@@ -3633,14 +3668,14 @@ def convert_image_to_excel(file_input, form_data=None):
                     "Aucun texte détecté — vérifiez la qualité de l'image"
                 ]})
             else:
-                # ── Fusion mots proches (1.5% largeur) ──────────────────────
-                merge_dist = img_w * 0.015
+                # ── Fusion mots proches (1% largeur) ────────────────────────
+                merge_dist = img_w * 0.010
                 row_thr    = max(10, int(img_h * 0.02))
 
                 rows_raw = {}
                 for word in all_words:
                     top = word["top"]
-                    key = next((k for k in rows_raw if abs(top - k) <= row_thr), None)
+                    key = next((k for k in rows_raw if abs(top-k) <= row_thr), None)
                     if key is None: key = top; rows_raw[key] = []
                     rows_raw[key].append(word)
 
@@ -3652,7 +3687,7 @@ def convert_image_to_excel(file_input, form_data=None):
                         gap = nxt["left"] - (cur["left"] + cur.get("width", 50))
                         if gap < merge_dist:
                             cur["text"]  += " " + nxt["text"]
-                            cur["width"]  = (nxt["left"] + nxt.get("width", 50)) - cur["left"]
+                            cur["width"]  = (nxt["left"] + nxt.get("width",50)) - cur["left"]
                         else:
                             merged_words.append(cur); cur = dict(nxt)
                     merged_words.append(cur)
@@ -3670,9 +3705,9 @@ def convert_image_to_excel(file_input, form_data=None):
                         if gaps[i] >= 15 and gaps[i] > gaps[i-1] * 1.8:
                             gap_min = gaps[i-1] + (gaps[i]-gaps[i-1]) * 0.3
                             break
-                    gap_min = max(gap_min, 12)
+                    gap_min = max(gap_min, 10)
                 else:
-                    gap_min = img_w * 0.03
+                    gap_min = img_w * 0.02
 
                 logger.info(f"[IMG2XLS] gap_min={gap_min:.0f}px")
 
@@ -3697,7 +3732,7 @@ def convert_image_to_excel(file_input, form_data=None):
                             return ci
                     return n_cols - 1
 
-                # ── Regrouper par lignes ─────────────────────────────────────
+                # ── Lignes ───────────────────────────────────────────────────
                 rows_dict = {}
                 for word in all_words:
                     top = word["top"]
@@ -3705,7 +3740,7 @@ def convert_image_to_excel(file_input, form_data=None):
                     if key is None: key = top; rows_dict[key] = []
                     rows_dict[key].append(word)
 
-                # ── Construire la grille ─────────────────────────────────────
+                # ── Grille ───────────────────────────────────────────────────
                 table_data = []
                 for _, wir in sorted(rows_dict.items()):
                     row = [""] * n_cols
@@ -3719,49 +3754,138 @@ def convert_image_to_excel(file_input, form_data=None):
 
                 logger.info(f"[IMG2XLS] Lignes: {len(table_data)}, aperçu: {table_data[:2]}")
 
-                # ── En-tête ──────────────────────────────────────────────────
+                # ══ EN-TÊTE : OCR bande colorée ══════════════════════════════
+                header_from_band = None
+                if has_header:
+                    try:
+                        from PIL import ImageOps as _IOP2
+                        arr_orig = np.array(img_rgb)
+                        h_o, w_o = arr_orig.shape[:2]
+                        scale_w  = img_w / w_o
+
+                        # Détecter fond coloré (universel)
+                        r_c = arr_orig[:,:,0].astype(int)
+                        g_c = arr_orig[:,:,1].astype(int)
+                        b_c = arr_orig[:,:,2].astype(int)
+                        max_rgb = np.maximum(np.maximum(r_c, g_c), b_c)
+                        min_rgb = np.minimum(np.minimum(r_c, g_c), b_c)
+                        colorful = (max_rgb - min_rgb > 40) & (max_rgb < 230)
+                        dark_rows_idx = np.where(colorful.any(axis=1))[0]
+
+                        if len(dark_rows_idx) > 0:
+                            # Grouper les lignes consécutives
+                            grps = []
+                            st = int(dark_rows_idx[0]); pv = int(dark_rows_idx[0])
+                            for ri in dark_rows_idx[1:]:
+                                ri = int(ri)
+                                if ri - pv > 5: grps.append((st, pv)); st = ri
+                                pv = ri
+                            grps.append((st, pv))
+                            y1_b, y2_b = max(grps, key=lambda g: g[1]-g[0])
+
+                            band = img_rgb.crop((0, max(0,y1_b-2), w_o, min(h_o,y2_b+3)))
+                            band_up4 = band.resize((band.width*4, band.height*4),
+                                                    Image.Resampling.LANCZOS)
+                            band_inv = _IOP2.invert(band_up4)
+
+                            # OCR avec positions sur bande inversée
+                            data_band = pytesseract.image_to_data(
+                                band_inv, lang=ocr_lang,
+                                output_type=Output.DICT,
+                                config="--oem 3 --psm 6")
+
+                            # Assigner chaque mot à sa colonne
+                            import re as _re3
+                            header_cells = [""] * n_cols
+                            for i in range(len(data_band["text"])):
+                                t = data_band["text"][i]
+                                if not t or not t.strip(): continue
+                                try: c = int(data_band["conf"][i])
+                                except: c = -1
+                                if c < 20: continue
+                                # Filtrer artefacts purs
+                                if _re3.match(r'^[v\|>_\.\-=©°¥\[\]]+$', t): continue
+                                if len(t) <= 1: continue
+                                # Convertir position X bande → image upscalée globale
+                                left_up = int((data_band["left"][i] / 4) * scale_w)
+                                ci = assign_col(left_up)
+                                if header_cells[ci]:
+                                    header_cells[ci] += " " + t
+                                else:
+                                    header_cells[ci] = t
+
+                            # Nettoyer
+                            for i, hc in enumerate(header_cells):
+                                hc = _re3.sub(r'\b[vVwW]\b', '', hc)
+                                hc = _re3.sub(r'[_=\|©°¥>]+', ' ', hc)
+                                hc = ' '.join(hc.split())
+                                header_cells[i] = hc
+
+                            valid = sum(1 for c in header_cells if len(c) >= 2)
+                            if valid >= max(2, int(n_cols * 0.35)):
+                                header_from_band = header_cells
+                                logger.info(
+                                    f"[IMG2XLS] En-tête bande ({valid}/{n_cols}): "
+                                    f"{header_from_band}")
+                            else:
+                                logger.info(
+                                    f"[IMG2XLS] Bande rejetée ({valid}/{n_cols} valides)")
+
+                    except Exception as e:
+                        logger.warning(f"[IMG2XLS] OCR bande colorée échoué: {e}")
+
+                # ── Construire en-tête finale ────────────────────────────────
                 if table_data:
                     import re as _re2
 
                     if has_header:
-                        # Trouver 1ère ligne dense (>= 40% colonnes remplies)
-                        min_fill   = max(2, int(n_cols * 0.4))
+                        # Trouver 1ère ligne dense (>= 35% colonnes remplies)
+                        min_fill   = max(2, int(n_cols * 0.35))
                         header_idx = next(
                             (i for i, r in enumerate(table_data)
                              if sum(1 for c in r if c.strip()) >= min_fill), 0)
 
-                        header_row  = table_data[header_idx]
-                        filled      = sum(1 for c in header_row if c.strip())
-                        has_dates   = sum(1 for c in header_row
-                                         if _re2.search(r'\d{2}/\d{2}/\d{4}', c))
-                        has_numbers = sum(1 for c in header_row
-                                         if _re2.match(r'^\d+$', c.strip()))
-
-                        # Ligne propre (pas de dates/chiffres) → en-tête directe
-                        if has_dates == 0 and has_numbers == 0 and filled >= min_fill:
-                            headers        = [c.strip() if c.strip() else f"Col{i+1}"
-                                              for i, c in enumerate(header_row)]
-                            first_data_idx = header_idx + 1
-                            logger.info(f"[IMG2XLS] En-tête directe ligne {header_idx}: {headers}")
-
-                        # Ligne avec données → préfixe textuel
-                        else:
+                        if header_from_band:
+                            # ✅ Utiliser les en-têtes de la bande colorée
+                            headers = [c if len(c) >= 2 else f"Col{i+1}"
+                                       for i, c in enumerate(header_from_band)]
                             first_data_idx = header_idx
-                            headers = []
-                            for i, cell in enumerate(header_row):
-                                pfx = _re2.match(
-                                    r'^([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s\-\']+)',
-                                    cell.strip())
-                                headers.append(
-                                    pfx.group(1).strip()
-                                    if pfx and len(pfx.group(1).strip()) >= 2
-                                    else f"Col{i+1}")
-                            logger.info(f"[IMG2XLS] En-tête préfixe ligne {header_idx}: {headers}")
+                            logger.info(f"[IMG2XLS] En-têtes depuis bande: {headers}")
 
-                        min_filled = max(2, int(filled * 0.3))
-                        data_rows  = [r for j, r in enumerate(table_data)
-                                      if j >= first_data_idx
-                                      and sum(1 for c in r if c.strip()) >= min_filled]
+                        else:
+                            # Fallback : ligne du tableau
+                            header_row  = table_data[header_idx]
+                            filled      = sum(1 for c in header_row if c.strip())
+                            has_dates   = sum(1 for c in header_row
+                                             if _re2.search(r'\d{2}/\d{2}/\d{4}', c))
+                            has_numbers = sum(1 for c in header_row
+                                             if _re2.match(r'^\d+$', c.strip()))
+
+                            if has_dates == 0 and has_numbers == 0 and filled >= min_fill:
+                                headers        = [c.strip() if c.strip() else f"Col{i+1}"
+                                                  for i, c in enumerate(header_row)]
+                                first_data_idx = header_idx + 1
+                                logger.info(f"[IMG2XLS] En-tête directe ligne {header_idx}: {headers}")
+                            else:
+                                first_data_idx = header_idx
+                                headers = []
+                                for i, cell in enumerate(header_row):
+                                    pfx = _re2.match(
+                                        r'^([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s\-\']+)',
+                                        cell.strip())
+                                    headers.append(
+                                        pfx.group(1).strip()
+                                        if pfx and len(pfx.group(1).strip()) >= 2
+                                        else f"Col{i+1}")
+                                logger.info(f"[IMG2XLS] En-tête préfixe ligne {header_idx}: {headers}")
+
+                        # Données après l'en-tête
+                        header_row_ref = table_data[header_idx] if header_idx < len(table_data) else []
+                        filled_ref     = max(sum(1 for c in header_row_ref if c.strip()), 2)
+                        min_filled     = max(2, int(filled_ref * 0.3))
+                        data_rows      = [r for j, r in enumerate(table_data)
+                                          if j >= first_data_idx
+                                          and sum(1 for c in r if c.strip()) >= min_filled]
                     else:
                         headers   = [f"Col{i+1}" for i in range(n_cols)]
                         data_rows = [r for r in table_data if any(c.strip() for c in r)]
