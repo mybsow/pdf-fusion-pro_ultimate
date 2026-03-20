@@ -3671,7 +3671,7 @@ def convert_image_to_excel(file_input, form_data=None):
                 ]})
             else:
                 # ── Fusion mots proches (1% largeur) ────────────────────────
-                # merge_dist = max(10, np.median([w["width"] for w in all_words]) * 0.5)
+                merge_dist = max(10, np.median([w["width"] for w in all_words]) * 0.5)
                 row_thr    = max(10, int(img_h * 0.02))
             
                 rows_raw = {}
@@ -3689,7 +3689,7 @@ def convert_image_to_excel(file_input, form_data=None):
                     cur = dict(sw[0])
                     for nxt in sw[1:]:
                         gap = nxt["left"] - (cur["left"] + cur.get("width", 50))
-                        #if gap < merge_dist:
+                        if gap < merge_dist:
                             cur["text"]  += " " + nxt["text"]
                             cur["width"]  = (nxt["left"] + nxt.get("width",50)) - cur["left"]
                         else:
