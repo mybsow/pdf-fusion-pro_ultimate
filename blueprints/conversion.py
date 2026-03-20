@@ -4015,13 +4015,11 @@ def convert_image_to_excel(file_input, form_data=None):
         
             # Calcul robuste largeur de colonne
             for i, col in enumerate(df.columns):
-                try:
-                    max_len = df[col].astype(str).map(lambda x: len(str(x)) if pd.notna(x) else 0).max()
-                except Exception:
-                    max_len = 10
-                # Toujours inclure la longueur de l'en-tête
+                max_len = df[col].astype(str).map(lambda x: len(str(x)) if pd.notna(x) else 0).max(default=10)
+                # Inclure la longueur de l'en-tête
                 max_len = max(max_len, len(str(col)), 10)
-                ws.set_column(i, i, min(int(max_len)+2, 60))  # +2 pour marge
+                # Limiter et ajouter marge
+                ws.set_column(i, i, min(int(max_len)+2, 60))
         
             # ── Résumé du fichier
             summary = pd.DataFrame({
