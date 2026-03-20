@@ -3747,6 +3747,9 @@ def convert_image_to_excel(file_input, form_data=None):
                     for word in sorted(wir, key=lambda w: w["left"]):
                         ci    = assign_col(word["left"])
                         clean = re.sub(r'^[|>\[\]]+$', '', word["text"]).strip()
+                        # Corriger | isolé → 1 (fréquent avec Tesseract)
+                        clean = re.sub(r'(?<!\w)\|(?!\w)', '1', clean)
+                        clean = re.sub(r'(?<=\d)\|(?=\d)', '1', clean)
                         if not clean: continue
                         row[ci] = (row[ci]+" "+clean).strip() if row[ci] else clean
                     if any(c.strip() for c in row):
@@ -3802,7 +3805,7 @@ def convert_image_to_excel(file_input, form_data=None):
                                 if not t or not t.strip(): continue
                                 try: c = int(data_band["conf"][i])
                                 except: c = -1
-                                if c < 20: continue
+                                if c < 10: continue
                                 # Filtrer artefacts purs
                                 if _re3.match(r'^[v\|>_\.\-=©°¥\[\]]+$', t): continue
                                 if len(t) <= 1: continue
@@ -3814,10 +3817,16 @@ def convert_image_to_excel(file_input, form_data=None):
                                 else:
                                     header_cells[ci] = t
 
-                            # Nettoyer
+                            # Nettoyer chaque cellule
+                            import re as _re4
                             for i, hc in enumerate(header_cells):
-                                hc = _re3.sub(r'\b[vVwW]\b', '', hc)
-                                hc = _re3.sub(r'[_=\|©°¥>]+', ' ', hc)
+                                # Supprimer mots parasites courts isolés
+                                hc = _re4.sub(
+                                    r'\b(ES|OS|SA|al|ea|Ea|we|si|isha|Bs|iy|ay|re|ra)\b',
+                                    '', hc)
+                                # Supprimer caractères parasites
+                                hc = _re4.sub(r'[_=\|©°¥>]+', ' ', hc)
+                                hc = _re4.sub(r'\b[vVwW]\b', '', hc)
                                 hc = ' '.join(hc.split())
                                 header_cells[i] = hc
 
