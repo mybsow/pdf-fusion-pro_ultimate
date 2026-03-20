@@ -3649,9 +3649,11 @@ def convert_image_to_excel(file_input, form_data=None):
             # ── Mots valides ─────────────────────────────────────────────────
             all_words, conf_scores = [], []
             for i, text in enumerate(data["text"]):
-                if not text or not text.strip(): continue
+                if not text or not text.strip(): 
+                    continue
                 conf = _safe_int(data["conf"][i])
-                if conf < confidence_thr: continue
+                if conf < confidence_thr: 
+                    continue
                 all_words.append({
                     "text":  text.strip(),
                     "left":  data["left"][i],
@@ -3660,9 +3662,9 @@ def convert_image_to_excel(file_input, form_data=None):
                     "width": data["width"][i],
                 })
                 conf_scores.append(conf)
-
+            
             logger.info(f"[IMG2XLS] Mots retenus: {len(all_words)}")
-
+            
             if not all_words:
                 df = pd.DataFrame({"Information": [
                     "Aucun texte détecté — vérifiez la qualité de l'image"
@@ -3671,14 +3673,16 @@ def convert_image_to_excel(file_input, form_data=None):
                 # ── Fusion mots proches (1% largeur) ────────────────────────
                 merge_dist = max(10, np.median([w["width"] for w in all_words]) * 0.5)
                 row_thr    = max(10, int(img_h * 0.02))
-
+            
                 rows_raw = {}
                 for word in all_words:
                     top = word["top"]
                     key = next((k for k in rows_raw if abs(top-k) <= row_thr), None)
-                    if key is None: key = top; rows_raw[key] = []
+                    if key is None: 
+                        key = top
+                        rows_raw[key] = []
                     rows_raw[key].append(word)
-
+            
                 merged_words = []
                 for _, wir in rows_raw.items():
                     sw  = sorted(wir, key=lambda w: w["left"])
@@ -3689,132 +3693,131 @@ def convert_image_to_excel(file_input, form_data=None):
                             cur["text"]  += " " + nxt["text"]
                             cur["width"]  = (nxt["left"] + nxt.get("width",50)) - cur["left"]
                         else:
-                            merged_words.append(cur); cur = dict(nxt)
+                            merged_words.append(cur)
+                            cur = dict(nxt)
                     merged_words.append(cur)
-
+            
                 all_words = merged_words
                 logger.info(f"[IMG2XLS] Après fusion: {len(all_words)} mots")
-
+            
                 # ── Pré-calcul centres ─────────────────────────────────────────────
                 centers = sorted([w["left"] + w["width"] // 2 for w in all_words])
-                
+            
                 # ── gap_min par saut naturel (robuste) ─────────────────────────────
                 if len(centers) > 1:
-                    gaps = sorted([
-                        centers[i] - centers[i-1]
-                        for i in range(1, len(centers))
-                    ])
-                
+                    gaps = sorted([centers[i] - centers[i-1] for i in range(1, len(centers))])
                     median_width = np.median([w["width"] for w in all_words])
-                
+            
+                    # valeur de base
                     gap_min = max(
                         10,
                         img_w * 0.02,
                         median_width * 0.8
                     )
-                
+            
                     for i in range(1, len(gaps)):
                         if gaps[i] >= 15 and gaps[i] > gaps[i-1] * 1.8:
                             gap_min = gaps[i-1] + (gaps[i] - gaps[i-1]) * 0.3
                             break
-                      # ✅ AJOUT ICI (très important)
-                    gap_min = max(gap_min, median_width * 0.9, np.percentile(gaps, 60))
+            
+                    # ✅ AJOUT ROBUSTE : empêche split de cellules larges
+                    gap_min = max(gap_min, median_width * 1.2, np.percentile(gaps, 60))
                 else:
                     gap_min = max(10, img_w * 0.02)
-                
+            
                 logger.info(f"[IMG2XLS] gap_min={gap_min:.0f}px")
-                
-                # ── Colonnes (clustering pondéré) ─────────────────────────────────
-                col_centers = []
-                col_counts  = []
-                
+            
+                # ── Colonnes (clustering pondéré + merge final) ─────────────────────────
+                col_centers, col_counts = [], []
+            
                 for c in centers:
                     if not col_centers:
                         col_centers.append(c)
                         col_counts.append(1)
-                
-                    elif abs(c - col_centers[-1]) > gap_min:
+                        continue
+            
+                    # distance au centre le plus proche
+                    distances = [abs(c - cc) for cc in col_centers]
+                    min_dist = min(distances)
+                    idx = distances.index(min_dist)
+            
+                    if min_dist < gap_min:
+                        # fusion pondérée
+                        col_centers[idx] = int((col_centers[idx] * col_counts[idx] + c) / (col_counts[idx] + 1))
+                        col_counts[idx] += 1
+                    else:
                         col_centers.append(c)
                         col_counts.append(1)
-                
+            
+                # merge final des colonnes trop proches
+                col_centers = sorted(col_centers)
+                merged_cols = [col_centers[0]]
+                for c in col_centers[1:]:
+                    if abs(c - merged_cols[-1]) < median_width * 0.8:
+                        merged_cols[-1] = int((merged_cols[-1] + c) / 2)
                     else:
-                        idx = len(col_centers) - 1
-                        col_centers[idx] = int(
-                            (col_centers[idx] * col_counts[idx] + c) / (col_counts[idx] + 1)
-                        )
-                        col_counts[idx] += 1
-                
+                        merged_cols.append(c)
+                col_centers = merged_cols
+            
                 n_cols = len(col_centers)
-                
                 logger.info(f"[IMG2XLS] Colonnes: {n_cols}")
-                
+            
                 # ── Assignation colonne (robuste + rapide) ────────────────────────
                 def assign_col(word):
                     if not col_centers:
                         return 0
-                
+            
                     center = word["left"] + word["width"] // 2
-                
                     best_ci = 0
                     best_dist = abs(center - col_centers[0])
-                
+            
                     for i in range(1, len(col_centers)):
                         d = abs(center - col_centers[i])
                         if d < best_dist:
                             best_dist = d
                             best_ci = i
-                
                     return best_ci
-                
+            
                 # ── Lignes (clustering vertical stable) ───────────────────────────
                 sorted_words = sorted(all_words, key=lambda w: w["top"])
                 rows_dict = []
-                
+            
                 for word in sorted_words:
                     placed = False
-                
                     for row in rows_dict:
                         if abs(word["top"] - row["top"]) <= row_thr:
                             row["words"].append(word)
-                
                             # mise à jour dynamique du centre vertical
                             row["top"] = int(np.mean([w["top"] for w in row["words"]]))
-                
                             placed = True
                             break
-                
                     if not placed:
-                        rows_dict.append({
-                            "top": word["top"],
-                            "words": [word]
-                        })
-
+                        rows_dict.append({"top": word["top"], "words": [word]})
+            
                 # ── Grille ───────────────────────────────────────────────────
                 table_data = []
-                
                 for row in sorted(rows_dict, key=lambda r: r["top"]):
                     wir = row["words"]
-                
                     row_cells = [""] * n_cols
-                
+            
                     for word in sorted(wir, key=lambda w: w["left"]):
                         ci = assign_col(word)
-                
+            
                         clean = re.sub(r'^[|>\[\]]+$', '', word["text"]).strip()
                         clean = re.sub(r'(?<!\w)\|(?!\w)', '1', clean)
                         clean = re.sub(r'(?<=\d)\|(?=\d)', '1', clean)
-                
+            
                         if not clean:
                             continue
-                
+            
                         if row_cells[ci]:
                             row_cells[ci] += " " + clean
                         else:
                             row_cells[ci] = clean
-                
+            
                     if any(c.strip() for c in row_cells):
                         table_data.append(row_cells)
-
+            
                 logger.info(f"[IMG2XLS] Lignes: {len(table_data)}, aperçu: {table_data[:2]}")
 
                 # ══ EN-TÊTE : OCR bande colorée ══════════════════════════════
