@@ -3717,6 +3717,8 @@ def convert_image_to_excel(file_input, form_data=None):
                         if gaps[i] >= 15 and gaps[i] > gaps[i-1] * 1.8:
                             gap_min = gaps[i-1] + (gaps[i] - gaps[i-1]) * 0.3
                             break
+                      # ✅ AJOUT ICI (très important)
+                    gap_min = max(gap_min, median_width * 0.9, np.percentile(gaps, 60))
                 else:
                     gap_min = max(10, img_w * 0.02)
                 
@@ -3789,20 +3791,29 @@ def convert_image_to_excel(file_input, form_data=None):
 
                 # ── Grille ───────────────────────────────────────────────────
                 table_data = []
-                for _, wir in sorted(rows_dict.items()):
-                    row = [""] * n_cols
+                
+                for row in sorted(rows_dict, key=lambda r: r["top"]):
+                    wir = row["words"]
+                
+                    row_cells = [""] * n_cols
+                
                     for word in sorted(wir, key=lambda w: w["left"]):
                         ci = assign_col(word)
+                
                         clean = re.sub(r'^[|>\[\]]+$', '', word["text"]).strip()
-                        # Corriger | isolé → 1 (artefact Tesseract fréquent)
                         clean = re.sub(r'(?<!\w)\|(?!\w)', '1', clean)
                         clean = re.sub(r'(?<=\d)\|(?=\d)', '1', clean)
-                        # Corriger | isolé → 1 (fréquent avec Tesseract)
-                        clean = re.sub(r'(?<=\d)\|(?=\d)', '1', clean)
-                        if not clean: continue
-                        row[ci] = (row[ci]+" "+clean).strip() if row[ci] else clean
-                    if any(c.strip() for c in row):
-                        table_data.append(row)
+                
+                        if not clean:
+                            continue
+                
+                        if row_cells[ci]:
+                            row_cells[ci] += " " + clean
+                        else:
+                            row_cells[ci] = clean
+                
+                    if any(c.strip() for c in row_cells):
+                        table_data.append(row_cells)
 
                 logger.info(f"[IMG2XLS] Lignes: {len(table_data)}, aperçu: {table_data[:2]}")
 
