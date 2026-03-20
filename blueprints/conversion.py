@@ -3689,7 +3689,7 @@ def convert_image_to_excel(file_input, form_data=None):
                     cur = dict(sw[0])
                     for nxt in sw[1:]:
                         gap = nxt["left"] - (cur["left"] + cur.get("width", 50))
-                        if gap < merge_dist:
+                        #if gap < merge_dist:
                             cur["text"]  += " " + nxt["text"]
                             cur["width"]  = (nxt["left"] + nxt.get("width",50)) - cur["left"]
                         else:
@@ -3905,6 +3905,7 @@ def convert_image_to_excel(file_input, form_data=None):
                                 hc = _re4.sub(r'\b[vVwW]\b', '', hc)
                                 hc = _re4.sub(r'(?<!\w)\|(?!\w)', '1', hc)
                                 header_cells[i] = ' '.join(hc.split())
+                                header_cells[i] = hc
                 
                             valid = sum(1 for c in header_cells if len(c) >= 2)
                             if valid >= max(2, int(n_cols * 0.35)):
