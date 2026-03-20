@@ -3669,7 +3669,7 @@ def convert_image_to_excel(file_input, form_data=None):
                 ]})
             else:
                 # ── Fusion mots proches (1% largeur) ────────────────────────
-                merge_dist = img_w * 0.010
+                merge_dist = max(10, np.median([w["width"] for w in all_words]) * 0.5)
                 row_thr    = max(10, int(img_h * 0.02))
 
                 rows_raw = {}
@@ -3695,63 +3695,109 @@ def convert_image_to_excel(file_input, form_data=None):
                 all_words = merged_words
                 logger.info(f"[IMG2XLS] Après fusion: {len(all_words)} mots")
 
-                # ── gap_min par saut naturel ─────────────────────────────────
-                all_lefts = sorted(set(w["left"] for w in all_words))
-                if len(all_lefts) > 1:
-                    gaps    = sorted([all_lefts[i]-all_lefts[i-1]
-                                      for i in range(1, len(all_lefts))])
-                    gap_min = img_w * 0.02
+                # ── Pré-calcul centres ─────────────────────────────────────────────
+                centers = sorted([w["left"] + w["width"] // 2 for w in all_words])
+                
+                # ── gap_min par saut naturel (robuste) ─────────────────────────────
+                if len(centers) > 1:
+                    gaps = sorted([
+                        centers[i] - centers[i-1]
+                        for i in range(1, len(centers))
+                    ])
+                
+                    median_width = np.median([w["width"] for w in all_words])
+                
+                    gap_min = max(
+                        10,
+                        img_w * 0.02,
+                        median_width * 0.8
+                    )
+                
                     for i in range(1, len(gaps)):
                         if gaps[i] >= 15 and gaps[i] > gaps[i-1] * 1.8:
-                            gap_min = gaps[i-1] + (gaps[i]-gaps[i-1]) * 0.3
+                            gap_min = gaps[i-1] + (gaps[i] - gaps[i-1]) * 0.3
                             break
-                    gap_min = max(gap_min, 10)
                 else:
-                    gap_min = img_w * 0.02
-
+                    gap_min = max(10, img_w * 0.02)
+                
                 logger.info(f"[IMG2XLS] gap_min={gap_min:.0f}px")
-
-                # ── Colonnes ─────────────────────────────────────────────────
-                col_centers = [all_lefts[0]]
-                for i in range(1, len(all_lefts)):
-                    if all_lefts[i] - all_lefts[i-1] > gap_min:
-                        col_centers.append(all_lefts[i])
+                
+                # ── Colonnes (clustering pondéré) ─────────────────────────────────
+                col_centers = []
+                col_counts  = []
+                
+                for c in centers:
+                    if not col_centers:
+                        col_centers.append(c)
+                        col_counts.append(1)
+                
+                    elif abs(c - col_centers[-1]) > gap_min:
+                        col_centers.append(c)
+                        col_counts.append(1)
+                
                     else:
-                        col_centers[-1] = (col_centers[-1] + all_lefts[i]) // 2
-
-                col_boundaries = [0]
-                for i in range(1, len(col_centers)):
-                    col_boundaries.append((col_centers[i-1]+col_centers[i])//2)
-                col_boundaries.append(img_w)
+                        idx = len(col_centers) - 1
+                        col_centers[idx] = int(
+                            (col_centers[idx] * col_counts[idx] + c) / (col_counts[idx] + 1)
+                        )
+                        col_counts[idx] += 1
+                
                 n_cols = len(col_centers)
+                
                 logger.info(f"[IMG2XLS] Colonnes: {n_cols}")
-
-                def assign_col(left):
-                    for ci in range(len(col_boundaries)-1):
-                        if col_boundaries[ci] <= left < col_boundaries[ci+1]:
-                            return ci
-                    return n_cols - 1
-
-                # ── Lignes ───────────────────────────────────────────────────
-                rows_dict = {}
-                for word in all_words:
-                    top = word["top"]
-                    key = next((k for k in rows_dict if abs(top-k) <= row_thr), None)
-                    if key is None: key = top; rows_dict[key] = []
-                    rows_dict[key].append(word)
+                
+                # ── Assignation colonne (robuste + rapide) ────────────────────────
+                def assign_col(word):
+                    if not col_centers:
+                        return 0
+                
+                    center = word["left"] + word["width"] // 2
+                
+                    best_ci = 0
+                    best_dist = abs(center - col_centers[0])
+                
+                    for i in range(1, len(col_centers)):
+                        d = abs(center - col_centers[i])
+                        if d < best_dist:
+                            best_dist = d
+                            best_ci = i
+                
+                    return best_ci
+                
+                # ── Lignes (clustering vertical stable) ───────────────────────────
+                sorted_words = sorted(all_words, key=lambda w: w["top"])
+                rows_dict = []
+                
+                for word in sorted_words:
+                    placed = False
+                
+                    for row in rows_dict:
+                        if abs(word["top"] - row["top"]) <= row_thr:
+                            row["words"].append(word)
+                
+                            # mise à jour dynamique du centre vertical
+                            row["top"] = int(np.mean([w["top"] for w in row["words"]]))
+                
+                            placed = True
+                            break
+                
+                    if not placed:
+                        rows_dict.append({
+                            "top": word["top"],
+                            "words": [word]
+                        })
 
                 # ── Grille ───────────────────────────────────────────────────
                 table_data = []
                 for _, wir in sorted(rows_dict.items()):
                     row = [""] * n_cols
                     for word in sorted(wir, key=lambda w: w["left"]):
-                        ci    = assign_col(word["left"])
+                        ci = assign_col(word)
                         clean = re.sub(r'^[|>\[\]]+$', '', word["text"]).strip()
                         # Corriger | isolé → 1 (artefact Tesseract fréquent)
                         clean = re.sub(r'(?<!\w)\|(?!\w)', '1', clean)
                         clean = re.sub(r'(?<=\d)\|(?=\d)', '1', clean)
                         # Corriger | isolé → 1 (fréquent avec Tesseract)
-                        clean = re.sub(r'(?<!\w)\|(?!\w)', '1', clean)
                         clean = re.sub(r'(?<=\d)\|(?=\d)', '1', clean)
                         if not clean: continue
                         row[ci] = (row[ci]+" "+clean).strip() if row[ci] else clean
@@ -3811,7 +3857,8 @@ def convert_image_to_excel(file_input, form_data=None):
                                 if c < 10: continue
                                 # Filtrer artefacts purs
                                 if _re3.match(r'^[v\|>_\.\-=©°¥\[\]]+$', t): continue
-                                if len(t) <= 1: continue
+                                if len(t.strip()) == 0:
+                                    continue
                                 # Convertir position X bande → image upscalée globale
                                 left_up = int((data_band["left"][i] / 4) * scale_w)
                                 ci = assign_col(left_up)
@@ -3915,7 +3962,9 @@ def convert_image_to_excel(file_input, form_data=None):
                         len(data_rows if df is not None else []) * n_cols, 1)
                     fill_ratio   = filled_cells / total_cells
                     confidence_score = int(
-                        np.mean(conf_scores) * (0.6 + 0.4 * fill_ratio))
+                        np.percentile(conf_scores, 60) * 0.7 +
+                        (fill_ratio * 100) * 0.3
+                    )
                     confidence_score = max(0, min(100, confidence_score))
 
                 logger.info(f"[IMG2XLS] Confiance: {confidence_score}%")
