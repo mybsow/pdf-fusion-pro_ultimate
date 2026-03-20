@@ -3747,6 +3747,9 @@ def convert_image_to_excel(file_input, form_data=None):
                     for word in sorted(wir, key=lambda w: w["left"]):
                         ci    = assign_col(word["left"])
                         clean = re.sub(r'^[|>\[\]]+$', '', word["text"]).strip()
+                        # Corriger | isolé → 1 (artefact Tesseract fréquent)
+                        clean = re.sub(r'(?<!\w)\|(?!\w)', '1', clean)
+                        clean = re.sub(r'(?<=\d)\|(?=\d)', '1', clean)
                         # Corriger | isolé → 1 (fréquent avec Tesseract)
                         clean = re.sub(r'(?<!\w)\|(?!\w)', '1', clean)
                         clean = re.sub(r'(?<=\d)\|(?=\d)', '1', clean)
@@ -3822,11 +3825,13 @@ def convert_image_to_excel(file_input, form_data=None):
                             for i, hc in enumerate(header_cells):
                                 # Supprimer mots parasites courts isolés
                                 hc = _re4.sub(
-                                    r'\b(ES|OS|SA|al|ea|Ea|we|si|isha|Bs|iy|ay|re|ra)\b',
+                                    r'\b(ES|OS|SA|al|ea|Ea|we|si|isha|Bs|iy|ay|re|ra|ee|oe|ae|pe|le|ce)\b',
                                     '', hc)
                                 # Supprimer caractères parasites
                                 hc = _re4.sub(r'[_=\|©°¥>]+', ' ', hc)
                                 hc = _re4.sub(r'\b[vVwW]\b', '', hc)
+                                # Corriger | isolé → 1
+                                hc = _re4.sub(r'(?<!\w)\|(?!\w)', '1', hc)
                                 hc = ' '.join(hc.split())
                                 header_cells[i] = hc
 
