@@ -3687,22 +3687,48 @@ def convert_image_to_excel(file_input, form_data=None):
         else:
             # ════════════════════════════════════════════════════════════════
             # 6. CLUSTERING VERTICAL → LIGNES
+            #
+            # v7 — row_thr adaptatif :
+            #   On démarre avec un seuil large (2% hauteur) pour un 1er
+            #   clustering, puis on recalcule le seuil réel en fonction de
+            #   l'espacement médian entre lignes détectées. Cela évite de
+            #   fusionner des lignes visuellement distinctes quand le tableau
+            #   est dense (ex: en-têtes sur 2 lignes + données proches).
             # ════════════════════════════════════════════════════════════════
-            row_thr       = max(8, int(img_h * 0.02))
-            sorted_by_top = sorted(all_words, key=lambda w: w["top"])
-            rows_raw      = []
+            def _cluster_rows(words, thr):
+                """Regroupe les mots en lignes selon un seuil vertical."""
+                rows = []
+                for word in sorted(words, key=lambda w: w["top"]):
+                    placed = False
+                    for row in rows:
+                        if abs(word["top"] - row["top"]) <= thr:
+                            row["words"].append(word)
+                            row["top"] = int(np.mean([w["top"] for w in row["words"]]))
+                            placed = True
+                            break
+                    if not placed:
+                        rows.append({"top": word["top"], "words": [word]})
+                rows.sort(key=lambda r: r["top"])
+                return rows
 
-            for word in sorted_by_top:
-                placed = False
-                for row in rows_raw:
-                    if abs(word["top"] - row["top"]) <= row_thr:
-                        row["words"].append(word)
-                        row["top"] = int(np.mean([w["top"] for w in row["words"]]))
-                        placed = True
-                        break
-                if not placed:
-                    rows_raw.append({"top": word["top"], "words": [word]})
+            # 1er passage : seuil large pour estimer les tops réels
+            row_thr_init = max(8, int(img_h * 0.02))
+            rows_pass1   = _cluster_rows(all_words, row_thr_init)
 
+            # Calcul de l'espacement médian entre lignes consécutives
+            if len(rows_pass1) >= 2:
+                tops      = [r["top"] for r in rows_pass1]
+                spacings  = [tops[i] - tops[i-1] for i in range(1, len(tops))]
+                median_sp = float(np.median(spacings))
+                # Seuil final = 40% de l'espacement médian (sépare sans sur-fusionner)
+                row_thr   = max(5, int(median_sp * 0.40))
+            else:
+                row_thr = row_thr_init
+
+            logger.info(f"[IMG2XLS] row_thr init={row_thr_init}px → adaptatif={row_thr}px")
+
+            # 2ème passage : clustering avec le seuil adaptatif
+            rows_raw = _cluster_rows(all_words, row_thr)
             rows_raw.sort(key=lambda r: r["top"])
             logger.info(f"[IMG2XLS] Lignes brutes: {len(rows_raw)}")
 
@@ -4095,6 +4121,21 @@ def convert_image_to_excel(file_input, form_data=None):
                         logger.info(
                             f"[IMG2XLS] En-tête final (base=ligne {best_idx}, "
                             f"title_skip={title_skip}, fusions={fused_count}): {headers}")
+
+                        # ── v7 : nettoyage en-têtes parasites ─────────────────
+                        # Si un en-tête ressemble à une date, un nombre, ou un
+                        # code court sans lettre → c'est une valeur OCR qui s'est
+                        # glissée dans la ligne en-tête → on la remplace par Col{n}
+                        _DATE_RE = re.compile(
+                            r'^\d{1,2}[/\-\.]\d{1,2}[/\-\.]\d{2,4}'  # date
+                            r'|^\d+[\.,]?\d*$'                          # nombre pur
+                            r'|^[A-Z]{1,3}\d+$'                         # code court ex: él, B2
+                        )
+                        headers = [
+                            f"Col{i+1}" if (h and _DATE_RE.match(h.strip())) else h
+                            for i, h in enumerate(headers)
+                        ]
+                        logger.info(f"[IMG2XLS] En-têtes après nettoyage: {headers}")
 
                     data_rows = [r for r in table_data[first_data_idx:]
                                  if any(c.strip() for c in r)]
