@@ -3515,20 +3515,11 @@ if __name__ == "__main__":
 # ──────────────────────────────────────────────────────────────────────────────
 # CONVERT IMAGE → EXCEL  (réécriture complète)
 # ──────────────────────────────────────────────────────────────────────────────
-import re  # ✅ FIX #4 — import unique, suppression des _re2/_re3/_re4 en double
-
+import re
 
 def convert_image_to_excel(file_input, form_data=None):
-    """
-    Convertit une image en Excel via Tesseract OCR.
-    - Clustering adaptatif des colonnes par saut naturel
-    - OCR séparé sur la bande d'en-tête colorée (PSM6 inversé)
-    - Utilise _ensure_rgb et preprocess_for_ocr si disponibles
-      #1 - pandas Series.max() ne supporte pas default= → remplacé par .empty guard
-      #2 - data_rows initialisé avant les branches conditionnelles → NameError éliminé
-      #3 - nettoyage en-tête header_cells[i] : résultat join() correctement conservé
-      #4 - imports re dupliqués (_re2/_re3/_re4) remontés en haut de fichier
-    """
+
+    # ── Vérification dépendances ─────────────────────────────────────────────
     if not HAS_PILLOW or not HAS_TESSERACT or not HAS_PANDAS:
         return {"error": "Dépendances manquantes (Pillow, Tesseract, pandas)"}
 
@@ -3547,7 +3538,9 @@ def convert_image_to_excel(file_input, form_data=None):
     temp_files        = []
 
     try:
-        # ── Sauvegarde ──────────────────────────────────────────────────────
+        # ════════════════════════════════════════════════════════════════════
+        # 1. SAUVEGARDE & OUVERTURE
+        # ════════════════════════════════════════════════════════════════════
         suffix = Path(original_filename).suffix or ".png"
         tmp    = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
         file_storage.save(tmp.name)
@@ -3555,477 +3548,520 @@ def convert_image_to_excel(file_input, form_data=None):
         temp_files.append(tmp.name)
         logger.info(f"[IMG2XLS] Sauvegardé: {tmp.name} ({os.path.getsize(tmp.name)} octets)")
 
-        # ── Ouverture image ─────────────────────────────────────────────────
         try:
             img_orig = Image.open(tmp.name)
             img_orig.load()
-            logger.info(f"[IMG2XLS] Image: {img_orig.size}, mode={img_orig.mode}")
+            logger.info(f"[IMG2XLS] Image originale: {img_orig.size}, mode={img_orig.mode}")
         except Exception as e:
             return {"error": f"Impossible d'ouvrir l'image : {e}"}
 
-        # ── Paramètres ──────────────────────────────────────────────────────
+        # ════════════════════════════════════════════════════════════════════
+        # 2. PARAMÈTRES
+        # ════════════════════════════════════════════════════════════════════
         language        = form_data.get("language", "fra+eng")
-        detect_tables   = str(form_data.get("detect_tables", "true")).lower() == "true"
         confidence_thr  = max(0, int(form_data.get("confidence", "10")))
-        extraction_mode = form_data.get("extractionMode", "auto")
         has_header      = str(form_data.get("hasHeader", "true")).lower() == "true"
         df               = None
         confidence_score = 0
-        data_rows        = []  # ✅ FIX #2 — initialisé ici, avant toute branche conditionnelle
+        data_rows        = []
 
         lang_map = {
-            "fra":"fra","eng":"eng","en":"eng","es":"spa","spa":"spa",
-            "de":"deu","deu":"deu","it":"ita","ita":"ita","pt":"por","por":"por",
-            "ru":"rus","ar":"ara","zh":"chi_sim","ja":"jpn","nl":"nld","nld":"nld",
+            "fra":"fra", "eng":"eng", "en":"eng",  "es":"spa",  "spa":"spa",
+            "de":"deu",  "deu":"deu", "it":"ita",  "ita":"ita", "pt":"por",
+            "por":"por", "ru":"rus",  "ar":"ara",  "zh":"chi_sim",
+            "ja":"jpn",  "nl":"nld",  "nld":"nld",
         }
         mapped, seen_l = [], set()
-        for l in (language.split("+") if "+" in language else [language]):
-            t = lang_map.get(l.strip(), l.strip())
+        for part in (language.split("+") if "+" in language else [language]):
+            t = lang_map.get(part.strip(), part.strip())
             if t not in seen_l:
                 seen_l.add(t)
                 mapped.append(t)
         ocr_lang = "+".join(mapped)
+        logger.info(f"[IMG2XLS] Params: lang={ocr_lang}, conf_thr={confidence_thr}, has_header={has_header}")
 
-        logger.info(f"[IMG2XLS] Params: lang={ocr_lang}, mode={extraction_mode}, conf={confidence_thr}")
-
-        # ── RGBA → RGB fond blanc ───────────────────────────────────────────
+        # ════════════════════════════════════════════════════════════════════
+        # 3. PRÉTRAITEMENT ADAPTATIF
+        # ════════════════════════════════════════════════════════════════════
+        # 3a. RGBA → RGB fond blanc
         if callable(globals().get('_ensure_rgb')):
             img_rgb = _ensure_rgb(img_orig)
         else:
             if img_orig.mode in ("RGBA", "LA", "P"):
-                bg = Image.new("RGB", img_orig.size, (255, 255, 255))
+                bg       = Image.new("RGB", img_orig.size, (255, 255, 255))
                 img_conv = img_orig.convert("RGBA") if img_orig.mode == "P" else img_orig
-                if img_conv.mode in ("RGBA", "LA"):
-                    bg.paste(img_conv, mask=img_conv.split()[-1])
-                else:
-                    bg.paste(img_conv)
-                img_rgb = bg
+                bg.paste(img_conv, mask=img_conv.split()[-1] if img_conv.mode in ("RGBA","LA") else None)
+                img_rgb  = bg
             else:
                 img_rgb = img_orig.convert("RGB")
 
-        # ── Upscale ─────────────────────────────────────────────────────────
-        w_orig, h_orig = img_rgb.size
-        if max(w_orig, h_orig) < 2400:
-            scale    = 2400 / max(w_orig, h_orig)
-            upscaled = img_rgb.resize(
-                (int(w_orig * scale), int(h_orig * scale)), Image.Resampling.LANCZOS)
-            logger.info(f"[IMG2XLS] Upscale: {w_orig}x{h_orig} → {upscaled.size[0]}x{upscaled.size[1]}")
+        # 3b. Upscale : cible 2400px sur le grand côté, max 4800px
+        w0, h0 = img_rgb.size
+        long_side = max(w0, h0)
+        if long_side < 2400:
+            scale    = 2400 / long_side
+            upscaled = img_rgb.resize((int(w0*scale), int(h0*scale)), Image.Resampling.LANCZOS)
+            logger.info(f"[IMG2XLS] Upscale ×{scale:.2f}: {w0}×{h0} → {upscaled.size[0]}×{upscaled.size[1]}")
+        elif long_side > 4800:
+            scale    = 4800 / long_side
+            upscaled = img_rgb.resize((int(w0*scale), int(h0*scale)), Image.Resampling.LANCZOS)
+            logger.info(f"[IMG2XLS] Downscale ×{scale:.2f}: {w0}×{h0} → {upscaled.size[0]}×{upscaled.size[1]}")
         else:
             upscaled = img_rgb
 
-        # ── Prétraitement ────────────────────────────────────────────────────
+        # 3c. Amélioration qualité
         if callable(globals().get('preprocess_for_ocr')):
-            processed = preprocess_for_ocr(
-                upscaled, enhance_image=True,
-                deskew=False, binarize=False, max_ocr_px=4000)
+            processed = preprocess_for_ocr(upscaled, enhance_image=True,
+                                           deskew=False, binarize=False, max_ocr_px=4800)
         else:
-            from PIL import ImageOps as _IOS, ImageFilter as _IIF, ImageEnhance as _IIE
-            processed = _IOS.autocontrast(upscaled, cutoff=1)
-            processed = processed.filter(_IIF.MedianFilter(size=3))
-            processed = _IIE.Sharpness(processed).enhance(1.5)
+            from PIL import ImageOps as _IO, ImageFilter as _IF, ImageEnhance as _IE
+            processed = _IO.autocontrast(upscaled, cutoff=1)
+            processed = processed.filter(_IF.MedianFilter(size=3))
+            processed = _IE.Sharpness(processed).enhance(1.8)
+            processed = _IE.Contrast(processed).enhance(1.2)
 
         img_w, img_h = processed.size
-        logger.info(f"[IMG2XLS] Image prête: {processed.size}")
+        logger.info(f"[IMG2XLS] Image prête pour OCR: {img_w}×{img_h}")
 
-        # ══ MODE TABLEAU ════════════════════════════════════════════════════
-        if detect_tables or extraction_mode in ("auto", "table", "block", "grid"):
+        # ════════════════════════════════════════════════════════════════════
+        # 4. OCR MULTI-PSM — on garde la config qui donne le plus de tokens
+        # ════════════════════════════════════════════════════════════════════
+        # PSM 4 = colonne de texte  (bon pour tableaux 1 col)
+        # PSM 6 = bloc uniforme     (bon pour tableaux multi-col)
+        # PSM 3 = auto sans OSD     (bon pour docs mixtes)
+        # PSM 11= texte épars       (bon pour captures d'écran)
+        # PSM 12= auto épars        (fallback général)
+        OCR_CONFIGS = [
+            "--oem 3 --psm 6 -c preserve_interword_spaces=1",
+            "--oem 3 --psm 4 -c preserve_interword_spaces=1",
+            "--oem 3 --psm 3",
+            "--oem 3 --psm 11",
+            "--oem 3 --psm 12",
+        ]
 
-            def _safe_int(v):
-                try:
-                    return int(v)
-                except Exception:
-                    return -1
+        def _safe_int(v):
+            try:    return int(v)
+            except: return -1
 
-            # ── OCR principal (données) ──────────────────────────────────────
-            data = None
-            for cfg in [
-                "--oem 3 --psm 4 -c preserve_interword_spaces=1",
-                "--oem 3 --psm 6",
-            ]:
-                try:
-                    data = pytesseract.image_to_data(
-                        processed, lang=ocr_lang,
-                        output_type=Output.DICT, config=cfg)
-                    if data and any(t.strip() for t in data.get("text", [])):
+        def _run_ocr(image, cfg):
+            """Lance Tesseract et retourne (data_dict, n_mots_valides)."""
+            try:
+                d = pytesseract.image_to_data(
+                    image, lang=ocr_lang,
+                    output_type=Output.DICT, config=cfg)
+                n = sum(1 for t in d.get("text", [])
+                        if t and t.strip() and _safe_int(d["conf"][d["text"].index(t)]) >= confidence_thr)
+                return d, n
+            except Exception:
+                return None, 0
+
+        best_data, best_count = None, 0
+        for cfg in OCR_CONFIGS:
+            d, n = _run_ocr(processed, cfg)
+            logger.info(f"[IMG2XLS] OCR cfg={cfg.split('--psm')[1].split()[0].strip()} → {n} mots valides")
+            if n > best_count:
+                best_data, best_count = d, n
+            if n >= 20:   # suffisamment de tokens, inutile d'essayer d'autres configs
+                break
+
+        if not best_data:
+            best_data = {"text":[],"conf":[],"left":[],"top":[],"width":[],"height":[]}
+
+        logger.info(f"[IMG2XLS] OCR final: {len(best_data['text'])} tokens bruts, {best_count} valides")
+
+        # ════════════════════════════════════════════════════════════════════
+        # 5. EXTRACTION DES MOTS VALIDES
+        # ════════════════════════════════════════════════════════════════════
+        all_words, conf_scores = [], []
+        for i, text in enumerate(best_data["text"]):
+            if not text or not text.strip():
+                continue
+            conf = _safe_int(best_data["conf"][i])
+            if conf < confidence_thr:
+                continue
+            all_words.append({
+                "text":  text.strip(),
+                "left":  best_data["left"][i],
+                "top":   best_data["top"][i],
+                "conf":  conf,
+                "width": max(best_data["width"][i], 1),
+            })
+            conf_scores.append(conf)
+
+        logger.info(f"[IMG2XLS] Mots retenus: {len(all_words)}")
+
+        if not all_words:
+            # Dernier recours : image_to_string brut
+            logger.warning("[IMG2XLS] Aucun mot valide via image_to_data → fallback image_to_string")
+            df = _fallback_text(processed, ocr_lang)
+        else:
+            # ════════════════════════════════════════════════════════════════
+            # 6. CLUSTERING VERTICAL → LIGNES
+            # ════════════════════════════════════════════════════════════════
+            # Seuil de proximité verticale : 2% de la hauteur image, min 8px
+            row_thr = max(8, int(img_h * 0.02))
+
+            sorted_by_top = sorted(all_words, key=lambda w: w["top"])
+            rows_dict     = []   # liste de {"top": int, "words": [...]}
+
+            for word in sorted_by_top:
+                placed = False
+                for row in rows_dict:
+                    if abs(word["top"] - row["top"]) <= row_thr:
+                        row["words"].append(word)
+                        row["top"] = int(np.mean([w["top"] for w in row["words"]]))
+                        placed = True
                         break
-                except Exception:
-                    continue
+                if not placed:
+                    rows_dict.append({"top": word["top"], "words": [word]})
 
-            if not data:
-                data = {"text": [], "conf": [], "left": [], "top": [], "width": [], "height": []}
+            rows_dict.sort(key=lambda r: r["top"])
+            logger.info(f"[IMG2XLS] Lignes détectées: {len(rows_dict)}")
 
-            logger.info(f"[IMG2XLS] OCR: {len(data['text'])} tokens")
+            # ════════════════════════════════════════════════════════════════
+            # 7. FUSION DES TOKENS PROCHES AU SEIN D'UNE LIGNE
+            #    (reconstitue les cellules multi-mots)
+            # ════════════════════════════════════════════════════════════════
+            median_w   = float(np.median([w["width"] for w in all_words]))
+            merge_dist = max(8, median_w * 0.6)
 
-            # ── Mots valides ─────────────────────────────────────────────────
-            all_words, conf_scores = [], []
-            for i, text in enumerate(data["text"]):
-                if not text or not text.strip():
-                    continue
-                conf = _safe_int(data["conf"][i])
-                if conf < confidence_thr:
-                    continue
-                all_words.append({
-                    "text":  text.strip(),
-                    "left":  data["left"][i],
-                    "top":   data["top"][i],
-                    "conf":  conf,
-                    "width": data["width"][i],
-                })
-                conf_scores.append(conf)
+            merged_words = []
+            for row in rows_dict:
+                sw  = sorted(row["words"], key=lambda w: w["left"])
+                cur = dict(sw[0])
+                for nxt in sw[1:]:
+                    gap = nxt["left"] - (cur["left"] + cur["width"])
+                    if gap <= merge_dist:
+                        cur["text"]  += " " + nxt["text"]
+                        cur["width"]  = (nxt["left"] + nxt["width"]) - cur["left"]
+                        cur["conf"]   = min(cur["conf"], nxt["conf"])
+                    else:
+                        merged_words.append(cur)
+                        cur = dict(nxt)
+                merged_words.append(cur)
 
-            logger.info(f"[IMG2XLS] Mots retenus: {len(all_words)}")
+            logger.info(f"[IMG2XLS] Tokens après fusion: {len(merged_words)}")
 
-            if not all_words:
-                df = pd.DataFrame({"Information": [
-                    "Aucun texte détecté — vérifiez la qualité de l'image"
-                ]})
+            # ════════════════════════════════════════════════════════════════
+            # 8. DÉTECTION DU NOMBRE DE COLONNES
+            #    Algorithme : histogramme des centres X → vallées = séparateurs
+            # ════════════════════════════════════════════════════════════════
+            centers_x = sorted(set(w["left"] + w["width"] // 2 for w in merged_words))
+
+            if len(centers_x) <= 1:
+                # Image avec un seul token ou tous alignés identiquement
+                n_cols      = 1
+                col_centers = centers_x if centers_x else [img_w // 2]
             else:
-                # ── Fusion mots proches ──────────────────────────────────────
-                merge_dist = max(10, np.median([w["width"] for w in all_words]) * 0.5)
-                row_thr    = max(10, int(img_h * 0.02))
+                # Calcul des gaps entre centres consécutifs
+                gaps = [centers_x[i] - centers_x[i-1] for i in range(1, len(centers_x))]
 
-                rows_raw = {}
-                for word in all_words:
-                    top = word["top"]
-                    key = next((k for k in rows_raw if abs(top - k) <= row_thr), None)
-                    if key is None:
-                        key = top
-                        rows_raw[key] = []
-                    rows_raw[key].append(word)
+                # Seuil naturel : médiane des gaps × facteur 1.5
+                # Ce seuil sépare "même cellule" de "colonnes différentes"
+                gap_median = float(np.median(gaps))
+                gap_std    = float(np.std(gaps))
+                # Seuil adaptatif : médiane + 0.8×écart-type, plancher = 5% largeur image
+                gap_thr    = max(gap_median + 0.8 * gap_std, img_w * 0.05, median_w * 1.0)
+                gap_thr    = min(gap_thr, img_w * 0.45)  # plafond : jamais plus de 45% largeur
 
-                merged_words = []
-                for _, wir in rows_raw.items():
-                    sw  = sorted(wir, key=lambda w: w["left"])
-                    cur = dict(sw[0])
-                    for nxt in sw[1:]:
-                        gap = nxt["left"] - (cur["left"] + cur.get("width", 50))
-                        if gap < merge_dist:
-                            cur["text"]  += " " + nxt["text"]
-                            cur["width"]  = (nxt["left"] + nxt.get("width", 50)) - cur["left"]
-                        else:
-                            merged_words.append(cur)
-                            cur = dict(nxt)
-                    merged_words.append(cur)
+                logger.info(f"[IMG2XLS] gap_median={gap_median:.0f}px, gap_thr={gap_thr:.0f}px")
 
-                all_words = merged_words
-                logger.info(f"[IMG2XLS] Après fusion: {len(all_words)} mots")
-
-                # ── Pré-calcul centres ─────────────────────────────────────
-                centers = sorted([w["left"] + w["width"] // 2 for w in all_words])
-
-                # ── gap_min par saut naturel ───────────────────────────────
-                if len(centers) > 1:
-                    gaps         = sorted([centers[i] - centers[i-1] for i in range(1, len(centers))])
-                    median_width = np.median([w["width"] for w in all_words])
-
-                    gap_min = max(10, img_w * 0.02, median_width * 0.8)
-
-                    for i in range(1, len(gaps)):
-                        if gaps[i] >= 15 and gaps[i] > gaps[i-1] * 1.8:
-                            gap_min = gaps[i-1] + (gaps[i] - gaps[i-1]) * 0.3
-                            break
-
-                    gap_min = min(gap_min, img_w * 0.5)
-                else:
-                    gap_min      = max(10, img_w * 0.02)
-                    median_width = 50
-
-                logger.info(f"[IMG2XLS] gap_min={gap_min:.0f}px")
-
-                # ── Colonnes (clustering pondéré + merge final) ────────────
-                col_centers, col_counts = [], []
-
-                for c in centers:
-                    if not col_centers:
-                        col_centers.append(c)
-                        col_counts.append(1)
-                        continue
-                    distances = [abs(c - cc) for cc in col_centers]
-                    min_dist  = min(distances)
-                    idx       = distances.index(min_dist)
-                    if min_dist < gap_min:
-                        col_centers[idx] = int(
-                            (col_centers[idx] * col_counts[idx] + c) / (col_counts[idx] + 1))
-                        col_counts[idx] += 1
+                # Regroupement des centres par clustering agglomératif simple
+                col_centers = [centers_x[0]]
+                col_sizes   = [1]
+                for cx in centers_x[1:]:
+                    dist = abs(cx - col_centers[-1])
+                    if dist < gap_thr:
+                        # même colonne : moyenne pondérée
+                        n = col_sizes[-1]
+                        col_centers[-1] = int((col_centers[-1] * n + cx) / (n + 1))
+                        col_sizes[-1]   = n + 1
                     else:
-                        col_centers.append(c)
-                        col_counts.append(1)
+                        col_centers.append(cx)
+                        col_sizes.append(1)
 
-                col_centers = sorted(col_centers)
+                # Fusion finale des colonnes encore trop proches
+                min_col_gap = max(median_w * 0.9, img_w * 0.03)
                 merged_cols = [col_centers[0]]
-                for c in col_centers[1:]:
-                    if abs(c - merged_cols[-1]) < median_width * 0.8:
-                        merged_cols[-1] = int((merged_cols[-1] + c) / 2)
+                for cx in col_centers[1:]:
+                    if abs(cx - merged_cols[-1]) < min_col_gap:
+                        merged_cols[-1] = int((merged_cols[-1] + cx) / 2)
                     else:
-                        merged_cols.append(c)
+                        merged_cols.append(cx)
                 col_centers = merged_cols
                 n_cols      = len(col_centers)
-                logger.info(f"[IMG2XLS] Colonnes: {n_cols}")
 
-                # ── Assignation colonne ────────────────────────────────────
-                def assign_col(word):
-                    if not col_centers:
-                        return 0
-                    center    = word["left"] + word["width"] // 2
-                    best_ci   = 0
-                    best_dist = abs(center - col_centers[0])
-                    for i in range(1, len(col_centers)):
-                        d = abs(center - col_centers[i])
-                        if d < best_dist:
-                            best_dist = d
-                            best_ci   = i
-                    return best_ci
+            logger.info(f"[IMG2XLS] Colonnes détectées: {n_cols}, centres={col_centers}")
 
-                # ── Lignes (clustering vertical) ───────────────────────────
-                sorted_words = sorted(all_words, key=lambda w: w["top"])
-                rows_dict    = []
+            # ════════════════════════════════════════════════════════════════
+            # 9. ASSIGNATION COLONNE POUR CHAQUE TOKEN
+            # ════════════════════════════════════════════════════════════════
+            def assign_col(word):
+                cx = word["left"] + word["width"] // 2
+                return min(range(len(col_centers)),
+                           key=lambda i: abs(cx - col_centers[i]))
 
-                for word in sorted_words:
-                    placed = False
-                    for row in rows_dict:
-                        if abs(word["top"] - row["top"]) <= row_thr:
-                            row["words"].append(word)
-                            row["top"] = int(np.mean([w["top"] for w in row["words"]]))
-                            placed = True
-                            break
-                    if not placed:
-                        rows_dict.append({"top": word["top"], "words": [word]})
+            # ════════════════════════════════════════════════════════════════
+            # 10. CONSTRUCTION DE LA GRILLE
+            #     On reconstruit les lignes depuis merged_words
+            #     (pas depuis rows_dict pour éviter les doublons post-merge)
+            # ════════════════════════════════════════════════════════════════
+            # Re-clustering vertical sur merged_words
+            grid_rows = []
+            for word in sorted(merged_words, key=lambda w: w["top"]):
+                placed = False
+                for row in grid_rows:
+                    if abs(word["top"] - row["top"]) <= row_thr:
+                        row["cells"].append(word)
+                        row["top"] = int(np.mean([w["top"] for w in row["cells"]]))
+                        placed = True
+                        break
+                if not placed:
+                    grid_rows.append({"top": word["top"], "cells": [word]})
 
-                # ── Grille ─────────────────────────────────────────────────
-                table_data = []
-                for row in sorted(rows_dict, key=lambda r: r["top"]):
-                    wir       = row["words"]
-                    row_cells = [""] * n_cols
+            grid_rows.sort(key=lambda r: r["top"])
 
-                    for word in sorted(wir, key=lambda w: w["left"]):
-                        ci    = assign_col(word)
-                        clean = re.sub(r'^[|>\[\]]+$', '', word["text"]).strip()
-                        clean = re.sub(r'(?<!\w)\|(?!\w)', '1', clean)
-                        clean = re.sub(r'(?<=\d)\|(?=\d)', '1', clean)
-                        if not clean:
-                            continue
-                        if row_cells[ci]:
-                            row_cells[ci] += " " + clean
-                        else:
-                            row_cells[ci] = clean
+            # Nettoyage des valeurs OCR parasites
+            _GARBAGE = re.compile(r'^[|>\[\]{}\\/\-_=©°¥~`]+$')
+            _PIPE_IN_NUM = re.compile(r'(?<=\d)\|(?=\d)')
+            _LONE_PIPE   = re.compile(r'(?<!\w)\|(?!\w)')
 
-                    if any(c.strip() for c in row_cells):
-                        table_data.append(row_cells)
+            def _clean_cell(text):
+                t = _GARBAGE.sub('', text).strip()
+                t = _PIPE_IN_NUM.sub('1', t)
+                t = _LONE_PIPE.sub('', t)
+                return t.strip()
 
-                logger.info(f"[IMG2XLS] Lignes: {len(table_data)}, aperçu: {table_data[:2]}")
+            table_data = []   # liste de listes, shape = (n_lignes, n_cols)
+            for row in grid_rows:
+                row_cells = [""] * n_cols
+                for word in sorted(row["cells"], key=lambda w: w["left"]):
+                    ci    = assign_col(word)
+                    clean = _clean_cell(word["text"])
+                    if not clean:
+                        continue
+                    row_cells[ci] = (row_cells[ci] + " " + clean).strip() \
+                                    if row_cells[ci] else clean
+                # On garde toutes les lignes qui ont AU MOINS 1 cellule non vide
+                if any(c for c in row_cells):
+                    table_data.append(row_cells)
 
-                # ══ EN-TÊTE : OCR bande colorée ═══════════════════════════
-                header_from_band = None
-                if has_header:
-                    try:
-                        from PIL import ImageOps as _IOP2
+            logger.info(f"[IMG2XLS] table_data: {len(table_data)} lignes × {n_cols} cols")
+            if table_data:
+                logger.info(f"[IMG2XLS] Aperçu: {table_data[:3]}")
 
-                        arr_orig = np.array(img_rgb)
-                        h_o, w_o = arr_orig.shape[:2]
-                        scale_w  = img_w / w_o
+            # ════════════════════════════════════════════════════════════════
+            # 11. DÉTECTION EN-TÊTE
+            #     Priorité 1 : bande colorée dans l'image originale
+            #     Priorité 2 : première ligne de table_data
+            #     Priorité 3 : noms génériques Col1, Col2…
+            # ════════════════════════════════════════════════════════════════
+            header_from_band = None
 
-                        r_c, g_c, b_c = arr_orig[:, :, 0], arr_orig[:, :, 1], arr_orig[:, :, 2]
-                        max_rgb   = np.maximum(np.maximum(r_c, g_c), b_c)
-                        min_rgb   = np.minimum(np.minimum(r_c, g_c), b_c)
-                        colorful  = (max_rgb - min_rgb > 40) & (max_rgb < 230)
-                        dark_rows_idx = np.where(colorful.any(axis=1))[0]
+            if has_header and table_data:
+                try:
+                    from PIL import ImageOps as _IOP2
+                    arr   = np.array(img_rgb)
+                    h_o, w_o = arr.shape[:2]
+                    scale_w  = img_w / w_o
 
-                        if len(dark_rows_idx) > 0:
-                            grps, st, pv = [], int(dark_rows_idx[0]), int(dark_rows_idx[0])
-                            for ri in dark_rows_idx[1:]:
-                                ri = int(ri)
-                                if ri - pv > 5:
-                                    grps.append((st, pv))
-                                    st = ri
-                                pv = ri
-                            grps.append((st, pv))
-                            y1_b, y2_b = max(grps, key=lambda g: g[1] - g[0])
+                    r_, g_, b_ = arr[:,:,0], arr[:,:,1], arr[:,:,2]
+                    colorful   = ((r_.astype(int) - g_.astype(int)).clip(0) +
+                                  (g_.astype(int) - b_.astype(int)).clip(0) +
+                                  (b_.astype(int) - r_.astype(int)).clip(0)) > 30
+                    dark_ok    = arr.max(axis=2) < 235
+                    band_mask  = colorful & dark_ok
+                    row_idx    = np.where(band_mask.any(axis=1))[0]
 
-                            band    = img_rgb.crop((0, max(0, y1_b - 2), w_o, min(h_o, y2_b + 3)))
-                            band_up4 = band.resize(
-                                (band.width * 4, band.height * 4), Image.Resampling.LANCZOS)
-                            band_inv = _IOP2.invert(band_up4)
+                    if len(row_idx) > 3:
+                        # Regrouper en segments
+                        segs, s, p = [], int(row_idx[0]), int(row_idx[0])
+                        for ri in row_idx[1:]:
+                            ri = int(ri)
+                            if ri - p > 5: segs.append((s, p)); s = ri
+                            p = ri
+                        segs.append((s, p))
+                        # Prendre le segment le plus haut et le plus large (en-tête)
+                        y1, y2 = max(segs, key=lambda g: g[1] - g[0])
 
-                            data_band = pytesseract.image_to_data(
+                        if (y2 - y1) >= 3:   # bande d'au moins 3px dans l'original
+                            band     = img_rgb.crop((0, max(0,y1-2), w_o, min(h_o,y2+3)))
+                            band_up  = band.resize((band.width*4, band.height*4),
+                                                   Image.Resampling.LANCZOS)
+                            band_inv = _IOP2.invert(band_up)
+
+                            d_band = pytesseract.image_to_data(
                                 band_inv, lang=ocr_lang,
                                 output_type=Output.DICT,
-                                config="--oem 3 --psm 6"
-                            )
+                                config="--oem 3 --psm 6")
 
-                            def assign_col_x(x_coord):
-                                if not col_centers:
-                                    return 0
-                                best_ci, best_dist = 0, abs(x_coord - col_centers[0])
-                                for i in range(1, len(col_centers)):
-                                    d = abs(x_coord - col_centers[i])
-                                    if d < best_dist:
-                                        best_ci, best_dist = i, d
-                                return best_ci
+                            hcells = [""] * n_cols
+                            for i in range(len(d_band["text"])):
+                                t = d_band["text"][i]
+                                if not t or not t.strip(): continue
+                                try: c = int(d_band["conf"][i])
+                                except: c = -1
+                                if c < 10: continue
+                                if re.match(r'^[v|>_.\-=©°¥\[\]]+$', t): continue
+                                lx = int((d_band["left"][i] / 4) * scale_w)
+                                ci = min(range(len(col_centers)),
+                                         key=lambda k: abs(lx - col_centers[k]))
+                                hcells[ci] = (hcells[ci] + " " + t.strip()).strip() \
+                                             if hcells[ci] else t.strip()
 
-                            header_cells = [""] * n_cols
-                            for i in range(len(data_band["text"])):
-                                t = data_band["text"][i]
-                                if not t or not t.strip():
-                                    continue
-                                try:
-                                    c = int(data_band["conf"][i])
-                                except Exception:
-                                    c = -1
-                                if c < 10:
-                                    continue
-                                if re.match(r'^[v\|>_\.\-=©°¥\[\]]+$', t):
-                                    continue
-
-                                left_up = int((data_band["left"][i] / 4) * scale_w)
-                                ci      = assign_col_x(left_up)
-                                if header_cells[ci]:
-                                    header_cells[ci] += " " + t.strip()
-                                else:
-                                    header_cells[ci] = t.strip()
-
-                            # ✅ FIX #3 — nettoyage header_cells : résultat join() conservé
-                            for i, hc in enumerate(header_cells):
-                                hc = re.sub(
-                                    r'\b(ES|OS|SA|al|ea|Ea|we|si|isha|Bs|iy|ay|re|ra|ee|oe|ae|pe|le|ce)\b',
-                                    '', hc)
-                                hc = re.sub(r'[_=\|©°¥>]+', ' ', hc)
+                            # Nettoyage
+                            for i, hc in enumerate(hcells):
+                                hc = re.sub(r'\b(ES|OS|SA|al|ea|Ea|we|si|isha)\b', '', hc)
+                                hc = re.sub(r'[_=|©°¥>]+', ' ', hc)
                                 hc = re.sub(r'\b[vVwW]\b', '', hc)
-                                hc = re.sub(r'(?<!\w)\|(?!\w)', '1', hc)
-                                hc = ' '.join(hc.split())  # ← résultat effectivement utilisé
-                                header_cells[i] = hc       # ✅ correctement assigné
+                                hcells[i] = ' '.join(hc.split())
 
-                            valid = sum(1 for c in header_cells if len(c) >= 2)
-                            if valid >= max(2, int(n_cols * 0.35)):
-                                header_from_band = header_cells
+                            valid = sum(1 for c in hcells if len(c) >= 2)
+                            # Seuil adaptatif : au moins 1 cellule valide
+                            # (pas de min absolu à 2 qui bloquait les tableaux 1 col)
+                            if valid >= max(1, int(n_cols * 0.3)):
+                                header_from_band = hcells
                                 logger.info(f"[IMG2XLS] En-tête bande ({valid}/{n_cols}): {header_from_band}")
                             else:
                                 logger.info(f"[IMG2XLS] Bande rejetée ({valid}/{n_cols} valides)")
 
-                    except Exception as e:
-                        logger.warning(f"[IMG2XLS] OCR bande colorée échoué: {e}")
+                except Exception as e:
+                    logger.warning(f"[IMG2XLS] OCR bande colorée échoué: {e}")
 
-                # ── Construire DataFrame final ─────────────────────────────
-                if table_data:
-                    if has_header:
-                        min_fill   = max(2, int(n_cols * 0.35))
-                        header_idx = next(
-                            (i for i, r in enumerate(table_data)
-                             if sum(1 for c in r if c.strip()) >= min_fill), 0)
-
-                        if header_from_band:
-                            headers        = [c if len(c) >= 2 else f"Col{i+1}"
-                                              for i, c in enumerate(header_from_band)]
-                            first_data_idx = header_idx
-                            logger.info(f"[IMG2XLS] En-têtes depuis bande: {headers}")
-                        else:
-                            header_row   = table_data[header_idx]
-                            filled_ref   = max(sum(1 for c in header_row if c.strip()), 2)
-                            min_fill     = max(2, int(filled_ref * 0.3))
-                            headers      = [c.strip() if c.strip() else f"Col{i+1}"
-                                            for i, c in enumerate(header_row)]
-                            first_data_idx = header_idx + 1
-                            logger.info(f"[IMG2XLS] En-têtes fallback ligne {header_idx}: {headers}")
-
-                        data_rows = [r for j, r in enumerate(table_data)
-                                     if j >= first_data_idx
-                                     and sum(1 for c in r if c.strip()) >= min_fill]
-                    else:
-                        headers   = [f"Col{i+1}" for i in range(n_cols)]
-                        data_rows = [r for r in table_data if any(c.strip() for c in r)]
-
-                    df = pd.DataFrame(data_rows, columns=headers)
-                    logger.info(f"[IMG2XLS] DataFrame final: {df.shape}, colonnes={list(df.columns)}")
-
-                # ── Confiance ──────────────────────────────────────────────
-                if conf_scores:
-                    filled_cells = sum(1 for r in data_rows for c in r if c.strip())
-                    total_cells  = max(len(data_rows) * n_cols, 1)
-                    fill_ratio   = filled_cells / total_cells
-                    confidence_score = int(
-                        np.percentile(conf_scores, 60) * 0.7 +
-                        (fill_ratio * 100) * 0.3
-                    )
-                    confidence_score = max(0, min(100, confidence_score))
-
-                logger.info(f"[IMG2XLS] Confiance: {confidence_score}%")
-
-        # ══ FALLBACK TEXTE ═══════════════════════════════════════════════════
-        if df is None:
-            logger.info("[IMG2XLS] Fallback texte libre")
-            try:
-                raw   = pytesseract.image_to_string(
-                    processed, lang=ocr_lang, config="--oem 3 --psm 6")
-                lines = [l.strip() for l in raw.split("\n") if l.strip()]
-            except Exception:
-                lines = []
-
-            if lines:
-                sep = None
-                s   = lines[0]
-                if "\t" in s:
-                    sep = "\t"
-                elif ";" in s and s.count(";") >= 2:
-                    sep = ";"
-                elif "," in s and s.count(",") >= 2:
-                    sep = ","
-
-                if sep and len(lines) > 1:
-                    try:
-                        parsed = [l.split(sep) for l in lines]
-                        mc     = max(len(r) for r in parsed)
-                        padded = [r + [""] * (mc - len(r)) for r in parsed]
-                        df = (pd.DataFrame(padded[1:], columns=padded[0])
-                              if len(padded) >= 2 else pd.DataFrame(padded))
-                    except Exception:
-                        df = pd.DataFrame({"Texte extrait": lines})
-                else:
-                    df = pd.DataFrame({"Texte extrait": lines})
+            # ════════════════════════════════════════════════════════════════
+            # 12. CONSTRUCTION DU DATAFRAME
+            #     Règle absolue : ne jamais perdre de données
+            #     → aucun filtre min_fill sur les lignes de données
+            # ════════════════════════════════════════════════════════════════
+            if not table_data:
+                logger.warning("[IMG2XLS] table_data vide → fallback texte")
+                df = _fallback_text(processed, ocr_lang)
             else:
-                df = pd.DataFrame({"Information": [
-                    "Aucun texte détecté",
-                    f"Langue: {ocr_lang}",
-                    "Vérifiez la qualité de l'image",
-                ]})
+                if has_header:
+                    if header_from_band:
+                        # En-tête depuis la bande colorée
+                        headers        = [c if c else f"Col{i+1}"
+                                          for i, c in enumerate(header_from_band)]
+                        first_data_idx = 0   # toutes les lignes OCR sont des données
+                        logger.info(f"[IMG2XLS] En-têtes depuis bande: {headers}")
 
-        # ══ EXPORT EXCEL ═════════════════════════════════════════════════════
-        logger.info(f"[IMG2XLS] Export (tesseract): {df.shape}")
+                    else:
+                        # Première ligne = en-tête
+                        # On choisit la ligne avec le plus de cellules remplies
+                        # (robuste aux lignes de titre vides en haut)
+                        best_hdr_idx = max(
+                            range(min(3, len(table_data))),   # cherche parmi les 3 premières lignes
+                            key=lambda i: sum(1 for c in table_data[i] if c.strip())
+                        )
+                        header_row     = table_data[best_hdr_idx]
+                        headers        = [c.strip() if c.strip() else f"Col{i+1}"
+                                          for i, c in enumerate(header_row)]
+                        first_data_idx = best_hdr_idx + 1
+                        logger.info(f"[IMG2XLS] En-tête fallback ligne {best_hdr_idx}: {headers}")
+
+                    # Données : TOUTES les lignes après l'en-tête
+                    # Seul filtre : au moins 1 cellule non vide (élimine les lignes blanches OCR)
+                    data_rows = [r for r in table_data[first_data_idx:]
+                                 if any(c.strip() for c in r)]
+
+                else:
+                    # Pas d'en-tête : noms génériques, on garde tout
+                    headers   = [f"Col{i+1}" for i in range(n_cols)]
+                    data_rows = [r for r in table_data if any(c.strip() for c in r)]
+
+                df = pd.DataFrame(data_rows, columns=headers)
+                logger.info(f"[IMG2XLS] DataFrame final: {df.shape}, colonnes={list(df.columns)}")
+
+                # Garde-fou absolu : si encore vide, on met TOUT table_data
+                if df.empty:
+                    logger.warning("[IMG2XLS] DataFrame vide → inclusion totale de table_data")
+                    headers   = [f"Col{i+1}" for i in range(n_cols)]
+                    data_rows = table_data
+                    df        = pd.DataFrame(data_rows, columns=headers)
+                    logger.info(f"[IMG2XLS] DataFrame forcé: {df.shape}")
+
+            # ── Calcul confiance ─────────────────────────────────────────
+            if conf_scores:
+                fill_ratio   = (sum(1 for r in data_rows for c in r if c.strip()) /
+                                max(len(data_rows) * n_cols, 1))
+                confidence_score = int(
+                    np.percentile(conf_scores, 60) * 0.7 + (fill_ratio * 100) * 0.3)
+                confidence_score = max(0, min(100, confidence_score))
+            logger.info(f"[IMG2XLS] Confiance: {confidence_score}%")
+
+        # ════════════════════════════════════════════════════════════════════
+        # 13. EXPORT EXCEL
+        # ════════════════════════════════════════════════════════════════════
+        if df is None:
+            df = pd.DataFrame({"Information": ["Aucun texte détecté",
+                                               f"Langue: {ocr_lang}",
+                                               "Vérifiez la qualité de l'image"]})
+
+        logger.info(f"[IMG2XLS] Export Excel: {df.shape}")
         output = BytesIO()
 
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
             df.to_excel(writer, index=False, sheet_name="OCR_Data")
+            wb = writer.book
             ws = writer.sheets["OCR_Data"]
 
-            # ✅ FIX #1 — pandas Series.max() ne supporte pas default=
-            # Remplacé par un guard .empty explicite
-            for i, col in enumerate(df.columns):
-                lengths = df[col].astype(str).map(
-                    lambda x: len(str(x)) if pd.notna(x) else 0)
-                max_len = int(lengths.max()) if not lengths.empty else 10
-                max_len = max(max_len, len(str(col)), 10)
-                ws.set_column(i, i, min(max_len + 2, 60))
+            # Styles
+            fmt_header = wb.add_format({
+                "bold":       True,
+                "bg_color":   "#2D6A9F",
+                "font_color": "#FFFFFF",
+                "border":     1,
+                "text_wrap":  True,
+                "valign":     "vcenter",
+            })
+            fmt_odd  = wb.add_format({"bg_color": "#F0F4FA", "border": 1, "text_wrap": True})
+            fmt_even = wb.add_format({"bg_color": "#FFFFFF",  "border": 1, "text_wrap": True})
 
-            # ── Résumé du fichier ──────────────────────────────────────────
+            # En-tête stylisée
+            for ci, col_name in enumerate(df.columns):
+                ws.write(0, ci, col_name, fmt_header)
+
+            # Données avec alternance de couleurs
+            for ri, row in df.iterrows():
+                fmt = fmt_odd if ri % 2 == 0 else fmt_even
+                for ci, val in enumerate(row):
+                    ws.write(ri + 1, ci, val, fmt)
+
+            # Largeur adaptative des colonnes
+            for ci, col in enumerate(df.columns):
+                lengths  = df[col].astype(str).map(lambda x: len(x) if pd.notna(x) else 0)
+                max_data = int(lengths.max()) if not lengths.empty else 0
+                col_w    = min(max(max_data, len(str(col)), 8) + 2, 60)
+                ws.set_column(ci, ci, col_w)
+
+            # Gel de la ligne d'en-tête
+            ws.freeze_panes(1, 0)
+            ws.autofilter(0, 0, len(df), len(df.columns) - 1)
+
+            # Onglet Résumé
             summary = pd.DataFrame({
                 "Propriété": [
-                    "Fichier source", "Dimensions", "Mode couleur",
+                    "Fichier source", "Dimensions originales", "Mode couleur",
                     "Langue OCR", "Méthode", "Seuil confiance",
-                    "Lignes", "Colonnes", "Date",
+                    "Lignes extraites", "Colonnes extraites",
+                    "Score confiance OCR", "Date traitement",
                 ],
                 "Valeur": [
                     original_filename,
                     f"{img_orig.width} × {img_orig.height} px",
                     img_orig.mode,
                     ocr_lang,
-                    "tesseract",
+                    "tesseract (multi-PSM)",
                     str(confidence_thr),
                     str(df.shape[0]),
                     str(df.shape[1]),
+                    f"{confidence_score}%",
                     datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
                 ],
             })
             summary.to_excel(writer, index=False, sheet_name="Résumé")
             ws2 = writer.sheets["Résumé"]
-            ws2.set_column(0, 0, 22)
+            ws2.set_column(0, 0, 25)
             ws2.set_column(1, 1, 45)
 
         output.seek(0)
@@ -4046,7 +4082,7 @@ def convert_image_to_excel(file_input, form_data=None):
         response.headers['X-Rows-Count']        = str(df.shape[0])
         response.headers['X-Cols-Count']        = str(df.shape[1])
         response.headers['X-Confidence']        = str(confidence_score)
-        response.headers['X-Extraction-Method'] = 'tesseract'
+        response.headers['X-Extraction-Method'] = 'tesseract-multi-psm'
         return response
 
     except Exception as e:
@@ -4056,10 +4092,53 @@ def convert_image_to_excel(file_input, form_data=None):
     finally:
         for tf in temp_files:
             try:
-                if os.path.exists(tf):
-                    os.unlink(tf)
+                if os.path.exists(tf): os.unlink(tf)
             except Exception as ex:
                 logger.debug(f"[IMG2XLS] cleanup {tf}: {ex}")
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  Fonction utilitaire interne : fallback image_to_string
+# ════════════════════════════════════════════════════════════════════════════
+def _fallback_text(processed_img, ocr_lang):
+    """
+    Utilisé quand image_to_data ne retourne rien d'exploitable.
+    Tente image_to_string et structure le résultat en DataFrame.
+    """
+    import re as _re
+    try:
+        raw   = pytesseract.image_to_string(
+            processed_img, lang=ocr_lang, config="--oem 3 --psm 6")
+        lines = [l.strip() for l in raw.split("\n") if l.strip()]
+    except Exception:
+        lines = []
+
+    if not lines:
+        return pd.DataFrame({"Information": [
+            "Aucun texte détecté",
+            f"Langue: {ocr_lang}",
+            "Vérifiez la qualité de l'image",
+        ]})
+
+    # Détection séparateur
+    sep = None
+    s   = lines[0]
+    if "\t" in s:                         sep = "\t"
+    elif s.count(";") >= 2:               sep = ";"
+    elif s.count(",") >= 2:               sep = ","
+    elif s.count("|") >= 2:               sep = "|"
+
+    if sep and len(lines) > 1:
+        try:
+            parsed = [_re.split(_re.escape(sep), l) for l in lines]
+            mc     = max(len(r) for r in parsed)
+            padded = [r + [""] * (mc - len(r)) for r in parsed]
+            return (pd.DataFrame(padded[1:], columns=padded[0])
+                    if len(padded) >= 2 else pd.DataFrame(padded))
+        except Exception:
+            pass
+
+    return pd.DataFrame({"Texte extrait": lines})
 
 # ----- CSV -> EXCEL -----
 # ══════════════════════════════════════════════════════════════════════════════
