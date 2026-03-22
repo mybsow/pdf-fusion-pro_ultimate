@@ -4019,13 +4019,45 @@ def convert_image_to_excel(file_input, form_data=None):
                         first_data_idx = 0
                         logger.info(f"[IMG2XLS] En-têtes bande: {headers}")
                     else:
-                        best_hdr_idx = max(
-                            range(min(3, len(table_data))),
-                            key=lambda i: sum(1 for c in table_data[i] if c.strip()))
-                        headers        = [c.strip() if c.strip() else f"Col{i+1}"
-                                          for i, c in enumerate(table_data[best_hdr_idx])]
-                        first_data_idx = best_hdr_idx + 1
-                        logger.info(f"[IMG2XLS] En-tête fallback ligne {best_hdr_idx}: {headers}")
+                        # ── v5 : fusion des en-têtes multi-lignes ──────────────
+                        #
+                        # Étape A — ignorer les lignes de titre isolées
+                        # (une seule cellule remplie sur toute la largeur = titre
+                        #  de section, pas un en-tête de colonne)
+                        title_skip = 0
+                        for r in table_data:
+                            filled = sum(1 for c in r if c.strip())
+                            if filled <= 1 and n_cols > 2:
+                                title_skip += 1
+                            else:
+                                break
+                        effective = table_data[title_skip:]
+                        logger.info(f"[IMG2XLS] Lignes titre ignorées: {title_skip}")
+
+                        # Étape B — trouver la première ligne "dense"
+                        # (≥50 % des colonnes remplies) = fin de la zone d'en-tête
+                        density_thr     = max(1, int(n_cols * 0.5))
+                        first_dense_idx = next(
+                            (i for i, r in enumerate(effective)
+                             if sum(1 for c in r if c.strip()) >= density_thr),
+                            0)
+
+                        # Étape C — fusionner toutes les lignes [0 .. first_dense_idx]
+                        # cellule par cellule (concat avec espace)
+                        merged_header = [""] * n_cols
+                        for hdr_row in effective[: first_dense_idx + 1]:
+                            for ci, cell in enumerate(hdr_row):
+                                if cell.strip():
+                                    merged_header[ci] = (
+                                        merged_header[ci] + " " + cell.strip()
+                                    ).strip() if merged_header[ci] else cell.strip()
+
+                        headers        = [c if c else f"Col{i+1}"
+                                          for i, c in enumerate(merged_header)]
+                        first_data_idx = title_skip + first_dense_idx + 1
+                        logger.info(
+                            f"[IMG2XLS] En-tête fusionné "
+                            f"(lignes {title_skip}–{title_skip+first_dense_idx}): {headers}")
 
                     data_rows = [r for r in table_data[first_data_idx:]
                                  if any(c.strip() for c in r)]
@@ -4184,51 +4216,6 @@ def _fallback_text(processed_img, ocr_lang):
             pass
 
     return pd.DataFrame({"Texte extrait": lines})
-
-
-# ════════════════════════════════════════════════════════════════════════════
-#  Fonction utilitaire interne : fallback image_to_string
-# ════════════════════════════════════════════════════════════════════════════
-def _fallback_text(processed_img, ocr_lang):
-    """
-    Utilisé quand image_to_data ne retourne rien d'exploitable.
-    Tente image_to_string et structure le résultat en DataFrame.
-    """
-    import re as _re
-    try:
-        raw   = pytesseract.image_to_string(
-            processed_img, lang=ocr_lang, config="--oem 3 --psm 6")
-        lines = [l.strip() for l in raw.split("\n") if l.strip()]
-    except Exception:
-        lines = []
-
-    if not lines:
-        return pd.DataFrame({"Information": [
-            "Aucun texte détecté",
-            f"Langue: {ocr_lang}",
-            "Vérifiez la qualité de l'image",
-        ]})
-
-    # Détection séparateur
-    sep = None
-    s   = lines[0]
-    if "\t" in s:                         sep = "\t"
-    elif s.count(";") >= 2:               sep = ";"
-    elif s.count(",") >= 2:               sep = ","
-    elif s.count("|") >= 2:               sep = "|"
-
-    if sep and len(lines) > 1:
-        try:
-            parsed = [_re.split(_re.escape(sep), l) for l in lines]
-            mc     = max(len(r) for r in parsed)
-            padded = [r + [""] * (mc - len(r)) for r in parsed]
-            return (pd.DataFrame(padded[1:], columns=padded[0])
-                    if len(padded) >= 2 else pd.DataFrame(padded))
-        except Exception:
-            pass
-
-    return pd.DataFrame({"Texte extrait": lines})
-
 # ----- CSV -> EXCEL -----
 # ══════════════════════════════════════════════════════════════════════════════
 # G. CSV ↔ EXCEL
