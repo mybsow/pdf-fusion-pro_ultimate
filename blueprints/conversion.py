@@ -4019,45 +4019,82 @@ def convert_image_to_excel(file_input, form_data=None):
                         first_data_idx = 0
                         logger.info(f"[IMG2XLS] En-têtes bande: {headers}")
                     else:
-                        # ── v5 : fusion des en-têtes multi-lignes ──────────────
+                        # ── v6 : détection en-tête multi-lignes robuste ────────
                         #
-                        # Étape A — ignorer les lignes de titre isolées
-                        # (une seule cellule remplie sur toute la largeur = titre
-                        #  de section, pas un en-tête de colonne)
+                        # PRINCIPE :
+                        #   1. Identifier la ligne la PLUS REMPLIE parmi les
+                        #      5 premières = candidate principale pour l'en-tête.
+                        #   2. Tout ce qui précède cette ligne ET qui est une
+                        #      ligne "creuse" (< 30 % de colonnes remplies) est
+                        #      un titre/métadonnée → ignoré (title_skip).
+                        #   3. Entre title_skip et la ligne principale, s'il y a
+                        #      des lignes intermédiaires remplies dans des colonnes
+                        #      DIFFÉRENTES de la ligne principale → ce sont des
+                        #      fragments d'en-tête multi-lignes → fusionnés.
+                        #   4. Les lignes intermédiaires qui partagent les MÊMES
+                        #      colonnes que la ligne principale → métadonnées
+                        #      (ex: "Pourcentage d'excédent 25%") → ignorées.
+
+                        window     = min(6, len(table_data))
+                        # Ligne la plus remplie dans la fenêtre = en-tête principal
+                        best_idx   = max(range(window),
+                                         key=lambda i: sum(1 for c in table_data[i]
+                                                           if c.strip()))
+                        best_filled = sum(1 for c in table_data[best_idx] if c.strip())
+
+                        # Seuil "creuse" : < 30 % de la ligne la plus remplie
+                        sparse_thr = max(1, int(best_filled * 0.3))
+
+                        # title_skip : lignes AVANT best_idx qui sont creuses
                         title_skip = 0
-                        for r in table_data:
-                            filled = sum(1 for c in r if c.strip())
-                            if filled <= 1 and n_cols > 2:
+                        for i in range(best_idx):
+                            filled = sum(1 for c in table_data[i] if c.strip())
+                            if filled <= sparse_thr:
                                 title_skip += 1
                             else:
+                                # ligne non-creuse avant best_idx = fin du skip
                                 break
-                        effective = table_data[title_skip:]
-                        logger.info(f"[IMG2XLS] Lignes titre ignorées: {title_skip}")
 
-                        # Étape B — trouver la première ligne "dense"
-                        # (≥50 % des colonnes remplies) = fin de la zone d'en-tête
-                        density_thr     = max(1, int(n_cols * 0.5))
-                        first_dense_idx = next(
-                            (i for i, r in enumerate(effective)
-                             if sum(1 for c in r if c.strip()) >= density_thr),
-                            0)
+                        # Colonnes occupées par la ligne principale
+                        main_cols = {ci for ci, c in enumerate(table_data[best_idx])
+                                     if c.strip()}
 
-                        # Étape C — fusionner toutes les lignes [0 .. first_dense_idx]
-                        # cellule par cellule (concat avec espace)
-                        merged_header = [""] * n_cols
-                        for hdr_row in effective[: first_dense_idx + 1]:
-                            for ci, cell in enumerate(hdr_row):
-                                if cell.strip():
-                                    merged_header[ci] = (
-                                        merged_header[ci] + " " + cell.strip()
-                                    ).strip() if merged_header[ci] else cell.strip()
+                        # Initialiser l'en-tête fusionné avec la ligne principale
+                        merged_header = list(table_data[best_idx])
+
+                        # Fusionner les lignes intermédiaires (entre title_skip et best_idx)
+                        # SEULEMENT si elles remplissent des colonnes ABSENTES de main_cols
+                        # (= vraies lignes d'en-tête multi-lignes, pas des métadonnées)
+                        fused_count = 0
+                        for i in range(title_skip, best_idx):
+                            row = table_data[i]
+                            row_cols = {ci for ci, c in enumerate(row) if c.strip()}
+                            new_cols = row_cols - main_cols   # colonnes non couvertes par main
+                            overlap  = row_cols & main_cols   # colonnes déjà dans main
+
+                            # Règle de fusion :
+                            # - S'il y a des colonnes nouvelles → fragment d'en-tête → fusionner
+                            # - Si overlap > new_cols → c'est une métadonnée → ignorer
+                            if new_cols and len(new_cols) >= len(overlap):
+                                for ci in new_cols:
+                                    cell = row[ci].strip()
+                                    if cell:
+                                        merged_header[ci] = (
+                                            merged_header[ci] + " " + cell
+                                        ).strip() if merged_header[ci] else cell
+                                fused_count += 1
+                                logger.info(f"[IMG2XLS] Ligne {i} fusionnée dans en-tête "
+                                            f"(cols nouvelles: {new_cols})")
+                            else:
+                                logger.info(f"[IMG2XLS] Ligne {i} ignorée (métadonnée, "
+                                            f"overlap={overlap})")
 
                         headers        = [c if c else f"Col{i+1}"
                                           for i, c in enumerate(merged_header)]
-                        first_data_idx = title_skip + first_dense_idx + 1
+                        first_data_idx = best_idx + 1
                         logger.info(
-                            f"[IMG2XLS] En-tête fusionné "
-                            f"(lignes {title_skip}–{title_skip+first_dense_idx}): {headers}")
+                            f"[IMG2XLS] En-tête final (base=ligne {best_idx}, "
+                            f"title_skip={title_skip}, fusions={fused_count}): {headers}")
 
                     data_rows = [r for r in table_data[first_data_idx:]
                                  if any(c.strip() for c in r)]
@@ -4216,6 +4253,8 @@ def _fallback_text(processed_img, ocr_lang):
             pass
 
     return pd.DataFrame({"Texte extrait": lines})
+
+
 # ----- CSV -> EXCEL -----
 # ══════════════════════════════════════════════════════════════════════════════
 # G. CSV ↔ EXCEL
