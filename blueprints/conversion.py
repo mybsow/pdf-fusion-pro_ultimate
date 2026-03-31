@@ -3523,13 +3523,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("IMG2XLS_V2")
 
 # Configuration de l'API Gemini
-# La clé API doit être définie dans GOOGLE_API_KEY sur Render
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 def encode_image_to_pil(image_path):
     """Charge une image et la retourne au format PIL Image."""
     try:
-        if hasattr(image_path, "read"): # Cas d'un objet FileStorage de Flask
+        if hasattr(image_path, "read"):
             img = Image.open(image_path)
             image_path.seek(0)
         else:
@@ -3541,15 +3540,11 @@ def encode_image_to_pil(image_path):
         return None
 
 def get_table_from_gemini(image_path, language="fra"):
-    """
-    Utilise Gemini 2.5 Flash pour extraire les données du tableau.
-    """
+    """Utilise Gemini 2.5 Flash pour extraire les données du tableau."""
     pil_image = encode_image_to_pil(image_path)
     if pil_image is None:
         return None
 
-    # L'ID correct et disponible est "gemini-2.5-flash"
-    # Nous utilisons cet ID plus récent pour garantir la compatibilité et la précision.
     model = genai.GenerativeModel("gemini-2.5-flash")
     
     prompt = f"""
@@ -3576,11 +3571,9 @@ def get_table_from_gemini(image_path, language="fra"):
     """
 
     try:
-        # Utilisation du mode JSON natif
         response = model.generate_content([prompt, pil_image], 
                                           generation_config=genai.types.GenerationConfig(
                                               response_mime_type="application/json"))
-        
         content = response.text
         logger.info(f"Réponse brute de l'API : {content}")
         return json.loads(content)
@@ -3588,10 +3581,17 @@ def get_table_from_gemini(image_path, language="fra"):
         logger.error(f"Erreur lors de l'appel à Gemini : {e}")
         return None
 
-def convert_image_to_excel(file_input, original_filename="document.png", language="fra"):
-    """
-    Version améliorée pour intégration Flask/Render.
-    """
+def convert_image_to_excel_v2(file_input, original_filename="document.png", language="fra"):
+    """Version améliorée pour intégration Flask/Render."""
+    
+    # Sécurité : s'assurer que original_filename est bien une chaîne de caractères
+    if not isinstance(original_filename, str):
+        try:
+            # Si c'est un objet ImmutableMultiDict ou autre, on essaie d'en extraire un nom
+            original_filename = str(original_filename)
+        except:
+            original_filename = "extraction_tableau.png"
+            
     logger.info(f"Démarrage de la conversion pour : {original_filename}")
     
     # 1. Extraction
@@ -3599,8 +3599,7 @@ def convert_image_to_excel(file_input, original_filename="document.png", languag
     
     if data is None or "tables" not in data or not data["tables"]:
         logger.error("Aucune donnée de tableau extraite ou erreur lors de l'extraction.")
-        # Retourne une réponse JSON d'erreur pour Flask
-        return jsonify({"error": "L'IA n'a pas pu extraire de tableau. Vérifiez que l'image est lisible et que votre clé API est valide."}), 400
+        return jsonify({"error": "L'IA n'a pas pu extraire de tableau. Vérifiez la qualité du document."}), 400
 
     # 2. Export Excel
     output = BytesIO()
@@ -3619,7 +3618,9 @@ def convert_image_to_excel(file_input, original_filename="document.png", languag
                 worksheet = writer.sheets[sheet_name]
                 for col_num, value in enumerate(df.columns.values):
                     worksheet.write(0, col_num, value, fmt_header)
-                    max_len = max(df[value].astype(str).map(len).max(), len(str(value))) + 2
+                    # Calcul de largeur sécurisé
+                    col_data = df[value].astype(str)
+                    max_len = max(col_data.map(len).max() if not col_data.empty else 0, len(str(value))) + 2
                     worksheet.set_column(col_num, col_num, min(max_len, 50))
                 worksheet.freeze_panes(1, 0)
 
@@ -3632,16 +3633,20 @@ def convert_image_to_excel(file_input, original_filename="document.png", languag
             
         output.seek(0)
         
+        # Nettoyage du nom de fichier pour l'envoi
+        safe_name = Path(original_filename).stem if original_filename else "resultat"
+        if len(safe_name) > 50: safe_name = safe_name[:50] # Eviter les noms trop longs
+        
         # 3. Retour du fichier pour Flask
         return send_file(
             output,
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             as_attachment=True,
-            download_name=f"{Path(original_filename).stem}.xlsx"
+            download_name=f"{safe_name}.xlsx"
         )
     except Exception as e:
         logger.error(f"Erreur lors de la génération Excel : {e}")
-        return jsonify({"error": "Erreur lors de la création du fichier Excel."}), 500
+        return jsonify({"error": f"Erreur lors de la création du fichier Excel: {str(e)}"}), 500
 
 
 # ----- CSV -> EXCEL -----
