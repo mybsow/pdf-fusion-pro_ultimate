@@ -3542,15 +3542,15 @@ def encode_image_to_pil(image_path):
 
 def get_table_from_gemini(image_path, language="fra"):
     """
-    Utilise Gemini 1.5 Flash pour extraire les données du tableau.
+    Utilise Gemini 2.5 Flash pour extraire les données du tableau.
     """
     pil_image = encode_image_to_pil(image_path)
     if pil_image is None:
         return None
 
-    # L'ID correct est "gemini-1.5-flash" (sans préfixe models/ si possible)
-    # L'erreur 404 indique que models/gemini-1.5-flash n'est pas trouvé.
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    # L'ID correct et disponible est "gemini-2.5-flash"
+    # Nous utilisons cet ID plus récent pour garantir la compatibilité et la précision.
+    model = genai.GenerativeModel("gemini-2.5-flash")
     
     prompt = f"""
     Analyse cette image et extrais TOUS les tableaux présents.
@@ -3588,7 +3588,7 @@ def get_table_from_gemini(image_path, language="fra"):
         logger.error(f"Erreur lors de l'appel à Gemini : {e}")
         return None
 
-def convert_image_to_excel(file_input, original_filename="document.png", language="fra"):
+def convert_image_to_excel_v2(file_input, original_filename="document.png", language="fra"):
     """
     Version améliorée pour intégration Flask/Render.
     """
@@ -3599,7 +3599,7 @@ def convert_image_to_excel(file_input, original_filename="document.png", languag
     
     if data is None or "tables" not in data or not data["tables"]:
         logger.error("Aucune donnée de tableau extraite ou erreur lors de l'extraction.")
-        # Retourne une réponse JSON d'erreur pour Flask au lieu de None pour éviter le TypeError
+        # Retourne une réponse JSON d'erreur pour Flask
         return jsonify({"error": "L'IA n'a pas pu extraire de tableau. Vérifiez que l'image est lisible et que votre clé API est valide."}), 400
 
     # 2. Export Excel
@@ -3626,7 +3626,7 @@ def convert_image_to_excel(file_input, original_filename="document.png", languag
             # Résumé
             summary_data = {
                 "Propriété": ["Date", "Modèle", "Fichier"],
-                "Valeur": [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "Gemini 1.5 Flash", original_filename]
+                "Valeur": [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "Gemini 2.5 Flash", original_filename]
             }
             pd.DataFrame(summary_data).to_excel(writer, index=False, sheet_name="Résumé")
             
