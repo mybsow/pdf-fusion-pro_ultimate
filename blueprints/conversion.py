@@ -1558,19 +1558,27 @@ logger = logging.getLogger("PDF2XLS_GEMINI")
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 def encode_image_to_pil(image_data):
-    """Charge une image et la retourne au format PIL Image."""
+    """Normalise toute entrée en PIL.Image sans double ouverture."""
     try:
+        # ✅ CAS 1 : déjà une image PIL → on retourne DIRECT
         if isinstance(image_data, Image.Image):
             return image_data
-        elif hasattr(image_data, "read"):
-            img = Image.open(image_data)
+
+        # ✅ CAS 2 : fichier upload (Flask FileStorage)
+        if hasattr(image_data, "read") and not isinstance(image_data, Image.Image):
             image_data.seek(0)
+            img = Image.open(image_data)
             img.load()
             return img
-        else:
+
+        # ✅ CAS 3 : bytes
+        if isinstance(image_data, (bytes, bytearray)):
             img = Image.open(BytesIO(image_data))
             img.load()
             return img
+
+        raise ValueError("Format d'image non supporté")
+
     except Exception as e:
         logger.error("Impossible d'ouvrir l'image: " + str(e))
         return None
@@ -1580,21 +1588,29 @@ def get_content_from_gemini(image_input, language="fra"):
     Utilise Gemini 2.5 Flash pour extraire les tableaux de l'image.
     """
     pil_image = encode_image_to_pil(image_input)
+    
     if pil_image is None:
         return None
 
+    # ✅ AJOUT ICI (immédiatement après le chargement)
+    if pil_image.mode != "RGB":
+        pil_image = pil_image.convert("RGB")
+
     model = genai.GenerativeModel("gemini-2.5-flash")
     
-    # Prompt simple sans f-string complexe pour éviter les erreurs de syntaxe
     prompt = "Analyse cette image et extrais TOUS les tableaux. Retourne UNIQUEMENT un JSON structuré avec 'tables' contenant 'header' et 'rows'. Langue: " + str(language)
 
     try:
-        response = model.generate_content([prompt, pil_image], 
-                                          generation_config=genai.types.GenerationConfig(
-                                              response_mime_type="application/json"))
+        response = model.generate_content(
+            [prompt, pil_image],
+            generation_config=genai.types.GenerationConfig(
+                response_mime_type="application/json"
+            )
+        )
         content = response.text
         logger.info("Réponse brute de l'API : " + str(content))
         return json.loads(content)
+
     except Exception as e:
         logger.error("Erreur lors de l'appel à Gemini : " + str(e))
         return None
