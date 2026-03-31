@@ -3516,25 +3516,36 @@ if __name__ == "__main__":
 # ──────────────────────────────────────────────────────────────────────────────
 # CONVERT IMAGE → EXCEL  (réécriture complète)
 # ──────────────────────────────────────────────────────────────────────────────
-from openai import OpenAI
+import google.generativeai as genai
+
 # Configuration du logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("IMG2XLS_V2")
 
-# Initialisation du client OpenAI (compatible Gemini via Manus)
-client = OpenAI()
+# Configuration de l'API Gemini
+# La clé API sera lue depuis la variable d'environnement GOOGLE_API_KEY
+genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
-def encode_image(image_path):
-    """Encode l'image en base64 pour l'envoi à l'API."""
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
+def encode_image_to_pil(image_path):
+    """Charge une image et la retourne au format PIL Image."""
+    try:
+        img = Image.open(image_path)
+        img.load() # Charge les données de l'image en mémoire
+        return img
+    except Exception as e:
+        logger.error(f"Impossible d'ouvrir l'image {image_path}: {e}")
+        return None
 
 def get_table_from_gemini(image_path, language="fra"):
     """
-    Utilise Gemini 2.5 Flash pour extraire les données du tableau.
+    Utilise Gemini 1.5 Flash pour extraire les données du tableau.
     Demande un format JSON structuré pour une conversion Excel parfaite.
     """
-    base64_image = encode_image(image_path)
+    pil_image = encode_image_to_pil(image_path)
+    if pil_image is None:
+        return None
+
+    model = genai.GenerativeModel("gemini-1.5-flash")
     
     prompt = f"""
     Analyse cette image et extrais TOUS les tableaux présents.
@@ -3560,44 +3571,29 @@ def get_table_from_gemini(image_path, language="fra"):
     """
 
     try:
-        response = client.chat.completions.create(
-            model="gemini-2.5-flash",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/png;base64,{base64_image}"
-                            }
-                        }
-                    ],
-                }
-            ],
-            response_format={"type": "json_object"}
-        )
+        response = model.generate_content([prompt, pil_image], 
+                                          generation_config=genai.types.GenerationConfig(response_mime_type="application/json"))
         
-        content = response.choices[0].message.content
+        content = response.text
         logger.info(f"Réponse brute de l'API : {content}")
         
-        # Nettoyage si le modèle a inclus des balises markdown ```json
-        if "```json" in content:
-            content = content.split("```json")[1].split("```")[0].strip()
-        elif "```" in content:
-            content = content.split("```")[1].split("```")[0].strip()
+        # Gemini avec response_mime_type="application/json" devrait déjà retourner du JSON pur.
+        # Mais par sécurité, on peut garder un nettoyage minimal si besoin.
+        if content.startswith("```json") and content.endswith("```"):
+            content = content[len("```json"):-len("```")].strip()
+        elif content.startswith("```") and content.endswith("```"):
+            content = content[len("```"):-len("```")].strip()
             
         return json.loads(content)
     except Exception as e:
-        logger.error(f"Erreur lors de l'appel à l'API : {e}")
+        logger.error(f"Erreur lors de l'appel à Gemini : {e}")
         if 'content' in locals():
             logger.error(f"Contenu qui a échoué au parsing : {content}")
         return None
 
 def convert_image_to_excel(file_input, output_path=None, language="fra"):
     """
-    Version améliorée utilisant Gemini 2.5 Flash pour une précision de 100%.
+    Version améliorée utilisant Gemini 1.5 Flash pour une précision de 100%.
     """
     logger.info(f"Démarrage de la conversion pour : {file_input}")
     
@@ -3642,7 +3638,7 @@ def convert_image_to_excel(file_input, output_path=None, language="fra"):
             "Propriété": ["Date de conversion", "Modèle utilisé", "Source", "Nombre de tableaux"],
             "Valeur": [
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "Gemini 2.5 Flash",
+                "Gemini 1.5 Flash",
                 Path(file_input).name,
                 len(data["tables"])
             ]
@@ -3657,6 +3653,23 @@ def convert_image_to_excel(file_input, output_path=None, language="fra"):
         return output_path
     
     return output.getvalue()
+
+if __name__ == "__main__":
+    # Exemple d'utilisation locale pour test
+    # Assurez-vous que la variable d'environnement GOOGLE_API_KEY est définie
+    # export GOOGLE_API_KEY="VOTRE_CLE_API"
+    
+    # Test avec une image trouvée (index 1 : Michael Jordan NBA record)
+    test_image = "/home/ubuntu/upload/search_images/NWjbx95uzMYQ.png"
+    if os.path.exists(test_image):
+        print(f"Test en cours sur {test_image}...")
+        result_file = convert_image_to_excel(test_image, "/home/ubuntu/test_result_gemini.xlsx")
+        if result_file:
+            print(f"Succès ! Fichier généré : {result_file}")
+        else:
+            print("Échec de la conversion.")
+    else:
+        print(f"Image de test non trouvée : {test_image}")
 
 
 # ----- CSV -> EXCEL -----
