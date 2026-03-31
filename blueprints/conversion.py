@@ -3462,7 +3462,8 @@ def convert_image_to_word(file_input, original_filename="document.png", form_dat
     # 2. Création du document Word
     doc = Document()
     doc.add_heading(f"Extraction de : {Path(original_filename).stem}", 0)
-    doc.add_paragraph(f"Date : {datetime.now().strftime("%d/%m/%Y %H:%M")}")
+    date_str = datetime.now().strftime("%d/%m/%Y %H:%M")
+    doc.add_paragraph("Date : " + date_str)
     doc.add_paragraph(f"Modèle IA : Gemini 2.5 Flash | Langue : {language}")
     doc.add_paragraph()
 
