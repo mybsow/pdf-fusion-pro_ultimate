@@ -3588,7 +3588,7 @@ def get_table_from_gemini(image_path, language="fra"):
         logger.error(f"Erreur lors de l'appel à Gemini : {e}")
         return None
 
-def convert_image_to_excel_v2(file_input, original_filename="document.png", language="fra"):
+def convert_image_to_excel(file_input, original_filename="document.png", language="fra"):
     """
     Version améliorée pour intégration Flask/Render.
     """
