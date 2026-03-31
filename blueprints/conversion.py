@@ -1558,7 +1558,7 @@ logger = logging.getLogger("PDF2XLS_GEMINI")
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 def encode_image_to_pil(image_data):
-    """Charge une image à partir de données binaires ou d'un objet fichier et la retourne au format PIL Image."""
+    """Charge une image et la retourne au format PIL Image."""
     try:
         if isinstance(image_data, Image.Image):
             return image_data
@@ -1572,7 +1572,7 @@ def encode_image_to_pil(image_data):
             img.load()
             return img
     except Exception as e:
-        logger.error(f"Impossible d'ouvrir l'image: {e}")
+        logger.error("Impossible d'ouvrir l'image: " + str(e))
         return None
 
 def get_content_from_gemini(image_input, language="fra"):
@@ -1585,94 +1585,88 @@ def get_content_from_gemini(image_input, language="fra"):
 
     model = genai.GenerativeModel("gemini-2.5-flash")
     
-    prompt = f"""
-    Analyse cette image et extrais TOUS les tableaux présents.
-    Retourne les données UNIQUEMENT sous forme d'un objet JSON structuré comme suit :
-    {{
-      "tables": [
-        {{
-          "header": ["Colonne 1", "Colonne 2", ...],
-          "rows": [
-            ["Valeur 1.1", "Valeur 1.2", ...],
-            ["Valeur 2.1", "Valeur 2.2", ...]
-          ]
-        }}
-      ]
-    }}
-    
-    Instructions :
-    1. Langue : {language}.
-    2. Pour les tableaux, conserve la structure exacte des colonnes et des lignes.
-    3. Si une cellule de tableau est vide, utilise "".
-    4. Nettoie les artefacts OCR.
-    5. Ne fournis AUCUNE explication textuelle, seulement le JSON.
-    """
+    # Prompt simple sans f-string complexe pour éviter les erreurs de syntaxe
+    prompt = "Analyse cette image et extrais TOUS les tableaux. Retourne UNIQUEMENT un JSON structuré avec 'tables' contenant 'header' et 'rows'. Langue: " + str(language)
 
     try:
         response = model.generate_content([prompt, pil_image], 
                                           generation_config=genai.types.GenerationConfig(
                                               response_mime_type="application/json"))
         content = response.text
-        logger.info(f"Réponse brute de l'API : {content}")
+        logger.info("Réponse brute de l'API : " + str(content))
         return json.loads(content)
     except Exception as e:
-        logger.error(f"Erreur lors de l'appel à Gemini : {e}")
+        logger.error("Erreur lors de l'appel à Gemini : " + str(e))
         return None
 
 def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data: Optional[Dict] = None):
     """
     Convertit un PDF en document Excel (.xlsx) en utilisant Gemini 2.5 Flash.
+    Syntaxe ultra-sécurisée pour éviter les erreurs de déploiement Render.
     """
     if not isinstance(original_filename, str):
-        original_filename = "extraction.pdf"
+        original_filename = "document.pdf"
             
-    logger.info(f"Démarrage de la conversion PDF→Excel pour : {original_filename}")
+    logger.info("Démarrage de la conversion PDF vers Excel pour : " + str(original_filename))
     
-    language = (form_data or {}).get("language", "fra")
+    language = "fra"
+    if form_data and "language" in form_data:
+        language = form_data["language"]
     
     temp_dir = None
     try:
-        # Création d'un dossier temporaire sécurisé sans backslash dans la f-string
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")
+        # Création d'un dossier temporaire sécurisé sans f-string complexe
+        now = datetime.now()
+        timestamp = now.strftime("%Y%m%d%H%M%S%f")
         folder_name = "pdf2img_" + timestamp
         temp_dir = Path("/tmp") / folder_name
         temp_dir.mkdir(parents=True, exist_ok=True)
         
-        temp_pdf_path = temp_dir / secure_filename(original_filename)
-        file_input.save(temp_pdf_path)
+        # Sauvegarde du PDF
+        safe_name = secure_filename(original_filename)
+        temp_pdf_path = temp_dir / safe_name
+        file_input.save(str(temp_pdf_path))
         file_input.seek(0)
 
-        # Conversion PDF en Images (nécessite poppler-utils installé via Aptfile sur Render)
-        images = convert_from_path(temp_pdf_path, dpi=300)
+        # Conversion PDF en Images (nécessite poppler-utils via Aptfile)
+        images = convert_from_path(str(temp_pdf_path), dpi=200)
         all_extracted_tables = []
 
         for page_num, img in enumerate(images, 1):
-            logger.info(f"Traitement de la page {page_num} du PDF.")
+            logger.info("Traitement de la page " + str(page_num) + " du PDF.")
             gemini_output = get_content_from_gemini(img, language)
             if gemini_output and "tables" in gemini_output and gemini_output["tables"]:
                 for table in gemini_output["tables"]:
                     all_extracted_tables.append({"page": page_num, "table_data": table})
 
         if not all_extracted_tables:
-            return jsonify({"error": "L'IA n'a pas pu extraire de tableau du PDF. Vérifiez la qualité du document."}), 400
+            return jsonify({"error": "Aucun tableau n'a pu être extrait du PDF."}), 400
 
         # Export Excel
         output = BytesIO()
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
             workbook = writer.book
             fmt_header = workbook.add_format({
-                "bold": True, "bg_color": "#2D6A9F", "font_color": "#FFFFFF",
-                "border": 1, "text_wrap": True, "valign": "vcenter", "align": "center"
+                "bold": True, 
+                "bg_color": "#2D6A9F", 
+                "font_color": "#FFFFFF",
+                "border": 1, 
+                "text_wrap": True, 
+                "valign": "vcenter", 
+                "align": "center"
             })
             
             for i, extracted_table in enumerate(all_extracted_tables):
                 page_num = extracted_table["page"]
                 table = extracted_table["table_data"]
+                
+                # Construction du nom de feuille sans f-string
                 sheet_name = "P" + str(page_num) + "_T" + str(i+1)
                 sheet_name = sheet_name[:31]
                 
                 df = pd.DataFrame(table["rows"], columns=table["header"])
                 df.to_excel(writer, index=False, sheet_name=sheet_name)
+                
                 worksheet = writer.sheets[sheet_name]
                 for col_num, value in enumerate(df.columns.values):
                     worksheet.write(0, col_num, value, fmt_header)
@@ -1681,7 +1675,8 @@ def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data
                     worksheet.set_column(col_num, col_num, min(max_len, 50))
                 worksheet.freeze_panes(1, 0)
 
-            date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # Feuille Résumé
+            date_str = now.strftime("%Y-%m-%d %H:%M:%S")
             summary_data = {
                 "Propriété": ["Date", "Modèle", "Fichier", "Pages", "Tableaux"],
                 "Valeur": [date_str, "Gemini 2.5 Flash", original_filename, len(images), len(all_extracted_tables)]
@@ -1689,20 +1684,24 @@ def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data
             pd.DataFrame(summary_data).to_excel(writer, index=False, sheet_name="Résumé")
             
         output.seek(0)
-        safe_name = Path(original_filename).stem if original_filename else "resultat"
+        
+        # Nettoyage du nom de téléchargement
+        download_name = "resultat.xlsx"
+        if original_filename:
+            download_name = Path(original_filename).stem[:50] + ".xlsx"
         
         return send_file(
             output,
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             as_attachment=True,
-            download_name=safe_name[:50] + ".xlsx"
+            download_name=download_name
         )
     except Exception as e:
-        logger.error(f"Erreur PDF→Excel : {e}")
-        return jsonify({"error": f"Erreur lors de la conversion : {str(e)}"}), 500
+        logger.error("Erreur PDF vers Excel : " + str(e))
+        return jsonify({"error": "Erreur lors de la conversion : " + str(e)}), 500
     finally:
         if temp_dir and temp_dir.exists():
-            shutil.rmtree(temp_dir)
+            shutil.rmtree(str(temp_dir))
 
 # ----- PDF -> PPT -----
 def convert_pdf_to_ppt(file, form_data=None):
@@ -3437,7 +3436,7 @@ def get_content_from_gemini(image_file, language="fra"):
         logger.error(f"Erreur lors de l\'appel à Gemini : {e}")
         return None
 
-def convert_image_to_word_v2(file_input, original_filename="document.png", form_data: Optional[Dict] = None):
+def convert_image_to_word(file_input, original_filename="document.png", form_data: Optional[Dict] = None):
     """
     Convertit une image en document Word (.docx) en utilisant Gemini pour l\'extraction
     des tableaux et du texte, puis python-docx pour la reconstruction.
