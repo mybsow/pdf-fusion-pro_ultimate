@@ -25,7 +25,7 @@ os.environ["OMP_THREAD_LIMIT"] = "1"
 
 # ── Flask ────────────────────────────────────────────────────────────────────
 from flask import (Blueprint, after_this_request, render_template, request,
-                   jsonify, send_file, flash, redirect, url_for, current_app)
+                   jsonify, make_response, send_file, flash, redirect, url_for, current_app)
 from werkzeug.utils import secure_filename
 from flask_babel import gettext as _babel_gettext   # ✅ alias pour éviter écrasement par _
 
@@ -3523,28 +3523,33 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("IMG2XLS_V2")
 
 # Configuration de l'API Gemini
-# La clé API sera lue depuis la variable d'environnement GOOGLE_API_KEY
+# La clé API doit être définie dans GOOGLE_API_KEY sur Render
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 def encode_image_to_pil(image_path):
     """Charge une image et la retourne au format PIL Image."""
     try:
-        img = Image.open(image_path)
-        img.load() # Charge les données de l'image en mémoire
+        if hasattr(image_path, "read"): # Cas d'un objet FileStorage de Flask
+            img = Image.open(image_path)
+            image_path.seek(0)
+        else:
+            img = Image.open(image_path)
+        img.load()
         return img
     except Exception as e:
-        logger.error(f"Impossible d'ouvrir l'image {image_path}: {e}")
+        logger.error(f"Impossible d'ouvrir l'image: {e}")
         return None
 
 def get_table_from_gemini(image_path, language="fra"):
     """
     Utilise Gemini 1.5 Flash pour extraire les données du tableau.
-    Demande un format JSON structuré pour une conversion Excel parfaite.
     """
     pil_image = encode_image_to_pil(image_path)
     if pil_image is None:
         return None
 
+    # L'ID correct est "gemini-1.5-flash" (sans préfixe models/ si possible)
+    # L'erreur 404 indique que models/gemini-1.5-flash n'est pas trouvé.
     model = genai.GenerativeModel("gemini-1.5-flash")
     
     prompt = f"""
@@ -3562,114 +3567,81 @@ def get_table_from_gemini(image_path, language="fra"):
       ]
     }}
     
-    Instructions cruciales :
+    Instructions :
     1. Langue : {language}.
     2. Conserve la structure exacte des colonnes.
-    3. Si une cellule est vide, utilise une chaîne vide "".
-    4. Nettoie les artefacts OCR (symboles parasites, barres verticales mal interprétées).
+    3. Si une cellule est vide, utilise "".
+    4. Nettoie les artefacts OCR.
     5. Ne fournis AUCUNE explication textuelle, seulement le JSON.
     """
 
     try:
+        # Utilisation du mode JSON natif
         response = model.generate_content([prompt, pil_image], 
-                                          generation_config=genai.types.GenerationConfig(response_mime_type="application/json"))
+                                          generation_config=genai.types.GenerationConfig(
+                                              response_mime_type="application/json"))
         
         content = response.text
         logger.info(f"Réponse brute de l'API : {content}")
-        
-        # Gemini avec response_mime_type="application/json" devrait déjà retourner du JSON pur.
-        # Mais par sécurité, on peut garder un nettoyage minimal si besoin.
-        if content.startswith("```json") and content.endswith("```"):
-            content = content[len("```json"):-len("```")].strip()
-        elif content.startswith("```") and content.endswith("```"):
-            content = content[len("```"):-len("```")].strip()
-            
         return json.loads(content)
     except Exception as e:
         logger.error(f"Erreur lors de l'appel à Gemini : {e}")
-        if 'content' in locals():
-            logger.error(f"Contenu qui a échoué au parsing : {content}")
         return None
 
-def convert_image_to_excel(file_input, output_path=None, language="fra"):
+def convert_image_to_excel_v2(file_input, original_filename="document.png", language="fra"):
     """
-    Version améliorée utilisant Gemini 1.5 Flash pour une précision de 100%.
+    Version améliorée pour intégration Flask/Render.
     """
-    logger.info(f"Démarrage de la conversion pour : {file_input}")
+    logger.info(f"Démarrage de la conversion pour : {original_filename}")
     
-    # 1. Extraction des données via VLM (Vision Language Model)
+    # 1. Extraction
     data = get_table_from_gemini(file_input, language)
     
-    if not data or "tables" not in data or not data["tables"]:
-        logger.error("Aucune donnée de tableau extraite.")
-        return None
+    if data is None or "tables" not in data or not data["tables"]:
+        logger.error("Aucune donnée de tableau extraite ou erreur lors de l'extraction.")
+        # Retourne une réponse JSON d'erreur pour Flask au lieu de None pour éviter le TypeError
+        return jsonify({"error": "L'IA n'a pas pu extraire de tableau. Vérifiez que l'image est lisible et que votre clé API est valide."}), 400
 
-    # 2. Préparation de l'export Excel
+    # 2. Export Excel
     output = BytesIO()
-    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        workbook = writer.book
+    try:
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            workbook = writer.book
+            fmt_header = workbook.add_format({
+                "bold": True, "bg_color": "#2D6A9F", "font_color": "#FFFFFF",
+                "border": 1, "text_wrap": True, "valign": "vcenter", "align": "center"
+            })
+            
+            for i, table in enumerate(data["tables"]):
+                sheet_name = f"Tableau_{i+1}"
+                df = pd.DataFrame(table["rows"], columns=table["header"])
+                df.to_excel(writer, index=False, sheet_name=sheet_name)
+                worksheet = writer.sheets[sheet_name]
+                for col_num, value in enumerate(df.columns.values):
+                    worksheet.write(0, col_num, value, fmt_header)
+                    max_len = max(df[value].astype(str).map(len).max(), len(str(value))) + 2
+                    worksheet.set_column(col_num, col_num, min(max_len, 50))
+                worksheet.freeze_panes(1, 0)
+
+            # Résumé
+            summary_data = {
+                "Propriété": ["Date", "Modèle", "Fichier"],
+                "Valeur": [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "Gemini 1.5 Flash", original_filename]
+            }
+            pd.DataFrame(summary_data).to_excel(writer, index=False, sheet_name="Résumé")
+            
+        output.seek(0)
         
-        # Formats
-        fmt_header = workbook.add_format({
-            "bold": True, "bg_color": "#2D6A9F", "font_color": "#FFFFFF",
-            "border": 1, "text_wrap": True, "valign": "vcenter", "align": "center"
-        })
-        fmt_cell = workbook.add_format({"border": 1, "text_wrap": True, "valign": "vcenter"})
-        
-        for i, table in enumerate(data["tables"]):
-            sheet_name = f"Tableau_{i+1}"
-            df = pd.DataFrame(table["rows"], columns=table["header"])
-            
-            # Écriture des données
-            df.to_excel(writer, index=False, sheet_name=sheet_name)
-            worksheet = writer.sheets[sheet_name]
-            
-            # Application des styles
-            for col_num, value in enumerate(df.columns.values):
-                worksheet.write(0, col_num, value, fmt_header)
-                # Ajustement automatique de la largeur des colonnes
-                max_len = max(df[value].astype(str).map(len).max(), len(str(value))) + 2
-                worksheet.set_column(col_num, col_num, min(max_len, 50))
-            
-            worksheet.freeze_panes(1, 0)
-
-        # Ajout d'un onglet de résumé
-        summary_data = {
-            "Propriété": ["Date de conversion", "Modèle utilisé", "Source", "Nombre de tableaux"],
-            "Valeur": [
-                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "Gemini 1.5 Flash",
-                Path(file_input).name,
-                len(data["tables"])
-            ]
-        }
-        pd.DataFrame(summary_data).to_excel(writer, index=False, sheet_name="Résumé")
-
-    # 3. Sauvegarde ou retour
-    if output_path:
-        with open(output_path, "wb") as f:
-            f.write(output.getvalue())
-        logger.info(f"Fichier Excel sauvegardé sous : {output_path}")
-        return output_path
-    
-    return output.getvalue()
-
-if __name__ == "__main__":
-    # Exemple d'utilisation locale pour test
-    # Assurez-vous que la variable d'environnement GOOGLE_API_KEY est définie
-    # export GOOGLE_API_KEY="VOTRE_CLE_API"
-    
-    # Test avec une image trouvée (index 1 : Michael Jordan NBA record)
-    test_image = "/home/ubuntu/upload/search_images/NWjbx95uzMYQ.png"
-    if os.path.exists(test_image):
-        print(f"Test en cours sur {test_image}...")
-        result_file = convert_image_to_excel(test_image, "/home/ubuntu/test_result_gemini.xlsx")
-        if result_file:
-            print(f"Succès ! Fichier généré : {result_file}")
-        else:
-            print("Échec de la conversion.")
-    else:
-        print(f"Image de test non trouvée : {test_image}")
+        # 3. Retour du fichier pour Flask
+        return send_file(
+            output,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            as_attachment=True,
+            download_name=f"{Path(original_filename).stem}.xlsx"
+        )
+    except Exception as e:
+        logger.error(f"Erreur lors de la génération Excel : {e}")
+        return jsonify({"error": "Erreur lors de la création du fichier Excel."}), 500
 
 
 # ----- CSV -> EXCEL -----
