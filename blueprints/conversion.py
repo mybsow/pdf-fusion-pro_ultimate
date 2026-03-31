@@ -270,6 +270,7 @@ def check_dependencies(deps_list):
 # NOTE: Chaînes brutes (pas de _l()), la traduction se fait dans les templates via _()
 
 from flask_babel import gettext as _, lazy_gettext as _l
+import google.generativeai as genai
 
 CONVERSION_MAP = {
     # ==================== CONVERTIR EN PDF ====================
@@ -1548,135 +1549,171 @@ def convert_pdf_to_doc(file, form_data=None):
         return {"error": f"Erreur lors de la conversion: {str(e)}"}
 
 # ----- PDF -> EXCEL -----
-def convert_pdf_to_excel(file, form_data=None):
-    """
-    PDF → Excel.
- 
-    AMÉLIORATIONS MAJEURES :
-    - pdfplumber pour extraction de tableaux NATIFS (avant OCR)
-      → résultat parfait sur PDF avec vrai texte
-    - OCR en fallback uniquement si aucun tableau natif détecté
-    - Une feuille par page + feuille Résumé
-    - Largeurs colonnes auto-ajustées
-    - Gestion encodage UTF-8
-    """
-    file, error = normalize_file_input(file)
-    if error: return error
-    if not HAS_PANDAS:
-        return {"error": "pandas non installé"}
- 
-    original = file.filename
-    form_data = form_data or {}
-    ocr_enabled = str(form_data.get("ocr_enabled","true")).lower() == "true"
-    language = form_data.get("language","fra")
-    ocr_lang = build_ocr_lang_string(language)
-    temp_dir = create_temp_directory("pdf2excel_")
- 
+# Configuration du logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("PDF2XLS_V2")
+
+# Configuration de l\"API Gemini
+genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
+
+def encode_image_to_pil(image_data):
+    """Charge une image à partir de données binaires ou d\"un objet fichier et la retourne au format PIL Image."""
     try:
-        input_path = secure_save(file, temp_dir)
-        excel_output = BytesIO()
-        sheet_summaries = []
- 
-        with pd.ExcelWriter(excel_output, engine="openpyxl") as writer:
- 
-            # ── MÉTHODE 1 : pdfplumber (tableaux natifs) ─────────────────────
-            if HAS_PDFPLUMBER:
-                with pdfplumber.open(input_path) as pdf:
-                    total_pages = len(pdf.pages)
-                    all_rows = []
- 
-                    for page_num, page in enumerate(pdf.pages, 1):
-                        tables = page.extract_tables()
-                        page_had_table = False
- 
-                        for tbl_idx, tbl in enumerate(tables):
-                            if not tbl: continue
-                            rows = [[str(c or "").strip() for c in row] for row in tbl]
-                            if not rows: continue
-                            max_cols = max(len(r) for r in rows)
-                            padded  = [r + [""]*(max_cols-len(r)) for r in rows]
-                            df_tbl  = pd.DataFrame(padded[1:], columns=padded[0]) \
-                                      if len(padded)>1 else pd.DataFrame(padded)
-                            sheet_n = f"P{page_num}_T{tbl_idx+1}"[:31]
-                            df_tbl.to_excel(writer, sheet_name=sheet_n, index=False)
-                            _autofit_sheet(writer.sheets[sheet_n])
-                            sheet_summaries.append({
-                                "Feuille":sheet_n, "Type":"Tableau natif",
-                                "Lignes":df_tbl.shape[0], "Colonnes":df_tbl.shape[1]
-                            })
-                            page_had_table = True
- 
-                        if not page_had_table:
-                            # Extraction texte ligne par ligne
-                            text = page.extract_text() or ""
-                            for line in text.split("\n"):
-                                line = line.strip()
-                                if line:
-                                    all_rows.append({"Page":page_num, "Texte":line})
- 
-                    if all_rows:
-                        df_text = pd.DataFrame(all_rows)
-                        df_text.to_excel(writer, sheet_name="Texte_brut", index=False)
-                        _autofit_sheet(writer.sheets["Texte_brut"])
-                        sheet_summaries.append({
-                            "Feuille":"Texte_brut","Type":"Texte",
-                            "Lignes":len(all_rows),"Colonnes":2
-                        })
- 
-            # ── MÉTHODE 2 : OCR (fallback si pas de texte natif) ─────────────
-            elif ocr_enabled and HAS_PDF2IMAGE and HAS_TESSERACT:
-                images = convert_from_path(input_path, dpi=200)
-                all_rows = []
-                for i, img in enumerate(images, 1):
-                    data = pytesseract.image_to_data(
-                        _ensure_rgb(img), lang=ocr_lang,
-                        output_type=Output.DICT, config="--oem 3 --psm 6"
-                    )
-                    row_threshold = 18
-                    rows_dict = {}
-                    for j, txt in enumerate(data["text"]):
-                        txt = txt.strip()
-                        if not txt: continue
-                        try: conf = int(data["conf"][j])
-                        except: conf = -1
-                        if conf < 25: continue
-                        top = data["top"][j]; left = data["left"][j]
-                        rk = next((k for k in rows_dict if abs(top-k)<=row_threshold), top)
-                        rows_dict.setdefault(rk,[]).append((left, txt))
-                    for top_k in sorted(rows_dict):
-                        line = " ".join(t for _x, t in sorted(rows_dict[top_k]))
-                        all_rows.append({"Page":i,"Ligne":line})
- 
-                df_ocr = pd.DataFrame(all_rows) if all_rows else \
-                         pd.DataFrame({"Info":["Aucun texte détecté"]})
-                df_ocr.to_excel(writer, sheet_name="OCR_Extraction", index=False)
-                _autofit_sheet(writer.sheets["OCR_Extraction"])
- 
-            # ── Feuille Résumé ────────────────────────────────────────────────
-            summary = pd.DataFrame(sheet_summaries) if sheet_summaries else \
-                      pd.DataFrame({"Info":["Aucun tableau extrait"]})
-            summary.to_excel(writer, sheet_name="Résumé", index=False)
-            ws_res = writer.sheets["Résumé"]
-            ws_res.column_dimensions["A"].width = 20
-            ws_res.column_dimensions["B"].width = 20
- 
-        excel_output.seek(0)
-        cleanup_temp_directory(temp_dir)
-        return send_file(excel_output,
-            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            as_attachment=True, download_name=Path(original).stem+".xlsx")
- 
+        if isinstance(image_data, Image.Image):
+            return image_data
+        elif hasattr(image_data, "read"):
+            img = Image.open(image_data)
+            image_data.seek(0) # Réinitialiser le pointeur du fichier après lecture par PIL
+            img.load()
+            return img
+        else:
+            img = Image.open(BytesIO(image_data))
+            img.load()
+            return img
     except Exception as e:
-        cleanup_temp_directory(temp_dir)
-        logger.error(f"convert_pdf_to_excel: {e}\n{traceback.format_exc()}")
-        return {"error": f"Erreur PDF→Excel : {e}"}
- 
- 
-def _autofit_sheet(ws, max_width=60):
-    """Auto-ajuste la largeur des colonnes d'une feuille openpyxl."""
-    for col in ws.columns:
-        ml = max((len(str(cell.value)) for cell in col if cell.value), default=8)
-        ws.column_dimensions[col[0].column_letter].width = min(ml+2, max_width)
+        logger.error(f"Impossible d\"ouvrir l\"image: {e}")
+        return None
+
+def get_content_from_gemini(image_input, language="fra"):
+    """
+    Utilise Gemini 2.5 Flash pour extraire les tableaux et le texte de l\"image.
+    """
+    pil_image = encode_image_to_pil(image_input)
+    if pil_image is None:
+        return None
+
+    model = genai.GenerativeModel("gemini-2.5-flash")
+    
+    prompt = f"""
+    Analyse cette image et extrais TOUS les tableaux présents.
+    Retourne les données UNIQUEMENT sous forme d\"un objet JSON structuré comme suit :
+    {{
+      "tables": [
+        {{
+          "header": ["Colonne 1", "Colonne 2", ...],
+          "rows": [
+            ["Valeur 1.1", "Valeur 1.2", ...],
+            ["Valeur 2.1", "Valeur 2.2", ...]
+          ]
+        }}
+      ]
+    }}
+    
+    Instructions :
+    1. Langue : {language}.
+    2. Pour les tableaux, conserve la structure exacte des colonnes et des lignes.
+    3. Si une cellule de tableau est vide, utilise "".
+    4. Nettoie les artefacts OCR.
+    5. Ne fournis AUCUNE explication textuelle, seulement le JSON.
+    """
+
+    try:
+        response = model.generate_content([prompt, pil_image], 
+                                          generation_config=genai.types.GenerationConfig(
+                                              response_mime_type="application/json"))
+        content = response.text
+        logger.info(f"Réponse brute de l\"API : {content}")
+        return json.loads(content)
+    except Exception as e:
+        logger.error(f"Erreur lors de l\"appel à Gemini : {e}")
+        return None
+
+def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data: Optional[Dict] = None):
+    """
+    Convertit un PDF (potentiellement multi-pages) en document Excel (.xlsx)
+    en utilisant Gemini pour l\"extraction des tableaux.
+    """
+    if not isinstance(original_filename, str):
+        try:
+            original_filename = str(original_filename)
+        except:
+            original_filename = "extraction_pdf.pdf"
+            
+    logger.info(f"Démarrage de la conversion PDF→Excel pour : {original_filename}")
+    
+    language = (form_data or {}).get("language", "fra")
+    
+    temp_pdf_path = None
+    try:
+        # Sauvegarder le fichier PDF temporairement pour pdf2image
+        temp_dir = Path("/tmp") / f"pdf2img_{datetime.now().strftime(\"%Y%m%d%H%M%S%f\")}"
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        temp_pdf_path = temp_dir / secure_filename(original_filename)
+        file_input.save(temp_pdf_path)
+        file_input.seek(0) # Réinitialiser le pointeur pour d\"autres usages si nécessaire
+
+        # Convertir chaque page du PDF en image
+        images = convert_from_path(temp_pdf_path, dpi=300) # DPI élevé pour meilleure qualité OCR
+        all_extracted_tables = []
+
+        for page_num, img in enumerate(images, 1):
+            logger.info(f"Traitement de la page {page_num} du PDF.")
+            gemini_output = get_content_from_gemini(img, language)
+            if gemini_output and "tables" in gemini_output and gemini_output["tables"]:
+                for table in gemini_output["tables"]:
+                    all_extracted_tables.append({"page": page_num, "table_data": table})
+            else:
+                logger.info(f"Aucun tableau détecté sur la page {page_num}.")
+
+        if not all_extracted_tables:
+            logger.error("Aucun tableau n\"a pu être extrait de l\"ensemble du PDF.")
+            return jsonify({"error": "L\"IA n\"a pas pu extraire de tableau du PDF. Vérifiez la qualité du document et la configuration de l\"API."}), 400
+
+        # 2. Export Excel
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            workbook = writer.book
+            fmt_header = workbook.add_format({
+                "bold": True, "bg_color": "#2D6A9F", "font_color": "#FFFFFF",
+                "border": 1, "text_wrap": True, "valign": "vcenter", "align": "center"
+            })
+            
+            for i, extracted_table in enumerate(all_extracted_tables):
+                page_num = extracted_table["page"]
+                table = extracted_table["table_data"]
+                sheet_name = f"P{page_num}_T{i+1}"[:31] # Limite de 31 caractères pour le nom de feuille
+                
+                df = pd.DataFrame(table["rows"], columns=table["header"])
+                df.to_excel(writer, index=False, sheet_name=sheet_name)
+                worksheet = writer.sheets[sheet_name]
+                for col_num, value in enumerate(df.columns.values):
+                    worksheet.write(0, col_num, value, fmt_header)
+                    col_data = df[value].astype(str)
+                    max_len = max(col_data.map(len).max() if not col_data.empty else 0, len(str(value))) + 2
+                    worksheet.set_column(col_num, col_num, min(max_len, 50))
+                worksheet.freeze_panes(1, 0)
+
+            # Résumé
+            summary_data = {
+                "Propriété": ["Date", "Modèle", "Fichier", "Pages traitées", "Tableaux extraits"],
+                "Valeur": [
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
+                    "Gemini 2.5 Flash", 
+                    original_filename,
+                    len(images),
+                    len(all_extracted_tables)
+                ]
+            }
+            pd.DataFrame(summary_data).to_excel(writer, index=False, sheet_name="Résumé")
+            
+        output.seek(0)
+        
+        safe_name = Path(original_filename).stem if original_filename else "resultat"
+        if len(safe_name) > 50: safe_name = safe_name[:50]
+
+        return send_file(
+            output,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            as_attachment=True,
+            download_name=f"{safe_name}.xlsx"
+        )
+    except Exception as e:
+        logger.error(f"Erreur lors de la conversion PDF→Excel : {e}")
+        return jsonify({"error": f"Erreur lors de la conversion PDF→Excel : {str(e)}"}), 500
+    finally:
+        if temp_pdf_path and temp_pdf_path.exists():
+            import shutil
+            shutil.rmtree(temp_dir)
 
 # ----- PDF -> PPT -----
 def convert_pdf_to_ppt(file, form_data=None):
@@ -3339,185 +3376,183 @@ def generate_document_response(doc: Document, original_filename: str):
 # ──────────────────────────────────────────────────────────────────────────────
 # CONVERT IMAGE → WORD  (réécriture complète)
 # ──────────────────────────────────────────────────────────────────────────────
+# Configuration du logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("IMG2WORD_V2")
 
-def convert_image_to_word(file, form_data: Optional[Dict] = None):
+# Configuration de l\'API Gemini
+genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
+
+def encode_image_to_pil(image_file):
+    """Charge une image à partir d\'un objet fichier et la retourne au format PIL Image."""
+    try:
+        img = Image.open(image_file)
+        image_file.seek(0) # Réinitialiser le pointeur du fichier après lecture par PIL
+        img.load()
+        return img
+    except Exception as e:
+        logger.error(f"Impossible d\'ouvrir l\'image: {e}")
+        return None
+
+def get_content_from_gemini(image_file, language="fra"):
     """
-    Convertit une image (JPG, PNG, TIFF multi-pages, BMP, WEBP…) en document Word.
-
-    CORRECTIONS vs version originale :
-    - extract_frames ne crashait pas sur images simples
-    - OCR psm 3 (auto) au lieu de psm 6 (bloc uniforme) → meilleur résultat générique
-    - _run_ocr_full corrige le bug d'indexation block_num
-    - Sauvegarde temp_dir même en cas d'erreur @after_this_request
-    - Images RGBA/P correctement converties avant insertion dans .docx
-    - Gestion taille image dans .docx (évite images géantes)
+    Utilise Gemini 2.5 Flash pour extraire les tableaux et le texte de l\'image.
     """
-    if not hasattr(file, "filename") or not hasattr(file, "save"):
-        return {"error": "Objet fichier invalide"}
-    if not HAS_PILLOW:
-        return {"error": "Pillow non installé"}
-    if not HAS_TESSERACT:
-        return {"error": "Tesseract non installé ou non trouvé"}
-    if not HAS_DOCX:
-        return {"error": "python-docx non installé"}
+    pil_image = encode_image_to_pil(image_file)
+    if pil_image is None:
+        return None
 
-    original_filename = file.filename
-    form_data = form_data or {}
-    temp_dir = None
+    model = genai.GenerativeModel("gemini-2.5-flash")
+    
+    prompt = f"""
+    Analyse cette image et extrais TOUS les tableaux et le texte.
+    Retourne les données UNIQUEMENT sous forme d\'un objet JSON structuré comme suit :
+    {{
+      "content": [
+        {{
+          "type": "paragraph",
+          "text": "Ceci est un paragraphe de texte."
+        }},
+        {{
+          "type": "table",
+          "header": ["Colonne 1", "Colonne 2", ...],
+          "rows": [
+            ["Valeur 1.1", "Valeur 1.2", ...],
+            ["Valeur 2.1", "Valeur 2.2", ...]
+          ]
+        }},
+        {{
+          "type": "paragraph",
+          "text": "Un autre paragraphe."
+        }}
+      ]
+    }}
+    
+    Instructions :
+    1. Langue : {language}.
+    2. Pour les tableaux, conserve la structure exacte des colonnes et des lignes.
+    3. Si une cellule de tableau est vide, utilise "".
+    4. Nettoie les artefacts OCR.
+    5. Ne fournis AUCUNE explication textuelle, seulement le JSON.
+    6. Si l\'image contient plusieurs pages ou sections, traite-les séquentiellement dans l\'ordre d\'apparition.
+    """
 
     try:
-        temp_dir = create_temp_directory("image2word_")
-        input_path = os.path.join(temp_dir, secure_filename(original_filename))
-        file.save(input_path)
-
-        if not os.path.exists(input_path) or os.path.getsize(input_path) == 0:
-            return {"error": "Fichier image invalide ou vide"}
-
-        # ── Paramètres ──────────────────────────────────────────────────────
-        language      = form_data.get("language", "fra")
-        preserve_lay  = str(form_data.get("preserve_layout", "true")).lower() == "true"
-        enhance_img   = str(form_data.get("enhance_image",  "true")).lower() == "true"
-        binarize      = str(form_data.get("binarize",       "false")).lower() == "false"
-        add_orig_img  = str(form_data.get("add_original_image", "true")).lower() == "true"
-        max_img_w_in  = float(form_data.get("max_image_width_in", "5.5"))
-        oem           = int(form_data.get("oem", "3"))
-        psm           = int(form_data.get("psm", "3"))   # 3 = auto, plus robuste
-        min_conf      = int(form_data.get("min_confidence", "25"))
-
-        ocr_lang = build_ocr_lang_string(language)
-        custom_cfg = f"--oem {oem} --psm {psm}"
-
-        logger.info(f"Image→Word: {original_filename}, lang={ocr_lang}, psm={psm}")
-
-        # ── Extraction des frames ────────────────────────────────────────────
-        try:
-            frames = extract_frames(input_path)
-        except RuntimeError as e:
-            return {"error": str(e)}
-
-        logger.info(f"  → {len(frames)} page(s) détectée(s)")
-
-        # ── Création document Word ───────────────────────────────────────────
-        doc = Document()
-        doc.add_heading(f"Extraction : {Path(original_filename).stem}", 0)
-        doc.add_paragraph(f"Date : {datetime.now().strftime('%d/%m/%Y %H:%M')}")
-        doc.add_paragraph(f"Langue OCR : {ocr_lang}  |  Pages : {len(frames)}")
-        doc.add_paragraph()
-
-        any_text = False
-
-        for idx, frame in enumerate(frames, start=1):
-            if idx > 1:
-                doc.add_page_break()
-
-            doc.add_heading(f"Page {idx}", level=1)
-
-            # Prétraitement
-            try:
-                work = preprocess_for_ocr(
-                    frame,
-                    enhance_image=enhance_img,
-                    deskew=False,
-                    binarize=binarize,
-                )
-            except Exception as e:
-                logger.warning(f"preprocess page {idx}: {e}")
-                work = _ensure_rgb(frame)
-
-            # OCR
-            try:
-                extracted = _run_ocr_full(
-                    work, ocr_lang, custom_cfg, preserve_lay, min_conf
-                )
-            except Exception as e:
-                logger.error(f"OCR page {idx}: {e}")
-                extracted = ""
-
-            # Texte dans le document
-            if extracted.strip():
-                any_text = True
-                for para in extracted.split("\n\n"):
-                    para = para.strip()
-                    if para:
-                        for line in para.split("\n"):
-                            doc.add_paragraph(line.strip())
-                        doc.add_paragraph()
-            else:
-                doc.add_paragraph("[Aucun texte détecté sur cette page]")
-
-            # Image originale (optionnel)
-            if add_orig_img:
-                try:
-                    orig_rgb = _ensure_rgb(frame)
-                    # Limiter la taille en mémoire
-                    max_px = 2000
-                    w, h = orig_rgb.size
-                    if max(w, h) > max_px:
-                        ratio = max_px / max(w, h)
-                        orig_rgb = orig_rgb.resize(
-                            (int(w * ratio), int(h * ratio)), Image.Resampling.LANCZOS
-                        )
-                    buf = BytesIO()
-                    orig_rgb.save(buf, format="PNG", optimize=True)
-                    buf.seek(0)
-                    doc.add_paragraph()
-                    doc.add_heading("Image originale", level=2)
-                    doc.add_picture(buf, width=Inches(min(max_img_w_in, 6.0)))
-                    cap = doc.add_paragraph()
-                    try:
-                        cap.style = "Caption"
-                    except KeyError:
-                        pass
-                    cap.add_run(f"Figure {idx}")
-                except Exception as e:
-                    logger.warning(f"add_picture page {idx}: {e}")
-
-        if not any_text:
-            doc.add_page_break()
-            doc.add_paragraph(
-                "⚠ Aucun texte extrait. L'image est peut-être floue, "
-                "la langue incorrecte, ou le document est purement graphique."
-            )
-
-        # ── Export ──────────────────────────────────────────────────────────
-        output = BytesIO()
-        doc.save(output)
-        output.seek(0)
-
-        @after_this_request
-        def _cleanup(response):
-            cleanup_temp_directory(temp_dir)
-            return response
-
-        return send_file(
-            output,
-            mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            as_attachment=True,
-            download_name=f"{Path(original_filename).stem}.docx",
-        )
-
+        response = model.generate_content([prompt, pil_image], 
+                                          generation_config=genai.types.GenerationConfig(
+                                              response_mime_type="application/json"))
+        content = response.text
+        logger.info(f"Réponse brute de l\'API : {content}")
+        return json.loads(content)
     except Exception as e:
-        logger.error(f"convert_image_to_word: {e}\n{traceback.format_exc()}")
-        cleanup_temp_directory(temp_dir)
-        return {"error": f"Erreur lors de la conversion : {e}"}
+        logger.error(f"Erreur lors de l\'appel à Gemini : {e}")
+        return None
 
-# ================= POINT D'ENTRÉE POUR TEST =================
+def convert_image_to_word_v2(file_input, original_filename="document.png", form_data: Optional[Dict] = None):
+    """
+    Convertit une image en document Word (.docx) en utilisant Gemini pour l\'extraction
+    des tableaux et du texte, puis python-docx pour la reconstruction.
+    """
+    if not isinstance(original_filename, str):
+        try:
+            original_filename = str(original_filename)
+        except:
+            original_filename = "extraction_document.png"
+            
+    logger.info(f"Démarrage de la conversion Image→Word pour : {original_filename}")
+    
+    language = (form_data or {}).get("language", "fra")
+    add_orig_img = str((form_data or {}).get("add_original_image", "true")).lower() == "true"
+    
+    # 1. Extraction du contenu via Gemini
+    gemini_output = get_content_from_gemini(file_input, language)
+    
+    if gemini_output is None or "content" not in gemini_output or not gemini_output["content"]:
+        logger.error("Aucun contenu (tableaux ou texte) extrait par Gemini.")
+        return jsonify({"error": "L\'IA n\'a pas pu extraire de contenu de l\'image. Vérifiez la qualité du document et la configuration de l\'API."}), 400
 
-if __name__ == "__main__":
-    # Test simple si exécuté directement
-    print("Module de conversion Image -> Word")
-    print(f"Dépendances: Pillow={HAS_PILLOW}, Tesseract={HAS_TESSERACT}, python-docx={HAS_DOCX}")
-    print("\nFonctions disponibles:")
-    print("  - convert_image_to_word(file, form_data)")
-    print("  - ocr_get_words_positions(img, lang, config, min_conf)")
-    print("  - detect_columns_from_words(words)")
-    print("  - ai_restructure_text(text, api_key)")
+    # 2. Création du document Word
+    doc = Document()
+    doc.add_heading(f"Extraction de : {Path(original_filename).stem}", 0)
+    doc.add_paragraph(f"Date : {datetime.now().strftime("%d/%m/%Y %H:%M")}")
+    doc.add_paragraph(f"Modèle IA : Gemini 2.5 Flash | Langue : {language}")
+    doc.add_paragraph()
+
+    for item in gemini_output["content"]:
+        if item["type"] == "paragraph":
+            for line in item["text"].split('\n'):
+                doc.add_paragraph(line.strip())
+            doc.add_paragraph() # Ajouter un espace entre les paragraphes logiques
+        elif item["type"] == "table":
+            if "header" in item and "rows" in item:
+                # Ajouter un paragraphe avant le tableau pour la lisibilité
+                doc.add_paragraph("\n") 
+                
+                table_data = [item["header"]] + item["rows"]
+                num_rows = len(table_data)
+                num_cols = len(item["header"])
+                
+                if num_rows > 0 and num_cols > 0:
+                    word_table = doc.add_table(rows=num_rows, cols=num_cols)
+                    word_table.style = 'Table Grid'
+                    
+                    for r_idx, row_data in enumerate(table_data):
+                        row_cells = word_table.rows[r_idx].cells
+                        for c_idx, cell_text in enumerate(row_data):
+                            if c_idx < num_cols: # S\'assurer de ne pas dépasser les colonnes définies
+                                row_cells[c_idx].text = str(cell_text)
+                                if r_idx == 0: # En-têtes en gras
+                                    row_cells[c_idx].paragraphs[0].runs[0].bold = True
+                doc.add_paragraph("\n") # Ajouter un paragraphe après le tableau
+            else:
+                logger.warning("Structure de tableau invalide reçue de Gemini.")
+        else:
+            logger.warning(f"Type de contenu inconnu reçu de Gemini: {item['type']}")
+
+    # Optionnel : Ajouter l\'image originale à la fin du document
+    if add_orig_img:
+        try:
+            # Recharger l\'image car file_input.seek(0) peut ne pas être suffisant pour toutes les implémentations
+            file_input.seek(0)
+            orig_rgb = Image.open(file_input)
+            orig_rgb.load()
+            
+            # Limiter la taille de l\'image pour le document Word
+            max_px = 800 # Largeur maximale en pixels pour l\'image dans Word
+            w, h = orig_rgb.size
+            if max(w, h) > max_px:
+                ratio = max_px / max(w, h)
+                orig_rgb = orig_rgb.resize(
+                    (int(w * ratio), int(h * ratio)), Image.Resampling.LANCZOS
+                )
+            buf = BytesIO()
+            orig_rgb.save(buf, format="PNG", optimize=True)
+            buf.seek(0)
+            doc.add_page_break()
+            doc.add_heading("Image Originale", level=1)
+            doc.add_picture(buf, width=Inches(6.0)) # Largeur fixe pour l\'image
+        except Exception as e:
+            logger.warning(f"Impossible d\'ajouter l\'image originale au document Word: {e}")
+
+    # 3. Export du document Word
+    output = BytesIO()
+    doc.save(output)
+    output.seek(0)
+    
+    safe_name = Path(original_filename).stem if original_filename else "resultat"
+    if len(safe_name) > 50: safe_name = safe_name[:50] # Eviter les noms trop longs
+
+    return send_file(
+        output,
+        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        as_attachment=True,
+        download_name=f"{safe_name}.docx",
+    )
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # CONVERT IMAGE → EXCEL  (réécriture complète)
 # ──────────────────────────────────────────────────────────────────────────────
-import google.generativeai as genai
-
 # Configuration du logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("IMG2XLS_V2")
