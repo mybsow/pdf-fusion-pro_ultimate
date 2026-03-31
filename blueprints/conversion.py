@@ -1551,9 +1551,10 @@ def convert_pdf_to_doc(file, form_data=None):
 # ----- PDF -> EXCEL -----
 # Configuration du logger
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("PDF2XLS_V2")
+logger = logging.getLogger("PDF2XLS_GEMINI")
 
 # Configuration de l'API Gemini
+# La clé API doit être définie dans GOOGLE_API_KEY sur Render
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 def encode_image_to_pil(image_data):
@@ -1618,15 +1619,12 @@ def get_content_from_gemini(image_input, language="fra"):
         logger.error(f"Erreur lors de l'appel à Gemini : {e}")
         return None
 
-def convert_pdf_to_excel_v2(file_input, original_filename="document.pdf", form_data: Optional[Dict] = None):
+def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data: Optional[Dict] = None):
     """
-    Convertit un PDF en document Excel (.xlsx) en utilisant Gemini.
+    Convertit un PDF en document Excel (.xlsx) en utilisant Gemini 2.5 Flash.
     """
     if not isinstance(original_filename, str):
-        try:
-            original_filename = str(original_filename)
-        except:
-            original_filename = "extraction_pdf.pdf"
+        original_filename = "extraction.pdf"
             
     logger.info(f"Démarrage de la conversion PDF→Excel pour : {original_filename}")
     
@@ -1634,16 +1632,17 @@ def convert_pdf_to_excel_v2(file_input, original_filename="document.pdf", form_d
     
     temp_dir = None
     try:
-        # Création d'un dossier temporaire sécurisé
+        # Création d'un dossier temporaire sécurisé sans backslash dans la f-string
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")
-        temp_dir = Path("/tmp") / f"pdf2img_{timestamp}"
+        folder_name = "pdf2img_" + timestamp
+        temp_dir = Path("/tmp") / folder_name
         temp_dir.mkdir(parents=True, exist_ok=True)
         
         temp_pdf_path = temp_dir / secure_filename(original_filename)
         file_input.save(temp_pdf_path)
         file_input.seek(0)
 
-        # Conversion PDF en Images
+        # Conversion PDF en Images (nécessite poppler-utils installé via Aptfile sur Render)
         images = convert_from_path(temp_pdf_path, dpi=300)
         all_extracted_tables = []
 
@@ -1655,7 +1654,7 @@ def convert_pdf_to_excel_v2(file_input, original_filename="document.pdf", form_d
                     all_extracted_tables.append({"page": page_num, "table_data": table})
 
         if not all_extracted_tables:
-            return jsonify({"error": "Aucun tableau n'a pu être extrait du PDF."}), 400
+            return jsonify({"error": "L'IA n'a pas pu extraire de tableau du PDF. Vérifiez la qualité du document."}), 400
 
         # Export Excel
         output = BytesIO()
@@ -1669,7 +1668,8 @@ def convert_pdf_to_excel_v2(file_input, original_filename="document.pdf", form_d
             for i, extracted_table in enumerate(all_extracted_tables):
                 page_num = extracted_table["page"]
                 table = extracted_table["table_data"]
-                sheet_name = f"P{page_num}_T{i+1}"[:31]
+                sheet_name = "P" + str(page_num) + "_T" + str(i+1)
+                sheet_name = sheet_name[:31]
                 
                 df = pd.DataFrame(table["rows"], columns=table["header"])
                 df.to_excel(writer, index=False, sheet_name=sheet_name)
@@ -1681,9 +1681,10 @@ def convert_pdf_to_excel_v2(file_input, original_filename="document.pdf", form_d
                     worksheet.set_column(col_num, col_num, min(max_len, 50))
                 worksheet.freeze_panes(1, 0)
 
+            date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             summary_data = {
                 "Propriété": ["Date", "Modèle", "Fichier", "Pages", "Tableaux"],
-                "Valeur": [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "Gemini 2.5 Flash", original_filename, len(images), len(all_extracted_tables)]
+                "Valeur": [date_str, "Gemini 2.5 Flash", original_filename, len(images), len(all_extracted_tables)]
             }
             pd.DataFrame(summary_data).to_excel(writer, index=False, sheet_name="Résumé")
             
@@ -1694,7 +1695,7 @@ def convert_pdf_to_excel_v2(file_input, original_filename="document.pdf", form_d
             output,
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             as_attachment=True,
-            download_name=f"{safe_name[:50]}.xlsx"
+            download_name=safe_name[:50] + ".xlsx"
         )
     except Exception as e:
         logger.error(f"Erreur PDF→Excel : {e}")
