@@ -1557,37 +1557,13 @@ logger = logging.getLogger("PDF2XLS_GEMINI")
 # La clé API doit être définie dans GOOGLE_API_KEY sur Render
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
-def encode_image_to_pil(image_data):
-    """Normalise toute entrée en PIL.Image sans double ouverture."""
-    try:
-        # ✅ CAS 1 : déjà une image PIL → on retourne DIRECT
-        if isinstance(image_data, Image.Image):
-            return image_data
-
-        # ✅ CAS 2 : fichier upload (Flask FileStorage)
-        if hasattr(image_data, "read") and not isinstance(image_data, Image.Image):
-            image_data.seek(0)
-            img = Image.open(image_data)
-            img.load()
-            return img
-
-        # ✅ CAS 3 : bytes
-        if isinstance(image_data, (bytes, bytearray)):
-            img = Image.open(BytesIO(image_data))
-            img.load()
-            return img
-
-        raise ValueError("Format d'image non supporté")
-
-    except Exception as e:
-        logger.error("Impossible d'ouvrir l'image: " + str(e))
-        return None
+from utils.image_utils import encode_image_to_pil
 
 def get_content_from_gemini(image_input, language="fra"):
     """
     Utilise Gemini 2.5 Flash pour extraire les tableaux de l'image.
     """
-    pil_image = encode_image_to_pil(image_input)
+    pil_image = encode_image_to_pil(input)
     
     if pil_image is None:
         return None
@@ -3387,25 +3363,19 @@ logger = logging.getLogger("IMG2WORD_V2")
 # Configuration de l\'API Gemini
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
-def encode_image_to_pil(image_file):
-    """Charge une image à partir d\'un objet fichier et la retourne au format PIL Image."""
-    try:
-        img = Image.open(image_file)
-        image_file.seek(0) # Réinitialiser le pointeur du fichier après lecture par PIL
-        img.load()
-        return img
-    except Exception as e:
-        logger.error(f"Impossible d\'ouvrir l\'image: {e}")
-        return None
+from utils.image_utils import encode_image_to_pil
 
 def get_content_from_gemini(image_file, language="fra"):
     """
     Utilise Gemini 2.5 Flash pour extraire les tableaux et le texte de l\'image.
     """
-    pil_image = encode_image_to_pil(image_file)
+    pil_image = encode_image_to_pil(input)
     if pil_image is None:
         return None
-
+      
+    if pil_image.mode != "RGB":
+        pil_image = pil_image.convert("RGB")
+      
     model = genai.GenerativeModel("gemini-2.5-flash")
     
     prompt = f"""
@@ -3564,25 +3534,16 @@ logger = logging.getLogger("IMG2XLS_V2")
 # Configuration de l'API Gemini
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
-def encode_image_to_pil(image_path):
-    """Charge une image et la retourne au format PIL Image."""
-    try:
-        if hasattr(image_path, "read"):
-            img = Image.open(image_path)
-            image_path.seek(0)
-        else:
-            img = Image.open(image_path)
-        img.load()
-        return img
-    except Exception as e:
-        logger.error(f"Impossible d'ouvrir l'image: {e}")
-        return None
+from utils.image_utils import encode_image_to_pil
 
 def get_table_from_gemini(image_path, language="fra"):
     """Utilise Gemini 2.5 Flash pour extraire les données du tableau."""
-    pil_image = encode_image_to_pil(image_path)
+    pil_image = encode_image_to_pil(input)
     if pil_image is None:
         return None
+      
+    if pil_image.mode != "RGB":
+        pil_image = pil_image.convert("RGB")
 
     model = genai.GenerativeModel("gemini-2.5-flash")
     
