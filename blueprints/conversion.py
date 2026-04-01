@@ -264,6 +264,13 @@ def check_dependencies(deps_list):
             missing.append(dep)
     return len(missing) == 0, missing
 
+def safe_json_loads(text):
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        print("JSON invalide :", text)
+        return None
+
 # ============================================================================
 # CONVERSION MAP - Configuration de toutes les conversions disponibles
 # ============================================================================
@@ -1572,16 +1579,25 @@ def get_content_from_gemini(image_input, language="fra"):
 
     # ✅ AJOUT DU PROMPT
     prompt = f"""
-    Analyse cette image et extrais TOUS les tableaux.
-    Retourne UNIQUEMENT un JSON structuré comme suit :
+    Analyse cette image et retourne UNIQUEMENT un JSON STRICT valide.
+
+    Règles :
+    - Aucun texte en dehors du JSON
+    - Aucun commentaire
+    - Aucun caractère en trop
+    - JSON valide avec double quotes uniquement
+
+    Format EXACT :
     {{
-      "tables": [
-        {{
-          "header": ["Colonne 1", "Colonne 2"],
-          "rows": [["val1", "val2"]]
-        }}
-      ]
+    "content": [
+        {{"type": "paragraph", "text": "..." }},
+        {{"type": "table", "header": ["..."], "rows": [["..."]] }}
+    ]
     }}
+
+    Si erreur → retourne un JSON vide valide :
+    {{ "content": [] }}
+
     Langue : {language}
     """
 
@@ -3217,6 +3233,14 @@ def call_gemini_vision(pil_image, prompt):
         logger.error("Erreur Gemini : " + str(e))
         return None
 
+def clean_gemini_json(text):
+    text = text.strip()
+
+    # enlever ```json ... ```
+    if text.startswith("```"):
+        text = text.replace("```json", "").replace("```", "").strip()
+
+    return text
 
 # ================= FONCTIONS D'EXTRACTION DES PARAMÈTRES =================
 
