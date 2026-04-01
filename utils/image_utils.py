@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 def encode_image_to_pil(image_data):
     """Convertit toute entrée en PIL.Image de façon sûre."""
     try:
