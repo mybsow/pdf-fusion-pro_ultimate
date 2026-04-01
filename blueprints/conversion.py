@@ -20,6 +20,7 @@ from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
 from typing import Optional, Dict, List, Any, Tuple, Union
+from utils.json_utils import safe_json_loads
 
 os.environ["OMP_THREAD_LIMIT"] = "1"
 
@@ -264,12 +265,23 @@ def check_dependencies(deps_list):
             missing.append(dep)
     return len(missing) == 0, missing
 
-def safe_json_loads(text):
+
+def extract_json(text):
     try:
         return json.loads(text)
     except json.JSONDecodeError:
-        print("JSON invalide :", text)
-        return None
+        pass
+
+    # 🔧 tentative d'extraction plus robuste
+    matches = re.findall(r'\{.*\}|\[.*\]', text, re.DOTALL)
+
+    for match in matches:
+        try:
+            return json.loads(match)
+        except:
+            continue
+
+    return None
 
 # ============================================================================
 # CONVERSION MAP - Configuration de toutes les conversions disponibles
@@ -3215,22 +3227,13 @@ def call_gemini_vision(pil_image, prompt):
         content = response.text.strip()
         logger.info("Réponse brute : " + str(content))
 
-        try:
-            return json.loads(content)
-        except json.JSONDecodeError:
-            logger.warning("JSON invalide, tentative de nettoyage...")
+        data = extract_json(content)
 
-            start = content.find("{")
-            end = content.rfind("}") + 1
-
-            if start != -1 and end != -1:
-                cleaned = content[start:end]
-                try:
-                    return json.loads(cleaned)
-                except Exception as e:
-                    logger.error("Échec parsing JSON nettoyé : " + str(e))
-
+        if data is None:
+            logger.error("Impossible de parser le JSON Gemini")
             return None
+
+        return data
 
     except Exception as e:
         logger.error("Erreur Gemini : " + str(e))
