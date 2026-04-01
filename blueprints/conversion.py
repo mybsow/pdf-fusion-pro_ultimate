@@ -1601,7 +1601,12 @@ def get_content_from_gemini(image_input, language="fra"):
     Langue : {language}
     """
 
-    return call_gemini_vision(pil_image, prompt)
+    data = call_gemini_vision(pil_image, prompt)
+
+    if not data or "content" not in data:
+        return {"error": "JSON invalide"}
+
+    return data
 
 def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data: Optional[Dict] = None):
     """
@@ -3210,13 +3215,11 @@ def call_gemini_vision(pil_image, prompt):
         content = response.text.strip()
         logger.info("Réponse brute : " + str(content))
 
-        # ✅ Sécurisation JSON
         try:
             return json.loads(content)
         except json.JSONDecodeError:
             logger.warning("JSON invalide, tentative de nettoyage...")
 
-            # 🔧 tentative extraction JSON
             start = content.find("{")
             end = content.rfind("}") + 1
 
@@ -3232,15 +3235,6 @@ def call_gemini_vision(pil_image, prompt):
     except Exception as e:
         logger.error("Erreur Gemini : " + str(e))
         return None
-
-def clean_gemini_json(text):
-    text = text.strip()
-
-    # enlever ```json ... ```
-    if text.startswith("```"):
-        text = text.replace("```json", "").replace("```", "").strip()
-
-    return text
 
 # ================= FONCTIONS D'EXTRACTION DES PARAMÈTRES =================
 
@@ -3470,6 +3464,12 @@ def get_content_from_gemini(image_file, language="fra"):
     """
 
     return call_gemini_vision(pil_image, prompt)
+    data = call_gemini_vision(pil_image, prompt)
+
+    if not data or "content" not in data:
+        return {"error": "JSON invalide"}
+
+    return data
 
 def convert_image_to_word(file_input, original_filename="document.png", form_data: Optional[Dict] = None):
     """
@@ -3621,7 +3621,12 @@ def get_table_from_gemini(image_input, language="fra"):
     """
 
     # ✅ UTILISATION
-    return call_gemini_vision(pil_image, prompt)
+    data = call_gemini_vision(pil_image, prompt)
+
+    if not data or "tables" not in data:
+        return {"error": "JSON invalide"}
+
+    return data
 
 def convert_image_to_excel(file_input, original_filename="document.png", language="fra"):
     """Version améliorée pour intégration Flask/Render."""
