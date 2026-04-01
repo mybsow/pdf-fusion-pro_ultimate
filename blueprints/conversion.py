@@ -3437,10 +3437,10 @@ def get_content_from_gemini(image_file, language="fra"):
     Analyse cette image et extrais TOUS les tableaux et le texte.
     Retourne UNIQUEMENT un JSON structuré comme suit :
     {{
-      "content": [
+    "content": [
         {{"type": "paragraph", "text": "Texte"}},
-        {{"type": "table", "header": ["Col1"], "rows": [["val"]]} }
-      ]
+        {{"type": "table", "header": ["Col1"], "rows": [["val"]]}}
+    ]
     }}
     Langue : {language}
     """
