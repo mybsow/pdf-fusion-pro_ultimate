@@ -999,7 +999,10 @@ def smart_ocr(img, min_confidence: int = 30, max_words: int = 20000) -> List[str
         logger.warning(f"smart_ocr error: {e}")
         return []
 
-# ----- Word -> PDF -----
+
+# ─────────────────────────────────────────────────────────────────────────────
+# A. WORD → PDF
+# ─────────────────────────────────────────────────────────────────────────────
 def convert_word_to_pdf(file, form_data=None):
     """
     Word (.docx/.doc/.odt/.rtf) → PDF.
@@ -1110,7 +1113,10 @@ def _docx_to_pdf_reportlab(doc: "Document", output_path: str, filename: str):
                              topMargin=55, bottomMargin=55)
     pdf.build(story)
 
-# ----- Excel -> PDF -----
+
+# ─────────────────────────────────────────────────────────────────────────────
+# A. EXCEL → PDF
+# ─────────────────────────────────────────────────────────────────────────────
 def convert_excel_to_pdf(file, form_data=None):
     """
     Excel (.xlsx/.xls/.xlsm) → PDF.
@@ -1192,7 +1198,10 @@ def convert_excel_to_pdf(file, form_data=None):
         cleanup_temp_directory(temp_dir)
         return {"error": f"Erreur Excel→PDF : {e}"}
 
-# ----- PowerPoint -> PDF -----
+
+# ─────────────────────────────────────────────────────────────────────────────
+# A. PPT → PDF
+# ─────────────────────────────────────────────────────────────────────────────
 def convert_powerpoint_to_pdf(file, form_data=None):
     """
     PowerPoint (.pptx/.ppt/.odp) → PDF.
