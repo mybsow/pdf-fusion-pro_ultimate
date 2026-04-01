@@ -1623,7 +1623,6 @@ def get_content_from_gemini(image_input, language="fra"):
 def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data: Optional[Dict] = None):
     """
     Convertit un PDF en document Excel (.xlsx) en utilisant Gemini 2.5 Flash.
-    Syntaxe ultra-sécurisée pour éviter les erreurs de déploiement Render.
     """
     if not isinstance(original_filename, str):
         original_filename = "document.pdf"
@@ -1636,34 +1635,60 @@ def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data
     
     temp_dir = None
     try:
-        # Création d'un dossier temporaire sécurisé sans f-string complexe
         now = datetime.now()
         timestamp = now.strftime("%Y%m%d%H%M%S%f")
         folder_name = "pdf2img_" + timestamp
         temp_dir = Path("/tmp") / folder_name
         temp_dir.mkdir(parents=True, exist_ok=True)
         
-        # Sauvegarde du PDF
         safe_name = secure_filename(original_filename)
         temp_pdf_path = temp_dir / safe_name
         file_input.save(str(temp_pdf_path))
         file_input.seek(0)
 
-        # Conversion PDF en Images (nécessite poppler-utils via Aptfile)
         images = convert_from_path(str(temp_pdf_path), dpi=200)
         all_extracted_tables = []
 
         for page_num, img in enumerate(images, 1):
             logger.info("Traitement de la page " + str(page_num) + " du PDF.")
-            gemini_output = get_content_from_gemini(img, language)
+            
+            # ✅ CORRECTION : Utiliser get_table_from_gemini au lieu de get_content_from_gemini
+            gemini_output = get_table_from_gemini(img, language)
+            
             if gemini_output and "tables" in gemini_output and gemini_output["tables"]:
                 for table in gemini_output["tables"]:
                     all_extracted_tables.append({"page": page_num, "table_data": table})
+            
+            # ✅ FALLBACK : Si pas de tableaux mais du contenu, créer un tableau simple
+            elif gemini_output and "content" in gemini_output and gemini_output["content"]:
+                # Convertir les paragraphes en tableau simple
+                rows = []
+                for item in gemini_output["content"]:
+                    if item.get("type") == "paragraph" and item.get("text"):
+                        rows.append([item["text"]])
+                    elif item.get("type") == "table":
+                        # Si c'est déjà un tableau dans content
+                        all_extracted_tables.append({
+                            "page": page_num, 
+                            "table_data": {
+                                "header": item.get("header", ["Contenu"]),
+                                "rows": item.get("rows", [])
+                            }
+                        })
+                
+                if rows:
+                    all_extracted_tables.append({
+                        "page": page_num,
+                        "table_data": {
+                            "header": ["Contenu extrait"],
+                            "rows": rows
+                        }
+                    })
 
         if not all_extracted_tables:
-            return jsonify({"error": "Aucun tableau n'a pu être extrait du PDF."}), 400
+            return jsonify({"error": "Aucun contenu n'a pu être extrait du PDF."}), 400
 
-        # Export Excel
+        # Export Excel (reste identique)
         output = BytesIO()
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
             workbook = writer.book
@@ -1681,7 +1706,6 @@ def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data
                 page_num = extracted_table["page"]
                 table = extracted_table["table_data"]
                 
-                # Construction du nom de feuille sans f-string
                 sheet_name = "P" + str(page_num) + "_T" + str(i+1)
                 sheet_name = sheet_name[:31]
                 
@@ -1696,7 +1720,6 @@ def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data
                     worksheet.set_column(col_num, col_num, min(max_len, 50))
                 worksheet.freeze_panes(1, 0)
 
-            # Feuille Résumé
             date_str = now.strftime("%Y-%m-%d %H:%M:%S")
             summary_data = {
                 "Propriété": ["Date", "Modèle", "Fichier", "Pages", "Tableaux"],
@@ -1706,7 +1729,6 @@ def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data
             
         output.seek(0)
         
-        # Nettoyage du nom de téléchargement
         download_name = "resultat.xlsx"
         if original_filename:
             download_name = Path(original_filename).stem[:50] + ".xlsx"
@@ -1723,6 +1745,7 @@ def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data
     finally:
         if temp_dir and temp_dir.exists():
             shutil.rmtree(str(temp_dir))
+
 
 # ----- PDF -> PPT -----
 def convert_pdf_to_ppt(file, form_data=None):
@@ -3474,99 +3497,137 @@ def get_content_from_gemini(image_file, language="fra"):
 
     return data
 
-def convert_image_to_word(file_input, original_filename="document.png", form_data: Optional[Dict] = None):
+def convert_image_to_word(file_input, form_data: Optional[Dict] = None):
     """
-    Convertit une image en document Word (.docx) en utilisant Gemini pour l\'extraction
-    des tableaux et du texte, puis python-docx pour la reconstruction.
+    Convertit une image en document Word (.docx) en utilisant Gemini pour l'extraction.
     """
-    if not isinstance(original_filename, str):
-        try:
-            original_filename = str(original_filename)
-        except:
-            original_filename = "extraction_document.png"
-            
+    # Extraire le nom de fichier
+    original_filename = "document.png"
+    if hasattr(file_input, 'filename') and file_input.filename:
+        original_filename = file_input.filename
+    
     logger.info(f"Démarrage de la conversion Image→Word pour : {original_filename}")
     
-    language = (form_data or {}).get("language", "fra")
-    add_orig_img = str((form_data or {}).get("add_original_image", "true")).lower() == "true"
+    form_data = form_data or {}
+    language = form_data.get("language", "fra")
+    add_orig_img = str(form_data.get("add_original_image", "true")).lower() == "true"
     
     # 1. Extraction du contenu via Gemini
     gemini_output = get_content_from_gemini(file_input, language)
     
-    if gemini_output is None or "content" not in gemini_output or not gemini_output["content"]:
-        logger.error("Aucun contenu (tableaux ou texte) extrait par Gemini.")
-        return jsonify({"error": "L\'IA n\'a pas pu extraire de contenu de l\'image. Vérifiez la qualité du document et la configuration de l\'API."}), 400
+    # 2. Vérification du résultat
+    if gemini_output is None:
+        logger.error("Réponse Gemini nulle")
+        return {"error": "L'IA n'a pas pu analyser l'image. Vérifiez la qualité du document."}
+    
+    if "error" in gemini_output:
+        logger.error(f"Erreur Gemini: {gemini_output['error']}")
+        return {"error": f"Erreur d'extraction: {gemini_output['error']}"}
+    
+    content = gemini_output.get("content", [])
+    
+    if not content:
+        logger.warning("Aucun contenu extrait, tentative OCR fallback")
+        # Fallback OCR si Gemini ne retourne rien
+        if HAS_TESSERACT and HAS_PILLOW:
+            try:
+                file_input.seek(0)
+                img = Image.open(file_input)
+                img = _ensure_rgb(img)
+                ocr_text = pytesseract.image_to_string(img, lang="fra+eng")
+                if ocr_text.strip():
+                    content = [{"type": "paragraph", "text": ocr_text}]
+            except Exception as e:
+                logger.warning(f"OCR fallback échoué: {e}")
+        
+        if not content:
+            return {"error": "Aucun contenu n'a pu être extrait de l'image."}
 
-    # 2. Création du document Word
+    # 3. Création du document Word
     doc = Document()
     doc.add_heading(f"Extraction de : {Path(original_filename).stem}", 0)
     doc.add_paragraph(f"Date : {datetime.now().strftime('%d/%m/%Y %H:%M')}")
     doc.add_paragraph(f"Modèle IA : Gemini 2.5 Flash | Langue : {language}")
     doc.add_paragraph()
 
-    for item in gemini_output["content"]:
-        if item["type"] == "paragraph":
-            for line in item["text"].split('\n'):
-                doc.add_paragraph(line.strip())
-            doc.add_paragraph() # Ajouter un espace entre les paragraphes logiques
-        elif item["type"] == "table":
-            if "header" in item and "rows" in item:
-                # Ajouter un paragraphe avant le tableau pour la lisibilité
-                doc.add_paragraph("\n") 
+    for item in content:
+        item_type = item.get("type", "paragraph")
+        
+        if item_type == "paragraph":
+            text = item.get("text", "")
+            if text:
+                for line in text.split('\n'):
+                    line = line.strip()
+                    if line:
+                        doc.add_paragraph(line)
+                doc.add_paragraph()
                 
-                table_data = [item["header"]] + item["rows"]
-                num_rows = len(table_data)
-                num_cols = len(item["header"])
+        elif item_type == "table":
+            header = item.get("header", [])
+            rows = item.get("rows", [])
+            
+            if header and rows:
+                doc.add_paragraph()
                 
-                if num_rows > 0 and num_cols > 0:
-                    word_table = doc.add_table(rows=num_rows, cols=num_cols)
-                    word_table.style = 'Table Grid'
-                    
-                    for r_idx, row_data in enumerate(table_data):
-                        row_cells = word_table.rows[r_idx].cells
-                        for c_idx, cell_text in enumerate(row_data):
-                            if c_idx < num_cols: # S\'assurer de ne pas dépasser les colonnes définies
-                                row_cells[c_idx].text = str(cell_text)
-                                if r_idx == 0: # En-têtes en gras
-                                    row_cells[c_idx].paragraphs[0].runs[0].bold = True
-                doc.add_paragraph("\n") # Ajouter un paragraphe après le tableau
-            else:
-                logger.warning("Structure de tableau invalide reçue de Gemini.")
+                num_cols = len(header)
+                num_rows = len(rows) + 1  # +1 pour l'en-tête
+                
+                word_table = doc.add_table(rows=num_rows, cols=num_cols)
+                word_table.style = 'Table Grid'
+                
+                # En-têtes
+                for c_idx, col_name in enumerate(header):
+                    cell = word_table.cell(0, c_idx)
+                    cell.text = str(col_name)
+                    for paragraph in cell.paragraphs:
+                        for run in paragraph.runs:
+                            run.bold = True
+                
+                # Données
+                for r_idx, row_data in enumerate(rows):
+                    for c_idx, cell_text in enumerate(row_data):
+                        if c_idx < num_cols:
+                            word_table.cell(r_idx + 1, c_idx).text = str(cell_text)
+                
+                doc.add_paragraph()
         else:
-            logger.warning(f"Type de contenu inconnu reçu de Gemini: {item['type']}")
+            logger.warning(f"Type de contenu inconnu: {item_type}")
 
-    # Optionnel : Ajouter l\'image originale à la fin du document
+    # 4. Ajouter l'image originale (optionnel)
     if add_orig_img:
         try:
-            # Recharger l\'image car file_input.seek(0) peut ne pas être suffisant pour toutes les implémentations
             file_input.seek(0)
-            orig_rgb = Image.open(file_input)
-            orig_rgb.load()
+            orig_img = Image.open(file_input)
+            orig_img.load()
+            orig_img = _ensure_rgb(orig_img)
             
-            # Limiter la taille de l\'image pour le document Word
-            max_px = 800 # Largeur maximale en pixels pour l\'image dans Word
-            w, h = orig_rgb.size
+            # Redimensionner si trop grande
+            max_px = 800
+            w, h = orig_img.size
             if max(w, h) > max_px:
                 ratio = max_px / max(w, h)
-                orig_rgb = orig_rgb.resize(
-                    (int(w * ratio), int(h * ratio)), Image.Resampling.LANCZOS
+                orig_img = orig_img.resize(
+                    (int(w * ratio), int(h * ratio)), 
+                    Image.Resampling.LANCZOS
                 )
+            
             buf = BytesIO()
-            orig_rgb.save(buf, format="PNG", optimize=True)
+            orig_img.save(buf, format="PNG", optimize=True)
             buf.seek(0)
+            
             doc.add_page_break()
             doc.add_heading("Image Originale", level=1)
-            doc.add_picture(buf, width=Inches(6.0)) # Largeur fixe pour l\'image
+            doc.add_picture(buf, width=Inches(6.0))
+            
         except Exception as e:
-            logger.warning(f"Impossible d\'ajouter l\'image originale au document Word: {e}")
+            logger.warning(f"Impossible d'ajouter l'image originale: {e}")
 
-    # 3. Export du document Word
+    # 5. Export
     output = BytesIO()
     doc.save(output)
     output.seek(0)
     
-    safe_name = Path(original_filename).stem if original_filename else "resultat"
-    if len(safe_name) > 50: safe_name = safe_name[:50] # Eviter les noms trop longs
+    safe_name = Path(original_filename).stem[:50] if original_filename else "resultat"
 
     return send_file(
         output,
@@ -3631,72 +3692,132 @@ def get_table_from_gemini(image_input, language="fra"):
 
     return data
 
-def convert_image_to_excel(file_input, original_filename="document.png", language="fra"):
-    """Version améliorée pour intégration Flask/Render."""
-    
-    # Sécurité : s'assurer que original_filename est bien une chaîne de caractères
+def convert_image_to_excel(file_input, original_filename="document.png", form_data: Optional[Dict] = None):
+    """
+    Convertit une image en document Excel (.xlsx) en utilisant Gemini pour l'extraction des tableaux.
+    """
+    # Sécurité : s'assurer que original_filename est bien une chaîne
     if not isinstance(original_filename, str):
         try:
-            # Si c'est un objet ImmutableMultiDict ou autre, on essaie d'en extraire un nom
             original_filename = str(original_filename)
         except:
             original_filename = "extraction_tableau.png"
+    
+    # Extraire le nom du fichier si c'est un objet FileStorage
+    if hasattr(file_input, 'filename') and file_input.filename:
+        original_filename = file_input.filename
             
-    logger.info(f"Démarrage de la conversion pour : {original_filename}")
+    logger.info(f"Démarrage de la conversion Image→Excel pour : {original_filename}")
     
-    # 1. Extraction
-    data = get_table_from_gemini(file_input, language)
+    language = (form_data or {}).get("language", "fra")
     
-    if data is None or "tables" not in data or not data["tables"]:
-        logger.error("Aucune donnée de tableau extraite ou erreur lors de l'extraction.")
-        return jsonify({"error": "L'IA n'a pas pu extraire de tableau. Vérifiez la qualité du document."}), 400
+    # 1. Extraction via get_table_from_gemini (PAS get_content_from_gemini)
+    gemini_output = get_table_from_gemini(file_input, language)
+    
+    # 2. Vérification du résultat
+    if gemini_output is None:
+        logger.error("Réponse Gemini nulle")
+        return {"error": "L'IA n'a pas pu analyser l'image. Vérifiez la qualité du document."}
+    
+    if "error" in gemini_output:
+        logger.error(f"Erreur Gemini: {gemini_output['error']}")
+        return {"error": f"Erreur d'extraction: {gemini_output['error']}"}
+    
+    # 3. Extraire les tableaux
+    tables = gemini_output.get("tables", [])
+    
+    # FALLBACK : Si pas de "tables" mais "content" présent, convertir
+    if not tables and "content" in gemini_output:
+        logger.info("Fallback: conversion content → tables")
+        for item in gemini_output["content"]:
+            if item.get("type") == "table":
+                tables.append({
+                    "header": item.get("header", ["Colonne"]),
+                    "rows": item.get("rows", [])
+                })
+            elif item.get("type") == "paragraph" and item.get("text"):
+                # Convertir les paragraphes en tableau simple si aucun tableau trouvé
+                pass  # On ignore les paragraphes pour Excel
+        
+        # Si toujours pas de tableaux, créer un tableau à partir du texte
+        if not tables:
+            text_rows = []
+            for item in gemini_output["content"]:
+                if item.get("type") == "paragraph" and item.get("text"):
+                    text_rows.append([item["text"]])
+            if text_rows:
+                tables.append({
+                    "header": ["Contenu extrait"],
+                    "rows": text_rows
+                })
+    
+    if not tables:
+        logger.error("Aucun tableau extrait de l'image")
+        return {"error": "Aucun tableau n'a pu être extrait de l'image."}
 
-    # 2. Export Excel
+    # 4. Export Excel
     output = BytesIO()
     try:
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
             workbook = writer.book
             fmt_header = workbook.add_format({
-                "bold": True, "bg_color": "#2D6A9F", "font_color": "#FFFFFF",
-                "border": 1, "text_wrap": True, "valign": "vcenter", "align": "center"
+                "bold": True, 
+                "bg_color": "#2D6A9F", 
+                "font_color": "#FFFFFF",
+                "border": 1, 
+                "text_wrap": True, 
+                "valign": "vcenter", 
+                "align": "center"
             })
             
-            for i, table in enumerate(data["tables"]):
-                sheet_name = f"Tableau_{i+1}"
-                df = pd.DataFrame(table["rows"], columns=table["header"])
+            for i, table in enumerate(tables):
+                sheet_name = f"Tableau_{i+1}"[:31]
+                
+                header = table.get("header", ["Colonne"])
+                rows = table.get("rows", [])
+                
+                # Créer DataFrame
+                df = pd.DataFrame(rows, columns=header)
                 df.to_excel(writer, index=False, sheet_name=sheet_name)
+                
+                # Mise en forme
                 worksheet = writer.sheets[sheet_name]
                 for col_num, value in enumerate(df.columns.values):
                     worksheet.write(0, col_num, value, fmt_header)
-                    # Calcul de largeur sécurisé
                     col_data = df[value].astype(str)
-                    max_len = max(col_data.map(len).max() if not col_data.empty else 0, len(str(value))) + 2
+                    max_len = max(
+                        col_data.map(len).max() if not col_data.empty else 0, 
+                        len(str(value))
+                    ) + 2
                     worksheet.set_column(col_num, col_num, min(max_len, 50))
                 worksheet.freeze_panes(1, 0)
 
-            # Résumé
+            # Feuille résumé
             summary_data = {
-                "Propriété": ["Date", "Modèle", "Fichier"],
-                "Valeur": [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "Gemini 2.5 Flash", original_filename]
+                "Propriété": ["Date", "Modèle", "Fichier", "Tableaux extraits"],
+                "Valeur": [
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
+                    "Gemini 2.5 Flash", 
+                    original_filename,
+                    len(tables)
+                ]
             }
             pd.DataFrame(summary_data).to_excel(writer, index=False, sheet_name="Résumé")
             
         output.seek(0)
         
-        # Nettoyage du nom de fichier pour l'envoi
-        safe_name = Path(original_filename).stem if original_filename else "resultat"
-        if len(safe_name) > 50: safe_name = safe_name[:50] # Eviter les noms trop longs
+        safe_name = Path(original_filename).stem[:50] if original_filename else "resultat"
         
-        # 3. Retour du fichier pour Flask
         return send_file(
             output,
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             as_attachment=True,
             download_name=f"{safe_name}.xlsx"
         )
+        
     except Exception as e:
-        logger.error(f"Erreur lors de la génération Excel : {e}")
-        return jsonify({"error": f"Erreur lors de la création du fichier Excel: {str(e)}"}), 500
+        logger.error(f"Erreur génération Excel : {e}\n{traceback.format_exc()}")
+        return {"error": f"Erreur lors de la création du fichier Excel: {str(e)}"}
 
 
 # ----- CSV -> EXCEL -----
