@@ -109,6 +109,12 @@ RUN mkdir -p \
     chmod -R 755 /app /tmp/pdf_fusion_pro
 
 # -------------------------------------------------
+# Variables d'environnement pour optimiser la mémoire
+# -------------------------------------------------
+ENV PYTHONMALLOC=malloc
+ENV MALLOC_ARENA_MAX=2
+
+# -------------------------------------------------
 # Exposer port
 # -------------------------------------------------
 EXPOSE 10000
@@ -120,6 +126,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:10000/health || exit 1
 
 # -------------------------------------------------
-# Gunicorn (optimisé mémoire Render)
+# Gunicorn (optimisé mémoire Render - 1 worker seulement)
 # -------------------------------------------------
-CMD ["gunicorn", "app:application", "--bind", "0.0.0.0:10000", "--workers", "2", "--threads", "2", "--timeout", "300", "--worker-class", "gthread", "--access-logfile", "-", "--error-logfile", "-"]
+CMD ["gunicorn", "app:application", "--bind", "0.0.0.0:10000", "--workers", "1", "--threads", "2", "--timeout", "300", "--worker-class", "gthread", "--access-logfile", "-", "--error-logfile", "-"]

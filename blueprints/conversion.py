@@ -236,6 +236,18 @@ conversion_bp = Blueprint(
     url_prefix='/conversion'
 )
 
+@conversion_bp.after_request
+def cleanup_memory(response):
+    """Nettoie la mémoire après chaque requête."""
+    import gc
+    gc.collect()
+    
+    # Log mémoire (optionnel, pour debug)
+    if hasattr(current_app, 'logger'):
+        current_app.logger.debug(f"Mémoire après requête: {gc.get_count()}")
+    
+    return response
+
 # =========================
 # CHECK DEPENDENCIES
 # =========================
@@ -903,15 +915,22 @@ def process_conversion(conversion_type, file=None, files=None, form_data=None):
             ]
 
             if conversion_type in multi_file_conversions:
-                return func(files, form_data)
+                result = func(files, form_data)
             else:
-                return func(files[0], form_data)
+                result = func(files[0], form_data)
 
         elif file is not None:
-            return func(file, form_data)
+            result = func(file, form_data)
 
         else:
             return {'error': 'Aucun fichier fourni pour la conversion'}
+                
+        # ✅ AJOUTEZ ICI - Nettoyage mémoire APRÈS la conversion
+        import gc
+        gc.collect()
+        
+        return result
+                
 
     except Exception as e:
         current_app.logger.error(f"Exception dans {conversion_type}: {str(e)}\n{traceback.format_exc()}")
@@ -989,6 +1008,10 @@ def smart_ocr(img, min_confidence: int = 30, max_words: int = 20000) -> List[str
             if len(text) == 1 and not text.isalnum():
                 continue
             words.append(text)
+
+        # ✅ AJOUTEZ ICI
+        import gc
+        gc.collect()
 
         return words
 
@@ -2418,7 +2441,11 @@ def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data
         
         download_name = "resultat.xlsx"
         if original_filename:
-            download_name = Path(original_filename).stem[:50] + ".xlsx"
+            download_name = Path(original_filename).stem[:50] + ".xlsx"  
+
+        # ✅ À la fin, juste avant le return
+        import gc
+        gc.collect()
         
         return send_file(
             output,
@@ -3745,6 +3772,11 @@ def call_gemini_vision(pil_image, prompt):
         logger.info("Réponse brute : " + str(content))
 
         data = extract_json(content)
+        
+        # ✅ NETTOYAGE IMMÉDIAT
+        import gc
+        del pil_image  # Supprimer l'image de la mémoire
+        gc.collect()
 
         if data is None:
             logger.error("Impossible de parser le JSON Gemini")
