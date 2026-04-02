@@ -3,6 +3,27 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block converter_content %}
+<!-- Toast de progression fixe -->
+<div id="progressToast" style="display:none; position:fixed; bottom:24px; right:24px; width:320px;
+     background:var(--bs-body-bg, #fff); border:1px solid rgba(0,0,0,0.12); border-radius:12px;
+     padding:16px 18px; z-index:9999; box-shadow:0 4px 20px rgba(0,0,0,0.13);">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <div class="spinner-border spinner-border-sm text-primary" role="status" id="toastSpinnerIcon"></div>
+        <div id="toastSuccessIcon" style="display:none; color:#198754; font-size:18px;">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div style="flex:1; min-width:0;">
+            <div style="font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="toastMsg">{{ _('Conversion en cours...') }}</div>
+            <div style="font-size:12px; color:#6c757d; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="toastDetail">{{ _('Lecture du document...') }}</div>
+        </div>
+        <span style="font-size:13px; font-weight:700; color:#0d6efd; min-width:36px; text-align:right;" id="toastPct">0%</span>
+    </div>
+    <div class="progress" style="height:6px; border-radius:4px; overflow:hidden;">
+        <div class="progress-bar" id="toastProgressBar" role="progressbar"
+             style="width:0%; transition:width 0.5s ease; background:#0d6efd;"></div>
+    </div>
+</div>
+
 <!-- Étape 1: Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
@@ -165,6 +186,21 @@
 <!-- Étape 2: Conversion en cours -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
+        <!-- Bannière de progression visible en haut du bloc -->
+        <div id="progressBanner" class="d-flex align-items-center gap-3 p-3 mb-4 rounded-3"
+             style="background:#f0f6ff; border:1px solid #c7deff; text-align:left;">
+            <div class="spinner-border text-primary flex-shrink-0" role="status" style="width:1.4rem; height:1.4rem; border-width:2.5px;"></div>
+            <div style="flex:1; min-width:0;">
+                <div class="fw-semibold" style="font-size:15px;" id="bannerMsg">{{ _('Conversion en cours...') }}</div>
+                <div style="font-size:13px; color:#6c757d;" id="bannerDetail">{{ _('Analyse de la structure') }}</div>
+                <div class="progress mt-2" style="height:6px; border-radius:4px;">
+                    <div class="progress-bar" id="bannerProgressBar" role="progressbar"
+                         style="width:0%; transition:width 0.5s ease;"></div>
+                </div>
+            </div>
+            <span class="fw-bold text-primary" style="font-size:16px; min-width:40px; text-align:right;" id="bannerPct">0%</span>
+        </div>
+
         <div class="mb-4">
             <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
         </div>
@@ -273,23 +309,75 @@
 let downloadUrl = null;
 let progressInterval = null;
 
+function el(id) {
+    return document.getElementById(id);
+}
+
 function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    el('step1Content').style.display = step === 1 ? 'block' : 'none';
+    el('step2Content').style.display = step === 2 ? 'block' : 'none';
+    el('step3Content').style.display = step === 3 ? 'block' : 'none';
 }
 
 function showError(message) {
-    let errorDiv = document.getElementById('conversionError');
+    let errorDiv = el('conversionError');
     if (!errorDiv) {
         errorDiv = document.createElement('div');
         errorDiv.id = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
         errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-        document.getElementById('step1Content').prepend(errorDiv);
+        el('step1Content').prepend(errorDiv);
     }
-    document.getElementById('conversionErrorMsg').textContent = message;
+    el('conversionErrorMsg').textContent = message;
     errorDiv.style.display = 'block';
+}
+
+function showToast() {
+    const toast = el('progressToast');
+    if (toast) {
+        toast.style.display = 'block';
+        el('toastSpinnerIcon').style.display = 'inline-block';
+        el('toastSuccessIcon').style.display = 'none';
+        el('toastProgressBar').style.background = '#0d6efd';
+    }
+}
+
+function hideToast() {
+    const toast = el('progressToast');
+    if (toast) toast.style.display = 'none';
+}
+
+function setToastSuccess() {
+    el('toastSpinnerIcon').style.display = 'none';
+    el('toastSuccessIcon').style.display = 'inline-block';
+    el('toastProgressBar').style.background = '#198754';
+    el('toastPct').style.color = '#198754';
+    el('toastMsg').textContent = '{{ _("Conversion terminée !") }}';
+    el('toastDetail').textContent = '{{ _("Votre PDF est prêt au téléchargement") }}';
+    el('toastProgressBar').style.width = '100%';
+    el('toastPct').textContent = '100%';
+    setTimeout(hideToast, 3000);
+}
+
+function syncProgress(pct, msg, detail) {
+    // Barre principale (step2)
+    const bar = el('conversionProgress');
+    if (bar) bar.style.width = pct + '%';
+    if (el('conversionMessage')) el('conversionMessage').textContent = msg;
+    if (el('conversionDetails')) el('conversionDetails').innerHTML =
+        `<i class="fas fa-cog fa-spin me-1"></i> ${detail}`;
+
+    // Bannière en haut du step2
+    if (el('bannerMsg')) el('bannerMsg').textContent = msg;
+    if (el('bannerDetail')) el('bannerDetail').textContent = detail;
+    if (el('bannerProgressBar')) el('bannerProgressBar').style.width = pct + '%';
+    if (el('bannerPct')) el('bannerPct').textContent = pct + '%';
+
+    // Toast fixe
+    if (el('toastMsg')) el('toastMsg').textContent = msg;
+    if (el('toastDetail')) el('toastDetail').textContent = detail;
+    if (el('toastProgressBar')) el('toastProgressBar').style.width = pct + '%';
+    if (el('toastPct')) el('toastPct').textContent = pct + '%';
 }
 
 function startConversion() {
@@ -302,27 +390,30 @@ function startConversion() {
     const file = uploadManager.getFiles()[0];
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('page_format', document.getElementById('pageFormat').value);
+    formData.append('page_format', el('pageFormat').value);
     formData.append('orientation', document.querySelector('input[name="orientation"]:checked').value);
-    formData.append('margins', document.getElementById('margins').value);
-    formData.append('quality', document.getElementById('quality').value);
-    formData.append('preserve_layout', document.getElementById('preserveLayout').checked ? 'true' : 'false');
-    formData.append('include_bookmarks', document.getElementById('includeBookmarks').checked ? 'true' : 'false');
-    formData.append('protect_pdf', document.getElementById('protectPDF').checked ? 'true' : 'false');
+    formData.append('margins', el('margins').value);
+    formData.append('quality', el('quality').value);
+    formData.append('preserve_layout', el('preserveLayout').checked ? 'true' : 'false');
+    formData.append('include_bookmarks', el('includeBookmarks').checked ? 'true' : 'false');
+    formData.append('protect_pdf', el('protectPDF').checked ? 'true' : 'false');
 
-    if (document.getElementById('protectPDF').checked) {
-        formData.append('password', document.getElementById('password').value);
-        formData.append('permissions', document.getElementById('permissions').value);
+    if (el('protectPDF').checked) {
+        formData.append('password', el('password').value);
+        formData.append('permissions', el('permissions').value);
     }
 
+    // Afficher le step 2 et scroller vers le haut
     updateStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast();
 
+    // Infos estimées
     const pages = Math.max(1, Math.ceil(file.size / 15000));
-    const el = id => document.getElementById(id);
     if (el('estimatedPages')) el('estimatedPages').textContent = pages;
-    const qualitySelect = document.getElementById('quality');
+    const qualitySelect = el('quality');
     if (el('qualitySetting')) el('qualitySetting').textContent = qualitySelect?.options[qualitySelect.selectedIndex]?.text.split(' ')[0] || '';
-    if (el('formatSetting')) el('formatSetting').textContent = document.getElementById('pageFormat').value;
+    if (el('formatSetting')) el('formatSetting').textContent = el('pageFormat').value;
 
     const simSteps = [
         { percent: 15, msg: "{{ _('Lecture du document Word...') }}", detail: "{{ _('Analyse de la structure') }}" },
@@ -332,14 +423,11 @@ function startConversion() {
         { percent: 90, msg: "{{ _('Application des paramètres...') }}", detail: "{{ _('Configuration finale') }}" },
     ];
     let simIdx = 0;
-    const progressBar = el('conversionProgress');
 
     progressInterval = setInterval(() => {
         if (simIdx < simSteps.length) {
             const s = simSteps[simIdx++];
-            if (progressBar) progressBar.style.width = s.percent + '%';
-            if (el('conversionMessage')) el('conversionMessage').textContent = s.msg;
-            if (el('conversionDetails')) el('conversionDetails').innerHTML = `<i class="fas fa-cog fa-spin me-1"></i> ${s.detail}`;
+            syncProgress(s.percent, s.msg, s.detail);
         } else {
             clearInterval(progressInterval);
         }
@@ -351,7 +439,7 @@ function startConversion() {
     })
     .then(async response => {
         clearInterval(progressInterval);
-        if (progressBar) progressBar.style.width = '100%';
+        syncProgress(100, "{{ _('Finalisation...') }}", "{{ _('Votre PDF est prêt') }}");
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -369,32 +457,36 @@ function startConversion() {
         const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
         if (match?.[1]) filename = match[1].replace(/['"]/g, '');
 
-        const downloadLink = document.getElementById('downloadLink');
+        const downloadLink = el('downloadLink');
         if (downloadLink) {
             downloadLink.href = downloadUrl;
             downloadLink.setAttribute('download', filename);
         }
 
         simulateFinalStats(file, pages, filename);
+        setToastSuccess();
         updateStep(3);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     })
     .catch(error => {
         clearInterval(progressInterval);
+        hideToast();
         updateStep(1);
         showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
     });
 }
 
 function simulateFinalStats(file, pages, filename) {
-    const el = id => document.getElementById(id);
     const sizeMB = (file.size * 0.6 / (1024 * 1024)).toFixed(2);
     if (el('pdfFileName')) el('pdfFileName').textContent = filename;
     if (el('pdfFileInfo')) el('pdfFileInfo').textContent = `{{ _('Taille:') }} ${sizeMB} MB | {{ _('Pages:') }} ${pages}`;
 
-    const format = document.getElementById('pageFormat').value;
-    const orientation = document.querySelector('input[name="orientation"]:checked').value === 'portrait' ? '{{ _("Portrait") }}' : '{{ _("Paysage") }}';
-    const quality = document.getElementById('quality').options[document.getElementById('quality').selectedIndex].text;
-    if (el('conversionDetailsInfo')) el('conversionDetailsInfo').innerHTML = `{{ _('Format:') }} ${format}<br>{{ _('Orientation:') }} ${orientation}<br>{{ _('Qualité:') }} ${quality}`;
+    const format = el('pageFormat').value;
+    const orientation = document.querySelector('input[name="orientation"]:checked').value === 'portrait'
+        ? '{{ _("Portrait") }}' : '{{ _("Paysage") }}';
+    const quality = el('quality').options[el('quality').selectedIndex].text;
+    if (el('conversionDetailsInfo')) el('conversionDetailsInfo').innerHTML =
+        `{{ _('Format:') }} ${format}<br>{{ _('Orientation:') }} ${orientation}<br>{{ _('Qualité:') }} ${quality}`;
 }
 
 function resetConversion() {
@@ -407,24 +499,29 @@ function resetConversion() {
         for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
     }
 
-    const errorDiv = document.getElementById('conversionError');
+    const errorDiv = el('conversionError');
     if (errorDiv) errorDiv.style.display = 'none';
-    const progressBar = document.getElementById('conversionProgress');
-    if (progressBar) progressBar.style.width = '0%';
 
+    // Reset barres
+    const bars = ['conversionProgress', 'bannerProgressBar', 'toastProgressBar'];
+    bars.forEach(id => { if (el(id)) el(id).style.width = '0%'; });
+    if (el('bannerPct')) el('bannerPct').textContent = '0%';
+    if (el('toastPct')) { el('toastPct').textContent = '0%'; el('toastPct').style.color = '#0d6efd'; }
+
+    hideToast();
     updateStep(1);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const protectCheckbox = document.getElementById('protectPDF');
+    const protectCheckbox = el('protectPDF');
     if (protectCheckbox) {
         protectCheckbox.addEventListener('change', function() {
-            const opts = document.getElementById('protectionOptions');
+            const opts = el('protectionOptions');
             if (opts) opts.style.display = this.checked ? 'block' : 'none';
         });
     }
 
-    const passwordInput = document.getElementById('password');
+    const passwordInput = el('password');
     if (passwordInput) {
         passwordInput.addEventListener('input', function() {
             this.classList.toggle('is-invalid', this.value.length > 0 && this.value.length < 6);
@@ -435,9 +532,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const um = window.uploadManagers?.['wordPdfUploadZone'];
         if (um) {
             const origHandle = um.handleFiles.bind(um);
-            um.handleFiles = function(fl) { origHandle(fl); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
+            um.handleFiles = function(fl) {
+                origHandle(fl);
+                el('convertBtn').disabled = this.getFiles().length === 0;
+            };
             const origRemove = um.removeFile.bind(um);
-            um.removeFile = function(i) { origRemove(i); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
+            um.removeFile = function(i) {
+                origRemove(i);
+                el('convertBtn').disabled = this.getFiles().length === 0;
+            };
         } else if (attempt < 10) {
             setTimeout(() => tryBind(attempt + 1), 300);
         }
@@ -452,5 +555,3 @@ window.addEventListener('beforeunload', () => {
 </script>
 
 {% endblock %}
-
-
