@@ -2,7 +2,10 @@ import os
 import secrets
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
 
+# Charger les variables d'environnement depuis .env (pour développement local)
+load_dotenv()
 
 class AppConfig:
     """
@@ -350,6 +353,18 @@ class AppConfig:
         # Warning sécurité
         if "SECRET_KEY" not in os.environ:
             print("⚠️  WARNING: SECRET_KEY non définie — à configurer en production.")
+    
+   
+    # ============================================================
+    # Adsterra Configuration
+    # ============================================================
+    ADSTERRA_ENABLED = os.environ.get('ADSTERRA_ENABLED', 'false').lower() == 'true'
+    ADSTERRA_POPUNDER_ID = os.environ.get('ADSTERRA_POPUNDER_ID', '28968012')
+    ADSTERRA_SOCIAL_BAR_ID = os.environ.get('ADSTERRA_SOCIAL_BAR_ID', '28968010')
+    ADSTERRA_BANNER_DESKTOP_ID = os.environ.get('ADSTERRA_BANNER_DESKTOP_ID', '28968037')
+    ADSTERRA_BANNER_MOBILE_ID = os.environ.get('ADSTERRA_BANNER_MOBILE_ID', '28968038')
+    ADSTERRA_NATIVE_ID = os.environ.get('ADSTERRA_NATIVE_ID', '28968011')
+    ADSTERRA_SMARTLINK_ID = os.environ.get('ADSTERRA_SMARTLINK_ID', '28968009')
 
     # ============================================================
     # HELPERS & UTILITIES

@@ -13,6 +13,7 @@ import os
 import logging
 from pathlib import Path
 from flask_babel import Babel
+from blueprints.monetization import monetization_bp  # ✅ AJOUTER CETTE LIGNE
 
 
 os.environ['OMP_THREAD_LIMIT'] = '1'  # Limite les threads d'OCR
@@ -150,6 +151,7 @@ def create_app():
         (stats_bp,      None),
         (admin_bp,      "/admin"),
         (conversion_bp, "/conversion"),
+        (monetization_bp, "/monetization"),  # ✅ AJOUTER CETTE LIGNE
     ]:
         if prefix:
             app.register_blueprint(bp, url_prefix=prefix)
@@ -584,10 +586,25 @@ def create_app():
                 return f"{value:.1f} {unit}"
             value /= 1024
         return f"{value:.1f} TB"
+    
+    # --------------------------------------------------------
+    # Filtres Jinja
+    # --------------------------------------------------------
+    @app.route('/debug/adsterra')
+    def debug_adsterra():
+        from config import AppConfig
+        return jsonify({
+            'enabled': AppConfig.ADSTERRA_ENABLED,
+            'popunder_id': AppConfig.ADSTERRA_POPUNDER_ID,
+            'social_bar_id': AppConfig.ADSTERRA_SOCIAL_BAR_ID,
+            'banner_desktop_id': AppConfig.ADSTERRA_BANNER_DESKTOP_ID,
+            'banner_mobile_id': AppConfig.ADSTERRA_BANNER_MOBILE_ID,
+            'native_id': AppConfig.ADSTERRA_NATIVE_ID,
+            'smartlink_id': AppConfig.ADSTERRA_SMARTLINK_ID,
+        })
 
     logger.info("✅ Application Flask prête")
     return app
-
 
 # ============================================================
 # Entrypoint — un seul appel à create_app()
