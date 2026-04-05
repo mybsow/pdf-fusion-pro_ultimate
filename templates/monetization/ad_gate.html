@@ -99,19 +99,16 @@ function verifyAndProceed() {
         });
 }
 
-// Adsterra Popunder - VOTRE ID = 28968012
-(function() {
-    var s = document.createElement('script');
-    s.type = 'text/javascript';
-    s.async = true;
-    s.src = 'https://cdn.adsterra.net/display/display.js?zoneId=28968012';
-    s.onload = function() {
-        console.log('Adsterra Popunder loaded');
-        // La popunder s'ouvre automatiquement
-        onAdComplete(); // ✅ Simule la fin de la pub
-    };
-    document.head.appendChild(s);
-})();
+// Popunder Adsterra
+var popunderScript = document.createElement('script');
+popunderScript.src = 'https://pl29068511.profitablecpmratenetwork.com/07/a5/30/07a530d41b1d4e949c2b0499c466bc3a.js';
+popunderScript.onload = function() {
+    console.log('Popunder loaded');
+    setTimeout(function() {
+        onAdComplete();
+    }, 3000);
+};
+document.head.appendChild(popunderScript);
 
 // Fallback après 10 secondes
 setTimeout(function() {

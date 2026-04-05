@@ -90,6 +90,23 @@
     .card-4 { animation-delay: 0.4s; }
     .card-5 { animation-delay: 0.5s; }
     .card-6 { animation-delay: 0.6s; }
+
+    /* Bannière publicitaire */
+    .ad-container {
+        margin: 20px 0;
+        text-align: center;
+        min-height: 90px;
+    }
+    .ad-label {
+        font-size: 11px;
+        color: #999;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    @media (max-width: 768px) {
+        .ad-container { min-height: 60px; }
+    }
 </style>
 {% endblock %}
 
@@ -118,6 +135,40 @@
                     <i class="fas fa-arrow-down me-2"></i>{{ _('Découvrir les outils') }}
                 </a>
             </div>
+        </div>
+    </div>
+
+    <!-- Bannière Adsterra 728x90 (Desktop) -->
+    <div class="ad-container d-none d-md-block">
+        <div class="ad-label">{{ _('Publicité') }}</div>
+        <div id="adsterra-desktop-banner">
+            <script>
+                atOptions = {
+                    'key' : '688c8ddc50f5146cc18b2d8587caaeab',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                };
+            </script>
+            <script src="https://www.highperformanceformat.com/688c8ddc50f5146cc18b2d8587caaeab/invoke.js"></script>
+        </div>
+    </div>
+
+    <!-- Bannière Adsterra 320x50 (Mobile) -->
+    <div class="ad-container d-block d-md-none">
+        <div class="ad-label">{{ _('Publicité') }}</div>
+        <div id="adsterra-mobile-banner">
+            <script>
+                atOptions = {
+                    'key' : 'ca703c709dcbf1349feaa6fa1ed22b85',
+                    'format' : 'iframe',
+                    'height' : 50,
+                    'width' : 320,
+                    'params' : {}
+                };
+            </script>
+            <script src="https://www.highperformanceformat.com/ca703c709dcbf1349feaa6fa1ed22b85/invoke.js"></script>
         </div>
     </div>
 
@@ -192,6 +243,23 @@
             </div>
         </div>
         {% endfor %}
+    </div>
+
+    <!-- Bannière 300x250 (entre les sections) -->
+    <div class="ad-container my-4">
+        <div class="ad-label">{{ _('Publicité') }}</div>
+        <div id="adsterra-300x250">
+            <script>
+                atOptions = {
+                    'key' : 'a6b760b2094c3e5d9addee0de21dd290',
+                    'format' : 'iframe',
+                    'height' : 250,
+                    'width' : 300,
+                    'params' : {}
+                };
+            </script>
+            <script src="https://www.highperformanceformat.com/a6b760b2094c3e5d9addee0de21dd290/invoke.js"></script>
+        </div>
     </div>
 
     <!-- Fonctionnalités -->
@@ -291,6 +359,25 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Bannière 160x600 (Skyscraper) -->
+            <div class="card border-0 shadow-sm mt-3 d-none d-md-block">
+                <div class="card-body text-center">
+                    <div class="ad-label">{{ _('Publicité') }}</div>
+                    <div id="adsterra-skyscraper">
+                        <script>
+                            atOptions = {
+                                'key' : 'f50ee33e8a9425b6fb3d46c1b071bbe6',
+                                'format' : 'iframe',
+                                'height' : 600,
+                                'width' : 160,
+                                'params' : {}
+                            };
+                        </script>
+                        <script src="https://www.highperformanceformat.com/f50ee33e8a9425b6fb3d46c1b071bbe6/invoke.js"></script>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -352,6 +439,15 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Native Banner Adsterra (avant footer) -->
+    <div class="ad-container my-4">
+        <div class="ad-label">{{ _('Publicité') }}</div>
+        <div id="adsterra-native">
+            <script async="async" data-cfasync="false" src="https://pl29068510.profitablecpmratenetwork.com/2a49f535f359455ea0c6c2d6e54736ca/invoke.js"></script>
+            <div id="container-2a49f535f359455ea0c6c2d6e54736ca"></div>
         </div>
     </div>
 
