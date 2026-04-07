@@ -1,5 +1,4 @@
-<!-- ad_gate_babel.html -->
- 
+<!-- ad_gate_final.html -->
 <!DOCTYPE html>
 <html lang="{{ current_lang or 'fr' }}">
 <head>
@@ -20,6 +19,7 @@
       --text: #e8eaf2;
       --muted: #6b7280;
       --success: #22c55e;
+      --error: #dc2626;
       --radius: 16px;
       --font: 'DM Sans', 'Segoe UI', sans-serif;
     }
@@ -130,7 +130,7 @@
       width: 0%;
       background: linear-gradient(90deg, var(--accent), var(--accent2));
       border-radius: 99px;
-      transition: width .5s linear;
+      transition: width 1s linear;
     }
 
     .timer-text {
@@ -229,7 +229,7 @@
   <div class="ad-frame active" id="adFrame">
     <span class="ad-label">{{ _('Publicité') }}</span>
     
-    <!-- Google AdSense -->
+    <!-- Google AdSense (Principal) -->
     <ins class="adsbygoogle"
          style="display:block"
          data-ad-client="ca-pub-8967416460526921"
@@ -240,18 +240,18 @@
          (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
 
-    <!-- Adsterra Fallback -->
+    <!-- Adsterra Fallback (Banner 300x250 - ID 28968036) -->
     <div id="adsterra-fallback" style="margin-top: 15px;">
         <script type="text/javascript">
             atOptions = {
-                'key' : 'a6b760b2094c3e5d9addee0de21dd290',
+                'key' : '28968036',
                 'format' : 'iframe',
                 'height' : 250,
                 'width' : 300,
                 'params' : {}
             };
         </script>
-        <script type="text/javascript" src="https://www.highperformanceformat.com/a6b760b2094c3e5d9addee0de21dd290/invoke.js"></script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/28968036/invoke.js"></script>
     </div>
   </div>
 
@@ -261,7 +261,7 @@
       <div class="timer-bar" id="timerBar"></div>
     </div>
     <p class="timer-text">
-      {{ _('Conversion disponible dans %(seconds)s s', seconds='<span id="timerCount">' + (ad_duration|string or '15') + '</span>'|safe) }}
+      {{ _('Conversion disponible dans %(seconds)s s', seconds='<span id="timerCount">' + (ad_duration|default(15)|string) + '</span>'|safe) }}
     </p>
   </div>
 
@@ -277,7 +277,7 @@
   </button>
 
   <p class="note">
-    ℹ️ {{ _('Après validation, vous disposerez de 10 à 20 minutes pour convertir autant de fichiers que vous souhaitez sans nouvelle publicité.') }}
+    ℹ️ {{ _('Après validation, vous disposerez de 15 à 20 minutes pour convertir autant de fichiers que vous souhaitez sans nouvelle publicité.') }}
   </p>
 </div>
 
@@ -286,12 +286,12 @@
   const CONVERSION_ID = "{{ conversion_id }}";
   const AD_DURATION   = parseInt("{{ ad_duration or 15 }}");
   
-  // Traductions JS (passées par Babel)
-  const TXT_READY     = "{{ _('🚀 Accéder à ma conversion') }}";
+  // Traductions JS
+  const TXT_READY      = "{{ _('🚀 Accéder à ma conversion') }}";
   const TXT_VALIDATING = "{{ _('Validation…') }}";
-  const TXT_REDIRECT  = "{{ _('Redirection…') }}";
-  const ERR_SESSION   = "{{ _('Session invalide. Veuillez recommencer.') }}";
-  const ERR_NETWORK   = "{{ _('Erreur réseau. Rechargez la page et réessayez.') }}";
+  const TXT_REDIRECT   = "{{ _('Redirection…') }}";
+  const ERR_SESSION    = "{{ _('Session expirée. Veuillez recommencer.') }}";
+  const ERR_NETWORK    = "{{ _('Erreur réseau. Veuillez réessayer.') }}";
 
   const btn        = document.getElementById('continueBtn');
   const btnText    = document.getElementById('btnText');
@@ -307,7 +307,8 @@
   const interval = setInterval(() => {
     elapsed++;
     const pct = Math.min(100, (elapsed / AD_DURATION) * 100);
-    timerBar.style.width = pct + '%';
+    if(timerBar) timerBar.style.width = pct + '%';
+    
     const remaining = Math.max(0, AD_DURATION - elapsed);
     if(timerCount) timerCount.textContent = remaining;
 
@@ -318,8 +319,8 @@
   }, 1000);
 
   function unlockButton() {
-    adFrame.classList.remove('active');
-    timerWrap.style.display = 'none';
+    if(adFrame) adFrame.classList.remove('active');
+    if(timerWrap) timerWrap.style.display = 'none';
     btn.disabled = false;
     btnText.textContent = TXT_READY;
     btn.classList.add('btn-success');
@@ -328,7 +329,7 @@
 
   btn.addEventListener('click', async () => {
     btn.disabled = true;
-    spinner.style.display = 'block';
+    if(spinner) spinner.style.display = 'block';
     btnText.textContent = TXT_VALIDATING;
 
     try {
@@ -337,15 +338,19 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ conversion_id: CONVERSION_ID }),
       });
+      
       const data = await res.json();
 
       if (data.success) {
-        successMsg.style.display = 'flex';
-        spinner.style.display = 'none';
+        if(successMsg) successMsg.style.display = 'flex';
+        if(spinner) spinner.style.display = 'none';
         btnText.textContent = TXT_REDIRECT;
-        setTimeout(() => { window.location.href = data.resume_url; }, 800);
+        
+        setTimeout(() => { 
+            window.location.href = data.resume_url; 
+        }, 800);
       } else {
-        showError(ERR_SESSION);
+        showError(data.error || ERR_SESSION);
       }
     } catch (e) {
       showError(ERR_NETWORK);
@@ -354,9 +359,10 @@
 
   function showError(msg) {
     btn.disabled = false;
-    spinner.style.display = 'none';
+    if(spinner) spinner.style.display = 'none';
     btnText.textContent = msg;
-    btn.style.background = '#dc2626';
+    btn.style.background = 'var(--error)';
+    
     setTimeout(() => {
       btn.style.background = '';
       btnText.textContent = TXT_READY;

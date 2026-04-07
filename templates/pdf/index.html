@@ -6,133 +6,188 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="hero-section">
-    <h1 class="hero-title">{{ _('Transformez vos PDFs en toute simplicité') }}</h1>
-    <p class="hero-subtitle">
-        {{ _('Outil PDF tout-en-un : fusion, division, rotation, compression et conversion. Rapide, sécurisé et entièrement gratuit.') }}
-        <br>{{ _('Aucune inscription requise – vos fichiers ne quittent jamais votre navigateur.') }}
-    </p>
+<section class="hero-section text-center py-5 bg-light rounded-3 mb-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">{{ _('Transformez vos PDFs en toute simplicité') }}</h1>
+        <p class="lead text-muted mb-4">
+            {{ _('Outil PDF tout-en-un : fusion, division, rotation, compression et conversion. Rapide, sécurisé et entièrement gratuit.') }}
+            <br>
+            <span class="small">{{ _('Aucune inscription requise – vos fichiers sont traités en toute sécurité.') }}</span>
+        </p>
+    </div>
 </section>
+
+<!-- Bannière Adsterra 728x90 (Desktop - ID 28968037) -->
+<div class="text-center my-4 d-none d-md-block">
+    <div class="small text-muted mb-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px;">{{ _('Publicité') }}</div>
+    <script type="text/javascript">
+        atOptions = {
+            'key' : '28968037',
+            'format' : 'iframe',
+            'height' : 90,
+            'width' : 728,
+            'params' : {}
+        };
+    </script>
+    <script type="text/javascript" src="https://www.highperformanceformat.com/28968037/invoke.js"></script>
+</div>
+
+<!-- Bannière Adsterra 320x50 (Mobile - ID 28968038) -->
+<div class="text-center my-4 d-block d-md-none">
+    <div class="small text-muted mb-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px;">{{ _('Publicité') }}</div>
+    <script type="text/javascript">
+        atOptions = {
+            'key' : '28968038',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+        };
+    </script>
+    <script type="text/javascript" src="https://www.highperformanceformat.com/28968038/invoke.js"></script>
+</div>
 
 <!-- Tools Grid -->
 <div class="row g-4">
     <!-- Fusionner -->
     <div class="col-lg-6">
-        <div class="tool-container active">
-            <div class="tool-header">
-                <h3><i class="fas fa-object-group me-2"></i>{{ _('Fusionner des fichiers PDF') }}</h3>
-                <p class="text-muted mb-0">{{ _('Combine plusieurs PDF en un seul document organisé') }}</p>
-            </div>
-            <div class="tool-content">
-                <a href="{{ url_for('pdf.merge') }}" class="btn btn-primary btn-lg w-100">
-                    <i class="fas fa-object-group me-2"></i>{{ _('Fusionner des PDF') }}
+        <div class="card h-100 border-0 shadow-sm hover-lift">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
+                        <i class="fas fa-object-group text-primary fs-3"></i>
+                    </div>
+                    <div>
+                        <h3 class="h5 mb-1">{{ _('Fusionner des fichiers PDF') }}</h3>
+                        <p class="text-muted small mb-0">{{ _('Combine plusieurs PDF en un seul document') }}</p>
+                    </div>
+                </div>
+                <a href="{{ url_for('pdf.merge') }}" class="btn btn-outline-primary w-100 btn-loading">
+                    {{ _('Fusionner des PDF') }}
                 </a>
-                <p class="text-muted mt-2 mb-0 small">
-                    <i class="fas fa-arrow-right me-1"></i> {{ _('Accédez à l\'outil de fusion PDF') }}
-                </p>
             </div>
         </div>
     </div>
     
     <!-- Diviser -->
     <div class="col-lg-6">
-        <div class="tool-container">
-            <div class="tool-header">
-                <h3><i class="fas fa-cut me-2"></i>{{ _('Diviser un fichier PDF') }}</h3>
-                <p class="text-muted mb-0">{{ _('Extrayez des pages spécifiques ou divisez par plages') }}</p>
-            </div>
-            <div class="tool-content">
-                <a href="{{ url_for('pdf.split') }}" class="btn btn-primary btn-lg w-100">
-                    <i class="fas fa-cut me-2"></i>{{ _('Diviser un PDF') }}
+        <div class="card h-100 border-0 shadow-sm hover-lift">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-danger bg-opacity-10 p-3 rounded-3 me-3">
+                        <i class="fas fa-cut text-danger fs-3"></i>
+                    </div>
+                    <div>
+                        <h3 class="h5 mb-1">{{ _('Diviser un fichier PDF') }}</h3>
+                        <p class="text-muted small mb-0">{{ _('Extrayez des pages ou divisez par plages') }}</p>
+                    </div>
+                </div>
+                <a href="{{ url_for('pdf.split') }}" class="btn btn-outline-danger w-100 btn-loading">
+                    {{ _('Diviser un PDF') }}
                 </a>
-                <p class="text-muted mt-2 mb-0 small">
-                    <i class="fas fa-arrow-right me-1"></i> {{ _('Accédez à l\'outil de division PDF') }}
-                </p>
             </div>
         </div>
     </div>
     
     <!-- Tourner -->
     <div class="col-lg-6">
-        <div class="tool-container">
-            <div class="tool-header">
-                <h3><i class="fas fa-sync-alt me-2"></i>{{ _('Tourner un fichier PDF') }}</h3>
-                <p class="text-muted mb-0">{{ _('Faites pivoter des pages spécifiques ou l\'ensemble du document') }}</p>
-            </div>
-            <div class="tool-content">
-                <a href="{{ url_for('pdf.rotate') }}" class="btn btn-primary btn-lg w-100">
-                    <i class="fas fa-sync-alt me-2"></i>{{ _('Tourner un PDF') }}
+        <div class="card h-100 border-0 shadow-sm hover-lift">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-3 me-3">
+                        <i class="fas fa-sync-alt text-warning fs-3"></i>
+                    </div>
+                    <div>
+                        <h3 class="h5 mb-1">{{ _('Tourner un fichier PDF') }}</h3>
+                        <p class="text-muted small mb-0">{{ _('Faites pivoter des pages spécifiques') }}</p>
+                    </div>
+                </div>
+                <a href="{{ url_for('pdf.rotate') }}" class="btn btn-outline-warning w-100 btn-loading">
+                    {{ _('Tourner un PDF') }}
                 </a>
-                <p class="text-muted mt-2 mb-0 small">
-                    <i class="fas fa-arrow-right me-1"></i> {{ _('Accédez à l\'outil de rotation PDF') }}
-                </p>
             </div>
         </div>
     </div>
     
     <!-- Compresser -->
     <div class="col-lg-6">
-        <div class="tool-container">
-            <div class="tool-header">
-                <h3><i class="fas fa-compress-alt me-2"></i>{{ _('Compresser un fichier PDF') }}</h3>
-                <p class="text-muted mb-0">{{ _('Réduisez la taille de vos PDFs sans perte de qualité notable') }}</p>
-            </div>
-            <div class="tool-content">
-                <a href="{{ url_for('pdf.compress') }}" class="btn btn-primary btn-lg w-100">
-                    <i class="fas fa-compress-alt me-2"></i>{{ _('Compresser un PDF') }}
+        <div class="card h-100 border-0 shadow-sm hover-lift">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success bg-opacity-10 p-3 rounded-3 me-3">
+                        <i class="fas fa-compress-alt text-success fs-3"></i>
+                    </div>
+                    <div>
+                        <h3 class="h5 mb-1">{{ _('Compresser un fichier PDF') }}</h3>
+                        <p class="text-muted small mb-0">{{ _('Réduisez la taille sans perte de qualité') }}</p>
+                    </div>
+                </div>
+                <a href="{{ url_for('pdf.compress') }}" class="btn btn-outline-success w-100 btn-loading">
+                    {{ _('Compresser un PDF') }}
                 </a>
-                <p class="text-muted mt-2 mb-0 small">
-                    <i class="fas fa-arrow-right me-1"></i> {{ _('Accédez à l\'outil de compression PDF') }}
-                </p>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Bannière 300x250 (ID 28968036) -->
+<div class="text-center my-5">
+    <div class="small text-muted mb-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px;">{{ _('Publicité') }}</div>
+    <script type="text/javascript">
+        atOptions = {
+            'key' : '28968036',
+            'format' : 'iframe',
+            'height' : 250,
+            'width' : 300,
+            'params' : {}
+        };
+    </script>
+    <script type="text/javascript" src="https://www.highperformanceformat.com/28968036/invoke.js"></script>
+</div>
+
 <!-- Autres conversions -->
-<div class="row mt-5">
+<div class="row mt-4">
     <div class="col-12">
-        <div class="tool-container">
-            <div class="tool-header">
-                <h3><i class="fas fa-exchange-alt me-2"></i>{{ _('Convertisseur universel') }}</h3>
-                <p class="text-muted mb-0">{{ _('Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et vice-versa') }}</p>
-            </div>
-            <div class="tool-content">
-                <a href="{{ url_for('conversion.index') }}" class="btn btn-success btn-lg w-100">
-                    <i class="fas fa-exchange-alt me-2"></i>{{ _('Toutes les conversions') }}
-                </a>
+        <div class="card border-0 shadow-sm bg-primary text-white p-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h3 class="h4 mb-2"><i class="fas fa-exchange-alt me-2"></i>{{ _('Besoin d\'autres conversions ?') }}</h3>
+                    <p class="mb-0 opacity-75">{{ _('Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et vice-versa.') }}</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{{ url_for('conversion.index') }}" class="btn btn-light btn-lg px-4 btn-loading">
+                        {{ _('Tous les outils') }}
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Stats Section -->
-<div class="row mt-5">
-    <div class="col-12">
-        <div class="tool-container bg-dark text-white">
-            <div class="tool-header">
-                <h3 class="text-white"><i class="fas fa-chart-line me-2"></i>{{ _('PDF Fusion Pro en chiffres') }}</h3>
-            </div>
-            <div class="tool-content">
-                <div class="row text-center">
-                    <div class="col-md-3 col-6 mb-3 mb-md-0">
-                        <div class="display-4 fw-bold text-primary">+10k</div>
-                        <div class="small text-uppercase text-muted">{{ _('Utilisateurs') }}</div>
-                    </div>
-                    <div class="col-md-3 col-6 mb-3 mb-md-0">
-                        <div class="display-4 fw-bold text-success">+50k</div>
-                        <div class="small text-uppercase text-muted">{{ _('PDF traités') }}</div>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <div class="display-4 fw-bold text-warning">99.9%</div>
-                        <div class="small text-uppercase text-muted">{{ _('Satisfaction') }}</div>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <div class="display-4 fw-bold text-info">24/7</div>
-                        <div class="small text-uppercase text-muted">{{ _('Disponible') }}</div>
-                    </div>
-                </div>
-            </div>
+<div class="row mt-5 text-center g-4">
+    <div class="col-md-3 col-6">
+        <div class="p-3">
+            <div class="h2 fw-bold text-primary mb-0">+10k</div>
+            <div class="small text-uppercase text-muted">{{ _('Utilisateurs') }}</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="p-3">
+            <div class="h2 fw-bold text-success mb-0">+50k</div>
+            <div class="small text-uppercase text-muted">{{ _('PDF traités') }}</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="p-3">
+            <div class="h2 fw-bold text-warning mb-0">99.9%</div>
+            <div class="small text-uppercase text-muted">{{ _('Satisfaction') }}</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="p-3">
+            <div class="h2 fw-bold text-info mb-0">24/7</div>
+            <div class="small text-uppercase text-muted">{{ _('Disponible') }}</div>
         </div>
     </div>
 </div>
@@ -140,23 +195,15 @@
 <!-- SEO Text -->
 <div class="row mt-5">
     <div class="col-12">
-        <div class="tool-container">
-            <div class="tool-content">
-                <h2 class="h4">{{ _('Votre solution PDF tout-en-un, entièrement gratuite et sécurisée') }}</h2>
-                <p class="mb-3">
-                    {{ _('PDF Fusion Pro est la plateforme idéale pour tous vos besoins en manipulation de fichiers PDF. Que vous ayez besoin de') }}
-                    <strong>{{ _('fusionner plusieurs documents') }}</strong>,
-                    <strong>{{ _('diviser un PDF volumineux') }}</strong>,
-                    <strong>{{ _('tourner des pages mal orientées') }}</strong>
-                    {{ _('ou') }}
-                    <strong>{{ _('compresser des fichiers pour les partager') }}</strong>,
-                    {{ _('nos outils sont là pour vous aider.') }}
-                </p>
-                                <p class="mb-0">
-                    <i class="fas fa-check-circle text-success me-1"></i> {{ _('Aucune inscription requise') }}<br>
-                    <i class="fas fa-check-circle text-success me-1"></i> {{ _('Chiffrement SSL et suppression automatique des fichiers') }}<br>
-                    <i class="fas fa-check-circle text-success me-1"></i> {{ _('Compatible avec tous les navigateurs modernes') }}
-                </p>
+        <div class="card border-0 shadow-sm p-4">
+            <h2 class="h4 mb-3">{{ _('Votre solution PDF tout-en-un, gratuite et sécurisée') }}</h2>
+            <p class="text-muted">
+                {{ _('PDF Fusion Pro est la plateforme idéale pour tous vos besoins en manipulation de fichiers PDF. Que vous ayez besoin de fusionner plusieurs documents, diviser un PDF volumineux, tourner des pages ou compresser des fichiers, nos outils sont là pour vous aider.') }}
+            </p>
+            <div class="d-flex flex-wrap gap-3 mt-3">
+                <span class="badge bg-success bg-opacity-10 text-success p-2"><i class="fas fa-check me-1"></i> {{ _('Sans inscription') }}</span>
+                <span class="badge bg-success bg-opacity-10 text-success p-2"><i class="fas fa-lock me-1"></i> {{ _('Sécurisé SSL') }}</span>
+                <span class="badge bg-success bg-opacity-10 text-success p-2"><i class="fas fa-bolt me-1"></i> {{ _('Ultra Rapide') }}</span>
             </div>
         </div>
     </div>
@@ -164,6 +211,8 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- ✅ Plus de script index.js problématique -->
-
+<style>
+    .hover-lift { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+</style>
 {% endblock %}
