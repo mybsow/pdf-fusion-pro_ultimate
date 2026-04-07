@@ -135,6 +135,29 @@ def load_pending_request(conversion_id: str) -> dict | None:
 
     return pending
 
+def serialize_files(request_files) -> dict:
+    """
+    Lit tous les fichiers de la requête Flask et les encode en base64.
+    Retourne un dict { field_name: [ {filename, content_type, data_b64}, ... ] }
+    """
+    result = {}
+    for field_name in request_files:
+        file_list = request_files.getlist(field_name)
+        serialized = []
+        for f in file_list:
+            if not f or not f.filename:
+                continue
+            f.stream.seek(0)
+            raw = f.stream.read()
+            serialized.append({
+                'filename': f.filename,
+                'content_type': f.content_type or 'application/octet-stream',
+                'data_b64': base64.b64encode(raw).decode('utf-8'),
+            })
+        if serialized:
+            result[field_name] = serialized
+    return result
+
 
 # ---------------------------------------------------------------------------
 # RESTAURATION FICHIERS
