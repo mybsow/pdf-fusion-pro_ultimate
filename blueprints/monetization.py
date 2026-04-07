@@ -18,10 +18,18 @@ from datetime import datetime, timedelta
 import base64
 import json
 import logging
+import tempfile
+import os
+from werkzeug.utils import secure_filename
+import tempfile
+
 
 logger = logging.getLogger(__name__)
 
 monetization_bp = Blueprint('monetization', __name__, url_prefix='/monetization')
+
+UPLOAD_TMP_DIR = os.path.join(tempfile.gettempdir(), "myapp_uploads")
+os.makedirs(UPLOAD_TMP_DIR, exist_ok=True)
 
 # ---------------------------------------------------------------------------
 # Helpers session
@@ -63,21 +71,63 @@ def mark_ad_completed():
     logger.info(f"[Ad] Pub complétée, grâce = {grace}s, expire à {expires_at.isoformat()}")
 
 
-def save_pending_request(conversion_type: str, form_data: dict, files_dict: dict) -> str:
-    """
-    Sérialise les fichiers uploadés en base64 dans la session.
-    Retourne un conversion_id unique.
-
-    files_dict : { field_name: [ {filename, content_type, data_b64}, ... ] }
-    """
+def save_pending_request(conversion_type: str, form_data: dict, request_files) -> str:
+    from blueprints.conversion import CONVERSION_MAP
     conversion_id = str(uuid.uuid4())
+
+    config = CONVERSION_MAP.get(conversion_type, {})
+    accept = config.get('accept', '')
+
+    allowed_extensions = {
+        ext.strip().lower()
+        for ext in accept.split(',')
+        if ext.strip()
+    }
+
+    saved_files = {}
+
+    for field_name in request_files:
+        file_list = request_files.getlist(field_name)
+        paths = []
+
+        for f in file_list:
+            if not f or not f.filename:
+                continue
+
+            filename = secure_filename(f.filename)
+            _, ext = os.path.splitext(filename)
+            ext = ext.lower()
+
+            # 🔒 validation dynamique basée sur CONVERSION_MAP
+            if allowed_extensions and ext not in allowed_extensions:
+                logger.warning(f"[{conversion_type}] Fichier refusé: {filename}")
+                continue
+
+            tmp = tempfile.NamedTemporaryFile(
+                delete=False,
+                suffix=ext,
+                dir=UPLOAD_TMP_DIR
+            )
+            tmp.close()
+
+            f.save(tmp.name)
+
+            paths.append({
+                'path': tmp.name,
+                'filename': filename,
+                'content_type': f.content_type or 'application/octet-stream'
+            })
+
+        if paths:
+            saved_files[field_name] = paths
+
     session['pending_conversion'] = {
         'id': conversion_id,
         'conversion_type': conversion_type,
         'form_data': form_data,
-        'files': files_dict,
-        'created_at': datetime.now().isoformat(),
+        'files': saved_files,
     }
+
     session.modified = True
     return conversion_id
 
@@ -96,70 +146,45 @@ def load_pending_request(conversion_id: str) -> dict | None:
     return pending
 
 
-def serialize_files(request_files) -> dict:
-    """
-    Lit tous les fichiers de la requête Flask et les encode en base64.
-    Retourne un dict { field_name: [ {filename, content_type, data_b64}, ... ] }
-    """
-    result = {}
-    for field_name in request_files:
-        file_list = request_files.getlist(field_name)
-        serialized = []
-        for f in file_list:
-            if not f or not f.filename:
-                continue
-            f.stream.seek(0)
-            raw = f.stream.read()
-            serialized.append({
-                'filename': f.filename,
-                'content_type': f.content_type or 'application/octet-stream',
-                'data_b64': base64.b64encode(raw).decode('utf-8'),
-            })
-        if serialized:
-            result[field_name] = serialized
-    return result
-
-
-def deserialize_files(files_dict: dict) -> dict:
-    """
-    Reconstruit des objets fichier-like à partir du dict sérialisé.
-    Retourne un dict { field_name: [ FileProxy, ... ] }
-    """
-    from io import BytesIO
-
-    class FileProxy:
-        """Simule un FileStorage Werkzeug minimal."""
-        def __init__(self, filename, content_type, data: bytes):
-            self.filename = filename
-            self.content_type = content_type
-            self._data = data
-            self.stream = BytesIO(data)
-
-        def read(self) -> bytes:
-            self.stream.seek(0)
-            return self.stream.read()
-
-        def seek(self, pos: int):
-            self.stream.seek(pos)
-
-        def save(self, dst):
-            import shutil
-            self.stream.seek(0)
-            if hasattr(dst, 'write'):
-                shutil.copyfileobj(self.stream, dst)
-            else:
-                with open(dst, 'wb') as fh:
-                    shutil.copyfileobj(self.stream, fh)
+def restore_files_from_paths(files_dict: dict):
+    from werkzeug.datastructures import FileStorage
 
     result = {}
+    opened_files = []  # 🔥 track des fichiers ouverts
+
     for field_name, file_list in files_dict.items():
-        proxies = []
-        for item in file_list:
-            raw = base64.b64decode(item['data_b64'])
-            proxies.append(FileProxy(item['filename'], item['content_type'], raw))
-        result[field_name] = proxies
-    return result
+        restored = []
 
+        for item in file_list:
+            path = item.get('path')
+
+            if not path or not os.path.exists(path):
+                continue
+
+            f = open(path, 'rb')
+            opened_files.append(f)
+
+            restored.append(FileStorage(
+                stream=f,
+                filename=item.get('filename'),
+                content_type=item.get('content_type')
+            ))
+
+        if restored:
+            result[field_name] = restored
+
+    return result, opened_files
+
+def cleanup_old_tmp_files(max_age_minutes=60):
+    now = time.time()
+    for f in os.listdir(UPLOAD_TMP_DIR):
+        path = os.path.join(UPLOAD_TMP_DIR, f)
+        if os.path.isfile(path):
+            if now - os.path.getmtime(path) > max_age_minutes * 60:
+                try:
+                    os.remove(path)
+                except:
+                    pass
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -207,8 +232,12 @@ def ad_complete():
 def resume_conversion(conversion_id: str):
     """
     Reprend la conversion après visionnage de la pub.
-    Reconstruit les fichiers depuis la session et délègue à conversion.py.
+    Utilise les fichiers temporaires stockés sur disque.
     """
+
+    import os
+    from werkzeug.datastructures import FileStorage
+
     if not ad_is_valid():
         flash("Session publicitaire invalide ou expirée.", "warning")
         return redirect(url_for('conversion.index'))
@@ -222,36 +251,82 @@ def resume_conversion(conversion_id: str):
     form_data = pending.get('form_data', {})
     files_dict = pending.get('files', {})
 
-    # Reconstruire les fichiers
-    restored_files = deserialize_files(files_dict)
+    # ------------------------------------------------------------------
+    # Reconstruction des fichiers depuis les chemins disque
+    # ------------------------------------------------------------------
+    restored_files = {}
 
-    # Importer process_conversion depuis conversion.py et l'appeler directement
+    for field_name, file_list in files_dict.items():
+        restored = []
+
+        for item in file_list:
+            path = item.get('path')
+
+            if not path or not os.path.exists(path):
+                continue
+
+            f = open(path, 'rb')
+            restored.append(FileStorage(
+                stream=f,
+                filename=item.get('filename'),
+                content_type=item.get('content_type')
+            ))
+
+        if restored:
+            restored_files[field_name] = restored
+
+    # ------------------------------------------------------------------
+    # Traitement conversion
+    # ------------------------------------------------------------------
     from blueprints.conversion import process_conversion, CONVERSION_MAP
 
-    config = CONVERSION_MAP.get(conversion_type, {})
+    config = blueprints.conversion.CONVERSION_MAP.get(conversion_type, {})
     if not config:
         flash(f"Type de conversion inconnu : {conversion_type}", "error")
         return redirect(url_for('conversion.index'))
 
-    # Déterminer file / files selon max_files
-    if config.get('max_files', 1) > 1:
-        # Chercher 'files' puis 'file'
-        files = restored_files.get('files') or restored_files.get('file') or []
-        result = process_conversion(conversion_type, files=files, form_data=form_data)
-    else:
-        file_list = restored_files.get('file') or restored_files.get('files') or []
-        file = file_list[0] if file_list else None
-        if not file:
-            flash("Fichier manquant.", "error")
-            return redirect(url_for('conversion.index'))
-        result = process_conversion(conversion_type, file=file, form_data=form_data)
+    try:
+        # Cas multi fichiers
+        if config.get('max_files', 1) > 1:
+            files = restored_files.get('files') or restored_files.get('file') or []
+            result = process_conversion(conversion_type, files=files, form_data=form_data)
 
-    if isinstance(result, dict) and 'error' in result:
-        flash(result['error'], 'error')
-        return redirect(url_for('conversion.universal_converter',
-                                conversion_type=conversion_type))
+        # Cas fichier unique
+        else:
+            file_list = restored_files.get('file') or restored_files.get('files') or []
+            file = file_list[0] if file_list else None
 
-    return result
+            if not file:
+                flash("Fichier manquant.", "error")
+                return redirect(url_for('conversion.index'))
+
+            result = process_conversion(conversion_type, file=file, form_data=form_data)
+
+        # Gestion erreur métier
+        if isinstance(result, dict) and 'error' in result:
+            flash(result['error'], 'error')
+            return redirect(url_for(
+                'conversion.universal_converter',
+                conversion_type=conversion_type
+            ))
+
+        return result
+
+    finally:
+        # ------------------------------------------------------------------
+        # CLEANUP GARANTI (même si crash)
+        # ------------------------------------------------------------------
+        for field_files in files_dict.values():
+            for f in field_files:
+                path = f.get('path')
+                if not path:
+                    continue
+
+                try:
+                    if os.path.exists(path):
+                        os.remove(path)
+                except Exception as e:
+                    logger.warning(f"Cleanup failed for {path}: {e}")
 
 
 @monetization_bp.route('/api/status')
