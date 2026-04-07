@@ -1,4 +1,3 @@
-<!-- base_complete_monetization.html -->
 <!DOCTYPE html>
 <html lang="{{ current_lang or 'fr' }}" class="h-100">
 <head>
@@ -19,16 +18,20 @@
 
     <!-- SEO -->
     <title>{% block title %}{{ _('PDF Fusion Pro - Outils PDF Gratuits') }}{% endblock %}</title>
-    <meta name="description" content="{{ _('Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos fichiers en ligne.') }}">
+    <meta name="description" content="{{ _('Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos fichiers en ligne. Rapide, sécurisé et sans installation.') }}">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     
-    <!-- Stylesheets -->
+    <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons & Fonts -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
+    
+    <!-- CSS principal & Composants -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/upload.css') }}">
 
     <!-- ================= MONÉTISATION COMPLÈTE ================= -->
     
@@ -44,16 +47,62 @@
     {% block extra_css %}{% endblock %}
     
     <style>
-        :root { --primary: #e74c3c; --primary-dark: #c0392b; --secondary: #3498db; --success: #2ecc71; --dark: #2c3e50; }
-        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; min-height: 100vh; display: flex; flex-direction: column; }
-        .navbar-main { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
+        :root {
+            --primary: #e74c3c;
+            --primary-dark: #c0392b;
+            --secondary: #3498db;
+            --dark: #2c3e50;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar-main {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
         .navbar-brand { font-weight: 700; font-size: 1.5rem; }
         .nav-link { font-weight: 500; transition: all 0.3s; }
-        #ad-status-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; background: rgba(255,255,255,0.2); color: white; margin-left: 10px; display: none; }
+        #ad-status-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            margin-left: 10px;
+            display: none;
+        }
         main { flex: 1; }
-        footer { margin-top: auto; background-color: #1a1d27; color: white; }
-        .loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .loader { background: white; padding: 2rem; border-radius: 15px; }
+        footer {
+            margin-top: auto;
+            background-color: #1a1d27;
+            color: white;
+            padding-top: 3rem;
+            padding-bottom: 1.5rem;
+        }
+        footer a { color: rgba(255,255,255,0.6); transition: color 0.2s; }
+        footer a:hover { color: white; text-decoration: none; }
+        
+        .loader-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .loader {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -72,6 +121,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('conversion.index') }}"><i class="bi bi-house-door me-1"></i>{{ _('Accueil') }}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('pdf.index') }}"><i class="bi bi-tools me-1"></i>{{ _('Outils PDF') }}</a></li>
                 <li class="nav-item dropdown ms-lg-3">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="langDropdown" data-bs-toggle="dropdown">
                         {% set current_lang = request.cookies.get('language', 'fr') %}
@@ -103,50 +153,75 @@
     {% block content %}{% endblock %}
 </main>
 
-<footer class="pt-5 pb-3">
-    <div class="container text-center">
+<footer>
+    <div class="container">
         <!-- 4. Adsterra NATIVE BANNER (ID 28968011) -->
-        <div id="adsterra-native" style="margin-bottom: 30px;">
+        <div id="adsterra-native" class="text-center mb-5">
             <script async="async" data-cfasync="false" src="//pl29068510.profitablecpmratenetwork.com/28968011/invoke.js"></script>
             <div id="container-28968011"></div>
         </div>
 
-        <div class="row g-4">
-            <div class="col-md-6">
+        <div class="row g-4 text-center text-md-start">
+            <div class="col-md-4">
                 <h5 class="mb-3 text-white">PDF Fusion Pro</h5>
-                <p class="small text-muted">{{ _('Votre solution gratuite pour la gestion de documents PDF.') }}</p>
+                <p class="small text-muted">{{ _('Votre solution gratuite et sécurisée pour la gestion de documents PDF en ligne.') }}</p>
             </div>
-            <div class="col-md-6">
-                <h6 class="mb-3">{{ _('Liens rapides') }}</h6>
-                <ul class="list-unstyled d-flex justify-content-center gap-3">
-                    <!-- 5. Adsterra SMARTLINK (ID 28968009) - Intégré sur des liens stratégiques -->
-                    <li><a href="https://www.profitablecpmratenetwork.com/28968009" target="_blank" class="text-muted small text-decoration-none"><i class="fas fa-external-link-alt me-1"></i>{{ _('Support') }}</a></li>
-                    <li><a href="{{ url_for('legal.privacy') }}" class="text-muted small text-decoration-none">{{ _('Confidentialité') }}</a></li>
+            <div class="col-md-4">
+                <h6 class="mb-3 text-white">{{ _('Outils PDF') }}</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><a href="{{ url_for('pdf.merge') }}"><i class="bi bi-plus-circle me-2"></i>{{ _('Fusionner PDF') }}</a></li>
+                    <li class="mb-2"><a href="{{ url_for('pdf.split') }}"><i class="bi bi-scissors me-2"></i>{{ _('Diviser PDF') }}</a></li>
+                    <li class="mb-2"><a href="{{ url_for('pdf.compress') }}"><i class="bi bi-file-zip me-2"></i>{{ _('Compresser PDF') }}</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6 class="mb-3 text-white">{{ _('Légal & Support') }}</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><a href="{{ url_for('legal.legal') }}">{{ _('Mentions légales') }}</a></li>
+                    <li class="mb-2"><a href="{{ url_for('legal.privacy') }}">{{ _('Confidentialité') }}</a></li>
+                    <li class="mb-2"><a href="{{ url_for('legal.terms') }}">{{ _("Conditions d'utilisation") }}</a></li>
+                    <!-- 5. Adsterra SMARTLINK (ID 28968009) -->
+                    <li class="mt-3"><a href="https://www.profitablecpmratenetwork.com/28968009" target="_blank" class="btn btn-sm btn-outline-secondary text-white">{{ _('Support technique') }}</a></li>
                 </ul>
             </div>
         </div>
 
         <hr class="bg-secondary my-4">
-        <small class="text-muted">
-            &copy; 2026 PDF Fusion Pro. {{ _('Hébergé sur Render') }} | 
-            <a href="https://www.profitablecpmratenetwork.com/28968009" target="_blank" class="text-muted text-decoration-none">{{ _('Partenaires') }}</a>
-        </small>
+        <div class="text-center small text-muted">
+            <p class="mb-0">&copy; 2026 PDF Fusion Pro. {{ _('Hébergé sur Render') }} | <a href="https://www.profitablecpmratenetwork.com/28968009" target="_blank">{{ _('Partenaires') }}</a></p>
+        </div>
     </div>
 </footer>
 
 <!-- LOADER -->
 <div class="loader-overlay" id="loaderOverlay" style="display:none;">
-    <div class="loader text-center">
-        <div class="spinner-border text-primary"></div>
-        <p class="mt-3 mb-0">{{ _('Traitement en cours...') }}</p>
+    <div class="loader">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+        <p class="mt-3 mb-0 fw-bold">{{ _('Traitement en cours...') }}</p>
+        <small class="text-muted">{{ _('Veuillez patienter quelques instants') }}</small>
     </div>
 </div>
 
 <!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- PDF.js (Requis pour certains outils) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+    if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    }
+</script>
+
+<!-- Librairies additionnelles -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Gestion du statut de la publicité
+    // 1. Statut de la publicité (PRO)
     async function checkAdStatus() {
         try {
             const res = await fetch('/monetization/api/status');
@@ -158,16 +233,23 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (badge) {
                 badge.style.display = 'none';
             }
-        } catch (e) { console.error("Status check failed", e); }
+        } catch (e) {}
     }
     checkAdStatus();
     setInterval(checkAdStatus, 60000);
 
-    // Loader
+    // 2. Gestion du Loader global
     document.addEventListener('click', function(e) {
         if (e.target.closest('.btn-loading')) {
-            document.getElementById('loaderOverlay').style.display = 'flex';
+            const loader = document.getElementById('loaderOverlay');
+            if (loader) loader.style.display = 'flex';
         }
+    });
+
+    // 3. Tooltips Bootstrap
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 });
 </script>
