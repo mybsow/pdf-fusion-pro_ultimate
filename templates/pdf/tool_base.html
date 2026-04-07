@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .tool-hero {
+        background: linear-gradient(135deg, var(--primary, #e74c3c) 0%, var(--primary-dark, #c0392b) 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 15px 15px;
+    }
+    .tool-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        border: none;
+    }
+    .ad-slot {
+        margin: 20px 0;
+        text-align: center;
+        min-height: 90px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tool-hero text-center">
+    <div class="container">
+        <h1 class="display-5 fw-bold mb-2">{% block tool_title %}{% endblock %}</h1>
+        <p class="lead opacity-75">{% block tool_description %}{% endblock %}</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Bannière Adsterra 728x90 (Desktop - ID 28968037) -->
+    <div class="ad-slot d-none d-md-block">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '28968037',
+                'format' : 'iframe',
+                'height' : 90,
+                'width' : 728,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/28968037/invoke.js"></script>
+    </div>
+
+    <!-- Bannière Adsterra 320x50 (Mobile - ID 28968038) -->
+    <div class="ad-slot d-block d-md-none">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '28968038',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/28968038/invoke.js"></script>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="tool-card">
+                {% block tool_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bannière Adsterra 300x250 (ID 28968036) -->
+    <div class="ad-slot my-5">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '28968036',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/28968036/invoke.js"></script>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Activer le loader sur tous les formulaires de l'outil
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function() {
+            if (this.checkValidity()) {
+                const loader = document.getElementById('loaderOverlay');
+                if (loader) loader.style.display = 'flex';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

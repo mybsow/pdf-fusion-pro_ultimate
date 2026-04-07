@@ -1,75 +1,3 @@
-
-
-Commencer l'essai gratuit
-
-Partager
-Analyse de l'erreur
-L'erreur critique se trouve à la ligne 45 de vos logs :
-Plain Text
-2026-04-07 14:25:02,057 [ERROR] universal_converter error: name 'base64' is not defined
-Cause du problème
-Il s'agit d'une erreur Python classique : le module base64 est utilisé dans votre fonction universal_converter sans avoir été importé au préalable. En Python, même les modules de la bibliothèque standard doivent être explicitement importés.
-Contexte dans les logs
-Le déclenchement de l'erreur correspond à une requête POST /conversion/word-en-pdf (ligne 46), ce qui signifie qu'un utilisateur a tenté de convertir un fichier Word en PDF, et c'est lors de ce traitement que la fonction universal_converter a échoué.
-Correction à apporter
-Dans le fichier Python contenant la fonction universal_converter (probablement un fichier de routes ou de services), ajoutez l'import manquant en haut du fichier :
-Python
-import base64
-Exemple de code corrigé
-Python
-import base64  # ← Ajouter cette ligne en haut du fichier
-
-def universal_converter(...):
-    # ... votre code utilisant base64
-    encoded = base64.b64encode(data)
-    # ...
-Points à vérifier
-Élément
-Détail
-Fichier concerné
-Celui qui contient la fonction universal_converter
-Emplacement de l'import
-En haut du fichier, avec les autres imports
-Module
-base64 (bibliothèque standard Python, pas besoin de pip install)
-Route affectée
-POST /conversion/word-en-pdf
-Après avoir ajouté l'import, redéployez votre application sur Render et la conversion Word → PDF devrait fonctionner correctement.
-pasted_content_2.txt
-Texte · 9.86 KB
-voici mon code monetization.py pour afficher la pub toutes les 15 à 20 minutes avant l'utilisation des outils de conversion. Merci de le corriger et l'améliorer:
-
-Lite
-Je vais analyser votre fichier monetization.py pour corriger l'erreur d'importation et optimiser la logique d'affichage des publicités.
-Lite
-J'ai corrigé et amélioré votre fichier monetization.py. Voici les modifications apportées :
-🛠 Corrections effectuées
-Imports manquants : Ajout de import base64 et import time qui causaient les erreurs NameError.
-Gestion des erreurs : Ajout de blocs try/except et de logs plus précis pour éviter les crashs lors du traitement des fichiers ou du nettoyage.
-Nettoyage sécurisé : Amélioration de la fonction cleanup_old_tmp_files pour éviter les erreurs si le dossier n'existe pas encore.
-🚀 Améliorations de la logique
-Intervalle de 15-20 min : La fonction _get_random_grace_seconds a été ajustée pour respecter strictement votre demande (900 à 1200 secondes).
-Persistance des données :
-Les fichiers sont sauvegardés temporairement sur le disque pendant que l'utilisateur regarde la publicité.
-La session ne stocke que les chemins d'accès, ce qui évite de saturer la mémoire ou les cookies de session avec des données binaires lourdes.
-Sécurité :
-Utilisation de secure_filename pour tous les fichiers sauvegardés.
-Suppression immédiate des fichiers temporaires dans le bloc finally après la conversion, qu'elle réussisse ou qu'elle échoue.
-Expérience utilisateur : Messages flash plus explicites en cas d'expiration de session ou de fichiers manquants.
-Vous pouvez remplacer votre fichier actuel par celui en pièce jointe. N'oubliez pas de redéployer votre application sur Render après la modification.
-monetization_corrected.py
-Code · 11.67 KB
-Voir tous les fichiers de cette tâche
-Après analyse, la principale erreur était l'absence d'import `base64` dans `universal_converter`. J'ai corrigé et amélioré `monetization.py`, notamment la gestion des fichiers temporaires, la sécurité, et la logique de session.
-
-Tâche terminée
-Comment était ce résultat ?
-Suggestions de suivi
-
-
-
-
-monetization_corrected.py
 # blueprints/monetization.py
 
 from flask import (
@@ -79,12 +7,12 @@ from flask import (
 
 import uuid
 import random
-import base64  # ✅ Import ajouté pour corriger l'erreur 'base64' is not defined
+import base64
 from datetime import datetime, timedelta
 import logging
 import tempfile
 import os
-import time  # ✅ Import ajouté pour corriger l'erreur 'time' is not defined
+import time
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 
@@ -222,10 +150,9 @@ def load_pending_request(conversion_id: str) -> dict | None:
     return pending
 
 
-def serialize_files_to_base64(request_files) -> dict:
+def serialize_files(request_files) -> dict:
     """
-    Alternative : Encode les fichiers directement en base64 pour la session.
-    Attention : Peut saturer la taille des cookies de session si les fichiers sont gros.
+    Encode les fichiers directement en base64 pour la session.
     """
     result = {}
     for field_name in request_files:
@@ -289,7 +216,6 @@ def cleanup_old_tmp_files(max_age_minutes=60):
             if now - os.path.getmtime(path) > max_age_minutes * 60:
                 try:
                     os.remove(path)
-                    logger.debug(f"Nettoyage fichier temporaire : {f}")
                 except Exception as e:
                     logger.error(f"Erreur nettoyage {f}: {e}")
 
@@ -424,4 +350,3 @@ def ad_status():
         'expires_at': expires_at,
         'remaining_seconds': remaining,
     })
-Manus
