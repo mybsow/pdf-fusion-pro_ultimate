@@ -5,50 +5,36 @@
     .tool-hero {
         background: linear-gradient(135deg, var(--primary, #e74c3c) 0%, var(--primary-dark, #c0392b) 100%);
         color: white;
-        padding: 3.5rem 0;
-        margin-bottom: 2.5rem;
-        border-radius: 0 0 20px 20px;
-        position: relative;
-        overflow: hidden;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 15px 15px;
     }
     .tool-card {
         background: white;
-        border-radius: 20px;
-        padding: 2.5rem;
-        box-shadow: 0 15px 45px rgba(0,0,0,0.08);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         border: none;
-        margin-bottom: 3rem;
     }
     .ad-slot {
-        margin: 25px 0;
+        margin: 20px 0;
         text-align: center;
         min-height: 90px;
-    }
-    .tool-title-icon {
-        font-size: 3.5rem;
-        margin-bottom: 1rem;
-        display: block;
-        opacity: 0.9;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Section Hero de l'Outil -->
 <div class="tool-hero text-center">
     <div class="container">
-        <div class="tool-title-icon">
-            <i class="fas fa-{% block tool_icon %}tools{% endblock %}"></i>
-        </div>
         <h1 class="display-5 fw-bold mb-2">{% block tool_title %}{% endblock %}</h1>
-        <p class="lead opacity-75 mb-0">{% block tool_description %}{% endblock %}</p>
+        <p class="lead opacity-75">{% block tool_description %}{% endblock %}</p>
     </div>
 </div>
 
 <div class="container">
     <!-- Bannière Adsterra 728x90 (Desktop - ID 28968037) -->
     <div class="ad-slot d-none d-md-block">
-        <div class="small text-muted mb-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px;">{{ _('Publicité') }}</div>
         <script type="text/javascript">
             atOptions = {
                 'key' : '28968037',
@@ -63,7 +49,6 @@
 
     <!-- Bannière Adsterra 320x50 (Mobile - ID 28968038) -->
     <div class="ad-slot d-block d-md-none">
-        <div class="small text-muted mb-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px;">{{ _('Publicité') }}</div>
         <script type="text/javascript">
             atOptions = {
                 'key' : '28968038',
@@ -77,17 +62,15 @@
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-lg-11">
+        <div class="col-lg-10">
             <div class="tool-card">
-                <!-- Bloc principal pour le contenu de l'outil (Upload, Éditeur, etc.) -->
                 {% block tool_content %}{% endblock %}
             </div>
         </div>
     </div>
 
     <!-- Bannière Adsterra 300x250 (ID 28968036) -->
-    <div class="ad-slot my-5 text-center">
-        <div class="small text-muted mb-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px;">{{ _('Publicité') }}</div>
+    <div class="ad-slot my-5">
         <script type="text/javascript">
             atOptions = {
                 'key' : '28968036',
