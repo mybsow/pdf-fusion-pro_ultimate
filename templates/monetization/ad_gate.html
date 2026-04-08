@@ -1,3 +1,4 @@
+<!-- ad_gate_final.html -->
 <!DOCTYPE html>
 <html lang="{{ current_lang or 'fr' }}">
 <head>
@@ -5,83 +6,208 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ _('Chargement de votre conversion…') }}</title>
   
+  <!-- Google Adsense Script -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8967416460526921" crossorigin="anonymous"></script>
 
   <style>
     :root {
-      --bg: #0f1117; --card: #1a1d27; --border: #2a2d3a;
-      --accent: #4f8ef7; --accent2: #7c5cbf;
-      --text: #e8eaf2; --muted: #6b7280;
-      --success: #22c55e; --error: #dc2626;
-      --radius: 16px; --font: 'DM Sans', 'Segoe UI', sans-serif;
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --border: #2a2d3a;
+      --accent: #4f8ef7;
+      --accent2: #7c5cbf;
+      --text: #e8eaf2;
+      --muted: #6b7280;
+      --success: #22c55e;
+      --error: #dc2626;
+      --radius: 16px;
+      --font: 'DM Sans', 'Segoe UI', sans-serif;
     }
+
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: var(--font); background: var(--bg); color: var(--text);
-      min-height: 100vh; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; padding: 24px;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
     }
+
     body::before {
-      content: ''; position: fixed; inset: 0;
+      content: '';
+      position: fixed;
+      inset: 0;
       background:
         radial-gradient(ellipse 60% 50% at 20% 30%, rgba(79,142,247,.12) 0%, transparent 70%),
         radial-gradient(ellipse 50% 40% at 80% 70%, rgba(124,92,191,.10) 0%, transparent 70%);
       pointer-events: none;
     }
+
     .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 40px 36px;
-      max-width: 500px; width: 100%; text-align: center;
-      position: relative; box-shadow: 0 24px 64px rgba(0,0,0,.4);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px 36px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 24px 64px rgba(0,0,0,.4);
     }
+
     .icon-wrap {
-      width: 64px; height: 64px;
+      width: 64px;
+      height: 64px;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 18px; display: flex; align-items: center;
-      justify-content: center; margin: 0 auto 24px; font-size: 28px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 28px;
     }
-    h1 { font-size: 1.45rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: 10px; }
-    .subtitle { font-size: .95rem; color: var(--muted); line-height: 1.6; margin-bottom: 32px; }
+
+    h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: .95rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
     .ad-frame {
-      background: #12151f; border: 1px dashed var(--border);
-      border-radius: 12px; min-height: 250px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      margin-bottom: 28px; position: relative; overflow: hidden;
+      background: #12151f;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
     }
+
     .ad-label {
-      position: absolute; top: 8px; left: 12px;
-      font-size: .65rem; text-transform: uppercase; letter-spacing: .08em;
-      color: var(--muted); z-index: 10;
+      position: absolute;
+      top: 8px;
+      left: 12px;
+      font-size: .65rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      z-index: 10;
     }
-    .timer-wrap { margin-bottom: 28px; }
-    .timer-bar-bg { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
-    .timer-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 1s linear; }
-    .timer-text { font-size: .85rem; color: var(--muted); }
-    .timer-text strong { color: var(--text); font-weight: 600; }
+
+    .timer-wrap {
+      margin-bottom: 28px;
+    }
+
+    .timer-bar-bg {
+      height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .timer-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 99px;
+      transition: width 1s linear;
+    }
+
+    .timer-text {
+      font-size: .85rem;
+      color: var(--muted);
+    }
+    .timer-text span {
+      color: var(--text);
+      font-weight: 600;
+    }
+
     .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 14px 32px; border-radius: 10px; font-family: var(--font);
-      font-size: 1rem; font-weight: 600; cursor: pointer; border: none;
-      transition: all .2s; width: 100%; justify-content: center;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+      width: 100%;
+      justify-content: center;
     }
-    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
-    .btn-primary:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(79,142,247,.3); }
-    .btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-    .btn-success { background: var(--success); color: #fff; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+    }
+    .btn-primary:hover:not(:disabled) {
+      opacity: .9;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(79,142,247,.3);
+    }
+    .btn-primary:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+
     .success-msg {
-      display: none; align-items: center; gap: 10px;
-      background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.3);
-      border-radius: 10px; padding: 14px 18px; margin-bottom: 20px;
-      font-size: .9rem; color: var(--success);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: rgba(34,197,94,.1);
+      border: 1px solid rgba(34,197,94,.3);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      font-size: .9rem;
+      color: var(--success);
     }
+
     .spinner {
-      width: 18px; height: 18px;
-      border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
-      border-radius: 50%; animation: spin .7s linear infinite; display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .note { margin-top: 20px; font-size: .78rem; color: var(--muted); }
+
+    .note {
+      margin-top: 20px;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
     @keyframes pulse-border {
       0%, 100% { border-color: var(--border); }
       50%       { border-color: var(--accent); }
@@ -102,22 +228,30 @@
   <!-- Zone publicitaire -->
   <div class="ad-frame active" id="adFrame">
     <span class="ad-label">{{ _('Publicité') }}</span>
-
-    <!-- Google AdSense -->
+    
+    <!-- Google AdSense (Principal) -->
     <ins class="adsbygoogle"
          style="display:block"
          data-ad-client="ca-pub-8967416460526921"
          data-ad-slot="a6b760b2094c3e5d9addee0de21dd290"
          data-ad-format="auto"
          data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
 
-    <!-- Adsterra Fallback 300x250 -->
-    <div style="margin-top:15px;">
-      <script type="text/javascript">
-        atOptions = { 'key': '28968036', 'format': 'iframe', 'height': 250, 'width': 300, 'params': {} };
-      </script>
-      <script type="text/javascript" src="https://www.highperformanceformat.com/28968036/invoke.js"></script>
+    <!-- Adsterra Fallback (Banner 300x250 - ID 28968036) -->
+    <div id="adsterra-fallback" style="margin-top: 15px;">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '28968036',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/28968036/invoke.js"></script>
     </div>
   </div>
 
@@ -126,12 +260,8 @@
     <div class="timer-bar-bg">
       <div class="timer-bar" id="timerBar"></div>
     </div>
-    {# ✅ BUG CORRIGÉ : _() avec %(seconds)s + |safe injectait du HTML brut dans la chaîne
-       traduite → faille XSS potentielle + rendu cassé.
-       Solution : texte statique dans _(), valeur dynamique dans un <strong> séparé. #}
     <p class="timer-text">
-      {{ _('Conversion disponible dans') }}
-      <strong id="timerCount">{{ ad_duration | default(15) }}</strong>s
+      {{ _('Conversion disponible dans %(seconds)s s', seconds='<span id="timerCount">' + (ad_duration|default(15)|string) + '</span>'|safe) }}
     </p>
   </div>
 
@@ -153,18 +283,15 @@
 
 <script>
 (function () {
-  {# ✅ BUG CORRIGÉ : "{{ conversion_id }}" sans tojson casse si l'ID contient des
-     guillemets ou caractères spéciaux. tojson encode proprement en JSON string. #}
-  const CONVERSION_ID = {{ conversion_id | tojson }};
-  const AD_DURATION   = {{ ad_duration | default(15) | int }};
-
-  {# ✅ BUG CORRIGÉ : les chaînes traduites injectées dans JS doivent passer par tojson
-     pour échapper les guillemets et les antislashs — sinon SyntaxError JS possible. #}
-  const TXT_READY      = {{ _('🚀 Accéder à ma conversion')            | tojson }};
-  const TXT_VALIDATING = {{ _('Validation…')                            | tojson }};
-  const TXT_REDIRECT   = {{ _('Redirection…')                           | tojson }};
-  const ERR_SESSION    = {{ _('Session expirée. Veuillez recommencer.') | tojson }};
-  const ERR_NETWORK    = {{ _('Erreur réseau. Veuillez réessayer.')      | tojson }};
+  const CONVERSION_ID = "{{ conversion_id }}";
+  const AD_DURATION   = parseInt("{{ ad_duration or 15 }}");
+  
+  // Traductions JS
+  const TXT_READY      = "{{ _('🚀 Accéder à ma conversion') }}";
+  const TXT_VALIDATING = "{{ _('Validation…') }}";
+  const TXT_REDIRECT   = "{{ _('Redirection…') }}";
+  const ERR_SESSION    = "{{ _('Session expirée. Veuillez recommencer.') }}";
+  const ERR_NETWORK    = "{{ _('Erreur réseau. Veuillez réessayer.') }}";
 
   const btn        = document.getElementById('continueBtn');
   const btnText    = document.getElementById('btnText');
@@ -180,14 +307,20 @@
   const interval = setInterval(() => {
     elapsed++;
     const pct = Math.min(100, (elapsed / AD_DURATION) * 100);
-    if (timerBar)   timerBar.style.width = pct + '%';
-    if (timerCount) timerCount.textContent = Math.max(0, AD_DURATION - elapsed);
-    if (elapsed >= AD_DURATION) { clearInterval(interval); unlockButton(); }
+    if(timerBar) timerBar.style.width = pct + '%';
+    
+    const remaining = Math.max(0, AD_DURATION - elapsed);
+    if(timerCount) timerCount.textContent = remaining;
+
+    if (elapsed >= AD_DURATION) {
+      clearInterval(interval);
+      unlockButton();
+    }
   }, 1000);
 
   function unlockButton() {
-    if (adFrame)   adFrame.classList.remove('active');
-    if (timerWrap) timerWrap.style.display = 'none';
+    if(adFrame) adFrame.classList.remove('active');
+    if(timerWrap) timerWrap.style.display = 'none';
     btn.disabled = false;
     btnText.textContent = TXT_READY;
     btn.classList.add('btn-success');
@@ -196,22 +329,26 @@
 
   btn.addEventListener('click', async () => {
     btn.disabled = true;
-    if (spinner) spinner.style.display = 'block';
+    if(spinner) spinner.style.display = 'block';
     btnText.textContent = TXT_VALIDATING;
 
     try {
-      const res  = await fetch('/monetization/api/ad-complete', {
-        method:  'POST',
+      const res = await fetch('/monetization/api/ad-complete', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ conversion_id: CONVERSION_ID }),
+        body: JSON.stringify({ conversion_id: CONVERSION_ID }),
       });
+      
       const data = await res.json();
 
       if (data.success) {
-        if (successMsg) successMsg.style.display = 'flex';
-        if (spinner)    spinner.style.display    = 'none';
+        if(successMsg) successMsg.style.display = 'flex';
+        if(spinner) spinner.style.display = 'none';
         btnText.textContent = TXT_REDIRECT;
-        setTimeout(() => { window.location.href = data.resume_url; }, 800);
+        
+        setTimeout(() => { 
+            window.location.href = data.resume_url; 
+        }, 800);
       } else {
         showError(data.error || ERR_SESSION);
       }
@@ -222,12 +359,13 @@
 
   function showError(msg) {
     btn.disabled = false;
-    if (spinner) spinner.style.display = 'none';
-    btnText.textContent  = msg;
+    if(spinner) spinner.style.display = 'none';
+    btnText.textContent = msg;
     btn.style.background = 'var(--error)';
+    
     setTimeout(() => {
       btn.style.background = '';
-      btnText.textContent  = TXT_READY;
+      btnText.textContent = TXT_READY;
       btn.classList.add('btn-success');
     }, 3000);
   }
