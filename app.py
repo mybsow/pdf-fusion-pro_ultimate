@@ -195,6 +195,7 @@ def create_app():
             adsterra_smartlink_id=getattr(AppConfig, 'ADSTERRA_SMARTLINK_ID', ''),
             adsterra_banner_desktop_id=getattr(AppConfig, 'ADSTERRA_BANNER_DESKTOP_ID', ''),
             adsterra_banner_mobile_id=getattr(AppConfig, 'ADSTERRA_BANNER_MOBILE_ID', ''),
+            adsterra_banner_300x250_id=AppConfig.ADSTERRA_BANNER_300x250_ID,
         )
 
     # --------------------------------------------------------
