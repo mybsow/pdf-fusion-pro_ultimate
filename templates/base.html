@@ -4,31 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
-    <!-- Google Analytics (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LN5Y8ZNRWH"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-LN5Y8ZNRWH', {
-        'send_page_view': true,
-        'anonymize_ip': true
-      });
-      
-      // Suivi des événements personnalisés
-      document.addEventListener('DOMContentLoaded', function() {
-        // Suivi des clics sur les conversions
-        document.querySelectorAll('.btn-convert, .btn-loading').forEach(function(btn) {
-          btn.addEventListener('click', function() {
-            gtag('event', 'conversion_start', {
-              'event_category': 'Conversion',
-              'event_label': btn.getAttribute('data-conversion-type') || 'unknown'
-            });
-          });
-        });
-      });
-    </script>
-
     <!-- SEO -->
     <title>{% block title %}{{ _('PDF Fusion Pro - Outils PDF Gratuits') }}{% endblock %}</title>
     <meta name="description" 
@@ -606,33 +581,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
         new bootstrap.Tooltip(el);
     });
-});
-</script>
-
-<script>
-// Suivi des clics sur les publicités Adsterra
-document.addEventListener('DOMContentLoaded', function() {
-    // Observer les publicités Adsterra
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.addedNodes.length) {
-                // Détecter les iframes Adsterra
-                document.querySelectorAll('iframe[src*="profitablecpmratenetwork"]').forEach(function(iframe) {
-                    if (!iframe.hasAttribute('data-tracked')) {
-                        iframe.setAttribute('data-tracked', 'true');
-                        iframe.addEventListener('load', function() {
-                            gtag('event', 'ad_impression', {
-                                'event_category': 'Adsterra',
-                                'event_label': iframe.width + 'x' + iframe.height
-                            });
-                        });
-                    }
-                });
-            }
-        });
-    });
-    
-    observer.observe(document.body, { childList: true, subtree: true });
 });
 </script>
 
