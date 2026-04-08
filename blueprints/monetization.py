@@ -1,4 +1,7 @@
 # blueprints/monetization.py
+"""
+Module de monétisation — Gestion des publicités et du système de grâce (ad-gate)
+"""
 
 from flask import (
     Blueprint, session, jsonify, request,
@@ -7,18 +10,19 @@ from flask import (
 
 import uuid
 import random
-import base64  # ✅ Import ajouté pour corriger l'erreur 'base64' is not defined
+import base64
 from datetime import datetime, timedelta
 import logging
 import tempfile
 import os
-import time  # ✅ Import ajouté pour corriger l'erreur 'time' is not defined
+import time
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 
 logger = logging.getLogger(__name__)
 
-monetization_bp = Blueprint('monetization', __name__, url_prefix='/monetization')
+# ✅ CORRECTION : Ne PAS ajouter url_prefix ici (il sera ajouté lors de l'enregistrement dans app.py)
+monetization_bp = Blueprint('monetization', __name__)
 
 # Répertoire temporaire pour les fichiers en attente de conversion
 UPLOAD_TMP_DIR = os.path.join(tempfile.gettempdir(), "myapp_uploads")

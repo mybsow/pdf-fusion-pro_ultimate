@@ -743,6 +743,15 @@ def universal_converter(conversion_type):
             if not available:
                 flash("Conversion non disponible - dépendances manquantes", "error")
                 return redirect(url_for('conversion.universal_converter', conversion_type=conversion_type))
+
+            # ============================================================
+            # ✅ AJOUT : Vérification de la publicité (Ad-Gate)
+            # ============================================================
+            ad_check = _handle_ad_gate(conversion_type, request.form.to_dict(), request.files)
+            if ad_check:
+                return ad_check
+            # ============================================================
+
             return handle_conversion_request(conversion_type, request, config)
         
         # GET request - afficher le formulaire
