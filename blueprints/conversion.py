@@ -23,7 +23,6 @@ from typing import Optional, Dict, List, Any, Tuple, Union
 from utils.json_utils import safe_json_loads
 # Dans les imports, après les autres blueprints
 from blueprints.monetization import monetization_bp
-from blueprints.monetization import ad_is_valid, save_pending_request
 
 os.environ["OMP_THREAD_LIMIT"] = "1"
 
@@ -779,73 +778,35 @@ def universal_converter(conversion_type):
         return redirect(url_for('conversion.index'))
 
  
-def handle_conversion_request(conversion_type, request, config):
-    """
-    Gère la requête de conversion. 
-    NOTE : Cette fonction doit être définie AVANT _handle_or_gate 
-    pour être reconnue par certains outils d'analyse statique comme GitHub.
-    """
-    current_app.logger.info(f"Traitement conversion: {conversion_type}")
-    
-    try:
-        if config['max_files'] > 1:
-            files = request.files.getlist('files') or request.files.getlist('file')
-            files, error = normalize_files_input(files, max_files=config['max_files'])
-            if error:
-                flash(error['error'], 'error')
-                return redirect(request.url)
-            result = process_conversion(conversion_type, files=files, form_data=request.form)
-        else:
-            file = request.files.get('file') or request.files.get('files')
-            file, error = normalize_file_input(file)
-            if error:
-                flash(error['error'], 'error')
-                return redirect(request.url)
-            result = process_conversion(conversion_type, file=file, form_data=request.form)
-
-        if isinstance(result, dict) and 'error' in result:
-            flash(result['error'], 'error')
-            return redirect(request.url)
-
-        return result
-
-    except Exception as e:
-        current_app.logger.error(f"Erreur conversion {conversion_type}: {str(e)}")
-        flash(f'Erreur lors de la conversion: {str(e)}', 'error')
-        return redirect(request.url)
-
-# ============================================================================
-# LOGIQUE DE CONVERSION ET PUBLICITÉ
-# ============================================================================
-
 def _handle_or_gate(conversion_type: str, config: dict):
     """
     Si la fenêtre de grâce est valide → conversion immédiate.
-    Sinon → sauvegarde les fichiers sur disque et redirige vers la page de pub.
+    Sinon → sérialise les fichiers en session et redirige vers la page de pub.
+ 
+    Cette fonction centralise TOUTE la logique publicitaire.
+    Elle remplace les vérifications ad_completed dispersées dans le code.
     """
-    from blueprints.monetization import ad_is_valid, save_pending_request
+    from blueprints.monetization import ad_is_valid, save_pending_request, serialize_files
  
     # ── Pub déjà vue et encore valide ? ──────────────────────────────────────
     if ad_is_valid():
-        # Appelle la fonction définie juste au-dessus
         return handle_conversion_request(conversion_type, request, config)
  
-    # ── Vérification présence fichiers ───────────────────────────────────────
-    has_files = False
-    for key in request.files:
-        if any(f.filename for f in request.files.getlist(key)):
-            has_files = True
-            break
-            
-    if not has_files:
-        flash("Aucun fichier reçu pour la conversion.", "error")
-        return redirect(url_for('conversion.universal_converter', conversion_type=conversion_type))
+    # ── Sinon : sauvegarder la requête et montrer la pub ─────────────────────
+    files_dict = serialize_files(request.files)
  
-    # ── Sauvegarde sécurisée sur disque (via monetization.py) ────────────────
+    if not files_dict:
+        flash("Aucun fichier reçu.", "error")
+        return redirect(url_for('conversion.universal_converter',
+                                conversion_type=conversion_type))
+ 
     form_data = request.form.to_dict()
-    conversion_id = save_pending_request(conversion_type, form_data, request.files)
+    conversion_id = save_pending_request(conversion_type, form_data, files_dict)
  
-    return redirect(url_for('monetization.ad_gate', conversion_id=conversion_id))
+    return redirect(url_for(
+        'monetization.ad_gate',
+        conversion_id=conversion_id,
+    ))
 
 
 # -----------------------------
@@ -1006,7 +967,7 @@ def get_conversion_function(conversion_type):
 
 def process_conversion(conversion_type, file=None, files=None, form_data=None):
     """Exécute la conversion appropriée selon le type."""
-    import gc
+
     # ✅ Dictionnaire lazy avec get() pour éviter NameError sur fonctions manquantes
     conversion_functions = {}
 
@@ -1104,9 +1065,6 @@ def process_conversion(conversion_type, file=None, files=None, form_data=None):
         except Exception as fallback_e:
             current_app.logger.error(f"Erreur fallback PDF: {str(fallback_e)}")
         return {'error': f'Erreur interne: {str(e)}'}
-    finally:
-        # Nettoyage final
-        gc.collect()
 
 def validate_file_extension(filename, allowed_extensions):
     """
