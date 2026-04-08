@@ -806,6 +806,13 @@ def compression_redirect():
 
 def handle_conversion_request(conversion_type, request, config):
     """Gère la requête de conversion avec gate publicitaire."""
+    # 1. Sauvegarder les fichiers EN PREMIER, avant tout check pub
+    if not ad_is_valid():
+        # save_pending_request lit request.files ICI, avant tout redirect
+        conversion_id = save_pending_request(
+            conversion_type, request.form, request.files
+        )
+        return redirect(url_for('monetization.ad_gate', conversion_id=conversion_id))
     
     # Vérifier le gate publicitaire
     ad_result = _handle_ad_gate(conversion_type, request.form, request.files)
@@ -2343,7 +2350,8 @@ def get_content_from_gemini(image_input, language="fra"):
 
     return data
 
-def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data: Optional[Dict] = None):
+def convert_pdf_to_excel(file_input, form_data=None):
+    original_filename = getattr(file_input, 'filename', 'document.pdf')
     """
     Convertit un PDF en document Excel (.xlsx) en utilisant Gemini 2.5 Flash.
     """

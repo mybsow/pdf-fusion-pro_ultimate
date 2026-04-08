@@ -142,11 +142,8 @@ def load_pending_request(conversion_id: str) -> dict | None:
     pending = session.get('pending_conversion')
     if not pending or pending.get('id') != conversion_id:
         return None
-
-    # On retire de la session pour éviter les doubles traitements
-    session.pop('pending_conversion', None)
-    session.modified = True
-
+    # NE PAS retirer de la session ici, attendre que la conversion réussisse
+    # session.pop('pending_conversion', None)  ← à supprimer
     return pending
 
 
@@ -305,6 +302,9 @@ def resume_conversion(conversion_id):
                 return redirect(url_for('conversion.index'))
 
             result = process_conversion(conversion_type, file=file, form_data=form_data)
+            if not (isinstance(result, dict) and 'error' in result):
+                session.pop('pending_conversion', None)  # succès → nettoyer
+                session.modified = True
 
         # Gestion des erreurs de conversion
         if isinstance(result, dict) and 'error' in result:

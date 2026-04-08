@@ -86,7 +86,7 @@ def create_app():
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000
 
     # ✅ Cookies de session sécurisés (indispensable sur Render HTTPS)
-    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['SESSION_COOKIE_SECURE'] = not app.debug
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['PERMANENT_SESSION_LIFETIME'] = 86400 * 30  # 30 jours

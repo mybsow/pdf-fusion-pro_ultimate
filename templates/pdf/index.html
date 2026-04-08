@@ -52,21 +52,6 @@
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
     }
-    .ad-container {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 1rem;
-        text-align: center;
-        margin: 1.5rem 0;
-        border: 1px dashed #dee2e6;
-    }
-    .ad-label {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        color: #6c757d;
-        margin-bottom: 0.5rem;
-        letter-spacing: 1px;
-    }
     @media (max-width: 768px) {
         .hero-title { font-size: 1.5rem; }
         .hero-section { padding: 2rem 1rem; }
@@ -83,20 +68,6 @@
         <br>{{ _('Aucune inscription requise – vos fichiers ne quittent jamais votre navigateur.') }}
     </p>
 </section>
-
-<!-- ================= ADSTERRA BANNER 728x90 (Desktop) ================= -->
-<div class="ad-container d-none d-md-block">
-    <div class="ad-label">{{ _('Publicité') }}</div>
-    <div data-adsterra="28968037"></div>
-    <script src="https://cdn.adsterra.net/banners/28968037.js" async></script>
-</div>
-
-<!-- ================= ADSTERRA BANNER 320x50 (Mobile) ================= -->
-<div class="ad-container d-block d-md-none">
-    <div class="ad-label">{{ _('Publicité') }}</div>
-    <div data-adsterra="28968038"></div>
-    <script src="https://cdn.adsterra.net/banners/28968038.js" async></script>
-</div>
 
 <!-- Tools Grid -->
 <div class="row g-4">
@@ -161,12 +132,6 @@
     </div>
 </div>
 
-<!-- ================= ADSTERRA NATIVE BANNER ================= -->
-<div class="ad-container mt-4">
-    <div class="ad-label">{{ _('Recommandé pour vous') }}</div>
-    <script src="https://cdn.adsterra.net/native/28968011.js" async></script>
-</div>
-
 <!-- Autres conversions -->
 <div class="row mt-4">
     <div class="col-12">
@@ -182,12 +147,6 @@
             </div>
         </div>
     </div>
-</div>
-
-<!-- ================= ADSTERRA SMARTLINK ================= -->
-<div class="ad-container mt-4">
-    <div class="ad-label">{{ _('Offres partenaires') }}</div>
-    <script src="https://cdn.adsterra.net/smartlinks/28968009.js" async></script>
 </div>
 
 <!-- SEO Text -->
@@ -214,9 +173,6 @@
         </div>
     </div>
 </div>
-
-<!-- ================= ADSTERRA SOCIAL BAR ================= -->
-<!-- La Social Bar est déjà dans base.html (head) -->
 {% endblock %}
 
 {% block extra_js %}
