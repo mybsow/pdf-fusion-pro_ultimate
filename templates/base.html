@@ -121,7 +121,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('conversion.index') }}"><i class="bi bi-house-door me-1"></i>{{ _('Accueil') }}</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('pdf.pdf_index') }}"><i class="bi bi-tools me-1"></i>{{ _('Outils PDF') }}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('pdf.index') }}"><i class="bi bi-tools me-1"></i>{{ _('Outils PDF') }}</a></li>
                 <li class="nav-item dropdown ms-lg-3">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="langDropdown" data-bs-toggle="dropdown">
                         {% set current_lang = request.cookies.get('language', 'fr') %}
