@@ -46,7 +46,10 @@
 <p>{{ _('Les utilisateurs seront informés des changements significatifs via une notification sur le site.') }}</p>
 
 <h2>{{ _('Propriété intellectuelle') }}</h2>
-<p>{{ _('Le service, son code source, son design et son contenu sont la propriété exclusive de %(developer_name)s.') | format(developer_name=developer_name) }}</p>
+<p>
+{{ _('Le service, son code source, son design et son contenu sont la propriété exclusive de %(developer_name)s.',
+      developer_name=developer_name) }}
+</p>
 <p>{{ _('Toute reproduction, même partielle, est interdite sans autorisation préalable écrite.') }}</p>
 
 <div class="alert alert-info mt-4">
