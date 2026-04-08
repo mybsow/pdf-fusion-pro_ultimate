@@ -50,6 +50,21 @@
         margin-bottom: 1rem;
         color: white; font-size: 1.5rem;
     }
+    .ad-container {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        margin: 1.5rem 0;
+        border: 1px dashed #dee2e6;
+    }
+    .ad-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+        letter-spacing: 1px;
+    }
     .features-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -121,6 +136,19 @@
         </div>
     </div>
 
+    <!-- ================= ADSTERRA BANNER 728x90 ================= -->
+    <div class="ad-container d-none d-md-block">
+        <div class="ad-label">{{ _('Publicité') }}</div>
+        <div data-adsterra="28968037"></div>
+        <script src="https://cdn.adsterra.net/banners/28968037.js" async></script>
+    </div>
+
+    <div class="ad-container d-block d-md-none">
+        <div class="ad-label">{{ _('Publicité') }}</div>
+        <div data-adsterra="28968038"></div>
+        <script src="https://cdn.adsterra.net/banners/28968038.js" async></script>
+    </div>
+
     <!-- Statistiques -->
     <div class="row mb-5">
         <div class="col-md-3 mb-4">
@@ -137,7 +165,7 @@
         </div>
         <div class="col-md-3 mb-4">
             <div class="stats-card">
-                <div class="stats-number">50MB</div>
+                <div class="stats-number">{{ Config.MAX_CONTENT_SIZE // (1024*1024) if Config else 100 }}MB</div>
                 <p class="text-muted mb-0">{{ _('Max par fichier') }}</p>
             </div>
         </div>
@@ -147,6 +175,12 @@
                 <p class="text-muted mb-0">{{ _('Conversions illimitées') }}</p>
             </div>
         </div>
+    </div>
+
+    <!-- ================= ADSTERRA NATIVE ================= -->
+    <div class="ad-container">
+        <div class="ad-label">{{ _('Recommandé pour vous') }}</div>
+        <script src="https://cdn.adsterra.net/native/28968011.js" async></script>
     </div>
 
     <!-- Catégories -->
@@ -173,7 +207,6 @@
                                 <div class="card-icon-wrapper" style="background: {{ conversion.color }};">
                                     <i class="fas fa-{{ conversion.icon }}"></i>
                                 </div>
-                                {# ✅ _(conversion.title) : traduit la chaîne brute au moment du rendu #}
                                 <h3 class="card-title h5 mb-3">{{ _(conversion.title) }}</h3>
                                 <p class="card-text small text-muted mb-3">
                                     {{ _(conversion.description) }}
@@ -192,6 +225,12 @@
             </div>
         </div>
         {% endfor %}
+    </div>
+
+    <!-- ================= ADSTERRA SMARTLINK ================= -->
+    <div class="ad-container">
+        <div class="ad-label">{{ _('Offres partenaires') }}</div>
+        <script src="https://cdn.adsterra.net/smartlinks/28968009.js" async></script>
     </div>
 
     <!-- Fonctionnalités -->
@@ -233,7 +272,6 @@
                             <i class="fas fa-{{ conversion.icon }} fa-lg"></i>
                         </div>
                         <div class="flex-grow-1">
-                            {# ✅ _(conversion.title) #}
                             <h4 class="mb-1 h6">{{ _(conversion.title) }}</h4>
                             <p class="mb-0 small text-muted">{{ _(conversion.description) }}</p>
                         </div>
@@ -321,7 +359,7 @@
                             {{ _('Quelles sont les limites de taille ?') }}
                         </h4>
                         <p class="card-text">
-                            {{ _('Taille maximale par fichier : 50MB. Nombre maximum de fichiers par conversion : variable selon l\'outil (de 1 à 20).') }}
+                            {{ _('Taille maximale par fichier : 100MB. Nombre maximum de fichiers par conversion : variable selon l\'outil (de 1 à 20).') }}
                         </p>
                     </div>
                 </div>

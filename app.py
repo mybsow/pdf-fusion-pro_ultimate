@@ -55,6 +55,14 @@ from config import AppConfig
 # Factory — toute la configuration EST dans create_app()
 # ============================================================
 def create_app():
+    # Nettoyage périodique des fichiers temporaires Adsterra
+    @app.before_request
+    def cleanup_temp_files():
+        import random
+        if random.random() < 0.01:  # 1% des requêtes
+            from blueprints.monetization import cleanup_old_tmp_files
+            cleanup_old_tmp_files()
+
     logger.info("🚀 Initialisation Flask...")
 
     app = Flask(__name__)   # ✅ créé ICI, pas au niveau module
@@ -142,8 +150,10 @@ def create_app():
     from blueprints.admin import admin_bp
     from blueprints.conversion import conversion_bp
     from blueprints.legal import legal_bp
+    from blueprints.monetization import monetization_bp
 
     for bp, prefix in [
+        (monetization_bp, "/monetization"),
         (pdf_bp,        "/pdf"),
         (api_bp,        "/api"),
         (legal_bp,      None),
@@ -173,6 +183,13 @@ def create_app():
             hosting=AppConfig.HOSTING,
             domain=AppConfig.DOMAIN,
             adsense_id='ca-pub-8967416460526921',
+            adsterra_enabled=AppConfig.ADSTERRA_ENABLED,
+            adsterra_popunder_id=AppConfig.ADSTERRA_POPUNDER_ID,
+            adsterra_social_bar_id=AppConfig.ADSTERRA_SOCIAL_BAR_ID,
+            adsterra_native_id=AppConfig.ADSTERRA_NATIVE_ID,
+            adsterra_smartlink_id=AppConfig.ADSTERRA_SMARTLINK_ID,
+            adsterra_banner_desktop_id=AppConfig.ADSTERRA_BANNER_DESKTOP_ID,
+            adsterra_banner_mobile_id=AppConfig.ADSTERRA_BANNER_MOBILE_ID,
         )
 
     # --------------------------------------------------------
@@ -549,6 +566,31 @@ def create_app():
             'current_locale': str(get_locale()),
             'session_language': session.get('language', 'fr'),
         })
+
+    @app.route('/debug/ad-test')
+    def debug_ad_test():
+        """Test du système publicitaire"""
+        from blueprints.monetization import ad_is_valid, mark_ad_completed
+        from datetime import datetime
+        
+        return jsonify({
+            'ad_valid': ad_is_valid(),
+            'session_keys': list(session.keys()),
+            'ad_completed': session.get('ad_completed', False),
+            'ad_expires_at': session.get('ad_expires_at'),
+            'current_time': datetime.now().isoformat()
+        })
+    @app.route('/debug/ad-status')
+    def debug_ad_status():
+        """Vérifier le statut de la publicité"""
+        from blueprints.monetization import ad_is_valid
+        return jsonify({
+            'ad_valid': ad_is_valid(),
+            'session_keys': list(session.keys()),
+            'ad_completed': session.get('ad_completed', False),
+            'ad_expires_at': session.get('ad_expires_at'),
+        })
+
 
     # --------------------------------------------------------
     # Gestion des erreurs

@@ -570,3 +570,14 @@ class AppConfig:
             'medium': 'Compression moyenne',
             'high': 'Forte compression'
         }
+
+# ============================================================
+# ADSTERRA MONETIZATION - Render Environment Variables
+# ============================================================
+ADSTERRA_ENABLED = os.environ.get('ADSTERRA_ENABLED', 'false').lower() == 'true'
+ADSTERRA_POPUNDER_ID = os.environ.get('ADSTERRA_POPUNDER_ID', '')
+ADSTERRA_SOCIAL_BAR_ID = os.environ.get('ADSTERRA_SOCIAL_BAR_ID', '')
+ADSTERRA_NATIVE_ID = os.environ.get('ADSTERRA_NATIVE_ID', '')
+ADSTERRA_SMARTLINK_ID = os.environ.get('ADSTERRA_SMARTLINK_ID', '')
+ADSTERRA_BANNER_DESKTOP_ID = os.environ.get('ADSTERRA_BANNER_DESKTOP_ID', '')
+ADSTERRA_BANNER_MOBILE_ID = os.environ.get('ADSTERRA_BANNER_MOBILE_ID', '')

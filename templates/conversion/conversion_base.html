@@ -44,36 +44,6 @@
     height: 5px;
     background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
 }
-.upload-zone {
-    border: 3px dashed #ddd;
-    border-radius: 15px;
-    padding: 3rem 2rem;
-    text-align: center;
-    background: #f8f9fa;
-    transition: all 0.3s;
-    cursor: pointer;
-    position: relative;
-}
-.upload-zone:hover,
-.upload-zone.dragover {
-    border-color: var(--primary-color);
-    background: rgba(231, 76, 60, 0.05);
-    transform: translateY(-2px);
-}
-.upload-icon {
-    font-size: 4rem;
-    color: var(--primary-color);
-    margin-bottom: 1.5rem;
-    transition: all 0.3s;
-}
-.upload-zone:hover .upload-icon { transform: scale(1.1); }
-.file-info-card {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 15px;
-    padding: 1.5rem;
-    margin-top: 1.5rem;
-    border-left: 5px solid var(--primary-color);
-}
 .step-tracker {
     display: flex;
     justify-content: space-between;
@@ -143,19 +113,6 @@
     margin: 0 auto 1rem;
     color: white; font-size: 1.5rem;
 }
-.success-animation {
-    width: 100px; height: 100px;
-    background: #2ecc71; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 2rem;
-    color: white; font-size: 2.5rem;
-    animation: bounceIn 0.6s;
-}
-@keyframes bounceIn {
-    0%   { transform: scale(0); opacity: 0; }
-    50%  { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-}
 @media (max-width: 768px) {
     .converter-hero { padding: 3rem 1rem; }
     .converter-card { padding: 1.5rem; }
@@ -172,13 +129,11 @@
     <div class="container text-center position-relative">
         <h1 class="display-4 fw-bold mb-3">
             <i class="fas fa-{{ icon|default('exchange-alt') }} me-3"></i>
-            {# ✅ _(title) : title est une chaîne brute passée depuis Python #}
             {{ _(title) }}
         </h1>
         <p class="lead mb-4">{{ _(description) }}</p>
         <div class="badge bg-light text-dark fs-6 px-3 py-2">
             <i class="fas fa-arrow-right me-2"></i>
-            {# ✅ from_format et to_format sont aussi des chaînes brutes #}
             {{ _(from_format) }} → {{ _(to_format) }}
         </div>
     </div>
@@ -202,9 +157,36 @@
         </div>
     </div>
 
+    <!-- Bannière Adsterra Desktop 728x90 (ID 28968037) -->
+    <div class="ad-container d-none d-md-block text-center my-4" style="background: #f8f9fa; border-radius: 12px; padding: 1rem;">
+        <div class="small text-muted mb-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px;">{{ _('Publicité') }}</div>
+        <script type="text/javascript">
+            atOptions = { 'key' : '28968037', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/28968037/invoke.js"></script>
+    </div>
+
+    <!-- Bannière Adsterra Mobile 320x50 (ID 28968038) -->
+    <div class="ad-container d-block d-md-none text-center my-4" style="background: #f8f9fa; border-radius: 12px; padding: 1rem;">
+        <div class="small text-muted mb-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px;">{{ _('Publicité') }}</div>
+        <script type="text/javascript">
+            atOptions = { 'key' : '28968038', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/28968038/invoke.js"></script>
+    </div>
+
     <!-- Carte principale -->
     <div class="converter-card">
         {% block converter_content %}{% endblock %}
+    </div>
+
+    <!-- Bannière Adsterra 300x250 (ID 28968036) -->
+    <div class="text-center my-5">
+        <div class="small text-muted mb-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px;">{{ _('Publicité') }}</div>
+        <script type="text/javascript">
+            atOptions = { 'key' : '28968036', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/28968036/invoke.js"></script>
     </div>
 
     <!-- Fonctionnalités -->
@@ -238,12 +220,8 @@
             <div>
                 <h6 class="mb-1">{{ _('Comment ça marche ?') }}</h6>
                 <ol class="mb-0 small ps-3">
-                    <li>
-                        {{ _('Téléchargez votre fichier %(from_format)s.', from_format=_(from_format)) }}
-                    </li>
-                    <li>
-                        {{ _('Notre système le convertit automatiquement en %(to_format)s.', to_format=_(to_format)) }}
-                    </li>
+                    <li>{{ _('Téléchargez votre fichier %(from_format)s.', from_format=_(from_format)) }}</li>
+                    <li>{{ _('Notre système le convertit automatiquement en %(to_format)s.', to_format=_(to_format)) }}</li>
                     <li>{{ _('Téléchargez ensuite votre fichier converti.') }}</li>
                 </ol>
             </div>
@@ -254,27 +232,11 @@
 
 <script>
 function updateStep(stepNumber) {
-    document.querySelectorAll('[id$="Step"]').forEach(el => {
-        if (el.id.endsWith('Step')) el.style.display = 'none';
-    });
     document.querySelectorAll('.step').forEach((step, index) => {
         step.classList.remove('active', 'completed');
         if (index + 1 < stepNumber)      step.classList.add('completed');
         else if (index + 1 === stepNumber) step.classList.add('active');
     });
-    const activeStep = document.getElementById(`step${stepNumber}Content`);
-    if (activeStep) activeStep.style.display = 'block';
-}
-
-function showError(message) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-    alertDiv.innerHTML = `
-        <i class="fas fa-exclamation-circle me-2"></i>${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-    const container = document.querySelector('.container');
-    container.insertBefore(alertDiv, container.firstChild);
-    setTimeout(() => { if (alertDiv.parentNode) alertDiv.remove(); }, 5000);
 }
 
 function showLoader() {
