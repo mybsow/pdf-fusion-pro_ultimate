@@ -54,6 +54,51 @@
         })();
     </script>
 
+    <!-- Adsterra Configuration Globale -->
+    <script>
+        window.adsterra = window.adsterra || {};
+        window.adsterra.config = {
+            interstitial: {
+                enabled: true,
+                onReady: function() {
+                    console.log('Adsterra ready');
+                },
+                onComplete: function() {
+                    console.log('Adsterra complete');
+                    if (window.currentConversionId) {
+                        fetch('/monetization/api/ad-complete', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({conversion_id: window.currentConversionId})
+                        });
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Adsterra Popunder (s'ouvre sur chaque clic) -->
+    <script>
+        (function() {
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://cdn.adsterra.net/display/display.js?zoneId=28968012';
+            document.head.appendChild(s);
+        })();
+    </script>
+
+    <!-- Adsterra Social Bar (flottante à droite) -->
+    <script>
+        (function() {
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://cdn.adsterra.net/display/display.js?zoneId=28968010';
+            document.head.appendChild(s);
+        })();
+    </script>
+
     <meta name="google-site-verification" content="ZOyISj54SOvEHTNjlW5WKG152esMn4a5OAfN4iiG-s0">
     <meta name="google-adsense-account" content="ca-pub-8967416460526921">
 
@@ -249,7 +294,15 @@
 
 <!-- ================= SOCIAL BAR FLOTTANTE (Adsterra) ================= -->
 <div class="adsterra-social-bar" id="adsterra-social-container">
-    <script src="https://pl29068509.profitablecpmratenetwork.com/3b/92/5e/3b925efff6b4f5586a0b12ee19f759d7.js"></script>
+    <script>
+    (function() {
+        var s = document.createElement('script');
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'https://cdn.adsterra.net/display/display.js?zoneId=28968010';
+        document.getElementById('adsterra-social-container').appendChild(s);
+    })();
+    </script>
 </div>
 
 <!-- ================= BANNIÈRE HAUT (AdSense) ================= -->
@@ -444,15 +497,14 @@
 <div class="d-block d-md-none text-center my-2">
     <div id="adsterra-mobile-banner">
         <script>
-            atOptions = {
-                'key' : 'ca703c709dcbf1349feaa6fa1ed22b85',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-            };
+        (function() {
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://cdn.adsterra.net/display/display.js?zoneId=28968038';
+            document.getElementById('adsterra-mobile-banner').appendChild(s);
+        })();
         </script>
-        <script src="https://www.highperformanceformat.com/ca703c709dcbf1349feaa6fa1ed22b85/invoke.js"></script>
     </div>
 </div>
 
@@ -490,26 +542,16 @@
             <div class="col-12 text-center">
                 <div id="adsterra-footer-banner">
                     <script>
-                        atOptions = {
-                            'key' : '688c8ddc50f5146cc18b2d8587caaeab',
-                            'format' : 'iframe',
-                            'height' : 90,
-                            'width' : 728,
-                            'params' : {}
-                        };
+                    (function() {
+                        var s = document.createElement('script');
+                        s.type = 'text/javascript';
+                        s.async = true;
+                        s.src = 'https://cdn.adsterra.net/display/display.js?zoneId=28968037';
+                        document.getElementById('adsterra-footer-banner').appendChild(s);
+                    })();
                     </script>
-                    <script src="https://www.highperformanceformat.com/688c8ddc50f5146cc18b2d8587caaeab/invoke.js"></script>
                 </div>
                 <p class="text-muted small mt-2">{{ _('Publicité') }}</p>
-            </div>
-        </div>
-
-        <!-- Smartlink Adsterra -->
-        <div class="row mt-3">
-            <div class="col-12 text-center">
-                <a href="https://www.profitablecpmratenetwork.com/a42rwc8c2a?key=41bf4caa0764d5bec6754800228d0376" target="_blank" rel="sponsored noopener">
-                    <img src="https://www.profitablecpmratenetwork.com/41bf4caa0764d5bec6754800228d0376" alt="Ad" style="max-width:100%;">
-                </a>
             </div>
         </div>
 
@@ -584,10 +626,17 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- Native Banner Adsterra -->
+<!-- Adsterra Native Banner (position basse) -->
 <div id="adsterra-native" style="text-align: center; margin: 20px auto;">
-    <script async="async" data-cfasync="false" src="https://pl29068510.profitablecpmratenetwork.com/2a49f535f359455ea0c6c2d6e54736ca/invoke.js"></script>
-    <div id="container-2a49f535f359455ea0c6c2d6e54736ca"></div>
+    <script>
+    (function() {
+        var s = document.createElement('script');
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'https://cdn.adsterra.net/display/display.js?zoneId=28968011';
+        document.getElementById('adsterra-native').appendChild(s);
+    })();
+    </script>
 </div>
 
 {% block extra_js %}{% endblock %}
