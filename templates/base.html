@@ -195,7 +195,7 @@
                         {% for lang_code, lang_info in languages.items() %}
                         <li>
                             <a class="dropdown-item {% if lang_code == current_lang %}active{% endif %}" 
-                               href="{{ url_for('legal.change_language', lang=lang_code) }}">
+                               href="{{ url_for('set_language', language=lang_code) }}">
                                 <span class="fi fi-{{ lang_info.flag }}"></span>
                                 {{ lang_info.name }}
                             </a>
