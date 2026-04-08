@@ -59,19 +59,6 @@ def create_app():
 
     app = Flask(__name__)   # ✅ créé ICI, pas au niveau module
 
-    # ============================================================
-    # Nettoyage périodique des fichiers temporaires Adsterra
-    # ============================================================
-    @app.before_request
-    def cleanup_temp_files():
-        import random
-        if random.random() < 0.01:  # 1% des requêtes
-            try:
-                from blueprints.monetization import cleanup_old_tmp_files
-                cleanup_old_tmp_files()
-            except ImportError:
-                pass
-
     # --------------------------------------------------------
     # Configuration Flask
     # --------------------------------------------------------
@@ -79,14 +66,11 @@ def create_app():
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", AppConfig.SECRET_KEY)
     app.config["UPLOAD_FOLDER"] = tempfile.gettempdir()
     app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
-    app.config["SESSION_TYPE"] = "filesystem"
-    app.config["SESSION_PERMANENT"] = True
-    app.config["SESSION_USE_SIGNER"] = True
     app.config['PREFERRED_URL_SCHEME'] = 'https'
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000
 
     # ✅ Cookies de session sécurisés (indispensable sur Render HTTPS)
-    app.config['SESSION_COOKIE_SECURE'] = not app.debug
+    app.config['SESSION_COOKIE_SECURE'] = True
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['PERMANENT_SESSION_LIFETIME'] = 86400 * 30  # 30 jours
@@ -158,10 +142,8 @@ def create_app():
     from blueprints.admin import admin_bp
     from blueprints.conversion import conversion_bp
     from blueprints.legal import legal_bp
-    from blueprints.monetization import monetization_bp
 
     for bp, prefix in [
-        (monetization_bp, "/monetization"),
         (pdf_bp,        "/pdf"),
         (api_bp,        "/api"),
         (legal_bp,      None),
@@ -191,14 +173,6 @@ def create_app():
             hosting=AppConfig.HOSTING,
             domain=AppConfig.DOMAIN,
             adsense_id='ca-pub-8967416460526921',
-            adsterra_enabled=getattr(AppConfig, 'ADSTERRA_ENABLED', False),
-            adsterra_popunder_id=getattr(AppConfig, 'ADSTERRA_POPUNDER_ID', ''),
-            adsterra_social_bar_id=getattr(AppConfig, 'ADSTERRA_SOCIAL_BAR_ID', ''),
-            adsterra_native_id=getattr(AppConfig, 'ADSTERRA_NATIVE_ID', ''),
-            adsterra_smartlink_id=getattr(AppConfig, 'ADSTERRA_SMARTLINK_ID', ''),
-            adsterra_banner_desktop_id=getattr(AppConfig, 'ADSTERRA_BANNER_DESKTOP_ID', ''),
-            adsterra_banner_mobile_id=getattr(AppConfig, 'ADSTERRA_BANNER_MOBILE_ID', ''),
-            adsterra_banner_300x250_id=AppConfig.ADSTERRA_BANNER_300x250_ID,
         )
 
     # --------------------------------------------------------
@@ -574,29 +548,6 @@ def create_app():
             'status': 'reloaded',
             'current_locale': str(get_locale()),
             'session_language': session.get('language', 'fr'),
-        })
-
-    @app.route('/debug/ad-test')
-    def debug_ad_test():
-        """Test du système publicitaire"""
-        from blueprints.monetization import ad_is_valid
-        return jsonify({
-            'ad_valid': ad_is_valid(),
-            'session_keys': list(session.keys()),
-            'ad_completed': session.get('ad_completed', False),
-            'ad_expires_at': session.get('ad_expires_at'),
-            'current_time': datetime.now().isoformat()
-        })
-
-    @app.route('/debug/ad-status')
-    def debug_ad_status():
-        """Vérifier le statut de la publicité"""
-        from blueprints.monetization import ad_is_valid
-        return jsonify({
-            'ad_valid': ad_is_valid(),
-            'session_keys': list(session.keys()),
-            'ad_completed': session.get('ad_completed', False),
-            'ad_expires_at': session.get('ad_expires_at'),
         })
 
     # --------------------------------------------------------

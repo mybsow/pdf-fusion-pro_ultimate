@@ -225,7 +225,6 @@ def contact():
         success=success,
         error=error,
         current_time=current_time,
-        app_name=AppConfig.NAME,  # AJOUTÉ
     )
 
 # ===============================
@@ -238,7 +237,6 @@ def legal():
         title=_("Mentions Légales"),
         badge=_("Information légale"),
         subtitle=_("Informations légales"),
-        app_name=AppConfig.NAME,  # AJOUTÉ
     )
 
 
@@ -249,7 +247,6 @@ def privacy():
         title=_("Politique de Confidentialité"),
         badge=_("Protection des données"),
         subtitle=_("Comment nous protégeons vos données"),
-        app_name=AppConfig.NAME,  # AJOUTÉ
     )
 
 
@@ -260,7 +257,6 @@ def terms():
         title=_("Conditions d'Utilisation"),
         badge=_("Règles d'usage"),
         subtitle=_("Conditions d'utilisation du service"),
-        app_name=AppConfig.NAME,  # AJOUTÉ - C'est la correction principale !
     )
 
 
@@ -271,7 +267,6 @@ def about():
         title=_("À Propos"),
         badge=_("Notre histoire"),
         subtitle=_("Découvrez PDF Fusion Pro"),
-        app_name=AppConfig.NAME,  # AJOUTÉ
     )
 
 # ===============================

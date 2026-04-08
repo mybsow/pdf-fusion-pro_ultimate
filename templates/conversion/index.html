@@ -137,7 +137,7 @@
         </div>
         <div class="col-md-3 mb-4">
             <div class="stats-card">
-                <div class="stats-number">{{ Config.MAX_CONTENT_SIZE // (1024*1024) if Config else 100 }}MB</div>
+                <div class="stats-number">50MB</div>
                 <p class="text-muted mb-0">{{ _('Max par fichier') }}</p>
             </div>
         </div>
@@ -173,6 +173,7 @@
                                 <div class="card-icon-wrapper" style="background: {{ conversion.color }};">
                                     <i class="fas fa-{{ conversion.icon }}"></i>
                                 </div>
+                                {# ✅ _(conversion.title) : traduit la chaîne brute au moment du rendu #}
                                 <h3 class="card-title h5 mb-3">{{ _(conversion.title) }}</h3>
                                 <p class="card-text small text-muted mb-3">
                                     {{ _(conversion.description) }}
@@ -232,6 +233,7 @@
                             <i class="fas fa-{{ conversion.icon }} fa-lg"></i>
                         </div>
                         <div class="flex-grow-1">
+                            {# ✅ _(conversion.title) #}
                             <h4 class="mb-1 h6">{{ _(conversion.title) }}</h4>
                             <p class="mb-0 small text-muted">{{ _(conversion.description) }}</p>
                         </div>
@@ -319,7 +321,7 @@
                             {{ _('Quelles sont les limites de taille ?') }}
                         </h4>
                         <p class="card-text">
-                            {{ _('Taille maximale par fichier : 100MB. Nombre maximum de fichiers par conversion : variable selon l\'outil (de 1 à 20).') }}
+                            {{ _('Taille maximale par fichier : 50MB. Nombre maximum de fichiers par conversion : variable selon l\'outil (de 1 à 20).') }}
                         </p>
                     </div>
                 </div>

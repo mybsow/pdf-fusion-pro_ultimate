@@ -21,7 +21,6 @@ from datetime import datetime
 from collections import defaultdict
 from typing import Optional, Dict, List, Any, Tuple, Union
 from utils.json_utils import safe_json_loads
-from blueprints.monetization import ad_is_valid, save_pending_request
 
 os.environ["OMP_THREAD_LIMIT"] = "1"
 
@@ -295,27 +294,6 @@ def extract_json(text):
             continue
 
     return None
-
-# ============================================================
-# À AJOUTER DANS conversion.py (avant les routes)
-# ============================================================
-
-def _handle_ad_gate(conversion_type, form_data, request_files):
-    """
-    Vérifie si l'utilisateur a vu une pub récemment.
-    Si oui, conversion directe.
-    Si non, sauvegarde la requête et redirige vers la page pub.
-    """
-    from blueprints.monetization import ad_is_valid, save_pending_request
-    
-    # Vérifier si la pub a été vue récemment
-    if ad_is_valid():
-        # Pub valide, conversion directe
-        return None  # Indique de procéder à la conversion
-    
-    # Pas de pub valide, sauvegarder et rediriger
-    conversion_id = save_pending_request(conversion_type, form_data, request_files)
-    return redirect(url_for('monetization.ad_gate', conversion_id=conversion_id))
 
 # ============================================================================
 # CONVERSION MAP - Configuration de toutes les conversions disponibles
@@ -743,15 +721,6 @@ def universal_converter(conversion_type):
             if not available:
                 flash("Conversion non disponible - dépendances manquantes", "error")
                 return redirect(url_for('conversion.universal_converter', conversion_type=conversion_type))
-
-            # ============================================================
-            # ✅ AJOUT : Vérification de la publicité (Ad-Gate)
-            # ============================================================
-            ad_check = _handle_ad_gate(conversion_type, request.form.to_dict(), request.files)
-            if ad_check:
-                return ad_check
-            # ============================================================
-
             return handle_conversion_request(conversion_type, request, config)
         
         # GET request - afficher le formulaire
@@ -814,60 +783,62 @@ def compression_redirect():
 # =========================
 
 def handle_conversion_request(conversion_type, request, config):
-    """Gère la requête de conversion avec gate publicitaire."""
-    # 1. Sauvegarder les fichiers EN PREMIER, avant tout check pub
-    if not ad_is_valid():
-        # save_pending_request lit request.files ICI, avant tout redirect
-        conversion_id = save_pending_request(
-            conversion_type, request.form, request.files
-        )
-        return redirect(url_for('monetization.ad_gate', conversion_id=conversion_id))
-    
-    # Vérifier le gate publicitaire
-    ad_result = _handle_ad_gate(conversion_type, request.form, request.files)
-    if ad_result:
-        return ad_result  # Redirection vers la page pub
-    
-    # Pub valide, procéder à la conversion
+    """Gère la requête de conversion."""
+    # ✅ Debug temporaire — à supprimer après diagnostic
     current_app.logger.info(f"=== FILES KEYS: {list(request.files.keys())} ===")
     current_app.logger.info(f"=== FORM KEYS: {list(request.form.keys())} ===")
-    
+    current_app.logger.info(f"=== CONTENT-TYPE: {request.content_type} ===")
+
     try:
         if config['max_files'] > 1:
+            # ✅ Chercher 'files' ET 'file' pour couvrir les deux cas
             files = request.files.getlist('files')
             if not files or all(f.filename == '' for f in files):
                 files = request.files.getlist('file')
-            
+
+            # ✅ Log debug pour diagnostiquer
+            current_app.logger.info(
+                f"Fichiers reçus pour '{conversion_type}': "
+                f"keys={list(request.files.keys())}, count={len(files)}"
+            )
+
             files, error = normalize_files_input(files, max_files=config['max_files'])
             if error:
                 flash(error['error'], 'error')
                 return redirect(request.url)
-            
+
             result = process_conversion(conversion_type, files=files, form_data=request.form)
+
         else:
+            # ✅ Chercher 'file' ET 'files' pour couvrir les deux cas
             file = request.files.get('file')
             if not file or file.filename == '':
                 file = request.files.get('files')
-            
+
+            current_app.logger.info(
+                f"Fichier reçu pour '{conversion_type}': "
+                f"keys={list(request.files.keys())}, filename={getattr(file, 'filename', 'None')}"
+            )
+
             file, error = normalize_file_input(file)
             if error:
                 flash(error['error'], 'error')
                 return redirect(request.url)
-            
+
             if config.get('accept'):
                 allowed_ext = {ext.strip() for ext in config['accept'].split(',')}
                 if not validate_file_extension(file.filename, allowed_ext):
                     flash(f"Type de fichier non supporté. Formats acceptés: {config['accept']}", 'error')
                     return redirect(request.url)
-            
+
             result = process_conversion(conversion_type, file=file, form_data=request.form)
-        
+
         if isinstance(result, dict) and 'error' in result:
             flash(result['error'], 'error')
             return redirect(request.url)
-        
+
         return result
-    
+
     except Exception as e:
         current_app.logger.error(f"Erreur conversion {conversion_type}: {str(e)}\n{traceback.format_exc()}")
         flash(f'Erreur lors de la conversion: {str(e)}', 'error')
@@ -2359,8 +2330,7 @@ def get_content_from_gemini(image_input, language="fra"):
 
     return data
 
-def convert_pdf_to_excel(file_input, form_data=None):
-    original_filename = getattr(file_input, 'filename', 'document.pdf')
+def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data: Optional[Dict] = None):
     """
     Convertit un PDF en document Excel (.xlsx) en utilisant Gemini 2.5 Flash.
     """

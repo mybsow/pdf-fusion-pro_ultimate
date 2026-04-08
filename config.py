@@ -5,17 +5,6 @@ from datetime import timedelta
 
 
 class AppConfig:
-    # Adsterra Monetization
-    ADSTERRA_ENABLED = os.environ.get("ADSTERRA_ENABLED", "false").lower() == "true"
-    ADSTERRA_POPUNDER_ID = os.environ.get("ADSTERRA_POPUNDER_ID", "28968012")
-    ADSTERRA_SOCIAL_BAR_ID = os.environ.get("ADSTERRA_SOCIAL_BAR_ID", "28968010")
-    ADSTERRA_NATIVE_ID = os.environ.get("ADSTERRA_NATIVE_ID", "28968011")
-    ADSTERRA_SMARTLINK_ID = os.environ.get("ADSTERRA_SMARTLINK_ID", "28968009")
-    ADSTERRA_BANNER_DESKTOP_ID = os.environ.get("ADSTERRA_BANNER_DESKTOP_ID", "28968037")
-    ADSTERRA_BANNER_MOBILE_ID = os.environ.get("ADSTERRA_BANNER_MOBILE_ID", "28968038")
-    ADSTERRA_BANNER_160x600_ID = os.environ.get("ADSTERRA_BANNER_160x600_ID", "28968039")
-    ADSTERRA_BANNER_300x250_ID = os.environ.get("ADSTERRA_BANNER_300x250_ID", "28968036")
-
     """
     Configuration centralisée de l'application.
     Compatible production / cloud (Render, Fly.io, etc.)
