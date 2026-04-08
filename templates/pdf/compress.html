@@ -4,47 +4,69 @@
 {% block description %}{{ _('Réduisez la taille de vos fichiers PDF tout en conservant la qualité.') }}{% endblock %}
 
 {% block content %}
+<!-- ✅ Bannière Adsterra haut de page -->
+{% include 'includes/adsterra_ads.html' with context %}
+
 <section class="hero-section text-center">
     <h1>{{ _('Compresser un PDF') }}</h1>
     <p>{{ _('Déposez votre fichier PDF et obtenez une version plus légère.') }}</p>
 </section>
 
-<div class="tool-container">
-    <div class="upload-zone-pro" id="compressUploadZone" data-info-id="compressFileInfo" data-btn-id="compressButton">
-        <div class="upload-inner">
-            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-            <h4 class="upload-title">{{ _('Déposez votre PDF ici') }}</h4>
-            <p class="upload-subtitle">{{ _('Glissez-déposez votre fichier ou cliquez pour parcourir') }}</p>
-            <div class="upload-info">{{ _('PDF uniquement • Taille max : 50MB') }}</div>
-        </div>
-        <input type="file" accept=".pdf" style="display:none;">
-    </div>
-
-    <div id="compressFileInfo" class="file-list mt-3"></div>
-    <div id="compressUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
-
-    <div class="row mt-4">
-        <div class="col-md-8 mx-auto">
-            <label class="form-label fw-bold">{{ _('Niveau de compression') }}</label>
-            <div class="btn-group w-100" role="group">
-                <input type="radio" class="btn-check" name="compressionLevel" id="low" value="low">
-                <label class="btn btn-outline-primary" for="low">{{ _('Faible') }}</label>
-                <input type="radio" class="btn-check" name="compressionLevel" id="medium" value="medium" checked>
-                <label class="btn btn-outline-primary" for="medium">{{ _('Moyen') }}</label>
-                <input type="radio" class="btn-check" name="compressionLevel" id="high" value="high">
-                <label class="btn btn-outline-primary" for="high">{{ _('Fort') }}</label>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="tool-container">
+            <div class="upload-zone-pro" id="compressUploadZone" data-info-id="compressFileInfo" data-btn-id="compressButton">
+                <div class="upload-inner">
+                    <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <h4 class="upload-title">{{ _('Déposez votre PDF ici') }}</h4>
+                    <p class="upload-subtitle">{{ _('Glissez-déposez votre fichier ou cliquez pour parcourir') }}</p>
+                    <div class="upload-info">{{ _('PDF uniquement • Taille max : 50MB') }}</div>
+                </div>
+                <input type="file" accept=".pdf" style="display:none;">
             </div>
-            <small class="text-muted d-block mt-2">{{ _('Compression plus forte = fichier plus petit, qualité réduite') }}</small>
+
+            <div id="compressFileInfo" class="file-list mt-3"></div>
+            <div id="compressUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
+
+            <div class="row mt-4">
+                <div class="col-md-8 mx-auto">
+                    <label class="form-label fw-bold">{{ _('Niveau de compression') }}</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="compressionLevel" id="low" value="low">
+                        <label class="btn btn-outline-primary" for="low">{{ _('Faible') }}</label>
+                        <input type="radio" class="btn-check" name="compressionLevel" id="medium" value="medium" checked>
+                        <label class="btn btn-outline-primary" for="medium">{{ _('Moyen') }}</label>
+                        <input type="radio" class="btn-check" name="compressionLevel" id="high" value="high">
+                        <label class="btn btn-outline-primary" for="high">{{ _('Fort') }}</label>
+                    </div>
+                    <small class="text-muted d-block mt-2">{{ _('Compression plus forte = fichier plus petit, qualité réduite') }}</small>
+                </div>
+            </div>
+
+            <div class="action-buttons mt-4">
+                <button class="btn btn-primary btn-lg" id="compressButton" disabled>
+                    <i class="fas fa-compress me-2"></i>{{ _('Compresser le PDF') }}
+                </button>
+                <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.compressUploadZone.removeFile(0)">
+                    <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
+                </button>
+            </div>
         </div>
     </div>
-
-    <div class="action-buttons mt-4">
-        <button class="btn btn-primary btn-lg" id="compressButton" disabled>
-            <i class="fas fa-compress me-2"></i>{{ _('Compresser le PDF') }}
-        </button>
-        <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.compressUploadZone.removeFile(0)">
-            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
-        </button>
+    
+    <div class="col-lg-4 mt-4 mt-lg-0">
+        <div class="adsterra-container text-center">
+            <div class="adsterra-label text-muted small mb-1">{{ _('Sponsorisé') }}</div>
+            <script type="text/javascript">
+                adsterra_banner_300x250 = '28968036';
+            </script>
+            <script type="text/javascript" src="https://publishers.adsterra.com/v3/api/banner.php?placement_id=28968036"></script>
+        </div>
+        
+        <div class="alert alert-warning mt-3 text-center">
+            <i class="fas fa-heart text-danger me-2"></i>
+            <small>{{ _('Cet outil est 100% gratuit. Un clic sur les annonces nous aide à le maintenir !') }}</small>
+        </div>
     </div>
 </div>
 {% endblock %}

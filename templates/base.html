@@ -55,6 +55,39 @@
     <meta name="google-site-verification" content="ZOyISj54SOvEHTNjlW5WKG152esMn4a5OAfN4iiG-s0">
     <meta name="google-adsense-account" content="ca-pub-8967416460526921">
 
+    <!-- AdSense — chargement non-bloquant -->
+    <script>
+        window.adsbygoogle = window.adsbygoogle || [];
+        (function() {
+            var s = document.createElement('script');
+            s.async = true;
+            s.crossOrigin = 'anonymous';
+            s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8967416460526921';
+            s.onerror = function() {
+                document.querySelectorAll('.adsbygoogle').forEach(function(el) {
+                    el.style.display = 'none';
+                });
+            };
+            document.head.appendChild(s);
+        })();
+    </script>
+
+    <!-- ================= ADSTERRA ================= -->
+    <!-- Adsterra Native Banner -->
+    <script type="text/javascript">
+        adsterra_native = '28968011';
+    </script>
+    <script type="text/javascript" src="https://publishers.adsterra.com/v3/api/banner.php?placement_id=28968011"></script>
+    
+    <!-- Adsterra Social Bar -->
+    <script type="text/javascript">
+        adsterra_socialbar = '28968010';
+    </script>
+    <script type="text/javascript" src="https://publishers.adsterra.com/v3/api/socialbar.php?placement_id=28968010"></script>
+
+    <meta name="google-site-verification" content="ZOyISj54SOvEHTNjlW5WKG152esMn4a5OAfN4iiG-s0">
+    <meta name="google-adsense-account" content="ca-pub-8967416460526921">
+
     {% block extra_css %}{% endblock %}
     
     <style>
@@ -215,6 +248,113 @@
             .conversion-grid { grid-template-columns: 1fr; }
             .navbar-brand { font-size: 1.2rem; }
             .d-none.d-md-inline { display: none !important; }
+        }
+
+        /* Adsterra Support Message */
+        .adsterra-support {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 4px solid #ffc107;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            animation: slideDown 0.5s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .adsterra-support-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        
+        .adsterra-support-icon {
+            font-size: 28px;
+            animation: heartBeat 1.5s infinite;
+        }
+        
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .adsterra-support-text {
+            font-size: 14px;
+            color: #856404;
+        }
+        
+        .adsterra-support-text strong {
+            font-size: 15px;
+        }
+        
+        .adsterra-support-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #856404;
+            padding: 5px 10px;
+            transition: all 0.2s;
+            border-radius: 50%;
+        }
+        
+        .adsterra-support-close:hover {
+            background: rgba(0,0,0,0.05);
+            transform: scale(1.1);
+        }
+        
+        .adsterra-support-btn {
+            background: #ffc107;
+            color: #856404;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        
+        .adsterra-support-btn:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+            color: #856404;
+        }
+        
+        /* Bannières Adsterra */
+        .adsterra-container {
+            text-align: center;
+            margin: 20px auto;
+            min-height: 90px;
+        }
+        
+        .adsterra-label {
+            font-size: 11px;
+            color: #999;
+            text-align: center;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        @media (max-width: 768px) {
+            .adsterra-support {
+                flex-direction: column;
+                text-align: center;
+            }
+            .adsterra-support-content {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -491,6 +631,115 @@ document.addEventListener('DOMContentLoaded', function() {
         new bootstrap.Tooltip(el);
     });
 });
+</script>
+
+<!-- ================= ADSTERRA SUPPORT MESSAGE ================= -->
+<script>
+// Message de soutien toutes les 20 minutes (non bloquant)
+(function() {
+    let lastReminder = localStorage.getItem('adsterra_last_reminder') || 0;
+    let reminderTimeout = null;
+    
+    function showSupportMessage() {
+        // Vérifier si le message existe déjà
+        let existingMsg = document.getElementById('adsterraSupportMessage');
+        if (existingMsg) return;
+        
+        const messageHTML = `
+            <div id="adsterraSupportMessage" class="adsterra-support" role="alert">
+                <div class="adsterra-support-content">
+                    <div class="adsterra-support-icon">❤️</div>
+                    <div class="adsterra-support-text">
+                        <strong>${_('Soutenez notre outil gratuit !')}</strong><br>
+                        ${_('Ce service est entièrement gratuit grâce à vous. Un petit clic sur une publicité nous aide énormément à maintenir et améliorer PDF Fusion Pro.')}
+                    </div>
+                </div>
+                <div>
+                    <button class="adsterra-support-btn" onclick="document.querySelector('.adsterra-support-close-btn').click(); setTimeout(() => { window.scrollTo({top: 0, behavior: 'smooth'}); }, 100);">
+                        <i class="fas fa-thumbs-up me-1"></i>${_('Je comprends')}
+                    </button>
+                    <button class="adsterra-support-close adsterra-support-close-btn" onclick="closeSupportMessage()" aria-label="Fermer">×</button>
+                </div>
+            </div>
+        `;
+        
+        // Insérer après le contenu principal ou en haut du main
+        const mainContent = document.querySelector('main');
+        if (mainContent) {
+            mainContent.insertAdjacentHTML('afterbegin', messageHTML);
+        } else {
+            document.body.insertAdjacentHTML('afterbegin', messageHTML);
+        }
+        
+        // Auto-masque après 12 secondes
+        setTimeout(() => {
+            closeSupportMessage();
+        }, 12000);
+    }
+    
+    window.closeSupportMessage = function() {
+        const msg = document.getElementById('adsterraSupportMessage');
+        if (msg) {
+            msg.style.animation = 'slideDown 0.3s reverse';
+            setTimeout(() => msg.remove(), 300);
+        }
+    };
+    
+    function checkReminder() {
+        const now = Date.now();
+        const timeSinceLastReminder = now - lastReminder;
+        
+        if (timeSinceLastReminder > 20 * 60 * 1000) { // 20 minutes
+            showSupportMessage();
+            lastReminder = now;
+            localStorage.setItem('adsterra_last_reminder', lastReminder);
+        }
+    }
+    
+    // Vérification périodique toutes les 5 minutes
+    setInterval(checkReminder, 5 * 60 * 1000);
+    
+    // Premier rappel après 20 minutes (si l'utilisateur reste longtemps)
+    setTimeout(() => {
+        if (localStorage.getItem('adsterra_last_reminder') == 0) {
+            showSupportMessage();
+            localStorage.setItem('adsterra_last_reminder', Date.now());
+        }
+    }, 20 * 60 * 1000);
+    
+    // Réinitialisation quotidienne pour ne pas spammer
+    const lastDate = localStorage.getItem('adsterra_reminder_date');
+    const today = new Date().toDateString();
+    if (lastDate !== today) {
+        localStorage.setItem('adsterra_last_reminder', 0);
+        localStorage.setItem('adsterra_reminder_date', today);
+    }
+})();
+</script>
+
+<!-- Popunder une seule fois par session (clic n'importe où) -->
+<script>
+(function() {
+    let popunderShown = sessionStorage.getItem('adsterra_popunder_shown') || false;
+    
+    if (!popunderShown) {
+        document.body.addEventListener('click', function openPopunder() {
+            if (!popunderShown) {
+                // Chargement différé du popunder
+                setTimeout(() => {
+                    const popScript = document.createElement('script');
+                    popScript.src = 'https://publishers.adsterra.com/v3/api/popunder.php?placement_id=28968012';
+                    popScript.async = true;
+                    document.head.appendChild(popScript);
+                }, 500);
+                
+                popunderShown = true;
+                sessionStorage.setItem('adsterra_popunder_shown', 'true');
+                document.body.removeEventListener('click', openPopunder);
+            }
+        });
+    }
+})();
 </script>
 
 {% block extra_js %}{% endblock %}

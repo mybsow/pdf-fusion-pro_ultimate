@@ -14,6 +14,9 @@
     </p>
 </section>
 
+<!-- ✅ Bannière Adsterra 728x90 -->
+{% include 'includes/adsterra_ads.html' with context %}
+
 <!-- Tools Grid -->
 <div class="row g-4">
     <!-- Fusionner -->
@@ -89,8 +92,20 @@
     </div>
 </div>
 
+<!-- ✅ Seconde bannière 300x250 entre les sections -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="adsterra-container text-center">
+            <script type="text/javascript">
+                adsterra_banner_300x250 = '28968036';
+            </script>
+            <script type="text/javascript" src="https://publishers.adsterra.com/v3/api/banner.php?placement_id=28968036"></script>
+        </div>
+    </div>
+</div>
+
 <!-- Autres conversions -->
-<div class="row mt-5">
+<div class="row mt-4">
     <div class="col-12">
         <div class="tool-container">
             <div class="tool-header">
@@ -152,7 +167,7 @@
                     <strong>{{ _('compresser des fichiers pour les partager') }}</strong>,
                     {{ _('nos outils sont là pour vous aider.') }}
                 </p>
-                                <p class="mb-0">
+                <p class="mb-0">
                     <i class="fas fa-check-circle text-success me-1"></i> {{ _('Aucune inscription requise') }}<br>
                     <i class="fas fa-check-circle text-success me-1"></i> {{ _('Chiffrement SSL et suppression automatique des fichiers') }}<br>
                     <i class="fas fa-check-circle text-success me-1"></i> {{ _('Compatible avec tous les navigateurs modernes') }}
@@ -164,6 +179,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- ✅ Plus de script index.js problématique -->
-
+<!-- Plus de script index.js problématique -->
 {% endblock %}

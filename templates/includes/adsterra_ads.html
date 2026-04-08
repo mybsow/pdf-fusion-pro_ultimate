@@ -1,0 +1,32 @@
+{# templates/includes/adsterra_ads.html #}
+
+<!-- Bannière 728x90 (Desktop - haut de page) -->
+<div class="adsterra-container">
+    <div class="adsterra-label">
+        <i class="fas fa-heart text-danger me-1"></i> {{ _('Publicité - Soutenez notre service gratuit') }}
+    </div>
+    <script type="text/javascript">
+        adsterra_banner_728x90 = '28968037';
+    </script>
+    <script type="text/javascript" src="https://publishers.adsterra.com/v3/api/banner.php?placement_id=28968037"></script>
+</div>
+
+<!-- Bannière 300x250 (Sidebar ou entre les outils) -->
+<div class="adsterra-container my-4">
+    <div class="adsterra-label">
+        <i class="fas fa-coffee me-1"></i> {{ _('Annonce') }}
+    </div>
+    <script type="text/javascript">
+        adsterra_banner_300x250 = '28968036';
+    </script>
+    <script type="text/javascript" src="https://publishers.adsterra.com/v3/api/banner.php?placement_id=28968036"></script>
+</div>
+
+<!-- Bannière 320x50 (Mobile - bas de page fixe) -->
+<div class="adsterra-container d-md-none fixed-bottom mb-2" style="z-index: 1000; background: rgba(255,255,255,0.95); padding: 5px; border-radius: 8px 8px 0 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);">
+    <div class="adsterra-label small">Annonce</div>
+    <script type="text/javascript">
+        adsterra_banner_320x50 = '28968038';
+    </script>
+    <script type="text/javascript" src="https://publishers.adsterra.com/v3/api/banner.php?placement_id=28968038"></script>
+</div>
