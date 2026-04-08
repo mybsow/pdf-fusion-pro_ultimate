@@ -79,6 +79,9 @@ def create_app():
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", AppConfig.SECRET_KEY)
     app.config["UPLOAD_FOLDER"] = tempfile.gettempdir()
     app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
+    app.config["SESSION_TYPE"] = "filesystem"
+    app.config["SESSION_PERMANENT"] = True
+    app.config["SESSION_USE_SIGNER"] = True
     app.config['PREFERRED_URL_SCHEME'] = 'https'
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000
 
