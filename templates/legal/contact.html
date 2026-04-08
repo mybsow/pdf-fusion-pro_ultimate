@@ -1,6 +1,6 @@
 {% extends "base_legal.html" %}
 
-{% block content %}
+{% block content_legal %}
 <div class="info-box">
     <i class="fas fa-info-circle me-2"></i>
     <strong>{{ _('Formulaire de contact :') }}</strong> 
@@ -19,10 +19,10 @@
     </div>
     
     <div class="text-center mt-4">
-        <a href="/" class="btn btn-primary me-2">
+        <a href="{{ url_for('pdf.pdf_index') }}" class="btn btn-primary me-2">
             <i class="fas fa-home me-1"></i> {{ _('Retour à l\'accueil') }}
         </a>
-        <a href="/contact" class="btn btn-outline-primary">
+        <a href="{{ url_for('legal.contact') }}" class="btn btn-outline-primary">
             <i class="fas fa-envelope me-1"></i> {{ _('Envoyer un autre message') }}
         </a>
     </div>
@@ -35,7 +35,7 @@
     {% endif %}
     
     <div class="contact-form-container">
-        <form method="POST" action="/contact">
+        <form method="POST" action="{{ url_for('legal.contact') }}">
             {{ form.hidden_tag() }}
             
             <div class="mb-3">
@@ -94,52 +94,21 @@
         </form>
     </div>
 {% endif %}
-{% endblock %}
+{% endblock content_legal %}
 
-{% block scripts %}
+{# ✅ BUG CORRIGÉ : {% block scripts %} n'existe pas dans base_legal.html ni base.html.
+   Le JS du compteur de caractères va dans extra_js (défini dans base.html). #}
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-
-    // === Mise à jour de l'année dans le footer ===
-    document.querySelectorAll('[data-year]').forEach(el => {
-        el.textContent = new Date().getFullYear();
-    });
-
-    // === Sélecteur de langue ===
-    document.querySelectorAll('.dropdown-item[href*="set_language"]').forEach(link => {
-        link.addEventListener('click', function () {
-            const langButton = document.querySelector('.nav-link.dropdown-toggle');
-            if (!langButton) return;
-
-            const flagIcon = this.querySelector('.fi');              
-            const langNameElem = this.querySelector('span:not(.fi)');
-            if (!flagIcon || !langNameElem) return;
-
-            const globeIcon = langButton.querySelector('.fa-globe');
-
-            // Reconstruire le bouton
-            langButton.innerHTML = '';
-            if (globeIcon) langButton.appendChild(globeIcon.cloneNode(true));
-            langButton.appendChild(document.createTextNode(' '));
-            langButton.appendChild(flagIcon.cloneNode(true));
-            langButton.appendChild(document.createTextNode(' '));
-
-            const nameSpan = document.createElement('span');
-            nameSpan.className = 'd-none d-md-inline';
-            nameSpan.textContent = ' ' + langNameElem.textContent;
-            langButton.appendChild(nameSpan);
-        });
-    });
-
-    // === Compteur de caractères ===
     const textarea = document.getElementById('message');
-    const counter = document.getElementById('charCount');
-    const label = "{{ _('caractères') }}";
+    const counter  = document.getElementById('charCount');
+    const label    = "{{ _('caractères') }}";
 
     if (textarea && counter) {
         const update = () => {
             const length = textarea.value.length;
-            counter.textContent = length + " / 2000 " + label;
+            counter.textContent = length + ' / 2000 ' + label;
             counter.classList.remove('warning', 'danger');
             if (length > 1900) counter.classList.add('danger');
             else if (length > 1500) counter.classList.add('warning');
@@ -147,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
         textarea.addEventListener('input', update);
         update();
     }
-
 });
 </script>
-{% endblock %}
+{% endblock extra_js %}
