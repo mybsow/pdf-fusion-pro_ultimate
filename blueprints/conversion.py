@@ -633,33 +633,73 @@ CONVERSION_MAP = {
 from flask import session
 import uuid
 
-
+# blueprints/conversion.py - Remplacer la fonction convert_file
 @conversion_bp.route('/convert', methods=['POST'])
 def convert_file():
-    """Point d'entrée générique (utilisé par les formulaires sans type dans l'URL)."""
-    conversion_type = request.form.get('conversion_type', '')
-    if not conversion_type:
-        flash("Type de conversion manquant.", "error")
-        return redirect(url_for('conversion.index'))
- 
-    config = CONVERSION_MAP.get(conversion_type, {})
-    if not config:
-        flash(f"Type de conversion non supporté : {conversion_type}", "error")
-        return redirect(url_for('conversion.index'))
- 
-    return _handle_or_gate(conversion_type, config)
- 
- 
+    """Point d'entrée de conversion avec vérification publicitaire"""
+    from flask import session, redirect, url_for
+    import uuid
+    
+    # Vérifier si l'utilisateur a regardé une pub récemment
+    ad_completed = session.get('ad_completed', False)
+    ad_time = session.get('ad_completed_at')
+    
+    # Si la pub a été regardée dans les dernières 10 minutes
+    if ad_completed and ad_time:
+        from datetime import datetime
+        try:
+            ad_time = datetime.fromisoformat(ad_time)
+            if (datetime.now() - ad_time).seconds < 600:  # 10 minutes
+                # Procéder à la conversion normalement
+                return process_conversion(request)
+        except:
+            pass
+    
+    # Pas de pub valide, rediriger vers la page publicitaire
+    conversion_id = str(uuid.uuid4())
+    session['pending_conversion'] = conversion_id
+    
+    # Stocker les données de la requête pour les réutiliser après la pub
+    session['conversion_data'] = {
+        'form_data': request.form.to_dict(),
+        'files_info': [{'name': f.filename, 'type': f.content_type} for f in request.files.getlist('file')],
+        'conversion_type': request.args.get('conversion_type', request.form.get('conversion_type', '')),
+        'timestamp': datetime.now().isoformat()
+    }
+    
+    # Sauvegarder les fichiers temporairement
+    temp_dir = create_temp_directory("pending_conv_")
+    for file in request.files.getlist('file'):
+        if file and file.filename:
+            secure_path = secure_save(file, temp_dir)
+            session.setdefault('pending_files', []).append({
+                'original_name': file.filename,
+                'temp_path': secure_path,
+                'content_type': file.content_type
+            })
+    
+    session['pending_temp_dir'] = temp_dir
+    
+    return redirect(url_for('monetization.ad_gate', 
+                           conversion_id=conversion_id,
+                           conversion_type=request.form.get('conversion_type', '')))
+
+# Limites anti-fraude
+RATE_LIMITS = {
+    'per_ip_per_hour': 10,      # Max 10 conversions par IP/heure
+    'per_session_per_day': 20,   # Max 20 par session/jour
+    'ad_cooldown': 300,          # 5 minutes entre deux pubs
+}
+
 @conversion_bp.route('/convert-no-ad', methods=['POST'])
 def convert_file_no_ad():
-    """Conversion sans pub (admin uniquement)."""
+    """Point d'entrée de conversion sans publicité (pour tests ou admin)"""
+    # Vérifier si l'utilisateur est admin
     if not session.get('is_admin', False):
         flash('Accès non autorisé', 'error')
         return redirect(url_for('conversion.index'))
- 
-    conversion_type = request.form.get('conversion_type', '')
-    config = CONVERSION_MAP.get(conversion_type, {})
-    return handle_conversion_request(conversion_type, request, config)
+    
+    return process_conversion(request)
 
 @conversion_bp.route('/')
 def index():
@@ -719,94 +759,193 @@ def generate_fallback_pdf(filename, file_type):
 
 @conversion_bp.route('/<string:conversion_type>', methods=['GET', 'POST'])
 def universal_converter(conversion_type):
-    """Route universelle pour toutes les conversions."""
+    """
+    Route universelle pour toutes les conversions.
+    """
     try:
-        # Redirections vers le blueprint PDF
-        pdf_tools = {
-            'fusionner-pdf': 'pdf.merge',
-            'diviser-pdf': 'pdf.split',
-            'compresser-pdf': 'pdf.compress',
-            'rotation-pdf': 'pdf.rotate',
-            'fusion-pdf': 'pdf.merge',
-            'division-pdf': 'pdf.split',
-            'tourner-pdf': 'pdf.rotate',
-            'compression-pdf': 'pdf.compress',
-        }
+        # Définir les outils PDF qui doivent rediriger vers le blueprint pdf
+        pdf_tools = ['fusionner-pdf', 'diviser-pdf', 'compresser-pdf', 'rotation-pdf']
+        
+        # Si c'est un outil PDF, rediriger vers le blueprint pdf
         if conversion_type in pdf_tools:
-            return redirect(url_for(pdf_tools[conversion_type]), code=301)
- 
+            pdf_endpoints = {
+                'fusionner-pdf': 'pdf.merge',
+                'diviser-pdf': 'pdf.split', 
+                'compresser-pdf': 'pdf.compress',
+                'rotation-pdf': 'pdf.rotate'
+            }
+            endpoint = pdf_endpoints.get(conversion_type, 'pdf.index')
+            return redirect(url_for(endpoint))
+        
+        # Vérifier si la conversion existe dans CONVERSION_MAP
         if conversion_type not in CONVERSION_MAP:
-            flash(f'Type de conversion non supporté : {conversion_type}', 'error')
+            flash(f'Type de conversion non supporté: {conversion_type}', 'error')
             return redirect(url_for('conversion.index'))
- 
+        
         config = CONVERSION_MAP[conversion_type].copy()
         config['type'] = conversion_type
+        
+        # Vérifier les dépendances
         available, missing = check_dependencies(config.get('deps', []))
- 
+        if not available:
+            flash(f"Cette conversion nécessite les dépendances suivantes: {', '.join(missing)}", "warning")
+        
         if request.method == 'POST':
             if not available:
-                flash(f"Dépendances manquantes : {', '.join(missing)}", "error")
-                return redirect(url_for('conversion.universal_converter',
-                                        conversion_type=conversion_type))
-            return _handle_or_gate(conversion_type, config)
- 
-        # GET → afficher le formulaire
-        template_name = f"conversion/{config['template']}"
+                flash("Conversion non disponible - dépendances manquantes", "error")
+                return redirect(url_for('conversion.universal_converter', conversion_type=conversion_type))
+            
+            # ✅ AJOUT : Vérifier si l'utilisateur a regardé une publicité
+            from datetime import datetime
+            import uuid
+            
+            ad_completed = session.get('ad_completed', False)
+            ad_time = session.get('ad_completed_at')
+            
+            # Si la pub a été regardée dans les dernières 10 minutes
+            if ad_completed and ad_time:
+                try:
+                    ad_time_dt = datetime.fromisoformat(ad_time)
+                    if (datetime.now() - ad_time_dt).seconds < 600:  # 10 minutes
+                        # Pub valide, procéder à la conversion
+                        return handle_conversion_request(conversion_type, request, config)
+                except:
+                    pass
+            
+            # Pas de pub valide, sauvegarder les données et rediriger vers la page publicitaire
+            conversion_id = str(uuid.uuid4())
+            session['pending_conversion'] = conversion_id
+            
+            # Stocker les données de la requête
+            session['conversion_data'] = {
+                'conversion_type': conversion_type,
+                'form_data': request.form.to_dict(),
+                'files_count': len(request.files.getlist('file')),
+                'timestamp': datetime.now().isoformat()
+            }
+            
+            # Sauvegarder les fichiers temporairement
+            temp_dir = create_temp_directory("pending_conv_")
+            pending_files = []
+            
+            for file in request.files.getlist('file'):
+                if file and file.filename:
+                    secure_path = secure_save(file, temp_dir)
+                    pending_files.append({
+                        'original_name': file.filename,
+                        'temp_path': secure_path,
+                        'content_type': file.content_type
+                    })
+            
+            session['pending_files'] = pending_files
+            session['pending_temp_dir'] = temp_dir
+            
+            # Rediriger vers la page publicitaire
+            return redirect(url_for('monetization.ad_gate', 
+                                   conversion_id=conversion_id,
+                                   conversion_type=conversion_type))
+        
+        # GET request - afficher le formulaire
+        template_name = f"conversion/{config['template']}" 
+        
         try:
-            return render_template(
-                template_name,
-                title=config['title'],
-                description=config['description'],
-                from_format=config['from_format'],
-                to_format=config['to_format'],
-                icon=config['icon'],
-                color=config['color'],
-                accept=config['accept'],
-                max_files=config['max_files'],
-                conversion_type=conversion_type,
-                available=available,
-                missing_deps=missing,
-            )
+            return render_template(template_name,
+                                  title=config['title'],
+                                  description=config['description'],
+                                  from_format=config['from_format'],
+                                  to_format=config['to_format'],
+                                  icon=config['icon'],
+                                  color=config['color'],
+                                  accept=config['accept'],
+                                  max_files=config['max_files'],
+                                  conversion_type=conversion_type,
+                                  available=available,
+                                  missing_deps=missing)
         except Exception as e:
-            current_app.logger.error(f"Template manquant : {template_name} — {e}")
-            flash(f"Template introuvable pour {conversion_type}", 'error')
+            current_app.logger.error(f"Template non trouvé: {template_name} - {str(e)}")
+            flash('Template non trouvé pour {}'.format(conversion_type), 'error')
             return redirect(url_for('conversion.index'))
- 
+        
     except Exception as e:
-        current_app.logger.error(f"universal_converter error: {e}")
-        flash(f"Erreur : {e}", "error")
+        current_app.logger.error(f"Erreur dans universal_converter: {str(e)}")
+        flash(f"Erreur: {str(e)}", "error")
         return redirect(url_for('conversion.index'))
 
- 
-def _handle_or_gate(conversion_type: str, config: dict):
+@conversion_bp.route('/resume-conversion/<conversion_id>')
+def resume_conversion(conversion_id):
     """
-    Si la fenêtre de grâce est valide → conversion immédiate.
-    Sinon → sérialise les fichiers en session et redirige vers la page de pub.
- 
-    Cette fonction centralise TOUTE la logique publicitaire.
-    Elle remplace les vérifications ad_completed dispersées dans le code.
+    Reprend une conversion après que la publicité a été regardée.
     """
-    from blueprints.monetization import ad_is_valid, save_pending_request, serialize_files
- 
-    # ── Pub déjà vue et encore valide ? ──────────────────────────────────────
-    if ad_is_valid():
-        return handle_conversion_request(conversion_type, request, config)
- 
-    # ── Sinon : sauvegarder la requête et montrer la pub ─────────────────────
-    files_dict = serialize_files(request.files)
- 
-    if not files_dict:
-        flash("Aucun fichier reçu.", "error")
-        return redirect(url_for('conversion.universal_converter',
-                                conversion_type=conversion_type))
- 
-    form_data = request.form.to_dict()
-    conversion_id = save_pending_request(conversion_type, form_data, files_dict)
- 
-    return redirect(url_for(
-        'monetization.ad_gate',
-        conversion_id=conversion_id,
-    ))
+    from datetime import datetime
+    
+    # Vérifier que la publicité a été regardée
+    ad_completed = session.get('ad_completed', False)
+    ad_time = session.get('ad_completed_at')
+    pending_id = session.get('pending_conversion')
+    
+    if not ad_completed or pending_id != conversion_id:
+        flash('Vous devez regarder la publicité pour continuer', 'warning')
+        return redirect(url_for('conversion.index'))
+    
+    # Vérifier que la pub est récente (10 minutes)
+    if ad_time:
+        try:
+            ad_time_dt = datetime.fromisoformat(ad_time)
+            if (datetime.now() - ad_time_dt).seconds > 600:
+                flash('La session a expiré, veuillez recommencer', 'warning')
+                return redirect(url_for('conversion.index'))
+        except:
+            pass
+    
+    # Récupérer les données sauvegardées
+    conversion_data = session.get('conversion_data', {})
+    pending_files = session.get('pending_files', [])
+    conversion_type = conversion_data.get('conversion_type')
+    form_data = conversion_data.get('form_data', {})
+    
+    if not conversion_type or not pending_files:
+        flash('Données de conversion manquantes', 'error')
+        return redirect(url_for('conversion.index'))
+    
+    # Restaurer les fichiers
+    from werkzeug.datastructures import FileStorage
+    
+    restored_files = []
+    for pf in pending_files:
+        with open(pf['temp_path'], 'rb') as f:
+            file_storage = FileStorage(
+                stream=f,
+                filename=pf['original_name'],
+                content_type=pf['content_type']
+            )
+            restored_files.append(file_storage)
+    
+    # Créer un objet request simulé
+    class MockRequest:
+        def __init__(self, files, form):
+            self.files = files
+            self.form = form
+            self.method = 'POST'
+    
+    mock_request = MockRequest({'file': restored_files}, form_data)
+    
+    # Exécuter la conversion
+    config = CONVERSION_MAP.get(conversion_type, {})
+    
+    # Nettoyer la session
+    session.pop('ad_completed', None)
+    session.pop('pending_conversion', None)
+    session.pop('conversion_data', None)
+    session.pop('pending_files', None)
+    
+    # Nettoyer le dossier temporaire
+    temp_dir = session.get('pending_temp_dir')
+    if temp_dir and os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir, ignore_errors=True)
+    session.pop('pending_temp_dir', None)
+    
+    # Lancer la conversion
+    return handle_conversion_request(conversion_type, mock_request, config)
 
 
 # -----------------------------
@@ -903,6 +1042,51 @@ def handle_conversion_request(conversion_type, request, config):
         flash(f'Erreur lors de la conversion: {str(e)}', 'error')
         return redirect(request.url)
 
+def process_conversion(request):
+    """Exécute la conversion après vérification de la publicité"""
+    conversion_type = request.form.get('conversion_type', '')
+    
+    # Récupérer les fichiers
+    files = request.files.getlist('file')
+    if not files:
+        # Essayer de récupérer depuis la session (après pub)
+        pending_files = session.get('pending_files', [])
+        if pending_files:
+            # Restaurer les fichiers depuis la session
+            files = []
+            for pf in pending_files:
+                class TempFile:
+                    def __init__(self, path, name, content_type):
+                        self.path = path
+                        self.filename = name
+                        self.content_type = content_type
+                    def save(self, dest):
+                        import shutil
+                        shutil.copy2(self.path, dest)
+                    def read(self):
+                        with open(self.path, 'rb') as f:
+                            return f.read()
+                    def seek(self, pos):
+                        pass
+                
+                files.append(TempFile(pf['temp_path'], pf['original_name'], pf['content_type']))
+            
+            # Nettoyer la session
+            session.pop('pending_files', None)
+            session.pop('pending_temp_dir', None)
+            session.pop('ad_completed', None)
+    
+    if not files:
+        flash('Aucun fichier fourni', 'error')
+        return redirect(url_for('conversion.index'))
+    
+    config = CONVERSION_MAP.get(conversion_type, {})
+    
+    if config.get('max_files', 1) > 1:
+        return handle_conversion_request(conversion_type, request, config)
+    else:
+        file = files[0] if files else None
+        return handle_single_file_conversion(conversion_type, file, request.form)
 
 def handle_single_file_conversion(conversion_type, file, form_data):
     """Gère la conversion d'un seul fichier"""
