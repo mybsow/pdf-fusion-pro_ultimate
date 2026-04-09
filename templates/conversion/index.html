@@ -1,7 +1,20 @@
 {% extends "base.html" %}
 
+{# ═══════════════════════════════════════════════════════
+   TITRE UNIQUE — crucial pour l'indexation Google
+   Ne doit PAS être identique au titre de l'accueil.
+════════════════════════════════════════════════════════ #}
+{% block title %}{{ _('Convertisseur PDF en ligne gratuit – PDF Fusion Pro') }}{% endblock %}
+
 {% block head %}
 {{ super() }}
+
+{# ── Meta description unique pour cette page ── #}
+<meta name="description" content="{{ _('Convertissez gratuitement vos fichiers PDF, Word, Excel, PowerPoint et images en ligne. Plus de 26 outils de conversion rapides, sécurisés et sans inscription.') }}">
+
+{# ── Canonical explicite — évite le contenu dupliqué /conversion vs /conversion/ ── #}
+<link rel="canonical" href="https://{{ config.DOMAIN }}/conversion/">
+
 <style>
     .hero-section {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -90,6 +103,9 @@
     .card-4 { animation-delay: 0.4s; }
     .card-5 { animation-delay: 0.5s; }
     .card-6 { animation-delay: 0.6s; }
+
+    /* Masquer les liens de debug en prod */
+    .debug-links { display: none; }
 </style>
 {% endblock %}
 
@@ -173,7 +189,6 @@
                                 <div class="card-icon-wrapper" style="background: {{ conversion.color }};">
                                     <i class="fas fa-{{ conversion.icon }}"></i>
                                 </div>
-                                {# ✅ _(conversion.title) : traduit la chaîne brute au moment du rendu #}
                                 <h3 class="card-title h5 mb-3">{{ _(conversion.title) }}</h3>
                                 <p class="card-text small text-muted mb-3">
                                     {{ _(conversion.description) }}
@@ -233,7 +248,6 @@
                             <i class="fas fa-{{ conversion.icon }} fa-lg"></i>
                         </div>
                         <div class="flex-grow-1">
-                            {# ✅ _(conversion.title) #}
                             <h4 class="mb-1 h6">{{ _(conversion.title) }}</h4>
                             <p class="mb-0 small text-muted">{{ _(conversion.description) }}</p>
                         </div>
@@ -270,7 +284,8 @@
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm mt-3">
+            {# ── Liens de debug — masqués en CSS, accessibles uniquement en dev ── #}
+            <div class="card border-0 shadow-sm mt-3 debug-links">
                 <div class="card-body">
                     <h4 class="card-title">
                         <i class="fas fa-link me-2"></i>{{ _('Liens rapides') }}
@@ -294,7 +309,7 @@
         </div>
     </div>
 
-    <!-- FAQ -->
+    <!-- FAQ — données structurées schema.org pour Google -->
     <div class="mt-5 pt-4">
         <h3 class="text-center mb-4">
             <i class="fas fa-question-circle me-2"></i>{{ _('Questions fréquentes') }}
@@ -355,16 +370,58 @@
         </div>
     </div>
 
+    {# ── Données structurées FAQ schema.org — aide Google à afficher des rich snippets ── #}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "{{ _('Les fichiers sont-ils sécurisés ?') }}",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "{{ _('Oui, tous les fichiers sont traités localement et automatiquement supprimés après 1 heure. Nous ne stockons jamais vos documents sur nos serveurs.') }}"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "{{ _('Quelles sont les limites de taille ?') }}",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "{{ _('Taille maximale par fichier : 50MB. Nombre maximum de fichiers par conversion : variable selon l\'outil (de 1 à 20).') }}"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "{{ _('Combien de temps dure une conversion ?') }}",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "{{ _('La plupart des conversions prennent moins de 30 secondes. Pour les gros fichiers ou les conversions complexes (OCR), comptez 1 à 2 minutes.') }}"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "{{ _('Quels formats sont supportés ?') }}",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "{{ _('Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore.') }}"
+          }
+        }
+      ]
+    }
+    </script>
+
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const animatedCards = document.querySelectorAll('.animated-card');
+    var animatedCards = document.querySelectorAll('.animated-card');
 
     if ('IntersectionObserver' in window) {
-        const observer = new IntersectionObserver(function (entries) {
+        var observer = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
                     entry.target.style.animationPlayState = 'running';
@@ -381,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
         animatedCards.forEach(function (el) { el.style.opacity = '1'; });
     }
 
-    const currentPath = window.location.pathname;
+    var currentPath = window.location.pathname;
     document.querySelectorAll('.navbar-nav .nav-link').forEach(function (link) {
         if (link.getAttribute('href') === currentPath) {
             link.classList.add('active');
