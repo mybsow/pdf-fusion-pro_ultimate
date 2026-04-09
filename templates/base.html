@@ -1,8 +1,35 @@
 <!DOCTYPE html>
 <html lang="{{ current_lang or 'fr' }}" class="h-100">
 <head>
+    <!-- ① COOKIEBOT — absolument en premier -->
+    <script id="Cookiebot"
+            src="https://consent.cookiebot.com/uc.js"
+            data-cbid="36fec619-ca1c-4e13-ad44-858a8e661afb"
+            data-blockingmode="auto"
+            type="text/javascript">
+    </script>
+
+    <!-- ② GOOGLE CONSENT MODE — avant AdSense, après Cookiebot -->
+    <script data-cookieconsent="ignore">
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag("consent", "default", {
+            ad_personalization:      "denied",
+            ad_storage:              "denied",
+            ad_user_data:            "denied",
+            analytics_storage:       "denied",
+            functionality_storage:   "denied",
+            personalization_storage: "denied",
+            security_storage:        "granted",
+            wait_for_update:         500
+        });
+        gtag("set", "ads_data_redaction", true);
+        gtag("set", "url_passthrough", false);
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
     
     <!-- SEO -->
     <title>{% block title %}{{ _('PDF Fusion Pro - Outils PDF Gratuits') }}{% endblock %}</title>
@@ -20,7 +47,11 @@
     
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    
+
+    <!-- Google Site Verification & AdSense -->
+    <meta name="google-site-verification" content="ZOyISj54SOvEHTNjlW5WKG152esMn4a5OAfN4iiG-s0">
+    <meta name="google-adsense-account" content="ca-pub-8967416460526921">
+
     <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -51,9 +82,6 @@
             document.head.appendChild(s);
         })();
     </script>
-
-    <meta name="google-site-verification" content="ZOyISj54SOvEHTNjlW5WKG152esMn4a5OAfN4iiG-s0">
-    <meta name="google-adsense-account" content="ca-pub-8967416460526921">
 
     {% block extra_css %}{% endblock %}
     
@@ -201,7 +229,6 @@
         .trash-btn { opacity: 0; transition: opacity 0.2s ease; }
         .thumb-container:hover .trash-btn { opacity: 1; }
         
-        /* Amélioration des liens dans le footer */
         footer .text-muted {
             color: rgba(255, 255, 255, 0.7) !important;
             transition: color 0.2s, text-decoration 0.2s;
@@ -216,6 +243,81 @@
             .navbar-brand { font-size: 1.2rem; }
             .d-none.d-md-inline { display: none !important; }
         }
+
+        /* Adsterra Support Message */
+        .adsterra-support {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 4px solid #ffc107;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            animation: slideDown 0.5s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .adsterra-support-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        .adsterra-support-icon {
+            font-size: 28px;
+            animation: heartBeat 1.5s infinite;
+        }
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50%       { transform: scale(1.1); }
+        }
+        .adsterra-support-text { font-size: 14px; color: #856404; }
+        .adsterra-support-text strong { font-size: 15px; }
+        .adsterra-support-close {
+            background: none; border: none;
+            font-size: 20px; cursor: pointer;
+            color: #856404; padding: 5px 10px;
+            transition: all 0.2s; border-radius: 50%;
+        }
+        .adsterra-support-close:hover {
+            background: rgba(0,0,0,0.05);
+            transform: scale(1.1);
+        }
+        .adsterra-support-btn {
+            background: #ffc107; color: #856404;
+            border: none; padding: 8px 16px;
+            border-radius: 50px; font-size: 13px;
+            font-weight: 600; transition: all 0.3s;
+            text-decoration: none;
+        }
+        .adsterra-support-btn:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+            color: #856404;
+        }
+
+        /* Bannières Adsterra */
+        .adsterra-container {
+            text-align: center;
+            margin: 20px auto;
+            min-height: 90px;
+        }
+        .adsterra-label {
+            font-size: 11px; color: #999;
+            text-align: center; margin-bottom: 5px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .adsterra-support { flex-direction: column; text-align: center; }
+            .adsterra-support-content { flex-direction: column; }
+        }
     </style>
 </head>
 
@@ -229,7 +331,8 @@
             <span>{{ _('PDF Fusion Pro') }}</span>
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Menu de navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar" aria-expanded="false" aria-label="Menu de navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -319,7 +422,8 @@
             <!-- Sélecteur de langue -->
             <div class="navbar-nav ms-2">
                 <div class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Sélection de la langue">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false" aria-label="Sélection de la langue">
                         <i class="fas fa-globe me-1"></i>
                         {% set current_lang = session.get('language', 'fr') %}
                         {% if current_lang == 'fr' %}<span class="fi fi-fr me-1"></span><span class="d-none d-md-inline">Français</span>
@@ -451,7 +555,7 @@
 <!-- ================= SCRIPTS ================= -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- PDF.js — sync (requis par redact_pdf) -->
+<!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script>
     if (typeof pdfjsLib !== 'undefined') {
@@ -466,31 +570,136 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Année courante dans le footer
-    const yearEl = document.getElementById('currentYear');
+    var yearEl = document.getElementById('currentYear');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-    // Loader sur les boutons .btn-loading
     document.addEventListener('click', function(e) {
         if (e.target.closest('.btn-loading')) {
-            const loader = document.getElementById('loaderOverlay');
+            var loader = document.getElementById('loaderOverlay');
             if (loader) loader.style.display = 'flex';
         }
     });
 
-    // Loader sur changement de langue
     document.querySelectorAll('.dropdown-item[href*="set_language"]').forEach(function(link) {
         link.addEventListener('click', function() {
-            const loader = document.getElementById('loaderOverlay');
+            var loader = document.getElementById('loaderOverlay');
             if (loader) loader.style.display = 'flex';
         });
     });
 
-    // Tooltips Bootstrap
     document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
         new bootstrap.Tooltip(el);
     });
 });
+</script>
+
+<!-- ================= ADSTERRA — Scripts globaux (après le DOM) ================= -->
+
+<!-- Social Bar — s'affiche en overlay automatiquement -->
+<script src="https://pl29068511.profitablecpmratenetwork.com/07/a5/30/07a530d41b1d4e949c2b0499c466bc3a.js"></script>
+
+<!-- Popunder — une seule fois par session, au premier clic -->
+<script>
+(function() {
+    if (sessionStorage.getItem('adsterra_popunder_shown')) return;
+
+    function openPopunder() {
+        setTimeout(function() {
+            var s = document.createElement('script');
+            s.src = 'https://pl29068509.profitablecpmratenetwork.com/3b/92/5e/3b925efff6b4f5586a0b12ee19f759d7.js';
+            s.async = true;
+            document.head.appendChild(s);
+        }, 500);
+        sessionStorage.setItem('adsterra_popunder_shown', 'true');
+        document.body.removeEventListener('click', openPopunder);
+    }
+
+    document.body.addEventListener('click', openPopunder);
+})();
+</script>
+
+<!-- Message de soutien — affiché toutes les 20 min -->
+<script>
+    var I18N = {
+        supportTitle: "{{ _('Soutenez notre outil gratuit !') | e }}",
+        supportText:  "{{ _('Ce service est entièrement gratuit grâce à vous. Un petit clic sur une publicité nous aide énormément à maintenir et améliorer PDF Fusion Pro.') | e }}",
+        supportBtn:   "{{ _('Je comprends') | e }}"
+    };
+</script>
+<script>
+(function() {
+    var lastReminder = parseInt(localStorage.getItem('adsterra_last_reminder') || '0', 10);
+
+    // Réinitialisation quotidienne
+    var lastDate = localStorage.getItem('adsterra_reminder_date');
+    var today = new Date().toDateString();
+    if (lastDate !== today) {
+        localStorage.setItem('adsterra_last_reminder', '0');
+        localStorage.setItem('adsterra_reminder_date', today);
+        lastReminder = 0;
+    }
+
+    function showSupportMessage() {
+        if (document.getElementById('adsterraSupportMessage')) return;
+
+        var div = document.createElement('div');
+        div.id = 'adsterraSupportMessage';
+        div.className = 'adsterra-support';
+        div.setAttribute('role', 'alert');
+        div.innerHTML =
+            '<div class="adsterra-support-content">' +
+                '<div class="adsterra-support-icon">\u2764\uFE0F</div>' +
+                '<div class="adsterra-support-text">' +
+                    '<strong>' + I18N.supportTitle + '</strong><br>' +
+                    I18N.supportText +
+                '</div>' +
+            '</div>' +
+            '<div>' +
+                '<button class="adsterra-support-btn" onclick="closeSupportMessage()">' +
+                    '<i class="fas fa-thumbs-up me-1"></i>' + I18N.supportBtn +
+                '</button>' +
+                '<button class="adsterra-support-close" onclick="closeSupportMessage()" aria-label="Fermer">\u00D7</button>' +
+            '</div>';
+
+        var mainContent = document.querySelector('main');
+        if (mainContent) {
+            mainContent.insertBefore(div, mainContent.firstChild);
+        } else {
+            document.body.insertBefore(div, document.body.firstChild);
+        }
+
+        setTimeout(closeSupportMessage, 12000);
+    }
+
+    window.closeSupportMessage = function() {
+        var msg = document.getElementById('adsterraSupportMessage');
+        if (msg) {
+            msg.style.opacity = '0';
+            msg.style.transition = 'opacity 0.3s';
+            setTimeout(function() {
+                if (msg.parentNode) msg.parentNode.removeChild(msg);
+            }, 300);
+        }
+    };
+
+    function checkReminder() {
+        var now = Date.now();
+        if (now - lastReminder > 20 * 60 * 1000) {
+            showSupportMessage();
+            lastReminder = now;
+            localStorage.setItem('adsterra_last_reminder', String(lastReminder));
+        }
+    }
+
+    setInterval(checkReminder, 5 * 60 * 1000);
+
+    setTimeout(function() {
+        if (!parseInt(localStorage.getItem('adsterra_last_reminder') || '0', 10)) {
+            showSupportMessage();
+            localStorage.setItem('adsterra_last_reminder', String(Date.now()));
+        }
+    }, 20 * 60 * 1000);
+})();
 </script>
 
 {% block extra_js %}{% endblock %}

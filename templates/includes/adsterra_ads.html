@@ -1,0 +1,111 @@
+{# templates/includes/adsterra_ads.html #}
+
+<!-- ═══════════════════════════════════════════
+     Bannière 728x90 — Desktop uniquement
+════════════════════════════════════════════ -->
+<div class="adsterra-container my-3 d-none d-md-block text-center">
+    <div class="adsterra-label">
+        <i class="fas fa-heart text-danger me-1"></i> {{ _('Publicité - Soutenez notre service gratuit') }}
+    </div>
+    <script>
+        atOptions = {
+            'key'    : '688c8ddc50f5146cc18b2d8587caaeab',
+            'format' : 'iframe',
+            'height' : 90,
+            'width'  : 728,
+            'params' : {}
+        };
+    </script>
+    <script src="https://www.highperformanceformat.com/688c8ddc50f5146cc18b2d8587caaeab/invoke.js"></script>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Bannière 300x250 — Rectangle (sidebar / contenu)
+════════════════════════════════════════════ -->
+<div class="adsterra-container my-4 text-center">
+    <div class="adsterra-label">
+        <i class="fas fa-coffee me-1"></i> {{ _('Annonce') }}
+    </div>
+    <script>
+        atOptions = {
+            'key'    : 'a6b760b2094c3e5d9addee0de21dd290',
+            'format' : 'iframe',
+            'height' : 250,
+            'width'  : 300,
+            'params' : {}
+        };
+    </script>
+    <script src="https://www.highperformanceformat.com/a6b760b2094c3e5d9addee0de21dd290/invoke.js"></script>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Bannière 160x600 — Skyscraper (sidebar)
+     À placer dans une colonne latérale
+════════════════════════════════════════════ -->
+<div class="adsterra-container my-4 text-center d-none d-lg-block">
+    <div class="adsterra-label">{{ _('Annonce') }}</div>
+    <script>
+        atOptions = {
+            'key'    : 'f50ee33e8a9425b6fb3d46c1b071bbe6',
+            'format' : 'iframe',
+            'height' : 600,
+            'width'  : 160,
+            'params' : {}
+        };
+    </script>
+    <script src="https://www.highperformanceformat.com/f50ee33e8a9425b6fb3d46c1b071bbe6/invoke.js"></script>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Bannière native (In-Page Push)
+     profitablecpmratenetwork — dans le contenu
+════════════════════════════════════════════ -->
+<div class="adsterra-container my-3 text-center">
+    <script async="async" data-cfasync="false"
+            src="https://pl29068510.profitablecpmratenetwork.com/2a49f535f359455ea0c6c2d6e54736ca/invoke.js">
+    </script>
+    <div id="container-2a49f535f359455ea0c6c2d6e54736ca"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Bannière 320x50 — Mobile, barre fixe en bas
+════════════════════════════════════════════ -->
+<div class="d-md-none"
+     style="position:fixed; bottom:0; left:0; right:0;
+            z-index:1050; background:#fff;
+            padding:4px 0; text-align:center;
+            box-shadow:0 -2px 8px rgba(0,0,0,0.12);">
+    <script>
+        atOptions = {
+            'key'    : 'ca703c709dcbf1349feaa6fa1ed22b85',
+            'format' : 'iframe',
+            'height' : 50,
+            'width'  : 320,
+            'params' : {}
+        };
+    </script>
+    <script src="https://www.highperformanceformat.com/ca703c709dcbf1349feaa6fa1ed22b85/invoke.js"></script>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Scripts globaux (Social Bar + Popunder)
+     À inclure une seule fois, de préférence
+     dans base.html juste avant </body>
+     — laissés ici si inclus en fin de page —
+════════════════════════════════════════════ -->
+{# Social Bar — s'affiche automatiquement en overlay #}
+<script src="https://pl29068511.profitablecpmratenetwork.com/07/a5/30/07a530d41b1d4e949c2b0499c466bc3a.js"></script>
+
+{# Direct Link (ne génère pas de visuel, utilisé pour tracking/redirection) #}
+{# https://www.profitablecpmratenetwork.com/a42rwc8c2a?key=41bf4caa0764d5bec6754800228d0376 #}
+
+{# Popunder — se déclenche au premier clic #}
+<script src="https://pl29068509.profitablecpmratenetwork.com/3b/92/5e/3b925efff6b4f5586a0b12ee19f759d7.js"></script>
+
+<!-- ═══════════════════════════════════════════
+     Message de soutien
+════════════════════════════════════════════ -->
+<div class="alert alert-warning mt-3 text-center">
+    <i class="fas fa-heart text-danger me-2"></i>
+    <small>{{ _('Cet outil est entièrement gratuit. Un clic sur les annonces nous aide à le maintenir !') }}</small>
+</div>
