@@ -5,6 +5,7 @@
 #
 msgid ""
 msgstr ""
+
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-04-10 13:57+0000\n"
@@ -17,7 +18,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
-
 #: app.py:509 templates/conversion/index.html:120
 msgid "Convertisseur de fichiers"
 msgstr "ファイルコンバータ"
@@ -299,7 +299,7 @@ msgstr "PDF と画像"
 
 #: blueprints/conversion.py:457
 msgid "Convertissez les pages de vos PDF en images"
-msgstr "PDF ページを画像に変換する"
+msgstr "PDFの各ページを画像に変換"
 
 #: blueprints/conversion.py:468
 msgid "PDF vers PDF/A"
@@ -347,7 +347,7 @@ msgstr "PDF の保護を解除する"
 
 #: blueprints/conversion.py:530
 msgid "Caviarder PDF"
-msgstr "キャビアダー PDF"
+msgstr "PDFを編集"
 
 #: blueprints/conversion.py:531
 msgid "Supprimez définitivement le contenu sensible de votre PDF"
@@ -383,10 +383,10 @@ msgstr "ドキュメント"
 
 #: blueprints/conversion.py:569
 msgid "PDF Formulaire"
-msgstr ""
+msgstr "PDFフォーム"
+
 "Error 500 (Server Error)!!1500.That’s an error.There was an error. Please"
 " try again later.That’s all we know."
-
 #: blueprints/conversion.py:580
 msgid "Image vers Word"
 msgstr "画像と単語の比較"
@@ -433,36 +433,30 @@ msgid "Email"
 msgstr "メールアドレス"
 
 #: blueprints/legal/routes.py:86
-#, fuzzy
 msgid "Téléphone (optionnel)"
 msgstr "電話番号 (任意)"
 
 #: blueprints/legal/routes.py:90
 msgid "Sujet"
-msgstr ""
+msgstr "件名"
 
 #: blueprints/legal/routes.py:92
-#, fuzzy
 msgid "Signaler un bug"
-msgstr "別の PDF に署名する"
+msgstr "バグを報告"
 
 #: blueprints/legal/routes.py:93
-#, fuzzy
 msgid "Proposer une amélioration"
 msgstr "機能改善を提案"
 
 #: blueprints/legal/routes.py:94
-#, fuzzy
 msgid "Partenariat"
 msgstr "パートナーシップのお問い合わせ"
 
 #: blueprints/legal/routes.py:95
-#, fuzzy
 msgid "Autre"
-msgstr "日付"
+msgstr "その他"
 
 #: blueprints/legal/routes.py:100
-#, fuzzy
 msgid "Message"
 msgstr "メッセージ"
 
@@ -868,7 +862,6 @@ msgid "Veuillez patienter"
 msgstr "お待ちください"
 
 #: templates/base.html:624
-#, fuzzy
 msgid "Soutenez notre outil gratuit !"
 msgstr "広告 - 無料サービスをサポート"
 
@@ -879,7 +872,6 @@ msgid ""
 msgstr ""
 
 #: templates/base.html:626
-#, fuzzy
 msgid "Je comprends"
 msgstr "圧縮する"
 
@@ -1165,35 +1157,29 @@ msgstr "PDFファイルを選択してください"
 
 #: templates/conversion/edit_pdf.html:10
 msgid "Erreur système : Gestionnaire d'upload manquant"
-msgstr ""
+msgstr "システムエラー：アップロードハンドラーが見つかりません"
 
 #: templates/conversion/edit_pdf.html:11
-#, fuzzy
 msgid "Veuillez entrer du texte à ajouter"
 msgstr "パスワードを入力してください"
 
 #: templates/conversion/edit_pdf.html:12
-#, fuzzy
 msgid "Veuillez sélectionner une image à insérer"
 msgstr "ファイルを選択してください"
 
 #: templates/conversion/edit_pdf.html:13
-#, fuzzy
 msgid "Veuillez entrer les pages à supprimer"
 msgstr "抽出するページを指定してください"
 
 #: templates/conversion/edit_pdf.html:14
-#, fuzzy
 msgid "Veuillez entrer les pages à faire pivoter"
 msgstr "抽出するページを指定してください"
 
 #: templates/conversion/edit_pdf.html:15
-#, fuzzy
 msgid "Erreur lors de l'édition :"
 msgstr "抽出エラー:"
 
 #: templates/conversion/edit_pdf.html:16
-#, fuzzy
 msgid "Erreur serveur"
 msgstr "サーバー内部エラー"
 
@@ -1204,7 +1190,6 @@ msgid "Téléchargez votre PDF"
 msgstr "PDFをアップロード"
 
 #: templates/conversion/edit_pdf.html:25
-#, fuzzy
 msgid "Modifiez, ajoutez du texte ou des images à votre document"
 msgstr "PDF にテキスト、画像、ページを編集または追加する"
 
@@ -1223,7 +1208,6 @@ msgid "Glissez-déposez votre fichier PDF ici"
 msgstr "ここにPDFファイルをドラッグ＆ドロップ"
 
 #: templates/conversion/edit_pdf.html:36 templates/conversion/edit_pdf.html:137
-#, fuzzy
 msgid "ou cliquez pour sélectionner"
 msgstr "ドラッグ＆ドロップ、またはクリックして選択"
 
@@ -1234,42 +1218,34 @@ msgid "Formats acceptés : PDF (jusqu'à 100MB)"
 msgstr "対応形式: PDF (最大100MB)"
 
 #: templates/conversion/edit_pdf.html:53
-#, fuzzy
 msgid "Ajouter du texte"
 msgstr "署名理由を追加"
 
 #: templates/conversion/edit_pdf.html:59
-#, fuzzy
 msgid "Ajouter une image"
 msgstr "署名理由を追加"
 
 #: templates/conversion/edit_pdf.html:65
-#, fuzzy
 msgid "Gérer les pages"
-msgstr "すべてのページ"
+msgstr "ページを管理"
 
 #: templates/conversion/edit_pdf.html:74
-#, fuzzy
 msgid "Ajouter du texte au PDF"
 msgstr "抽出されたテキストのプレビュー"
 
 #: templates/conversion/edit_pdf.html:77
-#, fuzzy
 msgid "Texte à ajouter :"
-msgstr "墨消しするテキスト:"
+msgstr "追加するテキスト:"
 
 #: templates/conversion/edit_pdf.html:79
-#, fuzzy
 msgid "Saisissez votre texte ici..."
-msgstr "ここにテキストを貼り付け..."
+msgstr "ここにテキストを入力..."
 
 #: templates/conversion/edit_pdf.html:82 templates/conversion/edit_pdf.html:145
-#, fuzzy
 msgid "Page d'insertion :"
-msgstr "回転角度"
+msgstr "挿入ページ:"
 
 #: templates/conversion/edit_pdf.html:85
-#, fuzzy
 msgid "Position (points) :"
 msgstr "Y 位置:"
 
@@ -1296,19 +1272,17 @@ msgstr "タイムズ ニュー ローマン"
 
 #: templates/conversion/edit_pdf.html:120
 msgid "Helvetica Gras"
-msgstr ""
+msgstr "Helvetica 太字"
 
 #: templates/conversion/edit_pdf.html:121
 msgid "Helvetica Italique"
-msgstr ""
+msgstr "Helvetica 斜体"
 
 #: templates/conversion/edit_pdf.html:130
-#, fuzzy
 msgid "Ajouter une image au PDF"
 msgstr "PDF ファイルを回転する"
 
 #: templates/conversion/edit_pdf.html:136
-#, fuzzy
 msgid "Glissez-déposez votre image ici"
 msgstr "ここに画像をドラッグ＆ドロップ"
 
@@ -1321,124 +1295,103 @@ msgid "Taille originale"
 msgstr "元のサイズ"
 
 #: templates/conversion/edit_pdf.html:152
-#, fuzzy
 msgid "Ajuster à la page"
 msgstr "ページマーカーを追加"
 
 #: templates/conversion/edit_pdf.html:153
-#, fuzzy
 msgid "Personnalisée"
 msgstr "印刷許可"
 
 #: templates/conversion/edit_pdf.html:157
-#, fuzzy
 msgid "Position X (points) :"
 msgstr "X 位置:"
 
 #: templates/conversion/edit_pdf.html:161
-#, fuzzy
 msgid "Position Y (points) :"
 msgstr "Y 位置:"
 
 #: templates/conversion/edit_pdf.html:169
-#, fuzzy
 msgid "Largeur (points) :"
 msgstr "PowerPointをダウンロード"
 
 #: templates/conversion/edit_pdf.html:173
-#, fuzzy
 msgid "Hauteur (points) :"
 msgstr "高 (遅い)"
 
 #: templates/conversion/edit_pdf.html:182
-#, fuzzy
 msgid "Gestion des pages"
 msgstr "ページ作成中"
 
 #: templates/conversion/edit_pdf.html:185
-#, fuzzy
 msgid "Action :"
 msgstr "注意:"
 
 #: templates/conversion/edit_pdf.html:189
-#, fuzzy
 msgid "Réorganiser"
 msgstr "ポルトガル語"
 
 #: templates/conversion/edit_pdf.html:194
 msgid "Supprimer"
-msgstr ""
+msgstr "削除"
 
 #: templates/conversion/edit_pdf.html:199
-#, fuzzy
 msgid "Rotation"
 msgstr "回転PDF"
 
 #: templates/conversion/edit_pdf.html:207
 msgid "Faites glisser les pages pour les réorganiser"
-msgstr ""
+msgstr "ページをドラッグして並べ替え"
 
 #: templates/conversion/edit_pdf.html:215
-#, fuzzy
 msgid "Pages à supprimer :"
 msgstr "処理するページ:"
 
 #: templates/conversion/edit_pdf.html:217
 #: templates/conversion/edit_pdf.html:225
-#, fuzzy
 msgid "Ex: 1-3, 5, 7-9"
 msgstr "例: 1-5, 8, 11-13"
 
 #: templates/conversion/edit_pdf.html:223
-#, fuzzy
 msgid "Pages à faire pivoter :"
 msgstr "処理するページ:"
 
 #: templates/conversion/edit_pdf.html:228
-#, fuzzy
 msgid "Angle :"
 msgstr "ページ:"
 
 #: templates/conversion/edit_pdf.html:230
-#, fuzzy
 msgid "horaire"
 msgstr "高速"
 
 #: templates/conversion/edit_pdf.html:232
 msgid "antihoraire"
-msgstr ""
+msgstr "反時計回り"
 
 #: templates/conversion/edit_pdf.html:244
-#, fuzzy
 msgid "Appliquer les modifications"
-msgstr "印刷と変更を許可"
+msgstr "変更を適用"
 
 #: templates/conversion/edit_pdf.html:258
-#, fuzzy
 msgid "Édition en cours..."
 msgstr "抽出中..."
 
 #: templates/conversion/edit_pdf.html:259
 msgid "Application des modifications au document"
-msgstr ""
+msgstr "ドキュメントに変更を適用"
 
 #: templates/conversion/edit_pdf.html:272
-#, fuzzy
 msgid "Édition terminée !"
 msgstr "抽出完了！"
 
 #: templates/conversion/edit_pdf.html:273
-#, fuzzy
 msgid "Votre PDF modifié est prêt à être téléchargé"
 msgstr "署名済みPDFのダウンロード準備ができました"
 
 #: templates/conversion/edit_pdf.html:275
-#, fuzzy
 msgid "Télécharger le PDF modifié"
 msgstr "署名済みPDFをダウンロード"
 
 #: templates/conversion/edit_pdf.html:279
-#, fuzzy
 msgid "Éditer un autre PDF"
 msgstr "別の PDF に署名する"
 
@@ -1580,6 +1533,7 @@ msgid ""
 "&lt;/body&gt;\n"
 "&lt;/html&gt;"
 msgstr ""
+
 "&lt;!DOCTYPE html&gt;\n"
 "&lt;html&gt;\n"
 "<頭>\n"
@@ -1590,7 +1544,6 @@ msgstr ""
 "    &lt;p&gt;続き...&lt;/p&gt;\n"
 "&lt;/ボディ&gt;\n"
 "&lt;/html&gt;"
-
 #: templates/conversion/html_to_pdf.html:50
 #: templates/conversion/txt_to_pdf.html:50
 msgid "Lettre"
@@ -2106,12 +2059,10 @@ msgid "Erreur lors de l'extraction :"
 msgstr "抽出エラー:"
 
 #: templates/conversion/index.html:7
-#, fuzzy
 msgid "Convertisseur PDF en ligne gratuit – PDF Fusion Pro"
 msgstr "無料オンラインPDFコンバーター"
 
 #: templates/conversion/index.html:13
-#, fuzzy
 msgid ""
 "Convertissez gratuitement vos fichiers PDF, Word, Excel, PowerPoint et "
 "images en ligne. Plus de 26 outils de conversion rapides, sécurisés et "
@@ -2272,9 +2223,9 @@ msgid ""
 "Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, "
 "PPTX, JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore."
 msgstr ""
+
 "20以上の形式をサポート: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, BMP, "
 "TIFF, CSV など。"
-
 #: templates/conversion/jpg_to_pdf.html:10
 msgid "Téléchargez vos images JPG"
 msgstr "JPG画像をアップロード"
@@ -4214,7 +4165,6 @@ msgid "document_deverrouille.pdf"
 msgstr "document_unlock.pdf"
 
 #: templates/conversion/word_to_pdf.html:17
-#, fuzzy
 msgid "Lecture du document..."
 msgstr "Word文書を読み取り中..."
 
@@ -4791,9 +4741,9 @@ msgid ""
 "%(app_name)s est développé et maintenu par %(developer_name)s, un "
 "développeur passionné par la création d'outils web utiles et accessibles."
 msgstr ""
+
 "%(app_name)s は、便利でアクセスしやすい Web ツールの作成に熱心な開発者である %(developer_name)s "
 "によって開発および保守されています。"
-
 #: templates/legal/legal.html:19
 msgid "Pour nous contacter :"
 msgstr "お問い合わせ先:"
@@ -4816,9 +4766,9 @@ msgid ""
 "Ce service est hébergé sur la plateforme %(hosting)s (<a "
 "href=\"https://%(domain)s\" target=\"_blank\">(domain)s</a>)."
 msgstr ""
+
 "このサービスは、%(hosting)s プラットフォーム (<a href=\"https://%(domain)s\" "
 "target=\"_blank\">(domain)s</a>) でホストされています。"
-
 #: templates/legal/legal.html:30
 msgid ""
 "Les serveurs sont localisés dans des centres de données sécurisés et "
@@ -4954,14 +4904,13 @@ msgid "Publicité — Google AdSense"
 msgstr "広告 — Google AdSense"
 
 #: templates/legal/privacy.html:31
-#, fuzzy
 msgid ""
 "Ce site utilise <strong>Google AdSense</strong> pour afficher des "
 "publicités pertinentes."
 msgstr ""
+
 "このサイトでは、<strong>Google AdSense</strong> (ID: %(adsense_id)s) "
 "を使用して、関連する広告を表示しています。"
-
 #: templates/legal/privacy.html:32
 msgid ""
 "Google utilise des cookies pour personnaliser les annonces en fonction de"
@@ -5206,7 +5155,6 @@ msgstr "PDFを圧縮する"
 
 #: templates/pdf/compress.html:59 templates/pdf/merge.html:45
 #: templates/pdf/rotate.html:65 templates/pdf/split.html:53
-#, fuzzy
 msgid "Sponsorisé"
 msgstr "準拠状況"
 
@@ -5453,118 +5401,6 @@ msgstr "形式: 数字はカンマ区切り、範囲はハイフン。例: \"1,3
 msgid "Diviser le PDF"
 msgstr "PDFの分割"
 
-#~ msgid "Modifiez, ajoutez du texte ou des images à votre document"
-#~ msgstr "ドキュメントを編集、テキストや画像を追加"
-
-#~ msgid "Ajouter du texte"
-#~ msgstr "テキストを追加"
-
-#~ msgid "Ajouter une image"
-#~ msgstr "画像を追加"
-
-#~ msgid "Gérer les pages"
-#~ msgstr "ページ管理"
-
-#~ msgid "Ajouter du texte au PDF"
-#~ msgstr "PDFにテキストを追加"
-
-#~ msgid "Texte à ajouter :"
-#~ msgstr "追加するテキスト:"
-
-#~ msgid "Saisissez votre texte ici..."
-#~ msgstr "ここにテキストを入力..."
-
-#~ msgid "Page d'insertion :"
-#~ msgstr "挿入ページ:"
-
-#~ msgid "Position :"
-#~ msgstr "位置:"
-
-#~ msgid "Helvetica Gras"
-#~ msgstr "Helvetica 太字"
-
-#~ msgid "Helvetica Italique"
-#~ msgstr "Helvetica 斜体"
-
-#~ msgid "Ajouter une image au PDF"
-#~ msgstr "PDF に画像を追加する"
-
-#~ msgid "Glissez-déposez votre image ici"
-#~ msgstr "ここに画像をドラッグ＆ドロップ"
-
-#~ msgid "Ajuster à la page"
-#~ msgstr "ページに合わせる"
-
-#~ msgid "Personnalisée"
-#~ msgstr "カスタム"
-
-#~ msgid "Gestion des pages"
-#~ msgstr "ページ管理"
-
-#~ msgid "Action :"
-#~ msgstr "アクション ："
-
-#~ msgid "Réorganiser"
-#~ msgstr "並べ替え"
-
-#~ msgid "Supprimer"
-#~ msgstr "削除"
-
-#~ msgid "Rotation"
-#~ msgstr "回転"
-
-#~ msgid "Faites glisser les pages pour les réorganiser"
-#~ msgstr "ページをドラッグして並べ替えます"
-
-#~ msgid "Pages à supprimer :"
-#~ msgstr "削除するページ:"
-
-#~ msgid "Ex: 1-3, 5, 7-9"
-#~ msgstr "例: 1-3, 5, 7-9"
-
-#~ msgid "Attention : La suppression est définitive"
-#~ msgstr "注意: 削除は元に戻せません"
-
-#~ msgid "Pages à tourner :"
-#~ msgstr "回転するページ:"
-
-#~ msgid "Angle :"
-#~ msgstr "角度:"
-
-#~ msgid "horaire"
-#~ msgstr "時計回り"
-
-#~ msgid "antihoraire"
-#~ msgstr "反時計回り"
-
-#~ msgid "Appliquer les modifications"
-#~ msgstr "変更を適用"
-
-#~ msgid "Édition en cours..."
-#~ msgstr "編集中です..."
-
-#~ msgid "Application des modifications au document"
-#~ msgstr "ドキュメントに変更を適用中"
-
-#~ msgid "Édition terminée !"
-#~ msgstr "編集完了！"
-
-#~ msgid "Votre PDF modifié est prêt à être téléchargé"
-#~ msgstr "編集済みPDFのダウンロード準備ができました"
-
-#~ msgid "Télécharger le PDF modifié"
-#~ msgstr "編集済みPDFをダウンロード"
-
-#~ msgid "Éditer un autre PDF"
-#~ msgstr "別の PDF を編集する"
-
-#~ msgid "Veuillez sélectionner une image à insérer"
-#~ msgstr "挿入する画像を選択してください"
-
-#~ msgid "Erreur lors de l'édition :"
-#~ msgstr "編集中にエラーが発生しました:"
-
-
 #: templates/conversion/conversion_base.html
 msgid "Téléchargez votre fichier"
 msgstr "ファイルをアップロード"
@@ -5572,3 +5408,4 @@ msgstr "ファイルをアップロード"
 #: templates/conversion/conversion_base.html
 msgid "Notre système le convertit automatiquement en"
 msgstr "システムが自動的に変換します"
+

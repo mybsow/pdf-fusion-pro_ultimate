@@ -5,6 +5,7 @@
 #
 msgid ""
 msgstr ""
+
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-04-10 13:57+0000\n"
@@ -17,7 +18,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
-
 #: app.py:509 templates/conversion/index.html:120
 msgid "Convertisseur de fichiers"
 msgstr "文件转换器"
@@ -299,7 +299,7 @@ msgstr "PDF 到图像"
 
 #: blueprints/conversion.py:457
 msgid "Convertissez les pages de vos PDF en images"
-msgstr "将 PDF 页面转换为图像"
+msgstr "将PDF的每一页转换为图像"
 
 #: blueprints/conversion.py:468
 msgid "PDF vers PDF/A"
@@ -347,7 +347,7 @@ msgstr "删除 PDF 保护"
 
 #: blueprints/conversion.py:530
 msgid "Caviarder PDF"
-msgstr "编辑 PDF"
+msgstr "编辑PDF"
 
 #: blueprints/conversion.py:531
 msgid "Supprimez définitivement le contenu sensible de votre PDF"
@@ -431,36 +431,30 @@ msgid "Email"
 msgstr "邮箱"
 
 #: blueprints/legal/routes.py:86
-#, fuzzy
 msgid "Téléphone (optionnel)"
 msgstr "电话号码（可选）"
 
 #: blueprints/legal/routes.py:90
 msgid "Sujet"
-msgstr ""
+msgstr "主题"
 
 #: blueprints/legal/routes.py:92
-#, fuzzy
 msgid "Signaler un bug"
-msgstr "签署另一个 PDF"
+msgstr "报告错误"
 
 #: blueprints/legal/routes.py:93
-#, fuzzy
 msgid "Proposer une amélioration"
 msgstr "提出功能改进建议"
 
 #: blueprints/legal/routes.py:94
-#, fuzzy
 msgid "Partenariat"
 msgstr "合作请求"
 
 #: blueprints/legal/routes.py:95
-#, fuzzy
 msgid "Autre"
-msgstr "日期"
+msgstr "其他"
 
 #: blueprints/legal/routes.py:100
-#, fuzzy
 msgid "Message"
 msgstr "消息"
 
@@ -866,7 +860,6 @@ msgid "Veuillez patienter"
 msgstr "请稍等"
 
 #: templates/base.html:624
-#, fuzzy
 msgid "Soutenez notre outil gratuit !"
 msgstr "广告 - 支持我们的免费服务"
 
@@ -877,7 +870,6 @@ msgid ""
 msgstr ""
 
 #: templates/base.html:626
-#, fuzzy
 msgid "Je comprends"
 msgstr "压缩"
 
@@ -1163,35 +1155,29 @@ msgstr "请选择 PDF 文件"
 
 #: templates/conversion/edit_pdf.html:10
 msgid "Erreur système : Gestionnaire d'upload manquant"
-msgstr ""
+msgstr "系统错误：缺少上传处理器"
 
 #: templates/conversion/edit_pdf.html:11
-#, fuzzy
 msgid "Veuillez entrer du texte à ajouter"
 msgstr "请输入密码"
 
 #: templates/conversion/edit_pdf.html:12
-#, fuzzy
 msgid "Veuillez sélectionner une image à insérer"
 msgstr "请选择一个文件"
 
 #: templates/conversion/edit_pdf.html:13
-#, fuzzy
 msgid "Veuillez entrer les pages à supprimer"
 msgstr "请指定要提取的页面"
 
 #: templates/conversion/edit_pdf.html:14
-#, fuzzy
 msgid "Veuillez entrer les pages à faire pivoter"
 msgstr "请指定要提取的页面"
 
 #: templates/conversion/edit_pdf.html:15
-#, fuzzy
 msgid "Erreur lors de l'édition :"
 msgstr "提取时出错："
 
 #: templates/conversion/edit_pdf.html:16
-#, fuzzy
 msgid "Erreur serveur"
 msgstr "服务器内部错误"
 
@@ -1202,7 +1188,6 @@ msgid "Téléchargez votre PDF"
 msgstr "上传您的 PDF"
 
 #: templates/conversion/edit_pdf.html:25
-#, fuzzy
 msgid "Modifiez, ajoutez du texte ou des images à votre document"
 msgstr "编辑文本、图像和页面或将其添加到 PDF"
 
@@ -1221,7 +1206,6 @@ msgid "Glissez-déposez votre fichier PDF ici"
 msgstr "将您的 PDF 文件拖放到此处"
 
 #: templates/conversion/edit_pdf.html:36 templates/conversion/edit_pdf.html:137
-#, fuzzy
 msgid "ou cliquez pour sélectionner"
 msgstr "拖放或点击选择"
 
@@ -1232,42 +1216,34 @@ msgid "Formats acceptés : PDF (jusqu'à 100MB)"
 msgstr "接受的格式：PDF（最大 100MB）"
 
 #: templates/conversion/edit_pdf.html:53
-#, fuzzy
 msgid "Ajouter du texte"
 msgstr "添加签名原因"
 
 #: templates/conversion/edit_pdf.html:59
-#, fuzzy
 msgid "Ajouter une image"
 msgstr "添加签名原因"
 
 #: templates/conversion/edit_pdf.html:65
-#, fuzzy
 msgid "Gérer les pages"
-msgstr "所有页面"
+msgstr "管理页面"
 
 #: templates/conversion/edit_pdf.html:74
-#, fuzzy
 msgid "Ajouter du texte au PDF"
 msgstr "提取文本预览"
 
 #: templates/conversion/edit_pdf.html:77
-#, fuzzy
 msgid "Texte à ajouter :"
-msgstr "要编辑的文本："
+msgstr "要添加的文本:"
 
 #: templates/conversion/edit_pdf.html:79
-#, fuzzy
 msgid "Saisissez votre texte ici..."
-msgstr "在此粘贴您的文本..."
+msgstr "在此输入文本..."
 
 #: templates/conversion/edit_pdf.html:82 templates/conversion/edit_pdf.html:145
-#, fuzzy
 msgid "Page d'insertion :"
-msgstr "旋转角度"
+msgstr "插入页面:"
 
 #: templates/conversion/edit_pdf.html:85
-#, fuzzy
 msgid "Position (points) :"
 msgstr "Y 位置："
 
@@ -1294,19 +1270,17 @@ msgstr "泰晤士新罗马字体"
 
 #: templates/conversion/edit_pdf.html:120
 msgid "Helvetica Gras"
-msgstr ""
+msgstr "Helvetica 粗体"
 
 #: templates/conversion/edit_pdf.html:121
 msgid "Helvetica Italique"
-msgstr ""
+msgstr "Helvetica 斜体"
 
 #: templates/conversion/edit_pdf.html:130
-#, fuzzy
 msgid "Ajouter une image au PDF"
 msgstr "旋转 PDF 文件"
 
 #: templates/conversion/edit_pdf.html:136
-#, fuzzy
 msgid "Glissez-déposez votre image ici"
 msgstr "将您的图像拖放到此处"
 
@@ -1319,124 +1293,103 @@ msgid "Taille originale"
 msgstr "原始尺寸"
 
 #: templates/conversion/edit_pdf.html:152
-#, fuzzy
 msgid "Ajuster à la page"
 msgstr "添加页面标记"
 
 #: templates/conversion/edit_pdf.html:153
-#, fuzzy
 msgid "Personnalisée"
 msgstr "允许打印"
 
 #: templates/conversion/edit_pdf.html:157
-#, fuzzy
 msgid "Position X (points) :"
 msgstr "X 位置："
 
 #: templates/conversion/edit_pdf.html:161
-#, fuzzy
 msgid "Position Y (points) :"
 msgstr "Y 位置："
 
 #: templates/conversion/edit_pdf.html:169
-#, fuzzy
 msgid "Largeur (points) :"
 msgstr "下载 PowerPoint"
 
 #: templates/conversion/edit_pdf.html:173
-#, fuzzy
 msgid "Hauteur (points) :"
 msgstr "高（较慢）"
 
 #: templates/conversion/edit_pdf.html:182
-#, fuzzy
 msgid "Gestion des pages"
 msgstr "正在创建页面"
 
 #: templates/conversion/edit_pdf.html:185
-#, fuzzy
 msgid "Action :"
 msgstr "注意："
 
 #: templates/conversion/edit_pdf.html:189
-#, fuzzy
 msgid "Réorganiser"
 msgstr "葡萄牙语"
 
 #: templates/conversion/edit_pdf.html:194
 msgid "Supprimer"
-msgstr ""
+msgstr "删除"
 
 #: templates/conversion/edit_pdf.html:199
-#, fuzzy
 msgid "Rotation"
 msgstr "旋转 PDF"
 
 #: templates/conversion/edit_pdf.html:207
 msgid "Faites glisser les pages pour les réorganiser"
-msgstr ""
+msgstr "拖动页面以重新排序"
 
 #: templates/conversion/edit_pdf.html:215
-#, fuzzy
 msgid "Pages à supprimer :"
 msgstr "要处理的页面："
 
 #: templates/conversion/edit_pdf.html:217
 #: templates/conversion/edit_pdf.html:225
-#, fuzzy
 msgid "Ex: 1-3, 5, 7-9"
 msgstr "例如：1-5, 8, 11-13"
 
 #: templates/conversion/edit_pdf.html:223
-#, fuzzy
 msgid "Pages à faire pivoter :"
 msgstr "要处理的页面："
 
 #: templates/conversion/edit_pdf.html:228
-#, fuzzy
 msgid "Angle :"
 msgstr "页面："
 
 #: templates/conversion/edit_pdf.html:230
-#, fuzzy
 msgid "horaire"
 msgstr "快速"
 
 #: templates/conversion/edit_pdf.html:232
 msgid "antihoraire"
-msgstr ""
+msgstr "逆时针"
 
 #: templates/conversion/edit_pdf.html:244
-#, fuzzy
 msgid "Appliquer les modifications"
-msgstr "允许打印和修改"
+msgstr "应用更改"
 
 #: templates/conversion/edit_pdf.html:258
-#, fuzzy
 msgid "Édition en cours..."
 msgstr "提取正在进行中..."
 
 #: templates/conversion/edit_pdf.html:259
 msgid "Application des modifications au document"
-msgstr ""
+msgstr "将更改应用到文档"
 
 #: templates/conversion/edit_pdf.html:272
-#, fuzzy
 msgid "Édition terminée !"
 msgstr "提取完成！"
 
 #: templates/conversion/edit_pdf.html:273
-#, fuzzy
 msgid "Votre PDF modifié est prêt à être téléchargé"
 msgstr "您已签名的 PDF 已准备好下载"
 
 #: templates/conversion/edit_pdf.html:275
-#, fuzzy
 msgid "Télécharger le PDF modifié"
 msgstr "下载已签名的 PDF"
 
 #: templates/conversion/edit_pdf.html:279
-#, fuzzy
 msgid "Éditer un autre PDF"
 msgstr "签署另一个 PDF"
 
@@ -1578,6 +1531,7 @@ msgid ""
 "&lt;/body&gt;\n"
 "&lt;/html&gt;"
 msgstr ""
+
 "<!DOCTYPE html>\n"
 "<html>\n"
 "&lt;头&gt;\n"
@@ -1588,7 +1542,6 @@ msgstr ""
 "    &lt;p&gt;内容...&lt;/p&gt;\n"
 "&lt;/正文&gt;\n"
 "&lt;/html&gt;"
-
 #: templates/conversion/html_to_pdf.html:50
 #: templates/conversion/txt_to_pdf.html:50
 msgid "Lettre"
@@ -2104,12 +2057,10 @@ msgid "Erreur lors de l'extraction :"
 msgstr "提取时出错："
 
 #: templates/conversion/index.html:7
-#, fuzzy
 msgid "Convertisseur PDF en ligne gratuit – PDF Fusion Pro"
 msgstr "免费在线PDF转换器"
 
 #: templates/conversion/index.html:13
-#, fuzzy
 msgid ""
 "Convertissez gratuitement vos fichiers PDF, Word, Excel, PowerPoint et "
 "images en ligne. Plus de 26 outils de conversion rapides, sécurisés et "
@@ -2270,9 +2221,9 @@ msgid ""
 "Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, "
 "PPTX, JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore."
 msgstr ""
+
 "我们支持 20 多种格式：PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, BMP, "
 "TIFF, CSV 等等。"
-
 #: templates/conversion/jpg_to_pdf.html:10
 msgid "Téléchargez vos images JPG"
 msgstr "上传您的 JPG 图像"
@@ -3256,11 +3207,11 @@ msgid ""
 "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
 "commodo consequat."
 msgstr ""
+
 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod "
 "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim "
 "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
 "commodo consequat."
-
 #: templates/conversion/pdf_to_word.html:281
 msgid "Extraction de la page"
 msgstr "提取页面"
@@ -4216,7 +4167,6 @@ msgid "document_deverrouille.pdf"
 msgstr "文档_解锁.pdf"
 
 #: templates/conversion/word_to_pdf.html:17
-#, fuzzy
 msgid "Lecture du document..."
 msgstr "正在读取 Word 文档..."
 
@@ -4793,9 +4743,9 @@ msgid ""
 "%(app_name)s est développé et maintenu par %(developer_name)s, un "
 "développeur passionné par la création d'outils web utiles et accessibles."
 msgstr ""
+
 "%(app_name)s est développé et maintenu par %(developer_name)s, un "
 "développeur passionné par la création d'outils web utiles et accessibles."
-
 #: templates/legal/legal.html:19
 msgid "Pour nous contacter :"
 msgstr "联系我们："
@@ -4818,9 +4768,9 @@ msgid ""
 "Ce service est hébergé sur la plateforme %(hosting)s (<a "
 "href=\"https://%(domain)s\" target=\"_blank\">(domain)s</a>)."
 msgstr ""
+
 "Ce service est hébergé sur la plateforme %(hosting)s (<a "
 "href=\"https://%(domain)s\" target=\"_blank\">(domain)s</a>)."
-
 #: templates/legal/legal.html:30
 msgid ""
 "Les serveurs sont localisés dans des centres de données sécurisés et "
@@ -4956,14 +4906,13 @@ msgid "Publicité — Google AdSense"
 msgstr "广告 — Google AdSense"
 
 #: templates/legal/privacy.html:31
-#, fuzzy
 msgid ""
 "Ce site utilise <strong>Google AdSense</strong> pour afficher des "
 "publicités pertinentes."
 msgstr ""
+
 "Ce site utilise <strong>Google AdSense</strong> (ID: %(adsense_id)s) pour"
 " afficher des publicités pertinentes."
-
 #: templates/legal/privacy.html:32
 msgid ""
 "Google utilise des cookies pour personnaliser les annonces en fonction de"
@@ -5037,9 +4986,9 @@ msgid ""
 "En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
 "réserve les présentes conditions d'utilisation."
 msgstr ""
+
 "En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
 "réserve les présentes conditions d'utilisation."
-
 #: templates/legal/terms.html:9
 msgid "Avertissement important :"
 msgstr "重要警告："
@@ -5152,9 +5101,9 @@ msgid ""
 "Le service, son code source, son design et son contenu sont la propriété "
 "exclusive de %(developer_name)s."
 msgstr ""
+
 "Le service, son code source, son design et son contenu sont la propriété "
 "exclusive de %(developer_name)s."
-
 #: templates/legal/terms.html:53
 msgid ""
 "Toute reproduction, même partielle, est interdite sans autorisation "
@@ -5212,7 +5161,6 @@ msgstr "压缩PDF"
 
 #: templates/pdf/compress.html:59 templates/pdf/merge.html:45
 #: templates/pdf/rotate.html:65 templates/pdf/split.html:53
-#, fuzzy
 msgid "Sponsorisé"
 msgstr "合规性"
 
@@ -5459,118 +5407,6 @@ msgstr "格式：数字用逗号分隔，范围用连字符。例如：\"1,3-5\"
 msgid "Diviser le PDF"
 msgstr "分割PDF"
 
-#~ msgid "Modifiez, ajoutez du texte ou des images à votre document"
-#~ msgstr "编辑、添加文本或图像到您的文档"
-
-#~ msgid "Ajouter du texte"
-#~ msgstr "添加文本"
-
-#~ msgid "Ajouter une image"
-#~ msgstr "添加图像"
-
-#~ msgid "Gérer les pages"
-#~ msgstr "管理页面"
-
-#~ msgid "Ajouter du texte au PDF"
-#~ msgstr "向 PDF 添加文本"
-
-#~ msgid "Texte à ajouter :"
-#~ msgstr "要添加的文本："
-
-#~ msgid "Saisissez votre texte ici..."
-#~ msgstr "在此输入您的文本..."
-
-#~ msgid "Page d'insertion :"
-#~ msgstr "插入页面："
-
-#~ msgid "Position :"
-#~ msgstr "位置："
-
-#~ msgid "Helvetica Gras"
-#~ msgstr "Helvetica 粗体"
-
-#~ msgid "Helvetica Italique"
-#~ msgstr "Helvetica 斜体"
-
-#~ msgid "Ajouter une image au PDF"
-#~ msgstr "将图像添加到 PDF"
-
-#~ msgid "Glissez-déposez votre image ici"
-#~ msgstr "将您的图像拖放到此处"
-
-#~ msgid "Ajuster à la page"
-#~ msgstr "适应页面"
-
-#~ msgid "Personnalisée"
-#~ msgstr "自定义"
-
-#~ msgid "Gestion des pages"
-#~ msgstr "页面管理"
-
-#~ msgid "Action :"
-#~ msgstr "行动 ："
-
-#~ msgid "Réorganiser"
-#~ msgstr "重新排序"
-
-#~ msgid "Supprimer"
-#~ msgstr "删除"
-
-#~ msgid "Rotation"
-#~ msgstr "旋转"
-
-#~ msgid "Faites glisser les pages pour les réorganiser"
-#~ msgstr "拖动页面以重新排序"
-
-#~ msgid "Pages à supprimer :"
-#~ msgstr "要删除的页面："
-
-#~ msgid "Ex: 1-3, 5, 7-9"
-#~ msgstr "例如：1-3, 5, 7-9"
-
-#~ msgid "Attention : La suppression est définitive"
-#~ msgstr "注意：删除是不可逆的"
-
-#~ msgid "Pages à tourner :"
-#~ msgstr "要旋转的页面："
-
-#~ msgid "Angle :"
-#~ msgstr "角度："
-
-#~ msgid "horaire"
-#~ msgstr "顺时针"
-
-#~ msgid "antihoraire"
-#~ msgstr "逆时针"
-
-#~ msgid "Appliquer les modifications"
-#~ msgstr "应用修改"
-
-#~ msgid "Édition en cours..."
-#~ msgstr "编辑正在进行中..."
-
-#~ msgid "Application des modifications au document"
-#~ msgstr "正在将修改应用到文档"
-
-#~ msgid "Édition terminée !"
-#~ msgstr "编辑完成！"
-
-#~ msgid "Votre PDF modifié est prêt à être téléchargé"
-#~ msgstr "您修改后的 PDF 已准备好下载"
-
-#~ msgid "Télécharger le PDF modifié"
-#~ msgstr "下载修改后的 PDF"
-
-#~ msgid "Éditer un autre PDF"
-#~ msgstr "编辑另一个 PDF"
-
-#~ msgid "Veuillez sélectionner une image à insérer"
-#~ msgstr "请选择要插入的图像"
-
-#~ msgid "Erreur lors de l'édition :"
-#~ msgstr "编辑时出错："
-
-
 #: templates/conversion/conversion_base.html
 msgid "Téléchargez votre fichier"
 msgstr "上传您的文件"
@@ -5578,3 +5414,4 @@ msgstr "上传您的文件"
 #: templates/conversion/conversion_base.html
 msgid "Notre système le convertit automatiquement en"
 msgstr "我们的系统会自动将其转换为"
+
