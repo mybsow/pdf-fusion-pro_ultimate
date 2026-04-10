@@ -727,27 +727,27 @@ def universal_converter(conversion_type):
         template_name = f"conversion/{config['template']}" 
         
         try:
-            return render_template(template_name,
-                                  title=config['title'],  # OK, pas de _() ici
-                                  description=config['description'],
-                                  from_format=config['from_format'],
-                                  to_format=config['to_format'],
-                                  icon=config['icon'],
-                                  color=config['color'],
-                                  accept=config['accept'],
-                                  max_files=config['max_files'],
-                                  conversion_type=conversion_type,
-                                  available=available,
-                                  missing_deps=missing)
+            return render_template(
+                template_name,
+                title=str(config['title']),        # ← forcer str() sur les lazy strings
+                description=str(config['description']),
+                from_format=str(config['from_format']),
+                to_format=str(config['to_format']),
+                icon=config['icon'],
+                color=config['color'],
+                accept=config['accept'],
+                max_files=config['max_files'],
+                conversion_type=conversion_type,
+                available=available,
+                missing_deps=missing
+            )
         except Exception as e:
-            current_app.logger.error(f"Template non trouvé: {template_name} - {str(e)}")
+            current_app.logger.error(
+                f"Template non trouvé: {template_name} - {str(e)}\n"
+                f"TRACEBACK: {traceback.format_exc()}"
+            )
             flash('Template non trouvé pour {}'.format(conversion_type), 'error')
             return redirect(url_for('conversion.index'))
-        
-    except Exception as e:
-        current_app.logger.error(f"Erreur dans universal_converter: {str(e)}")
-        flash(f"Erreur: {str(e)}", "error")
-        return redirect(url_for('conversion.index'))
 
 
 # -----------------------------
