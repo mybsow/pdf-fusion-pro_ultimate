@@ -2691,11 +2691,9 @@ def _enhance_scan(img: Image.Image, do_binarize: bool) -> Image.Image:
         return img.convert("RGB")
 
 
-    """
-    Détecte si une page est quasi blanche.
-    - white_ratio_threshold : fraction de pixels très clairs pour considérer l'image comme blanche
-    """
+
 def _is_blank_page(img: "Image.Image", threshold: float = 0.985) -> bool:
+    """Détecte si une page est quasi blanche."""
     gray = img.convert("L")
     if HAS_NUMPY:
         arr = np.array(gray, dtype=np.uint8)
@@ -3351,10 +3349,9 @@ def safe_image_operation(func, *args, default=None, **kwargs):
         return default
 
 
-    """
-    Vérifie si l'extension du fichier est autorisée.
-    """
+
 def validate_file_extension(filename: str, allowed: set) -> bool:
+    """Vérifie si l'extension du fichier est autorisée."""
     if not filename: return False
     ext = Path(filename).suffix.lower()
     normalized = {e if e.startswith(".") else f".{e}" for e in allowed}
