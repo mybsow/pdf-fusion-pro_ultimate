@@ -4972,12 +4972,14 @@ def edit_pdf(file, form_data=None):
  
         pages_iter = order if order else range(total)
  
+        # 1. Ajouter d'abord toutes les pages existantes (en gérant les suppressions/réorganisations)
         for i in pages_iter:
             if i in del_set: continue
             page = reader.pages[i]
             pw = float(page.mediabox.width)
             ph = float(page.mediabox.height)
- 
+
+            # Si on veut ajouter du texte sur une page précise
             if edit_type == "add_text" and i == page_num:
                 text     = form_data.get("text_content","")
                 fs       = int(form_data.get("font_size",12))
@@ -4987,20 +4989,28 @@ def edit_pdf(file, form_data=None):
                 c        = canvas.Canvas(packet, pagesize=(pw,ph))
                 c.setFont("Helvetica", fs)
                 c.setFillColorRGB(r,g,b)
-                # y en PDF = bas → haut, on inverse
                 c.drawString(x, ph - y - fs, text)
                 c.save(); packet.seek(0)
                 overlay = pypdf.PdfReader(packet)
                 page.merge_page(overlay.pages[0])
+            
+            writer.add_page(page)
 
-            elif edit_type == "add_image" and i == page_num:
-                from flask import request as _req
-                image_file = _req.files.get("image_file")
-                if image_file and HAS_PILLOW:
-                    overlay = create_image_overlay(image_file, x, y, pw, ph)
-                    page.merge_page(overlay.pages[0])
-                else:
-                    logger.warning("Image file not provided or Pillow not available for add_image.")
+        # 2. AJOUT DE L'IMAGE SUR UNE NOUVELLE PAGE (à la fin)
+        if edit_type == "add_image":
+            from flask import request as _req
+            image_file = _req.files.get("image_file")
+            if image_file and HAS_PILLOW:
+                # On définit la taille de la nouvelle page (ex: A4 ou taille de la dernière page)
+                new_pw, new_ph = 595.27, 841.89 # A4 par défaut
+                
+                # Créer l'overlay image
+                overlay = create_image_overlay(image_file, x, y, new_pw, new_ph)
+                
+                # Ajouter la nouvelle page contenant l'image au writer
+                writer.add_page(overlay.pages[0])
+            else:
+                logger.warning("Fichier image manquant ou Pillow non disponible.")
 
                 text     = form_data.get("text_content","")
                 fs       = int(form_data.get("font_size",12))
