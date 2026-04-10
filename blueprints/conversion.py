@@ -4989,6 +4989,29 @@ def edit_pdf(file, form_data=None):
                 c.save(); packet.seek(0)
                 overlay = pypdf.PdfReader(packet)
                 page.merge_page(overlay.pages[0])
+
+            elif edit_type == "add_image" and i == page_num:
+                from flask import request as _req
+                image_file = _req.files.get("image_file")
+                if image_file and HAS_PILLOW:
+                    overlay = create_image_overlay(image_file, x, y, pw, ph)
+                    page.merge_page(overlay.pages[0])
+                else:
+                    logger.warning("Image file not provided or Pillow not available for add_image.")
+
+                text     = form_data.get("text_content","")
+                fs       = int(form_data.get("font_size",12))
+                color    = form_data.get("font_color","#000000")
+                r,g,b    = _hex_to_rgb_float(color)
+                packet   = BytesIO()
+                c        = canvas.Canvas(packet, pagesize=(pw,ph))
+                c.setFont("Helvetica", fs)
+                c.setFillColorRGB(r,g,b)
+                # y en PDF = bas → haut, on inverse
+                c.drawString(x, ph - y - fs, text)
+                c.save(); packet.seek(0)
+                overlay = pypdf.PdfReader(packet)
+                page.merge_page(overlay.pages[0])
  
             writer.add_page(page)
  
@@ -5021,7 +5044,7 @@ def create_text_overlay(text, x, y, page_width=595, page_height=842, font_size=1
     return pypdf.PdfReader(packet)
 
 
-def create_image_overlay(image_file, x, y):
+def create_image_overlay(image_file, x, y, page_width, page_height):
     """Crée un PDF overlay avec une image."""
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import letter
@@ -5032,12 +5055,12 @@ def create_image_overlay(image_file, x, y):
     image_file.save(temp_img.name)
     
     packet = BytesIO()
-    can = canvas.Canvas(packet, pagesize=letter)
+    can = canvas.Canvas(packet, pagesize=(page_width, page_height))
     
     # Ajouter l'image
     img = ImageReader(temp_img.name)
     img_width, img_height = img.getSize()
-    can.drawImage(img, x, letter[1] - y - img_height, width=img_width, height=img_height)
+    can.drawImage(img, x, page_height - y - img_height, width=img_width, height=img_height)
     can.save()
     
     packet.seek(0)
@@ -5181,7 +5204,7 @@ def create_signature_overlay(signature_file, x, y, max_width=200, max_height=100
 
     # Créer overlay PDF
     packet = BytesIO()
-    can = canvas.Canvas(packet, pagesize=letter)
+    can = canvas.Canvas(packet, pagesize=(page_width, page_height))
 
     # Ajouter l'image
     img_reader = ImageReader(temp_img.name)
@@ -5206,7 +5229,7 @@ def create_text_signature(text, x, y, font_size=24, font_family='Courier', color
     from reportlab.lib.colors import HexColor
 
     packet = BytesIO()
-    can = canvas.Canvas(packet, pagesize=letter)
+    can = canvas.Canvas(packet, pagesize=(page_width, page_height))
     
     # Style manuscrit approximatif
     if font_family == 'Courier':

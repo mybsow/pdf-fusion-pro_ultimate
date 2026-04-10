@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-08 17:57+0000\n"
+"POT-Creation-Date: 2026-04-10 08:32+0000\n"
 "PO-Revision-Date: 2026-04-01 18:22+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: pt\n"
@@ -18,15 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
-#: app.py:453 templates/conversion/index.html:104
+#: app.py:509 templates/conversion/index.html:120
 msgid "Convertisseur de fichiers"
 msgstr "Conversor de arquivo"
 
-#: app.py:482 blueprints/conversion.py:310
+#: app.py:538 blueprints/conversion.py:310
 msgid "Word vers PDF"
 msgstr "Palavra versus PDF"
 
-#: app.py:483 templates/base.html:406 templates/base.html:549
+#: app.py:539 templates/base.html:369 templates/base.html:513
 msgid "Fusionner PDF"
 msgstr "PDF de fusão"
 
@@ -59,7 +59,7 @@ msgstr "Avaliações carregadas"
 msgid "Exemple rating"
 msgstr "Exemplo de avaliação"
 
-#: blueprints/admin.py:157 blueprints/admin.py:461 templates/base.html:383
+#: blueprints/admin.py:157 blueprints/admin.py:461 templates/base.html:346
 #: templates/base_legal.html:242
 msgid "Accueil"
 msgstr "Bem-vindo"
@@ -74,7 +74,7 @@ msgstr "PDF de fusão"
 msgid "Division PDF"
 msgstr "Divisão PDF"
 
-#: blueprints/admin.py:163 blueprints/admin.py:467 templates/base.html:409
+#: blueprints/admin.py:163 blueprints/admin.py:467 templates/base.html:372
 #: templates/legal/about.html:48
 msgid "Rotation PDF"
 msgstr "PDF de rotação"
@@ -329,7 +329,7 @@ msgstr "PDF versão TXT"
 msgid "Extrayez le texte de vos PDF en fichiers texte"
 msgstr "Extraia texto de seus PDFs para arquivos de texto"
 
-#: blueprints/conversion.py:506 templates/base.html:410
+#: blueprints/conversion.py:506 templates/base.html:373
 msgid "Protéger PDF"
 msgstr "Proteger PDF"
 
@@ -337,7 +337,7 @@ msgstr "Proteger PDF"
 msgid "Ajoutez un mot de passe pour protéger vos PDF"
 msgstr "Adicione uma senha para proteger seus PDFs"
 
-#: blueprints/conversion.py:518 templates/base.html:411
+#: blueprints/conversion.py:518 templates/base.html:374
 msgid "Déverrouiller PDF"
 msgstr "Desbloquear PDF"
 
@@ -437,7 +437,7 @@ msgstr "Sua mensagem foi enviada com sucesso!"
 msgid "Une erreur technique est survenue. Veuillez réessayer."
 msgstr "Ocorreu um erro técnico. Por favor, tente novamente."
 
-#: blueprints/legal/routes.py:220 templates/base.html:447
+#: blueprints/legal/routes.py:220 templates/base.html:410
 #: templates/base_legal.html:285
 msgid "Contact"
 msgstr "Contato"
@@ -627,11 +627,11 @@ msgstr "Sua avaliação nos ajuda a melhorar nosso serviço."
 msgid "Une erreur est survenue. Veuillez réessayer."
 msgstr "Ocorreu um erro. Por favor, tente novamente."
 
-#: templates/base.html:8
+#: templates/base.html:35
 msgid "PDF Fusion Pro - Outils PDF Gratuits"
 msgstr "PDF Fusion Pro - Ferramentas PDF gratuitas"
 
-#: templates/base.html:10
+#: templates/base.html:37
 msgid ""
 "Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos "
 "fichiers en ligne. Rapide, sécurisé et sans installation."
@@ -639,7 +639,7 @@ msgstr ""
 "Ferramentas PDF gratuitas para mesclar, dividir, compactar e converter "
 "seus arquivos online. Rápido, seguro e sem instalação."
 
-#: templates/base.html:12
+#: templates/base.html:39
 msgid ""
 "PDF, convertisseur, fusionner, diviser, compresser, OCR, Word, Excel, "
 "PowerPoint, image"
@@ -647,25 +647,25 @@ msgstr ""
 "PDF, conversor, mesclar, dividir, compactar, OCR, Word, Excel, "
 "PowerPoint, imagem"
 
-#: templates/base.html:17
+#: templates/base.html:44
 msgid "PDF Fusion Pro - Convertisseur de fichiers"
 msgstr "PDF Fusion Pro - Conversor de Arquivos"
 
-#: templates/base.html:18
+#: templates/base.html:45
 msgid "Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne"
 msgstr "Converta seus arquivos PDF, Word, Excel e de imagem online gratuitamente"
 
-#: templates/base.html:369 templates/base.html:542 templates/base.html:569
+#: templates/base.html:331 templates/base.html:506 templates/base.html:533
 #: templates/base_legal.html:227
 msgid "PDF Fusion Pro"
 msgstr "PDF Fusão Pro"
 
-#: templates/base.html:390 templates/base_legal.html:278
+#: templates/base.html:353 templates/base_legal.html:278
 #: templates/conversion/conversion_base.html:197
 msgid "Convertir"
 msgstr "Converter"
 
-#: templates/base.html:393 templates/conversion/excel_to_pdf.html:60
+#: templates/base.html:356 templates/conversion/excel_to_pdf.html:60
 #: templates/conversion/html_to_pdf.html:85
 #: templates/conversion/image_to_pdf.html:79
 #: templates/conversion/jpg_to_pdf.html:78
@@ -676,100 +676,100 @@ msgstr "Converter"
 msgid "Convertir en PDF"
 msgstr "Converter para PDF"
 
-#: templates/base.html:394
+#: templates/base.html:357
 msgid "Word en PDF"
 msgstr "Palavra em PDF"
 
-#: templates/base.html:395
+#: templates/base.html:358
 msgid "Excel en PDF"
 msgstr "Excel e PDF"
 
-#: templates/base.html:396
+#: templates/base.html:359
 msgid "PowerPoint en PDF"
 msgstr "PowerPoint em PDF"
 
-#: templates/base.html:397
+#: templates/base.html:360
 msgid "Image en PDF"
 msgstr "Imagem de um PDF"
 
-#: templates/base.html:399
+#: templates/base.html:362
 msgid "Convertir depuis PDF"
 msgstr "Converter de PDF"
 
-#: templates/base.html:400
+#: templates/base.html:363
 msgid "PDF en Word"
 msgstr "PDF uma palavra"
 
-#: templates/base.html:401
+#: templates/base.html:364
 msgid "PDF en Excel"
 msgstr "PDF e Excel"
 
-#: templates/base.html:402
+#: templates/base.html:365
 msgid "PDF en Image"
 msgstr "PDF uma imagem"
 
-#: templates/base.html:403
+#: templates/base.html:366
 msgid "PDF en PDF/A"
 msgstr "PDF e PDF/A"
 
-#: templates/base.html:405
+#: templates/base.html:368
 msgid "Outils PDF"
 msgstr "Ferramentas PDF"
 
-#: templates/base.html:407 templates/base.html:550
+#: templates/base.html:370 templates/base.html:514
 msgid "Diviser PDF"
 msgstr "Dividir PDF"
 
-#: templates/base.html:408 templates/base.html:552
+#: templates/base.html:371 templates/base.html:516
 msgid "Compresser PDF"
 msgstr "Compactar PDF"
 
-#: templates/base.html:413
+#: templates/base.html:376
 msgid "Autres conversions"
 msgstr "Outras conversões"
 
-#: templates/base.html:414
+#: templates/base.html:377
 msgid "Image en Word"
 msgstr "Imagem em Word"
 
-#: templates/base.html:415
+#: templates/base.html:378
 msgid "Image en Excel"
 msgstr "Imagem no Excel"
 
-#: templates/base.html:416
+#: templates/base.html:379
 msgid "CSV en Excel"
 msgstr "CSV e Excel"
 
-#: templates/base.html:417
+#: templates/base.html:380
 msgid "Excel en CSV"
 msgstr "Excel e CSV"
 
-#: templates/base.html:419 templates/pdf/index.html:117
+#: templates/base.html:382 templates/pdf/index.html:105
 msgid "Toutes les conversions"
 msgstr "Todas as conversões"
 
-#: templates/base.html:426 templates/base_legal.html:249
+#: templates/base.html:389 templates/base_legal.html:249
 msgid "Fusionner"
 msgstr "Mesclar"
 
-#: templates/base.html:431 templates/base_legal.html:256
+#: templates/base.html:394 templates/base_legal.html:256
 msgid "Diviser"
 msgstr "Dividir"
 
-#: templates/base.html:436 templates/base_legal.html:263
+#: templates/base.html:399 templates/base_legal.html:263
 msgid "Tourner"
 msgstr "Vez"
 
-#: templates/base.html:441 templates/base_legal.html:270
+#: templates/base.html:404 templates/base_legal.html:270
 msgid "Compresser"
 msgstr "Compressa"
 
-#: templates/base.html:454 templates/base.html:556 templates/base.html:558
+#: templates/base.html:417 templates/base.html:520 templates/base.html:522
 #: templates/base_legal.html:292 templates/base_legal.html:521
 msgid "À propos"
 msgstr "Sobre"
 
-#: templates/base.html:543
+#: templates/base.html:507
 msgid ""
 "Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et "
 "compressez vos fichiers PDF."
@@ -777,56 +777,72 @@ msgstr ""
 "Ferramentas PDF online gratuitas. Converta, mescle, divida e compacte "
 "seus arquivos PDF."
 
-#: templates/base.html:544
+#: templates/base.html:508
 msgid ""
 "Vos fichiers sont traités de manière sécurisée et supprimés "
 "automatiquement."
 msgstr "Seus arquivos são processados de forma segura e excluídos automaticamente."
 
-#: templates/base.html:547
+#: templates/base.html:511
 msgid "Outils"
 msgstr "Ferramentas"
 
-#: templates/base.html:551
+#: templates/base.html:515
 msgid "Tourner PDF"
 msgstr "Virar PDF"
 
-#: templates/base.html:559 templates/base_legal.html:509
+#: templates/base.html:523 templates/base_legal.html:509
 msgid "Mentions légales"
 msgstr "Avisos legais"
 
-#: templates/base.html:560 templates/base_legal.html:513
+#: templates/base.html:524 templates/base_legal.html:513
 #: templates/legal/about.html:76
 msgid "Confidentialité"
 msgstr "Confidencialidade"
 
-#: templates/base.html:561
+#: templates/base.html:525
 msgid "Conditions d'utilisation"
 msgstr "Termos de Uso"
 
-#: templates/base.html:569
+#: templates/base.html:533
 msgid "Tous droits réservés."
 msgstr "Todos os direitos reservados."
 
-#: templates/base.html:572 templates/base_legal.html:504
+#: templates/base.html:536 templates/base_legal.html:504
 msgid "Version"
 msgstr "Versão"
 
-#: templates/base.html:573
+#: templates/base.html:537
 msgid "Hébergé sur Render"
 msgstr "Hospedado em Renderização"
 
-#: templates/base.html:584
+#: templates/base.html:548
 msgid "Chargement..."
 msgstr "Carregando..."
 
-#: templates/base.html:586
+#: templates/base.html:550
 msgid "Traitement en cours..."
 msgstr "Processamento em andamento..."
 
-#: templates/base.html:587
+#: templates/base.html:551
 msgid "Veuillez patienter"
 msgstr "Por favor, aguarde"
+
+#: templates/base.html:624
+#, fuzzy
+msgid "Soutenez notre outil gratuit !"
+msgstr "Publicidade - Apoie nosso serviço gratuito"
+
+#: templates/base.html:625
+msgid ""
+"Ce service est entièrement gratuit grâce à vous. Un petit clic sur une "
+"publicité nous aide énormément à maintenir et améliorer PDF Fusion Pro."
+msgstr ""
+
+#: templates/base.html:626
+#, fuzzy
+msgid "Je comprends"
+msgstr "Compressa"
 
 #: templates/base_legal.html:517
 msgid "Conditions"
@@ -856,7 +872,7 @@ msgid "Télécharger"
 msgstr "Baixar"
 
 #: templates/conversion/conversion_base.html:214
-#: templates/conversion/index.html:201
+#: templates/conversion/index.html:216
 msgid "Sécurisé"
 msgstr "Seguro"
 
@@ -865,7 +881,7 @@ msgid "Vos fichiers sont supprimés après conversion"
 msgstr "Seus arquivos são excluídos após a conversão"
 
 #: templates/conversion/conversion_base.html:219
-#: templates/conversion/index.html:206
+#: templates/conversion/index.html:221
 msgid "Rapide"
 msgstr "Rápido"
 
@@ -890,7 +906,7 @@ msgid "Utilisez depuis n'importe où"
 msgstr "Use de qualquer lugar"
 
 #: templates/conversion/conversion_base.html:239
-#: templates/conversion/index.html:256
+#: templates/conversion/index.html:270
 msgid "Comment ça marche ?"
 msgstr "Como funciona?"
 
@@ -921,7 +937,6 @@ msgid "Glissez-déposez vos fichiers CSV ici"
 msgstr "Arraste e solte seus arquivos CSV aqui"
 
 #: templates/conversion/csv_to_excel.html:22
-#: templates/conversion/edit_pdf.html:22
 #: templates/conversion/excel_to_csv.html:22
 #: templates/conversion/excel_to_pdf.html:22
 #: templates/conversion/html_to_pdf.html:22
@@ -943,7 +958,7 @@ msgstr "Arraste e solte seus arquivos CSV aqui"
 #: templates/conversion/redact_pdf.html:22
 #: templates/conversion/sign_pdf.html:22
 #: templates/conversion/txt_to_pdf.html:22
-#: templates/conversion/word_to_pdf.html:43 templates/pdf/index.html:166
+#: templates/conversion/word_to_pdf.html:43 templates/pdf/index.html:154
 msgid "ou"
 msgstr "ou"
 
@@ -1008,7 +1023,6 @@ msgid "Convertir en Excel"
 msgstr "Converter para Excel"
 
 #: templates/conversion/csv_to_excel.html:73
-#: templates/conversion/edit_pdf.html:225
 #: templates/conversion/excel_to_csv.html:80
 #: templates/conversion/excel_to_pdf.html:63
 #: templates/conversion/image_to_excel.html:124
@@ -1104,242 +1118,6 @@ msgstr "Por favor, selecione pelo menos um arquivo CSV"
 #: templates/conversion/word_to_pdf.html:475
 msgid "Erreur lors de la conversion :"
 msgstr "Erro durante a conversão:"
-
-#: templates/conversion/edit_pdf.html:10
-#: templates/conversion/redact_pdf.html:10
-#: templates/conversion/sign_pdf.html:10
-msgid "Téléchargez votre PDF"
-msgstr "Carregue seu PDF"
-
-#: templates/conversion/edit_pdf.html:11
-msgid "Modifiez, ajoutez du texte ou des images à votre document"
-msgstr "Edite, adicione texto ou imagens ao seu documento"
-
-#: templates/conversion/edit_pdf.html:21
-#: templates/conversion/pdf_to_doc.html:21
-#: templates/conversion/pdf_to_excel.html:21
-#: templates/conversion/pdf_to_html.html:21
-#: templates/conversion/pdf_to_image.html:21
-#: templates/conversion/pdf_to_pdfa.html:21
-#: templates/conversion/pdf_to_ppt.html:21
-#: templates/conversion/pdf_to_txt.html:21
-#: templates/conversion/pdf_to_word.html:21
-#: templates/conversion/redact_pdf.html:21
-#: templates/conversion/sign_pdf.html:21
-msgid "Glissez-déposez votre fichier PDF ici"
-msgstr "Arraste e solte seu arquivo PDF aqui"
-
-#: templates/conversion/edit_pdf.html:26
-#: templates/conversion/redact_pdf.html:26
-#: templates/conversion/sign_pdf.html:26
-msgid "Formats acceptés : PDF (jusqu'à 100MB)"
-msgstr "Formatos aceitos: PDF (até 100MB)"
-
-#: templates/conversion/edit_pdf.html:38
-msgid "Ajouter du texte"
-msgstr "Adicionar texto"
-
-#: templates/conversion/edit_pdf.html:43
-msgid "Ajouter une image"
-msgstr "Adicionar imagem"
-
-#: templates/conversion/edit_pdf.html:48
-msgid "Gérer les pages"
-msgstr "Gerenciar páginas"
-
-#: templates/conversion/edit_pdf.html:56
-msgid "Ajouter du texte au PDF"
-msgstr "Adicionar texto ao PDF"
-
-#: templates/conversion/edit_pdf.html:59
-msgid "Texte à ajouter :"
-msgstr "Texto a adicionar:"
-
-#: templates/conversion/edit_pdf.html:60
-msgid "Saisissez votre texte ici..."
-msgstr "Digite seu texto aqui..."
-
-#: templates/conversion/edit_pdf.html:63 templates/conversion/edit_pdf.html:120
-msgid "Page d'insertion :"
-msgstr "Página de inserção:"
-
-#: templates/conversion/edit_pdf.html:66
-msgid "Position :"
-msgstr "Posição:"
-
-#: templates/conversion/edit_pdf.html:78 templates/conversion/edit_pdf.html:124
-#: templates/conversion/sign_pdf.html:105
-#: templates/conversion/txt_to_pdf.html:63
-msgid "Taille :"
-msgstr "Tamanho:"
-
-#: templates/conversion/edit_pdf.html:90
-#: templates/conversion/redact_pdf.html:92
-msgid "Couleur :"
-msgstr "Cor:"
-
-#: templates/conversion/edit_pdf.html:96
-#: templates/conversion/txt_to_pdf.html:55
-msgid "Police :"
-msgstr "Fonte:"
-
-#: templates/conversion/edit_pdf.html:99
-#: templates/conversion/txt_to_pdf.html:58
-msgid "Times New Roman"
-msgstr "Times New Roman"
-
-#: templates/conversion/edit_pdf.html:101
-msgid "Helvetica Gras"
-msgstr "Helvetica Negrito"
-
-#: templates/conversion/edit_pdf.html:102
-msgid "Helvetica Italique"
-msgstr "Helvetica Itálico"
-
-#: templates/conversion/edit_pdf.html:111
-msgid "Ajouter une image au PDF"
-msgstr "Adicionar uma imagem ao PDF"
-
-#: templates/conversion/edit_pdf.html:114
-msgid "Glissez-déposez votre image ici"
-msgstr "Arraste e solte sua imagem aqui"
-
-#: templates/conversion/edit_pdf.html:126
-#: templates/conversion/image_to_pdf.html:62
-#: templates/conversion/jpg_to_pdf.html:45
-#: templates/conversion/pdf_to_pdfa.html:220
-#: templates/conversion/png_to_pdf.html:45
-msgid "Taille originale"
-msgstr "Tamanho original"
-
-#: templates/conversion/edit_pdf.html:127
-msgid "Ajuster à la page"
-msgstr "Ajustar à página"
-
-#: templates/conversion/edit_pdf.html:128
-msgid "Personnalisée"
-msgstr "Personalizado"
-
-#: templates/conversion/edit_pdf.html:132
-#: templates/conversion/sign_pdf.html:141
-msgid "Position X :"
-msgstr "Posição X:"
-
-#: templates/conversion/edit_pdf.html:136
-#: templates/conversion/sign_pdf.html:145
-msgid "Position Y :"
-msgstr "Posição Y:"
-
-#: templates/conversion/edit_pdf.html:144
-msgid "Gestion des pages"
-msgstr "Gerenciamento de páginas"
-
-#: templates/conversion/edit_pdf.html:147
-msgid "Action :"
-msgstr "Ação :"
-
-#: templates/conversion/edit_pdf.html:151
-msgid "Réorganiser"
-msgstr "Reorganizar"
-
-#: templates/conversion/edit_pdf.html:156
-msgid "Supprimer"
-msgstr "Excluir"
-
-#: templates/conversion/edit_pdf.html:161
-msgid "Rotation"
-msgstr "Rotação"
-
-#: templates/conversion/edit_pdf.html:169
-msgid "Faites glisser les pages pour les réorganiser"
-msgstr "Arraste as páginas para reorganizá-las"
-
-#: templates/conversion/edit_pdf.html:176
-#: templates/conversion/edit_pdf.html:182
-#: templates/conversion/pdf_to_image.html:281
-#: templates/conversion/pdf_to_image.html:336
-#: templates/conversion/prepare_form.html:103
-msgid "Page"
-msgstr "Página"
-
-#: templates/conversion/edit_pdf.html:189
-msgid "Pages à supprimer :"
-msgstr "Páginas a excluir:"
-
-#: templates/conversion/edit_pdf.html:191
-#: templates/conversion/edit_pdf.html:203
-msgid "Ex: 1-3, 5, 7-9"
-msgstr "Ex: 1-3, 5, 7-9"
-
-#: templates/conversion/edit_pdf.html:194
-msgid "Attention : La suppression est définitive"
-msgstr "Atenção: A exclusão é definitiva"
-
-#: templates/conversion/edit_pdf.html:201
-msgid "Pages à tourner :"
-msgstr "Páginas a girar:"
-
-#: templates/conversion/edit_pdf.html:206
-msgid "Angle :"
-msgstr "Ângulo:"
-
-#: templates/conversion/edit_pdf.html:208
-msgid "horaire"
-msgstr "horário"
-
-#: templates/conversion/edit_pdf.html:210
-msgid "antihoraire"
-msgstr "anti-horário"
-
-#: templates/conversion/edit_pdf.html:222
-msgid "Appliquer les modifications"
-msgstr "Aplicar alterações"
-
-#: templates/conversion/edit_pdf.html:236
-msgid "Édition en cours..."
-msgstr "Edição em andamento..."
-
-#: templates/conversion/edit_pdf.html:237
-msgid "Application des modifications au document"
-msgstr "Aplicando alterações ao documento"
-
-#: templates/conversion/edit_pdf.html:250
-msgid "Édition terminée !"
-msgstr "Edição concluída!"
-
-#: templates/conversion/edit_pdf.html:251
-msgid "Votre PDF modifié est prêt à être téléchargé"
-msgstr "Seu PDF editado está pronto para download"
-
-#: templates/conversion/edit_pdf.html:253
-msgid "Télécharger le PDF modifié"
-msgstr "Baixar PDF editado"
-
-#: templates/conversion/edit_pdf.html:257
-msgid "Éditer un autre PDF"
-msgstr "Edite outro PDF"
-
-#: templates/conversion/edit_pdf.html:302
-#: templates/conversion/pdf_to_doc.html:206
-#: templates/conversion/pdf_to_excel.html:236
-#: templates/conversion/pdf_to_image.html:243
-#: templates/conversion/pdf_to_pdfa.html:263
-#: templates/conversion/pdf_to_ppt.html:247
-#: templates/conversion/pdf_to_word.html:252
-#: templates/conversion/protect_pdf.html:141
-#: templates/conversion/redact_pdf.html:430
-#: templates/conversion/sign_pdf.html:363
-#: templates/conversion/unlock_pdf.html:98
-msgid "Veuillez sélectionner un fichier PDF"
-msgstr "Selecione um arquivo PDF"
-
-#: templates/conversion/edit_pdf.html:331
-msgid "Veuillez sélectionner une image à insérer"
-msgstr "Selecione uma imagem para inserir"
-
-#: templates/conversion/edit_pdf.html:409
-msgid "Erreur lors de l'édition :"
-msgstr "Erro durante a edição:"
 
 #: templates/conversion/excel_to_csv.html:10
 #: templates/conversion/excel_to_pdf.html:10
@@ -1727,6 +1505,13 @@ msgstr "Média"
 msgid "Basse (fichier plus petit)"
 msgstr "Baixa (arquivo menor)"
 
+#: templates/conversion/image_to_pdf.html:62
+#: templates/conversion/jpg_to_pdf.html:45
+#: templates/conversion/pdf_to_pdfa.html:220
+#: templates/conversion/png_to_pdf.html:45
+msgid "Taille originale"
+msgstr "Tamanho original"
+
 #: templates/conversion/image_to_pdf.html:69
 #: templates/conversion/jpg_to_pdf.html:68
 #: templates/conversion/png_to_pdf.html:68
@@ -2004,11 +1789,26 @@ msgstr "Documento pronto"
 msgid "Erreur lors de l'extraction :"
 msgstr "Erro durante a extração:"
 
-#: templates/conversion/index.html:107
+#: templates/conversion/index.html:7
+#, fuzzy
+msgid "Convertisseur PDF en ligne gratuit – PDF Fusion Pro"
+msgstr "Conversor de PDF online gratuito"
+
+#: templates/conversion/index.html:13
+#, fuzzy
+msgid ""
+"Convertissez gratuitement vos fichiers PDF, Word, Excel, PowerPoint et "
+"images en ligne. Plus de 26 outils de conversion rapides, sécurisés et "
+"sans inscription."
+msgstr ""
+"Converta PDF, Word, Excel, PowerPoint, imagens e muito mais. Simples, "
+"rápido e seguro."
+
+#: templates/conversion/index.html:123
 msgid "Transformez vos documents en tous formats, gratuitement et en ligne"
 msgstr "Transforme seus documentos em todos os formatos, gratuitamente e online"
 
-#: templates/conversion/index.html:112
+#: templates/conversion/index.html:128
 msgid ""
 "Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple,"
 " rapide et sécurisé."
@@ -2016,115 +1816,115 @@ msgstr ""
 "Converta PDF, Word, Excel, PowerPoint, imagens e muito mais. Simples, "
 "rápido e seguro."
 
-#: templates/conversion/index.html:118
+#: templates/conversion/index.html:134
 msgid "Découvrir les outils"
 msgstr "Descobrir ferramentas"
 
-#: templates/conversion/index.html:129
+#: templates/conversion/index.html:145
 msgid "Outils de conversion"
 msgstr "Ferramentas de conversão"
 
-#: templates/conversion/index.html:135
+#: templates/conversion/index.html:151
 msgid "Gratuit"
 msgstr "Grátis"
 
-#: templates/conversion/index.html:141
+#: templates/conversion/index.html:157
 msgid "Max par fichier"
 msgstr "Máx por arquivo"
 
-#: templates/conversion/index.html:147
+#: templates/conversion/index.html:163
 msgid "Conversions illimitées"
 msgstr "Conversões ilimitadas"
 
-#: templates/conversion/index.html:162
+#: templates/conversion/index.html:178
 msgid "outils disponibles"
 msgstr "ferramentas disponíveis"
 
-#: templates/conversion/index.html:202
+#: templates/conversion/index.html:217
 msgid "Fichiers traités localement et supprimés après conversion"
 msgstr "Arquivos processados localmente e excluídos após conversão"
 
-#: templates/conversion/index.html:207
+#: templates/conversion/index.html:222
 msgid "Conversion en quelques secondes, sans attente"
 msgstr "Conversão em segundos, sem espera"
 
-#: templates/conversion/index.html:211
+#: templates/conversion/index.html:226
 msgid "Multiplateforme"
 msgstr "Multiplataforma"
 
-#: templates/conversion/index.html:212 templates/pdf/index.html:173
+#: templates/conversion/index.html:227 templates/pdf/index.html:161
 msgid "Compatible avec tous les navigateurs modernes"
 msgstr "Compatível com todos os navegadores modernos"
 
-#: templates/conversion/index.html:216
+#: templates/conversion/index.html:231
 msgid "Illimité"
 msgstr "Ilimitado"
 
-#: templates/conversion/index.html:217
+#: templates/conversion/index.html:232
 msgid "Aucune limite sur le nombre de conversions"
 msgstr "Sem limite no número de conversões"
 
-#: templates/conversion/index.html:226
+#: templates/conversion/index.html:241
 msgid "Toutes les conversions disponibles"
 msgstr "Todas as conversões disponíveis"
 
-#: templates/conversion/index.html:243
+#: templates/conversion/index.html:257
 msgid "Utiliser"
 msgstr "Para usar"
 
-#: templates/conversion/index.html:259
+#: templates/conversion/index.html:273
 msgid "Choisissez votre outil de conversion"
 msgstr "Escolha sua ferramenta de conversão"
 
-#: templates/conversion/index.html:260
+#: templates/conversion/index.html:274
 msgid "Téléchargez votre fichier source"
 msgstr "Carregue seu arquivo fonte"
 
-#: templates/conversion/index.html:261
+#: templates/conversion/index.html:275
 msgid "Configurez les options (si besoin)"
 msgstr "Configure as opções (se necessário)"
 
-#: templates/conversion/index.html:262
+#: templates/conversion/index.html:276
 msgid "Lancez la conversion"
 msgstr "Inicie a conversão"
 
-#: templates/conversion/index.html:263
+#: templates/conversion/index.html:277
 msgid "Téléchargez votre fichier converti"
 msgstr "Baixe seu arquivo convertido"
 
-#: templates/conversion/index.html:267 templates/conversion/protect_pdf.html:75
+#: templates/conversion/index.html:281 templates/conversion/protect_pdf.html:75
 msgid "Important :"
 msgstr "Importante:"
 
-#: templates/conversion/index.html:268
+#: templates/conversion/index.html:282
 msgid "Les fichiers sont automatiquement supprimés après 1 heure"
 msgstr "Os arquivos são automaticamente excluídos após 1 hora"
 
-#: templates/conversion/index.html:276
+#: templates/conversion/index.html:291
 msgid "Liens rapides"
 msgstr "Links rápidos"
 
-#: templates/conversion/index.html:281
+#: templates/conversion/index.html:296
 msgid "Dépendances système"
 msgstr "Dependências do sistema"
 
-#: templates/conversion/index.html:285
+#: templates/conversion/index.html:300
 msgid "Nettoyer fichiers temporaires"
 msgstr "Limpar arquivos temporários"
 
-#: templates/conversion/index.html:289
+#: templates/conversion/index.html:304
 msgid "Vérifier l'état du service"
 msgstr "Verificar status do serviço"
 
-#: templates/conversion/index.html:300
+#: templates/conversion/index.html:315
 msgid "Questions fréquentes"
 msgstr "Perguntas frequentes"
 
-#: templates/conversion/index.html:308
+#: templates/conversion/index.html:323 templates/conversion/index.html:381
 msgid "Les fichiers sont-ils sécurisés ?"
 msgstr "Os arquivos são seguros?"
 
-#: templates/conversion/index.html:311
+#: templates/conversion/index.html:326 templates/conversion/index.html:384
 msgid ""
 "Oui, tous les fichiers sont traités localement et automatiquement "
 "supprimés après 1 heure. Nous ne stockons jamais vos documents sur nos "
@@ -2134,11 +1934,11 @@ msgstr ""
 "excluídos após 1 hora. Nunca armazenamos seus documentos em nossos "
 "servidores."
 
-#: templates/conversion/index.html:321
+#: templates/conversion/index.html:336 templates/conversion/index.html:389
 msgid "Quelles sont les limites de taille ?"
 msgstr "Quais são os limites de tamanho?"
 
-#: templates/conversion/index.html:324
+#: templates/conversion/index.html:339 templates/conversion/index.html:392
 msgid ""
 "Taille maximale par fichier : 50MB. Nombre maximum de fichiers par "
 "conversion : variable selon l'outil (de 1 à 20)."
@@ -2146,11 +1946,11 @@ msgstr ""
 "Tamanho máximo por arquivo: 50MB. Número máximo de arquivos por "
 "conversão: variável conforme a ferramenta (de 1 a 20)."
 
-#: templates/conversion/index.html:334
+#: templates/conversion/index.html:349 templates/conversion/index.html:397
 msgid "Combien de temps dure une conversion ?"
 msgstr "Quanto tempo dura uma conversão?"
 
-#: templates/conversion/index.html:337
+#: templates/conversion/index.html:352 templates/conversion/index.html:400
 msgid ""
 "La plupart des conversions prennent moins de 30 secondes. Pour les gros "
 "fichiers ou les conversions complexes (OCR), comptez 1 à 2 minutes."
@@ -2158,11 +1958,11 @@ msgstr ""
 "A maioria das conversões leva menos de 30 segundos. Para arquivos grandes"
 " ou conversões complexas (OCR), aguarde de 1 a 2 minutos."
 
-#: templates/conversion/index.html:347
+#: templates/conversion/index.html:362 templates/conversion/index.html:405
 msgid "Quels formats sont supportés ?"
 msgstr "Quais formatos são suportados?"
 
-#: templates/conversion/index.html:350
+#: templates/conversion/index.html:365 templates/conversion/index.html:408
 msgid ""
 "Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, "
 "PPTX, JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore."
@@ -2214,6 +2014,19 @@ msgid ""
 msgstr ""
 "Transforme seus documentos PDF em formato Word compatível com versões "
 "antigas"
+
+#: templates/conversion/pdf_to_doc.html:21
+#: templates/conversion/pdf_to_excel.html:21
+#: templates/conversion/pdf_to_html.html:21
+#: templates/conversion/pdf_to_image.html:21
+#: templates/conversion/pdf_to_pdfa.html:21
+#: templates/conversion/pdf_to_ppt.html:21
+#: templates/conversion/pdf_to_txt.html:21
+#: templates/conversion/pdf_to_word.html:21
+#: templates/conversion/redact_pdf.html:21
+#: templates/conversion/sign_pdf.html:21
+msgid "Glissez-déposez votre fichier PDF ici"
+msgstr "Arraste e solte seu arquivo PDF aqui"
 
 #: templates/conversion/pdf_to_doc.html:26
 #: templates/conversion/pdf_to_excel.html:26
@@ -2347,6 +2160,19 @@ msgstr "Tamanho do arquivo"
 #: templates/conversion/word_to_pdf.html:237
 msgid "Format"
 msgstr "Formato"
+
+#: templates/conversion/pdf_to_doc.html:206
+#: templates/conversion/pdf_to_excel.html:236
+#: templates/conversion/pdf_to_image.html:243
+#: templates/conversion/pdf_to_pdfa.html:263
+#: templates/conversion/pdf_to_ppt.html:247
+#: templates/conversion/pdf_to_word.html:252
+#: templates/conversion/protect_pdf.html:141
+#: templates/conversion/redact_pdf.html:430
+#: templates/conversion/sign_pdf.html:363
+#: templates/conversion/unlock_pdf.html:98
+msgid "Veuillez sélectionner un fichier PDF"
+msgstr "Selecione um arquivo PDF"
 
 #: templates/conversion/pdf_to_doc.html:273
 #: templates/conversion/pdf_to_ppt.html:148
@@ -2710,6 +2536,12 @@ msgstr "Tamanho total"
 #: templates/conversion/pdf_to_image.html:280
 msgid "Conversion de la page"
 msgstr "Conversão da página"
+
+#: templates/conversion/pdf_to_image.html:281
+#: templates/conversion/pdf_to_image.html:336
+#: templates/conversion/prepare_form.html:103
+msgid "Page"
+msgstr "Página"
 
 #: templates/conversion/pdf_to_image.html:281
 msgid "convertie en"
@@ -3655,9 +3487,19 @@ msgstr "documento_protegido.pdf"
 msgid "Erreur:"
 msgstr "Erro:"
 
+#: templates/conversion/redact_pdf.html:10
+#: templates/conversion/sign_pdf.html:10
+msgid "Téléchargez votre PDF"
+msgstr "Carregue seu PDF"
+
 #: templates/conversion/redact_pdf.html:11
 msgid "Supprimez définitivement le contenu sensible de votre document"
 msgstr "Remova permanentemente conteúdo sensível do seu documento"
+
+#: templates/conversion/redact_pdf.html:26
+#: templates/conversion/sign_pdf.html:26
+msgid "Formats acceptés : PDF (jusqu'à 100MB)"
+msgstr "Formatos aceitos: PDF (até 100MB)"
 
 #: templates/conversion/redact_pdf.html:36
 msgid "Options de caviardage"
@@ -3706,6 +3548,10 @@ msgid ""
 msgstr ""
 "Após carregar seu PDF, você poderá desenhar áreas para redigir na "
 "pré-visualização."
+
+#: templates/conversion/redact_pdf.html:92
+msgid "Couleur :"
+msgstr "Cor:"
 
 #: templates/conversion/redact_pdf.html:96
 msgid "Opaque"
@@ -3940,6 +3786,11 @@ msgstr "Padrão"
 msgid "Élégant"
 msgstr "Elegante"
 
+#: templates/conversion/sign_pdf.html:105
+#: templates/conversion/txt_to_pdf.html:63
+msgid "Taille :"
+msgstr "Tamanho:"
+
 #: templates/conversion/sign_pdf.html:107
 msgid "Petite"
 msgstr "Pequeno"
@@ -3967,6 +3818,14 @@ msgstr "Formatos aceitos: PNG, JPG, GIF (fundo transparente recomendado)"
 #: templates/conversion/sign_pdf.html:137 templates/errors/500.html:154
 msgid "Page :"
 msgstr "Página:"
+
+#: templates/conversion/sign_pdf.html:141
+msgid "Position X :"
+msgstr "Posição X:"
+
+#: templates/conversion/sign_pdf.html:145
+msgid "Position Y :"
+msgstr "Posição Y:"
 
 #: templates/conversion/sign_pdf.html:152
 msgid "Aperçu de la signature :"
@@ -4059,6 +3918,14 @@ msgstr "Cole seu texto aqui..."
 #: templates/conversion/txt_to_pdf.html:43
 msgid "Options de formatage"
 msgstr "Opções de formatação"
+
+#: templates/conversion/txt_to_pdf.html:55
+msgid "Police :"
+msgstr "Fonte:"
+
+#: templates/conversion/txt_to_pdf.html:58
+msgid "Times New Roman"
+msgstr "Times New Roman"
 
 #: templates/conversion/txt_to_pdf.html:72
 msgid "Interligne :"
@@ -4473,13 +4340,24 @@ msgstr ""
 "Este erro foi automaticamente registrado e será analisado por nossas "
 "equipes."
 
-#: templates/includes/adsterra_ads.html:6
+#: templates/includes/adsterra_ads.html:8
 msgid "Publicité - Soutenez notre service gratuit"
 msgstr "Publicidade - Apoie nosso serviço gratuito"
 
-#: templates/includes/adsterra_ads.html:17
+#: templates/includes/adsterra_ads.html:27
+#: templates/includes/adsterra_ads.html:46
 msgid "Annonce"
 msgstr "Anúncio"
+
+#: templates/includes/adsterra_ads.html:110 templates/pdf/compress.html:68
+#: templates/pdf/merge.html:54 templates/pdf/rotate.html:74
+#: templates/pdf/split.html:63
+msgid ""
+"Cet outil est entièrement gratuit. Un clic sur les annonces nous aide à "
+"le maintenir !"
+msgstr ""
+"Esta ferramenta é completamente gratuita. Um clique nos anúncios nos "
+"ajuda a mantê-la!"
 
 #: templates/legal/about.html:4
 msgid "À propos de PDF Fusion Pro"
@@ -5182,11 +5060,6 @@ msgstr "Compactar PDF"
 msgid "Sponsorisé"
 msgstr "Conformidade"
 
-#: templates/pdf/compress.html:68 templates/pdf/merge.html:54
-#: templates/pdf/rotate.html:74 templates/pdf/split.html:63
-msgid "Cet outil est entièrement gratuit. Un clic sur les annonces nous aide à le maintenir !"
-msgstr "Esta ferramenta é completamente gratuita. Um clique nos anúncios nos ajuda a mantê-la!"
-
 #: templates/pdf/index.html:3
 msgid "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
 msgstr "Página inicial - PDF Fusion Pro – Ferramentas PDF gratuitas"
@@ -5279,11 +5152,11 @@ msgstr "Reduza o tamanho dos seus PDFs sem perda perceptível de qualidade"
 msgid "Accédez à l'outil de compression PDF"
 msgstr "Acesse a ferramenta de compactação de PDF"
 
-#: templates/pdf/index.html:112
+#: templates/pdf/index.html:100
 msgid "Convertisseur universel"
 msgstr "Conversor universal"
 
-#: templates/pdf/index.html:113
+#: templates/pdf/index.html:101
 msgid ""
 "Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et "
 "vice-versa"
@@ -5291,31 +5164,31 @@ msgstr ""
 "Converta seus arquivos Word, Excel, PowerPoint e imagens para PDF e vice-"
 "versa"
 
-#: templates/pdf/index.html:129
+#: templates/pdf/index.html:117
 msgid "PDF Fusion Pro en chiffres"
 msgstr "PDF Fusion Pro em números"
 
-#: templates/pdf/index.html:135
+#: templates/pdf/index.html:123
 msgid "Utilisateurs"
 msgstr "Usuários"
 
-#: templates/pdf/index.html:139
+#: templates/pdf/index.html:127
 msgid "PDF traités"
 msgstr "PDFs processados"
 
-#: templates/pdf/index.html:143
+#: templates/pdf/index.html:131
 msgid "Satisfaction"
 msgstr "Satisfação"
 
-#: templates/pdf/index.html:147
+#: templates/pdf/index.html:135
 msgid "Disponible"
 msgstr "Disponível"
 
-#: templates/pdf/index.html:160
+#: templates/pdf/index.html:148
 msgid "Votre solution PDF tout-en-un, entièrement gratuite et sécurisée"
 msgstr "Sua solução PDF completa, totalmente gratuita e segura"
 
-#: templates/pdf/index.html:162
+#: templates/pdf/index.html:150
 msgid ""
 "PDF Fusion Pro est la plateforme idéale pour tous vos besoins en "
 "manipulation de fichiers PDF. Que vous ayez besoin de"
@@ -5323,31 +5196,31 @@ msgstr ""
 "PDF Fusion Pro é a plataforma ideal para todas as suas necessidades de "
 "manipulação de arquivos PDF. Se você precisa"
 
-#: templates/pdf/index.html:163
+#: templates/pdf/index.html:151
 msgid "fusionner plusieurs documents"
 msgstr "mesclar vários documentos"
 
-#: templates/pdf/index.html:164
+#: templates/pdf/index.html:152
 msgid "diviser un PDF volumineux"
 msgstr "dividir um PDF grande"
 
-#: templates/pdf/index.html:165
+#: templates/pdf/index.html:153
 msgid "tourner des pages mal orientées"
 msgstr "virar páginas orientadas incorretamente"
 
-#: templates/pdf/index.html:167
+#: templates/pdf/index.html:155
 msgid "compresser des fichiers pour les partager"
 msgstr "compactar arquivos para compartilhar"
 
-#: templates/pdf/index.html:168
+#: templates/pdf/index.html:156
 msgid "nos outils sont là pour vous aider."
 msgstr "nossas ferramentas estão aqui para ajudá-lo."
 
-#: templates/pdf/index.html:171
+#: templates/pdf/index.html:159
 msgid "Aucune inscription requise"
 msgstr "Não é necessário registro"
 
-#: templates/pdf/index.html:172
+#: templates/pdf/index.html:160
 msgid "Chiffrement SSL et suppression automatique des fichiers"
 msgstr "Criptografia SSL e exclusão automática de arquivos"
 
@@ -5445,7 +5318,114 @@ msgstr ""
 msgid "Diviser le PDF"
 msgstr "Dividir PDF"
 
+#~ msgid "Modifiez, ajoutez du texte ou des images à votre document"
+#~ msgstr "Edite, adicione texto ou imagens ao seu documento"
 
-#: templates/includes/adsterra_ads.html
-msgid "Convertisseur PDF en ligne gratuit"
-msgstr "Conversor de PDF online gratuito"
+#~ msgid "Ajouter du texte"
+#~ msgstr "Adicionar texto"
+
+#~ msgid "Ajouter une image"
+#~ msgstr "Adicionar imagem"
+
+#~ msgid "Gérer les pages"
+#~ msgstr "Gerenciar páginas"
+
+#~ msgid "Ajouter du texte au PDF"
+#~ msgstr "Adicionar texto ao PDF"
+
+#~ msgid "Texte à ajouter :"
+#~ msgstr "Texto a adicionar:"
+
+#~ msgid "Saisissez votre texte ici..."
+#~ msgstr "Digite seu texto aqui..."
+
+#~ msgid "Page d'insertion :"
+#~ msgstr "Página de inserção:"
+
+#~ msgid "Position :"
+#~ msgstr "Posição:"
+
+#~ msgid "Helvetica Gras"
+#~ msgstr "Helvetica Negrito"
+
+#~ msgid "Helvetica Italique"
+#~ msgstr "Helvetica Itálico"
+
+#~ msgid "Ajouter une image au PDF"
+#~ msgstr "Adicionar uma imagem ao PDF"
+
+#~ msgid "Glissez-déposez votre image ici"
+#~ msgstr "Arraste e solte sua imagem aqui"
+
+#~ msgid "Ajuster à la page"
+#~ msgstr "Ajustar à página"
+
+#~ msgid "Personnalisée"
+#~ msgstr "Personalizado"
+
+#~ msgid "Gestion des pages"
+#~ msgstr "Gerenciamento de páginas"
+
+#~ msgid "Action :"
+#~ msgstr "Ação :"
+
+#~ msgid "Réorganiser"
+#~ msgstr "Reorganizar"
+
+#~ msgid "Supprimer"
+#~ msgstr "Excluir"
+
+#~ msgid "Rotation"
+#~ msgstr "Rotação"
+
+#~ msgid "Faites glisser les pages pour les réorganiser"
+#~ msgstr "Arraste as páginas para reorganizá-las"
+
+#~ msgid "Pages à supprimer :"
+#~ msgstr "Páginas a excluir:"
+
+#~ msgid "Ex: 1-3, 5, 7-9"
+#~ msgstr "Ex: 1-3, 5, 7-9"
+
+#~ msgid "Attention : La suppression est définitive"
+#~ msgstr "Atenção: A exclusão é definitiva"
+
+#~ msgid "Pages à tourner :"
+#~ msgstr "Páginas a girar:"
+
+#~ msgid "Angle :"
+#~ msgstr "Ângulo:"
+
+#~ msgid "horaire"
+#~ msgstr "horário"
+
+#~ msgid "antihoraire"
+#~ msgstr "anti-horário"
+
+#~ msgid "Appliquer les modifications"
+#~ msgstr "Aplicar alterações"
+
+#~ msgid "Édition en cours..."
+#~ msgstr "Edição em andamento..."
+
+#~ msgid "Application des modifications au document"
+#~ msgstr "Aplicando alterações ao documento"
+
+#~ msgid "Édition terminée !"
+#~ msgstr "Edição concluída!"
+
+#~ msgid "Votre PDF modifié est prêt à être téléchargé"
+#~ msgstr "Seu PDF editado está pronto para download"
+
+#~ msgid "Télécharger le PDF modifié"
+#~ msgstr "Baixar PDF editado"
+
+#~ msgid "Éditer un autre PDF"
+#~ msgstr "Edite outro PDF"
+
+#~ msgid "Veuillez sélectionner une image à insérer"
+#~ msgstr "Selecione uma imagem para inserir"
+
+#~ msgid "Erreur lors de l'édition :"
+#~ msgstr "Erro durante a edição:"
+
