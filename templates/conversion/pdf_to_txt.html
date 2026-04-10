@@ -3,6 +3,16 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block converter_content %}
+
+{# ── Chaînes i18n exposées au JS via data-attributes ── #}
+<div id="js-i18n" style="display:none;"
+     data-err-no-file="{{ _('Veuillez sélectionner un fichier') }}"
+     data-err-no-pages="{{ _('Veuillez spécifier les pages à extraire') }}"
+     data-err-invalid-range="{{ _('Format de pages invalide. Utilisez le format: 1-5,8,11-13') }}"
+     data-err-extraction="{{ _('Erreur lors de l\'extraction :') }}"
+     data-url-converter="{{ url_for('conversion.universal_converter', conversion_type='pdf-en-txt') }}">
+</div>
+
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
@@ -119,6 +129,18 @@
 </div>
 
 <script>
+// ── Lecture des chaînes i18n depuis le DOM (pas de Jinja2 dans le JS) ──
+const _i18n = (function () {
+    const el = document.getElementById('js-i18n');
+    return {
+        errNoFile:       el.dataset.errNoFile,
+        errNoPages:      el.dataset.errNoPages,
+        errInvalidRange: el.dataset.errInvalidRange,
+        errExtraction:   el.dataset.errExtraction,
+        urlConverter:    el.dataset.urlConverter
+    };
+})();
+
 let downloadUrl = null;
 let progressInterval = null;
 
@@ -134,19 +156,23 @@ function showError(message) {
         errorDiv = document.createElement('div');
         errorDiv.id = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>'
+            + '<span id="conversionErrorMsg"></span>'
+            + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
         document.getElementById('step1Content').prepend(errorDiv);
     }
     document.getElementById('conversionErrorMsg').textContent = message;
     errorDiv.style.display = 'block';
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const extractAllPages = document.getElementById('extractAllPages');
-    const pageRangeGroup = document.getElementById('pageRangeGroup');
+    const pageRangeGroup  = document.getElementById('pageRangeGroup');
     if (extractAllPages) {
-        extractAllPages.addEventListener('change', () => {
-            if (pageRangeGroup) pageRangeGroup.style.display = extractAllPages.checked ? 'none' : 'block';
+        extractAllPages.addEventListener('change', function () {
+            if (pageRangeGroup) {
+                pageRangeGroup.style.display = this.checked ? 'none' : 'block';
+            }
         });
     }
 });
@@ -157,74 +183,90 @@ function validatePageRange(range) {
 }
 
 function startConversion() {
-    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
+    const uploadManager = window.uploadManagers && window.uploadManagers['pdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('{{ _("Veuillez sélectionner un fichier") }}');
+        showError(_i18n.errNoFile);
         return;
     }
 
     const extractAll = document.getElementById('extractAllPages').checked;
     if (!extractAll) {
         const pageRange = document.getElementById('pageRange').value.trim();
-        if (!pageRange) { showError('{{ _("Veuillez spécifier les pages à extraire") }}'); return; }
-        if (!validatePageRange(pageRange)) { showError('{{ _("Format de pages invalide. Utilisez le format: 1-5,8,11-13") }}'); return; }
+        if (!pageRange) {
+            showError(_i18n.errNoPages);
+            return;
+        }
+        if (!validatePageRange(pageRange)) {
+            showError(_i18n.errInvalidRange);
+            return;
+        }
     }
 
     const file = uploadManager.getFiles()[0];
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('encoding', document.getElementById('encoding').value);
-    formData.append('preserveLayout', document.getElementById('preserveLayout').checked ? 'true' : 'false');
-    formData.append('addPageMarkers', document.getElementById('addPageMarkers').checked ? 'true' : 'false');
+    formData.append('encoding',        document.getElementById('encoding').value);
+    formData.append('preserveLayout',  document.getElementById('preserveLayout').checked  ? 'true' : 'false');
+    formData.append('addPageMarkers',  document.getElementById('addPageMarkers').checked   ? 'true' : 'false');
     formData.append('extractAllPages', extractAll ? 'true' : 'false');
-    if (!extractAll) formData.append('pageRange', document.getElementById('pageRange').value);
+    if (!extractAll) {
+        formData.append('pageRange', document.getElementById('pageRange').value);
+    }
 
     updateStep(2);
 
     let progress = 0;
     const progressBar = document.getElementById('progressBar');
-    progressInterval = setInterval(() => {
+    progressInterval = setInterval(function () {
         if (progress < 90) {
             progress += 10;
             if (progressBar) progressBar.style.width = progress + '%';
         }
     }, 500);
 
-    fetch('{{ url_for("conversion.universal_converter", conversion_type="pdf-en-txt") }}', {
+    fetch(_i18n.urlConverter, {
         method: 'POST',
         body: formData
     })
-    .then(async response => {
+    .then(function (response) {
         clearInterval(progressInterval);
         if (progressBar) progressBar.style.width = '100%';
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erreur serveur ' + response.status);
+            return response.text().then(function (txt) {
+                throw new Error(txt || 'Erreur serveur ' + response.status);
+            });
         }
+
         const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
-
-        const blob = await response.blob();
-        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
-
-        downloadUrl = window.URL.createObjectURL(blob);
-        const contentDisposition = response.headers.get('Content-Disposition') || '';
-        let filename = file.name.replace(/\.pdf$/i, '') + '.txt';
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
-
-        const downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.setAttribute('download', filename);
+        if (contentType.includes('text/html')) {
+            throw new Error('Erreur serveur inattendue.');
         }
-        updateStep(3);
+
+        return response.blob().then(function (blob) {
+            if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+
+            downloadUrl = window.URL.createObjectURL(blob);
+
+            const contentDisposition = response.headers.get('Content-Disposition') || '';
+            let filename = file.name.replace(/\.pdf$/i, '') + '.txt';
+            const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+            if (match && match[1]) {
+                filename = match[1].replace(/['"]/g, '');
+            }
+
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.setAttribute('download', filename);
+            }
+            updateStep(3);
+        });
     })
-    .catch(error => {
+    .catch(function (error) {
         clearInterval(progressInterval);
         updateStep(1);
-        showError('{{ _("Erreur lors de l\'extraction :") }} ' + error.message);
+        showError(_i18n.errExtraction + ' ' + error.message);
     });
 }
 
@@ -232,7 +274,7 @@ function resetConversion() {
     if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
     if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
 
-    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
+    const uploadManager = window.uploadManagers && window.uploadManagers['pdfUploadZone'];
     if (uploadManager) {
         const files = uploadManager.getFiles();
         for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
@@ -240,15 +282,17 @@ function resetConversion() {
 
     const pageRangeEl = document.getElementById('pageRange');
     if (pageRangeEl) pageRangeEl.value = '';
+
     const errorDiv = document.getElementById('conversionError');
     if (errorDiv) errorDiv.style.display = 'none';
+
     const progressBar = document.getElementById('progressBar');
     if (progressBar) progressBar.style.width = '0%';
 
     updateStep(1);
 }
 
-window.addEventListener('beforeunload', () => {
+window.addEventListener('beforeunload', function () {
     if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
     if (progressInterval) clearInterval(progressInterval);
 });

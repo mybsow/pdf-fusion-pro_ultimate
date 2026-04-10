@@ -3,6 +3,20 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block converter_content %}
+
+{# ── Chaînes i18n et URLs exposées au JS via data-attributes ── #}
+<div id="js-i18n" style="display:none;"
+     data-err-no-pdf="{{ _('Veuillez sélectionner un fichier PDF') }}"
+     data-err-system="{{ _('Erreur système : Gestionnaire d\'upload manquant') }}"
+     data-err-no-text="{{ _('Veuillez entrer du texte à ajouter') }}"
+     data-err-no-image="{{ _('Veuillez sélectionner une image à insérer') }}"
+     data-err-no-delete="{{ _('Veuillez entrer les pages à supprimer') }}"
+     data-err-no-rotate="{{ _('Veuillez entrer les pages à faire pivoter') }}"
+     data-err-edition="{{ _('Erreur lors de l\'édition :') }}"
+     data-err-server="{{ _('Erreur serveur') }}"
+     data-url-converter="{{ url_for('conversion.universal_converter', conversion_type='edit-pdf') }}">
+</div>
+
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
@@ -34,35 +48,40 @@
     <div class="file-info-card mt-4">
         <ul class="nav nav-tabs" id="editTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button" role="tab" aria-controls="text" aria-selected="true">
+                <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text"
+                        type="button" role="tab" aria-controls="text" aria-selected="true">
                     <i class="fas fa-font me-2"></i>{{ _('Ajouter du texte') }}
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="image-tab" data-bs-toggle="tab" data-bs-target="#image" type="button" role="tab" aria-controls="image" aria-selected="false">
+                <button class="nav-link" id="image-tab" data-bs-toggle="tab" data-bs-target="#image"
+                        type="button" role="tab" aria-controls="image" aria-selected="false">
                     <i class="fas fa-image me-2"></i>{{ _('Ajouter une image') }}
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pages-tab" data-bs-toggle="tab" data-bs-target="#pages" type="button" role="tab" aria-controls="pages" aria-selected="false">
+                <button class="nav-link" id="pages-tab" data-bs-toggle="tab" data-bs-target="#pages"
+                        type="button" role="tab" aria-controls="pages" aria-selected="false">
                     <i class="fas fa-copy me-2"></i>{{ _('Gérer les pages') }}
                 </button>
             </li>
         </ul>
-        
+
         <div class="tab-content p-3" id="editTabsContent">
+
             <!-- ============ Onglet Texte ============ -->
             <div class="tab-pane fade show active" id="text" role="tabpanel" aria-labelledby="text-tab">
                 <h6 class="mb-3">{{ _('Ajouter du texte au PDF') }}</h6>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="textContent" class="form-label fw-bold">{{ _('Texte à ajouter :') }}</label>
-                        <textarea class="form-control" id="textContent" rows="3" placeholder="{{ _('Saisissez votre texte ici...') }}"></textarea>
+                        <textarea class="form-control" id="textContent" rows="3"
+                                  placeholder="{{ _('Saisissez votre texte ici...') }}"></textarea>
                     </div>
                     <div class="col-md-6">
                         <label for="textPage" class="form-label fw-bold">{{ _('Page d\'insertion :') }}</label>
                         <input type="number" class="form-control" id="textPage" min="1" value="1">
-                        
+
                         <label for="textPosition" class="form-label fw-bold mt-3">{{ _('Position (points) :') }}</label>
                         <div class="row">
                             <div class="col-6">
@@ -72,7 +91,7 @@
                                 <input type="number" class="form-control" id="textY" placeholder="Y" value="50">
                             </div>
                         </div>
-                        
+
                         <div class="row mt-3">
                             <div class="col-6">
                                 <label for="textSize" class="form-label fw-bold">{{ _('Taille :') }}</label>
@@ -91,7 +110,7 @@
                                 <input type="color" class="form-control form-control-color" id="textColor" value="#000000">
                             </div>
                         </div>
-                        
+
                         <div class="mt-3">
                             <label for="textFont" class="form-label fw-bold">{{ _('Police :') }}</label>
                             <select class="form-select" id="textFont">
@@ -105,12 +124,12 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- ============ Onglet Image ============ -->
             <div class="tab-pane fade" id="image" role="tabpanel" aria-labelledby="image-tab">
                 <h6 class="mb-3">{{ _('Ajouter une image au PDF') }}</h6>
-                
-                <div class="upload-zone-pro upload-zone small-zone mb-3" id="imageUploadZone" 
+
+                <div class="upload-zone-pro upload-zone small-zone mb-3" id="imageUploadZone"
                      data-info-id="imageFileInfo"
                      style="cursor: pointer;">
                     <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
@@ -118,9 +137,9 @@
                     <p class="text-muted small">{{ _('ou cliquez pour sélectionner') }}</p>
                     <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.gif,.bmp,.webp" style="display: none;">
                 </div>
-                
+
                 <div id="imageFileInfo" class="file-list mb-3"></div>
-                
+
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="imagePage" class="form-label fw-bold">{{ _('Page d\'insertion :') }}</label>
@@ -143,7 +162,7 @@
                         <input type="number" class="form-control" id="imageY" value="50">
                     </div>
                 </div>
-                
+
                 <div id="customSizeOptions" style="display: none;" class="mt-3">
                     <div class="row g-3">
                         <div class="col-6">
@@ -157,11 +176,11 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- ============ Onglet Pages ============ -->
             <div class="tab-pane fade" id="pages" role="tabpanel" aria-labelledby="pages-tab">
                 <h6 class="mb-3">{{ _('Gestion des pages') }}</h6>
-                
+
                 <div class="mb-4">
                     <label class="form-label fw-bold">{{ _('Action :') }}</label>
                     <div class="btn-group w-100" role="group">
@@ -169,19 +188,19 @@
                         <label class="btn btn-outline-primary" for="actionReorder">
                             <i class="fas fa-sort me-2"></i>{{ _('Réorganiser') }}
                         </label>
-                        
+
                         <input type="radio" class="btn-check" name="pageAction" id="actionDelete" value="delete">
                         <label class="btn btn-outline-primary" for="actionDelete">
                             <i class="fas fa-trash me-2"></i>{{ _('Supprimer') }}
                         </label>
-                        
+
                         <input type="radio" class="btn-check" name="pageAction" id="actionRotate" value="rotate">
                         <label class="btn btn-outline-primary" for="actionRotate">
                             <i class="fas fa-sync-alt me-2"></i>{{ _('Rotation') }}
                         </label>
                     </div>
                 </div>
-                
+
                 <div id="reorderSection">
                     <p class="text-info small">
                         <i class="fas fa-info-circle me-1"></i>
@@ -191,17 +210,19 @@
                         <!-- Les miniatures seront générées ici -->
                     </div>
                 </div>
-                
+
                 <div id="deleteSection" style="display:none;">
                     <label for="pagesToDelete" class="form-label fw-bold">{{ _('Pages à supprimer :') }}</label>
-                    <input type="text" class="form-control" id="pagesToDelete" placeholder="{{ _('Ex: 1-3, 5, 7-9') }}">
+                    <input type="text" class="form-control" id="pagesToDelete"
+                           placeholder="{{ _('Ex: 1-3, 5, 7-9') }}">
                 </div>
-                
+
                 <div id="rotateSection" style="display:none;">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="rotatePages" class="form-label fw-bold">{{ _('Pages à faire pivoter :') }}</label>
-                            <input type="text" class="form-control" id="rotatePages" placeholder="{{ _('Ex: 1-3, 5, 7-9') }}">
+                            <input type="text" class="form-control" id="rotatePages"
+                                   placeholder="{{ _('Ex: 1-3, 5, 7-9') }}">
                         </div>
                         <div class="col-md-6">
                             <label for="rotateAngle" class="form-label fw-bold">{{ _('Angle :') }}</label>
@@ -262,45 +283,56 @@
 </div>
 
 <script>
+// ── Lecture des chaînes i18n et URLs depuis le DOM (pas de Jinja2 dans le JS) ──
+const _i18n = (function () {
+    const el = document.getElementById('js-i18n');
+    return {
+        errNoPdf:     el.dataset.errNoPdf,
+        errSystem:    el.dataset.errSystem,
+        errNoText:    el.dataset.errNoText,
+        errNoImage:   el.dataset.errNoImage,
+        errNoDelete:  el.dataset.errNoDelete,
+        errNoRotate:  el.dataset.errNoRotate,
+        errEdition:   el.dataset.errEdition,
+        errServer:    el.dataset.errServer,
+        urlConverter: el.dataset.urlConverter
+    };
+})();
+
 let downloadUrl = null;
 let progressInterval = null;
 
 function updateStep(step) {
-    console.log("Updating to step:", step);
     document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
     document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
     document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
 }
 
 function showError(message) {
-    console.error("Showing error:", message);
     let errorDiv = document.getElementById('conversionError');
     if (!errorDiv) {
         errorDiv = document.createElement('div');
         errorDiv.id = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = `
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <span id="conversionErrorMsg"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>'
+            + '<span id="conversionErrorMsg"></span>'
+            + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
         document.getElementById('step1Content').prepend(errorDiv);
     }
     document.getElementById('conversionErrorMsg').textContent = message;
     errorDiv.style.display = 'block';
 }
 
-document.getElementById('imageSize')?.addEventListener('change', function() {
+// ── Listeners DOM sûrs (pas de Jinja2) ──
+document.getElementById('imageSize') && document.getElementById('imageSize').addEventListener('change', function () {
     const customOptions = document.getElementById('customSizeOptions');
-    if (this.value === 'custom') {
-        customOptions.style.display = 'block';
-    } else {
-        customOptions.style.display = 'none';
+    if (customOptions) {
+        customOptions.style.display = this.value === 'custom' ? 'block' : 'none';
     }
 });
 
-document.querySelectorAll('input[name="pageAction"]').forEach(radio => {
-    radio.addEventListener('change', function() {
+document.querySelectorAll('input[name="pageAction"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
         document.getElementById('reorderSection').style.display = this.value === 'reorder' ? 'block' : 'none';
         document.getElementById('deleteSection').style.display  = this.value === 'delete'  ? 'block' : 'none';
         document.getElementById('rotateSection').style.display  = this.value === 'rotate'  ? 'block' : 'none';
@@ -308,19 +340,14 @@ document.querySelectorAll('input[name="pageAction"]').forEach(radio => {
 });
 
 function startConversion() {
-    console.log("startConversion triggered");
-    
-    // Vérifier l'existence de uploadManagers
     if (!window.uploadManagers) {
-        console.error("window.uploadManagers is not defined");
-        showError('{{ _("Erreur système : Gestionnaire d\'upload manquant") }}');
+        showError(_i18n.errSystem);
         return;
     }
 
     const uploadManager = window.uploadManagers['pdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
-        console.warn("No PDF file selected");
-        showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
+        showError(_i18n.errNoPdf);
         return;
     }
 
@@ -328,38 +355,37 @@ function startConversion() {
     formData.append('file', uploadManager.getFiles()[0]);
 
     const activeTabLink = document.querySelector('#editTabs .nav-link.active');
-    const activeTabId = activeTabLink ? activeTabLink.id : '';
-    console.log("Active tab ID:", activeTabId);
+    const activeTabId   = activeTabLink ? activeTabLink.id : '';
 
     if (activeTabId === 'text-tab') {
         const textContent = document.getElementById('textContent').value.trim();
         if (!textContent) {
-            showError('{{ _("Veuillez entrer du texte à ajouter") }}');
+            showError(_i18n.errNoText);
             return;
         }
-        formData.append('edit_type', 'add_text');
+        formData.append('edit_type',    'add_text');
         formData.append('text_content', textContent);
-        formData.append('page_number', document.getElementById('textPage').value);
-        formData.append('position_x', document.getElementById('textX').value);
-        formData.append('position_y', document.getElementById('textY').value);
-        formData.append('font_size', document.getElementById('textSize').value);
-        formData.append('font_color', document.getElementById('textColor').value);
-        formData.append('font_family', document.getElementById('textFont').value);
+        formData.append('page_number',  document.getElementById('textPage').value);
+        formData.append('position_x',   document.getElementById('textX').value);
+        formData.append('position_y',   document.getElementById('textY').value);
+        formData.append('font_size',    document.getElementById('textSize').value);
+        formData.append('font_color',   document.getElementById('textColor').value);
+        formData.append('font_family',  document.getElementById('textFont').value);
     }
     else if (activeTabId === 'image-tab') {
         const imageManager = window.uploadManagers['imageUploadZone'];
         if (!imageManager || imageManager.getFiles().length === 0) {
-            showError('{{ _("Veuillez sélectionner une image à insérer") }}');
+            showError(_i18n.errNoImage);
             return;
         }
-        formData.append('edit_type', 'add_image');
-        formData.append('image_file', imageManager.getFiles()[0]);
+        formData.append('edit_type',   'add_image');
+        formData.append('image_file',  imageManager.getFiles()[0]);
         formData.append('page_number', document.getElementById('imagePage').value);
-        formData.append('position_x', document.getElementById('imageX').value);
-        formData.append('position_y', document.getElementById('imageY').value);
-        formData.append('image_size', document.getElementById('imageSize').value);
+        formData.append('position_x',  document.getElementById('imageX').value);
+        formData.append('position_y',  document.getElementById('imageY').value);
+        formData.append('image_size',  document.getElementById('imageSize').value);
         if (document.getElementById('imageSize').value === 'custom') {
-            formData.append('image_width', document.getElementById('imageWidth').value);
+            formData.append('image_width',  document.getElementById('imageWidth').value);
             formData.append('image_height', document.getElementById('imageHeight').value);
         }
     }
@@ -371,90 +397,83 @@ function startConversion() {
         if (pageAction === 'delete') {
             const pagesToDelete = document.getElementById('pagesToDelete').value.trim();
             if (!pagesToDelete) {
-                showError('{{ _("Veuillez entrer les pages à supprimer") }}');
+                showError(_i18n.errNoDelete);
                 return;
             }
             formData.append('pages_to_delete', pagesToDelete);
         } else if (pageAction === 'rotate') {
             const pagesToRotate = document.getElementById('rotatePages').value.trim();
             if (!pagesToRotate) {
-                showError('{{ _("Veuillez entrer les pages à faire pivoter") }}');
+                showError(_i18n.errNoRotate);
                 return;
             }
             formData.append('pages_to_rotate', pagesToRotate);
             formData.append('rotate_angle', document.getElementById('rotateAngle').value);
         } else if (pageAction === 'reorder') {
             const order = [];
-            document.querySelectorAll('#pageThumbnails .col-3').forEach((el, index) => {
+            document.querySelectorAll('#pageThumbnails .col-3').forEach(function (el, index) {
                 order.push(index + 1);
             });
             formData.append('page_order', order.join(','));
         }
     }
 
-    console.log("FormData ready, starting fetch...");
     updateStep(2);
 
     let progress = 0;
     const progressBar = document.getElementById('progressBar');
-    progressInterval = setInterval(() => {
+    progressInterval = setInterval(function () {
         if (progress < 90) {
             progress += 10;
             if (progressBar) progressBar.style.width = progress + '%';
         }
     }, 500);
 
-    const targetUrl = '{{ url_for("conversion.universal_converter", conversion_type="edit-pdf") }}';
-    fetch(targetUrl, {
+    fetch(_i18n.urlConverter, {
         method: 'POST',
         body: formData
     })
-    .then(async response => {
+    .then(function (response) {
         clearInterval(progressInterval);
         if (progressBar) progressBar.style.width = '100%';
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || '{{ _("Erreur serveur") }} ' + response.status);
+            return response.text().then(function (txt) {
+                throw new Error(txt || _i18n.errServer + ' ' + response.status);
+            });
         }
 
-        const blob = await response.blob();
-        downloadUrl = window.URL.createObjectURL(blob);
+        return response.blob().then(function (blob) {
+            downloadUrl = window.URL.createObjectURL(blob);
 
-        const contentDisposition = response.headers.get('Content-Disposition') || '';
-        let filename = 'edited.pdf';
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match && match[1]) {
-            filename = match[1].replace(/['"]/g, '');
-        }
+            const contentDisposition = response.headers.get('Content-Disposition') || '';
+            let filename = 'edited.pdf';
+            const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+            if (match && match[1]) {
+                filename = match[1].replace(/['"]/g, '');
+            }
 
-        const downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.setAttribute('download', filename);
-        }
-
-        updateStep(3);
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.setAttribute('download', filename);
+            }
+            updateStep(3);
+        });
     })
-    .catch(error => {
+    .catch(function (error) {
         clearInterval(progressInterval);
-        console.error('Conversion error:', error);
         updateStep(1);
-        showError('{{ _("Erreur lors de l\'édition :") }} ' + error.message);
+        showError(_i18n.errEdition + ' ' + error.message);
     });
 }
 
 function resetConversion() {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-        downloadUrl = null;
-    }
-    if (progressInterval) {
-        clearInterval(progressInterval);
-        progressInterval = null;
-    }
+    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+
     if (window.uploadManagers) {
-        ['pdfUploadZone', 'imageUploadZone'].forEach(id => {
+        ['pdfUploadZone', 'imageUploadZone'].forEach(function (id) {
             const manager = window.uploadManagers[id];
             if (manager) {
                 const files = manager.getFiles();
@@ -462,14 +481,17 @@ function resetConversion() {
             }
         });
     }
+
     const errorDiv = document.getElementById('conversionError');
     if (errorDiv) errorDiv.style.display = 'none';
+
     const progressBar = document.getElementById('progressBar');
     if (progressBar) progressBar.style.width = '0%';
+
     updateStep(1);
 }
 
-window.addEventListener('beforeunload', () => {
+window.addEventListener('beforeunload', function () {
     if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
     if (progressInterval) clearInterval(progressInterval);
 });
