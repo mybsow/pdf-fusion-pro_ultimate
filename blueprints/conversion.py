@@ -727,20 +727,22 @@ def universal_converter(conversion_type):
         template_name = f"conversion/{config['template']}" 
         
         try:
+            # On s'assure que les valeurs sont des chaînes simples pour éviter l'erreur "incomplete format"
             return render_template(
                 template_name,
-                title=str(config['title']),        # ← forcer str() sur les lazy strings
+                title=str(config['title']),
                 description=str(config['description']),
-                from_format=str(config['from_format']),
-                to_format=str(config['to_format']),
-                icon=config['icon'],
-                color=config['color'],
-                accept=config['accept'],
-                max_files=config['max_files'],
+                from_format=str(config.get('from_format', 'Fichier')), # Utilisation de str()
+                to_format=str(config.get('to_format', 'PDF')),
+                icon=config.get('icon'),
+                color=config.get('color'),
+                accept=config.get('accept'),
+                max_files=config.get('max_files'),
                 conversion_type=conversion_type,
                 available=available,
                 missing_deps=missing
             )
+
         except Exception as e:
             current_app.logger.error(
                 f"Template non trouvé: {template_name} - {str(e)}\n"
