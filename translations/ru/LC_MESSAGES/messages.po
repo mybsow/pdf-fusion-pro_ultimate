@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-10 13:45+0000\n"
+"POT-Creation-Date: 2026-04-10 13:57+0000\n"
 "PO-Revision-Date: 2026-04-01 18:22+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -954,16 +954,6 @@ msgstr "Используйте где угодно"
 #: templates/conversion/index.html:270
 msgid "Comment ça marche ?"
 msgstr "Как это работает?"
-
-#: templates/conversion/conversion_base.html:240
-#, python-format
-msgid "Téléchargez votre fichier %(from_format)s."
-msgstr "Загрузите файл %(from_format)s."
-
-#: templates/conversion/conversion_base.html:243
-#, python-format
-msgid "Notre système le convertit automatiquement en %(to_format)s."
-msgstr "Наша система автоматически преобразует его в %(to_format)s."
 
 #: templates/conversion/conversion_base.html:245
 msgid "Téléchargez ensuite votre fichier converti."
@@ -5707,3 +5697,11 @@ msgstr "Разделить PDF"
 #~ msgid "Erreur lors de l'édition :"
 #~ msgstr "Ошибка при редактировании:"
 
+
+#: templates/conversion/conversion_base.html
+msgid "Téléchargez votre fichier"
+msgstr "Загрузите ваш файл"
+
+#: templates/conversion/conversion_base.html
+msgid "Notre système le convertit automatiquement en"
+msgstr "Наша система автоматически конвертирует в"
