@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-10 08:32+0000\n"
+"POT-Creation-Date: 2026-04-10 13:45+0000\n"
 "PO-Revision-Date: 2026-04-01 18:22+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -422,6 +422,49 @@ msgstr "Excel إلى CSV"
 msgid "Exportez vos feuilles Excel en CSV"
 msgstr "صدّر أوراق Excel الخاصة بك إلى CSV"
 
+#: blueprints/legal/routes.py:78 templates/conversion/prepare_form.html:247
+#: templates/legal/contact.html:42
+msgid "Nom complet"
+msgstr "الاسم الكامل"
+
+#: blueprints/legal/routes.py:82 templates/conversion/prepare_form.html:252
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+#: blueprints/legal/routes.py:86
+#, fuzzy
+msgid "Téléphone (optionnel)"
+msgstr "رقم الهاتف (اختياري)"
+
+#: blueprints/legal/routes.py:90
+msgid "Sujet"
+msgstr ""
+
+#: blueprints/legal/routes.py:92
+#, fuzzy
+msgid "Signaler un bug"
+msgstr "قم بتوقيع ملف PDF آخر"
+
+#: blueprints/legal/routes.py:93
+#, fuzzy
+msgid "Proposer une amélioration"
+msgstr "اقتراح تحسين وظيفي"
+
+#: blueprints/legal/routes.py:94
+#, fuzzy
+msgid "Partenariat"
+msgstr "طلب شراكة"
+
+#: blueprints/legal/routes.py:95
+#, fuzzy
+msgid "Autre"
+msgstr "التاريخ"
+
+#: blueprints/legal/routes.py:100
+#, fuzzy
+msgid "Message"
+msgstr "رسائل"
+
 #: blueprints/legal/routes.py:205
 msgid "Veuillez remplir tous les champs obligatoires."
 msgstr "يرجى ملء جميع الحقول الإلزامية."
@@ -660,7 +703,7 @@ msgid "PDF Fusion Pro"
 msgstr "قوات الدفاع الشعبي فيوجن برو"
 
 #: templates/base.html:353 templates/base_legal.html:278
-#: templates/conversion/conversion_base.html:197
+#: templates/conversion/conversion_base.html:195
 msgid "Convertir"
 msgstr "تحويل"
 
@@ -856,8 +899,8 @@ msgstr "العودة للصفحة الرئيسية"
 msgid "caractères"
 msgstr "حرف"
 
-#: templates/conversion/conversion_base.html:193
-#: templates/conversion/conversion_base.html:201
+#: templates/conversion/conversion_base.html:191
+#: templates/conversion/conversion_base.html:199
 #: templates/conversion/csv_to_excel.html:101
 #: templates/conversion/excel_to_csv.html:108
 #: templates/conversion/excel_to_pdf.html:91
@@ -868,56 +911,56 @@ msgstr "حرف"
 msgid "Télécharger"
 msgstr "تحميل"
 
-#: templates/conversion/conversion_base.html:214
+#: templates/conversion/conversion_base.html:212
 #: templates/conversion/index.html:216
 msgid "Sécurisé"
 msgstr "آمن"
 
-#: templates/conversion/conversion_base.html:215
+#: templates/conversion/conversion_base.html:213
 msgid "Vos fichiers sont supprimés après conversion"
 msgstr "يتم حذف ملفاتك بعد التحويل"
 
-#: templates/conversion/conversion_base.html:219
+#: templates/conversion/conversion_base.html:217
 #: templates/conversion/index.html:221
 msgid "Rapide"
 msgstr "سريع"
 
-#: templates/conversion/conversion_base.html:220
+#: templates/conversion/conversion_base.html:218
 msgid "Conversion en quelques secondes"
 msgstr "التحويل خلال ثوانٍ"
 
-#: templates/conversion/conversion_base.html:224
+#: templates/conversion/conversion_base.html:222
 msgid "Confidentiel"
 msgstr "سري"
 
-#: templates/conversion/conversion_base.html:225
+#: templates/conversion/conversion_base.html:223
 msgid "Personne n'accède à vos fichiers"
 msgstr "لا أحد يصل إلى ملفاتك"
 
-#: templates/conversion/conversion_base.html:229
+#: templates/conversion/conversion_base.html:227
 msgid "Accessible"
 msgstr "متاح"
 
-#: templates/conversion/conversion_base.html:230
+#: templates/conversion/conversion_base.html:228
 msgid "Utilisez depuis n'importe où"
 msgstr "استخدمه من أي مكان"
 
-#: templates/conversion/conversion_base.html:239
+#: templates/conversion/conversion_base.html:237
 #: templates/conversion/index.html:270
 msgid "Comment ça marche ?"
 msgstr "كيف يعمل؟"
 
-#: templates/conversion/conversion_base.html:242
+#: templates/conversion/conversion_base.html:240
 #, python-format
 msgid "Téléchargez votre fichier %(from_format)s."
 msgstr "حمّل ملفك %(from_format)s."
 
-#: templates/conversion/conversion_base.html:245
+#: templates/conversion/conversion_base.html:243
 #, python-format
 msgid "Notre système le convertit automatiquement en %(to_format)s."
 msgstr "يقوم نظامنا بتحويله تلقائيًا إلى %(to_format)s."
 
-#: templates/conversion/conversion_base.html:247
+#: templates/conversion/conversion_base.html:245
 msgid "Téléchargez ensuite votre fichier converti."
 msgstr "ثم حمّل ملفك المحول."
 
@@ -947,7 +990,7 @@ msgstr "اسحب وأفلت ملفات CSV هنا"
 #: templates/conversion/pdf_to_image.html:22
 #: templates/conversion/pdf_to_pdfa.html:22
 #: templates/conversion/pdf_to_ppt.html:22
-#: templates/conversion/pdf_to_txt.html:22
+#: templates/conversion/pdf_to_txt.html:32
 #: templates/conversion/pdf_to_word.html:22
 #: templates/conversion/png_to_pdf.html:22
 #: templates/conversion/powerpoint_to_pdf.html:22
@@ -1007,7 +1050,7 @@ msgstr "شريط (|)"
 
 #: templates/conversion/csv_to_excel.html:49
 #: templates/conversion/pdf_to_html.html:48
-#: templates/conversion/pdf_to_txt.html:40
+#: templates/conversion/pdf_to_txt.html:50
 msgid "Encodage :"
 msgstr "الترميز :"
 
@@ -1020,6 +1063,7 @@ msgid "Convertir en Excel"
 msgstr "تحويل إلى Excel"
 
 #: templates/conversion/csv_to_excel.html:73
+#: templates/conversion/edit_pdf.html:247
 #: templates/conversion/excel_to_csv.html:80
 #: templates/conversion/excel_to_pdf.html:63
 #: templates/conversion/image_to_excel.html:124
@@ -1115,6 +1159,299 @@ msgstr "الرجاء اختيار ملف CSV واحد على الأقل"
 #: templates/conversion/word_to_pdf.html:475
 msgid "Erreur lors de la conversion :"
 msgstr "خطأ أثناء التحويل :"
+
+#: templates/conversion/edit_pdf.html:9
+#: templates/conversion/pdf_to_doc.html:206
+#: templates/conversion/pdf_to_excel.html:236
+#: templates/conversion/pdf_to_image.html:243
+#: templates/conversion/pdf_to_pdfa.html:263
+#: templates/conversion/pdf_to_ppt.html:247
+#: templates/conversion/pdf_to_word.html:252
+#: templates/conversion/protect_pdf.html:141
+#: templates/conversion/redact_pdf.html:430
+#: templates/conversion/sign_pdf.html:363
+#: templates/conversion/unlock_pdf.html:98
+msgid "Veuillez sélectionner un fichier PDF"
+msgstr "يرجى تحديد ملف PDF"
+
+#: templates/conversion/edit_pdf.html:10
+msgid "Erreur système : Gestionnaire d'upload manquant"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:11
+#, fuzzy
+msgid "Veuillez entrer du texte à ajouter"
+msgstr "الرجاء إدخال كلمة مرور"
+
+#: templates/conversion/edit_pdf.html:12
+#, fuzzy
+msgid "Veuillez sélectionner une image à insérer"
+msgstr "الرجاء اختيار ملف"
+
+#: templates/conversion/edit_pdf.html:13
+#, fuzzy
+msgid "Veuillez entrer les pages à supprimer"
+msgstr "الرجاء تحديد الصفحات المراد استخراجها"
+
+#: templates/conversion/edit_pdf.html:14
+#, fuzzy
+msgid "Veuillez entrer les pages à faire pivoter"
+msgstr "الرجاء تحديد الصفحات المراد استخراجها"
+
+#: templates/conversion/edit_pdf.html:15
+#, fuzzy
+msgid "Erreur lors de l'édition :"
+msgstr "خطأ أثناء الاستخراج :"
+
+#: templates/conversion/edit_pdf.html:16
+#, fuzzy
+msgid "Erreur serveur"
+msgstr "خطأ داخلي في الخادم"
+
+#: templates/conversion/edit_pdf.html:24
+#: templates/conversion/redact_pdf.html:10
+#: templates/conversion/sign_pdf.html:10
+msgid "Téléchargez votre PDF"
+msgstr "حمّل ملف PDF"
+
+#: templates/conversion/edit_pdf.html:25
+#, fuzzy
+msgid "Modifiez, ajoutez du texte ou des images à votre document"
+msgstr "عدّل أو أضف نصًا وصورًا وصفحات إلى ملف PDF الخاص بك"
+
+#: templates/conversion/edit_pdf.html:35
+#: templates/conversion/pdf_to_doc.html:21
+#: templates/conversion/pdf_to_excel.html:21
+#: templates/conversion/pdf_to_html.html:21
+#: templates/conversion/pdf_to_image.html:21
+#: templates/conversion/pdf_to_pdfa.html:21
+#: templates/conversion/pdf_to_ppt.html:21
+#: templates/conversion/pdf_to_txt.html:31
+#: templates/conversion/pdf_to_word.html:21
+#: templates/conversion/redact_pdf.html:21
+#: templates/conversion/sign_pdf.html:21
+msgid "Glissez-déposez votre fichier PDF ici"
+msgstr "اسحب وأفلت ملف PDF هنا"
+
+#: templates/conversion/edit_pdf.html:36 templates/conversion/edit_pdf.html:137
+#, fuzzy
+msgid "ou cliquez pour sélectionner"
+msgstr "اسحب وأفلت أو انقر للاختيار"
+
+#: templates/conversion/edit_pdf.html:40
+#: templates/conversion/redact_pdf.html:26
+#: templates/conversion/sign_pdf.html:26
+msgid "Formats acceptés : PDF (jusqu'à 100MB)"
+msgstr "الصيغ المقبولة: PDF (حتى 100 ميجابايت)"
+
+#: templates/conversion/edit_pdf.html:53
+#, fuzzy
+msgid "Ajouter du texte"
+msgstr "إضافة سبب التوقيع"
+
+#: templates/conversion/edit_pdf.html:59
+#, fuzzy
+msgid "Ajouter une image"
+msgstr "إضافة سبب التوقيع"
+
+#: templates/conversion/edit_pdf.html:65
+#, fuzzy
+msgid "Gérer les pages"
+msgstr "جميع الصفحات"
+
+#: templates/conversion/edit_pdf.html:74
+#, fuzzy
+msgid "Ajouter du texte au PDF"
+msgstr "معاينة النص المستخرج"
+
+#: templates/conversion/edit_pdf.html:77
+#, fuzzy
+msgid "Texte à ajouter :"
+msgstr "النص المراد شطبه :"
+
+#: templates/conversion/edit_pdf.html:79
+#, fuzzy
+msgid "Saisissez votre texte ici..."
+msgstr "الصق نصك هنا..."
+
+#: templates/conversion/edit_pdf.html:82 templates/conversion/edit_pdf.html:145
+#, fuzzy
+msgid "Page d'insertion :"
+msgstr "زاوية التدوير"
+
+#: templates/conversion/edit_pdf.html:85
+#, fuzzy
+msgid "Position (points) :"
+msgstr "الموضع Y :"
+
+#: templates/conversion/edit_pdf.html:97 templates/conversion/edit_pdf.html:149
+#: templates/conversion/sign_pdf.html:105
+#: templates/conversion/txt_to_pdf.html:63
+msgid "Taille :"
+msgstr "الحجم :"
+
+#: templates/conversion/edit_pdf.html:109
+#: templates/conversion/redact_pdf.html:92
+msgid "Couleur :"
+msgstr "اللون :"
+
+#: templates/conversion/edit_pdf.html:115
+#: templates/conversion/txt_to_pdf.html:55
+msgid "Police :"
+msgstr "الخط :"
+
+#: templates/conversion/edit_pdf.html:118
+#: templates/conversion/txt_to_pdf.html:58
+msgid "Times New Roman"
+msgstr "تايمز نيو رومان"
+
+#: templates/conversion/edit_pdf.html:120
+msgid "Helvetica Gras"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:121
+msgid "Helvetica Italique"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:130
+#, fuzzy
+msgid "Ajouter une image au PDF"
+msgstr "تدوير ملف PDF"
+
+#: templates/conversion/edit_pdf.html:136
+#, fuzzy
+msgid "Glissez-déposez votre image ici"
+msgstr "اسحب وأفلت صورك هنا"
+
+#: templates/conversion/edit_pdf.html:151
+#: templates/conversion/image_to_pdf.html:62
+#: templates/conversion/jpg_to_pdf.html:45
+#: templates/conversion/pdf_to_pdfa.html:220
+#: templates/conversion/png_to_pdf.html:45
+msgid "Taille originale"
+msgstr "الحجم الأصلي"
+
+#: templates/conversion/edit_pdf.html:152
+#, fuzzy
+msgid "Ajuster à la page"
+msgstr "إضافة علامات الصفحات"
+
+#: templates/conversion/edit_pdf.html:153
+#, fuzzy
+msgid "Personnalisée"
+msgstr "الطباعة مسموحة"
+
+#: templates/conversion/edit_pdf.html:157
+#, fuzzy
+msgid "Position X (points) :"
+msgstr "الموضع X :"
+
+#: templates/conversion/edit_pdf.html:161
+#, fuzzy
+msgid "Position Y (points) :"
+msgstr "الموضع Y :"
+
+#: templates/conversion/edit_pdf.html:169
+#, fuzzy
+msgid "Largeur (points) :"
+msgstr "تحميل PowerPoint"
+
+#: templates/conversion/edit_pdf.html:173
+#, fuzzy
+msgid "Hauteur (points) :"
+msgstr "عالية (أبطأ)"
+
+#: templates/conversion/edit_pdf.html:182
+#, fuzzy
+msgid "Gestion des pages"
+msgstr "إنشاء الصفحات"
+
+#: templates/conversion/edit_pdf.html:185
+#, fuzzy
+msgid "Action :"
+msgstr "تنبيه :"
+
+#: templates/conversion/edit_pdf.html:189
+#, fuzzy
+msgid "Réorganiser"
+msgstr "البرتغالية"
+
+#: templates/conversion/edit_pdf.html:194
+msgid "Supprimer"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:199
+#, fuzzy
+msgid "Rotation"
+msgstr "تدوير PDF"
+
+#: templates/conversion/edit_pdf.html:207
+msgid "Faites glisser les pages pour les réorganiser"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:215
+#, fuzzy
+msgid "Pages à supprimer :"
+msgstr "الصفحات المراد معالجتها :"
+
+#: templates/conversion/edit_pdf.html:217
+#: templates/conversion/edit_pdf.html:225
+#, fuzzy
+msgid "Ex: 1-3, 5, 7-9"
+msgstr "مثال: 1-5, 8, 11-13"
+
+#: templates/conversion/edit_pdf.html:223
+#, fuzzy
+msgid "Pages à faire pivoter :"
+msgstr "الصفحات المراد معالجتها :"
+
+#: templates/conversion/edit_pdf.html:228
+#, fuzzy
+msgid "Angle :"
+msgstr "الصفحة :"
+
+#: templates/conversion/edit_pdf.html:230
+#, fuzzy
+msgid "horaire"
+msgstr "سريع"
+
+#: templates/conversion/edit_pdf.html:232
+msgid "antihoraire"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:244
+#, fuzzy
+msgid "Appliquer les modifications"
+msgstr "طباعة وتعديل"
+
+#: templates/conversion/edit_pdf.html:258
+#, fuzzy
+msgid "Édition en cours..."
+msgstr "جاري الاستخراج..."
+
+#: templates/conversion/edit_pdf.html:259
+msgid "Application des modifications au document"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:272
+#, fuzzy
+msgid "Édition terminée !"
+msgstr "اكتمل الاستخراج!"
+
+#: templates/conversion/edit_pdf.html:273
+#, fuzzy
+msgid "Votre PDF modifié est prêt à être téléchargé"
+msgstr "ملف PDF الموقع جاهز للتحميل"
+
+#: templates/conversion/edit_pdf.html:275
+#, fuzzy
+msgid "Télécharger le PDF modifié"
+msgstr "تحميل PDF بعد التوقيع"
+
+#: templates/conversion/edit_pdf.html:279
+#, fuzzy
+msgid "Éditer un autre PDF"
+msgstr "قم بتوقيع ملف PDF آخر"
 
 #: templates/conversion/excel_to_csv.html:10
 #: templates/conversion/excel_to_pdf.html:10
@@ -1329,7 +1666,7 @@ msgstr "الصيغ المقبولة: JPG, PNG, BMP, TIFF, WEBP, PDF (حتى 50 �
 
 #: templates/conversion/image_to_excel.html:34
 #: templates/conversion/pdf_to_excel.html:37
-#: templates/conversion/pdf_to_txt.html:36
+#: templates/conversion/pdf_to_txt.html:46
 msgid "Options d'extraction"
 msgstr "خيارات الاستخراج"
 
@@ -1441,7 +1778,7 @@ msgstr "الثقة"
 
 #: templates/conversion/image_to_excel.html:180
 #: templates/conversion/image_to_word.html:296
-#: templates/conversion/pdf_to_txt.html:108
+#: templates/conversion/pdf_to_txt.html:118
 msgid "Extraction terminée !"
 msgstr "اكتمل الاستخراج!"
 
@@ -1503,13 +1840,6 @@ msgstr "متوسطة"
 #: templates/conversion/jpg_to_pdf.html:61
 msgid "Basse (fichier plus petit)"
 msgstr "منخفضة (ملف أصغر)"
-
-#: templates/conversion/image_to_pdf.html:62
-#: templates/conversion/jpg_to_pdf.html:45
-#: templates/conversion/pdf_to_pdfa.html:220
-#: templates/conversion/png_to_pdf.html:45
-msgid "Taille originale"
-msgstr "الحجم الأصلي"
 
 #: templates/conversion/image_to_pdf.html:69
 #: templates/conversion/jpg_to_pdf.html:68
@@ -1628,7 +1958,7 @@ msgstr "عالي (أكثر دقة)"
 
 #: templates/conversion/image_to_word.html:91
 #: templates/conversion/pdf_to_doc.html:45
-#: templates/conversion/pdf_to_txt.html:51
+#: templates/conversion/pdf_to_txt.html:61
 #: templates/conversion/word_to_pdf.html:117
 msgid "Conserver la mise en page"
 msgstr "الحفاظ على التخطيط"
@@ -1722,7 +2052,7 @@ msgstr "أسطر"
 
 #: templates/conversion/image_to_word.html:243
 #: templates/conversion/pdf_to_html.html:141
-#: templates/conversion/pdf_to_txt.html:162
+#: templates/conversion/pdf_to_txt.html:9
 msgid "Veuillez sélectionner un fichier"
 msgstr "الرجاء اختيار ملف"
 
@@ -1784,7 +2114,7 @@ msgstr "المستند جاهز"
 
 #: templates/conversion/image_to_word.html:345
 #: templates/conversion/pdf_to_excel.html:314
-#: templates/conversion/pdf_to_txt.html:227
+#: templates/conversion/pdf_to_txt.html:12
 msgid "Erreur lors de l'extraction :"
 msgstr "خطأ أثناء الاستخراج :"
 
@@ -2011,19 +2341,6 @@ msgid ""
 "anciennes versions"
 msgstr "حوّل مستندات PDF إلى صيغة Word متوافقة مع الإصدارات القديمة"
 
-#: templates/conversion/pdf_to_doc.html:21
-#: templates/conversion/pdf_to_excel.html:21
-#: templates/conversion/pdf_to_html.html:21
-#: templates/conversion/pdf_to_image.html:21
-#: templates/conversion/pdf_to_pdfa.html:21
-#: templates/conversion/pdf_to_ppt.html:21
-#: templates/conversion/pdf_to_txt.html:21
-#: templates/conversion/pdf_to_word.html:21
-#: templates/conversion/redact_pdf.html:21
-#: templates/conversion/sign_pdf.html:21
-msgid "Glissez-déposez votre fichier PDF ici"
-msgstr "اسحب وأفلت ملف PDF هنا"
-
 #: templates/conversion/pdf_to_doc.html:26
 #: templates/conversion/pdf_to_excel.html:26
 #: templates/conversion/pdf_to_image.html:26
@@ -2157,19 +2474,6 @@ msgstr "حجم الملف"
 msgid "Format"
 msgstr "الصيغة"
 
-#: templates/conversion/pdf_to_doc.html:206
-#: templates/conversion/pdf_to_excel.html:236
-#: templates/conversion/pdf_to_image.html:243
-#: templates/conversion/pdf_to_pdfa.html:263
-#: templates/conversion/pdf_to_ppt.html:247
-#: templates/conversion/pdf_to_word.html:252
-#: templates/conversion/protect_pdf.html:141
-#: templates/conversion/redact_pdf.html:430
-#: templates/conversion/sign_pdf.html:363
-#: templates/conversion/unlock_pdf.html:98
-msgid "Veuillez sélectionner un fichier PDF"
-msgstr "يرجى تحديد ملف PDF"
-
 #: templates/conversion/pdf_to_doc.html:273
 #: templates/conversion/pdf_to_ppt.html:148
 msgid "Analyse du PDF..."
@@ -2264,7 +2568,7 @@ msgid "Extraire vers Excel"
 msgstr "استخراج إلى Excel"
 
 #: templates/conversion/pdf_to_excel.html:108
-#: templates/conversion/pdf_to_txt.html:94
+#: templates/conversion/pdf_to_txt.html:104
 msgid "Extraction en cours..."
 msgstr "جاري الاستخراج..."
 
@@ -2342,7 +2646,7 @@ msgid "Organisation en feuilles Excel"
 msgstr "تنظيم في أوراق Excel"
 
 #: templates/conversion/pdf_to_html.html:10
-#: templates/conversion/pdf_to_txt.html:10
+#: templates/conversion/pdf_to_txt.html:20
 msgid "Téléchargez votre fichier PDF"
 msgstr "قم بتحميل ملف PDF الخاص بك"
 
@@ -2351,7 +2655,7 @@ msgid "Sélectionnez le PDF à convertir en HTML"
 msgstr "اختر ملف PDF لتحويله إلى HTML"
 
 #: templates/conversion/pdf_to_html.html:26
-#: templates/conversion/pdf_to_txt.html:26
+#: templates/conversion/pdf_to_txt.html:36
 msgid "Format accepté : PDF"
 msgstr "الصيغة المقبولة: PDF"
 
@@ -2863,57 +3167,57 @@ msgstr "2 صفحة/شريحة"
 msgid "Diapo"
 msgstr "شريحة"
 
-#: templates/conversion/pdf_to_txt.html:11
-msgid "Sélectionnez le PDF dont vous voulez extraire le texte"
-msgstr "اختر ملف PDF الذي تريد استخراج النص منه"
-
-#: templates/conversion/pdf_to_txt.html:57
-msgid "Ajouter des marqueurs de page"
-msgstr "إضافة علامات الصفحات"
-
-#: templates/conversion/pdf_to_txt.html:65
-msgid "Extraire toutes les pages"
-msgstr "استخراج كل الصفحات"
-
-#: templates/conversion/pdf_to_txt.html:70
-msgid "Pages à extraire :"
-msgstr "الصفحات المراد استخراجها :"
-
-#: templates/conversion/pdf_to_txt.html:72
-msgid "Exemple: 1-5,8,11-13"
-msgstr "مثال: 1-5,8,11-13"
-
-#: templates/conversion/pdf_to_txt.html:74
-msgid "Spécifiez les pages à extraire (ex: 1-3,5,7-9)"
-msgstr "حدد الصفحات المراد استخراجها (مثال: 1-3,5,7-9)"
-
-#: templates/conversion/pdf_to_txt.html:83
-msgid "Extraire le texte"
-msgstr "استخراج النص"
-
-#: templates/conversion/pdf_to_txt.html:95
-msgid "Veuillez patienter pendant l'extraction du texte"
-msgstr "الرجاء الانتظار أثناء استخراج النص"
-
-#: templates/conversion/pdf_to_txt.html:109
-msgid "Votre fichier texte est prêt à être téléchargé"
-msgstr "ملف النص جاهز للتحميل"
-
-#: templates/conversion/pdf_to_txt.html:111
-msgid "Télécharger le texte"
-msgstr "تحميل النص"
-
-#: templates/conversion/pdf_to_txt.html:115
-msgid "Extraire un autre PDF"
-msgstr "استخراج ملف PDF آخر"
-
-#: templates/conversion/pdf_to_txt.html:169
+#: templates/conversion/pdf_to_txt.html:10
 msgid "Veuillez spécifier les pages à extraire"
 msgstr "الرجاء تحديد الصفحات المراد استخراجها"
 
-#: templates/conversion/pdf_to_txt.html:170
+#: templates/conversion/pdf_to_txt.html:11
 msgid "Format de pages invalide. Utilisez le format: 1-5,8,11-13"
 msgstr "صيغة صفحات غير صالحة. استخدم الصيغة: 1-5,8,11-13"
+
+#: templates/conversion/pdf_to_txt.html:21
+msgid "Sélectionnez le PDF dont vous voulez extraire le texte"
+msgstr "اختر ملف PDF الذي تريد استخراج النص منه"
+
+#: templates/conversion/pdf_to_txt.html:67
+msgid "Ajouter des marqueurs de page"
+msgstr "إضافة علامات الصفحات"
+
+#: templates/conversion/pdf_to_txt.html:75
+msgid "Extraire toutes les pages"
+msgstr "استخراج كل الصفحات"
+
+#: templates/conversion/pdf_to_txt.html:80
+msgid "Pages à extraire :"
+msgstr "الصفحات المراد استخراجها :"
+
+#: templates/conversion/pdf_to_txt.html:82
+msgid "Exemple: 1-5,8,11-13"
+msgstr "مثال: 1-5,8,11-13"
+
+#: templates/conversion/pdf_to_txt.html:84
+msgid "Spécifiez les pages à extraire (ex: 1-3,5,7-9)"
+msgstr "حدد الصفحات المراد استخراجها (مثال: 1-3,5,7-9)"
+
+#: templates/conversion/pdf_to_txt.html:93
+msgid "Extraire le texte"
+msgstr "استخراج النص"
+
+#: templates/conversion/pdf_to_txt.html:105
+msgid "Veuillez patienter pendant l'extraction du texte"
+msgstr "الرجاء الانتظار أثناء استخراج النص"
+
+#: templates/conversion/pdf_to_txt.html:119
+msgid "Votre fichier texte est prêt à être téléchargé"
+msgstr "ملف النص جاهز للتحميل"
+
+#: templates/conversion/pdf_to_txt.html:121
+msgid "Télécharger le texte"
+msgstr "تحميل النص"
+
+#: templates/conversion/pdf_to_txt.html:125
+msgid "Extraire un autre PDF"
+msgstr "استخراج ملف PDF آخر"
 
 #: templates/conversion/pdf_to_word.html:10
 msgid "Convertissez votre PDF en document Word"
@@ -3287,10 +3591,6 @@ msgstr "إنشاء نموذج آخر"
 msgid "Veuillez d'abord télécharger un document"
 msgstr "الرجاء تحميل مستند أولاً"
 
-#: templates/conversion/prepare_form.html:247 templates/legal/contact.html:42
-msgid "Nom complet"
-msgstr "الاسم الكامل"
-
 #: templates/conversion/prepare_form.html:248
 msgid "Prénom"
 msgstr "الاسم الأول"
@@ -3306,10 +3606,6 @@ msgstr "الرمز البريدي"
 #: templates/conversion/prepare_form.html:251
 msgid "Ville"
 msgstr "المدينة"
-
-#: templates/conversion/prepare_form.html:252
-msgid "Email"
-msgstr "البريد الإلكتروني"
 
 #: templates/conversion/prepare_form.html:253
 msgid "Téléphone"
@@ -3477,19 +3773,9 @@ msgstr "مستند_محمي.pdf"
 msgid "Erreur:"
 msgstr "خطأ:"
 
-#: templates/conversion/redact_pdf.html:10
-#: templates/conversion/sign_pdf.html:10
-msgid "Téléchargez votre PDF"
-msgstr "حمّل ملف PDF"
-
 #: templates/conversion/redact_pdf.html:11
 msgid "Supprimez définitivement le contenu sensible de votre document"
 msgstr "احذف بشكل دائم المحتوى الحساس من مستندك"
-
-#: templates/conversion/redact_pdf.html:26
-#: templates/conversion/sign_pdf.html:26
-msgid "Formats acceptés : PDF (jusqu'à 100MB)"
-msgstr "الصيغ المقبولة: PDF (حتى 100 ميجابايت)"
 
 #: templates/conversion/redact_pdf.html:36
 msgid "Options de caviardage"
@@ -3536,10 +3822,6 @@ msgid ""
 "Après avoir chargé votre PDF, vous pourrez dessiner des zones à caviarder"
 " sur l'aperçu."
 msgstr "بعد تحميل ملف PDF، يمكنك رسم مناطق الشطب على المعاينة."
-
-#: templates/conversion/redact_pdf.html:92
-msgid "Couleur :"
-msgstr "اللون :"
 
 #: templates/conversion/redact_pdf.html:96
 msgid "Opaque"
@@ -3774,11 +4056,6 @@ msgstr "قياسي"
 msgid "Élégant"
 msgstr "أنيق"
 
-#: templates/conversion/sign_pdf.html:105
-#: templates/conversion/txt_to_pdf.html:63
-msgid "Taille :"
-msgstr "الحجم :"
-
 #: templates/conversion/sign_pdf.html:107
 msgid "Petite"
 msgstr "صغير"
@@ -3906,14 +4183,6 @@ msgstr "الصق نصك هنا..."
 #: templates/conversion/txt_to_pdf.html:43
 msgid "Options de formatage"
 msgstr "خيارات التنسيق"
-
-#: templates/conversion/txt_to_pdf.html:55
-msgid "Police :"
-msgstr "الخط :"
-
-#: templates/conversion/txt_to_pdf.html:58
-msgid "Times New Roman"
-msgstr "تايمز نيو رومان"
 
 #: templates/conversion/txt_to_pdf.html:72
 msgid "Interligne :"

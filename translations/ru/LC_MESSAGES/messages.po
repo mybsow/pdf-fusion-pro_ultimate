@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-10 08:32+0000\n"
+"POT-Creation-Date: 2026-04-10 13:45+0000\n"
 "PO-Revision-Date: 2026-04-01 18:22+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -422,6 +422,49 @@ msgstr "Excel и CSV"
 msgid "Exportez vos feuilles Excel en CSV"
 msgstr "Экспортируйте листы Excel в CSV."
 
+#: blueprints/legal/routes.py:78 templates/conversion/prepare_form.html:247
+#: templates/legal/contact.html:42
+msgid "Nom complet"
+msgstr "Полное имя"
+
+#: blueprints/legal/routes.py:82 templates/conversion/prepare_form.html:252
+msgid "Email"
+msgstr "Электронная почта"
+
+#: blueprints/legal/routes.py:86
+#, fuzzy
+msgid "Téléphone (optionnel)"
+msgstr "Номер телефона (необязательно)"
+
+#: blueprints/legal/routes.py:90
+msgid "Sujet"
+msgstr ""
+
+#: blueprints/legal/routes.py:92
+#, fuzzy
+msgid "Signaler un bug"
+msgstr "Подпишите еще один PDF-файл"
+
+#: blueprints/legal/routes.py:93
+#, fuzzy
+msgid "Proposer une amélioration"
+msgstr "Предложить функциональное улучшение"
+
+#: blueprints/legal/routes.py:94
+#, fuzzy
+msgid "Partenariat"
+msgstr "Запрос о партнерстве"
+
+#: blueprints/legal/routes.py:95
+#, fuzzy
+msgid "Autre"
+msgstr "Дата"
+
+#: blueprints/legal/routes.py:100
+#, fuzzy
+msgid "Message"
+msgstr "сообщения"
+
 #: blueprints/legal/routes.py:205
 msgid "Veuillez remplir tous les champs obligatoires."
 msgstr "Пожалуйста, заполните все обязательные поля."
@@ -663,7 +706,7 @@ msgid "PDF Fusion Pro"
 msgstr "PDF-фьюжн-про"
 
 #: templates/base.html:353 templates/base_legal.html:278
-#: templates/conversion/conversion_base.html:197
+#: templates/conversion/conversion_base.html:195
 msgid "Convertir"
 msgstr "конвертировать"
 
@@ -861,8 +904,8 @@ msgstr "Вернуться на главную"
 msgid "caractères"
 msgstr "символы"
 
-#: templates/conversion/conversion_base.html:193
-#: templates/conversion/conversion_base.html:201
+#: templates/conversion/conversion_base.html:191
+#: templates/conversion/conversion_base.html:199
 #: templates/conversion/csv_to_excel.html:101
 #: templates/conversion/excel_to_csv.html:108
 #: templates/conversion/excel_to_pdf.html:91
@@ -873,56 +916,56 @@ msgstr "символы"
 msgid "Télécharger"
 msgstr "Скачать"
 
-#: templates/conversion/conversion_base.html:214
+#: templates/conversion/conversion_base.html:212
 #: templates/conversion/index.html:216
 msgid "Sécurisé"
 msgstr "Безопасно"
 
-#: templates/conversion/conversion_base.html:215
+#: templates/conversion/conversion_base.html:213
 msgid "Vos fichiers sont supprimés après conversion"
 msgstr "Ваши файлы удаляются после конвертации"
 
-#: templates/conversion/conversion_base.html:219
+#: templates/conversion/conversion_base.html:217
 #: templates/conversion/index.html:221
 msgid "Rapide"
 msgstr "Быстро"
 
-#: templates/conversion/conversion_base.html:220
+#: templates/conversion/conversion_base.html:218
 msgid "Conversion en quelques secondes"
 msgstr "Конвертация за несколько секунд"
 
-#: templates/conversion/conversion_base.html:224
+#: templates/conversion/conversion_base.html:222
 msgid "Confidentiel"
 msgstr "Конфиденциально"
 
-#: templates/conversion/conversion_base.html:225
+#: templates/conversion/conversion_base.html:223
 msgid "Personne n'accède à vos fichiers"
 msgstr "Никто не получит доступ к вашим файлам"
 
-#: templates/conversion/conversion_base.html:229
+#: templates/conversion/conversion_base.html:227
 msgid "Accessible"
 msgstr "Доступный"
 
-#: templates/conversion/conversion_base.html:230
+#: templates/conversion/conversion_base.html:228
 msgid "Utilisez depuis n'importe où"
 msgstr "Используйте где угодно"
 
-#: templates/conversion/conversion_base.html:239
+#: templates/conversion/conversion_base.html:237
 #: templates/conversion/index.html:270
 msgid "Comment ça marche ?"
 msgstr "Как это работает?"
 
-#: templates/conversion/conversion_base.html:242
+#: templates/conversion/conversion_base.html:240
 #, python-format
 msgid "Téléchargez votre fichier %(from_format)s."
 msgstr "Загрузите файл %(from_format)s."
 
-#: templates/conversion/conversion_base.html:245
+#: templates/conversion/conversion_base.html:243
 #, python-format
 msgid "Notre système le convertit automatiquement en %(to_format)s."
 msgstr "Наша система автоматически преобразует его в %(to_format)s."
 
-#: templates/conversion/conversion_base.html:247
+#: templates/conversion/conversion_base.html:245
 msgid "Téléchargez ensuite votre fichier converti."
 msgstr "Затем скачайте ваш сконвертированный файл."
 
@@ -952,7 +995,7 @@ msgstr "Перетащите ваши CSV-файлы сюда"
 #: templates/conversion/pdf_to_image.html:22
 #: templates/conversion/pdf_to_pdfa.html:22
 #: templates/conversion/pdf_to_ppt.html:22
-#: templates/conversion/pdf_to_txt.html:22
+#: templates/conversion/pdf_to_txt.html:32
 #: templates/conversion/pdf_to_word.html:22
 #: templates/conversion/png_to_pdf.html:22
 #: templates/conversion/powerpoint_to_pdf.html:22
@@ -1012,7 +1055,7 @@ msgstr "Вертикальная черта (|)"
 
 #: templates/conversion/csv_to_excel.html:49
 #: templates/conversion/pdf_to_html.html:48
-#: templates/conversion/pdf_to_txt.html:40
+#: templates/conversion/pdf_to_txt.html:50
 msgid "Encodage :"
 msgstr "Кодировка:"
 
@@ -1025,6 +1068,7 @@ msgid "Convertir en Excel"
 msgstr "Конвертировать в Excel"
 
 #: templates/conversion/csv_to_excel.html:73
+#: templates/conversion/edit_pdf.html:247
 #: templates/conversion/excel_to_csv.html:80
 #: templates/conversion/excel_to_pdf.html:63
 #: templates/conversion/image_to_excel.html:124
@@ -1120,6 +1164,299 @@ msgstr "Пожалуйста, выберите хотя бы один CSV-фай
 #: templates/conversion/word_to_pdf.html:475
 msgid "Erreur lors de la conversion :"
 msgstr "Ошибка при конвертации:"
+
+#: templates/conversion/edit_pdf.html:9
+#: templates/conversion/pdf_to_doc.html:206
+#: templates/conversion/pdf_to_excel.html:236
+#: templates/conversion/pdf_to_image.html:243
+#: templates/conversion/pdf_to_pdfa.html:263
+#: templates/conversion/pdf_to_ppt.html:247
+#: templates/conversion/pdf_to_word.html:252
+#: templates/conversion/protect_pdf.html:141
+#: templates/conversion/redact_pdf.html:430
+#: templates/conversion/sign_pdf.html:363
+#: templates/conversion/unlock_pdf.html:98
+msgid "Veuillez sélectionner un fichier PDF"
+msgstr "Пожалуйста, выберите PDF-файл"
+
+#: templates/conversion/edit_pdf.html:10
+msgid "Erreur système : Gestionnaire d'upload manquant"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:11
+#, fuzzy
+msgid "Veuillez entrer du texte à ajouter"
+msgstr "Пожалуйста, введите пароль"
+
+#: templates/conversion/edit_pdf.html:12
+#, fuzzy
+msgid "Veuillez sélectionner une image à insérer"
+msgstr "Пожалуйста, выберите файл"
+
+#: templates/conversion/edit_pdf.html:13
+#, fuzzy
+msgid "Veuillez entrer les pages à supprimer"
+msgstr "Пожалуйста, укажите страницы для извлечения"
+
+#: templates/conversion/edit_pdf.html:14
+#, fuzzy
+msgid "Veuillez entrer les pages à faire pivoter"
+msgstr "Пожалуйста, укажите страницы для извлечения"
+
+#: templates/conversion/edit_pdf.html:15
+#, fuzzy
+msgid "Erreur lors de l'édition :"
+msgstr "Ошибка при извлечении:"
+
+#: templates/conversion/edit_pdf.html:16
+#, fuzzy
+msgid "Erreur serveur"
+msgstr "Внутренняя ошибка сервера"
+
+#: templates/conversion/edit_pdf.html:24
+#: templates/conversion/redact_pdf.html:10
+#: templates/conversion/sign_pdf.html:10
+msgid "Téléchargez votre PDF"
+msgstr "Загрузите ваш PDF"
+
+#: templates/conversion/edit_pdf.html:25
+#, fuzzy
+msgid "Modifiez, ajoutez du texte ou des images à votre document"
+msgstr "Редактируйте или добавляйте текст, изображения и страницы в ваш PDF-файл."
+
+#: templates/conversion/edit_pdf.html:35
+#: templates/conversion/pdf_to_doc.html:21
+#: templates/conversion/pdf_to_excel.html:21
+#: templates/conversion/pdf_to_html.html:21
+#: templates/conversion/pdf_to_image.html:21
+#: templates/conversion/pdf_to_pdfa.html:21
+#: templates/conversion/pdf_to_ppt.html:21
+#: templates/conversion/pdf_to_txt.html:31
+#: templates/conversion/pdf_to_word.html:21
+#: templates/conversion/redact_pdf.html:21
+#: templates/conversion/sign_pdf.html:21
+msgid "Glissez-déposez votre fichier PDF ici"
+msgstr "Перетащите ваш PDF-файл сюда"
+
+#: templates/conversion/edit_pdf.html:36 templates/conversion/edit_pdf.html:137
+#, fuzzy
+msgid "ou cliquez pour sélectionner"
+msgstr "Перетащите или нажмите, чтобы выбрать"
+
+#: templates/conversion/edit_pdf.html:40
+#: templates/conversion/redact_pdf.html:26
+#: templates/conversion/sign_pdf.html:26
+msgid "Formats acceptés : PDF (jusqu'à 100MB)"
+msgstr "Поддерживаемые форматы: PDF (до 100 МБ)"
+
+#: templates/conversion/edit_pdf.html:53
+#, fuzzy
+msgid "Ajouter du texte"
+msgstr "Добавить причину подписания"
+
+#: templates/conversion/edit_pdf.html:59
+#, fuzzy
+msgid "Ajouter une image"
+msgstr "Добавить причину подписания"
+
+#: templates/conversion/edit_pdf.html:65
+#, fuzzy
+msgid "Gérer les pages"
+msgstr "Все страницы"
+
+#: templates/conversion/edit_pdf.html:74
+#, fuzzy
+msgid "Ajouter du texte au PDF"
+msgstr "Предпросмотр извлеченного текста"
+
+#: templates/conversion/edit_pdf.html:77
+#, fuzzy
+msgid "Texte à ajouter :"
+msgstr "Текст для редактирования:"
+
+#: templates/conversion/edit_pdf.html:79
+#, fuzzy
+msgid "Saisissez votre texte ici..."
+msgstr "Вставьте ваш текст здесь..."
+
+#: templates/conversion/edit_pdf.html:82 templates/conversion/edit_pdf.html:145
+#, fuzzy
+msgid "Page d'insertion :"
+msgstr "Угол поворота"
+
+#: templates/conversion/edit_pdf.html:85
+#, fuzzy
+msgid "Position (points) :"
+msgstr "Позиция Y:"
+
+#: templates/conversion/edit_pdf.html:97 templates/conversion/edit_pdf.html:149
+#: templates/conversion/sign_pdf.html:105
+#: templates/conversion/txt_to_pdf.html:63
+msgid "Taille :"
+msgstr "Размер:"
+
+#: templates/conversion/edit_pdf.html:109
+#: templates/conversion/redact_pdf.html:92
+msgid "Couleur :"
+msgstr "Цвет:"
+
+#: templates/conversion/edit_pdf.html:115
+#: templates/conversion/txt_to_pdf.html:55
+msgid "Police :"
+msgstr "Шрифт:"
+
+#: templates/conversion/edit_pdf.html:118
+#: templates/conversion/txt_to_pdf.html:58
+msgid "Times New Roman"
+msgstr "Таймс Нью Роман"
+
+#: templates/conversion/edit_pdf.html:120
+msgid "Helvetica Gras"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:121
+msgid "Helvetica Italique"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:130
+#, fuzzy
+msgid "Ajouter une image au PDF"
+msgstr "Поворот PDF-файла"
+
+#: templates/conversion/edit_pdf.html:136
+#, fuzzy
+msgid "Glissez-déposez votre image ici"
+msgstr "Перетащите ваши изображения сюда"
+
+#: templates/conversion/edit_pdf.html:151
+#: templates/conversion/image_to_pdf.html:62
+#: templates/conversion/jpg_to_pdf.html:45
+#: templates/conversion/pdf_to_pdfa.html:220
+#: templates/conversion/png_to_pdf.html:45
+msgid "Taille originale"
+msgstr "Оригинальный размер"
+
+#: templates/conversion/edit_pdf.html:152
+#, fuzzy
+msgid "Ajuster à la page"
+msgstr "Добавить маркеры страниц"
+
+#: templates/conversion/edit_pdf.html:153
+#, fuzzy
+msgid "Personnalisée"
+msgstr "Разрешена печать"
+
+#: templates/conversion/edit_pdf.html:157
+#, fuzzy
+msgid "Position X (points) :"
+msgstr "Позиция X:"
+
+#: templates/conversion/edit_pdf.html:161
+#, fuzzy
+msgid "Position Y (points) :"
+msgstr "Позиция Y:"
+
+#: templates/conversion/edit_pdf.html:169
+#, fuzzy
+msgid "Largeur (points) :"
+msgstr "Скачать PowerPoint"
+
+#: templates/conversion/edit_pdf.html:173
+#, fuzzy
+msgid "Hauteur (points) :"
+msgstr "Высокая (медленнее)"
+
+#: templates/conversion/edit_pdf.html:182
+#, fuzzy
+msgid "Gestion des pages"
+msgstr "Создание страниц"
+
+#: templates/conversion/edit_pdf.html:185
+#, fuzzy
+msgid "Action :"
+msgstr "Внимание:"
+
+#: templates/conversion/edit_pdf.html:189
+#, fuzzy
+msgid "Réorganiser"
+msgstr "Португальский"
+
+#: templates/conversion/edit_pdf.html:194
+msgid "Supprimer"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:199
+#, fuzzy
+msgid "Rotation"
+msgstr "Вращение PDF"
+
+#: templates/conversion/edit_pdf.html:207
+msgid "Faites glisser les pages pour les réorganiser"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:215
+#, fuzzy
+msgid "Pages à supprimer :"
+msgstr "Страницы для обработки:"
+
+#: templates/conversion/edit_pdf.html:217
+#: templates/conversion/edit_pdf.html:225
+#, fuzzy
+msgid "Ex: 1-3, 5, 7-9"
+msgstr "Пример: 1-5, 8, 11-13"
+
+#: templates/conversion/edit_pdf.html:223
+#, fuzzy
+msgid "Pages à faire pivoter :"
+msgstr "Страницы для обработки:"
+
+#: templates/conversion/edit_pdf.html:228
+#, fuzzy
+msgid "Angle :"
+msgstr "Страница:"
+
+#: templates/conversion/edit_pdf.html:230
+#, fuzzy
+msgid "horaire"
+msgstr "Быстро"
+
+#: templates/conversion/edit_pdf.html:232
+msgid "antihoraire"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:244
+#, fuzzy
+msgid "Appliquer les modifications"
+msgstr "Печать и изменение"
+
+#: templates/conversion/edit_pdf.html:258
+#, fuzzy
+msgid "Édition en cours..."
+msgstr "Идет извлечение..."
+
+#: templates/conversion/edit_pdf.html:259
+msgid "Application des modifications au document"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:272
+#, fuzzy
+msgid "Édition terminée !"
+msgstr "Извлечение завершено!"
+
+#: templates/conversion/edit_pdf.html:273
+#, fuzzy
+msgid "Votre PDF modifié est prêt à être téléchargé"
+msgstr "Ваш подписанный PDF готов к скачиванию"
+
+#: templates/conversion/edit_pdf.html:275
+#, fuzzy
+msgid "Télécharger le PDF modifié"
+msgstr "Скачать подписанный PDF"
+
+#: templates/conversion/edit_pdf.html:279
+#, fuzzy
+msgid "Éditer un autre PDF"
+msgstr "Подпишите еще один PDF-файл"
 
 #: templates/conversion/excel_to_csv.html:10
 #: templates/conversion/excel_to_pdf.html:10
@@ -1334,7 +1671,7 @@ msgstr "Поддерживаемые форматы: JPG, PNG, BMP, TIFF, WEBP, 
 
 #: templates/conversion/image_to_excel.html:34
 #: templates/conversion/pdf_to_excel.html:37
-#: templates/conversion/pdf_to_txt.html:36
+#: templates/conversion/pdf_to_txt.html:46
 msgid "Options d'extraction"
 msgstr "Варианты извлечения"
 
@@ -1446,7 +1783,7 @@ msgstr "Доверять"
 
 #: templates/conversion/image_to_excel.html:180
 #: templates/conversion/image_to_word.html:296
-#: templates/conversion/pdf_to_txt.html:108
+#: templates/conversion/pdf_to_txt.html:118
 msgid "Extraction terminée !"
 msgstr "Извлечение завершено!"
 
@@ -1506,13 +1843,6 @@ msgstr "Среднее"
 #: templates/conversion/jpg_to_pdf.html:61
 msgid "Basse (fichier plus petit)"
 msgstr "Низкое (файл меньше)"
-
-#: templates/conversion/image_to_pdf.html:62
-#: templates/conversion/jpg_to_pdf.html:45
-#: templates/conversion/pdf_to_pdfa.html:220
-#: templates/conversion/png_to_pdf.html:45
-msgid "Taille originale"
-msgstr "Оригинальный размер"
 
 #: templates/conversion/image_to_pdf.html:69
 #: templates/conversion/jpg_to_pdf.html:68
@@ -1633,7 +1963,7 @@ msgstr "Высокий (точнее)"
 
 #: templates/conversion/image_to_word.html:91
 #: templates/conversion/pdf_to_doc.html:45
-#: templates/conversion/pdf_to_txt.html:51
+#: templates/conversion/pdf_to_txt.html:61
 #: templates/conversion/word_to_pdf.html:117
 msgid "Conserver la mise en page"
 msgstr "Сохранять макет"
@@ -1727,7 +2057,7 @@ msgstr "Строк"
 
 #: templates/conversion/image_to_word.html:243
 #: templates/conversion/pdf_to_html.html:141
-#: templates/conversion/pdf_to_txt.html:162
+#: templates/conversion/pdf_to_txt.html:9
 msgid "Veuillez sélectionner un fichier"
 msgstr "Пожалуйста, выберите файл"
 
@@ -1789,7 +2119,7 @@ msgstr "Документ готов"
 
 #: templates/conversion/image_to_word.html:345
 #: templates/conversion/pdf_to_excel.html:314
-#: templates/conversion/pdf_to_txt.html:227
+#: templates/conversion/pdf_to_txt.html:12
 msgid "Erreur lors de l'extraction :"
 msgstr "Ошибка при извлечении:"
 
@@ -2018,19 +2348,6 @@ msgstr ""
 "Конвертируйте ваши PDF-документы в формат Word, совместимый со старыми "
 "версиями"
 
-#: templates/conversion/pdf_to_doc.html:21
-#: templates/conversion/pdf_to_excel.html:21
-#: templates/conversion/pdf_to_html.html:21
-#: templates/conversion/pdf_to_image.html:21
-#: templates/conversion/pdf_to_pdfa.html:21
-#: templates/conversion/pdf_to_ppt.html:21
-#: templates/conversion/pdf_to_txt.html:21
-#: templates/conversion/pdf_to_word.html:21
-#: templates/conversion/redact_pdf.html:21
-#: templates/conversion/sign_pdf.html:21
-msgid "Glissez-déposez votre fichier PDF ici"
-msgstr "Перетащите ваш PDF-файл сюда"
-
 #: templates/conversion/pdf_to_doc.html:26
 #: templates/conversion/pdf_to_excel.html:26
 #: templates/conversion/pdf_to_image.html:26
@@ -2164,19 +2481,6 @@ msgstr "Размер файла"
 msgid "Format"
 msgstr "Формат"
 
-#: templates/conversion/pdf_to_doc.html:206
-#: templates/conversion/pdf_to_excel.html:236
-#: templates/conversion/pdf_to_image.html:243
-#: templates/conversion/pdf_to_pdfa.html:263
-#: templates/conversion/pdf_to_ppt.html:247
-#: templates/conversion/pdf_to_word.html:252
-#: templates/conversion/protect_pdf.html:141
-#: templates/conversion/redact_pdf.html:430
-#: templates/conversion/sign_pdf.html:363
-#: templates/conversion/unlock_pdf.html:98
-msgid "Veuillez sélectionner un fichier PDF"
-msgstr "Пожалуйста, выберите PDF-файл"
-
 #: templates/conversion/pdf_to_doc.html:273
 #: templates/conversion/pdf_to_ppt.html:148
 msgid "Analyse du PDF..."
@@ -2271,7 +2575,7 @@ msgid "Extraire vers Excel"
 msgstr "Извлечь в Excel"
 
 #: templates/conversion/pdf_to_excel.html:108
-#: templates/conversion/pdf_to_txt.html:94
+#: templates/conversion/pdf_to_txt.html:104
 msgid "Extraction en cours..."
 msgstr "Идет извлечение..."
 
@@ -2349,7 +2653,7 @@ msgid "Organisation en feuilles Excel"
 msgstr "Организация в листы Excel"
 
 #: templates/conversion/pdf_to_html.html:10
-#: templates/conversion/pdf_to_txt.html:10
+#: templates/conversion/pdf_to_txt.html:20
 msgid "Téléchargez votre fichier PDF"
 msgstr "Загрузите свой PDF-файл"
 
@@ -2358,7 +2662,7 @@ msgid "Sélectionnez le PDF à convertir en HTML"
 msgstr "Выберите PDF для конвертации в HTML"
 
 #: templates/conversion/pdf_to_html.html:26
-#: templates/conversion/pdf_to_txt.html:26
+#: templates/conversion/pdf_to_txt.html:36
 msgid "Format accepté : PDF"
 msgstr "Поддерживаемый формат: PDF"
 
@@ -2874,57 +3178,57 @@ msgstr "2 стр./слайд"
 msgid "Diapo"
 msgstr "Слайд"
 
-#: templates/conversion/pdf_to_txt.html:11
-msgid "Sélectionnez le PDF dont vous voulez extraire le texte"
-msgstr "Выберите PDF, из которого нужно извлечь текст"
-
-#: templates/conversion/pdf_to_txt.html:57
-msgid "Ajouter des marqueurs de page"
-msgstr "Добавить маркеры страниц"
-
-#: templates/conversion/pdf_to_txt.html:65
-msgid "Extraire toutes les pages"
-msgstr "Извлечь все страницы"
-
-#: templates/conversion/pdf_to_txt.html:70
-msgid "Pages à extraire :"
-msgstr "Страницы для извлечения:"
-
-#: templates/conversion/pdf_to_txt.html:72
-msgid "Exemple: 1-5,8,11-13"
-msgstr "Пример: 1-5,8,11-13"
-
-#: templates/conversion/pdf_to_txt.html:74
-msgid "Spécifiez les pages à extraire (ex: 1-3,5,7-9)"
-msgstr "Укажите страницы для извлечения (например: 1-3,5,7-9)"
-
-#: templates/conversion/pdf_to_txt.html:83
-msgid "Extraire le texte"
-msgstr "Извлечь текст"
-
-#: templates/conversion/pdf_to_txt.html:95
-msgid "Veuillez patienter pendant l'extraction du texte"
-msgstr "Пожалуйста, подождите, идет извлечение текста"
-
-#: templates/conversion/pdf_to_txt.html:109
-msgid "Votre fichier texte est prêt à être téléchargé"
-msgstr "Ваш текстовый файл готов к скачиванию"
-
-#: templates/conversion/pdf_to_txt.html:111
-msgid "Télécharger le texte"
-msgstr "Скачать текст"
-
-#: templates/conversion/pdf_to_txt.html:115
-msgid "Extraire un autre PDF"
-msgstr "Извлечь из другого PDF"
-
-#: templates/conversion/pdf_to_txt.html:169
+#: templates/conversion/pdf_to_txt.html:10
 msgid "Veuillez spécifier les pages à extraire"
 msgstr "Пожалуйста, укажите страницы для извлечения"
 
-#: templates/conversion/pdf_to_txt.html:170
+#: templates/conversion/pdf_to_txt.html:11
 msgid "Format de pages invalide. Utilisez le format: 1-5,8,11-13"
 msgstr "Неверный формат страниц. Используйте формат: 1-5,8,11-13"
+
+#: templates/conversion/pdf_to_txt.html:21
+msgid "Sélectionnez le PDF dont vous voulez extraire le texte"
+msgstr "Выберите PDF, из которого нужно извлечь текст"
+
+#: templates/conversion/pdf_to_txt.html:67
+msgid "Ajouter des marqueurs de page"
+msgstr "Добавить маркеры страниц"
+
+#: templates/conversion/pdf_to_txt.html:75
+msgid "Extraire toutes les pages"
+msgstr "Извлечь все страницы"
+
+#: templates/conversion/pdf_to_txt.html:80
+msgid "Pages à extraire :"
+msgstr "Страницы для извлечения:"
+
+#: templates/conversion/pdf_to_txt.html:82
+msgid "Exemple: 1-5,8,11-13"
+msgstr "Пример: 1-5,8,11-13"
+
+#: templates/conversion/pdf_to_txt.html:84
+msgid "Spécifiez les pages à extraire (ex: 1-3,5,7-9)"
+msgstr "Укажите страницы для извлечения (например: 1-3,5,7-9)"
+
+#: templates/conversion/pdf_to_txt.html:93
+msgid "Extraire le texte"
+msgstr "Извлечь текст"
+
+#: templates/conversion/pdf_to_txt.html:105
+msgid "Veuillez patienter pendant l'extraction du texte"
+msgstr "Пожалуйста, подождите, идет извлечение текста"
+
+#: templates/conversion/pdf_to_txt.html:119
+msgid "Votre fichier texte est prêt à être téléchargé"
+msgstr "Ваш текстовый файл готов к скачиванию"
+
+#: templates/conversion/pdf_to_txt.html:121
+msgid "Télécharger le texte"
+msgstr "Скачать текст"
+
+#: templates/conversion/pdf_to_txt.html:125
+msgid "Extraire un autre PDF"
+msgstr "Извлечь из другого PDF"
 
 #: templates/conversion/pdf_to_word.html:10
 msgid "Convertissez votre PDF en document Word"
@@ -3301,10 +3605,6 @@ msgstr "Создать другую форму"
 msgid "Veuillez d'abord télécharger un document"
 msgstr "Пожалуйста, сначала загрузите документ"
 
-#: templates/conversion/prepare_form.html:247 templates/legal/contact.html:42
-msgid "Nom complet"
-msgstr "Полное имя"
-
 #: templates/conversion/prepare_form.html:248
 msgid "Prénom"
 msgstr "Имя"
@@ -3320,10 +3620,6 @@ msgstr "Почтовый индекс"
 #: templates/conversion/prepare_form.html:251
 msgid "Ville"
 msgstr "Город"
-
-#: templates/conversion/prepare_form.html:252
-msgid "Email"
-msgstr "Электронная почта"
 
 #: templates/conversion/prepare_form.html:253
 msgid "Téléphone"
@@ -3491,19 +3787,9 @@ msgstr "document_protect.pdf"
 msgid "Erreur:"
 msgstr "Ошибка:"
 
-#: templates/conversion/redact_pdf.html:10
-#: templates/conversion/sign_pdf.html:10
-msgid "Téléchargez votre PDF"
-msgstr "Загрузите ваш PDF"
-
 #: templates/conversion/redact_pdf.html:11
 msgid "Supprimez définitivement le contenu sensible de votre document"
 msgstr "Навсегда удалите конфиденциальное содержимое из вашего документа"
-
-#: templates/conversion/redact_pdf.html:26
-#: templates/conversion/sign_pdf.html:26
-msgid "Formats acceptés : PDF (jusqu'à 100MB)"
-msgstr "Поддерживаемые форматы: PDF (до 100 МБ)"
 
 #: templates/conversion/redact_pdf.html:36
 msgid "Options de caviardage"
@@ -3552,10 +3838,6 @@ msgid ""
 msgstr ""
 "После загрузки PDF вы сможете нарисовать области для редактирования на "
 "предпросмотре."
-
-#: templates/conversion/redact_pdf.html:92
-msgid "Couleur :"
-msgstr "Цвет:"
 
 #: templates/conversion/redact_pdf.html:96
 msgid "Opaque"
@@ -3790,11 +4072,6 @@ msgstr "Стандартный"
 msgid "Élégant"
 msgstr "Элегантный"
 
-#: templates/conversion/sign_pdf.html:105
-#: templates/conversion/txt_to_pdf.html:63
-msgid "Taille :"
-msgstr "Размер:"
-
 #: templates/conversion/sign_pdf.html:107
 msgid "Petite"
 msgstr "Маленькая"
@@ -3922,14 +4199,6 @@ msgstr "Вставьте ваш текст здесь..."
 #: templates/conversion/txt_to_pdf.html:43
 msgid "Options de formatage"
 msgstr "Параметры форматирования"
-
-#: templates/conversion/txt_to_pdf.html:55
-msgid "Police :"
-msgstr "Шрифт:"
-
-#: templates/conversion/txt_to_pdf.html:58
-msgid "Times New Roman"
-msgstr "Таймс Нью Роман"
 
 #: templates/conversion/txt_to_pdf.html:72
 msgid "Interligne :"

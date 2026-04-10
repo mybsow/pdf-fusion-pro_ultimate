@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-10 08:32+0000\n"
+"POT-Creation-Date: 2026-04-10 13:45+0000\n"
 "PO-Revision-Date: 2026-04-01 18:22+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -421,6 +421,49 @@ msgstr "Excel versus CSV"
 msgid "Exportez vos feuilles Excel en CSV"
 msgstr "Exporta tus hojas de Excel a CSV"
 
+#: blueprints/legal/routes.py:78 templates/conversion/prepare_form.html:247
+#: templates/legal/contact.html:42
+msgid "Nom complet"
+msgstr "Nombre completo"
+
+#: blueprints/legal/routes.py:82 templates/conversion/prepare_form.html:252
+msgid "Email"
+msgstr "Correo electrónico"
+
+#: blueprints/legal/routes.py:86
+#, fuzzy
+msgid "Téléphone (optionnel)"
+msgstr "Número de teléfono (opcional)"
+
+#: blueprints/legal/routes.py:90
+msgid "Sujet"
+msgstr ""
+
+#: blueprints/legal/routes.py:92
+#, fuzzy
+msgid "Signaler un bug"
+msgstr "Firmar otro PDF"
+
+#: blueprints/legal/routes.py:93
+#, fuzzy
+msgid "Proposer une amélioration"
+msgstr "Proponer una mejora funcional"
+
+#: blueprints/legal/routes.py:94
+#, fuzzy
+msgid "Partenariat"
+msgstr "Solicitud de colaboración"
+
+#: blueprints/legal/routes.py:95
+#, fuzzy
+msgid "Autre"
+msgstr "Fecha"
+
+#: blueprints/legal/routes.py:100
+#, fuzzy
+msgid "Message"
+msgstr "mensajes"
+
 #: blueprints/legal/routes.py:205
 msgid "Veuillez remplir tous les champs obligatoires."
 msgstr "Por favor, complete todos los campos obligatorios."
@@ -663,7 +706,7 @@ msgid "PDF Fusion Pro"
 msgstr "Fusión PDF Pro"
 
 #: templates/base.html:353 templates/base_legal.html:278
-#: templates/conversion/conversion_base.html:197
+#: templates/conversion/conversion_base.html:195
 msgid "Convertir"
 msgstr "Convertir"
 
@@ -861,8 +904,8 @@ msgstr "Volver al inicio"
 msgid "caractères"
 msgstr "caracteres"
 
-#: templates/conversion/conversion_base.html:193
-#: templates/conversion/conversion_base.html:201
+#: templates/conversion/conversion_base.html:191
+#: templates/conversion/conversion_base.html:199
 #: templates/conversion/csv_to_excel.html:101
 #: templates/conversion/excel_to_csv.html:108
 #: templates/conversion/excel_to_pdf.html:91
@@ -873,56 +916,56 @@ msgstr "caracteres"
 msgid "Télécharger"
 msgstr "Descargar"
 
-#: templates/conversion/conversion_base.html:214
+#: templates/conversion/conversion_base.html:212
 #: templates/conversion/index.html:216
 msgid "Sécurisé"
 msgstr "Seguro"
 
-#: templates/conversion/conversion_base.html:215
+#: templates/conversion/conversion_base.html:213
 msgid "Vos fichiers sont supprimés après conversion"
 msgstr "Tus archivos se eliminan después de la conversión."
 
-#: templates/conversion/conversion_base.html:219
+#: templates/conversion/conversion_base.html:217
 #: templates/conversion/index.html:221
 msgid "Rapide"
 msgstr "Rápido"
 
-#: templates/conversion/conversion_base.html:220
+#: templates/conversion/conversion_base.html:218
 msgid "Conversion en quelques secondes"
 msgstr "Conversión en segundos"
 
-#: templates/conversion/conversion_base.html:224
+#: templates/conversion/conversion_base.html:222
 msgid "Confidentiel"
 msgstr "Confidencial"
 
-#: templates/conversion/conversion_base.html:225
+#: templates/conversion/conversion_base.html:223
 msgid "Personne n'accède à vos fichiers"
 msgstr "Nadie accede a tus archivos"
 
-#: templates/conversion/conversion_base.html:229
+#: templates/conversion/conversion_base.html:227
 msgid "Accessible"
 msgstr "Accesible"
 
-#: templates/conversion/conversion_base.html:230
+#: templates/conversion/conversion_base.html:228
 msgid "Utilisez depuis n'importe où"
 msgstr "Úsalo desde cualquier lugar"
 
-#: templates/conversion/conversion_base.html:239
+#: templates/conversion/conversion_base.html:237
 #: templates/conversion/index.html:270
 msgid "Comment ça marche ?"
 msgstr "¿Cómo funciona?"
 
-#: templates/conversion/conversion_base.html:242
+#: templates/conversion/conversion_base.html:240
 #, python-format
 msgid "Téléchargez votre fichier %(from_format)s."
 msgstr "Sube tu archivo %(from_format)."
 
-#: templates/conversion/conversion_base.html:245
+#: templates/conversion/conversion_base.html:243
 #, python-format
 msgid "Notre système le convertit automatiquement en %(to_format)s."
 msgstr "Nuestro sistema lo convierte automáticamente a %(to_format)s."
 
-#: templates/conversion/conversion_base.html:247
+#: templates/conversion/conversion_base.html:245
 msgid "Téléchargez ensuite votre fichier converti."
 msgstr "Luego descargue su archivo convertido."
 
@@ -952,7 +995,7 @@ msgstr "Arrastra y suelta tus archivos CSV aquí"
 #: templates/conversion/pdf_to_image.html:22
 #: templates/conversion/pdf_to_pdfa.html:22
 #: templates/conversion/pdf_to_ppt.html:22
-#: templates/conversion/pdf_to_txt.html:22
+#: templates/conversion/pdf_to_txt.html:32
 #: templates/conversion/pdf_to_word.html:22
 #: templates/conversion/png_to_pdf.html:22
 #: templates/conversion/powerpoint_to_pdf.html:22
@@ -1012,7 +1055,7 @@ msgstr "mamada (|)"
 
 #: templates/conversion/csv_to_excel.html:49
 #: templates/conversion/pdf_to_html.html:48
-#: templates/conversion/pdf_to_txt.html:40
+#: templates/conversion/pdf_to_txt.html:50
 msgid "Encodage :"
 msgstr "Codificación:"
 
@@ -1025,6 +1068,7 @@ msgid "Convertir en Excel"
 msgstr "Convertir a Excel"
 
 #: templates/conversion/csv_to_excel.html:73
+#: templates/conversion/edit_pdf.html:247
 #: templates/conversion/excel_to_csv.html:80
 #: templates/conversion/excel_to_pdf.html:63
 #: templates/conversion/image_to_excel.html:124
@@ -1120,6 +1164,299 @@ msgstr "Seleccione al menos un archivo CSV"
 #: templates/conversion/word_to_pdf.html:475
 msgid "Erreur lors de la conversion :"
 msgstr "Error durante la conversión:"
+
+#: templates/conversion/edit_pdf.html:9
+#: templates/conversion/pdf_to_doc.html:206
+#: templates/conversion/pdf_to_excel.html:236
+#: templates/conversion/pdf_to_image.html:243
+#: templates/conversion/pdf_to_pdfa.html:263
+#: templates/conversion/pdf_to_ppt.html:247
+#: templates/conversion/pdf_to_word.html:252
+#: templates/conversion/protect_pdf.html:141
+#: templates/conversion/redact_pdf.html:430
+#: templates/conversion/sign_pdf.html:363
+#: templates/conversion/unlock_pdf.html:98
+msgid "Veuillez sélectionner un fichier PDF"
+msgstr "Por favor seleccione un archivo PDF"
+
+#: templates/conversion/edit_pdf.html:10
+msgid "Erreur système : Gestionnaire d'upload manquant"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:11
+#, fuzzy
+msgid "Veuillez entrer du texte à ajouter"
+msgstr "Por favor ingresa una contraseña"
+
+#: templates/conversion/edit_pdf.html:12
+#, fuzzy
+msgid "Veuillez sélectionner une image à insérer"
+msgstr "Por favor seleccione un archivo"
+
+#: templates/conversion/edit_pdf.html:13
+#, fuzzy
+msgid "Veuillez entrer les pages à supprimer"
+msgstr "Por favor especifica las páginas a extraer"
+
+#: templates/conversion/edit_pdf.html:14
+#, fuzzy
+msgid "Veuillez entrer les pages à faire pivoter"
+msgstr "Por favor especifica las páginas a extraer"
+
+#: templates/conversion/edit_pdf.html:15
+#, fuzzy
+msgid "Erreur lors de l'édition :"
+msgstr "Error durante la extracción:"
+
+#: templates/conversion/edit_pdf.html:16
+#, fuzzy
+msgid "Erreur serveur"
+msgstr "Error interno del servidor"
+
+#: templates/conversion/edit_pdf.html:24
+#: templates/conversion/redact_pdf.html:10
+#: templates/conversion/sign_pdf.html:10
+msgid "Téléchargez votre PDF"
+msgstr "Sube tu PDF"
+
+#: templates/conversion/edit_pdf.html:25
+#, fuzzy
+msgid "Modifiez, ajoutez du texte ou des images à votre document"
+msgstr "Edite o agregue texto, imágenes y páginas a su PDF"
+
+#: templates/conversion/edit_pdf.html:35
+#: templates/conversion/pdf_to_doc.html:21
+#: templates/conversion/pdf_to_excel.html:21
+#: templates/conversion/pdf_to_html.html:21
+#: templates/conversion/pdf_to_image.html:21
+#: templates/conversion/pdf_to_pdfa.html:21
+#: templates/conversion/pdf_to_ppt.html:21
+#: templates/conversion/pdf_to_txt.html:31
+#: templates/conversion/pdf_to_word.html:21
+#: templates/conversion/redact_pdf.html:21
+#: templates/conversion/sign_pdf.html:21
+msgid "Glissez-déposez votre fichier PDF ici"
+msgstr "Arrastra y suelta tu archivo PDF aquí"
+
+#: templates/conversion/edit_pdf.html:36 templates/conversion/edit_pdf.html:137
+#, fuzzy
+msgid "ou cliquez pour sélectionner"
+msgstr "Arrastra y suelta o haz clic para seleccionar"
+
+#: templates/conversion/edit_pdf.html:40
+#: templates/conversion/redact_pdf.html:26
+#: templates/conversion/sign_pdf.html:26
+msgid "Formats acceptés : PDF (jusqu'à 100MB)"
+msgstr "Formatos aceptados: PDF (hasta 100MB)"
+
+#: templates/conversion/edit_pdf.html:53
+#, fuzzy
+msgid "Ajouter du texte"
+msgstr "Agregar motivo de firma"
+
+#: templates/conversion/edit_pdf.html:59
+#, fuzzy
+msgid "Ajouter une image"
+msgstr "Agregar motivo de firma"
+
+#: templates/conversion/edit_pdf.html:65
+#, fuzzy
+msgid "Gérer les pages"
+msgstr "Todas las páginas"
+
+#: templates/conversion/edit_pdf.html:74
+#, fuzzy
+msgid "Ajouter du texte au PDF"
+msgstr "Vista previa del texto extraído"
+
+#: templates/conversion/edit_pdf.html:77
+#, fuzzy
+msgid "Texte à ajouter :"
+msgstr "Texto a redactar:"
+
+#: templates/conversion/edit_pdf.html:79
+#, fuzzy
+msgid "Saisissez votre texte ici..."
+msgstr "Pega tu texto aquí..."
+
+#: templates/conversion/edit_pdf.html:82 templates/conversion/edit_pdf.html:145
+#, fuzzy
+msgid "Page d'insertion :"
+msgstr "Ángulo de rotación"
+
+#: templates/conversion/edit_pdf.html:85
+#, fuzzy
+msgid "Position (points) :"
+msgstr "Posición Y:"
+
+#: templates/conversion/edit_pdf.html:97 templates/conversion/edit_pdf.html:149
+#: templates/conversion/sign_pdf.html:105
+#: templates/conversion/txt_to_pdf.html:63
+msgid "Taille :"
+msgstr "Tamaño:"
+
+#: templates/conversion/edit_pdf.html:109
+#: templates/conversion/redact_pdf.html:92
+msgid "Couleur :"
+msgstr "Color:"
+
+#: templates/conversion/edit_pdf.html:115
+#: templates/conversion/txt_to_pdf.html:55
+msgid "Police :"
+msgstr "Fuente:"
+
+#: templates/conversion/edit_pdf.html:118
+#: templates/conversion/txt_to_pdf.html:58
+msgid "Times New Roman"
+msgstr "Times New Roman"
+
+#: templates/conversion/edit_pdf.html:120
+msgid "Helvetica Gras"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:121
+msgid "Helvetica Italique"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:130
+#, fuzzy
+msgid "Ajouter une image au PDF"
+msgstr "Girar un archivo PDF"
+
+#: templates/conversion/edit_pdf.html:136
+#, fuzzy
+msgid "Glissez-déposez votre image ici"
+msgstr "Arrastra y suelta tus imágenes aquí"
+
+#: templates/conversion/edit_pdf.html:151
+#: templates/conversion/image_to_pdf.html:62
+#: templates/conversion/jpg_to_pdf.html:45
+#: templates/conversion/pdf_to_pdfa.html:220
+#: templates/conversion/png_to_pdf.html:45
+msgid "Taille originale"
+msgstr "Tamaño original"
+
+#: templates/conversion/edit_pdf.html:152
+#, fuzzy
+msgid "Ajuster à la page"
+msgstr "Agregar marcadores de página"
+
+#: templates/conversion/edit_pdf.html:153
+#, fuzzy
+msgid "Personnalisée"
+msgstr "Impresión permitida"
+
+#: templates/conversion/edit_pdf.html:157
+#, fuzzy
+msgid "Position X (points) :"
+msgstr "Posición X:"
+
+#: templates/conversion/edit_pdf.html:161
+#, fuzzy
+msgid "Position Y (points) :"
+msgstr "Posición Y:"
+
+#: templates/conversion/edit_pdf.html:169
+#, fuzzy
+msgid "Largeur (points) :"
+msgstr "Descargar PowerPoint"
+
+#: templates/conversion/edit_pdf.html:173
+#, fuzzy
+msgid "Hauteur (points) :"
+msgstr "Alta (más lento)"
+
+#: templates/conversion/edit_pdf.html:182
+#, fuzzy
+msgid "Gestion des pages"
+msgstr "Creación de páginas"
+
+#: templates/conversion/edit_pdf.html:185
+#, fuzzy
+msgid "Action :"
+msgstr "Atención:"
+
+#: templates/conversion/edit_pdf.html:189
+#, fuzzy
+msgid "Réorganiser"
+msgstr "Portugués"
+
+#: templates/conversion/edit_pdf.html:194
+msgid "Supprimer"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:199
+#, fuzzy
+msgid "Rotation"
+msgstr "PDF de rotación"
+
+#: templates/conversion/edit_pdf.html:207
+msgid "Faites glisser les pages pour les réorganiser"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:215
+#, fuzzy
+msgid "Pages à supprimer :"
+msgstr "Páginas a procesar:"
+
+#: templates/conversion/edit_pdf.html:217
+#: templates/conversion/edit_pdf.html:225
+#, fuzzy
+msgid "Ex: 1-3, 5, 7-9"
+msgstr "Ej: 1-5, 8, 11-13"
+
+#: templates/conversion/edit_pdf.html:223
+#, fuzzy
+msgid "Pages à faire pivoter :"
+msgstr "Páginas a procesar:"
+
+#: templates/conversion/edit_pdf.html:228
+#, fuzzy
+msgid "Angle :"
+msgstr "Página:"
+
+#: templates/conversion/edit_pdf.html:230
+#, fuzzy
+msgid "horaire"
+msgstr "Rápido"
+
+#: templates/conversion/edit_pdf.html:232
+msgid "antihoraire"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:244
+#, fuzzy
+msgid "Appliquer les modifications"
+msgstr "Impresión y modificación"
+
+#: templates/conversion/edit_pdf.html:258
+#, fuzzy
+msgid "Édition en cours..."
+msgstr "Extracción en curso..."
+
+#: templates/conversion/edit_pdf.html:259
+msgid "Application des modifications au document"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:272
+#, fuzzy
+msgid "Édition terminée !"
+msgstr "¡Extracción completada!"
+
+#: templates/conversion/edit_pdf.html:273
+#, fuzzy
+msgid "Votre PDF modifié est prêt à être téléchargé"
+msgstr "Tu PDF firmado está listo para descargar"
+
+#: templates/conversion/edit_pdf.html:275
+#, fuzzy
+msgid "Télécharger le PDF modifié"
+msgstr "Descargar PDF firmado"
+
+#: templates/conversion/edit_pdf.html:279
+#, fuzzy
+msgid "Éditer un autre PDF"
+msgstr "Firmar otro PDF"
 
 #: templates/conversion/excel_to_csv.html:10
 #: templates/conversion/excel_to_pdf.html:10
@@ -1334,7 +1671,7 @@ msgstr "Formatos aceptados: JPG, PNG, BMP, TIFF, WEBP, PDF (hasta 50MB)"
 
 #: templates/conversion/image_to_excel.html:34
 #: templates/conversion/pdf_to_excel.html:37
-#: templates/conversion/pdf_to_txt.html:36
+#: templates/conversion/pdf_to_txt.html:46
 msgid "Options d'extraction"
 msgstr "Opciones de extracción"
 
@@ -1446,7 +1783,7 @@ msgstr "Confianza"
 
 #: templates/conversion/image_to_excel.html:180
 #: templates/conversion/image_to_word.html:296
-#: templates/conversion/pdf_to_txt.html:108
+#: templates/conversion/pdf_to_txt.html:118
 msgid "Extraction terminée !"
 msgstr "¡Extracción completada!"
 
@@ -1508,13 +1845,6 @@ msgstr "Media"
 #: templates/conversion/jpg_to_pdf.html:61
 msgid "Basse (fichier plus petit)"
 msgstr "Baja (archivo más pequeño)"
-
-#: templates/conversion/image_to_pdf.html:62
-#: templates/conversion/jpg_to_pdf.html:45
-#: templates/conversion/pdf_to_pdfa.html:220
-#: templates/conversion/png_to_pdf.html:45
-msgid "Taille originale"
-msgstr "Tamaño original"
 
 #: templates/conversion/image_to_pdf.html:69
 #: templates/conversion/jpg_to_pdf.html:68
@@ -1633,7 +1963,7 @@ msgstr "Alto (más preciso)"
 
 #: templates/conversion/image_to_word.html:91
 #: templates/conversion/pdf_to_doc.html:45
-#: templates/conversion/pdf_to_txt.html:51
+#: templates/conversion/pdf_to_txt.html:61
 #: templates/conversion/word_to_pdf.html:117
 msgid "Conserver la mise en page"
 msgstr "Conservar diseño"
@@ -1727,7 +2057,7 @@ msgstr "Líneas"
 
 #: templates/conversion/image_to_word.html:243
 #: templates/conversion/pdf_to_html.html:141
-#: templates/conversion/pdf_to_txt.html:162
+#: templates/conversion/pdf_to_txt.html:9
 msgid "Veuillez sélectionner un fichier"
 msgstr "Por favor seleccione un archivo"
 
@@ -1789,7 +2119,7 @@ msgstr "Documento listo"
 
 #: templates/conversion/image_to_word.html:345
 #: templates/conversion/pdf_to_excel.html:314
-#: templates/conversion/pdf_to_txt.html:227
+#: templates/conversion/pdf_to_txt.html:12
 msgid "Erreur lors de l'extraction :"
 msgstr "Error durante la extracción:"
 
@@ -2019,19 +2349,6 @@ msgstr ""
 "Convierte tus documentos PDF a formato Word compatible con versiones "
 "anteriores"
 
-#: templates/conversion/pdf_to_doc.html:21
-#: templates/conversion/pdf_to_excel.html:21
-#: templates/conversion/pdf_to_html.html:21
-#: templates/conversion/pdf_to_image.html:21
-#: templates/conversion/pdf_to_pdfa.html:21
-#: templates/conversion/pdf_to_ppt.html:21
-#: templates/conversion/pdf_to_txt.html:21
-#: templates/conversion/pdf_to_word.html:21
-#: templates/conversion/redact_pdf.html:21
-#: templates/conversion/sign_pdf.html:21
-msgid "Glissez-déposez votre fichier PDF ici"
-msgstr "Arrastra y suelta tu archivo PDF aquí"
-
 #: templates/conversion/pdf_to_doc.html:26
 #: templates/conversion/pdf_to_excel.html:26
 #: templates/conversion/pdf_to_image.html:26
@@ -2165,19 +2482,6 @@ msgstr "Tamaño del archivo"
 msgid "Format"
 msgstr "Formato"
 
-#: templates/conversion/pdf_to_doc.html:206
-#: templates/conversion/pdf_to_excel.html:236
-#: templates/conversion/pdf_to_image.html:243
-#: templates/conversion/pdf_to_pdfa.html:263
-#: templates/conversion/pdf_to_ppt.html:247
-#: templates/conversion/pdf_to_word.html:252
-#: templates/conversion/protect_pdf.html:141
-#: templates/conversion/redact_pdf.html:430
-#: templates/conversion/sign_pdf.html:363
-#: templates/conversion/unlock_pdf.html:98
-msgid "Veuillez sélectionner un fichier PDF"
-msgstr "Por favor seleccione un archivo PDF"
-
 #: templates/conversion/pdf_to_doc.html:273
 #: templates/conversion/pdf_to_ppt.html:148
 msgid "Analyse du PDF..."
@@ -2272,7 +2576,7 @@ msgid "Extraire vers Excel"
 msgstr "Extraer a Excel"
 
 #: templates/conversion/pdf_to_excel.html:108
-#: templates/conversion/pdf_to_txt.html:94
+#: templates/conversion/pdf_to_txt.html:104
 msgid "Extraction en cours..."
 msgstr "Extracción en curso..."
 
@@ -2350,7 +2654,7 @@ msgid "Organisation en feuilles Excel"
 msgstr "Organización en hojas Excel"
 
 #: templates/conversion/pdf_to_html.html:10
-#: templates/conversion/pdf_to_txt.html:10
+#: templates/conversion/pdf_to_txt.html:20
 msgid "Téléchargez votre fichier PDF"
 msgstr "Sube tu archivo PDF"
 
@@ -2359,7 +2663,7 @@ msgid "Sélectionnez le PDF à convertir en HTML"
 msgstr "Seleccione PDF para convertir a HTML"
 
 #: templates/conversion/pdf_to_html.html:26
-#: templates/conversion/pdf_to_txt.html:26
+#: templates/conversion/pdf_to_txt.html:36
 msgid "Format accepté : PDF"
 msgstr "Formato aceptado: PDF"
 
@@ -2874,57 +3178,57 @@ msgstr "2 páginas/diapositiva"
 msgid "Diapo"
 msgstr "Diapositiva"
 
-#: templates/conversion/pdf_to_txt.html:11
-msgid "Sélectionnez le PDF dont vous voulez extraire le texte"
-msgstr "Selecciona el PDF del que quieres extraer texto"
-
-#: templates/conversion/pdf_to_txt.html:57
-msgid "Ajouter des marqueurs de page"
-msgstr "Agregar marcadores de página"
-
-#: templates/conversion/pdf_to_txt.html:65
-msgid "Extraire toutes les pages"
-msgstr "Extraer todas las páginas"
-
-#: templates/conversion/pdf_to_txt.html:70
-msgid "Pages à extraire :"
-msgstr "Páginas a extraer:"
-
-#: templates/conversion/pdf_to_txt.html:72
-msgid "Exemple: 1-5,8,11-13"
-msgstr "Ejemplo: 1-5,8,11-13"
-
-#: templates/conversion/pdf_to_txt.html:74
-msgid "Spécifiez les pages à extraire (ex: 1-3,5,7-9)"
-msgstr "Especifica las páginas a extraer (ej: 1-3,5,7-9)"
-
-#: templates/conversion/pdf_to_txt.html:83
-msgid "Extraire le texte"
-msgstr "Extraer texto"
-
-#: templates/conversion/pdf_to_txt.html:95
-msgid "Veuillez patienter pendant l'extraction du texte"
-msgstr "Por favor espera mientras se extrae el texto"
-
-#: templates/conversion/pdf_to_txt.html:109
-msgid "Votre fichier texte est prêt à être téléchargé"
-msgstr "Tu archivo de texto está listo para descargar"
-
-#: templates/conversion/pdf_to_txt.html:111
-msgid "Télécharger le texte"
-msgstr "Descargar texto"
-
-#: templates/conversion/pdf_to_txt.html:115
-msgid "Extraire un autre PDF"
-msgstr "Extraer otro PDF"
-
-#: templates/conversion/pdf_to_txt.html:169
+#: templates/conversion/pdf_to_txt.html:10
 msgid "Veuillez spécifier les pages à extraire"
 msgstr "Por favor especifica las páginas a extraer"
 
-#: templates/conversion/pdf_to_txt.html:170
+#: templates/conversion/pdf_to_txt.html:11
 msgid "Format de pages invalide. Utilisez le format: 1-5,8,11-13"
 msgstr "Formato de páginas inválido. Usa el formato: 1-5,8,11-13"
+
+#: templates/conversion/pdf_to_txt.html:21
+msgid "Sélectionnez le PDF dont vous voulez extraire le texte"
+msgstr "Selecciona el PDF del que quieres extraer texto"
+
+#: templates/conversion/pdf_to_txt.html:67
+msgid "Ajouter des marqueurs de page"
+msgstr "Agregar marcadores de página"
+
+#: templates/conversion/pdf_to_txt.html:75
+msgid "Extraire toutes les pages"
+msgstr "Extraer todas las páginas"
+
+#: templates/conversion/pdf_to_txt.html:80
+msgid "Pages à extraire :"
+msgstr "Páginas a extraer:"
+
+#: templates/conversion/pdf_to_txt.html:82
+msgid "Exemple: 1-5,8,11-13"
+msgstr "Ejemplo: 1-5,8,11-13"
+
+#: templates/conversion/pdf_to_txt.html:84
+msgid "Spécifiez les pages à extraire (ex: 1-3,5,7-9)"
+msgstr "Especifica las páginas a extraer (ej: 1-3,5,7-9)"
+
+#: templates/conversion/pdf_to_txt.html:93
+msgid "Extraire le texte"
+msgstr "Extraer texto"
+
+#: templates/conversion/pdf_to_txt.html:105
+msgid "Veuillez patienter pendant l'extraction du texte"
+msgstr "Por favor espera mientras se extrae el texto"
+
+#: templates/conversion/pdf_to_txt.html:119
+msgid "Votre fichier texte est prêt à être téléchargé"
+msgstr "Tu archivo de texto está listo para descargar"
+
+#: templates/conversion/pdf_to_txt.html:121
+msgid "Télécharger le texte"
+msgstr "Descargar texto"
+
+#: templates/conversion/pdf_to_txt.html:125
+msgid "Extraire un autre PDF"
+msgstr "Extraer otro PDF"
 
 #: templates/conversion/pdf_to_word.html:10
 msgid "Convertissez votre PDF en document Word"
@@ -3301,10 +3605,6 @@ msgstr "Crear otro formulario"
 msgid "Veuillez d'abord télécharger un document"
 msgstr "Por favor cargue un documento primero"
 
-#: templates/conversion/prepare_form.html:247 templates/legal/contact.html:42
-msgid "Nom complet"
-msgstr "Nombre completo"
-
 #: templates/conversion/prepare_form.html:248
 msgid "Prénom"
 msgstr "Nombre"
@@ -3320,10 +3620,6 @@ msgstr "Código postal"
 #: templates/conversion/prepare_form.html:251
 msgid "Ville"
 msgstr "Ciudad"
-
-#: templates/conversion/prepare_form.html:252
-msgid "Email"
-msgstr "Correo electrónico"
 
 #: templates/conversion/prepare_form.html:253
 msgid "Téléphone"
@@ -3493,19 +3789,9 @@ msgstr "documento_protegido.pdf"
 msgid "Erreur:"
 msgstr "Error:"
 
-#: templates/conversion/redact_pdf.html:10
-#: templates/conversion/sign_pdf.html:10
-msgid "Téléchargez votre PDF"
-msgstr "Sube tu PDF"
-
 #: templates/conversion/redact_pdf.html:11
 msgid "Supprimez définitivement le contenu sensible de votre document"
 msgstr "Elimina permanentemente el contenido sensible de tu documento"
-
-#: templates/conversion/redact_pdf.html:26
-#: templates/conversion/sign_pdf.html:26
-msgid "Formats acceptés : PDF (jusqu'à 100MB)"
-msgstr "Formatos aceptados: PDF (hasta 100MB)"
 
 #: templates/conversion/redact_pdf.html:36
 msgid "Options de caviardage"
@@ -3554,10 +3840,6 @@ msgid ""
 msgstr ""
 "Después de cargar su PDF, podrá dibujar áreas para redactar en la vista "
 "previa."
-
-#: templates/conversion/redact_pdf.html:92
-msgid "Couleur :"
-msgstr "Color:"
 
 #: templates/conversion/redact_pdf.html:96
 msgid "Opaque"
@@ -3792,11 +4074,6 @@ msgstr "Estándar"
 msgid "Élégant"
 msgstr "Elegante"
 
-#: templates/conversion/sign_pdf.html:105
-#: templates/conversion/txt_to_pdf.html:63
-msgid "Taille :"
-msgstr "Tamaño:"
-
 #: templates/conversion/sign_pdf.html:107
 msgid "Petite"
 msgstr "Pequeña"
@@ -3924,14 +4201,6 @@ msgstr "Pega tu texto aquí..."
 #: templates/conversion/txt_to_pdf.html:43
 msgid "Options de formatage"
 msgstr "Opciones de formato"
-
-#: templates/conversion/txt_to_pdf.html:55
-msgid "Police :"
-msgstr "Fuente:"
-
-#: templates/conversion/txt_to_pdf.html:58
-msgid "Times New Roman"
-msgstr "Times New Roman"
 
 #: templates/conversion/txt_to_pdf.html:72
 msgid "Interligne :"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-10 08:32+0000\n"
+"POT-Creation-Date: 2026-04-10 13:45+0000\n"
 "PO-Revision-Date: 2026-04-01 18:22+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh\n"
@@ -421,6 +421,49 @@ msgstr "Excel 转 CSV"
 msgid "Exportez vos feuilles Excel en CSV"
 msgstr "将 Excel 工作表导出为 CSV"
 
+#: blueprints/legal/routes.py:78 templates/conversion/prepare_form.html:247
+#: templates/legal/contact.html:42
+msgid "Nom complet"
+msgstr "全名"
+
+#: blueprints/legal/routes.py:82 templates/conversion/prepare_form.html:252
+msgid "Email"
+msgstr "邮箱"
+
+#: blueprints/legal/routes.py:86
+#, fuzzy
+msgid "Téléphone (optionnel)"
+msgstr "电话号码（可选）"
+
+#: blueprints/legal/routes.py:90
+msgid "Sujet"
+msgstr ""
+
+#: blueprints/legal/routes.py:92
+#, fuzzy
+msgid "Signaler un bug"
+msgstr "签署另一个 PDF"
+
+#: blueprints/legal/routes.py:93
+#, fuzzy
+msgid "Proposer une amélioration"
+msgstr "提出功能改进建议"
+
+#: blueprints/legal/routes.py:94
+#, fuzzy
+msgid "Partenariat"
+msgstr "合作请求"
+
+#: blueprints/legal/routes.py:95
+#, fuzzy
+msgid "Autre"
+msgstr "日期"
+
+#: blueprints/legal/routes.py:100
+#, fuzzy
+msgid "Message"
+msgstr "消息"
+
 #: blueprints/legal/routes.py:205
 msgid "Veuillez remplir tous les champs obligatoires."
 msgstr "请填写所有必填字段。"
@@ -657,7 +700,7 @@ msgid "PDF Fusion Pro"
 msgstr "PDF 融合专业版"
 
 #: templates/base.html:353 templates/base_legal.html:278
-#: templates/conversion/conversion_base.html:197
+#: templates/conversion/conversion_base.html:195
 msgid "Convertir"
 msgstr "转变"
 
@@ -853,8 +896,8 @@ msgstr "返回首页"
 msgid "caractères"
 msgstr "字符"
 
-#: templates/conversion/conversion_base.html:193
-#: templates/conversion/conversion_base.html:201
+#: templates/conversion/conversion_base.html:191
+#: templates/conversion/conversion_base.html:199
 #: templates/conversion/csv_to_excel.html:101
 #: templates/conversion/excel_to_csv.html:108
 #: templates/conversion/excel_to_pdf.html:91
@@ -865,56 +908,56 @@ msgstr "字符"
 msgid "Télécharger"
 msgstr "下载"
 
-#: templates/conversion/conversion_base.html:214
+#: templates/conversion/conversion_base.html:212
 #: templates/conversion/index.html:216
 msgid "Sécurisé"
 msgstr "安全"
 
-#: templates/conversion/conversion_base.html:215
+#: templates/conversion/conversion_base.html:213
 msgid "Vos fichiers sont supprimés après conversion"
 msgstr "您的文件在转换后将被删除"
 
-#: templates/conversion/conversion_base.html:219
+#: templates/conversion/conversion_base.html:217
 #: templates/conversion/index.html:221
 msgid "Rapide"
 msgstr "快速"
 
-#: templates/conversion/conversion_base.html:220
+#: templates/conversion/conversion_base.html:218
 msgid "Conversion en quelques secondes"
 msgstr "数秒内完成转换"
 
-#: templates/conversion/conversion_base.html:224
+#: templates/conversion/conversion_base.html:222
 msgid "Confidentiel"
 msgstr "机密的"
 
-#: templates/conversion/conversion_base.html:225
+#: templates/conversion/conversion_base.html:223
 msgid "Personne n'accède à vos fichiers"
 msgstr "没有人访问您的文件"
 
-#: templates/conversion/conversion_base.html:229
+#: templates/conversion/conversion_base.html:227
 msgid "Accessible"
 msgstr "无障碍"
 
-#: templates/conversion/conversion_base.html:230
+#: templates/conversion/conversion_base.html:228
 msgid "Utilisez depuis n'importe où"
 msgstr "随时随地使用"
 
-#: templates/conversion/conversion_base.html:239
+#: templates/conversion/conversion_base.html:237
 #: templates/conversion/index.html:270
 msgid "Comment ça marche ?"
 msgstr "如何使用？"
 
-#: templates/conversion/conversion_base.html:242
+#: templates/conversion/conversion_base.html:240
 #, python-format
 msgid "Téléchargez votre fichier %(from_format)s."
 msgstr "Téléchargez votre fichier %(from_format)s."
 
-#: templates/conversion/conversion_base.html:245
+#: templates/conversion/conversion_base.html:243
 #, python-format
 msgid "Notre système le convertit automatiquement en %(to_format)s."
 msgstr "Notre système le convertit automatiquement en %(to_format)s."
 
-#: templates/conversion/conversion_base.html:247
+#: templates/conversion/conversion_base.html:245
 msgid "Téléchargez ensuite votre fichier converti."
 msgstr "然后下载转换后的文件。"
 
@@ -944,7 +987,7 @@ msgstr "将 CSV 文件拖放到此处"
 #: templates/conversion/pdf_to_image.html:22
 #: templates/conversion/pdf_to_pdfa.html:22
 #: templates/conversion/pdf_to_ppt.html:22
-#: templates/conversion/pdf_to_txt.html:22
+#: templates/conversion/pdf_to_txt.html:32
 #: templates/conversion/pdf_to_word.html:22
 #: templates/conversion/png_to_pdf.html:22
 #: templates/conversion/powerpoint_to_pdf.html:22
@@ -1004,7 +1047,7 @@ msgstr "竖线 (|)"
 
 #: templates/conversion/csv_to_excel.html:49
 #: templates/conversion/pdf_to_html.html:48
-#: templates/conversion/pdf_to_txt.html:40
+#: templates/conversion/pdf_to_txt.html:50
 msgid "Encodage :"
 msgstr "编码："
 
@@ -1017,6 +1060,7 @@ msgid "Convertir en Excel"
 msgstr "转换为 Excel"
 
 #: templates/conversion/csv_to_excel.html:73
+#: templates/conversion/edit_pdf.html:247
 #: templates/conversion/excel_to_csv.html:80
 #: templates/conversion/excel_to_pdf.html:63
 #: templates/conversion/image_to_excel.html:124
@@ -1112,6 +1156,299 @@ msgstr "请至少选择一个 CSV 文件"
 #: templates/conversion/word_to_pdf.html:475
 msgid "Erreur lors de la conversion :"
 msgstr "转换时出错："
+
+#: templates/conversion/edit_pdf.html:9
+#: templates/conversion/pdf_to_doc.html:206
+#: templates/conversion/pdf_to_excel.html:236
+#: templates/conversion/pdf_to_image.html:243
+#: templates/conversion/pdf_to_pdfa.html:263
+#: templates/conversion/pdf_to_ppt.html:247
+#: templates/conversion/pdf_to_word.html:252
+#: templates/conversion/protect_pdf.html:141
+#: templates/conversion/redact_pdf.html:430
+#: templates/conversion/sign_pdf.html:363
+#: templates/conversion/unlock_pdf.html:98
+msgid "Veuillez sélectionner un fichier PDF"
+msgstr "请选择 PDF 文件"
+
+#: templates/conversion/edit_pdf.html:10
+msgid "Erreur système : Gestionnaire d'upload manquant"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:11
+#, fuzzy
+msgid "Veuillez entrer du texte à ajouter"
+msgstr "请输入密码"
+
+#: templates/conversion/edit_pdf.html:12
+#, fuzzy
+msgid "Veuillez sélectionner une image à insérer"
+msgstr "请选择一个文件"
+
+#: templates/conversion/edit_pdf.html:13
+#, fuzzy
+msgid "Veuillez entrer les pages à supprimer"
+msgstr "请指定要提取的页面"
+
+#: templates/conversion/edit_pdf.html:14
+#, fuzzy
+msgid "Veuillez entrer les pages à faire pivoter"
+msgstr "请指定要提取的页面"
+
+#: templates/conversion/edit_pdf.html:15
+#, fuzzy
+msgid "Erreur lors de l'édition :"
+msgstr "提取时出错："
+
+#: templates/conversion/edit_pdf.html:16
+#, fuzzy
+msgid "Erreur serveur"
+msgstr "服务器内部错误"
+
+#: templates/conversion/edit_pdf.html:24
+#: templates/conversion/redact_pdf.html:10
+#: templates/conversion/sign_pdf.html:10
+msgid "Téléchargez votre PDF"
+msgstr "上传您的 PDF"
+
+#: templates/conversion/edit_pdf.html:25
+#, fuzzy
+msgid "Modifiez, ajoutez du texte ou des images à votre document"
+msgstr "编辑文本、图像和页面或将其添加到 PDF"
+
+#: templates/conversion/edit_pdf.html:35
+#: templates/conversion/pdf_to_doc.html:21
+#: templates/conversion/pdf_to_excel.html:21
+#: templates/conversion/pdf_to_html.html:21
+#: templates/conversion/pdf_to_image.html:21
+#: templates/conversion/pdf_to_pdfa.html:21
+#: templates/conversion/pdf_to_ppt.html:21
+#: templates/conversion/pdf_to_txt.html:31
+#: templates/conversion/pdf_to_word.html:21
+#: templates/conversion/redact_pdf.html:21
+#: templates/conversion/sign_pdf.html:21
+msgid "Glissez-déposez votre fichier PDF ici"
+msgstr "将您的 PDF 文件拖放到此处"
+
+#: templates/conversion/edit_pdf.html:36 templates/conversion/edit_pdf.html:137
+#, fuzzy
+msgid "ou cliquez pour sélectionner"
+msgstr "拖放或点击选择"
+
+#: templates/conversion/edit_pdf.html:40
+#: templates/conversion/redact_pdf.html:26
+#: templates/conversion/sign_pdf.html:26
+msgid "Formats acceptés : PDF (jusqu'à 100MB)"
+msgstr "接受的格式：PDF（最大 100MB）"
+
+#: templates/conversion/edit_pdf.html:53
+#, fuzzy
+msgid "Ajouter du texte"
+msgstr "添加签名原因"
+
+#: templates/conversion/edit_pdf.html:59
+#, fuzzy
+msgid "Ajouter une image"
+msgstr "添加签名原因"
+
+#: templates/conversion/edit_pdf.html:65
+#, fuzzy
+msgid "Gérer les pages"
+msgstr "所有页面"
+
+#: templates/conversion/edit_pdf.html:74
+#, fuzzy
+msgid "Ajouter du texte au PDF"
+msgstr "提取文本预览"
+
+#: templates/conversion/edit_pdf.html:77
+#, fuzzy
+msgid "Texte à ajouter :"
+msgstr "要编辑的文本："
+
+#: templates/conversion/edit_pdf.html:79
+#, fuzzy
+msgid "Saisissez votre texte ici..."
+msgstr "在此粘贴您的文本..."
+
+#: templates/conversion/edit_pdf.html:82 templates/conversion/edit_pdf.html:145
+#, fuzzy
+msgid "Page d'insertion :"
+msgstr "旋转角度"
+
+#: templates/conversion/edit_pdf.html:85
+#, fuzzy
+msgid "Position (points) :"
+msgstr "Y 位置："
+
+#: templates/conversion/edit_pdf.html:97 templates/conversion/edit_pdf.html:149
+#: templates/conversion/sign_pdf.html:105
+#: templates/conversion/txt_to_pdf.html:63
+msgid "Taille :"
+msgstr "大小："
+
+#: templates/conversion/edit_pdf.html:109
+#: templates/conversion/redact_pdf.html:92
+msgid "Couleur :"
+msgstr "颜色："
+
+#: templates/conversion/edit_pdf.html:115
+#: templates/conversion/txt_to_pdf.html:55
+msgid "Police :"
+msgstr "字体："
+
+#: templates/conversion/edit_pdf.html:118
+#: templates/conversion/txt_to_pdf.html:58
+msgid "Times New Roman"
+msgstr "泰晤士新罗马字体"
+
+#: templates/conversion/edit_pdf.html:120
+msgid "Helvetica Gras"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:121
+msgid "Helvetica Italique"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:130
+#, fuzzy
+msgid "Ajouter une image au PDF"
+msgstr "旋转 PDF 文件"
+
+#: templates/conversion/edit_pdf.html:136
+#, fuzzy
+msgid "Glissez-déposez votre image ici"
+msgstr "将您的图像拖放到此处"
+
+#: templates/conversion/edit_pdf.html:151
+#: templates/conversion/image_to_pdf.html:62
+#: templates/conversion/jpg_to_pdf.html:45
+#: templates/conversion/pdf_to_pdfa.html:220
+#: templates/conversion/png_to_pdf.html:45
+msgid "Taille originale"
+msgstr "原始尺寸"
+
+#: templates/conversion/edit_pdf.html:152
+#, fuzzy
+msgid "Ajuster à la page"
+msgstr "添加页面标记"
+
+#: templates/conversion/edit_pdf.html:153
+#, fuzzy
+msgid "Personnalisée"
+msgstr "允许打印"
+
+#: templates/conversion/edit_pdf.html:157
+#, fuzzy
+msgid "Position X (points) :"
+msgstr "X 位置："
+
+#: templates/conversion/edit_pdf.html:161
+#, fuzzy
+msgid "Position Y (points) :"
+msgstr "Y 位置："
+
+#: templates/conversion/edit_pdf.html:169
+#, fuzzy
+msgid "Largeur (points) :"
+msgstr "下载 PowerPoint"
+
+#: templates/conversion/edit_pdf.html:173
+#, fuzzy
+msgid "Hauteur (points) :"
+msgstr "高（较慢）"
+
+#: templates/conversion/edit_pdf.html:182
+#, fuzzy
+msgid "Gestion des pages"
+msgstr "正在创建页面"
+
+#: templates/conversion/edit_pdf.html:185
+#, fuzzy
+msgid "Action :"
+msgstr "注意："
+
+#: templates/conversion/edit_pdf.html:189
+#, fuzzy
+msgid "Réorganiser"
+msgstr "葡萄牙语"
+
+#: templates/conversion/edit_pdf.html:194
+msgid "Supprimer"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:199
+#, fuzzy
+msgid "Rotation"
+msgstr "旋转 PDF"
+
+#: templates/conversion/edit_pdf.html:207
+msgid "Faites glisser les pages pour les réorganiser"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:215
+#, fuzzy
+msgid "Pages à supprimer :"
+msgstr "要处理的页面："
+
+#: templates/conversion/edit_pdf.html:217
+#: templates/conversion/edit_pdf.html:225
+#, fuzzy
+msgid "Ex: 1-3, 5, 7-9"
+msgstr "例如：1-5, 8, 11-13"
+
+#: templates/conversion/edit_pdf.html:223
+#, fuzzy
+msgid "Pages à faire pivoter :"
+msgstr "要处理的页面："
+
+#: templates/conversion/edit_pdf.html:228
+#, fuzzy
+msgid "Angle :"
+msgstr "页面："
+
+#: templates/conversion/edit_pdf.html:230
+#, fuzzy
+msgid "horaire"
+msgstr "快速"
+
+#: templates/conversion/edit_pdf.html:232
+msgid "antihoraire"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:244
+#, fuzzy
+msgid "Appliquer les modifications"
+msgstr "允许打印和修改"
+
+#: templates/conversion/edit_pdf.html:258
+#, fuzzy
+msgid "Édition en cours..."
+msgstr "提取正在进行中..."
+
+#: templates/conversion/edit_pdf.html:259
+msgid "Application des modifications au document"
+msgstr ""
+
+#: templates/conversion/edit_pdf.html:272
+#, fuzzy
+msgid "Édition terminée !"
+msgstr "提取完成！"
+
+#: templates/conversion/edit_pdf.html:273
+#, fuzzy
+msgid "Votre PDF modifié est prêt à être téléchargé"
+msgstr "您已签名的 PDF 已准备好下载"
+
+#: templates/conversion/edit_pdf.html:275
+#, fuzzy
+msgid "Télécharger le PDF modifié"
+msgstr "下载已签名的 PDF"
+
+#: templates/conversion/edit_pdf.html:279
+#, fuzzy
+msgid "Éditer un autre PDF"
+msgstr "签署另一个 PDF"
 
 #: templates/conversion/excel_to_csv.html:10
 #: templates/conversion/excel_to_pdf.html:10
@@ -1326,7 +1663,7 @@ msgstr "接受的格式：JPG, PNG, BMP, TIFF, WEBP, PDF（最大 50MB）"
 
 #: templates/conversion/image_to_excel.html:34
 #: templates/conversion/pdf_to_excel.html:37
-#: templates/conversion/pdf_to_txt.html:36
+#: templates/conversion/pdf_to_txt.html:46
 msgid "Options d'extraction"
 msgstr "提取选项"
 
@@ -1438,7 +1775,7 @@ msgstr "相信"
 
 #: templates/conversion/image_to_excel.html:180
 #: templates/conversion/image_to_word.html:296
-#: templates/conversion/pdf_to_txt.html:108
+#: templates/conversion/pdf_to_txt.html:118
 msgid "Extraction terminée !"
 msgstr "提取完成！"
 
@@ -1498,13 +1835,6 @@ msgstr "中"
 #: templates/conversion/jpg_to_pdf.html:61
 msgid "Basse (fichier plus petit)"
 msgstr "低（文件较小）"
-
-#: templates/conversion/image_to_pdf.html:62
-#: templates/conversion/jpg_to_pdf.html:45
-#: templates/conversion/pdf_to_pdfa.html:220
-#: templates/conversion/png_to_pdf.html:45
-msgid "Taille originale"
-msgstr "原始尺寸"
 
 #: templates/conversion/image_to_pdf.html:69
 #: templates/conversion/jpg_to_pdf.html:68
@@ -1623,7 +1953,7 @@ msgstr "高（更精确）"
 
 #: templates/conversion/image_to_word.html:91
 #: templates/conversion/pdf_to_doc.html:45
-#: templates/conversion/pdf_to_txt.html:51
+#: templates/conversion/pdf_to_txt.html:61
 #: templates/conversion/word_to_pdf.html:117
 msgid "Conserver la mise en page"
 msgstr "保留布局"
@@ -1717,7 +2047,7 @@ msgstr "行"
 
 #: templates/conversion/image_to_word.html:243
 #: templates/conversion/pdf_to_html.html:141
-#: templates/conversion/pdf_to_txt.html:162
+#: templates/conversion/pdf_to_txt.html:9
 msgid "Veuillez sélectionner un fichier"
 msgstr "请选择一个文件"
 
@@ -1779,7 +2109,7 @@ msgstr "文档就绪"
 
 #: templates/conversion/image_to_word.html:345
 #: templates/conversion/pdf_to_excel.html:314
-#: templates/conversion/pdf_to_txt.html:227
+#: templates/conversion/pdf_to_txt.html:12
 msgid "Erreur lors de l'extraction :"
 msgstr "提取时出错："
 
@@ -1996,19 +2326,6 @@ msgid ""
 "anciennes versions"
 msgstr "将您的 PDF 文档转换为兼容旧版本的 Word 格式"
 
-#: templates/conversion/pdf_to_doc.html:21
-#: templates/conversion/pdf_to_excel.html:21
-#: templates/conversion/pdf_to_html.html:21
-#: templates/conversion/pdf_to_image.html:21
-#: templates/conversion/pdf_to_pdfa.html:21
-#: templates/conversion/pdf_to_ppt.html:21
-#: templates/conversion/pdf_to_txt.html:21
-#: templates/conversion/pdf_to_word.html:21
-#: templates/conversion/redact_pdf.html:21
-#: templates/conversion/sign_pdf.html:21
-msgid "Glissez-déposez votre fichier PDF ici"
-msgstr "将您的 PDF 文件拖放到此处"
-
 #: templates/conversion/pdf_to_doc.html:26
 #: templates/conversion/pdf_to_excel.html:26
 #: templates/conversion/pdf_to_image.html:26
@@ -2142,19 +2459,6 @@ msgstr "文件大小"
 msgid "Format"
 msgstr "格式"
 
-#: templates/conversion/pdf_to_doc.html:206
-#: templates/conversion/pdf_to_excel.html:236
-#: templates/conversion/pdf_to_image.html:243
-#: templates/conversion/pdf_to_pdfa.html:263
-#: templates/conversion/pdf_to_ppt.html:247
-#: templates/conversion/pdf_to_word.html:252
-#: templates/conversion/protect_pdf.html:141
-#: templates/conversion/redact_pdf.html:430
-#: templates/conversion/sign_pdf.html:363
-#: templates/conversion/unlock_pdf.html:98
-msgid "Veuillez sélectionner un fichier PDF"
-msgstr "请选择 PDF 文件"
-
 #: templates/conversion/pdf_to_doc.html:273
 #: templates/conversion/pdf_to_ppt.html:148
 msgid "Analyse du PDF..."
@@ -2247,7 +2551,7 @@ msgid "Extraire vers Excel"
 msgstr "提取到 Excel"
 
 #: templates/conversion/pdf_to_excel.html:108
-#: templates/conversion/pdf_to_txt.html:94
+#: templates/conversion/pdf_to_txt.html:104
 msgid "Extraction en cours..."
 msgstr "提取正在进行中..."
 
@@ -2325,7 +2629,7 @@ msgid "Organisation en feuilles Excel"
 msgstr "正在组织到 Excel 工作表"
 
 #: templates/conversion/pdf_to_html.html:10
-#: templates/conversion/pdf_to_txt.html:10
+#: templates/conversion/pdf_to_txt.html:20
 msgid "Téléchargez votre fichier PDF"
 msgstr "上传您的 PDF 文件"
 
@@ -2334,7 +2638,7 @@ msgid "Sélectionnez le PDF à convertir en HTML"
 msgstr "选择要转换为 HTML 的 PDF"
 
 #: templates/conversion/pdf_to_html.html:26
-#: templates/conversion/pdf_to_txt.html:26
+#: templates/conversion/pdf_to_txt.html:36
 msgid "Format accepté : PDF"
 msgstr "接受的格式：PDF"
 
@@ -2839,57 +3143,57 @@ msgstr "2 页/幻灯片"
 msgid "Diapo"
 msgstr "幻灯片"
 
-#: templates/conversion/pdf_to_txt.html:11
-msgid "Sélectionnez le PDF dont vous voulez extraire le texte"
-msgstr "选择要从中提取文本的 PDF"
-
-#: templates/conversion/pdf_to_txt.html:57
-msgid "Ajouter des marqueurs de page"
-msgstr "添加页面标记"
-
-#: templates/conversion/pdf_to_txt.html:65
-msgid "Extraire toutes les pages"
-msgstr "提取所有页面"
-
-#: templates/conversion/pdf_to_txt.html:70
-msgid "Pages à extraire :"
-msgstr "要提取的页面："
-
-#: templates/conversion/pdf_to_txt.html:72
-msgid "Exemple: 1-5,8,11-13"
-msgstr "例如: 1-5,8,11-13"
-
-#: templates/conversion/pdf_to_txt.html:74
-msgid "Spécifiez les pages à extraire (ex: 1-3,5,7-9)"
-msgstr "指定要提取的页面（例如：1-3,5,7-9）"
-
-#: templates/conversion/pdf_to_txt.html:83
-msgid "Extraire le texte"
-msgstr "提取文本"
-
-#: templates/conversion/pdf_to_txt.html:95
-msgid "Veuillez patienter pendant l'extraction du texte"
-msgstr "文本提取中，请稍候"
-
-#: templates/conversion/pdf_to_txt.html:109
-msgid "Votre fichier texte est prêt à être téléchargé"
-msgstr "您的文本文件已准备好下载"
-
-#: templates/conversion/pdf_to_txt.html:111
-msgid "Télécharger le texte"
-msgstr "下载文本"
-
-#: templates/conversion/pdf_to_txt.html:115
-msgid "Extraire un autre PDF"
-msgstr "提取另一个 PDF"
-
-#: templates/conversion/pdf_to_txt.html:169
+#: templates/conversion/pdf_to_txt.html:10
 msgid "Veuillez spécifier les pages à extraire"
 msgstr "请指定要提取的页面"
 
-#: templates/conversion/pdf_to_txt.html:170
+#: templates/conversion/pdf_to_txt.html:11
 msgid "Format de pages invalide. Utilisez le format: 1-5,8,11-13"
 msgstr "页面格式无效。请使用格式：1-5,8,11-13"
+
+#: templates/conversion/pdf_to_txt.html:21
+msgid "Sélectionnez le PDF dont vous voulez extraire le texte"
+msgstr "选择要从中提取文本的 PDF"
+
+#: templates/conversion/pdf_to_txt.html:67
+msgid "Ajouter des marqueurs de page"
+msgstr "添加页面标记"
+
+#: templates/conversion/pdf_to_txt.html:75
+msgid "Extraire toutes les pages"
+msgstr "提取所有页面"
+
+#: templates/conversion/pdf_to_txt.html:80
+msgid "Pages à extraire :"
+msgstr "要提取的页面："
+
+#: templates/conversion/pdf_to_txt.html:82
+msgid "Exemple: 1-5,8,11-13"
+msgstr "例如: 1-5,8,11-13"
+
+#: templates/conversion/pdf_to_txt.html:84
+msgid "Spécifiez les pages à extraire (ex: 1-3,5,7-9)"
+msgstr "指定要提取的页面（例如：1-3,5,7-9）"
+
+#: templates/conversion/pdf_to_txt.html:93
+msgid "Extraire le texte"
+msgstr "提取文本"
+
+#: templates/conversion/pdf_to_txt.html:105
+msgid "Veuillez patienter pendant l'extraction du texte"
+msgstr "文本提取中，请稍候"
+
+#: templates/conversion/pdf_to_txt.html:119
+msgid "Votre fichier texte est prêt à être téléchargé"
+msgstr "您的文本文件已准备好下载"
+
+#: templates/conversion/pdf_to_txt.html:121
+msgid "Télécharger le texte"
+msgstr "下载文本"
+
+#: templates/conversion/pdf_to_txt.html:125
+msgid "Extraire un autre PDF"
+msgstr "提取另一个 PDF"
 
 #: templates/conversion/pdf_to_word.html:10
 msgid "Convertissez votre PDF en document Word"
@@ -3260,10 +3564,6 @@ msgstr "创建另一个表单"
 msgid "Veuillez d'abord télécharger un document"
 msgstr "请先上传文档"
 
-#: templates/conversion/prepare_form.html:247 templates/legal/contact.html:42
-msgid "Nom complet"
-msgstr "全名"
-
 #: templates/conversion/prepare_form.html:248
 msgid "Prénom"
 msgstr "名"
@@ -3279,10 +3579,6 @@ msgstr "邮政编码"
 #: templates/conversion/prepare_form.html:251
 msgid "Ville"
 msgstr "城市"
-
-#: templates/conversion/prepare_form.html:252
-msgid "Email"
-msgstr "邮箱"
 
 #: templates/conversion/prepare_form.html:253
 msgid "Téléphone"
@@ -3448,19 +3744,9 @@ msgstr "受保护的文档.pdf"
 msgid "Erreur:"
 msgstr "错误："
 
-#: templates/conversion/redact_pdf.html:10
-#: templates/conversion/sign_pdf.html:10
-msgid "Téléchargez votre PDF"
-msgstr "上传您的 PDF"
-
 #: templates/conversion/redact_pdf.html:11
 msgid "Supprimez définitivement le contenu sensible de votre document"
 msgstr "永久删除文档中的敏感内容"
-
-#: templates/conversion/redact_pdf.html:26
-#: templates/conversion/sign_pdf.html:26
-msgid "Formats acceptés : PDF (jusqu'à 100MB)"
-msgstr "接受的格式：PDF（最大 100MB）"
 
 #: templates/conversion/redact_pdf.html:36
 msgid "Options de caviardage"
@@ -3507,10 +3793,6 @@ msgid ""
 "Après avoir chargé votre PDF, vous pourrez dessiner des zones à caviarder"
 " sur l'aperçu."
 msgstr "加载 PDF 后，您可以在预览上绘制要编辑的区域。"
-
-#: templates/conversion/redact_pdf.html:92
-msgid "Couleur :"
-msgstr "颜色："
 
 #: templates/conversion/redact_pdf.html:96
 msgid "Opaque"
@@ -3745,11 +4027,6 @@ msgstr "标准"
 msgid "Élégant"
 msgstr "优雅"
 
-#: templates/conversion/sign_pdf.html:105
-#: templates/conversion/txt_to_pdf.html:63
-msgid "Taille :"
-msgstr "大小："
-
 #: templates/conversion/sign_pdf.html:107
 msgid "Petite"
 msgstr "小"
@@ -3877,14 +4154,6 @@ msgstr "在此粘贴您的文本..."
 #: templates/conversion/txt_to_pdf.html:43
 msgid "Options de formatage"
 msgstr "格式选项"
-
-#: templates/conversion/txt_to_pdf.html:55
-msgid "Police :"
-msgstr "字体："
-
-#: templates/conversion/txt_to_pdf.html:58
-msgid "Times New Roman"
-msgstr "泰晤士新罗马字体"
 
 #: templates/conversion/txt_to_pdf.html:72
 msgid "Interligne :"

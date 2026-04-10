@@ -172,13 +172,11 @@
     <div class="container text-center position-relative">
         <h1 class="display-4 fw-bold mb-3">
             <i class="fas fa-{{ icon|default('exchange-alt') }} me-3"></i>
-            {# ✅ _(title) : title est une chaîne brute passée depuis Python #}
             {{ _(title) }}
         </h1>
         <p class="lead mb-4">{{ _(description) }}</p>
         <div class="badge bg-light text-dark fs-6 px-3 py-2">
             <i class="fas fa-arrow-right me-2"></i>
-            {# ✅ from_format et to_format sont aussi des chaînes brutes #}
             {{ _(from_format) }} → {{ _(to_format) }}
         </div>
     </div>
@@ -242,7 +240,7 @@
                         {{ _('Téléchargez votre fichier %(from_format)s.', from_format=from_format) }}
                     </li>
                     <li>
-                        {{ _('Notre système le convertit automatiquement en %(to_format)s.', to_format=_(to_format)) }}
+                        {{ _('Notre système le convertit automatiquement en %(to_format)s.', to_format=to_format) }}
                     </li>
                     <li>{{ _('Téléchargez ensuite votre fichier converti.') }}</li>
                 </ol>
