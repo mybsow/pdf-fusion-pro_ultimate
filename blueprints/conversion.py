@@ -333,7 +333,7 @@ CONVERSION_MAP = {
         'template': 'powerpoint_to_pdf.html',
         'title': _l('PowerPoint vers PDF'),
         'description': _l('Convertissez vos présentations PowerPoint en PDF'),
-        'from_format': _('PowerPoint'),
+        'from_format': _l('PowerPoint'),
         'to_format': _l('PDF'),
         'icon': 'file-powerpoint',
         'color': '#d24726',
@@ -368,7 +368,7 @@ CONVERSION_MAP = {
     'png-en-pdf': {
         'template': 'image_to_pdf.html',
         'title': _l('PNG vers PDF'),
-        'description': _('Convertissez vos images PNG en PDF'),
+        'description': _l('Convertissez vos images PNG en PDF'),
         'from_format': _l('PNG'),
         'to_format': _l('PDF'),
         'icon': 'file-image',
