@@ -4920,11 +4920,10 @@ def redact_pattern_in_page(page, patterns, color="#000000"):
 # ══════════════════════════════════════════════════════════════════════════════
 # EDIT PDF
 # ══════════════════════════════════════════════════════════════════════════════
- 
 def edit_pdf(file, form_data=None):
     """
     Édition PDF (texte, image, suppression/réorganisation de pages).
- 
+    
     AMÉLIORATIONS :
     - Coordonnées réelles en points (pas en pixels)
     - Overlay reportlab précis adapté à la taille de chaque page
@@ -4972,7 +4971,7 @@ def edit_pdf(file, form_data=None):
  
         pages_iter = order if order else range(total)
  
-        # 1. Ajouter d'abord toutes les pages existantes (en gérant les suppressions/réorganisations)
+        # Ajouter d'abord toutes les pages existantes (en gérant les suppressions/réorganisations)
         for i in pages_iter:
             if i in del_set: continue
             page = reader.pages[i]
@@ -4990,44 +4989,36 @@ def edit_pdf(file, form_data=None):
                 c.setFont("Helvetica", fs)
                 c.setFillColorRGB(r,g,b)
                 c.drawString(x, ph - y - fs, text)
-                c.save(); packet.seek(0)
+                c.save()
+                packet.seek(0)
                 overlay = pypdf.PdfReader(packet)
                 page.merge_page(overlay.pages[0])
-                pass 
             
             writer.add_page(page)
 
-        # 2. AJOUT DE L'IMAGE SUR UNE NOUVELLE PAGE (à la fin)
+        # Ajouter l'image à la fin du document (seulement si on est en mode add_image)
         if edit_type == "add_image":
             from flask import request as _req
             image_file = _req.files.get("image_file")
+            
             if image_file and HAS_PILLOW:
-                # On définit la taille de la nouvelle page (ex: A4 ou taille de la dernière page)
-                new_pw, new_ph = 595.27, 841.89 # A4 par défaut
+                # Utiliser la même taille que la dernière page, ou A4 par défaut
+                if total > 0:
+                    last_page = reader.pages[-1]
+                    new_pw = float(last_page.mediabox.width)
+                    new_ph = float(last_page.mediabox.height)
+                else:
+                    new_pw, new_ph = 595.27, 841.89  # A4 par défaut
                 
-                # Créer l'overlay image
+                # Créer l'overlay image sur une nouvelle page
                 overlay = create_image_overlay(image_file, x, y, new_pw, new_ph)
                 
-                # Ajouter la nouvelle page contenant l'image au writer
+                # Ajouter la nouvelle page contenant l'image à la fin
                 writer.add_page(overlay.pages[0])
             else:
                 logger.warning("Fichier image manquant ou Pillow non disponible.")
-
-                text     = form_data.get("text_content","")
-                fs       = int(form_data.get("font_size",12))
-                color    = form_data.get("font_color","#000000")
-                r,g,b    = _hex_to_rgb_float(color)
-                packet   = BytesIO()
-                c        = canvas.Canvas(packet, pagesize=(pw,ph))
-                c.setFont("Helvetica", fs)
-                c.setFillColorRGB(r,g,b)
-                # y en PDF = bas → haut, on inverse
-                c.drawString(x, ph - y - fs, text)
-                c.save(); packet.seek(0)
-                overlay = pypdf.PdfReader(packet)
-                page.merge_page(overlay.pages[0])
- 
-            writer.add_page(page)
+                cleanup_temp_directory(temp_dir)
+                return {"error": "Fichier image manquant ou Pillow non disponible."}
  
         output = BytesIO()
         writer.write(output)
