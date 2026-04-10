@@ -4993,6 +4993,7 @@ def edit_pdf(file, form_data=None):
                 c.save(); packet.seek(0)
                 overlay = pypdf.PdfReader(packet)
                 page.merge_page(overlay.pages[0])
+                pass 
             
             writer.add_page(page)
 
@@ -5062,27 +5063,34 @@ def create_image_overlay(image_file, x, y, page_width, page_height):
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import letter
     from reportlab.lib.utils import ImageReader
+    from PIL import Image
     
-    # Sauvegarder l'image temporairement
-    temp_img = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
-    image_file.save(temp_img.name)
+    # Charger l'image pour calculer le redimensionnement
+    img_data = Image.open(image_file)
+    orig_w, orig_h = img_data.size
     
+    # Calculer un ratio pour que l'image tienne dans 80% de la page (par exemple)
+    max_w = page_width * 0.8
+    max_h = page_height * 0.8
+    ratio = min(max_w / orig_w, max_h / orig_h, 1.0) # Ne pas agrandir si déjà petite
+    
+    draw_w = orig_w * ratio
+    draw_h = orig_h * ratio
+
     packet = BytesIO()
     can = canvas.Canvas(packet, pagesize=(page_width, page_height))
     
-    # Ajouter l'image
-    img = ImageReader(temp_img.name)
-    img_width, img_height = img.getSize()
-    can.drawImage(img, x, page_height - y - img_height, width=img_width, height=img_height)
+    # On rembobine le fichier image pour ReportLab
+    image_file.seek(0)
+    img_reader = ImageReader(image_file)
+    
+    # Dessiner l'image centrée ou à la position x,y
+    # Note: y est inversé en PDF (0 est en bas)
+    can.drawImage(img_reader, x, page_height - y - draw_h, width=draw_w, height=draw_h)
     can.save()
     
     packet.seek(0)
-    overlay_pdf = pypdf.PdfReader(packet)
-    
-    # Nettoyer
-    os.unlink(temp_img.name)
-    
-    return overlay_pdf
+    return pypdf.PdfReader(packet)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SIGN PDF
