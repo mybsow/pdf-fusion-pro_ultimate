@@ -748,6 +748,10 @@ def universal_converter(conversion_type):
             )
             flash('Template non trouvé pour {}'.format(conversion_type), 'error')
             return redirect(url_for('conversion.index'))
+    except Exception as e:
+        current_app.logger.error(f"Erreur critique dans universal_converter: {str(e)}")
+        flash("Une erreur inattendue est survenue.", "error")
+        return redirect(url_for('conversion.index'))
 
 
 # -----------------------------
