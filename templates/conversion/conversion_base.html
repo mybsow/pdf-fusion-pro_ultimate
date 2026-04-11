@@ -310,6 +310,45 @@
                     {{ _('max') }} 50MB)
                 </p>
             </div>
+
+            <!-- Bloc dédié aux boutons cloud -->
+            {% block cloud_buttons %}
+            <div class="cloud-buttons-container">
+                <div class="position-relative">
+                    <hr>
+                    <div class="cloud-buttons-title">
+                        <i class="fas fa-cloud-upload-alt me-1"></i>
+                        {{ _('Importer depuis le cloud') }}
+                    </div>
+                </div>
+                <div class="cloud-btn-group">
+                    <button type="button" class="cloud-btn cloud-btn-google" onclick="window.cloudUpload && cloudUpload.open('google')">
+                        <i class="fab fa-google-drive"></i>
+                        <span>Google Drive</span>
+                    </button>
+                    <button type="button" class="cloud-btn cloud-btn-onedrive" onclick="window.cloudUpload && cloudUpload.open('onedrive')">
+                        <i class="fab fa-microsoft"></i>
+                        <span>OneDrive</span>
+                    </button>
+                    <button type="button" class="cloud-btn cloud-btn-dropbox" onclick="window.cloudUpload && cloudUpload.open('dropbox')">
+                        <i class="fab fa-dropbox"></i>
+                        <span>Dropbox</span>
+                    </button>
+                    <button type="button" class="cloud-btn cloud-btn-icloud" onclick="window.cloudUpload && cloudUpload.open('icloud')">
+                        <i class="fab fa-apple"></i>
+                        <span>iCloud</span>
+                    </button>
+                    <button type="button" class="cloud-btn cloud-btn-box" onclick="window.cloudUpload && cloudUpload.open('box')">
+                        <i class="fas fa-box"></i>
+                        <span>Box</span>
+                    </button>
+                    <button type="button" class="cloud-btn cloud-btn-pcloud" onclick="window.cloudUpload && cloudUpload.open('pcloud')">
+                        <i class="fas fa-cloud"></i>
+                        <span>pCloud</span>
+                    </button>
+                </div>
+            </div>
+            {% endblock %}
             
             <!-- Options spécifiques à chaque conversion -->
             {% block conversion_options %}{% endblock %}
@@ -320,45 +359,6 @@
                 </button>
             </div>
         </form>
-        
-        <!-- Bloc dédié aux boutons cloud -->
-        {% block cloud_buttons %}
-        <div class="cloud-buttons-container">
-            <div class="position-relative">
-                <hr>
-                <div class="cloud-buttons-title">
-                    <i class="fas fa-cloud-upload-alt me-1"></i>
-                    {{ _('Importer depuis le cloud') }}
-                </div>
-            </div>
-            <div class="cloud-btn-group">
-                <button type="button" class="cloud-btn cloud-btn-google" onclick="window.cloudUpload && cloudUpload.open('google')">
-                    <i class="fab fa-google-drive"></i>
-                    <span>Google Drive</span>
-                </button>
-                <button type="button" class="cloud-btn cloud-btn-onedrive" onclick="window.cloudUpload && cloudUpload.open('onedrive')">
-                    <i class="fab fa-microsoft"></i>
-                    <span>OneDrive</span>
-                </button>
-                <button type="button" class="cloud-btn cloud-btn-dropbox" onclick="window.cloudUpload && cloudUpload.open('dropbox')">
-                    <i class="fab fa-dropbox"></i>
-                    <span>Dropbox</span>
-                </button>
-                <button type="button" class="cloud-btn cloud-btn-icloud" onclick="window.cloudUpload && cloudUpload.open('icloud')">
-                    <i class="fab fa-apple"></i>
-                    <span>iCloud</span>
-                </button>
-                <button type="button" class="cloud-btn cloud-btn-box" onclick="window.cloudUpload && cloudUpload.open('box')">
-                    <i class="fas fa-box"></i>
-                    <span>Box</span>
-                </button>
-                <button type="button" class="cloud-btn cloud-btn-pcloud" onclick="window.cloudUpload && cloudUpload.open('pcloud')">
-                    <i class="fas fa-cloud"></i>
-                    <span>pCloud</span>
-                </button>
-            </div>
-        </div>
-        {% endblock %}
         {% endblock %}
     </div>
 
