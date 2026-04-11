@@ -240,8 +240,8 @@
             </div>
         </form>
         
-        <!-- Boutons d'import cloud -->
-        <div class="mt-4">
+        <!-- Boutons cloud -->
+        <div class="text-center mt-4 pt-3">
             <div class="position-relative">
                 <hr class="my-3">
                 <div class="text-center">
@@ -249,17 +249,29 @@
                 </div>
             </div>
             <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
-                <button type="button" class="btn btn-outline-danger btn-cloud" onclick="window.cloudUpload && cloudUpload.open('google')">
+                <button type="button" class="btn btn-outline-danger btn-sm" 
+                        onclick="window.cloudUpload && cloudUpload.open('google')">
                     <i class="fab fa-google-drive me-1"></i>Google Drive
                 </button>
-                <button type="button" class="btn btn-outline-primary btn-cloud" onclick="window.cloudUpload && cloudUpload.open('onedrive')">
+                <button type="button" class="btn btn-outline-primary btn-sm" 
+                        onclick="window.cloudUpload && cloudUpload.open('onedrive')">
                     <i class="fab fa-microsoft me-1"></i>OneDrive
                 </button>
-                <button type="button" class="btn btn-outline-info btn-cloud" onclick="window.cloudUpload && cloudUpload.open('dropbox')">
+                <button type="button" class="btn btn-outline-info btn-sm" 
+                        onclick="window.cloudUpload && cloudUpload.open('dropbox')">
                     <i class="fab fa-dropbox me-1"></i>Dropbox
                 </button>
-                <button type="button" class="btn btn-outline-secondary btn-cloud" onclick="window.cloudUpload && cloudUpload.open('icloud')">
+                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                        onclick="window.cloudUpload && cloudUpload.open('icloud')">
                     <i class="fab fa-apple me-1"></i>iCloud
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm" 
+                        onclick="window.cloudUpload && cloudUpload.open('box')">
+                    <i class="fas fa-box me-1"></i>Box
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                        onclick="window.cloudUpload && cloudUpload.open('pcloud')">
+                    <i class="fas fa-cloud me-1"></i>pCloud
                 </button>
             </div>
         </div>
