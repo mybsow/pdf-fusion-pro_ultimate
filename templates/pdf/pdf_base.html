@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+{{ super() }}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 20px 20px;
+    }
+    .hero-section h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .hero-section p { opacity: 0.9; margin-bottom: 0; }
+    .tool-container {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+    .upload-zone-pro {
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: #f8f9fa;
+    }
+    .upload-zone-pro:hover { border-color: var(--primary); background: rgba(231,76,60,0.05); }
+    .upload-icon { font-size: 3rem; color: var(--primary); margin-bottom: 1rem; }
+    .upload-title { font-size: 1.25rem; margin-bottom: 0.5rem; }
+    .upload-subtitle { color: #6c757d; margin-bottom: 0.5rem; }
+    .upload-info { font-size: 0.8rem; color: #6c757d; }
+    .action-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .file-list { max-height: 200px; overflow-y: auto; }
+    .file-item {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0.75rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem;
+    }
+    .btn-cloud-group {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+    .btn-cloud {
+        transition: all 0.3s ease;
+        border-radius: 30px;
+        padding: 8px 20px;
+    }
+    .btn-cloud:hover { transform: translateY(-2px); }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Bannière Adsterra haut de page -->
+{% include 'includes/adsterra_ads.html' with context %}
+
+<section class="hero-section text-center">
+    <h1>{% block pdf_title %}{{ _('Outil PDF') }}{% endblock %}</h1>
+    <p>{% block pdf_description %}{{ _('Traitez votre fichier PDF') }}{% endblock %}</p>
+</section>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="tool-container">
+            <!-- Zone d'upload -->
+            <div class="upload-zone-pro" id="{{ upload_zone_id }}" 
+                 data-info-id="{{ file_info_id }}" 
+                 data-btn-id="{{ button_id }}">
+                <div class="upload-inner">
+                    <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <h4 class="upload-title">{{ _('Déposez votre PDF ici') }}</h4>
+                    <p class="upload-subtitle">{{ _('Glissez-déposez votre fichier ou cliquez pour parcourir') }}</p>
+                    <div class="upload-info">{{ _('PDF uniquement • Taille max : 50MB') }}</div>
+                </div>
+                <input type="file" accept=".pdf" {% if multiple %}multiple{% endif %} style="display:none;">
+            </div>
+
+            <div id="{{ file_info_id }}" class="file-list mt-3"></div>
+            <div id="{{ upload_zone_id }}Thumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
+
+            <!-- Options spécifiques (à surcharger) -->
+            {% block pdf_options %}{% endblock %}
+
+            <!-- Boutons d'action -->
+            <div class="action-buttons mt-4">
+                <button class="btn btn-primary btn-lg" id="{{ button_id }}" disabled>
+                    <i class="fas fa-{{ button_icon }} me-2"></i>{% block button_text %}{{ _('Exécuter') }}{% endblock %}
+                </button>
+                <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.{{ upload_manager }}.removeFile(0)">
+                    <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
+                </button>
+            </div>
+
+            <!-- ================= BOUTONS CLOUD ================= -->
+            <div class="btn-cloud-group text-center">
+                <div class="position-relative">
+                    <hr class="my-3">
+                    <div class="text-center">
+                        <span class="px-3 bg-white text-muted small">{{ _('Ou importez depuis le cloud') }}</span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
+                    <button type="button" class="btn btn-outline-danger btn-cloud" 
+                            onclick="window.cloudUpload && cloudUpload.open('google')">
+                        <i class="fab fa-google-drive me-1"></i>Google Drive
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-cloud" 
+                            onclick="window.cloudUpload && cloudUpload.open('onedrive')">
+                        <i class="fab fa-microsoft me-1"></i>OneDrive
+                    </button>
+                    <button type="button" class="btn btn-outline-info btn-cloud" 
+                            onclick="window.cloudUpload && cloudUpload.open('dropbox')">
+                        <i class="fab fa-dropbox me-1"></i>Dropbox
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-cloud" 
+                            onclick="window.cloudUpload && cloudUpload.open('icloud')">
+                        <i class="fab fa-apple me-1"></i>iCloud
+                    </button>
+                </div>
+            </div>
+            <!-- ================= FIN BOUTONS CLOUD ================= -->
+        </div>
+    </div>
+    
+    <!-- Sidebar avec pub -->
+    <div class="col-lg-4 mt-4 mt-lg-0">
+        <div class="adsterra-container text-center">
+            <div class="adsterra-label text-muted small mb-1">{{ _('Sponsorisé') }}</div>
+            <script type="text/javascript">
+                adsterra_banner_300x250 = '28968036';
+            </script>
+            <script type="text/javascript" src="https://publishers.adsterra.com/v3/api/banner.php?placement_id=28968036"></script>
+        </div>
+        
+        <div class="alert alert-warning mt-3 text-center">
+            <i class="fas fa-heart text-danger me-2"></i>
+            <small>{{ _('Cet outil est entièrement gratuit. Un clic sur les annonces nous aide à le maintenir !') }}</small>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
+{% block pdf_extra_js %}{% endblock %}
+{% endblock %}

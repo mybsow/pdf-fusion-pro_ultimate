@@ -1,62 +1,17 @@
-{% extends "base.html" %}
+{% extends "pdf/pdf_base.html" %}
 
-{% block title %}{{ _('Fusionner PDF - PDF Fusion Pro') }}{% endblock %}
-{% block description %}{{ _('Fusionnez plusieurs fichiers PDF en un seul document, facilement et rapidement.') }}{% endblock %}
+{% block pdf_title %}{{ _('Fusionner plusieurs PDF') }}{% endblock %}
+{% block pdf_description %}{{ _('Déposez vos fichiers PDF et obtenez un document unique fusionné.') }}{% endblock %}
 
-{% block content %}
-<!-- ✅ Bannière Adsterra haut de page -->
-{% include 'includes/adsterra_ads.html' with context %}
-
-<section class="hero-section text-center">
-    <h1>{{ _('Fusionner plusieurs PDF') }}</h1>
-    <p>{{ _('Déposez vos fichiers PDF et obtenez un document unique fusionné.') }}</p>
-</section>
-
-<div class="row">
-    <div class="col-lg-8">
-        <div class="tool-container">
-            <div class="upload-zone-pro" id="mergeUploadZone" data-info-id="mergeFileInfo" data-btn-id="mergeButton">
-                <div class="upload-inner">
-                    <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                    <h4 class="upload-title">{{ _('Déposez vos PDF ici') }}</h4>
-                    <p class="upload-subtitle">{{ _('Glissez-déposez vos fichiers ou cliquez pour parcourir') }}</p>
-                    <div class="upload-info">{{ _('PDF uniquement • Taille max : 50MB') }}</div>
-                </div>
-                <input type="file" accept=".pdf" multiple style="display:none;">
-            </div>
-
-            <div id="mergeFileInfo" class="file-list mt-3"></div>
-            <div id="mergeUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
-
-            <div class="action-buttons mt-4">
-                <button class="btn btn-primary btn-lg" id="mergeButton" disabled>
-                    <i class="fas fa-object-group me-2"></i>{{ _('Fusionner les PDF') }}
-                </button>
-                <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.mergeUploadZone.removeFile(0)">
-                    <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Sidebar avec pub 300x250 -->
-    <div class="col-lg-4 mt-4 mt-lg-0">
-        <div class="adsterra-container text-center">
-            <div class="adsterra-label text-muted small mb-1">{{ _('Sponsorisé') }}</div>
-            <script type="text/javascript">
-                adsterra_banner_300x250 = '28968036';
-            </script>
-            <script type="text/javascript" src="https://publishers.adsterra.com/v3/api/banner.php?placement_id=28968036"></script>
-        </div>
-        
-        <div class="alert alert-warning mt-3 text-center">
-            <i class="fas fa-heart text-danger me-2"></i>
-            <small>{{ _('Cet outil est entièrement gratuit. Un clic sur les annonces nous aide à le maintenir !') }}</small>
-        </div>
-    </div>
-</div>
+{% block pdf_options %}
+<!-- Pas d'options spécifiques pour la fusion -->
 {% endblock %}
 
-{% block extra_js %}
-<script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
-{% endblock %}
+{% block button_text %}{{ _('Fusionner les PDF') }}{% endblock %}
+{% block button_icon %}object-group{% endblock %}
+
+{% set upload_zone_id = 'mergeUploadZone' %}
+{% set file_info_id = 'mergeFileInfo' %}
+{% set button_id = 'mergeButton' %}
+{% set upload_manager = 'mergeUploadZone' %}
+{% set multiple = true %}

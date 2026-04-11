@@ -156,6 +156,14 @@
     50%  { transform: scale(1.1); }
     100% { transform: scale(1); opacity: 1; }
 }
+.btn-cloud {
+    transition: all 0.3s ease;
+    border-radius: 30px;
+    padding: 8px 16px;
+}
+.btn-cloud:hover {
+    transform: translateY(-2px);
+}
 @media (max-width: 768px) {
     .converter-hero { padding: 3rem 1rem; }
     .converter-card { padding: 1.5rem; }
@@ -183,7 +191,6 @@
 </div>
 
 <div class="container">
-
     <!-- Étapes -->
     <div class="step-tracker">
         <div class="step active" id="step1">
@@ -202,7 +209,56 @@
 
     <!-- Carte principale -->
     <div class="converter-card">
-        {% block converter_content %}{% endblock %}
+        {% block converter_content %}
+        <!-- Formulaire d'upload par défaut -->
+        <form id="uploadForm" method="POST" enctype="multipart/form-data" action="{{ url_for('conversion.universal_converter', conversion_type=conversion_type) }}">
+            <div class="upload-zone" id="uploadZone">
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                <h5 class="mb-2">{{ _('Glissez-déposez vos fichiers ici') }}</h5>
+                <p class="text-muted mb-2">{{ _('ou') }}</p>
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-folder-open me-1"></i>{{ _('Parcourir') }}
+                </button>
+                <input type="file" id="fileInput" name="files" class="d-none" accept="{{ accept }}" {% if max_files > 1 %}multiple{% endif %}>
+                <p class="text-muted small mt-2 mb-0">
+                    {{ _('Formats acceptés :') }} {{ accept|replace('.', '').upper() }} ({{ _('jusqu\'à') }} {{ max_files }} {{ _('fichiers') }}, {{ _('max') }} 50MB)
+                </p>
+            </div>
+            
+            <!-- Options spécifiques à chaque conversion -->
+            {% block conversion_options %}{% endblock %}
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn">
+                    <i class="fas fa-exchange-alt me-2"></i>{{ _('Convertir') }}
+                </button>
+            </div>
+        </form>
+        
+        <!-- Boutons d'import cloud -->
+        <div class="mt-4">
+            <div class="position-relative">
+                <hr class="my-3">
+                <div class="text-center">
+                    <span class="px-3 bg-white text-muted small">{{ _('Ou importez depuis le cloud') }}</span>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
+                <button type="button" class="btn btn-outline-danger btn-cloud" onclick="window.cloudUpload && cloudUpload.open('google')">
+                    <i class="fab fa-google-drive me-1"></i>Google Drive
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-cloud" onclick="window.cloudUpload && cloudUpload.open('onedrive')">
+                    <i class="fab fa-microsoft me-1"></i>OneDrive
+                </button>
+                <button type="button" class="btn btn-outline-info btn-cloud" onclick="window.cloudUpload && cloudUpload.open('dropbox')">
+                    <i class="fab fa-dropbox me-1"></i>Dropbox
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-cloud" onclick="window.cloudUpload && cloudUpload.open('icloud')">
+                    <i class="fab fa-apple me-1"></i>iCloud
+                </button>
+            </div>
+        </div>
+        {% endblock %}
     </div>
 
     <!-- Fonctionnalités -->
@@ -236,32 +292,37 @@
             <div>
                 <h6 class="mb-1">{{ _('Comment ça marche ?') }}</h6>
                 <ol class="mb-0 small ps-3">
-                    <li>
-                        {{ _('Téléchargez votre fichier') }} {{ from_format }}.
-                    </li>
-                    <li>
-                        {{ _('Notre système le convertit automatiquement en') }} {{ to_format }}.
-                    </li>
+                    <li>{{ _('Téléchargez votre fichier') }} {{ from_format }}.</li>
+                    <li>{{ _('Notre système le convertit automatiquement en') }} {{ to_format }}.</li>
                     <li>{{ _('Téléchargez ensuite votre fichier converti.') }}</li>
                 </ol>
             </div>
         </div>
     </div>
 
+    <!-- Message de succès (caché par défaut) -->
+    <div id="successMessage" class="text-center" style="display: none;">
+        <div class="success-animation">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="mb-3">{{ _('Conversion terminée !') }}</h3>
+        <p class="mb-4">{{ _('Votre fichier est prêt à être téléchargé') }}</p>
+        <a href="#" id="downloadLink" class="btn btn-success btn-lg">
+            <i class="fas fa-download me-2"></i>{{ _('Télécharger') }}
+        </a>
+        <button onclick="location.reload()" class="btn btn-outline-secondary ms-2">
+            <i class="fas fa-redo me-1"></i>{{ _('Convertir un autre fichier') }}
+        </button>
+    </div>
 </div>
 
 <script>
 function updateStep(stepNumber) {
-    document.querySelectorAll('[id$="Step"]').forEach(el => {
-        if (el.id.endsWith('Step')) el.style.display = 'none';
-    });
     document.querySelectorAll('.step').forEach((step, index) => {
         step.classList.remove('active', 'completed');
         if (index + 1 < stepNumber)      step.classList.add('completed');
         else if (index + 1 === stepNumber) step.classList.add('active');
     });
-    const activeStep = document.getElementById(`step${stepNumber}Content`);
-    if (activeStep) activeStep.style.display = 'block';
 }
 
 function showError(message) {
@@ -278,13 +339,72 @@ function showError(message) {
 function showLoader() {
     const loader = document.getElementById('loaderOverlay');
     if (loader) loader.style.display = 'flex';
+    updateStep(2);
 }
 
 function hideLoader() {
     const loader = document.getElementById('loaderOverlay');
     if (loader) loader.style.display = 'none';
+    updateStep(3);
+}
+
+// Gestion du drag & drop
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+
+if (uploadZone) {
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+    });
+    
+    uploadZone.addEventListener('dragleave', () => {
+        uploadZone.classList.remove('dragover');
+    });
+    
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (fileInput) {
+            fileInput.files = files;
+            // Déclencher l'événement change
+            const event = new Event('change', { bubbles: true });
+            fileInput.dispatchEvent(event);
+        }
+    });
+    
+    uploadZone.addEventListener('click', () => {
+        if (fileInput) fileInput.click();
+    });
+}
+
+// Soumission du formulaire
+const uploadForm = document.getElementById('uploadForm');
+if (uploadForm) {
+    uploadForm.addEventListener('submit', (e) => {
+        const files = fileInput ? fileInput.files : [];
+        if (files.length === 0) {
+            e.preventDefault();
+            showError('{{ _("Veuillez sélectionner au moins un fichier") }}');
+            return false;
+        }
+        showLoader();
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => updateStep(1));
+
+// Initialiser cloud upload
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof cloudUpload !== 'undefined') {
+        console.log('☁️ Cloud upload ready');
+    }
+});
 </script>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<!-- Cloud upload JS is already loaded in base.html -->
 {% endblock %}
