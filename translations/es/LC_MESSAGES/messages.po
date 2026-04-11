@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-11 14:38+0000\n"
+"POT-Creation-Date: 2026-04-11 16:57+0000\n"
 "PO-Revision-Date: 2026-04-11 05:28+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -18,15 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
-#: app.py:509 templates/conversion/index.html:120
+#: app.py:512 templates/conversion/index.html:120
 msgid "Convertisseur de fichiers"
 msgstr "Convertidor de archivos"
 
-#: app.py:538
+#: app.py:541
 msgid "Word vers PDF"
 msgstr "Word a PDF"
 
-#: app.py:539 templates/base.html:369 templates/base.html:513
+#: app.py:542 templates/base.html:369 templates/base.html:513
 msgid "Fusionner PDF"
 msgstr "Fusionar PDF"
 
@@ -360,7 +360,9 @@ msgid ""
 "fichiers en ligne. Rapide, sécurisé et sans installation."
 msgstr "Herramientas PDF gratuitas para fusionar, dividir, comprimir y convertir sus archivos en línea. Rápido, seguro y sin instalación."
 "Herramientas PDF gratuitas para fusionar, dividir, comprimir y convertir "
-"sus archivos en línea. Rápido, seguro y sin instalación."
+"sus archivos en línea. Rápido, seguro y sin instalación.Herramientas PDF "
+"gratuitas para fusionar, dividir, comprimir y convertir sus archivos en "
+"línea. Rápido, seguro y sin instalación."
 
 #: templates/base.html:39
 msgid ""
@@ -368,7 +370,8 @@ msgid ""
 "PowerPoint, image"
 msgstr "PDF, conversor, fusionar, dividir, comprimir, OCR, Word, Excel, PowerPoint, imagen"
 "PDF, conversor, fusionar, dividir, comprimir, OCR, Word, Excel, "
-"PowerPoint, imagen"
+"PowerPoint, imagenPDF, conversor, fusionar, dividir, comprimir, OCR, "
+"Word, Excel, PowerPoint, imagen"
 
 #: templates/base.html:44
 msgid "PDF Fusion Pro - Convertisseur de fichiers"
@@ -378,7 +381,8 @@ msgstr "PDF Fusion Pro - Conversor de archivos"
 msgid "Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne"
 msgstr "Convierta sus archivos PDF, Word, Excel e imágenes en línea de forma gratuita"
 "Convierta sus archivos PDF, Word, Excel e imágenes en línea de forma "
-"gratuita"
+"gratuitaConvierta sus archivos PDF, Word, Excel e imágenes en línea de "
+"forma gratuita"
 
 #: templates/base.html:331 templates/base.html:506 templates/base.html:533
 #: templates/base_legal.html:227
@@ -386,7 +390,8 @@ msgid "PDF Fusion Pro"
 msgstr "Fusión PDF Pro"
 
 #: templates/base.html:353 templates/base_legal.html:278
-#: templates/conversion/conversion_base.html:195
+#: templates/conversion/conversion_base.html:202
+#: templates/conversion/conversion_base.html:238
 msgid "Convertir"
 msgstr "Convertir"
 
@@ -508,7 +513,8 @@ msgid ""
 "compressez vos fichiers PDF."
 msgstr "Herramientas PDF en línea gratuitas. Convierte, fusiona, divide y comprime tus archivos PDF."
 "Herramientas PDF en línea gratuitas. Convierte, fusiona, divide y "
-"comprime tus archivos PDF."
+"comprime tus archivos PDF.Herramientas PDF en línea gratuitas. Convierte,"
+" fusiona, divide y comprime tus archivos PDF."
 
 #: templates/base.html:508
 msgid ""
@@ -549,7 +555,7 @@ msgstr "Versión"
 msgid "Hébergé sur Render"
 msgstr "Alojado en renderizado"
 
-#: templates/base.html:548
+#: templates/base.html:548 templates/components/cloud_upload.html:54
 msgid "Chargement..."
 msgstr "Cargando..."
 
@@ -561,19 +567,21 @@ msgstr "Procesamiento en curso..."
 msgid "Veuillez patienter"
 msgstr "Espere por favor"
 
-#: templates/base.html:624
+#: templates/base.html:623
 msgid "Soutenez notre outil gratuit !"
 msgstr "¡Apoya nuestra herramienta gratuita!"
 
-#: templates/base.html:625
+#: templates/base.html:624
 msgid ""
 "Ce service est entièrement gratuit grâce à vous. Un petit clic sur une "
 "publicité nous aide énormément à maintenir et améliorer PDF Fusion Pro."
 msgstr "Este servicio es completamente gratuito gracias a ti. Un solo clic en un anuncio nos ayuda mucho a mantener y mejorar PDF Fusion Pro."
 "Este servicio es completamente gratuito gracias a ti. Un solo clic en un "
-"anuncio nos ayuda mucho a mantener y mejorar PDF Fusion Pro."
+"anuncio nos ayuda mucho a mantener y mejorar PDF Fusion Pro.Este servicio"
+" es completamente gratuito gracias a ti. Un solo clic en un anuncio nos "
+"ayuda mucho a mantener y mejorar PDF Fusion Pro."
 
-#: templates/base.html:626
+#: templates/base.html:625
 msgid "Je comprends"
 msgstr "Entiendo"
 
@@ -592,8 +600,31 @@ msgstr "De vuelta a casa"
 msgid "caractères"
 msgstr "personajes"
 
-#: templates/conversion/conversion_base.html:191
-#: templates/conversion/conversion_base.html:199
+#: templates/components/cloud_upload.html:4
+#: templates/conversion/conversion_base.html:248
+#: templates/pdf/pdf_base.html:102
+msgid "Ou importez depuis le cloud"
+msgstr "O importar desde la nube"
+
+#: templates/components/cloud_upload.html:36
+msgid "Importer depuis le cloud"
+msgstr "Importar desde la nube"
+
+#: templates/components/cloud_upload.html:48
+msgid "Retour"
+msgstr "Atrás"
+
+#: templates/components/cloud_upload.html:61
+msgid "Annuler"
+msgstr "Cancelar"
+
+#: templates/components/cloud_upload.html:64
+msgid "Sélectionner"
+msgstr "Seleccionar"
+
+#: templates/conversion/conversion_base.html:198
+#: templates/conversion/conversion_base.html:206
+#: templates/conversion/conversion_base.html:316
 #: templates/conversion/csv_to_excel.html:101
 #: templates/conversion/excel_to_csv.html:108
 #: templates/conversion/excel_to_pdf.html:91
@@ -604,69 +635,12 @@ msgstr "personajes"
 msgid "Télécharger"
 msgstr "Descargar"
 
-#: templates/conversion/conversion_base.html:212
-#: templates/conversion/index.html:216
-msgid "Sécurisé"
-msgstr "Seguro"
-
-#: templates/conversion/conversion_base.html:213
-msgid "Vos fichiers sont supprimés après conversion"
-msgstr "Tus archivos se eliminan después de la conversión."
-
 #: templates/conversion/conversion_base.html:217
-#: templates/conversion/index.html:221
-msgid "Rapide"
-msgstr "Rápido"
+#: templates/conversion/image_to_word.html:21
+msgid "Glissez-déposez vos fichiers ici"
+msgstr "Arrastra y suelta tus archivos aquí"
 
 #: templates/conversion/conversion_base.html:218
-msgid "Conversion en quelques secondes"
-msgstr "Conversión en segundos"
-
-#: templates/conversion/conversion_base.html:222
-msgid "Confidentiel"
-msgstr "Confidencial"
-
-#: templates/conversion/conversion_base.html:223
-msgid "Personne n'accède à vos fichiers"
-msgstr "Nadie accede a tus archivos"
-
-#: templates/conversion/conversion_base.html:227
-msgid "Accessible"
-msgstr "Accesible"
-
-#: templates/conversion/conversion_base.html:228
-msgid "Utilisez depuis n'importe où"
-msgstr "Úselo desde cualquier lugar"
-
-#: templates/conversion/conversion_base.html:237
-#: templates/conversion/index.html:270
-msgid "Comment ça marche ?"
-msgstr "¿Cómo funciona?"
-
-#: templates/conversion/conversion_base.html:240
-msgid "Téléchargez votre fichier"
-msgstr "Sube tu archivo"
-
-#: templates/conversion/conversion_base.html:243
-msgid "Notre système le convertit automatiquement en"
-msgstr "Nuestro sistema lo convierte automáticamente en"
-
-#: templates/conversion/conversion_base.html:245
-msgid "Téléchargez ensuite votre fichier converti."
-msgstr "Luego descargue su archivo convertido."
-
-#: templates/conversion/csv_to_excel.html:10
-msgid "Téléchargez vos fichiers CSV"
-msgstr "Sube tus archivos CSV"
-
-#: templates/conversion/csv_to_excel.html:11
-msgid "Sélectionnez les fichiers à convertir en Excel"
-msgstr "Seleccionar archivos para convertir a Excel"
-
-#: templates/conversion/csv_to_excel.html:21
-msgid "Glissez-déposez vos fichiers CSV ici"
-msgstr "Arrastre y suelte sus archivos CSV aquí"
-
 #: templates/conversion/csv_to_excel.html:22
 #: templates/conversion/excel_to_csv.html:22
 #: templates/conversion/excel_to_pdf.html:22
@@ -692,6 +666,120 @@ msgstr "Arrastre y suelte sus archivos CSV aquí"
 #: templates/conversion/word_to_pdf.html:43 templates/pdf/index.html:154
 msgid "ou"
 msgstr "O"
+
+#: templates/conversion/conversion_base.html:220
+msgid "Parcourir"
+msgstr "Navegar"
+
+#: templates/conversion/conversion_base.html:224
+msgid "Formats acceptés :"
+msgstr "Formatos aceptados:"
+
+#: templates/conversion/conversion_base.html:227
+msgid "jusqu'à"
+msgstr "hasta"
+
+#: templates/conversion/conversion_base.html:228
+msgid "fichiers"
+msgstr "archivos"
+
+#: templates/conversion/conversion_base.html:228
+msgid "fichier"
+msgstr "archivo"
+
+#: templates/conversion/conversion_base.html:229
+msgid "max"
+msgstr "máximo"
+
+#: templates/conversion/conversion_base.html:273
+#: templates/conversion/index.html:216
+msgid "Sécurisé"
+msgstr "Seguro"
+
+#: templates/conversion/conversion_base.html:274
+msgid "Vos fichiers sont supprimés après conversion"
+msgstr "Tus archivos se eliminan después de la conversión."
+
+#: templates/conversion/conversion_base.html:278
+#: templates/conversion/index.html:221
+msgid "Rapide"
+msgstr "Rápido"
+
+#: templates/conversion/conversion_base.html:279
+msgid "Conversion en quelques secondes"
+msgstr "Conversión en segundos"
+
+#: templates/conversion/conversion_base.html:283
+msgid "Confidentiel"
+msgstr "Confidencial"
+
+#: templates/conversion/conversion_base.html:284
+msgid "Personne n'accède à vos fichiers"
+msgstr "Nadie accede a tus archivos"
+
+#: templates/conversion/conversion_base.html:288
+msgid "Accessible"
+msgstr "Accesible"
+
+#: templates/conversion/conversion_base.html:289
+msgid "Utilisez depuis n'importe où"
+msgstr "Úselo desde cualquier lugar"
+
+#: templates/conversion/conversion_base.html:298
+#: templates/conversion/index.html:270
+msgid "Comment ça marche ?"
+msgstr "¿Cómo funciona?"
+
+#: templates/conversion/conversion_base.html:300
+msgid "Téléchargez votre fichier"
+msgstr "Sube tu archivo"
+
+#: templates/conversion/conversion_base.html:301
+msgid "Notre système le convertit automatiquement en"
+msgstr "Nuestro sistema lo convierte automáticamente en"
+
+#: templates/conversion/conversion_base.html:302
+msgid "Téléchargez ensuite votre fichier converti."
+msgstr "Luego descargue su archivo convertido."
+
+#: templates/conversion/conversion_base.html:313
+#: templates/conversion/csv_to_excel.html:98
+#: templates/conversion/excel_to_csv.html:105
+#: templates/conversion/excel_to_pdf.html:88
+#: templates/conversion/html_to_pdf.html:110
+#: templates/conversion/image_to_pdf.html:110
+#: templates/conversion/jpg_to_pdf.html:103
+#: templates/conversion/pdf_to_html.html:102
+#: templates/conversion/png_to_pdf.html:103
+#: templates/conversion/txt_to_pdf.html:118
+#: templates/conversion/word_to_pdf.html:355
+msgid "Conversion terminée !"
+msgstr "¡Conversión completa!"
+
+#: templates/conversion/conversion_base.html:314
+msgid "Votre fichier est prêt à être téléchargé"
+msgstr "Su archivo está listo para descargar"
+
+#: templates/conversion/conversion_base.html:319
+#: templates/conversion/html_to_pdf.html:117
+msgid "Convertir un autre fichier"
+msgstr "Convertir otro archivo"
+
+#: templates/conversion/conversion_base.html:394
+msgid "Veuillez sélectionner au moins un fichier"
+msgstr "Por favor seleccione al menos un archivo"
+
+#: templates/conversion/csv_to_excel.html:10
+msgid "Téléchargez vos fichiers CSV"
+msgstr "Sube tus archivos CSV"
+
+#: templates/conversion/csv_to_excel.html:11
+msgid "Sélectionnez les fichiers à convertir en Excel"
+msgstr "Seleccionar archivos para convertir a Excel"
+
+#: templates/conversion/csv_to_excel.html:21
+msgid "Glissez-déposez vos fichiers CSV ici"
+msgstr "Arrastre y suelte sus archivos CSV aquí"
 
 #: templates/conversion/csv_to_excel.html:26
 msgid "Formats acceptés : CSV, TXT (jusqu'à 50MB par fichier)"
@@ -772,9 +860,7 @@ msgstr "Convertir a Excel"
 #: templates/conversion/redact_pdf.html:201
 #: templates/conversion/sign_pdf.html:185
 #: templates/conversion/unlock_pdf.html:56
-#: templates/conversion/word_to_pdf.html:181 templates/pdf/compress.html:51
-#: templates/pdf/merge.html:36 templates/pdf/rotate.html:57
-#: templates/pdf/split.html:44
+#: templates/conversion/word_to_pdf.html:181 templates/pdf/pdf_base.html:93
 msgid "Réinitialiser"
 msgstr "Reiniciar"
 
@@ -803,19 +889,6 @@ msgstr "Conversión en curso..."
 #: templates/conversion/excel_to_pdf.html:75
 msgid "Veuillez patienter pendant le traitement de vos fichiers"
 msgstr "Espere mientras se procesan sus archivos."
-
-#: templates/conversion/csv_to_excel.html:98
-#: templates/conversion/excel_to_csv.html:105
-#: templates/conversion/excel_to_pdf.html:88
-#: templates/conversion/html_to_pdf.html:110
-#: templates/conversion/image_to_pdf.html:110
-#: templates/conversion/jpg_to_pdf.html:103
-#: templates/conversion/pdf_to_html.html:102
-#: templates/conversion/png_to_pdf.html:103
-#: templates/conversion/txt_to_pdf.html:118
-#: templates/conversion/word_to_pdf.html:355
-msgid "Conversion terminée !"
-msgstr "¡Conversión completa!"
 
 #: templates/conversion/csv_to_excel.html:99
 #: templates/conversion/image_to_excel.html:186
@@ -1252,6 +1325,15 @@ msgstr "&lt;!DOCTYPE html&gt;\n&lt;html&gt;\n&lt;head&gt;\n &lt;title&gt;Mi pág
 " &lt;h1&gt;Título&lt;/h1&gt;\n"
 " &lt;p&gt;Contenido...&lt;/p&gt;\n"
 "&lt;/body&gt;\n"
+"&lt;/html&gt;&lt;!DOCTYPE html&gt;\n"
+"&lt;html&gt;\n"
+"&lt;head&gt;\n"
+" &lt;title&gt;Mi página&lt;/title&gt;\n"
+"&lt;/head&gt;\n"
+"&lt;body&gt;\n"
+" &lt;h1&gt;Título&lt;/h1&gt;\n"
+" &lt;p&gt;Contenido...&lt;/p&gt;\n"
+"&lt;/body&gt;\n"
 "&lt;/html&gt;"
 
 #: templates/conversion/html_to_pdf.html:50
@@ -1290,10 +1372,6 @@ msgstr "Su PDF está listo para descargar"
 #: templates/conversion/txt_to_pdf.html:121
 msgid "Télécharger le PDF"
 msgstr "Descarga el PDF"
-
-#: templates/conversion/html_to_pdf.html:117
-msgid "Convertir un autre fichier"
-msgstr "Convertir otro archivo"
 
 #: templates/conversion/html_to_pdf.html:181
 msgid "Veuillez sélectionner un fichier ou coller du code HTML"
@@ -1471,7 +1549,8 @@ msgid ""
 "fichier)"
 msgstr "Formatos aceptados: JPG, PNG, BMP, GIF, TIFF, WEBP (hasta 50 MB por archivo)"
 "Formatos aceptados: JPG, PNG, BMP, GIF, TIFF, WEBP (hasta 50 MB por "
-"archivo)"
+"archivo)Formatos aceptados: JPG, PNG, BMP, GIF, TIFF, WEBP (hasta 50 MB "
+"por archivo)"
 
 #: templates/conversion/image_to_pdf.html:49
 #: templates/conversion/jpg_to_pdf.html:57
@@ -1539,10 +1618,6 @@ msgstr "Extrae texto de tus imágenes"
 #: templates/conversion/image_to_word.html:11
 msgid "Convertissez images et PDF en documents Word éditables avec OCR"
 msgstr "Convierta imágenes y archivos PDF en documentos de Word editables con OCR"
-
-#: templates/conversion/image_to_word.html:21
-msgid "Glissez-déposez vos fichiers ici"
-msgstr "Arrastra y suelta tus archivos aquí"
 
 #: templates/conversion/image_to_word.html:37
 msgid "Paramètres OCR avancés"
@@ -1782,7 +1857,9 @@ msgid ""
 msgstr "Convierta sus archivos PDF, Word, Excel, PowerPoint e imágenes en línea de forma gratuita. Más de 26 herramientas de conversión rápidas, seguras y sin registro."
 "Convierta sus archivos PDF, Word, Excel, PowerPoint e imágenes en línea "
 "de forma gratuita. Más de 26 herramientas de conversión rápidas, seguras "
-"y sin registro."
+"y sin registro.Convierta sus archivos PDF, Word, Excel, PowerPoint e "
+"imágenes en línea de forma gratuita. Más de 26 herramientas de conversión"
+" rápidas, seguras y sin registro."
 
 #: templates/conversion/index.html:123
 msgid "Transformez vos documents en tous formats, gratuitement et en ligne"
@@ -1794,7 +1871,8 @@ msgid ""
 " rapide et sécurisé."
 msgstr "Convierta PDF, Word, Excel, PowerPoint, imágenes y más. Sencillo, rápido y seguro."
 "Convierta PDF, Word, Excel, PowerPoint, imágenes y más. Sencillo, rápido "
-"y seguro."
+"y seguro.Convierta PDF, Word, Excel, PowerPoint, imágenes y más. "
+"Sencillo, rápido y seguro."
 
 #: templates/conversion/index.html:134
 msgid "Découvrir les outils"
@@ -1912,7 +1990,9 @@ msgid ""
 msgstr "Sí, todos los archivos se procesan localmente y se eliminan automáticamente después de 1 hora. Nunca almacenamos sus documentos en nuestros servidores."
 "Sí, todos los archivos se procesan localmente y se eliminan "
 "automáticamente después de 1 hora. Nunca almacenamos sus documentos en "
-"nuestros servidores."
+"nuestros servidores.Sí, todos los archivos se procesan localmente y se "
+"eliminan automáticamente después de 1 hora. Nunca almacenamos sus "
+"documentos en nuestros servidores."
 
 #: templates/conversion/index.html:336 templates/conversion/index.html:389
 msgid "Quelles sont les limites de taille ?"
@@ -1924,7 +2004,9 @@ msgid ""
 "conversion : variable selon l'outil (de 1 à 20)."
 msgstr "Tamaño máximo por archivo: 50 MB. Número máximo de archivos por conversión: variable según la herramienta (de 1 a 20)."
 "Tamaño máximo por archivo: 50 MB. Número máximo de archivos por "
-"conversión: variable según la herramienta (de 1 a 20)."
+"conversión: variable según la herramienta (de 1 a 20).Tamaño máximo por "
+"archivo: 50 MB. Número máximo de archivos por conversión: variable según "
+"la herramienta (de 1 a 20)."
 
 #: templates/conversion/index.html:349 templates/conversion/index.html:397
 msgid "Combien de temps dure une conversion ?"
@@ -1936,7 +2018,9 @@ msgid ""
 "fichiers ou les conversions complexes (OCR), comptez 1 à 2 minutes."
 msgstr "La mayoría de las conversiones tardan menos de 30 segundos. Para archivos grandes o conversiones complejas (OCR), espere de 1 a 2 minutos."
 "La mayoría de las conversiones tardan menos de 30 segundos. Para archivos"
-" grandes o conversiones complejas (OCR), espere de 1 a 2 minutos."
+" grandes o conversiones complejas (OCR), espere de 1 a 2 minutos.La "
+"mayoría de las conversiones tardan menos de 30 segundos. Para archivos "
+"grandes o conversiones complejas (OCR), espere de 1 a 2 minutos."
 
 #: templates/conversion/index.html:362 templates/conversion/index.html:405
 msgid "Quels formats sont supportés ?"
@@ -1948,7 +2032,8 @@ msgid ""
 "PPTX, JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore."
 msgstr "Admitimos más de 20 formatos: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, BMP, TIFF, CSV y más."
 "Admitimos más de 20 formatos: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, "
-"PNG, GIF, BMP, TIFF, CSV y más."
+"PNG, GIF, BMP, TIFF, CSV y más.Admitimos más de 20 formatos: PDF, DOC, "
+"DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, BMP, TIFF, CSV y más."
 
 #: templates/conversion/jpg_to_pdf.html:10
 msgid "Téléchargez vos images JPG"
@@ -1993,7 +2078,8 @@ msgid ""
 "anciennes versions"
 msgstr "Transforme sus documentos PDF a formato Word compatible con versiones anteriores"
 "Transforme sus documentos PDF a formato Word compatible con versiones "
-"anteriores"
+"anterioresTransforme sus documentos PDF a formato Word compatible con "
+"versiones anteriores"
 
 #: templates/conversion/pdf_to_doc.html:26
 #: templates/conversion/pdf_to_excel.html:26
@@ -2215,7 +2301,9 @@ msgid ""
 "Excel. L'OCR permet de reconnaître le texte dans les documents scannés."
 msgstr "Las tablas se detectarán automáticamente y se convertirán en hojas de Excel. OCR le permite reconocer texto en documentos escaneados."
 "Las tablas se detectarán automáticamente y se convertirán en hojas de "
-"Excel. OCR le permite reconocer texto en documentos escaneados."
+"Excel. OCR le permite reconocer texto en documentos escaneados.Las tablas"
+" se detectarán automáticamente y se convertirán en hojas de Excel. OCR le"
+" permite reconocer texto en documentos escaneados."
 
 #: templates/conversion/pdf_to_excel.html:93
 msgid "Extraire vers Excel"
@@ -2511,7 +2599,8 @@ msgid ""
 " long terme"
 msgstr "El formato PDF/A garantiza la durabilidad de sus documentos para un archivado a largo plazo"
 "El formato PDF/A garantiza la durabilidad de sus documentos para un "
-"archivado a largo plazo"
+"archivado a largo plazoEl formato PDF/A garantiza la durabilidad de sus "
+"documentos para un archivado a largo plazo"
 
 #: templates/conversion/pdf_to_pdfa.html:37
 msgid "Options de conversion PDF/A"
@@ -2573,7 +2662,10 @@ msgid ""
 msgstr "PDF/A es una versión estandarizada de PDF diseñada para archivado a largo plazo. Garantiza que tu documento será exactamente igual dentro de 10, 20 o 50 años, independientemente del software utilizado."
 "PDF/A es una versión estandarizada de PDF diseñada para archivado a largo"
 " plazo. Garantiza que tu documento será exactamente igual dentro de 10, "
-"20 o 50 años, independientemente del software utilizado."
+"20 o 50 años, independientemente del software utilizado.PDF/A es una "
+"versión estandarizada de PDF diseñada para archivado a largo plazo. "
+"Garantiza que tu documento será exactamente igual dentro de 10, 20 o 50 "
+"años, independientemente del software utilizado."
 
 #: templates/conversion/pdf_to_pdfa.html:70
 msgid "Attention"
@@ -2587,7 +2679,10 @@ msgid ""
 msgstr "La conversión a PDF/A puede cambiar ligeramente la apariencia del documento para garantizar su longevidad. Se eliminarán las funciones interactivas (formularios, JavaScript)."
 "La conversión a PDF/A puede cambiar ligeramente la apariencia del "
 "documento para garantizar su longevidad. Se eliminarán las funciones "
-"interactivas (formularios, JavaScript)."
+"interactivas (formularios, JavaScript).La conversión a PDF/A puede "
+"cambiar ligeramente la apariencia del documento para garantizar su "
+"longevidad. Se eliminarán las funciones interactivas (formularios, "
+"JavaScript)."
 
 #: templates/conversion/pdf_to_pdfa.html:80
 msgid "Auto-contenu"
@@ -2764,7 +2859,9 @@ msgid ""
 "versions ultérieures, ainsi qu'avec LibreOffice et Google Slides."
 msgstr "El archivo generado está en formato PPTX, compatible con PowerPoint 2007 y posteriores, así como con LibreOffice y Google Slides."
 "El archivo generado está en formato PPTX, compatible con PowerPoint 2007 "
-"y posteriores, así como con LibreOffice y Google Slides."
+"y posteriores, así como con LibreOffice y Google Slides.El archivo "
+"generado está en formato PPTX, compatible con PowerPoint 2007 y "
+"posteriores, así como con LibreOffice y Google Slides."
 
 #: templates/conversion/pdf_to_ppt.html:96
 msgid "Convertir en PowerPoint"
@@ -2890,7 +2987,8 @@ msgid ""
 "préservée"
 msgstr "Transforme sus archivos PDF en documentos de Word editables con diseño conservado"
 "Transforme sus archivos PDF en documentos de Word editables con diseño "
-"conservado"
+"conservadoTransforme sus archivos PDF en documentos de Word editables con"
+" diseño conservado"
 
 #: templates/conversion/pdf_to_word.html:44
 msgid "Texte uniquement (plus léger)"
@@ -2914,7 +3012,9 @@ msgid ""
 " et versions ultérieures, ainsi qu'avec LibreOffice et Google Docs."
 msgstr "El archivo generado está en formato DOCX, compatible con Microsoft Word 2007 y posteriores, así como con LibreOffice y Google Docs."
 "El archivo generado está en formato DOCX, compatible con Microsoft Word "
-"2007 y posteriores, así como con LibreOffice y Google Docs."
+"2007 y posteriores, así como con LibreOffice y Google Docs.El archivo "
+"generado está en formato DOCX, compatible con Microsoft Word 2007 y "
+"posteriores, así como con LibreOffice y Google Docs."
 
 #: templates/conversion/pdf_to_word.html:97
 msgid "Convertir en Word"
@@ -2958,7 +3058,10 @@ msgstr "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod 
 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod "
 "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim "
 "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
-"commodo consequat."
+"commodo consequat.Lorem ipsum dolor sit amet, consectetur adipiscing "
+"elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+"Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi "
+"ut aliquip ex ea commodo consequat."
 
 #: templates/conversion/pdf_to_word.html:281
 msgid "Extraction de la page"
@@ -2992,7 +3095,8 @@ msgstr "Arrastra y suelta tus archivos de PowerPoint aquí"
 msgid "Formats acceptés : PPT, PPTX (jusqu'à 50MB par fichier, 5 fichiers max)"
 msgstr "Formatos aceptados: PPT, PPTX (hasta 50 MB por archivo, 5 archivos como máximo)"
 "Formatos aceptados: PPT, PPTX (hasta 50 MB por archivo, 5 archivos como "
-"máximo)"
+"máximo)Formatos aceptados: PPT, PPTX (hasta 50 MB por archivo, 5 archivos"
+" como máximo)"
 
 #: templates/conversion/powerpoint_to_pdf.html:45
 msgid "Inclure les notes"
@@ -3058,7 +3162,8 @@ msgid ""
 "sont pas conservées dans le PDF."
 msgstr "Compatible con todos los lectores de PDF. Las animaciones y transiciones no se conservan en el PDF."
 "Compatible con todos los lectores de PDF. Las animaciones y transiciones "
-"no se conservan en el PDF."
+"no se conservan en el PDF.Compatible con todos los lectores de PDF. Las "
+"animaciones y transiciones no se conservan en el PDF."
 
 #: templates/conversion/powerpoint_to_pdf.html:107
 msgid "Analyse et conversion de vos présentations..."
@@ -3163,7 +3268,8 @@ msgid ""
 "emplacements de signature"
 msgstr "La detección automática identifica cuadros de texto, casillas de verificación y ubicaciones de firmas."
 "La detección automática identifica cuadros de texto, casillas de "
-"verificación y ubicaciones de firmas."
+"verificación y ubicaciones de firmas.La detección automática identifica "
+"cuadros de texto, casillas de verificación y ubicaciones de firmas."
 
 #: templates/conversion/prepare_form.html:82
 msgid "Aperçu du formulaire - Cliquez sur les champs pour les configurer"
@@ -3357,10 +3463,10 @@ msgid ""
 "modification non autorisée."
 msgstr "Proteja su PDF con una contraseña para evitar su apertura o edición no autorizada."
 "Proteja su PDF con una contraseña para evitar su apertura o edición no "
-"autorizada."
+"autorizada.Proteja su PDF con una contraseña para evitar su apertura o "
+"edición no autorizada."
 
-#: templates/conversion/protect_pdf.html:25 templates/pdf/compress.html:21
-#: templates/pdf/rotate.html:21 templates/pdf/split.html:21
+#: templates/conversion/protect_pdf.html:25 templates/pdf/pdf_base.html:74
 msgid "Déposez votre PDF ici"
 msgstr "Envía tu PDF aquí"
 
@@ -3370,9 +3476,7 @@ msgid "Glissez-déposez ou cliquez pour sélectionner"
 msgstr "Arrastra y suelta o haz clic para seleccionar"
 
 #: templates/conversion/protect_pdf.html:27
-#: templates/conversion/unlock_pdf.html:27 templates/pdf/compress.html:23
-#: templates/pdf/merge.html:23 templates/pdf/rotate.html:23
-#: templates/pdf/split.html:23
+#: templates/conversion/unlock_pdf.html:27 templates/pdf/pdf_base.html:76
 msgid "PDF uniquement • Taille max : 50MB"
 msgstr "Sólo PDF • Tamaño máximo: 50 MB"
 
@@ -3435,7 +3539,8 @@ msgid ""
 "cas d'oubli."
 msgstr "Anota tu contraseña con cuidado. No hay forma de recuperarlo si lo olvidas."
 "Anota tu contraseña con cuidado. No hay forma de recuperarlo si lo "
-"olvidas."
+"olvidas.Anota tu contraseña con cuidado. No hay forma de recuperarlo si "
+"lo olvidas."
 
 #: templates/conversion/protect_pdf.html:81
 #: templates/conversion/word_to_pdf.html:139
@@ -3513,7 +3618,8 @@ msgid ""
 " sur l'aperçu."
 msgstr "Después de cargar su PDF, podrá dibujar áreas para redactar en la vista previa."
 "Después de cargar su PDF, podrá dibujar áreas para redactar en la vista "
-"previa."
+"previa.Después de cargar su PDF, podrá dibujar áreas para redactar en la "
+"vista previa."
 
 #: templates/conversion/redact_pdf.html:96
 msgid "Opaque"
@@ -3695,7 +3801,7 @@ msgstr "para borrar"
 msgid "Fin"
 msgstr "FIN"
 
-#: templates/conversion/sign_pdf.html:74 templates/pdf/compress.html:38
+#: templates/conversion/sign_pdf.html:74 templates/pdf/compress.html:14
 msgid "Moyen"
 msgstr "PROMEDIO"
 
@@ -4089,7 +4195,8 @@ msgid ""
 "une reproduction fidèle."
 msgstr "Compatible con todos los lectores de PDF. Las fuentes están integradas para una reproducción fiel."
 "Compatible con todos los lectores de PDF. Las fuentes están integradas "
-"para una reproducción fiel."
+"para una reproducción fiel.Compatible con todos los lectores de PDF. Las "
+"fuentes están integradas para una reproducción fiel."
 
 #: templates/conversion/word_to_pdf.html:195
 #: templates/conversion/word_to_pdf.html:419
@@ -4256,7 +4363,8 @@ msgid ""
 "été informée."
 msgstr "Lo sentimos, ocurrió un error inesperado. Nuestro equipo técnico ha sido informado."
 "Lo sentimos, ocurrió un error inesperado. Nuestro equipo técnico ha sido "
-"informado."
+"informado.Lo sentimos, ocurrió un error inesperado. Nuestro equipo "
+"técnico ha sido informado."
 
 #: templates/errors/500.html:150
 msgid "Heure :"
@@ -4292,7 +4400,8 @@ msgid ""
 "équipes."
 msgstr "Este error se registró automáticamente y será analizado por nuestros equipos."
 "Este error se registró automáticamente y será analizado por nuestros "
-"equipos."
+"equipos.Este error se registró automáticamente y será analizado por "
+"nuestros equipos."
 
 #: templates/includes/adsterra_ads.html:8
 msgid "Publicité - Soutenez notre service gratuit"
@@ -4303,15 +4412,14 @@ msgstr "Publicidad - Apoye nuestro servicio gratuito"
 msgid "Annonce"
 msgstr "Anuncio"
 
-#: templates/includes/adsterra_ads.html:110 templates/pdf/compress.html:68
-#: templates/pdf/merge.html:54 templates/pdf/rotate.html:74
-#: templates/pdf/split.html:63
+#: templates/includes/adsterra_ads.html:110 templates/pdf/pdf_base.html:140
 msgid ""
 "Cet outil est entièrement gratuit. Un clic sur les annonces nous aide à "
 "le maintenir !"
 msgstr "Esta herramienta es completamente gratuita. ¡Hacer clic en los anuncios nos ayuda a mantenerlo!"
 "Esta herramienta es completamente gratuita. ¡Hacer clic en los anuncios "
-"nos ayuda a mantenerlo!"
+"nos ayuda a mantenerlo!Esta herramienta es completamente gratuita. ¡Hacer"
+" clic en los anuncios nos ayuda a mantenerlo!"
 
 #: templates/legal/about.html:4
 msgid "À propos de PDF Fusion Pro"
@@ -4327,7 +4435,8 @@ msgid ""
 " vie privée."
 msgstr "Ofrezca una herramienta PDF en línea potente e intuitiva que respete su privacidad."
 "Ofrezca una herramienta PDF en línea potente e intuitiva que respete su "
-"privacidad."
+"privacidad.Ofrezca una herramienta PDF en línea potente e intuitiva que "
+"respete su privacidad."
 
 #: templates/legal/about.html:16
 msgid "Caractéristiques principales"
@@ -4363,7 +4472,8 @@ msgid ""
 "stocké sur nos serveurs."
 msgstr "Todo el procesamiento se realiza en la memoria. No se almacenan archivos en nuestros servidores."
 "Todo el procesamiento se realiza en la memoria. No se almacenan archivos "
-"en nuestros servidores."
+"en nuestros servidores.Todo el procesamiento se realiza en la memoria. No"
+" se almacenan archivos en nuestros servidores."
 
 #: templates/legal/about.html:73
 msgid "Performance"
@@ -4379,7 +4489,8 @@ msgid ""
 "fichiers."
 msgstr "No recopilamos datos personales relacionados con el contenido de sus archivos."
 "No recopilamos datos personales relacionados con el contenido de sus "
-"archivos."
+"archivos.No recopilamos datos personales relacionados con el contenido de"
+" sus archivos."
 
 #: templates/legal/about.html:79
 msgid "Gratuité"
@@ -4391,7 +4502,8 @@ msgid ""
 "intrusives."
 msgstr "Servicio totalmente gratuito, financiado mediante publicidad discreta y no intrusiva."
 "Servicio totalmente gratuito, financiado mediante publicidad discreta y "
-"no intrusiva."
+"no intrusiva.Servicio totalmente gratuito, financiado mediante publicidad"
+" discreta y no intrusiva."
 
 #: templates/legal/about.html:82
 msgid "Développeur"
@@ -4427,7 +4539,8 @@ msgid ""
 "répondrons dans les meilleurs délais."
 msgstr "Utilice este formulario para contactarnos directamente. Le responderemos lo antes posible."
 "Utilice este formulario para contactarnos directamente. Le responderemos "
-"lo antes posible."
+"lo antes posible.Utilice este formulario para contactarnos directamente. "
+"Le responderemos lo antes posible."
 
 #: templates/legal/contact.html:10
 msgid "Formulaire de Contact"
@@ -4439,7 +4552,9 @@ msgid ""
 "d'un astérisque (*) sont obligatoires."
 msgstr "Complete este formulario para contactarnos. Todos los campos marcados con un asterisco (*) son obligatorios."
 "Complete este formulario para contactarnos. Todos los campos marcados con"
-" un asterisco (*) son obligatorios."
+" un asterisco (*) son obligatorios.Complete este formulario para "
+"contactarnos. Todos los campos marcados con un asterisco (*) son "
+"obligatorios."
 
 #: templates/legal/contact.html:16
 msgid "Message enregistré avec succès !"
@@ -4537,7 +4652,9 @@ msgid ""
 "fichier n'est stocké de manière permanente sur nos serveurs."
 msgstr "Esta aplicación procesa sus archivos PDF sólo en la memoria. Ningún archivo se almacena permanentemente en nuestros servidores."
 "Esta aplicación procesa sus archivos PDF sólo en la memoria. Ningún "
-"archivo se almacena permanentemente en nuestros servidores."
+"archivo se almacena permanentemente en nuestros servidores.Esta "
+"aplicación procesa sus archivos PDF sólo en la memoria. Ningún archivo se"
+" almacena permanentemente en nuestros servidores."
 
 #: templates/legal/legal.html:10
 msgid "Éditeur du service"
@@ -4550,7 +4667,10 @@ msgid ""
 "développeur passionné par la création d'outils web utiles et accessibles."
 msgstr "%(app_name)s es desarrollado y mantenido por %(developer_name)s, un desarrollador apasionado por crear herramientas web útiles y accesibles."
 "%(app_name)s es desarrollado y mantenido por %(developer_name)s, un "
-"desarrollador apasionado por crear herramientas web útiles y accesibles."
+"desarrollador apasionado por crear herramientas web útiles y "
+"accesibles.%(app_name)s es desarrollado y mantenido por "
+"%(developer_name)s, un desarrollador apasionado por crear herramientas "
+"web útiles y accesibles."
 
 #: templates/legal/legal.html:19
 msgid "Pour nous contacter :"
@@ -4581,7 +4701,9 @@ msgid ""
 "conformes aux normes européennes de protection des données."
 msgstr "Los servidores están ubicados en centros de datos seguros que cumplen con los estándares europeos de protección de datos."
 "Los servidores están ubicados en centros de datos seguros que cumplen con"
-" los estándares europeos de protección de datos."
+" los estándares europeos de protección de datos.Los servidores están "
+"ubicados en centros de datos seguros que cumplen con los estándares "
+"europeos de protección de datos."
 
 #: templates/legal/legal.html:32 templates/legal/terms.html:48
 msgid "Propriété intellectuelle"
@@ -4595,7 +4717,9 @@ msgid ""
 msgstr "Todo el contenido de este sitio (diseño, código fuente, interfaces, textos, gráficos) está protegido por las leyes relativas a la propiedad intelectual."
 "Todo el contenido de este sitio (diseño, código fuente, interfaces, "
 "textos, gráficos) está protegido por las leyes relativas a la propiedad "
-"intelectual."
+"intelectual.Todo el contenido de este sitio (diseño, código fuente, "
+"interfaces, textos, gráficos) está protegido por las leyes relativas a la"
+" propiedad intelectual."
 
 #: templates/legal/legal.html:34
 msgid ""
@@ -4603,7 +4727,9 @@ msgid ""
 "autorisée est strictement interdite."
 msgstr "Cualquier reproducción, modificación, distribución o explotación no autorizada queda estrictamente prohibida."
 "Cualquier reproducción, modificación, distribución o explotación no "
-"autorizada queda estrictamente prohibida."
+"autorizada queda estrictamente prohibida.Cualquier reproducción, "
+"modificación, distribución o explotación no autorizada queda "
+"estrictamente prohibida."
 
 #: templates/legal/legal.html:36
 msgid "Responsabilité"
@@ -4615,7 +4741,9 @@ msgid ""
 " et traite via ce service."
 msgstr "El usuario sigue siendo el único responsable de los archivos PDF que carga y procesa a través de este servicio."
 "El usuario sigue siendo el único responsable de los archivos PDF que "
-"carga y procesa a través de este servicio."
+"carga y procesa a través de este servicio.El usuario sigue siendo el "
+"único responsable de los archivos PDF que carga y procesa a través de "
+"este servicio."
 
 #: templates/legal/legal.html:38
 msgid ""
@@ -4623,7 +4751,9 @@ msgid ""
 "protégés par des droits d'auteur sans autorisation."
 msgstr "Se compromete a no utilizar el servicio para contenidos ilícitos o protegidos por derechos de autor sin autorización."
 "Se compromete a no utilizar el servicio para contenidos ilícitos o "
-"protegidos por derechos de autor sin autorización."
+"protegidos por derechos de autor sin autorización.Se compromete a no "
+"utilizar el servicio para contenidos ilícitos o protegidos por derechos "
+"de autor sin autorización."
 
 #: templates/legal/legal.html:40
 msgid "Disponibilité du service"
@@ -4635,7 +4765,9 @@ msgid ""
 " ne pouvons garantir un fonctionnement ininterrompu."
 msgstr "Nos esforzamos por garantizar la disponibilidad continua del Servicio, pero no podemos garantizar el funcionamiento ininterrumpido."
 "Nos esforzamos por garantizar la disponibilidad continua del Servicio, "
-"pero no podemos garantizar el funcionamiento ininterrumpido."
+"pero no podemos garantizar el funcionamiento ininterrumpido.Nos "
+"esforzamos por garantizar la disponibilidad continua del Servicio, pero "
+"no podemos garantizar el funcionamiento ininterrumpido."
 
 #: templates/legal/legal.html:42
 msgid ""
@@ -4643,7 +4775,8 @@ msgid ""
 "améliorer le service."
 msgstr "Pueden ser necesarios periodos de mantenimiento técnico para mejorar el servicio."
 "Pueden ser necesarios periodos de mantenimiento técnico para mejorar el "
-"servicio."
+"servicio.Pueden ser necesarios periodos de mantenimiento técnico para "
+"mejorar el servicio."
 
 #: templates/legal/privacy.html:4
 msgid "Respect de votre vie privée"
@@ -4655,7 +4788,9 @@ msgid ""
 "comment nous collectons, utilisons et protégeons vos informations."
 msgstr "Su privacidad es nuestra prioridad. Esta política explica cómo recopilamos, utilizamos y protegemos su información."
 "Su privacidad es nuestra prioridad. Esta política explica cómo "
-"recopilamos, utilizamos y protegemos su información."
+"recopilamos, utilizamos y protegemos su información.Su privacidad es "
+"nuestra prioridad. Esta política explica cómo recopilamos, utilizamos y "
+"protegemos su información."
 
 #: templates/legal/privacy.html:9
 msgid "Engagement de confidentialité :"
@@ -4669,7 +4804,9 @@ msgid ""
 msgstr "Nunca almacenamos el contenido de sus archivos PDF. Todo el procesamiento se realiza en la RAM y los archivos se eliminan inmediatamente después del procesamiento."
 "Nunca almacenamos el contenido de sus archivos PDF. Todo el procesamiento"
 " se realiza en la RAM y los archivos se eliminan inmediatamente después "
-"del procesamiento."
+"del procesamiento.Nunca almacenamos el contenido de sus archivos PDF. "
+"Todo el procesamiento se realiza en la RAM y los archivos se eliminan "
+"inmediatamente después del procesamiento."
 
 #: templates/legal/privacy.html:13
 msgid "Données collectées"
@@ -4735,7 +4872,8 @@ msgid ""
 "publicités pertinentes."
 msgstr "Este sitio utiliza <strong>Google AdSense</strong> para mostrar anuncios relevantes."
 "Este sitio utiliza <strong>Google AdSense</strong> para mostrar anuncios "
-"relevantes."
+"relevantes.Este sitio utiliza <strong>Google AdSense</strong> para "
+"mostrar anuncios relevantes."
 
 #: templates/legal/privacy.html:32
 msgid ""
@@ -4743,7 +4881,9 @@ msgid ""
 " votre navigation sur ce site et d'autres sites web."
 msgstr "Google utiliza cookies para personalizar anuncios en función de su navegación en este y otros sitios web."
 "Google utiliza cookies para personalizar anuncios en función de su "
-"navegación en este y otros sitios web."
+"navegación en este y otros sitios web.Google utiliza cookies para "
+"personalizar anuncios en función de su navegación en este y otros sitios "
+"web."
 
 #: templates/legal/privacy.html:33
 msgid "Vous pouvez désactiver la personnalisation des annonces via les"
@@ -4763,7 +4903,8 @@ msgid ""
 "vous disposez des droits suivants :"
 msgstr "De acuerdo con el Reglamento General de Protección de Datos (GDPR), tienes los siguientes derechos:"
 "De acuerdo con el Reglamento General de Protección de Datos (GDPR), "
-"tienes los siguientes derechos:"
+"tienes los siguientes derechos:De acuerdo con el Reglamento General de "
+"Protección de Datos (GDPR), tienes los siguientes derechos:"
 
 #: templates/legal/privacy.html:38
 msgid "Droit d'accès à vos données"
@@ -4805,7 +4946,9 @@ msgid ""
 msgstr "Implementamos medidas de seguridad técnicas y organizativas apropiadas para proteger sus datos contra el acceso no autorizado, la alteración o la destrucción."
 "Implementamos medidas de seguridad técnicas y organizativas apropiadas "
 "para proteger sus datos contra el acceso no autorizado, la alteración o "
-"la destrucción."
+"la destrucción.Implementamos medidas de seguridad técnicas y "
+"organizativas apropiadas para proteger sus datos contra el acceso no "
+"autorizado, la alteración o la destrucción."
 
 #: templates/legal/terms.html:4
 msgid "Acceptation des conditions"
@@ -4818,7 +4961,8 @@ msgid ""
 "réserve les présentes conditions d'utilisation."
 msgstr "Al utilizar el servicio %(app_name)s, aceptas plena y sin reservas estas condiciones de uso."
 "Al utilizar el servicio %(app_name)s, aceptas plena y sin reservas estas "
-"condiciones de uso."
+"condiciones de uso.Al utilizar el servicio %(app_name)s, aceptas plena y "
+"sin reservas estas condiciones de uso."
 
 #: templates/legal/terms.html:9
 msgid "Avertissement important :"
@@ -4830,7 +4974,8 @@ msgid ""
 "concernant les fichiers traités par l'utilisateur."
 msgstr "Este servicio se proporciona para los archivos procesados ​​por el usuario."
 "Este servicio se proporciona para los archivos procesados ​​por el "
-"usuario."
+"usuario.Este servicio se proporciona para los archivos procesados ​​por "
+"el usuario."
 
 #: templates/legal/terms.html:13
 msgid "Usage autorisé"
@@ -4850,7 +4995,8 @@ msgid ""
 "des droits d'auteur sans autorisation"
 msgstr "Cargar archivos que contengan datos ilegales o protegidos por derechos de autor sin permiso"
 "Cargar archivos que contengan datos ilegales o protegidos por derechos de"
-" autor sin permiso"
+" autor sin permisoCargar archivos que contengan datos ilegales o "
+"protegidos por derechos de autor sin permiso"
 
 #: templates/legal/terms.html:19
 msgid "Utiliser le service pour des activités frauduleuses ou malveillantes"
@@ -4876,7 +5022,8 @@ msgstr "Cautiverio"
 msgid "Respecter les droits de propriété intellectuelle des documents traités"
 msgstr "Respetar los derechos de propiedad intelectual de los documentos procesados"
 "Respetar los derechos de propiedad intelectual de los documentos "
-"procesados"
+"procesadosRespetar los derechos de propiedad intelectual de los "
+"documentos procesados"
 
 #: templates/legal/terms.html:28
 msgid "Assurer la confidentialité de vos propres fichiers"
@@ -4898,7 +5045,10 @@ msgid ""
 msgstr "El Servicio se proporciona sin garantías de ningún tipo, ya sean expresas o implícitas, incluidas, entre otras, garantías de comerciabilidad, idoneidad para un propósito particular y no infracción."
 "El Servicio se proporciona sin garantías de ningún tipo, ya sean expresas"
 " o implícitas, incluidas, entre otras, garantías de comerciabilidad, "
-"idoneidad para un propósito particular y no infracción."
+"idoneidad para un propósito particular y no infracción.El Servicio se "
+"proporciona sin garantías de ningún tipo, ya sean expresas o implícitas, "
+"incluidas, entre otras, garantías de comerciabilidad, idoneidad para un "
+"propósito particular y no infracción."
 
 #: templates/legal/terms.html:35
 #, python-format
@@ -4911,7 +5061,8 @@ msgid ""
 "l'impossibilité d'utiliser le service"
 msgstr "Daños directos o indirectos resultantes del uso o imposibilidad de utilizar el servicio."
 "Daños directos o indirectos resultantes del uso o imposibilidad de "
-"utilizar el servicio."
+"utilizar el servicio.Daños directos o indirectos resultantes del uso o "
+"imposibilidad de utilizar el servicio."
 
 #: templates/legal/terms.html:40
 msgid "De la perte ou de l'altération des fichiers PDF traités"
@@ -4931,7 +5082,8 @@ msgid ""
 "tout moment."
 msgstr "Nos reservamos el derecho de modificar estos términos de uso en cualquier momento."
 "Nos reservamos el derecho de modificar estos términos de uso en cualquier"
-" momento."
+" momento.Nos reservamos el derecho de modificar estos términos de uso en "
+"cualquier momento."
 
 #: templates/legal/terms.html:46
 msgid ""
@@ -4939,7 +5091,8 @@ msgid ""
 "notification sur le site."
 msgstr "Los usuarios serán informados de cambios significativos mediante una notificación en el sitio."
 "Los usuarios serán informados de cambios significativos mediante una "
-"notificación en el sitio."
+"notificación en el sitio.Los usuarios serán informados de cambios "
+"significativos mediante una notificación en el sitio."
 
 #: templates/legal/terms.html:50
 #, python-format
@@ -4948,7 +5101,8 @@ msgid ""
 "exclusive de %(developer_name)s."
 msgstr "El servicio, su código fuente, su diseño y su contenido son propiedad exclusiva de %(developer_name)s."
 "El servicio, su código fuente, su diseño y su contenido son propiedad "
-"exclusiva de %(developer_name)s."
+"exclusiva de %(developer_name)s.El servicio, su código fuente, su diseño "
+"y su contenido son propiedad exclusiva de %(developer_name)s."
 
 #: templates/legal/terms.html:53
 msgid ""
@@ -4956,7 +5110,8 @@ msgid ""
 "préalable écrite."
 msgstr "Cualquier reproducción, incluso parcial, está prohibida sin autorización previa por escrito."
 "Cualquier reproducción, incluso parcial, está prohibida sin autorización "
-"previa por escrito."
+"previa por escrito.Cualquier reproducción, incluso parcial, está "
+"prohibida sin autorización previa por escrito."
 
 #: templates/legal/terms.html:57
 msgid "Pour toute question concernant ces conditions :"
@@ -4966,51 +5121,33 @@ msgstr "Para cualquier consulta respecto a estas condiciones:"
 msgid "Nous contacter via le formulaire"
 msgstr "Contáctanos a través del formulario"
 
-#: templates/pdf/compress.html:3
-msgid "Compresser PDF - PDF Fusion Pro"
-msgstr "Comprimir PDF - PDF Fusion Pro"
-
-#: templates/pdf/compress.html:4
-msgid "Réduisez la taille de vos fichiers PDF tout en conservant la qualité."
-msgstr "Reduzca el tamaño de sus archivos PDF manteniendo la calidad."
-
-#: templates/pdf/compress.html:11 templates/pdf/index.html:85
+#: templates/pdf/compress.html:3 templates/pdf/index.html:85
 msgid "Compresser un PDF"
 msgstr "Comprimir un PDF"
 
-#: templates/pdf/compress.html:12
+#: templates/pdf/compress.html:4
 msgid "Déposez votre fichier PDF et obtenez une version plus légère."
 msgstr "Sube tu archivo PDF y obtén una versión más ligera."
 
-#: templates/pdf/compress.html:22 templates/pdf/rotate.html:22
-#: templates/pdf/split.html:22
-msgid "Glissez-déposez votre fichier ou cliquez pour parcourir"
-msgstr "Arrastre y suelte su archivo o haga clic para explorar"
-
-#: templates/pdf/compress.html:33
+#: templates/pdf/compress.html:9
 msgid "Niveau de compression"
 msgstr "Nivel de compresión"
 
-#: templates/pdf/compress.html:36
+#: templates/pdf/compress.html:12
 msgid "Faible"
 msgstr "Débil"
 
-#: templates/pdf/compress.html:40
+#: templates/pdf/compress.html:16
 msgid "Fort"
 msgstr "Fuerte"
 
-#: templates/pdf/compress.html:42
+#: templates/pdf/compress.html:18
 msgid "Compression plus forte = fichier plus petit, qualité réduite"
 msgstr "Mayor compresión = archivo más pequeño, calidad reducida"
 
-#: templates/pdf/compress.html:48
+#: templates/pdf/compress.html:23
 msgid "Compresser le PDF"
 msgstr "Comprimir PDF"
-
-#: templates/pdf/compress.html:59 templates/pdf/merge.html:45
-#: templates/pdf/rotate.html:65 templates/pdf/split.html:53
-msgid "Sponsorisé"
-msgstr "Patrocinado"
 
 #: templates/pdf/index.html:3
 msgid "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
@@ -5024,7 +5161,9 @@ msgid ""
 msgstr "Todas las herramientas PDF en un solo lugar: fusionar, dividir, rotar, comprimir y convertir archivos PDF. Completamente gratis, seguro y sin registro."
 "Todas las herramientas PDF en un solo lugar: fusionar, dividir, rotar, "
 "comprimir y convertir archivos PDF. Completamente gratis, seguro y sin "
-"registro."
+"registro.Todas las herramientas PDF en un solo lugar: fusionar, dividir, "
+"rotar, comprimir y convertir archivos PDF. Completamente gratis, seguro y"
+" sin registro."
 
 #: templates/pdf/index.html:10
 msgid "Transformez vos PDFs en toute simplicité"
@@ -5036,7 +5175,9 @@ msgid ""
 "conversion. Rapide, sécurisé et entièrement gratuit."
 msgstr "Herramienta PDF todo en uno: fusionar, dividir, rotar, comprimir y convertir. Rápido, seguro y completamente gratis."
 "Herramienta PDF todo en uno: fusionar, dividir, rotar, comprimir y "
-"convertir. Rápido, seguro y completamente gratis."
+"convertir. Rápido, seguro y completamente gratis.Herramienta PDF todo en "
+"uno: fusionar, dividir, rotar, comprimir y convertir. Rápido, seguro y "
+"completamente gratis."
 
 #: templates/pdf/index.html:13
 msgid ""
@@ -5068,7 +5209,7 @@ msgstr "Dividir un archivo PDF"
 msgid "Extrayez des pages spécifiques ou divisez par plages"
 msgstr "Extraiga páginas específicas o divídalas por rangos"
 
-#: templates/pdf/index.html:49 templates/pdf/split.html:11
+#: templates/pdf/index.html:49 templates/pdf/split.html:3
 msgid "Diviser un PDF"
 msgstr "Dividir un PDF"
 
@@ -5084,7 +5225,7 @@ msgstr "Girar un archivo PDF"
 msgid "Faites pivoter des pages spécifiques ou l'ensemble du document"
 msgstr "Rotar páginas específicas o todo el documento"
 
-#: templates/pdf/index.html:67 templates/pdf/rotate.html:11
+#: templates/pdf/index.html:67 templates/pdf/rotate.html:3
 msgid "Tourner un PDF"
 msgstr "Rotar un PDF"
 
@@ -5114,7 +5255,8 @@ msgid ""
 "vice-versa"
 msgstr "Convierta sus archivos de Word, Excel, PowerPoint e imágenes a PDF y viceversa"
 "Convierta sus archivos de Word, Excel, PowerPoint e imágenes a PDF y "
-"viceversa"
+"viceversaConvierta sus archivos de Word, Excel, PowerPoint e imágenes a "
+"PDF y viceversa"
 
 #: templates/pdf/index.html:117
 msgid "PDF Fusion Pro en chiffres"
@@ -5146,7 +5288,9 @@ msgid ""
 "manipulation de fichiers PDF. Que vous ayez besoin de"
 msgstr "PDF Fusion Pro es la plataforma ideal para todas sus necesidades de manipulación de archivos PDF. Si necesitas"
 "PDF Fusion Pro es la plataforma ideal para todas sus necesidades de "
-"manipulación de archivos PDF. Si necesitas"
+"manipulación de archivos PDF. Si necesitasPDF Fusion Pro es la plataforma"
+" ideal para todas sus necesidades de manipulación de archivos PDF. Si "
+"necesitas"
 
 #: templates/pdf/index.html:151
 msgid "fusionner plusieurs documents"
@@ -5177,324 +5321,74 @@ msgid "Chiffrement SSL et suppression automatique des fichiers"
 msgstr "Cifrado SSL y eliminación automática de archivos"
 
 #: templates/pdf/merge.html:3
-msgid "Fusionner PDF - PDF Fusion Pro"
-msgstr "Fusionar PDF - PDF Fusion Pro"
-
-#: templates/pdf/merge.html:4
-msgid ""
-"Fusionnez plusieurs fichiers PDF en un seul document, facilement et "
-"rapidement."
-msgstr "Combine varios archivos PDF en un solo documento de forma fácil y rápida."
-
-#: templates/pdf/merge.html:11
 msgid "Fusionner plusieurs PDF"
 msgstr "Fusionar varios archivos PDF"
 
-#: templates/pdf/merge.html:12
+#: templates/pdf/merge.html:4
 msgid "Déposez vos fichiers PDF et obtenez un document unique fusionné."
 msgstr "Cargue sus archivos PDF y obtenga un único documento combinado."
 
-#: templates/pdf/merge.html:21
-msgid "Déposez vos PDF ici"
-msgstr "Envíe sus archivos PDF aquí"
-
-#: templates/pdf/merge.html:22
-msgid "Glissez-déposez vos fichiers ou cliquez pour parcourir"
-msgstr "Arrastre y suelte sus archivos o haga clic para explorar"
-
-#: templates/pdf/merge.html:33
+#: templates/pdf/merge.html:10
 msgid "Fusionner les PDF"
 msgstr "Fusionar archivos PDF"
 
-#: templates/pdf/rotate.html:3
-msgid "Tourner PDF - PDF Fusion Pro"
-msgstr "Girar PDF - PDF Fusion Pro"
+#: templates/pdf/pdf_base.html:61
+msgid "Outil PDF"
+msgstr "herramienta PDF"
+
+#: templates/pdf/pdf_base.html:62
+msgid "Traitez votre fichier PDF"
+msgstr "Procese su archivo PDF"
+
+#: templates/pdf/pdf_base.html:75
+msgid "Glissez-déposez votre fichier ou cliquez pour parcourir"
+msgstr "Arrastre y suelte su archivo o haga clic para explorar"
+
+#: templates/pdf/pdf_base.html:90
+msgid "Exécuter"
+msgstr "Ejecutar"
+
+#: templates/pdf/pdf_base.html:131
+msgid "Sponsorisé"
+msgstr "Patrocinado"
 
 #: templates/pdf/rotate.html:4
-msgid "Corrigez l'orientation de vos fichiers PDF en quelques clics."
-msgstr "Corrija la orientación de sus archivos PDF con solo unos pocos clics."
-
-#: templates/pdf/rotate.html:12
 msgid "Déposez votre fichier PDF et choisissez l'angle de rotation."
 msgstr "Suelta tu archivo PDF y elige el ángulo de rotación."
 
-#: templates/pdf/rotate.html:33
+#: templates/pdf/rotate.html:9
 msgid "Pages à tourner"
 msgstr "Páginas para pasar"
 
-#: templates/pdf/rotate.html:34 templates/pdf/split.html:34
+#: templates/pdf/rotate.html:10 templates/pdf/split.html:10
 msgid "Ex: 1,3-5 ou 'all' pour toutes"
 msgstr "Ej: 1,3-5 o 'todos' para todos"
 
-#: templates/pdf/rotate.html:35
+#: templates/pdf/rotate.html:11
 msgid "Format: numéros séparés par des virgules, plages avec tiret"
 msgstr "Formato: números separados por comas, rangos separados por guiones"
 
-#: templates/pdf/rotate.html:38
+#: templates/pdf/rotate.html:14
 msgid "Angle de rotation"
 msgstr "Ángulo de rotación"
 
-#: templates/pdf/rotate.html:54
+#: templates/pdf/rotate.html:29
 msgid "Tourner le PDF"
 msgstr "Girar PDF"
 
-#: templates/pdf/split.html:3
-msgid "Diviser PDF - PDF Fusion Pro"
-msgstr "Dividir PDF - PDF Fusion Pro"
-
 #: templates/pdf/split.html:4
-msgid ""
-"Divisez vos fichiers PDF en plusieurs documents selon les pages "
-"sélectionnées."
-msgstr "Divida sus archivos PDF en varios documentos según las páginas seleccionadas."
-"Divida sus archivos PDF en varios documentos según las páginas "
-"seleccionadas."
-
-#: templates/pdf/split.html:12
 msgid "Déposez votre fichier PDF et sélectionnez les pages à extraire."
 msgstr "Suelte su archivo PDF y seleccione las páginas que desea extraer."
 
-#: templates/pdf/split.html:33
+#: templates/pdf/split.html:9
 msgid "Pages à extraire"
 msgstr "Páginas para extraer"
 
-#: templates/pdf/split.html:35
+#: templates/pdf/split.html:11
 msgid "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\""
 msgstr "Formato: números separados por comas, rangos con guiones. Ej: \"1,3-5\""
 
-#: templates/pdf/split.html:41
+#: templates/pdf/split.html:16
 msgid "Diviser le PDF"
 msgstr "Dividir PDF"
 
-
-#: blueprints/conversion.py
-msgid "Excel vers PDF"
-msgstr "Excel a PDF"
-
-#: blueprints/conversion.py
-msgid "PowerPoint vers PDF"
-msgstr "PowerPoint a PDF"
-
-#: blueprints/conversion.py
-msgid "Image vers PDF"
-msgstr "Imagen a PDF"
-
-#: blueprints/conversion.py
-msgid "JPG vers PDF"
-msgstr "JPG a PDF"
-
-#: blueprints/conversion.py
-msgid "PNG vers PDF"
-msgstr "PNG a PDF"
-
-#: blueprints/conversion.py
-msgid "HTML vers PDF"
-msgstr "HTML a PDF"
-
-#: blueprints/conversion.py
-msgid "TXT vers PDF"
-msgstr "Texto a PDF"
-
-#: blueprints/conversion.py
-msgid "PDF vers DOC"
-msgstr "PDF a DOC"
-
-#: blueprints/conversion.py
-msgid "PDF vers Excel"
-msgstr "PDF a Excel"
-
-#: blueprints/conversion.py
-msgid "PDF vers PowerPoint"
-msgstr "PDF a PowerPoint"
-
-#: blueprints/conversion.py
-msgid "PDF vers Image"
-msgstr "PDF a imagen"
-
-#: blueprints/conversion.py
-msgid "PDF vers PDF/A"
-msgstr "PDF a PDF/A"
-
-#: blueprints/conversion.py
-msgid "PDF vers HTML"
-msgstr "PDF a HTML"
-
-#: blueprints/conversion.py
-msgid "PDF vers TXT"
-msgstr "PDF a TXT"
-
-#: blueprints/conversion.py
-msgid "Caviarder PDF"
-msgstr "Redactar PDF"
-
-#: blueprints/conversion.py
-msgid "Éditer PDF"
-msgstr "Editar PDF"
-
-#: blueprints/conversion.py
-msgid "Signer PDF"
-msgstr "Firmar PDF"
-
-#: blueprints/conversion.py
-msgid "Préparer formulaire PDF"
-msgstr "Preparar formulario PDF"
-
-#: blueprints/conversion.py
-msgid "Image vers Word"
-msgstr "Imagen a palabra"
-
-#: blueprints/conversion.py
-msgid "Image vers Excel"
-msgstr "Imagen a Excel"
-
-#: blueprints/conversion.py
-msgid "CSV vers Excel"
-msgstr "CSV a Excel"
-
-#: blueprints/conversion.py
-msgid "Excel vers CSV"
-msgstr "Excel a CSV"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos documents Word en PDF"
-msgstr "Convierte tus documentos de Word a PDF"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos feuilles Excel en PDF"
-msgstr "Convierte tus hojas de Excel a PDF"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos images en document PDF"
-msgstr "Convierte tus imágenes a documentos PDF"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos images JPG en PDF"
-msgstr "Convierte tus imágenes JPG a PDF"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos images PNG en PDF"
-msgstr "Convierte tus imágenes PNG a PDF"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos pages HTML en PDF"
-msgstr "Convierte tus páginas HTML a PDF"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos fichiers texte en PDF"
-msgstr "Convierte tus archivos de texto a PDF"
-
-#: blueprints/conversion.py
-msgid "Extrayez le texte de vos PDF en documents Word"
-msgstr "Extraiga texto de sus archivos PDF a documentos de Word"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos PDF en documents Word (format DOC)"
-msgstr "Convierta sus archivos PDF a documentos de Word (formato DOC)"
-
-#: blueprints/conversion.py
-msgid "Extrayez les tableaux de vos PDF en feuilles Excel"
-msgstr "Extraiga tablas de sus archivos PDF a hojas de Excel"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos PDF en présentations PowerPoint modifiables"
-msgstr "Convierta sus archivos PDF en presentaciones editables de PowerPoint"
-
-#: blueprints/conversion.py
-msgid "Convertissez les pages de vos PDF en images"
-msgstr "Convierte tus páginas PDF en imágenes"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos PDF en format PDF/A pour l'archivage"
-msgstr "Convierta sus archivos PDF a formato PDF/A para archivarlos"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos PDF en pages HTML"
-msgstr "Convierta sus archivos PDF a páginas HTML"
-
-#: blueprints/conversion.py
-msgid "Extrayez le texte de vos PDF en fichiers texte"
-msgstr "Extraiga texto de sus archivos PDF a archivos de texto"
-
-#: blueprints/conversion.py
-msgid "Ajoutez un mot de passe pour protéger vos PDF"
-msgstr "Agregue una contraseña para proteger sus archivos PDF"
-
-#: blueprints/conversion.py
-msgid "Retirez la protection des PDF"
-msgstr "Eliminar la protección de PDF"
-
-#: blueprints/conversion.py
-msgid "Supprimez définitivement le contenu sensible de votre PDF"
-msgstr "Elimine permanentemente contenido confidencial de su PDF"
-
-#: blueprints/conversion.py
-msgid "Modifiez ou ajoutez du texte, des images et des pages à votre PDF"
-msgstr "Edite o agregue texto, imágenes y páginas a su PDF"
-
-#: blueprints/conversion.py
-msgid "Ajoutez votre signature électronique à votre PDF"
-msgstr "Añade tu firma electrónica a tu PDF"
-
-#: blueprints/conversion.py
-msgid "Extrayez le texte des images en documents Word"
-msgstr "Extraiga texto de imágenes a documentos de Word"
-
-#: blueprints/conversion.py
-msgid "Extrayez les tableaux des images en Excel"
-msgstr "Extraer tablas de imágenes en Excel"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos fichiers CSV en Excel"
-msgstr "Convierte tus archivos CSV a Excel"
-
-#: blueprints/conversion.py
-msgid "Exportez vos feuilles Excel en CSV"
-msgstr "Exporta tus hojas de Excel a CSV"
-
-#: blueprints/conversion.py
-msgid "Word"
-msgstr "Palabra"
-
-#: blueprints/conversion.py
-msgid "Excel"
-msgstr "Sobresalir"
-
-#: blueprints/conversion.py
-msgid "PowerPoint"
-msgstr "PowerPoint"
-
-#: blueprints/conversion.py
-msgid "Image"
-msgstr "Imagen"
-
-#: blueprints/conversion.py
-msgid "JPG"
-msgstr "JPEG"
-
-#: blueprints/conversion.py
-msgid "PNG"
-msgstr "PNG"
-
-#: blueprints/conversion.py
-msgid "HTML"
-msgstr "HTML"
-
-#: blueprints/conversion.py
-msgid "TXT"
-msgstr "TXT"
-
-#: blueprints/conversion.py
-msgid "DOC"
-msgstr "DOC."
-
-#: blueprints/conversion.py
-msgid "PDF/A"
-msgstr "PDF/A"
-
-#: blueprints/conversion.py
-msgid "CSV"
-msgstr "CSV"
-
-#: blueprints/conversion.py
-msgid "PDF Formulaire"
-msgstr "Formulario PDF"

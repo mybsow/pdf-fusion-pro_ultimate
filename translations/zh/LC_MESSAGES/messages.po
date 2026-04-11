@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-11 14:38+0000\n"
+"POT-Creation-Date: 2026-04-11 16:57+0000\n"
 "PO-Revision-Date: 2026-04-11 05:28+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh\n"
@@ -18,15 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
-#: app.py:509 templates/conversion/index.html:120
+#: app.py:512 templates/conversion/index.html:120
 msgid "Convertisseur de fichiers"
 msgstr "文件转换器"
 
-#: app.py:538
+#: app.py:541
 msgid "Word vers PDF"
 msgstr "文字转PDF"
 
-#: app.py:539 templates/base.html:369 templates/base.html:513
+#: app.py:542 templates/base.html:369 templates/base.html:513
 msgid "Fusionner PDF"
 msgstr "合并PDF"
 
@@ -242,12 +242,12 @@ msgstr "文件损坏或非 PDF"
 #: blueprints/pdf/routes.py:117
 #, python-format
 msgid "%(filename)s n'est pas un PDF"
-msgstr "%(文件名)s 不是 PDF"
+msgstr "%(filename)s 不是 PDF"
 
 #: blueprints/pdf/routes.py:127 blueprints/pdf/routes.py:516
 #, python-format
 msgid "%(filename)s est vide"
-msgstr "%(文件名)s 为空"
+msgstr "%(filename)s 为空"
 
 #: blueprints/pdf/routes.py:130 blueprints/pdf/routes.py:519
 #, python-format
@@ -380,7 +380,8 @@ msgid "PDF Fusion Pro"
 msgstr "PDF 融合专业版"
 
 #: templates/base.html:353 templates/base_legal.html:278
-#: templates/conversion/conversion_base.html:195
+#: templates/conversion/conversion_base.html:202
+#: templates/conversion/conversion_base.html:238
 msgid "Convertir"
 msgstr "转变"
 
@@ -541,7 +542,7 @@ msgstr "版本"
 msgid "Hébergé sur Render"
 msgstr "托管在渲染上"
 
-#: templates/base.html:548
+#: templates/base.html:548 templates/components/cloud_upload.html:54
 msgid "Chargement..."
 msgstr "加载中..."
 
@@ -553,17 +554,17 @@ msgstr "处理中..."
 msgid "Veuillez patienter"
 msgstr "请稍等"
 
-#: templates/base.html:624
+#: templates/base.html:623
 msgid "Soutenez notre outil gratuit !"
 msgstr "支持我们的免费工具！"
 
-#: templates/base.html:625
+#: templates/base.html:624
 msgid ""
 "Ce service est entièrement gratuit grâce à vous. Un petit clic sur une "
 "publicité nous aide énormément à maintenir et améliorer PDF Fusion Pro."
 msgstr "感谢您的帮助，这项服务完全免费。只需点击广告即可大大帮助我们维护和改进 PDF Fusion Pro。"
 
-#: templates/base.html:626
+#: templates/base.html:625
 msgid "Je comprends"
 msgstr "我明白"
 
@@ -582,8 +583,31 @@ msgstr "回到家"
 msgid "caractères"
 msgstr "人物"
 
-#: templates/conversion/conversion_base.html:191
-#: templates/conversion/conversion_base.html:199
+#: templates/components/cloud_upload.html:4
+#: templates/conversion/conversion_base.html:248
+#: templates/pdf/pdf_base.html:102
+msgid "Ou importez depuis le cloud"
+msgstr "或者从云端导入"
+
+#: templates/components/cloud_upload.html:36
+msgid "Importer depuis le cloud"
+msgstr "从云端导入"
+
+#: templates/components/cloud_upload.html:48
+msgid "Retour"
+msgstr "后退"
+
+#: templates/components/cloud_upload.html:61
+msgid "Annuler"
+msgstr "取消"
+
+#: templates/components/cloud_upload.html:64
+msgid "Sélectionner"
+msgstr "选择"
+
+#: templates/conversion/conversion_base.html:198
+#: templates/conversion/conversion_base.html:206
+#: templates/conversion/conversion_base.html:316
 #: templates/conversion/csv_to_excel.html:101
 #: templates/conversion/excel_to_csv.html:108
 #: templates/conversion/excel_to_pdf.html:91
@@ -594,69 +618,12 @@ msgstr "人物"
 msgid "Télécharger"
 msgstr "下载"
 
-#: templates/conversion/conversion_base.html:212
-#: templates/conversion/index.html:216
-msgid "Sécurisé"
-msgstr "安全的"
-
-#: templates/conversion/conversion_base.html:213
-msgid "Vos fichiers sont supprimés après conversion"
-msgstr "转换后您的文件将被删除"
-
 #: templates/conversion/conversion_base.html:217
-#: templates/conversion/index.html:221
-msgid "Rapide"
-msgstr "快速地"
+#: templates/conversion/image_to_word.html:21
+msgid "Glissez-déposez vos fichiers ici"
+msgstr "将您的文件拖放到此处"
 
 #: templates/conversion/conversion_base.html:218
-msgid "Conversion en quelques secondes"
-msgstr "以秒为单位的转换"
-
-#: templates/conversion/conversion_base.html:222
-msgid "Confidentiel"
-msgstr "机密的"
-
-#: templates/conversion/conversion_base.html:223
-msgid "Personne n'accède à vos fichiers"
-msgstr "没有人访问您的文件"
-
-#: templates/conversion/conversion_base.html:227
-msgid "Accessible"
-msgstr "无障碍"
-
-#: templates/conversion/conversion_base.html:228
-msgid "Utilisez depuis n'importe où"
-msgstr "随时随地使用"
-
-#: templates/conversion/conversion_base.html:237
-#: templates/conversion/index.html:270
-msgid "Comment ça marche ?"
-msgstr "它是如何运作的？"
-
-#: templates/conversion/conversion_base.html:240
-msgid "Téléchargez votre fichier"
-msgstr "上传您的文件"
-
-#: templates/conversion/conversion_base.html:243
-msgid "Notre système le convertit automatiquement en"
-msgstr "我们的系统会自动将其转换为"
-
-#: templates/conversion/conversion_base.html:245
-msgid "Téléchargez ensuite votre fichier converti."
-msgstr "然后下载转换后的文件。"
-
-#: templates/conversion/csv_to_excel.html:10
-msgid "Téléchargez vos fichiers CSV"
-msgstr "上传您的 CSV 文件"
-
-#: templates/conversion/csv_to_excel.html:11
-msgid "Sélectionnez les fichiers à convertir en Excel"
-msgstr "选择要转换为 Excel 的文件"
-
-#: templates/conversion/csv_to_excel.html:21
-msgid "Glissez-déposez vos fichiers CSV ici"
-msgstr "将您的 CSV 文件拖放到此处"
-
 #: templates/conversion/csv_to_excel.html:22
 #: templates/conversion/excel_to_csv.html:22
 #: templates/conversion/excel_to_pdf.html:22
@@ -682,6 +649,120 @@ msgstr "将您的 CSV 文件拖放到此处"
 #: templates/conversion/word_to_pdf.html:43 templates/pdf/index.html:154
 msgid "ou"
 msgstr "或者"
+
+#: templates/conversion/conversion_base.html:220
+msgid "Parcourir"
+msgstr "浏览"
+
+#: templates/conversion/conversion_base.html:224
+msgid "Formats acceptés :"
+msgstr "接受的格式："
+
+#: templates/conversion/conversion_base.html:227
+msgid "jusqu'à"
+msgstr "直到"
+
+#: templates/conversion/conversion_base.html:228
+msgid "fichiers"
+msgstr "文件"
+
+#: templates/conversion/conversion_base.html:228
+msgid "fichier"
+msgstr "文件"
+
+#: templates/conversion/conversion_base.html:229
+msgid "max"
+msgstr "最大限度"
+
+#: templates/conversion/conversion_base.html:273
+#: templates/conversion/index.html:216
+msgid "Sécurisé"
+msgstr "安全的"
+
+#: templates/conversion/conversion_base.html:274
+msgid "Vos fichiers sont supprimés après conversion"
+msgstr "转换后您的文件将被删除"
+
+#: templates/conversion/conversion_base.html:278
+#: templates/conversion/index.html:221
+msgid "Rapide"
+msgstr "快速地"
+
+#: templates/conversion/conversion_base.html:279
+msgid "Conversion en quelques secondes"
+msgstr "以秒为单位的转换"
+
+#: templates/conversion/conversion_base.html:283
+msgid "Confidentiel"
+msgstr "机密的"
+
+#: templates/conversion/conversion_base.html:284
+msgid "Personne n'accède à vos fichiers"
+msgstr "没有人访问您的文件"
+
+#: templates/conversion/conversion_base.html:288
+msgid "Accessible"
+msgstr "无障碍"
+
+#: templates/conversion/conversion_base.html:289
+msgid "Utilisez depuis n'importe où"
+msgstr "随时随地使用"
+
+#: templates/conversion/conversion_base.html:298
+#: templates/conversion/index.html:270
+msgid "Comment ça marche ?"
+msgstr "它是如何运作的？"
+
+#: templates/conversion/conversion_base.html:300
+msgid "Téléchargez votre fichier"
+msgstr "上传您的文件"
+
+#: templates/conversion/conversion_base.html:301
+msgid "Notre système le convertit automatiquement en"
+msgstr "我们的系统会自动将其转换为"
+
+#: templates/conversion/conversion_base.html:302
+msgid "Téléchargez ensuite votre fichier converti."
+msgstr "然后下载转换后的文件。"
+
+#: templates/conversion/conversion_base.html:313
+#: templates/conversion/csv_to_excel.html:98
+#: templates/conversion/excel_to_csv.html:105
+#: templates/conversion/excel_to_pdf.html:88
+#: templates/conversion/html_to_pdf.html:110
+#: templates/conversion/image_to_pdf.html:110
+#: templates/conversion/jpg_to_pdf.html:103
+#: templates/conversion/pdf_to_html.html:102
+#: templates/conversion/png_to_pdf.html:103
+#: templates/conversion/txt_to_pdf.html:118
+#: templates/conversion/word_to_pdf.html:355
+msgid "Conversion terminée !"
+msgstr "转换完成！"
+
+#: templates/conversion/conversion_base.html:314
+msgid "Votre fichier est prêt à être téléchargé"
+msgstr "您的文件已准备好下载"
+
+#: templates/conversion/conversion_base.html:319
+#: templates/conversion/html_to_pdf.html:117
+msgid "Convertir un autre fichier"
+msgstr "转换另一个文件"
+
+#: templates/conversion/conversion_base.html:394
+msgid "Veuillez sélectionner au moins un fichier"
+msgstr "请至少选择一个文件"
+
+#: templates/conversion/csv_to_excel.html:10
+msgid "Téléchargez vos fichiers CSV"
+msgstr "上传您的 CSV 文件"
+
+#: templates/conversion/csv_to_excel.html:11
+msgid "Sélectionnez les fichiers à convertir en Excel"
+msgstr "选择要转换为 Excel 的文件"
+
+#: templates/conversion/csv_to_excel.html:21
+msgid "Glissez-déposez vos fichiers CSV ici"
+msgstr "将您的 CSV 文件拖放到此处"
 
 #: templates/conversion/csv_to_excel.html:26
 msgid "Formats acceptés : CSV, TXT (jusqu'à 50MB par fichier)"
@@ -762,9 +843,7 @@ msgstr "转换为 Excel"
 #: templates/conversion/redact_pdf.html:201
 #: templates/conversion/sign_pdf.html:185
 #: templates/conversion/unlock_pdf.html:56
-#: templates/conversion/word_to_pdf.html:181 templates/pdf/compress.html:51
-#: templates/pdf/merge.html:36 templates/pdf/rotate.html:57
-#: templates/pdf/split.html:44
+#: templates/conversion/word_to_pdf.html:181 templates/pdf/pdf_base.html:93
 msgid "Réinitialiser"
 msgstr "重置"
 
@@ -793,19 +872,6 @@ msgstr "转换正在进行中..."
 #: templates/conversion/excel_to_pdf.html:75
 msgid "Veuillez patienter pendant le traitement de vos fichiers"
 msgstr "正在处理您的文件，请稍候"
-
-#: templates/conversion/csv_to_excel.html:98
-#: templates/conversion/excel_to_csv.html:105
-#: templates/conversion/excel_to_pdf.html:88
-#: templates/conversion/html_to_pdf.html:110
-#: templates/conversion/image_to_pdf.html:110
-#: templates/conversion/jpg_to_pdf.html:103
-#: templates/conversion/pdf_to_html.html:102
-#: templates/conversion/png_to_pdf.html:103
-#: templates/conversion/txt_to_pdf.html:118
-#: templates/conversion/word_to_pdf.html:355
-msgid "Conversion terminée !"
-msgstr "转换完成！"
 
 #: templates/conversion/csv_to_excel.html:99
 #: templates/conversion/image_to_excel.html:186
@@ -1242,6 +1308,15 @@ msgstr "<!DOCTYPE html>\n<html>\n<head>\n <title>我的页面</title>\n</head>\n
 " <h1>标题</h1>\n"
 " &lt;p&gt;内容...&lt;/p&gt;\n"
 "&lt;/body&gt;\n"
+"&lt;/html&gt;<!DOCTYPE html>\n"
+"<html>\n"
+"<head>\n"
+" <title>我的页面</title>\n"
+"</head>\n"
+"<body>\n"
+" <h1>标题</h1>\n"
+" &lt;p&gt;内容...&lt;/p&gt;\n"
+"&lt;/body&gt;\n"
 "&lt;/html&gt;"
 
 #: templates/conversion/html_to_pdf.html:50
@@ -1280,10 +1355,6 @@ msgstr "您的 PDF 已准备好下载"
 #: templates/conversion/txt_to_pdf.html:121
 msgid "Télécharger le PDF"
 msgstr "下载 PDF"
-
-#: templates/conversion/html_to_pdf.html:117
-msgid "Convertir un autre fichier"
-msgstr "转换另一个文件"
 
 #: templates/conversion/html_to_pdf.html:181
 msgid "Veuillez sélectionner un fichier ou coller du code HTML"
@@ -1527,10 +1598,6 @@ msgstr "从图像中提取文本"
 #: templates/conversion/image_to_word.html:11
 msgid "Convertissez images et PDF en documents Word éditables avec OCR"
 msgstr "使用 OCR 将图像和 PDF 转换为可编辑的 Word 文档"
-
-#: templates/conversion/image_to_word.html:21
-msgid "Glissez-déposez vos fichiers ici"
-msgstr "将您的文件拖放到此处"
 
 #: templates/conversion/image_to_word.html:37
 msgid "Paramètres OCR avancés"
@@ -2914,7 +2981,10 @@ msgstr "Lorem ipsum dolor sat amet，consectetur adipiscing elit。 Sed do eiusm
 "Lorem ipsum dolor sat amet，consectetur adipiscing elit。 Sed do eiusmod "
 "tempor inciditunt ut laboure et dolore magna aliqua。 Ut enim ad minim "
 "veniam, quis nostrud exeritation ullamco labouris nisi ut aliquip ex ea "
-"commodo consequat."
+"commodo consequat.Lorem ipsum dolor sat amet，consectetur adipiscing elit。"
+" Sed do eiusmod tempor inciditunt ut laboure et dolore magna aliqua。 Ut "
+"enim ad minim veniam, quis nostrud exeritation ullamco labouris nisi ut "
+"aliquip ex ea commodo consequat."
 
 #: templates/conversion/pdf_to_word.html:281
 msgid "Extraction de la page"
@@ -3307,8 +3377,7 @@ msgid ""
 "modification non autorisée."
 msgstr "使用密码保护您的 PDF，防止未经授权的打开或编辑。"
 
-#: templates/conversion/protect_pdf.html:25 templates/pdf/compress.html:21
-#: templates/pdf/rotate.html:21 templates/pdf/split.html:21
+#: templates/conversion/protect_pdf.html:25 templates/pdf/pdf_base.html:74
 msgid "Déposez votre PDF ici"
 msgstr "在此提交您的 PDF"
 
@@ -3318,9 +3387,7 @@ msgid "Glissez-déposez ou cliquez pour sélectionner"
 msgstr "拖放或单击以选择"
 
 #: templates/conversion/protect_pdf.html:27
-#: templates/conversion/unlock_pdf.html:27 templates/pdf/compress.html:23
-#: templates/pdf/merge.html:23 templates/pdf/rotate.html:23
-#: templates/pdf/split.html:23
+#: templates/conversion/unlock_pdf.html:27 templates/pdf/pdf_base.html:76
 msgid "PDF uniquement • Taille max : 50MB"
 msgstr "仅限 PDF • 最大大小：50MB"
 
@@ -3639,7 +3706,7 @@ msgstr "擦除"
 msgid "Fin"
 msgstr "结尾"
 
-#: templates/conversion/sign_pdf.html:74 templates/pdf/compress.html:38
+#: templates/conversion/sign_pdf.html:74 templates/pdf/compress.html:14
 msgid "Moyen"
 msgstr "平均的"
 
@@ -4241,9 +4308,7 @@ msgstr "广告 - 支持我们的免费服务"
 msgid "Annonce"
 msgstr "公告"
 
-#: templates/includes/adsterra_ads.html:110 templates/pdf/compress.html:68
-#: templates/pdf/merge.html:54 templates/pdf/rotate.html:74
-#: templates/pdf/split.html:63
+#: templates/includes/adsterra_ads.html:110 templates/pdf/pdf_base.html:140
 msgid ""
 "Cet outil est entièrement gratuit. Un clic sur les annonces nous aide à "
 "le maintenir !"
@@ -4472,7 +4537,8 @@ msgid ""
 "développeur passionné par la création d'outils web utiles et accessibles."
 msgstr "%(app_name)s 由 %(developer_name)s 开发和维护，%(developer_name)s 是一位热衷于创建有用且易于访问的 Web 工具的开发人员。"
 "%(app_name)s 由 %(developer_name)s 开发和维护，%(developer_name)s "
-"是一位热衷于创建有用且易于访问的 Web 工具的开发人员。"
+"是一位热衷于创建有用且易于访问的 Web 工具的开发人员。%(app_name)s 由 %(developer_name)s "
+"开发和维护，%(developer_name)s 是一位热衷于创建有用且易于访问的 Web 工具的开发人员。"
 
 #: templates/legal/legal.html:19
 msgid "Pour nous contacter :"
@@ -4838,51 +4904,33 @@ msgstr "如果对这些条件有任何疑问："
 msgid "Nous contacter via le formulaire"
 msgstr "通过表格联系我们"
 
-#: templates/pdf/compress.html:3
-msgid "Compresser PDF - PDF Fusion Pro"
-msgstr "压缩 PDF - PDF Fusion Pro"
-
-#: templates/pdf/compress.html:4
-msgid "Réduisez la taille de vos fichiers PDF tout en conservant la qualité."
-msgstr "减小 PDF 文件的大小，同时保持质量。"
-
-#: templates/pdf/compress.html:11 templates/pdf/index.html:85
+#: templates/pdf/compress.html:3 templates/pdf/index.html:85
 msgid "Compresser un PDF"
 msgstr "压缩 PDF"
 
-#: templates/pdf/compress.html:12
+#: templates/pdf/compress.html:4
 msgid "Déposez votre fichier PDF et obtenez une version plus légère."
 msgstr "上传您的 PDF 文件并获取更精简的版本。"
 
-#: templates/pdf/compress.html:22 templates/pdf/rotate.html:22
-#: templates/pdf/split.html:22
-msgid "Glissez-déposez votre fichier ou cliquez pour parcourir"
-msgstr "拖放文件或单击浏览"
-
-#: templates/pdf/compress.html:33
+#: templates/pdf/compress.html:9
 msgid "Niveau de compression"
 msgstr "压缩级别"
 
-#: templates/pdf/compress.html:36
+#: templates/pdf/compress.html:12
 msgid "Faible"
 msgstr "虚弱的"
 
-#: templates/pdf/compress.html:40
+#: templates/pdf/compress.html:16
 msgid "Fort"
 msgstr "强的"
 
-#: templates/pdf/compress.html:42
+#: templates/pdf/compress.html:18
 msgid "Compression plus forte = fichier plus petit, qualité réduite"
 msgstr "更强的压缩=更小的文件，降低的质量"
 
-#: templates/pdf/compress.html:48
+#: templates/pdf/compress.html:23
 msgid "Compresser le PDF"
 msgstr "压缩PDF"
-
-#: templates/pdf/compress.html:59 templates/pdf/merge.html:45
-#: templates/pdf/rotate.html:65 templates/pdf/split.html:53
-msgid "Sponsorisé"
-msgstr "赞助"
 
 #: templates/pdf/index.html:3
 msgid "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
@@ -4935,7 +4983,7 @@ msgstr "分割 PDF 文件"
 msgid "Extrayez des pages spécifiques ou divisez par plages"
 msgstr "提取特定页面或按范围分割"
 
-#: templates/pdf/index.html:49 templates/pdf/split.html:11
+#: templates/pdf/index.html:49 templates/pdf/split.html:3
 msgid "Diviser un PDF"
 msgstr "分割 PDF"
 
@@ -4951,7 +4999,7 @@ msgstr "旋转 PDF 文件"
 msgid "Faites pivoter des pages spécifiques ou l'ensemble du document"
 msgstr "旋转特定页面或整个文档"
 
-#: templates/pdf/index.html:67 templates/pdf/rotate.html:11
+#: templates/pdf/index.html:67 templates/pdf/rotate.html:3
 msgid "Tourner un PDF"
 msgstr "旋转 PDF"
 
@@ -5040,322 +5088,74 @@ msgid "Chiffrement SSL et suppression automatique des fichiers"
 msgstr "SSL加密和自动文件删除"
 
 #: templates/pdf/merge.html:3
-msgid "Fusionner PDF - PDF Fusion Pro"
-msgstr "合并 PDF - PDF Fusion Pro"
-
-#: templates/pdf/merge.html:4
-msgid ""
-"Fusionnez plusieurs fichiers PDF en un seul document, facilement et "
-"rapidement."
-msgstr "轻松快速地将多个 PDF 文件合并为一个文档。"
-
-#: templates/pdf/merge.html:11
 msgid "Fusionner plusieurs PDF"
 msgstr "合并多个 PDF"
 
-#: templates/pdf/merge.html:12
+#: templates/pdf/merge.html:4
 msgid "Déposez vos fichiers PDF et obtenez un document unique fusionné."
 msgstr "上传您的 PDF 文件并获取单个合并文档。"
 
-#: templates/pdf/merge.html:21
-msgid "Déposez vos PDF ici"
-msgstr "在此提交您的 PDF"
-
-#: templates/pdf/merge.html:22
-msgid "Glissez-déposez vos fichiers ou cliquez pour parcourir"
-msgstr "拖放文件或单击浏览"
-
-#: templates/pdf/merge.html:33
+#: templates/pdf/merge.html:10
 msgid "Fusionner les PDF"
 msgstr "合并 PDF"
 
-#: templates/pdf/rotate.html:3
-msgid "Tourner PDF - PDF Fusion Pro"
-msgstr "旋转 PDF - PDF Fusion Pro"
+#: templates/pdf/pdf_base.html:61
+msgid "Outil PDF"
+msgstr "PDF工具"
+
+#: templates/pdf/pdf_base.html:62
+msgid "Traitez votre fichier PDF"
+msgstr "处理您的 PDF 文件"
+
+#: templates/pdf/pdf_base.html:75
+msgid "Glissez-déposez votre fichier ou cliquez pour parcourir"
+msgstr "拖放文件或单击浏览"
+
+#: templates/pdf/pdf_base.html:90
+msgid "Exécuter"
+msgstr "执行"
+
+#: templates/pdf/pdf_base.html:131
+msgid "Sponsorisé"
+msgstr "赞助"
 
 #: templates/pdf/rotate.html:4
-msgid "Corrigez l'orientation de vos fichiers PDF en quelques clics."
-msgstr "只需点击几下即可纠正 PDF 文件的方向。"
-
-#: templates/pdf/rotate.html:12
 msgid "Déposez votre fichier PDF et choisissez l'angle de rotation."
 msgstr "放下 PDF 文件并选择旋转角度。"
 
-#: templates/pdf/rotate.html:33
+#: templates/pdf/rotate.html:9
 msgid "Pages à tourner"
 msgstr "要翻的页数"
 
-#: templates/pdf/rotate.html:34 templates/pdf/split.html:34
+#: templates/pdf/rotate.html:10 templates/pdf/split.html:10
 msgid "Ex: 1,3-5 ou 'all' pour toutes"
 msgstr "例如：1.3-5 或“全部”代表全部"
 
-#: templates/pdf/rotate.html:35
+#: templates/pdf/rotate.html:11
 msgid "Format: numéros séparés par des virgules, plages avec tiret"
 msgstr "格式：逗号分隔数字、连字符范围"
 
-#: templates/pdf/rotate.html:38
+#: templates/pdf/rotate.html:14
 msgid "Angle de rotation"
 msgstr "旋转角度"
 
-#: templates/pdf/rotate.html:54
+#: templates/pdf/rotate.html:29
 msgid "Tourner le PDF"
 msgstr "旋转 PDF"
 
-#: templates/pdf/split.html:3
-msgid "Diviser PDF - PDF Fusion Pro"
-msgstr "分割 PDF - PDF Fusion Pro"
-
 #: templates/pdf/split.html:4
-msgid ""
-"Divisez vos fichiers PDF en plusieurs documents selon les pages "
-"sélectionnées."
-msgstr "根据所选页面将您的 PDF 文件分成多个文档。"
-
-#: templates/pdf/split.html:12
 msgid "Déposez votre fichier PDF et sélectionnez les pages à extraire."
 msgstr "放下 PDF 文件并选择要提取的页面。"
 
-#: templates/pdf/split.html:33
+#: templates/pdf/split.html:9
 msgid "Pages à extraire"
 msgstr "要提取的页面"
 
-#: templates/pdf/split.html:35
+#: templates/pdf/split.html:11
 msgid "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\""
 msgstr "格式：数字用逗号分隔，范围用连字符分隔。例如：“1.3-5”"
 
-#: templates/pdf/split.html:41
+#: templates/pdf/split.html:16
 msgid "Diviser le PDF"
 msgstr "分割PDF"
 
-
-#: blueprints/conversion.py
-msgid "Excel vers PDF"
-msgstr "Excel 转 PDF"
-
-#: blueprints/conversion.py
-msgid "PowerPoint vers PDF"
-msgstr "PowerPoint 转 PDF"
-
-#: blueprints/conversion.py
-msgid "Image vers PDF"
-msgstr "图像转PDF"
-
-#: blueprints/conversion.py
-msgid "JPG vers PDF"
-msgstr "JPG 转 PDF"
-
-#: blueprints/conversion.py
-msgid "PNG vers PDF"
-msgstr "PNG 转 PDF"
-
-#: blueprints/conversion.py
-msgid "HTML vers PDF"
-msgstr "HTML 到 PDF"
-
-#: blueprints/conversion.py
-msgid "TXT vers PDF"
-msgstr "TXT 转 PDF"
-
-#: blueprints/conversion.py
-msgid "PDF vers DOC"
-msgstr "PDF 到 DOC"
-
-#: blueprints/conversion.py
-msgid "PDF vers Excel"
-msgstr "PDF 到 Excel"
-
-#: blueprints/conversion.py
-msgid "PDF vers PowerPoint"
-msgstr "PDF 到 PowerPoint"
-
-#: blueprints/conversion.py
-msgid "PDF vers Image"
-msgstr "PDF 到图像"
-
-#: blueprints/conversion.py
-msgid "PDF vers PDF/A"
-msgstr "PDF 到 PDF/A"
-
-#: blueprints/conversion.py
-msgid "PDF vers HTML"
-msgstr "PDF 到 HTML"
-
-#: blueprints/conversion.py
-msgid "PDF vers TXT"
-msgstr "PDF 到 TXT"
-
-#: blueprints/conversion.py
-msgid "Caviarder PDF"
-msgstr "编辑 PDF"
-
-#: blueprints/conversion.py
-msgid "Éditer PDF"
-msgstr "编辑PDF"
-
-#: blueprints/conversion.py
-msgid "Signer PDF"
-msgstr "签署 PDF"
-
-#: blueprints/conversion.py
-msgid "Préparer formulaire PDF"
-msgstr "准备 PDF 表格"
-
-#: blueprints/conversion.py
-msgid "Image vers Word"
-msgstr "图像到文字"
-
-#: blueprints/conversion.py
-msgid "Image vers Excel"
-msgstr "图像到 Excel"
-
-#: blueprints/conversion.py
-msgid "CSV vers Excel"
-msgstr "CSV 到 Excel"
-
-#: blueprints/conversion.py
-msgid "Excel vers CSV"
-msgstr "Excel 转 CSV"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos documents Word en PDF"
-msgstr "将您的 Word 文档转换为 PDF"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos feuilles Excel en PDF"
-msgstr "将 Excel 工作表转换为 PDF"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos images en document PDF"
-msgstr "将您的图像转换为 PDF 文档"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos images JPG en PDF"
-msgstr "将 JPG 图像转换为 PDF"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos images PNG en PDF"
-msgstr "将您的 PNG 图像转换为 PDF"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos pages HTML en PDF"
-msgstr "将 HTML 页面转换为 PDF"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos fichiers texte en PDF"
-msgstr "将您的文本文件转换为 PDF"
-
-#: blueprints/conversion.py
-msgid "Extrayez le texte de vos PDF en documents Word"
-msgstr "将 PDF 中的文本提取到 Word 文档"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos PDF en documents Word (format DOC)"
-msgstr "将 PDF 转换为 Word 文档（DOC 格式）"
-
-#: blueprints/conversion.py
-msgid "Extrayez les tableaux de vos PDF en feuilles Excel"
-msgstr "将 PDF 中的表格提取到 Excel 工作表中"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos PDF en présentations PowerPoint modifiables"
-msgstr "将 PDF 转换为可编辑的 PowerPoint 演示文稿"
-
-#: blueprints/conversion.py
-msgid "Convertissez les pages de vos PDF en images"
-msgstr "将 PDF 页面转换为图像"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos PDF en format PDF/A pour l'archivage"
-msgstr "将 PDF 转换为 PDF/A 格式以便存档"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos PDF en pages HTML"
-msgstr "将 PDF 转换为 HTML 页面"
-
-#: blueprints/conversion.py
-msgid "Extrayez le texte de vos PDF en fichiers texte"
-msgstr "将 PDF 中的文本提取到文本文件"
-
-#: blueprints/conversion.py
-msgid "Ajoutez un mot de passe pour protéger vos PDF"
-msgstr "添加密码以保护您的 PDF"
-
-#: blueprints/conversion.py
-msgid "Retirez la protection des PDF"
-msgstr "删除 PDF 保护"
-
-#: blueprints/conversion.py
-msgid "Supprimez définitivement le contenu sensible de votre PDF"
-msgstr "从 PDF 中永久删除敏感内容"
-
-#: blueprints/conversion.py
-msgid "Modifiez ou ajoutez du texte, des images et des pages à votre PDF"
-msgstr "编辑文本、图像和页面或将其添加到 PDF"
-
-#: blueprints/conversion.py
-msgid "Ajoutez votre signature électronique à votre PDF"
-msgstr "将您的电子签名添加到 PDF"
-
-#: blueprints/conversion.py
-msgid "Extrayez le texte des images en documents Word"
-msgstr "将图像中的文本提取到 Word 文档中"
-
-#: blueprints/conversion.py
-msgid "Extrayez les tableaux des images en Excel"
-msgstr "从 Excel 中的图像中提取表格"
-
-#: blueprints/conversion.py
-msgid "Convertissez vos fichiers CSV en Excel"
-msgstr "将 CSV 文件转换为 Excel"
-
-#: blueprints/conversion.py
-msgid "Exportez vos feuilles Excel en CSV"
-msgstr "将 Excel 工作表导出为 CSV"
-
-#: blueprints/conversion.py
-msgid "Word"
-msgstr "单词"
-
-#: blueprints/conversion.py
-msgid "Excel"
-msgstr "Excel"
-
-#: blueprints/conversion.py
-msgid "PowerPoint"
-msgstr "微软幻灯片软件"
-
-#: blueprints/conversion.py
-msgid "Image"
-msgstr "图片"
-
-#: blueprints/conversion.py
-msgid "JPG"
-msgstr "JPG"
-
-#: blueprints/conversion.py
-msgid "PNG"
-msgstr "巴布亚新几内亚"
-
-#: blueprints/conversion.py
-msgid "HTML"
-msgstr "超文本标记语言"
-
-#: blueprints/conversion.py
-msgid "TXT"
-msgstr "TXT"
-
-#: blueprints/conversion.py
-msgid "DOC"
-msgstr "D.O.C."
-
-#: blueprints/conversion.py
-msgid "PDF/A"
-msgstr "PDF/A"
-
-#: blueprints/conversion.py
-msgid "CSV"
-msgstr "CSV"
-
-#: blueprints/conversion.py
-msgid "PDF Formulaire"
-msgstr "PDF表格"

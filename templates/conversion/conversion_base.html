@@ -221,7 +221,12 @@
                 </button>
                 <input type="file" id="fileInput" name="files" class="d-none" accept="{{ accept }}" {% if max_files > 1 %}multiple{% endif %}>
                 <p class="text-muted small mt-2 mb-0">
-                    {{ _('Formats acceptés :') }} {{ accept|replace('.', '').upper() }} ({{ _('jusqu\'à') }} {{ max_files }} {{ _('fichiers') }}, {{ _('max') }} 50MB)
+                    {{ _('Formats acceptés :') }} 
+                    {% set clean_accept = accept|replace('.', '')|upper %}
+                    {{ clean_accept }} 
+                    ({{ _('jusqu\'à') }} {{ max_files }} 
+                    {% if max_files > 1 %}{{ _('fichiers') }}{% else %}{{ _('fichier') }}{% endif %}, 
+                    {{ _('max') }} 50MB)
                 </p>
             </div>
             
