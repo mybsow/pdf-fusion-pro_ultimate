@@ -1,6 +1,4 @@
-[contenu du script ci-dessus]
 // static/js/cloud/upload.js
-// Version simple - liens vers les services cloud
 
 (function() {
     // Éviter le double chargement
