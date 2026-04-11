@@ -1,124 +1,181 @@
 #!/usr/bin/env python3
-# scripts/regenerate_english_simple.py
+# scripts/translate_all.py
 
-"""
-Version simplifiée - utilise des règles de base pour la traduction
-(à compléter manuellement pour les cas spécifiques)
-"""
-
+from deep_translator import GoogleTranslator
 import os
 import re
-import subprocess
+import time
 
-# Dictionnaire de traductions manuelles
-MANUAL_TRANSLATIONS = {
-    # Textes courants
-    "Convertir un autre fichier": "Convert another file",
-    "Veuillez sélectionner un fichier ou coller du code HTML": "Please select a file or paste HTML code",
-    "Téléchargez votre image ou PDF": "Download your image or PDF",
-    "Convertissez vos feuilles Excel en PDF": "Convert your Excel sheets to PDF",
-    "Notre système le convertit automatiquement en": "Our system automatically converts it to",
-    
-    # Navigation
-    "Accueil": "Home",
-    "Contact": "Contact",
-    "À propos": "About",
-    "Connexion": "Login",
-    "Déconnexion": "Logout",
-    
-    # Actions
-    "Envoyer": "Send",
-    "Recevoir": "Receive",
-    "Télécharger": "Download",
-    "Téléverser": "Upload",
-    "Rechercher": "Search",
-    "Enregistrer": "Save",
-    "Supprimer": "Delete",
-    "Modifier": "Edit",
-    "Annuler": "Cancel",
-    "Valider": "Validate",
-    "Fermer": "Close",
-    "Ouvrir": "Open",
-    "Aide": "Help",
-    
-    # Paramètres
-    "Paramètres": "Settings",
-    "Profil": "Profile",
-    
-    # PDF Tools
-    "Fusionner PDF": "Merge PDF",
-    "Diviser PDF": "Split PDF",
-    "Compresser PDF": "Compress PDF",
-    "Tourner PDF": "Rotate PDF",
-    "Protéger PDF": "Protect PDF",
-    "Déverrouiller PDF": "Unlock PDF",
-    "Éditer PDF": "Edit PDF",
-    "Signer PDF": "Sign PDF",
-    
-    # Conversions
-    "Word vers PDF": "Word to PDF",
-    "Excel vers PDF": "Excel to PDF",
-    "PowerPoint vers PDF": "PowerPoint to PDF",
-    "Image vers PDF": "Image to PDF",
-    "PDF vers Word": "PDF to Word",
-    "PDF vers Excel": "PDF to Excel",
-    "PDF vers Image": "PDF to Image",
+# Mapping des langues pour Google Translate
+LANGS = {
+    "fr": "fr",
+    "en": "en",
+    "es": "es",
+    "de": "de",
+    "it": "it",
+    "pt": "pt",
+    "nl": "nl",
+    "ar": "ar",
+    "ja": "ja",
+    "ru": "ru",
+    "zh": "zh-CN"  # Important: zh-CN et pas zh
 }
 
-FR_FILE = "translations/fr/LC_MESSAGES/messages.po"
-EN_FILE = "translations/en/LC_MESSAGES/messages.po"
+def extract_multiline_msgid(lines, start_index):
+    """Extrait un msgid qui peut être sur plusieurs lignes"""
+    msgid_parts = []
+    i = start_index
+    line = lines[i]
+    
+    # Première partie: msgid "texte"
+    match = re.search(r'msgid "(.+)"', line)
+    if match:
+        msgid_parts.append(match.group(1))
+    else:
+        # Format multiligne: msgid "" puis ligne suivante avec le texte
+        if line.strip() == 'msgid ""':
+            i += 1
+            while i < len(lines):
+                line = lines[i]
+                if line.strip().startswith('"') and not line.strip().startswith('msgstr'):
+                    # Extraire le texte entre guillemets
+                    text_match = re.search(r'"(.+)"', line)
+                    if text_match:
+                        msgid_parts.append(text_match.group(1))
+                    i += 1
+                else:
+                    break
+            return ''.join(msgid_parts), i - 1
+    
+    return msgid_parts[0] if msgid_parts else None, i
 
-def translate_text(text):
-    """Traduit un texte en utilisant le dictionnaire manuel"""
-    if not text:
+def extract_msgid_full(lines, start_index):
+    """Extrait un msgid complet (peut être multiligne)"""
+    msgid_parts = []
+    i = start_index
+    
+    # Vérifier si c'est un msgid multiligne (msgid "" sur sa propre ligne)
+    if lines[i].strip() == 'msgid ""':
+        i += 1
+        # Lire toutes les lignes suivantes qui commencent par "
+        while i < len(lines) and lines[i].strip().startswith('"') and not lines[i].strip().startswith('msgstr'):
+            match = re.search(r'"([^"]*)"', lines[i])
+            if match:
+                msgid_parts.append(match.group(1))
+            i += 1
+        return ''.join(msgid_parts), i - 1
+    
+    # Msgid sur une seule ligne
+    match = re.search(r'msgid "(.+)"', lines[i])
+    if match:
+        return match.group(1), i
+    
+    return None, i
+
+def translate_text(text, target_lang):
+    """Traduit un texte avec gestion des erreurs"""
+    if not text or len(text) < 2:
         return text
     
-    # Traduction directe
-    if text in MANUAL_TRANSLATIONS:
-        return MANUAL_TRANSLATIONS[text]
+    # Ne pas traduire les placeholders seuls
+    if re.match(r'^%\([a-z_]+\)[sd]$', text):
+        return text
     
-    # Règles simples
-    # Mettre la première lettre en majuscule, le reste en minuscule
-    # (à améliorer selon les besoins)
-    return text
+    try:
+        translator = GoogleTranslator(source='fr', target=target_lang)
+        translated = translator.translate(text)
+        time.sleep(0.1)  # Pause pour éviter la limitation d'API
+        return translated
+    except Exception as e:
+        print(f"      ⚠️ Erreur: {text[:50]}... -> {e}")
+        return text
+
+def process_po_file(po_file, lang_code):
+    """Traduit les msgstr vides dans un fichier .po (gère les multilignes)"""
+    
+    if not os.path.exists(po_file):
+        print(f"  ❌ {lang_code}: fichier non trouvé")
+        return 0
+    
+    print(f"  🌍 Traduction de {lang_code}...")
+    
+    with open(po_file, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+    
+    new_lines = []
+    translated_count = 0
+    total_empty = 0
+    i = 0
+    
+    while i < len(lines):
+        line = lines[i]
+        
+        # Détecter le début d'un msgid
+        if line.startswith('msgid'):
+            # Extraire le msgid complet (peut être multiligne)
+            msgid, end_idx = extract_msgid_full(lines, i)
+            
+            # Chercher le msgstr correspondant
+            j = end_idx + 1
+            msgstr_line_index = -1
+            
+            while j < len(lines):
+                if lines[j].startswith('msgstr'):
+                    msgstr_line_index = j
+                    break
+                j += 1
+            
+            if msgstr_line_index != -1:
+                msgstr_line = lines[msgstr_line_index]
+                
+                # Vérifier si le msgstr est vide
+                if msgstr_line.strip() == 'msgstr ""':
+                    total_empty += 1
+                    
+                    if msgid and not msgid.startswith('Project-Id-Version'):
+                        # Traduire
+                        translated = translate_text(msgid, lang_code)
+                        # Remplacer la ligne msgstr
+                        lines[msgstr_line_index] = f'msgstr "{translated}"\n'
+                        translated_count += 1
+                        
+                        if translated_count % 20 == 0:
+                            print(f"      ✅ {translated_count} traductions...")
+            
+            # Ajouter toutes les lignes jusqu'à la fin de cette entrée
+            for k in range(i, j + 1 if msgstr_line_index != -1 else i + 1):
+                if k < len(lines):
+                    new_lines.append(lines[k])
+            
+            i = j + 1 if msgstr_line_index != -1 else i + 1
+        else:
+            new_lines.append(line)
+            i += 1
+    
+    # Sauvegarder si des modifications ont été faites
+    if translated_count > 0:
+        with open(po_file, "w", encoding="utf-8") as f:
+            f.writelines(new_lines)
+        print(f"  ✅ {lang_code}: {translated_count}/{total_empty} traductions ajoutées")
+    else:
+        print(f"  ✓ {lang_code}: aucune traduction nécessaire")
+    
+    return translated_count
 
 def main():
-    print("🔄 Génération de l'anglais depuis le français (version simple)")
+    print("🤖 TRAduction des msgstr vides (gère les multilignes)")
     print("=" * 60)
+    print()
     
-    if not os.path.exists(FR_FILE):
-        print(f"❌ Fichier français non trouvé: {FR_FILE}")
-        return
+    total = 0
+    for lang_code, target_lang in LANGS.items():
+        po_file = f"translations/{lang_code}/LC_MESSAGES/messages.po"
+        total += process_po_file(po_file, target_lang)
+        print()
     
-    # Sauvegarde
-    if os.path.exists(EN_FILE):
-        os.rename(EN_FILE, EN_FILE + ".backup")
-        print("💾 Ancien fichier anglais sauvegardé")
-    
-    with open(FR_FILE, 'r', encoding='utf-8') as f:
-        fr_lines = f.readlines()
-    
-    en_lines = []
-    
-    for line in fr_lines:
-        if line.startswith('msgid "'):
-            en_lines.append(line)
-        elif line.startswith('msgstr "'):
-            # Traduire le msgstr
-            fr_text = line[8:-2]
-            en_text = translate_text(fr_text)
-            en_lines.append(f'msgstr "{en_text}"\n')
-        else:
-            en_lines.append(line)
-    
-    with open(EN_FILE, 'w', encoding='utf-8') as f:
-        f.writelines(en_lines)
-    
-    print(f"✅ Fichier anglais généré: {EN_FILE}")
-    
-    # Recompiler
-    subprocess.run(['pybabel', 'compile', '-d', 'translations', '-f'])
-    print("✅ Compilation terminée")
+    print(f"📊 Total: {total} nouvelles traductions ajoutées")
+    print()
+    print("✨ Terminé!")
 
 if __name__ == "__main__":
     main()
