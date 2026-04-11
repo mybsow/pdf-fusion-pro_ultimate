@@ -480,9 +480,6 @@
 
 <!-- ================= SCRIPTS ================= -->
 
-<!-- ✅ Bootstrap JS Bundle (inclut Popper) — OBLIGATOIRE pour menus, modals, tooltips -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script>
@@ -495,9 +492,6 @@
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 <script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 <script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
-
-<!-- ✅ Cloud Upload JS — doit être chargé APRÈS Bootstrap -->
-<script src="{{ url_for('static', filename='js/cloud/upload.js') }}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -526,13 +520,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- ================= ADSTERRA — Scripts globaux (après le DOM) ================= -->
 
-<!-- Social Bar -->
+<!-- Social Bar — s'affiche en overlay automatiquement -->
 <script src="https://pl29068511.profitablecpmratenetwork.com/07/a5/30/07a530d41b1d4e949c2b0499c466bc3a.js"></script>
 
-<!-- Popunder — une seule fois par session -->
+<!-- Popunder — une seule fois par session, au premier clic -->
 <script>
 (function() {
     if (sessionStorage.getItem('adsterra_popunder_shown')) return;
+
     function openPopunder() {
         setTimeout(function() {
             var s = document.createElement('script');
@@ -543,11 +538,12 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.setItem('adsterra_popunder_shown', 'true');
         document.body.removeEventListener('click', openPopunder);
     }
+
     document.body.addEventListener('click', openPopunder);
 })();
 </script>
 
-<!-- Message de soutien -->
+<!-- Message de soutien — affiché toutes les 20 min -->
 <script>
     var I18N = {
         supportTitle: "{{ _('Soutenez notre outil gratuit !') | e }}",
@@ -558,6 +554,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 (function() {
     var lastReminder = parseInt(localStorage.getItem('adsterra_last_reminder') || '0', 10);
+
+    // Réinitialisation quotidienne
     var lastDate = localStorage.getItem('adsterra_reminder_date');
     var today = new Date().toDateString();
     if (lastDate !== today) {
@@ -568,6 +566,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showSupportMessage() {
         if (document.getElementById('adsterraSupportMessage')) return;
+
         var div = document.createElement('div');
         div.id = 'adsterraSupportMessage';
         div.className = 'adsterra-support';
@@ -586,9 +585,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 '</button>' +
                 '<button class="adsterra-support-close" onclick="closeSupportMessage()" aria-label="Fermer">\u00D7</button>' +
             '</div>';
+
         var mainContent = document.querySelector('main');
-        if (mainContent) mainContent.insertBefore(div, mainContent.firstChild);
-        else document.body.insertBefore(div, document.body.firstChild);
+        if (mainContent) {
+            mainContent.insertBefore(div, mainContent.firstChild);
+        } else {
+            document.body.insertBefore(div, document.body.firstChild);
+        }
+
         setTimeout(closeSupportMessage, 12000);
     }
 
@@ -597,7 +601,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (msg) {
             msg.style.opacity = '0';
             msg.style.transition = 'opacity 0.3s';
-            setTimeout(function() { if (msg.parentNode) msg.parentNode.removeChild(msg); }, 300);
+            setTimeout(function() {
+                if (msg.parentNode) msg.parentNode.removeChild(msg);
+            }, 300);
         }
     };
 
@@ -611,6 +617,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     setInterval(checkReminder, 5 * 60 * 1000);
+
     setTimeout(function() {
         if (!parseInt(localStorage.getItem('adsterra_last_reminder') || '0', 10)) {
             showSupportMessage();
@@ -619,6 +626,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 20 * 60 * 1000);
 })();
 </script>
+
+
+<!-- Bootstrap JS (obligatoire pour les modals et menus) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Cloud Upload JS (ouvre les URLs des clouds) -->
+<script src="{{ url_for('static', filename='js/cloud/upload.js') }}"></script>
+
+<!-- Vos autres scripts -->
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
+
+<!-- ✅ GARDEZ UNIQUEMENT CECI -->
+<!-- Cloud Upload JS -->
+<script src="{{ url_for('static', filename='js/cloud/upload.js') }}"></script>
 
 {% block scripts %}{% endblock %}
 {% block extra_js %}{% endblock %}

@@ -143,7 +143,6 @@ def create_app():
     from blueprints.admin import admin_bp
     from blueprints.conversion import conversion_bp
     from blueprints.legal import legal_bp
-    # Après les autres imports
 
     for bp, prefix in [
         (pdf_bp,        "/pdf"),
