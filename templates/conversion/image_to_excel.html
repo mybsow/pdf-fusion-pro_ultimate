@@ -460,4 +460,5 @@ window.addEventListener('beforeunload', function() {
     if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
 });
 </script>
+{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}

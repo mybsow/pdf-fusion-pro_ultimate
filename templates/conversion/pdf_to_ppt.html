@@ -386,4 +386,5 @@ window.addEventListener('beforeunload', () => {
     if (progressInterval) clearInterval(progressInterval);
 });
 </script>
+{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}

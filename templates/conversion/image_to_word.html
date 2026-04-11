@@ -414,4 +414,5 @@ window.addEventListener('beforeunload', () => {
     if (ocrProgressInterval) clearInterval(ocrProgressInterval);
 });
 </script>
+{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}

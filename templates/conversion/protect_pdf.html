@@ -207,9 +207,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 <script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
+{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}
