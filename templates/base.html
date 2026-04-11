@@ -30,12 +30,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    
     <!-- SEO -->
     <title>{% block title %}{{ _('PDF Fusion Pro - Outils PDF Gratuits') }}{% endblock %}</title>
-    <meta name="description" 
+    <meta name="description"
           content="{{ _('Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos fichiers en ligne. Rapide, sécurisé et sans installation.') }}">
-    <meta name="keywords" 
+    <meta name="keywords"
           content="{{ _('PDF, convertisseur, fusionner, diviser, compresser, OCR, Word, Excel, PowerPoint, image') }}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ Config.DOMAIN }}{{ request.path }}">
@@ -44,7 +43,7 @@
     <meta property="og:title" content="{{ _('PDF Fusion Pro - Convertisseur de fichiers') }}">
     <meta property="og:description" content="{{ _('Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne') }}">
     <meta property="og:type" content="website">
-    
+
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
@@ -84,7 +83,7 @@
     </script>
 
     {% block extra_css %}{% endblock %}
-    
+
     <style>
         :root {
             --primary: #e74c3c;
@@ -97,7 +96,7 @@
             --dark: #2c3e50;
             --gray: #95a5a6;
         }
-        
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #f8f9fa;
@@ -105,32 +104,29 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .navbar-main {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             box-shadow: 0 2px 15px rgba(0,0,0,0.1);
         }
-        
+
         .navbar-brand { font-weight: 700; font-size: 1.5rem; }
         .nav-link { font-weight: 500; transition: all 0.3s; }
         .nav-link:hover { transform: translateY(-2px); }
-        
+
         .dropdown-menu {
             border-radius: 10px;
             border: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             animation: fadeInDown 0.2s ease;
         }
-        
+
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-10px); }
             to   { opacity: 1; transform: translateY(0); }
         }
-        
-        .dropdown-item {
-            padding: 0.5rem 1rem;
-            transition: all 0.2s;
-        }
+
+        .dropdown-item { padding: 0.5rem 1rem; transition: all 0.2s; }
         .dropdown-item:hover {
             background-color: rgba(231, 76, 60, 0.1);
             transform: translateX(5px);
@@ -138,10 +134,8 @@
         .dropdown-header { font-weight: 600; color: var(--primary); }
 
         .flag-icon, .fi {
-            width: 1.2em;
-            height: 0.9em;
-            display: inline-block;
-            vertical-align: middle;
+            width: 1.2em; height: 0.9em;
+            display: inline-block; vertical-align: middle;
             border-radius: 3px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
@@ -150,94 +144,61 @@
         .dropdown-item:hover .fi, .dropdown-item:hover .flag-icon { transform: scale(1.1); }
         .nav-link .fi, .nav-link .flag-icon { margin-right: 0.25rem; border: 1px solid rgba(255,255,255,0.2); }
         .dropdown-item.active { background-color: rgba(231, 76, 60, 0.1); color: var(--primary); font-weight: 500; }
-        
+
         main { flex: 1; }
         footer { margin-top: auto; }
-        
+
         .loader-overlay {
-            position: fixed;
-            top: 0; left: 0;
+            position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
             background: rgba(0,0,0,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             z-index: 9999;
         }
-        
         .loader {
-            background: white;
-            padding: 2rem;
+            background: white; padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        
+
         .conversion-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
+            gap: 1.5rem; margin: 2rem 0;
         }
-        
         .conversion-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            transition: all 0.3s;
-            border: 1px solid #e9ecef;
-            position: relative;
-            overflow: hidden;
+            background: white; border-radius: 15px; padding: 1.5rem;
+            text-decoration: none; color: inherit; display: block;
+            transition: all 0.3s; border: 1px solid #e9ecef;
+            position: relative; overflow: hidden;
         }
         .conversion-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            text-decoration: none;
-            color: inherit;
+            text-decoration: none; color: inherit;
         }
         .conversion-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 4px;
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
             background: linear-gradient(90deg, var(--primary), var(--secondary));
         }
-        
         .card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
         .alert { border-radius: 10px; border: none; }
 
-        .thumb-container {
-            transition: all 0.2s ease;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .thumb-container:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
+        .thumb-container { transition: all 0.2s ease; border-radius: 6px; overflow: hidden; }
+        .thumb-container:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .pdf-thumb {
-            background: #2c3e50;
-            color: white;
-            font-size: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            background: #2c3e50; color: white; font-size: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .trash-btn { opacity: 0; transition: opacity 0.2s ease; }
         .thumb-container:hover .trash-btn { opacity: 1; }
-        
+
         footer .text-muted {
             color: rgba(255, 255, 255, 0.7) !important;
             transition: color 0.2s, text-decoration 0.2s;
         }
-        footer .text-muted:hover {
-            color: white !important;
-            text-decoration: underline;
-        }
-        
+        footer .text-muted:hover { color: white !important; text-decoration: underline; }
+
         @media (max-width: 768px) {
             .conversion-grid { grid-template-columns: 1fr; }
             .navbar-brand { font-size: 1.2rem; }
@@ -247,15 +208,10 @@
         /* Adsterra Support Message */
         .adsterra-support {
             background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            border-left: 4px solid #ffc107;
-            border-radius: 12px;
-            padding: 15px 20px;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
+            border-left: 4px solid #ffc107; border-radius: 12px;
+            padding: 15px 20px; margin: 20px 0;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 15px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             animation: slideDown 0.5s ease;
         }
@@ -263,56 +219,26 @@
             from { opacity: 0; transform: translateY(-20px); }
             to   { opacity: 1; transform: translateY(0); }
         }
-        .adsterra-support-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-        .adsterra-support-icon {
-            font-size: 28px;
-            animation: heartBeat 1.5s infinite;
-        }
-        @keyframes heartBeat {
-            0%, 100% { transform: scale(1); }
-            50%       { transform: scale(1.1); }
-        }
+        .adsterra-support-content { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .adsterra-support-icon { font-size: 28px; animation: heartBeat 1.5s infinite; }
+        @keyframes heartBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         .adsterra-support-text { font-size: 14px; color: #856404; }
         .adsterra-support-text strong { font-size: 15px; }
         .adsterra-support-close {
-            background: none; border: none;
-            font-size: 20px; cursor: pointer;
-            color: #856404; padding: 5px 10px;
-            transition: all 0.2s; border-radius: 50%;
+            background: none; border: none; font-size: 20px; cursor: pointer;
+            color: #856404; padding: 5px 10px; transition: all 0.2s; border-radius: 50%;
         }
-        .adsterra-support-close:hover {
-            background: rgba(0,0,0,0.05);
-            transform: scale(1.1);
-        }
+        .adsterra-support-close:hover { background: rgba(0,0,0,0.05); transform: scale(1.1); }
         .adsterra-support-btn {
-            background: #ffc107; color: #856404;
-            border: none; padding: 8px 16px;
-            border-radius: 50px; font-size: 13px;
-            font-weight: 600; transition: all 0.3s;
-            text-decoration: none;
+            background: #ffc107; color: #856404; border: none;
+            padding: 8px 16px; border-radius: 50px; font-size: 13px;
+            font-weight: 600; transition: all 0.3s; text-decoration: none;
         }
-        .adsterra-support-btn:hover {
-            background: #e0a800;
-            transform: translateY(-2px);
-            color: #856404;
-        }
+        .adsterra-support-btn:hover { background: #e0a800; transform: translateY(-2px); color: #856404; }
 
-        /* Bannières Adsterra */
-        .adsterra-container {
-            text-align: center;
-            margin: 20px auto;
-            min-height: 90px;
-        }
-        .adsterra-label {
-            font-size: 11px; color: #999;
-            text-align: center; margin-bottom: 5px;
-            text-transform: uppercase; letter-spacing: 1px;
-        }
+        .adsterra-container { text-align: center; margin: 20px auto; min-height: 90px; }
+        .adsterra-label { font-size: 11px; color: #999; text-align: center; margin-bottom: 5px;
+            text-transform: uppercase; letter-spacing: 1px; }
 
         @media (max-width: 768px) {
             .adsterra-support { flex-direction: column; text-align: center; }
@@ -338,9 +264,9 @@
 
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                
+
                 <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'pdf.pdf_index' %}active{% endif %}" 
+                    <a class="nav-link {% if request.endpoint == 'pdf.pdf_index' %}active{% endif %}"
                        href="{{ url_for('pdf.pdf_index') }}"
                        {% if request.endpoint == 'pdf.pdf_index' %}aria-current="page"{% endif %}>
                         <i class="fas fa-home me-1"></i>{{ _('Accueil') }}
@@ -348,7 +274,7 @@
                 </li>
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {% if request.endpoint and 'conversion' in request.endpoint %}active{% endif %}" 
+                    <a class="nav-link dropdown-toggle {% if request.endpoint and 'conversion' in request.endpoint %}active{% endif %}"
                        href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
                         <i class="fas fa-exchange-alt me-1"></i>{{ _('Convertir') }}
                     </a>
@@ -384,41 +310,41 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'pdf.merge' %}active{% endif %}" 
+                    <a class="nav-link {% if request.endpoint == 'pdf.merge' %}active{% endif %}"
                        href="{{ url_for('pdf.merge') }}"
                        {% if request.endpoint == 'pdf.merge' %}aria-current="page"{% endif %}>{{ _('Fusionner') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'pdf.split' %}active{% endif %}" 
+                    <a class="nav-link {% if request.endpoint == 'pdf.split' %}active{% endif %}"
                        href="{{ url_for('pdf.split') }}"
                        {% if request.endpoint == 'pdf.split' %}aria-current="page"{% endif %}>{{ _('Diviser') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'pdf.rotate' %}active{% endif %}" 
+                    <a class="nav-link {% if request.endpoint == 'pdf.rotate' %}active{% endif %}"
                        href="{{ url_for('pdf.rotate') }}"
                        {% if request.endpoint == 'pdf.rotate' %}aria-current="page"{% endif %}>{{ _('Tourner') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'pdf.compress' %}active{% endif %}" 
+                    <a class="nav-link {% if request.endpoint == 'pdf.compress' %}active{% endif %}"
                        href="{{ url_for('pdf.compress') }}"
                        {% if request.endpoint == 'pdf.compress' %}aria-current="page"{% endif %}>{{ _('Compresser') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'legal.contact' %}active{% endif %}" 
+                    <a class="nav-link {% if request.endpoint == 'legal.contact' %}active{% endif %}"
                        href="{{ url_for('legal.contact') }}"
                        {% if request.endpoint == 'legal.contact' %}aria-current="page"{% endif %}>
                         <i class="fas fa-envelope me-1"></i>{{ _('Contact') }}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'legal.about' %}active{% endif %}" 
+                    <a class="nav-link {% if request.endpoint == 'legal.about' %}active{% endif %}"
                        href="{{ url_for('legal.about') }}"
                        {% if request.endpoint == 'legal.about' %}aria-current="page"{% endif %}>
                         <i class="fas fa-info-circle me-1"></i>{{ _('À propos') }}
                     </a>
                 </li>
             </ul>
-            
+
             <!-- Sélecteur de langue -->
             <div class="navbar-nav ms-2">
                 <div class="nav-item dropdown">
@@ -533,7 +459,7 @@
                     <i class="fas fa-copyright me-1"></i> <span id="currentYear">2025</span> {{ _('PDF Fusion Pro') }}. {{ _('Tous droits réservés.') }}
                 </small>
                 <small class="text-muted">
-                    {{ _('Version') }} {{ Config.VERSION if Config else '6.1' }} | 
+                    {{ _('Version') }} {{ Config.VERSION if Config else '6.1' }} |
                     <i class="fas fa-server me-1"></i>{{ _('Hébergé sur Render') }}
                 </small>
             </div>
@@ -554,6 +480,9 @@
 
 <!-- ================= SCRIPTS ================= -->
 
+<!-- ✅ Bootstrap JS Bundle (inclut Popper) — OBLIGATOIRE pour menus, modals, tooltips -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script>
@@ -566,6 +495,9 @@
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 <script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 <script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
+
+<!-- ✅ Cloud Upload JS — doit être chargé APRÈS Bootstrap -->
+<script src="{{ url_for('static', filename='js/cloud/upload.js') }}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -594,14 +526,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- ================= ADSTERRA — Scripts globaux (après le DOM) ================= -->
 
-<!-- Social Bar — s'affiche en overlay automatiquement -->
+<!-- Social Bar -->
 <script src="https://pl29068511.profitablecpmratenetwork.com/07/a5/30/07a530d41b1d4e949c2b0499c466bc3a.js"></script>
 
-<!-- Popunder — une seule fois par session, au premier clic -->
+<!-- Popunder — une seule fois par session -->
 <script>
 (function() {
     if (sessionStorage.getItem('adsterra_popunder_shown')) return;
-
     function openPopunder() {
         setTimeout(function() {
             var s = document.createElement('script');
@@ -612,12 +543,11 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.setItem('adsterra_popunder_shown', 'true');
         document.body.removeEventListener('click', openPopunder);
     }
-
     document.body.addEventListener('click', openPopunder);
 })();
 </script>
 
-<!-- Message de soutien — affiché toutes les 20 min -->
+<!-- Message de soutien -->
 <script>
     var I18N = {
         supportTitle: "{{ _('Soutenez notre outil gratuit !') | e }}",
@@ -628,8 +558,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 (function() {
     var lastReminder = parseInt(localStorage.getItem('adsterra_last_reminder') || '0', 10);
-
-    // Réinitialisation quotidienne
     var lastDate = localStorage.getItem('adsterra_reminder_date');
     var today = new Date().toDateString();
     if (lastDate !== today) {
@@ -640,7 +568,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showSupportMessage() {
         if (document.getElementById('adsterraSupportMessage')) return;
-
         var div = document.createElement('div');
         div.id = 'adsterraSupportMessage';
         div.className = 'adsterra-support';
@@ -659,14 +586,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 '</button>' +
                 '<button class="adsterra-support-close" onclick="closeSupportMessage()" aria-label="Fermer">\u00D7</button>' +
             '</div>';
-
         var mainContent = document.querySelector('main');
-        if (mainContent) {
-            mainContent.insertBefore(div, mainContent.firstChild);
-        } else {
-            document.body.insertBefore(div, document.body.firstChild);
-        }
-
+        if (mainContent) mainContent.insertBefore(div, mainContent.firstChild);
+        else document.body.insertBefore(div, document.body.firstChild);
         setTimeout(closeSupportMessage, 12000);
     }
 
@@ -675,9 +597,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (msg) {
             msg.style.opacity = '0';
             msg.style.transition = 'opacity 0.3s';
-            setTimeout(function() {
-                if (msg.parentNode) msg.parentNode.removeChild(msg);
-            }, 300);
+            setTimeout(function() { if (msg.parentNode) msg.parentNode.removeChild(msg); }, 300);
         }
     };
 
@@ -691,7 +611,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     setInterval(checkReminder, 5 * 60 * 1000);
-
     setTimeout(function() {
         if (!parseInt(localStorage.getItem('adsterra_last_reminder') || '0', 10)) {
             showSupportMessage();
@@ -700,16 +619,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 20 * 60 * 1000);
 })();
 </script>
-
-<!-- ⚠️ SUPPRIMEZ CES LIGNES DOUBLONS ⚠️ -->
-<!-- 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{{ url_for('static', filename='js/app.js') }}"></script>
--->
-
-<!-- ✅ GARDEZ UNIQUEMENT CECI -->
-<!-- Cloud Upload JS -->
-<script src="{{ url_for('static', filename='js/cloud/upload.js') }}"></script>
 
 {% block scripts %}{% endblock %}
 {% block extra_js %}{% endblock %}

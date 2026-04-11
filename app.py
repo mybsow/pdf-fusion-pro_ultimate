@@ -144,7 +144,6 @@ def create_app():
     from blueprints.conversion import conversion_bp
     from blueprints.legal import legal_bp
     # Après les autres imports
-    from blueprints.cloud import cloud_bp
 
     for bp, prefix in [
         (pdf_bp,        "/pdf"),
@@ -153,7 +152,6 @@ def create_app():
         (stats_bp,      None),
         (admin_bp,      "/admin"),
         (conversion_bp, "/conversion"),
-        (cloud_bp,      None),
     ]:
         if prefix:
             app.register_blueprint(bp, url_prefix=prefix)
