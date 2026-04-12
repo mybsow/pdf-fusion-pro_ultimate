@@ -3,7 +3,8 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block converter_content %}
-<!-- Étape 1 : Upload -->
+
+<!-- Étape 1 -->
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-code upload-icon"></i>
@@ -11,7 +12,7 @@
         <p class="text-muted">{{ _('ou collez votre code directement') }}</p>
     </div>
 
-    <!-- Upload Zone avec UploadManager -->
+    <!-- Upload -->
     <div id="htmlUploadZone" 
          class="upload-zone-pro upload-zone" 
          data-info-id="fileInfo"
@@ -27,51 +28,66 @@
         </p>
     </div>
 
-    <!-- Liste des fichiers -->
     <div id="fileInfo" class="file-list mt-4"></div>
 
-    <!-- Code Editor -->
+    <!-- Zone code (FIX IMPORTANT) -->
     <div class="mt-4">
         <label class="form-label fw-bold">{{ _('Ou collez votre code HTML :') }}</label>
-        <textarea id="htmlCode" class="form-control font-monospace" rows="8" 
-                  placeholder='{{ _("&lt;!DOCTYPE html&gt;\n&lt;html&gt;\n&lt;head&gt;\n    &lt;title&gt;Ma page&lt;/title&gt;\n&lt;/head&gt;\n&lt;body&gt;\n    &lt;h1&gt;Titre&lt;/h1&gt;\n    &lt;p&gt;Contenu...&lt;/p&gt;\n&lt;/body&gt;\n&lt;/html&gt;") }}'></textarea>
+
+        <textarea id="htmlCode" class="form-control font-monospace" rows="8">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ma page</title>
+</head>
+<body>
+    <h1>Titre</h1>
+    <p>Contenu...</p>
+</body>
+</html>
+        </textarea>
     </div>
 
-    <!-- Options de conversion -->
+    <!-- Options -->
     <div class="file-info-card mt-4">
         <h5 class="mb-3">
             <i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}
         </h5>
+
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="pageSize" class="form-label">{{ _('Format de page :') }}</label>
+                <label class="form-label">{{ _('Format de page :') }}</label>
                 <select id="pageSize" class="form-select">
                     <option value="A4">A4</option>
                     <option value="letter">{{ _('Lettre') }}</option>
                     <option value="legal">Legal</option>
                 </select>
             </div>
+
             <div class="col-md-6">
-                <label for="orientation" class="form-label">{{ _('Orientation :') }}</label>
+                <label class="form-label">{{ _('Orientation :') }}</label>
                 <select id="orientation" class="form-select">
                     <option value="portrait">{{ _('Portrait') }}</option>
                     <option value="landscape">{{ _('Paysage') }}</option>
                 </select>
             </div>
+
             <div class="col-md-6">
-                <label for="margin" class="form-label">{{ _('Marges (mm) :') }}</label>
+                <label class="form-label">{{ _('Marges (mm) :') }}</label>
                 <input type="number" id="margin" class="form-control" value="20" min="0" max="50">
             </div>
+
             <div class="col-md-6">
                 <div class="form-check mt-4">
                     <input class="form-check-input" type="checkbox" id="includeImages" checked>
-                    <label class="form-check-label" for="includeImages">
+                    <label class="form-check-label">
                         {{ _('Inclure les images') }}
                     </label>
                 </div>
+
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="enableJavascript">
-                    <label class="form-check-label" for="enableJavascript">
+                    <label class="form-check-label">
                         {{ _('Activer JavaScript') }}
                     </label>
                 </div>
@@ -79,7 +95,7 @@
         </div>
     </div>
 
-    <!-- Bouton de conversion -->
+    <!-- Bouton -->
     <div class="text-center mt-4">
         <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
             <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PDF') }}
@@ -87,31 +103,30 @@
     </div>
 </div>
 
-<!-- Étape 2 : Conversion en cours -->
+<!-- Étape 2 -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="mb-4">
-            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
-        </div>
+        <i class="fas fa-cog fa-spin fa-4x text-primary mb-4"></i>
         <h3>{{ _('Conversion en cours...') }}</h3>
         <p class="text-muted">{{ _('Veuillez patienter pendant le traitement de votre fichier') }}</p>
-        <div class="progress-container">
-            <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar" style="width:0%"></div>
         </div>
     </div>
 </div>
 
-<!-- Étape 3 : Téléchargement -->
+<!-- Étape 3 -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="success-animation">
-            <i class="fas fa-check"></i>
-        </div>
+        <i class="fas fa-check fa-4x text-success mb-4"></i>
         <h3>{{ _('Conversion terminée !') }}</h3>
         <p class="text-muted">{{ _('Votre PDF est prêt à être téléchargé') }}</p>
-        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
+
+        <a id="downloadLink" class="btn btn-success btn-lg px-5">
             <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF') }}
         </a>
+
         <div class="mt-4">
             <button class="btn btn-outline-primary" onclick="resetConversion()">
                 <i class="fas fa-redo me-2"></i>{{ _('Convertir un autre fichier') }}
@@ -124,165 +139,113 @@
 let downloadUrl = null;
 let progressInterval = null;
 
+/* Sécurisation uploadManagers */
+window.uploadManagers = window.uploadManagers || {};
+
+function getUploadManager() {
+    return window.uploadManagers['htmlUploadZone'] || null;
+}
+
+/* UI steps */
 function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    ['step1Content','step2Content','step3Content'].forEach((id, index) => {
+        document.getElementById(id).style.display = (index + 1 === step) ? 'block' : 'none';
+    });
 }
 
-function showError(message) {
-    let errorDiv = document.getElementById('conversionError');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'conversionError';
-        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = `
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <span id="conversionErrorMsg"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.getElementById('step1Content').prepend(errorDiv);
-    }
-    document.getElementById('conversionErrorMsg').textContent = message;
-    errorDiv.style.display = 'block';
-}
-
-document.addEventListener('DOMContentLoaded', function () {
+/* Bouton */
+function updateConvertButton() {
+    const uploadManager = getUploadManager();
     const htmlCode = document.getElementById('htmlCode');
-    if (htmlCode) {
-        htmlCode.addEventListener('input', updateConvertButton);
-    }
+
+    const hasFile = uploadManager && uploadManager.getFiles && uploadManager.getFiles().length > 0;
+    const hasCode = htmlCode.value.trim().length > 0;
+
+    document.getElementById('convertBtn').disabled = !(hasFile || hasCode);
+}
+
+/* Init */
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('htmlCode').addEventListener('input', updateConvertButton);
+
+    // fallback si upload manager async
+    setInterval(updateConvertButton, 500);
 });
 
-function updateConvertButton() {
-    const uploadManager = window.uploadManagers?.['htmlUploadZone'];
+/* Conversion */
+async function startConversion() {
+    const uploadManager = getUploadManager();
     const htmlCode = document.getElementById('htmlCode');
-    const convertBtn = document.getElementById('convertBtn');
-
-    const hasFile = uploadManager && uploadManager.getFiles().length > 0;
-    const hasCode = htmlCode && htmlCode.value.trim().length > 0;
-
-    if (convertBtn) convertBtn.disabled = !(hasFile || hasCode);
-}
-
-function startConversion() {
-    const uploadManager = window.uploadManagers?.['htmlUploadZone'];
-    const htmlCode = document.getElementById('htmlCode');
-    const files = uploadManager ? uploadManager.getFiles() : [];
 
     const formData = new FormData();
+    const files = uploadManager && uploadManager.getFiles ? uploadManager.getFiles() : [];
 
     if (files.length > 0) {
         formData.append('file', files[0]);
-    } else if (htmlCode && htmlCode.value.trim()) {
-        const blob = new Blob([htmlCode.value], { type: 'text/html' });
-        formData.append('file', blob, 'document.html');
+    } else if (htmlCode.value.trim()) {
+        formData.append('file', new Blob([htmlCode.value], {type:'text/html'}), 'document.html');
     } else {
-        showError('{{ _("Veuillez sélectionner un fichier ou coller du code HTML") }}');
+        alert("{{ _('Veuillez fournir un fichier ou du code HTML') }}");
         return;
     }
 
-    formData.append('pageSize', document.getElementById('pageSize').value);
-    formData.append('orientation', document.getElementById('orientation').value);
-    formData.append('margin', document.getElementById('margin').value);
-    formData.append('includeImages', document.getElementById('includeImages').checked ? 'true' : 'false');
-    formData.append('enableJavascript', document.getElementById('enableJavascript').checked ? 'true' : 'false');
+    formData.append('pageSize', pageSize.value);
+    formData.append('orientation', orientation.value);
+    formData.append('margin', margin.value);
+    formData.append('includeImages', includeImages.checked);
+    formData.append('enableJavascript', enableJavascript.checked);
 
     updateStep(2);
 
     let progress = 0;
-    const progressBar = document.getElementById('progressBar');
     progressInterval = setInterval(() => {
         if (progress < 90) {
             progress += 10;
-            if (progressBar) progressBar.style.width = progress + '%';
+            progressBar.style.width = progress + '%';
         }
-    }, 500);
+    }, 400);
 
-    fetch('{{ url_for("conversion.universal_converter", conversion_type="html-en-pdf") }}', {
-        method: 'POST',
-        body: formData
-    })
-    .then(async response => {
+    try {
+        const response = await fetch('{{ url_for("conversion.universal_converter", conversion_type="html-en-pdf") }}', {
+            method: 'POST',
+            body: formData
+        });
+
         clearInterval(progressInterval);
-        if (progressBar) progressBar.style.width = '100%';
+        progressBar.style.width = '100%';
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erreur serveur ' + response.status);
-        }
-
-        const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) {
-            throw new Error('Le serveur a retourné une erreur. Vérifiez le fichier.');
-        }
+        if (!response.ok) throw new Error(await response.text());
 
         const blob = await response.blob();
-        if (blob.size === 0) {
-            throw new Error('Fichier téléchargé vide.');
-        }
+        downloadUrl = URL.createObjectURL(blob);
 
-        downloadUrl = window.URL.createObjectURL(blob);
-
-        const contentDisposition = response.headers.get('Content-Disposition') || '';
-        let filename = 'converted.pdf';
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match && match[1]) {
-            filename = match[1].replace(/['"]/g, '');
-        }
-
-        const downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.setAttribute('download', filename);
-        }
+        downloadLink.href = downloadUrl;
+        downloadLink.download = "converted.pdf";
 
         updateStep(3);
-    })
-    .catch(error => {
-        clearInterval(progressInterval);
-        console.error('Erreur conversion:', error);
+
+    } catch (err) {
+        console.error(err);
         updateStep(1);
-        showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
-    });
+        alert("{{ _('Erreur lors de la conversion') }}");
+    }
 }
 
+/* Reset */
 function resetConversion() {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-        downloadUrl = null;
-    }
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
 
-    if (progressInterval) {
-        clearInterval(progressInterval);
-        progressInterval = null;
-    }
-
-    const uploadManager = window.uploadManagers?.['htmlUploadZone'];
-    if (uploadManager) {
-        const files = uploadManager.getFiles();
-        for (let i = files.length - 1; i >= 0; i--) {
-            uploadManager.removeFile(i);
-        }
-    }
-
-    const htmlCode = document.getElementById('htmlCode');
-    if (htmlCode) htmlCode.value = '';
-
-    const errorDiv = document.getElementById('conversionError');
-    if (errorDiv) errorDiv.style.display = 'none';
-
-    const progressBar = document.getElementById('progressBar');
-    if (progressBar) progressBar.style.width = '0%';
+    document.getElementById('htmlCode').value = '';
+    progressBar.style.width = '0%';
 
     updateStep(1);
-    updateConvertButton();
 }
 
+/* Cleanup */
 window.addEventListener('beforeunload', () => {
-    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
-    if (progressInterval) clearInterval(progressInterval);
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
 });
 </script>
+
 {% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}

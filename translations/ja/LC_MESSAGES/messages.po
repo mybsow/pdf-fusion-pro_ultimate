@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-12 09:55+0000\n"
+"POT-Creation-Date: 2026-04-12 10:31+0000\n"
 "PO-Revision-Date: 2026-04-11 05:28+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ja\n"
@@ -386,7 +386,7 @@ msgid "Convertir"
 msgstr "変換する"
 
 #: templates/base.html:282 templates/conversion/excel_to_pdf.html:60
-#: templates/conversion/html_to_pdf.html:85
+#: templates/conversion/html_to_pdf.html:101
 #: templates/conversion/image_to_pdf.html:79
 #: templates/conversion/jpg_to_pdf.html:78
 #: templates/conversion/png_to_pdf.html:78
@@ -605,7 +605,7 @@ msgstr "ここにファイルをドラッグ アンド ドロップします"
 #: templates/conversion/csv_to_excel.html:22
 #: templates/conversion/excel_to_csv.html:22
 #: templates/conversion/excel_to_pdf.html:22
-#: templates/conversion/html_to_pdf.html:22
+#: templates/conversion/html_to_pdf.html:23
 #: templates/conversion/image_to_excel.html:21
 #: templates/conversion/image_to_pdf.html:22
 #: templates/conversion/image_to_word.html:22
@@ -711,7 +711,7 @@ msgstr "次に、変換されたファイルをダウンロードします。"
 #: templates/conversion/csv_to_excel.html:98
 #: templates/conversion/excel_to_csv.html:105
 #: templates/conversion/excel_to_pdf.html:88
-#: templates/conversion/html_to_pdf.html:110
+#: templates/conversion/html_to_pdf.html:123
 #: templates/conversion/image_to_pdf.html:110
 #: templates/conversion/jpg_to_pdf.html:103
 #: templates/conversion/pdf_to_html.html:102
@@ -726,7 +726,7 @@ msgid "Votre fichier est prêt à être téléchargé"
 msgstr "ファイルをダウンロードする準備ができました"
 
 #: templates/conversion/conversion_base.html:415
-#: templates/conversion/html_to_pdf.html:117
+#: templates/conversion/html_to_pdf.html:132
 msgid "Convertir un autre fichier"
 msgstr "別のファイルを変換する"
 
@@ -753,7 +753,7 @@ msgstr "受け入れ可能な形式: CSV、TXT (1 ファイルあたり最大 50
 #: templates/conversion/csv_to_excel.html:36
 #: templates/conversion/excel_to_csv.html:36
 #: templates/conversion/excel_to_pdf.html:36
-#: templates/conversion/html_to_pdf.html:43
+#: templates/conversion/html_to_pdf.html:54
 #: templates/conversion/image_to_pdf.html:37
 #: templates/conversion/jpg_to_pdf.html:36
 #: templates/conversion/pdf_to_doc.html:37
@@ -832,7 +832,7 @@ msgstr "リセット"
 #: templates/conversion/csv_to_excel.html:84
 #: templates/conversion/excel_to_csv.html:91
 #: templates/conversion/excel_to_pdf.html:74
-#: templates/conversion/html_to_pdf.html:96
+#: templates/conversion/html_to_pdf.html:110
 #: templates/conversion/image_to_pdf.html:93
 #: templates/conversion/jpg_to_pdf.html:89
 #: templates/conversion/pdf_to_doc.html:113
@@ -873,7 +873,6 @@ msgstr "少なくとも 1 つの CSV ファイルを選択してください"
 #: templates/conversion/csv_to_excel.html:210
 #: templates/conversion/excel_to_csv.html:217
 #: templates/conversion/excel_to_pdf.html:199
-#: templates/conversion/html_to_pdf.html:246
 #: templates/conversion/image_to_pdf.html:233
 #: templates/conversion/jpg_to_pdf.html:215
 #: templates/conversion/pdf_to_doc.html:267
@@ -1203,7 +1202,7 @@ msgid "Formats acceptés : XLS, XLSX, XLSM (jusqu'à 50MB par fichier)"
 msgstr "受け入れられる形式: XLS、XLSX、XLSM (ファイルあたり最大 50MB)"
 
 #: templates/conversion/excel_to_pdf.html:40
-#: templates/conversion/html_to_pdf.html:55
+#: templates/conversion/html_to_pdf.html:68
 #: templates/conversion/image_to_pdf.html:41
 #: templates/conversion/jpg_to_pdf.html:49
 #: templates/conversion/png_to_pdf.html:49
@@ -1211,7 +1210,7 @@ msgid "Orientation :"
 msgstr "向き:"
 
 #: templates/conversion/excel_to_pdf.html:42
-#: templates/conversion/html_to_pdf.html:57
+#: templates/conversion/html_to_pdf.html:70
 #: templates/conversion/image_to_pdf.html:43
 #: templates/conversion/jpg_to_pdf.html:52
 #: templates/conversion/png_to_pdf.html:52
@@ -1221,7 +1220,7 @@ msgid "Portrait"
 msgstr "肖像画"
 
 #: templates/conversion/excel_to_pdf.html:43
-#: templates/conversion/html_to_pdf.html:58
+#: templates/conversion/html_to_pdf.html:71
 #: templates/conversion/image_to_pdf.html:44
 #: templates/conversion/jpg_to_pdf.html:53
 #: templates/conversion/png_to_pdf.html:53
@@ -1231,7 +1230,7 @@ msgid "Paysage"
 msgstr "風景"
 
 #: templates/conversion/excel_to_pdf.html:47
-#: templates/conversion/html_to_pdf.html:47
+#: templates/conversion/html_to_pdf.html:59
 #: templates/conversion/image_to_pdf.html:57
 #: templates/conversion/jpg_to_pdf.html:40
 #: templates/conversion/png_to_pdf.html:40
@@ -1248,19 +1247,19 @@ msgstr "手紙"
 msgid "Vos fichiers PDF sont prêts à être téléchargés"
 msgstr "PDF ファイルをダウンロードする準備ができました"
 
-#: templates/conversion/html_to_pdf.html:10
+#: templates/conversion/html_to_pdf.html:11
 msgid "Téléchargez votre fichier HTML"
 msgstr "HTML ファイルをアップロードします"
 
-#: templates/conversion/html_to_pdf.html:11
+#: templates/conversion/html_to_pdf.html:12
 msgid "ou collez votre code directement"
 msgstr "またはコードを直接貼り付けます"
 
-#: templates/conversion/html_to_pdf.html:21
+#: templates/conversion/html_to_pdf.html:22
 msgid "Glissez-déposez votre fichier HTML ici"
 msgstr "HTML ファイルをここにドラッグ アンド ドロップします。"
 
-#: templates/conversion/html_to_pdf.html:26
+#: templates/conversion/html_to_pdf.html:27
 msgid "Formats acceptés : HTML, HTM"
 msgstr "受け入れられる形式: HTML、HTM"
 
@@ -1268,80 +1267,29 @@ msgstr "受け入れられる形式: HTML、HTM"
 msgid "Ou collez votre code HTML :"
 msgstr "または、HTML コードを貼り付けます。"
 
-#: templates/conversion/html_to_pdf.html:37
-msgid ""
-"&lt;!DOCTYPE html&gt;\n"
-"&lt;html&gt;\n"
-"&lt;head&gt;\n"
-"    &lt;title&gt;Ma page&lt;/title&gt;\n"
-"&lt;/head&gt;\n"
-"&lt;body&gt;\n"
-"    &lt;h1&gt;Titre&lt;/h1&gt;\n"
-"    &lt;p&gt;Contenu...&lt;/p&gt;\n"
-"&lt;/body&gt;\n"
-"&lt;/html&gt;"
-msgstr ""
-"&lt;!DOCTYPE html&gt;\n"
-"&lt;html&gt;\n"
-"&lt;head&gt;\n"
-" &lt;title&gt;マイページ&lt;/title&gt;\n"
-"&lt;/head&gt;\n"
-"&lt;body&gt;\n"
-" &lt;h1&gt;タイトル&lt;/h1&gt;\n"
-" &lt;p&gt;目次...&lt;/p&gt;\n"
-"&lt;/body&gt;\n"
-"&lt;/html&gt;&lt;!DOCTYPE html&gt;\n"
-"&lt;html&gt;\n"
-"&lt;head&gt;\n"
-" &lt;title&gt;マイページ&lt;/title&gt;\n"
-"&lt;/head&gt;\n"
-"&lt;body&gt;\n"
-" &lt;h1&gt;タイトル&lt;/h1&gt;\n"
-" &lt;p&gt;目次...&lt;/p&gt;\n"
-"&lt;/body&gt;\n"
-"&lt;/html&gt;&lt;!DOCTYPE html&gt;\n"
-"&lt;html&gt;\n"
-"&lt;head&gt;\n"
-" &lt;title&gt;マイページ&lt;/title&gt;\n"
-"&lt;/head&gt;\n"
-"&lt;body&gt;\n"
-" &lt;h1&gt;タイトル&lt;/h1&gt;\n"
-" &lt;p&gt;目次...&lt;/p&gt;\n"
-"&lt;/body&gt;\n"
-"&lt;/html&gt;&lt;!DOCTYPE html&gt;\n"
-"&lt;html&gt;\n"
-"&lt;head&gt;\n"
-" &lt;title&gt;マイページ&lt;/title&gt;\n"
-"&lt;/head&gt;\n"
-"&lt;body&gt;\n"
-" &lt;h1&gt;タイトル&lt;/h1&gt;\n"
-" &lt;p&gt;目次...&lt;/p&gt;\n"
-"&lt;/body&gt;\n"
-"&lt;/html&gt;"
-
-#: templates/conversion/html_to_pdf.html:50
+#: templates/conversion/html_to_pdf.html:62
 #: templates/conversion/txt_to_pdf.html:50
 msgid "Lettre"
 msgstr "手紙"
 
-#: templates/conversion/html_to_pdf.html:62
+#: templates/conversion/html_to_pdf.html:76
 msgid "Marges (mm) :"
 msgstr "余白(mm):"
 
-#: templates/conversion/html_to_pdf.html:69
+#: templates/conversion/html_to_pdf.html:84
 #: templates/conversion/pdf_to_ppt.html:68
 msgid "Inclure les images"
 msgstr "画像を含める"
 
-#: templates/conversion/html_to_pdf.html:75
+#: templates/conversion/html_to_pdf.html:91
 msgid "Activer JavaScript"
 msgstr "JavaScriptを有効にする"
 
-#: templates/conversion/html_to_pdf.html:97
+#: templates/conversion/html_to_pdf.html:111
 msgid "Veuillez patienter pendant le traitement de votre fichier"
 msgstr "ファイルが処理されるまでお待ちください"
 
-#: templates/conversion/html_to_pdf.html:111
+#: templates/conversion/html_to_pdf.html:124
 #: templates/conversion/image_to_pdf.html:111
 #: templates/conversion/jpg_to_pdf.html:104
 #: templates/conversion/png_to_pdf.html:104
@@ -1349,16 +1297,22 @@ msgstr "ファイルが処理されるまでお待ちください"
 msgid "Votre PDF est prêt à être téléchargé"
 msgstr "PDF をダウンロードする準備ができました"
 
-#: templates/conversion/html_to_pdf.html:113
+#: templates/conversion/html_to_pdf.html:127
 #: templates/conversion/jpg_to_pdf.html:106
 #: templates/conversion/png_to_pdf.html:106
 #: templates/conversion/txt_to_pdf.html:121
 msgid "Télécharger le PDF"
 msgstr "PDFをダウンロード"
 
-#: templates/conversion/html_to_pdf.html:181
-msgid "Veuillez sélectionner un fichier ou coller du code HTML"
+#: templates/conversion/html_to_pdf.html:188
+#, fuzzy
+msgid "Veuillez fournir un fichier ou du code HTML"
 msgstr "ファイルを選択するか、HTML コードを貼り付けてください"
+
+#: templates/conversion/html_to_pdf.html:230
+#, fuzzy
+msgid "Erreur lors de la conversion"
+msgstr "変換中のエラー:"
 
 #: templates/conversion/image_to_excel.html:10
 msgid "Téléchargez votre image ou PDF"
@@ -1990,13 +1944,7 @@ msgid ""
 "Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, "
 "PPTX, JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore."
 msgstr ""
-"PDF、DOC、DOCX、XLS、XLSX、PPT、PPTX、JPG、PNG、GIF、BMP、TIFF、CSV など、20 "
-"を超える形式をサポートしています。PDF、DOC、DOCX、XLS、XLSX、PPT、PPTX、JPG、PNG、GIF、BMP、TIFF、CSV "
-"など、20 "
-"を超える形式をサポートしています。PDF、DOC、DOCX、XLS、XLSX、PPT、PPTX、JPG、PNG、GIF、BMP、TIFF、CSV "
-"など、20 "
-"を超える形式をサポートしています。PDF、DOC、DOCX、XLS、XLSX、PPT、PPTX、JPG、PNG、GIF、BMP、TIFF、CSV "
-"など、20 を超える形式をサポートしています。"
+"PDF、DOC、DOCX、XLS、PPT、JPG、PNGなど20種類以上に対応。"
 
 #: templates/conversion/jpg_to_pdf.html:10
 msgid "Téléchargez vos images JPG"
@@ -2617,13 +2565,7 @@ msgid ""
 "10, 20 ou 50 ans, indépendamment des logiciels utilisés."
 msgstr ""
 "PDF/A は、長期アーカイブ用に設計された PDF の標準バージョンです。使用するソフトウェアに関係なく、ドキュメントが 10 年、20 "
-"年、または 50 年後もまったく同じであることが保証されます。PDF/A は、長期アーカイブ用に設計された PDF "
-"の標準バージョンです。使用するソフトウェアに関係なく、ドキュメントが 10 年、20 年、または 50 "
-"年後もまったく同じであることが保証されます。PDF/A は、長期アーカイブ用に設計された PDF "
-"の標準バージョンです。使用するソフトウェアに関係なく、ドキュメントが 10 年、20 年、または 50 "
-"年後もまったく同じであることが保証されます。PDF/A は、長期アーカイブ用に設計された PDF "
-"の標準バージョンです。使用するソフトウェアに関係なく、ドキュメントが 10 年、20 年、または 50 "
-"年後もまったく同じであることが保証されます。"
+"年、または 50 年後もまったく同じであることが保証されます。"
 
 #: templates/conversion/pdf_to_pdfa.html:70
 msgid "Attention"
@@ -2635,13 +2577,8 @@ msgid ""
 "pour garantir sa pérennité. Les fonctionnalités interactives "
 "(formulaires, JavaScript) seront supprimées."
 msgstr ""
-"PDF/A に変換すると、ドキュメントの寿命を確保するために外観が若干変更される場合があります。インタラクティブ機能 "
-"(フォーム、JavaScript) は削除されます。PDF/A "
-"に変換すると、ドキュメントの寿命を確保するために外観が若干変更される場合があります。インタラクティブ機能 (フォーム、JavaScript) "
-"は削除されます。PDF/A に変換すると、ドキュメントの寿命を確保するために外観が若干変更される場合があります。インタラクティブ機能 "
-"(フォーム、JavaScript) は削除されます。PDF/A "
-"に変換すると、ドキュメントの寿命を確保するために外観が若干変更される場合があります。インタラクティブ機能 (フォーム、JavaScript) "
-"は削除されます。"
+"PDF/A "
+"に変換すると、長期保存を目的としてドキュメントの外観が若干変更される場合があります。インタラクティブ機能（フォームやJavaScript）は削除されます。"
 
 #: templates/conversion/pdf_to_pdfa.html:80
 msgid "Auto-contenu"
@@ -2818,10 +2755,7 @@ msgid ""
 "versions ultérieures, ainsi qu'avec LibreOffice et Google Slides."
 msgstr ""
 "生成されたファイルは PPTX 形式で、PowerPoint 2007 以降、LibreOffice、Google Slides "
-"と互換性があります。生成されたファイルは PPTX 形式で、PowerPoint 2007 以降、LibreOffice、Google "
-"Slides と互換性があります。生成されたファイルは PPTX 形式で、PowerPoint 2007 "
-"以降、LibreOffice、Google Slides と互換性があります。生成されたファイルは PPTX 形式で、PowerPoint "
-"2007 以降、LibreOffice、Google Slides と互換性があります。"
+"と互換性があります。"
 
 #: templates/conversion/pdf_to_ppt.html:96
 msgid "Convertir en PowerPoint"
@@ -4570,10 +4504,7 @@ msgid ""
 "développeur passionné par la création d'outils web utiles et accessibles."
 msgstr ""
 "%(app_name)s は、便利でアクセスしやすい Web ツールの作成に熱心な開発者である %(developer_name)s "
-"によって開発および保守されています。%(app_name)s は、便利でアクセスしやすい Web ツールの作成に熱心な開発者である "
-"%(developer_name)s によって開発および保守されています。%(app_name)s は、便利でアクセスしやすい Web "
-"ツールの作成に熱心な開発者である %(developer_name)s によって開発および保守されています。%(app_name)s "
-"は、便利でアクセスしやすい Web ツールの作成に熱心な開発者である %(developer_name)s によって開発および保守されています。"
+"によって開発および保守されています。"
 
 #: templates/legal/legal.html:19
 msgid "Pour nous contacter :"
@@ -4615,11 +4546,7 @@ msgid ""
 "propriété intellectuelle."
 msgstr ""
 "このサイトのすべてのコンテンツ (デザイン、ソース コード、インターフェイス、テキスト、グラフィックス) "
-"は、知的財産に関する法律によって保護されています。このサイトのすべてのコンテンツ (デザイン、ソース "
-"コード、インターフェイス、テキスト、グラフィックス) は、知的財産に関する法律によって保護されています。このサイトのすべてのコンテンツ "
-"(デザイン、ソース コード、インターフェイス、テキスト、グラフィックス) "
-"は、知的財産に関する法律によって保護されています。このサイトのすべてのコンテンツ (デザイン、ソース "
-"コード、インターフェイス、テキスト、グラフィックス) は、知的財産に関する法律によって保護されています。"
+"は、知的財産に関する法律によって保護されています。"
 
 #: templates/legal/legal.html:34
 msgid ""

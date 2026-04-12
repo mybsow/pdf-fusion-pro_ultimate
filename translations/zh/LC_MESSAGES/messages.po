@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-12 09:55+0000\n"
+"POT-Creation-Date: 2026-04-12 10:31+0000\n"
 "PO-Revision-Date: 2026-04-11 05:28+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh\n"
@@ -386,7 +386,7 @@ msgid "Convertir"
 msgstr "转变"
 
 #: templates/base.html:282 templates/conversion/excel_to_pdf.html:60
-#: templates/conversion/html_to_pdf.html:85
+#: templates/conversion/html_to_pdf.html:101
 #: templates/conversion/image_to_pdf.html:79
 #: templates/conversion/jpg_to_pdf.html:78
 #: templates/conversion/png_to_pdf.html:78
@@ -605,7 +605,7 @@ msgstr "将您的文件拖放到此处"
 #: templates/conversion/csv_to_excel.html:22
 #: templates/conversion/excel_to_csv.html:22
 #: templates/conversion/excel_to_pdf.html:22
-#: templates/conversion/html_to_pdf.html:22
+#: templates/conversion/html_to_pdf.html:23
 #: templates/conversion/image_to_excel.html:21
 #: templates/conversion/image_to_pdf.html:22
 #: templates/conversion/image_to_word.html:22
@@ -711,7 +711,7 @@ msgstr "然后下载转换后的文件。"
 #: templates/conversion/csv_to_excel.html:98
 #: templates/conversion/excel_to_csv.html:105
 #: templates/conversion/excel_to_pdf.html:88
-#: templates/conversion/html_to_pdf.html:110
+#: templates/conversion/html_to_pdf.html:123
 #: templates/conversion/image_to_pdf.html:110
 #: templates/conversion/jpg_to_pdf.html:103
 #: templates/conversion/pdf_to_html.html:102
@@ -726,7 +726,7 @@ msgid "Votre fichier est prêt à être téléchargé"
 msgstr "您的文件已准备好下载"
 
 #: templates/conversion/conversion_base.html:415
-#: templates/conversion/html_to_pdf.html:117
+#: templates/conversion/html_to_pdf.html:132
 msgid "Convertir un autre fichier"
 msgstr "转换另一个文件"
 
@@ -753,7 +753,7 @@ msgstr "接受的格式：CSV、TXT（每个文件最多 50MB）"
 #: templates/conversion/csv_to_excel.html:36
 #: templates/conversion/excel_to_csv.html:36
 #: templates/conversion/excel_to_pdf.html:36
-#: templates/conversion/html_to_pdf.html:43
+#: templates/conversion/html_to_pdf.html:54
 #: templates/conversion/image_to_pdf.html:37
 #: templates/conversion/jpg_to_pdf.html:36
 #: templates/conversion/pdf_to_doc.html:37
@@ -832,7 +832,7 @@ msgstr "重置"
 #: templates/conversion/csv_to_excel.html:84
 #: templates/conversion/excel_to_csv.html:91
 #: templates/conversion/excel_to_pdf.html:74
-#: templates/conversion/html_to_pdf.html:96
+#: templates/conversion/html_to_pdf.html:110
 #: templates/conversion/image_to_pdf.html:93
 #: templates/conversion/jpg_to_pdf.html:89
 #: templates/conversion/pdf_to_doc.html:113
@@ -873,7 +873,6 @@ msgstr "请至少选择一个 CSV 文件"
 #: templates/conversion/csv_to_excel.html:210
 #: templates/conversion/excel_to_csv.html:217
 #: templates/conversion/excel_to_pdf.html:199
-#: templates/conversion/html_to_pdf.html:246
 #: templates/conversion/image_to_pdf.html:233
 #: templates/conversion/jpg_to_pdf.html:215
 #: templates/conversion/pdf_to_doc.html:267
@@ -1203,7 +1202,7 @@ msgid "Formats acceptés : XLS, XLSX, XLSM (jusqu'à 50MB par fichier)"
 msgstr "接受的格式：XLS、XLSX、XLSM（每个文件最多 50MB）"
 
 #: templates/conversion/excel_to_pdf.html:40
-#: templates/conversion/html_to_pdf.html:55
+#: templates/conversion/html_to_pdf.html:68
 #: templates/conversion/image_to_pdf.html:41
 #: templates/conversion/jpg_to_pdf.html:49
 #: templates/conversion/png_to_pdf.html:49
@@ -1211,7 +1210,7 @@ msgid "Orientation :"
 msgstr "方向 ："
 
 #: templates/conversion/excel_to_pdf.html:42
-#: templates/conversion/html_to_pdf.html:57
+#: templates/conversion/html_to_pdf.html:70
 #: templates/conversion/image_to_pdf.html:43
 #: templates/conversion/jpg_to_pdf.html:52
 #: templates/conversion/png_to_pdf.html:52
@@ -1221,7 +1220,7 @@ msgid "Portrait"
 msgstr "肖像"
 
 #: templates/conversion/excel_to_pdf.html:43
-#: templates/conversion/html_to_pdf.html:58
+#: templates/conversion/html_to_pdf.html:71
 #: templates/conversion/image_to_pdf.html:44
 #: templates/conversion/jpg_to_pdf.html:53
 #: templates/conversion/png_to_pdf.html:53
@@ -1231,7 +1230,7 @@ msgid "Paysage"
 msgstr "景观"
 
 #: templates/conversion/excel_to_pdf.html:47
-#: templates/conversion/html_to_pdf.html:47
+#: templates/conversion/html_to_pdf.html:59
 #: templates/conversion/image_to_pdf.html:57
 #: templates/conversion/jpg_to_pdf.html:40
 #: templates/conversion/png_to_pdf.html:40
@@ -1248,19 +1247,19 @@ msgstr "信"
 msgid "Vos fichiers PDF sont prêts à être téléchargés"
 msgstr "您的 PDF 文件可供下载"
 
-#: templates/conversion/html_to_pdf.html:10
+#: templates/conversion/html_to_pdf.html:11
 msgid "Téléchargez votre fichier HTML"
 msgstr "上传您的 HTML 文件"
 
-#: templates/conversion/html_to_pdf.html:11
+#: templates/conversion/html_to_pdf.html:12
 msgid "ou collez votre code directement"
 msgstr "或者直接粘贴您的代码"
 
-#: templates/conversion/html_to_pdf.html:21
+#: templates/conversion/html_to_pdf.html:22
 msgid "Glissez-déposez votre fichier HTML ici"
 msgstr "将您的 HTML 文件拖放到此处"
 
-#: templates/conversion/html_to_pdf.html:26
+#: templates/conversion/html_to_pdf.html:27
 msgid "Formats acceptés : HTML, HTM"
 msgstr "接受的格式：HTML、HTM"
 
@@ -1268,80 +1267,29 @@ msgstr "接受的格式：HTML、HTM"
 msgid "Ou collez votre code HTML :"
 msgstr "或者粘贴您的 HTML 代码："
 
-#: templates/conversion/html_to_pdf.html:37
-msgid ""
-"&lt;!DOCTYPE html&gt;\n"
-"&lt;html&gt;\n"
-"&lt;head&gt;\n"
-"    &lt;title&gt;Ma page&lt;/title&gt;\n"
-"&lt;/head&gt;\n"
-"&lt;body&gt;\n"
-"    &lt;h1&gt;Titre&lt;/h1&gt;\n"
-"    &lt;p&gt;Contenu...&lt;/p&gt;\n"
-"&lt;/body&gt;\n"
-"&lt;/html&gt;"
-msgstr ""
-"<!DOCTYPE html>\n"
-"<html>\n"
-"<head>\n"
-" <title>我的页面</title>\n"
-"</head>\n"
-"<body>\n"
-" <h1>标题</h1>\n"
-" &lt;p&gt;内容...&lt;/p&gt;\n"
-"&lt;/body&gt;\n"
-"&lt;/html&gt;<!DOCTYPE html>\n"
-"<html>\n"
-"<head>\n"
-" <title>我的页面</title>\n"
-"</head>\n"
-"<body>\n"
-" <h1>标题</h1>\n"
-" &lt;p&gt;内容...&lt;/p&gt;\n"
-"&lt;/body&gt;\n"
-"&lt;/html&gt;<!DOCTYPE html>\n"
-"<html>\n"
-"<head>\n"
-" <title>我的页面</title>\n"
-"</head>\n"
-"<body>\n"
-" <h1>标题</h1>\n"
-" &lt;p&gt;内容...&lt;/p&gt;\n"
-"&lt;/body&gt;\n"
-"&lt;/html&gt;<!DOCTYPE html>\n"
-"<html>\n"
-"<head>\n"
-" <title>我的页面</title>\n"
-"</head>\n"
-"<body>\n"
-" <h1>标题</h1>\n"
-" &lt;p&gt;内容...&lt;/p&gt;\n"
-"&lt;/body&gt;\n"
-"&lt;/html&gt;"
-
-#: templates/conversion/html_to_pdf.html:50
+#: templates/conversion/html_to_pdf.html:62
 #: templates/conversion/txt_to_pdf.html:50
 msgid "Lettre"
 msgstr "信"
 
-#: templates/conversion/html_to_pdf.html:62
+#: templates/conversion/html_to_pdf.html:76
 msgid "Marges (mm) :"
 msgstr "边距（毫米）："
 
-#: templates/conversion/html_to_pdf.html:69
+#: templates/conversion/html_to_pdf.html:84
 #: templates/conversion/pdf_to_ppt.html:68
 msgid "Inclure les images"
 msgstr "包含图像"
 
-#: templates/conversion/html_to_pdf.html:75
+#: templates/conversion/html_to_pdf.html:91
 msgid "Activer JavaScript"
 msgstr "启用 JavaScript"
 
-#: templates/conversion/html_to_pdf.html:97
+#: templates/conversion/html_to_pdf.html:111
 msgid "Veuillez patienter pendant le traitement de votre fichier"
 msgstr "正在处理您的文件，请稍候"
 
-#: templates/conversion/html_to_pdf.html:111
+#: templates/conversion/html_to_pdf.html:124
 #: templates/conversion/image_to_pdf.html:111
 #: templates/conversion/jpg_to_pdf.html:104
 #: templates/conversion/png_to_pdf.html:104
@@ -1349,16 +1297,22 @@ msgstr "正在处理您的文件，请稍候"
 msgid "Votre PDF est prêt à être téléchargé"
 msgstr "您的 PDF 已准备好下载"
 
-#: templates/conversion/html_to_pdf.html:113
+#: templates/conversion/html_to_pdf.html:127
 #: templates/conversion/jpg_to_pdf.html:106
 #: templates/conversion/png_to_pdf.html:106
 #: templates/conversion/txt_to_pdf.html:121
 msgid "Télécharger le PDF"
 msgstr "下载 PDF"
 
-#: templates/conversion/html_to_pdf.html:181
-msgid "Veuillez sélectionner un fichier ou coller du code HTML"
+#: templates/conversion/html_to_pdf.html:188
+#, fuzzy
+msgid "Veuillez fournir un fichier ou du code HTML"
 msgstr "请选择一个文件或粘贴 HTML 代码"
+
+#: templates/conversion/html_to_pdf.html:230
+#, fuzzy
+msgid "Erreur lors de la conversion"
+msgstr "转换时出错："
 
 #: templates/conversion/image_to_excel.html:10
 msgid "Téléchargez votre image ou PDF"
@@ -4545,12 +4499,7 @@ msgid ""
 "%(app_name)s est développé et maintenu par %(developer_name)s, un "
 "développeur passionné par la création d'outils web utiles et accessibles."
 msgstr ""
-"%(app_name)s 由 %(developer_name)s 开发和维护，%(developer_name)s "
-"是一位热衷于创建有用且易于访问的 Web 工具的开发人员。%(app_name)s 由 %(developer_name)s "
-"开发和维护，%(developer_name)s 是一位热衷于创建有用且易于访问的 Web 工具的开发人员。%(app_name)s 由 "
-"%(developer_name)s 开发和维护，%(developer_name)s 是一位热衷于创建有用且易于访问的 Web "
-"工具的开发人员。%(app_name)s 由 %(developer_name)s 开发和维护，%(developer_name)s "
-"是一位热衷于创建有用且易于访问的 Web 工具的开发人员。"
+"%(app_name)s 由 %(developer_name)s 开发和维护，致力于打造实用且易用的 Web 工具。"
 
 #: templates/legal/legal.html:19
 msgid "Pour nous contacter :"
