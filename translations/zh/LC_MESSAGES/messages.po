@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-11 21:29+0000\n"
+"POT-Creation-Date: 2026-04-12 09:55+0000\n"
 "PO-Revision-Date: 2026-04-11 05:28+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh\n"
@@ -1280,8 +1280,17 @@ msgid ""
 "    &lt;p&gt;Contenu...&lt;/p&gt;\n"
 "&lt;/body&gt;\n"
 "&lt;/html&gt;"
-msgstr "<!DOCTYPE html>\n<html>\n<head>\n <title>我的页面</title>\n</head>\n<body>\n <h1>标题</h1>\n &lt;p&gt;内容...&lt;/p&gt;\n&lt;/body&gt;\n&lt;/html&gt;"
+msgstr ""
 "<!DOCTYPE html>\n"
+"<html>\n"
+"<head>\n"
+" <title>我的页面</title>\n"
+"</head>\n"
+"<body>\n"
+" <h1>标题</h1>\n"
+" &lt;p&gt;内容...&lt;/p&gt;\n"
+"&lt;/body&gt;\n"
+"&lt;/html&gt;<!DOCTYPE html>\n"
 "<html>\n"
 "<head>\n"
 " <title>我的页面</title>\n"
@@ -2434,15 +2443,18 @@ msgid "Qualité (pour JPG)"
 msgstr "质量（JPG）"
 
 #: templates/conversion/pdf_to_image.html:64
-msgid "Haute (90-100%)"
+#, fuzzy, python-format
+msgid "Haute (90-100%%)"
 msgstr "高（90-100%）"
 
 #: templates/conversion/pdf_to_image.html:65
-msgid "Moyenne (70-80%)"
+#, fuzzy, python-format
+msgid "Moyenne (70-80%%)"
 msgstr "平均 (70-80%)"
 
 #: templates/conversion/pdf_to_image.html:66
-msgid "Basse (50-60%)"
+#, fuzzy, python-format
+msgid "Basse (50-60%%)"
 msgstr "低（50-60%）"
 
 #: templates/conversion/pdf_to_image.html:68
@@ -2968,7 +2980,7 @@ msgid ""
 "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim "
 "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
 "commodo consequat."
-msgstr "Lorem ipsum dolor sat amet，consectetur adipiscing elit。 Sed do eiusmod tempor inciditunt ut laboure et dolore magna aliqua。 Ut enim ad minim veniam, quis nostrud exeritation ullamco labouris nisi ut aliquip ex ea commodo consequat."
+msgstr ""
 "Lorem ipsum dolor sat amet，consectetur adipiscing elit。 Sed do eiusmod "
 "tempor inciditunt ut laboure et dolore magna aliqua。 Ut enim ad minim "
 "veniam, quis nostrud exeritation ullamco labouris nisi ut aliquip ex ea "
@@ -2978,7 +2990,10 @@ msgstr "Lorem ipsum dolor sat amet，consectetur adipiscing elit。 Sed do eiusm
 "aliquip ex ea commodo consequat.Lorem ipsum dolor sat amet，consectetur "
 "adipiscing elit。 Sed do eiusmod tempor inciditunt ut laboure et dolore "
 "magna aliqua。 Ut enim ad minim veniam, quis nostrud exeritation ullamco "
-"labouris nisi ut aliquip ex ea commodo consequat."
+"labouris nisi ut aliquip ex ea commodo consequat.Lorem ipsum dolor sat "
+"amet，consectetur adipiscing elit。 Sed do eiusmod tempor inciditunt ut "
+"laboure et dolore magna aliqua。 Ut enim ad minim veniam, quis nostrud "
+"exeritation ullamco labouris nisi ut aliquip ex ea commodo consequat."
 
 #: templates/conversion/pdf_to_word.html:281
 msgid "Extraction de la page"
@@ -4529,11 +4544,13 @@ msgstr "服务编辑"
 msgid ""
 "%(app_name)s est développé et maintenu par %(developer_name)s, un "
 "développeur passionné par la création d'outils web utiles et accessibles."
-msgstr "%(app_name)s 由 %(developer_name)s 开发和维护，%(developer_name)s 是一位热衷于创建有用且易于访问的 Web 工具的开发人员。"
+msgstr ""
 "%(app_name)s 由 %(developer_name)s 开发和维护，%(developer_name)s "
 "是一位热衷于创建有用且易于访问的 Web 工具的开发人员。%(app_name)s 由 %(developer_name)s "
 "开发和维护，%(developer_name)s 是一位热衷于创建有用且易于访问的 Web 工具的开发人员。%(app_name)s 由 "
-"%(developer_name)s 开发和维护，%(developer_name)s 是一位热衷于创建有用且易于访问的 Web 工具的开发人员。"
+"%(developer_name)s 开发和维护，%(developer_name)s 是一位热衷于创建有用且易于访问的 Web "
+"工具的开发人员。%(app_name)s 由 %(developer_name)s 开发和维护，%(developer_name)s "
+"是一位热衷于创建有用且易于访问的 Web 工具的开发人员。"
 
 #: templates/legal/legal.html:19
 msgid "Pour nous contacter :"
@@ -5158,235 +5175,3 @@ msgstr "格式：数字用逗号分隔，范围用连字符分隔。例如：“
 msgid "Diviser le PDF"
 msgstr "分割PDF"
 
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Extrayez le texte de vos PDF en documents Word"
-msgstr "将 PDF 中的文本提取到 Word 文档"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Word"
-msgstr "单词"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Excel"
-msgstr "Excel"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Image vers Excel"
-msgstr "图像到 Excel"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Éditer PDF"
-msgstr "编辑PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "TXT"
-msgstr "TXT"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Excel vers PDF"
-msgstr "Excel 转 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "PDF Formulaire"
-msgstr "PDF表格"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Convertissez vos images en document PDF"
-msgstr "将您的图像转换为 PDF 文档"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Extrayez le texte des images en documents Word"
-msgstr "将图像中的文本提取到 Word 文档中"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Convertissez vos pages HTML en PDF"
-msgstr "将 HTML 页面转换为 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Ajoutez un mot de passe pour protéger vos PDF"
-msgstr "添加密码以保护您的 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Convertissez vos PDF en documents Word (format DOC)"
-msgstr "将 PDF 转换为 Word 文档（DOC 格式）"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Image"
-msgstr "图片"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "JPG vers PDF"
-msgstr "JPG 转 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Convertissez vos PDF en format PDF/A pour l'archivage"
-msgstr "将 PDF 转换为 PDF/A 格式以便存档"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "PDF/A"
-msgstr "PDF/A"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Convertissez vos PDF en pages HTML"
-msgstr "将 PDF 转换为 HTML 页面"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Convertissez vos documents Word en PDF"
-msgstr "将您的 Word 文档转换为 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "PNG vers PDF"
-msgstr "PNG 转 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Signer PDF"
-msgstr "签署 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Exportez vos feuilles Excel en CSV"
-msgstr "将 Excel 工作表导出为 CSV"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Image vers PDF"
-msgstr "图像转PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Caviarder PDF"
-msgstr "编辑 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Extrayez les tableaux des images en Excel"
-msgstr "从 Excel 中的图像中提取表格"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "TXT vers PDF"
-msgstr "TXT 转 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Convertissez les pages de vos PDF en images"
-msgstr "将 PDF 页面转换为图像"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "HTML vers PDF"
-msgstr "HTML 到 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "PDF vers PowerPoint"
-msgstr "PDF 到 PowerPoint"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "PNG"
-msgstr "巴布亚新几内亚"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "PDF vers HTML"
-msgstr "PDF 到 HTML"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Convertissez vos images PNG en PDF"
-msgstr "将您的 PNG 图像转换为 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Convertissez vos fichiers CSV en Excel"
-msgstr "将 CSV 文件转换为 Excel"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "HTML"
-msgstr "超文本标记语言"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "CSV vers Excel"
-msgstr "CSV 到 Excel"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "PowerPoint vers PDF"
-msgstr "PowerPoint 转 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Image vers Word"
-msgstr "图像到文字"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Ajoutez votre signature électronique à votre PDF"
-msgstr "将您的电子签名添加到 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Convertissez vos images JPG en PDF"
-msgstr "将 JPG 图像转换为 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "PDF vers TXT"
-msgstr "PDF 到 TXT"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Retirez la protection des PDF"
-msgstr "删除 PDF 保护"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Convertissez vos PDF en présentations PowerPoint modifiables"
-msgstr "将 PDF 转换为可编辑的 PowerPoint 演示文稿"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "PDF vers Excel"
-msgstr "PDF 到 Excel"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Extrayez le texte de vos PDF en fichiers texte"
-msgstr "将 PDF 中的文本提取到文本文件"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "PDF vers Image"
-msgstr "PDF 到图像"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Convertissez vos fichiers texte en PDF"
-msgstr "将您的文本文件转换为 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "JPG"
-msgstr "JPG"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Préparer formulaire PDF"
-msgstr "准备 PDF 表格"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Supprimez définitivement le contenu sensible de votre PDF"
-msgstr "从 PDF 中永久删除敏感内容"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "PDF vers PDF/A"
-msgstr "PDF 到 PDF/A"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Modifiez ou ajoutez du texte, des images et des pages à votre PDF"
-msgstr "编辑文本、图像和页面或将其添加到 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Convertissez vos feuilles Excel en PDF"
-msgstr "将 Excel 工作表转换为 PDF"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "PDF vers DOC"
-msgstr "PDF 到 DOC"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Excel vers CSV"
-msgstr "Excel 转 CSV"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "CSV"
-msgstr "CSV"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "DOC"
-msgstr "D.O.C."
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "PowerPoint"
-msgstr "微软幻灯片软件"
-
-#: blueprints/conversion.py (CONVERSION_MAP)
-msgid "Extrayez les tableaux de vos PDF en feuilles Excel"
-msgstr "将 PDF 中的表格提取到 Excel 工作表中"
