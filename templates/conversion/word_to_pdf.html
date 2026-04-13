@@ -407,6 +407,11 @@ function startConversion() {
         console.log('Réponse reçue:', response.status, response.statusText);
         clearInterval(progressInterval);
         
+        // NOUVEAU CODE ICI
+        if (response.status === 429) {
+            throw new Error("Quota d'utilisation dépassé. Merci de patienter avant la prochaine conversion.");
+        }
+
         if (!response.ok) {
             let errorMsg = `Erreur serveur: ${response.status}`;
             try {

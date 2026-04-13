@@ -345,11 +345,28 @@ function startConversion() {
         
         updateStep(3);
     })
-    .catch(error => {
+    .catch(async error => {
         console.error('Erreur:', error);
         clearInterval(progressInterval);
         updateStep(1);
-        showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
+
+        let userMessage = '{{ _("Erreur lors de la conversion :") }} ' + error.message;
+
+        // Tenter de lire la réponse d'erreur du serveur si disponible
+        if (error.response && error.response.json) {
+            try {
+                const errorData = await error.response.json();
+                if (errorData.code === 429 || errorData.error.includes('Quota exceeded')) {
+                    userMessage = '{{ _("Conversion échouée : Quota de l\'API Gemini dépassé. Veuillez réessayer dans quelques minutes ou contacter le support pour une augmentation de quota.") }}';
+                } else if (errorData.error) {
+                    userMessage = '{{ _("Erreur serveur :") }} ' + errorData.error;
+                }
+            } catch (e) {
+                console.warn('Impossible de parser l\'erreur JSON:', e);
+            }
+        }
+
+        showError(userMessage);
     });
 }
 
