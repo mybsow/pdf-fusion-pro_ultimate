@@ -6,30 +6,17 @@
 <!-- Étape 1: Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
-        <i class="fas fa-file-word upload-icon" style="color: #2b579a;"></i>
+        <i class="fas fa-file-pdf upload-icon" style="color: #e74c3c;"></i>
         <h3>{{ _('Convertissez votre PDF en document Word') }}</h3>
         <p class="text-muted">{{ _('Transformez vos PDF en documents Word modifiables avec mise en page préservée') }}</p>
     </div>
 
-    <!-- Zone d'upload avec UploadManager -->
-    <div id="pdfWordUploadZone" 
-         class="upload-zone-pro upload-zone" 
-         data-info-id="fileInfo"
-         data-btn-id="convertBtn"
-         style="cursor: pointer;">
-        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
-        <p class="text-muted">{{ _('ou') }}</p>
-        <input type="file" class="file-input" accept=".pdf" style="display: none;">
-        <p class="text-muted small mt-3">
-            <i class="fas fa-info-circle"></i> 
-            {{ _('Format accepté : PDF (jusqu\'à 50MB)') }}
-        </p>
+    <!-- Zone d'upload simplifiée -->
+    <div class="mb-4">
+        <label class="form-label fw-bold">{{ _('Sélectionnez votre fichier PDF') }}</label>
+        <input type="file" id="pdfFile" class="form-control" accept=".pdf">
+        <small class="text-muted">{{ _('PDF uniquement • Taille max : 50MB') }}</small>
     </div>
-
-    <!-- Liste des fichiers et miniatures -->
-    <div id="fileInfo" class="file-list mt-4"></div>
-    <div id="pdfWordUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
 
     <!-- Options de conversion -->
     <div class="file-info-card mt-4">
@@ -39,7 +26,7 @@
         
         <div class="row g-4">
             <div class="col-md-6">
-                <label for="extractionMode" class="form-label fw-bold">{{ _('Mode d\'extraction') }}</label>
+                <label for="extractionMode" class="form-label fw-bold">{{ _("Mode d'extraction") }}</label>
                 <select class="form-select" id="extractionMode">
                     <option value="text">{{ _('Texte uniquement (plus léger)') }}</option>
                     <option value="layout" selected>{{ _('Conserver la mise en page (recommandé)') }}</option>
@@ -93,7 +80,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn">
             <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en Word') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
@@ -115,7 +102,7 @@
         </p>
         
         <div class="progress-container mx-auto" style="max-width: 500px;">
-            <div class="progress-bar" id="conversionProgress" style="width: 0%;"></div>
+            <div class="progress-bar bg-primary" id="conversionProgress" style="width: 0%; height: 8px; border-radius: 4px;"></div>
         </div>
         
         <div class="row mt-5 g-4">
@@ -154,7 +141,7 @@
 <!-- Étape 3: Téléchargement -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="success-animation">
+        <div class="success-animation" style="background-color: #2b579a;">
             <i class="fas fa-file-word"></i>
         </div>
         
@@ -208,18 +195,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Aperçu du texte extrait -->
-        <div class="mt-5">
-            <h5 class="mb-4">{{ _('Aperçu du texte extrait') }}</h5>
-            <div class="card border-0 shadow-sm">
-                <div class="card-body" style="max-height: 200px; overflow-y: auto;">
-                    <p class="text-muted fst-italic" id="textPreview">
-                        {{ _('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.') }}
-                    </p>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -228,9 +203,13 @@ let downloadUrl = null;
 let progressInterval = null;
 
 function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    const step1 = document.getElementById('step1Content');
+    const step2 = document.getElementById('step2Content');
+    const step3 = document.getElementById('step3Content');
+    
+    if (step1) step1.style.display = step === 1 ? 'block' : 'none';
+    if (step2) step2.style.display = step === 2 ? 'block' : 'none';
+    if (step3) step3.style.display = step === 3 ? 'block' : 'none';
 }
 
 function showError(message) {
@@ -240,136 +219,195 @@ function showError(message) {
         errorDiv.id = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
         errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-        document.getElementById('step1Content').prepend(errorDiv);
+        const step1 = document.getElementById('step1Content');
+        if (step1) step1.prepend(errorDiv);
     }
-    document.getElementById('conversionErrorMsg').textContent = message;
+    const msgSpan = document.getElementById('conversionErrorMsg');
+    if (msgSpan) msgSpan.textContent = message;
     errorDiv.style.display = 'block';
 }
 
 function startConversion() {
-    const uploadManager = window.uploadManagers?.['pdfWordUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
+    console.log('=== startConversion appelée ===');
+    
+    const fileInput = document.getElementById('pdfFile');
+    if (!fileInput) {
+        showError('Champ fichier non trouvé');
+        return;
+    }
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
         showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
         return;
     }
-
-    const file = uploadManager.getFiles()[0];
+    
+    const file = fileInput.files[0];
+    console.log('Fichier sélectionné:', file.name, file.size, file.type);
+    
+    // Vérifier que c'est un PDF
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        showError('{{ _("Le fichier doit être un PDF") }}');
+        return;
+    }
+    
     const formData = new FormData();
     formData.append('file', file);
     formData.append('mode', document.getElementById('extractionMode').value);
     formData.append('language', document.getElementById('language').value);
     formData.append('detect_tables', document.getElementById('detectTables').checked ? 'true' : 'false');
     formData.append('preserve_formatting', document.getElementById('preserveFormatting').checked ? 'true' : 'false');
-
+    
     updateStep(2);
-
-    const estimatedPages = Math.max(1, Math.floor(file.size / (200 * 1024)));
-    let currentPage = 0, paragraphs = 0, images = 0;
+    
+    // Simulation de progression
+    let progress = 0;
     const progressBar = document.getElementById('conversionProgress');
-
+    const processedPagesSpan = document.getElementById('processedPages');
+    const paragraphsSpan = document.getElementById('extractedParagraphs');
+    const imagesSpan = document.getElementById('detectedImages');
+    const conversionMessageSpan = document.getElementById('conversionMessage');
+    const conversionDetailsSpan = document.getElementById('conversionDetails');
+    
     progressInterval = setInterval(() => {
-        if (currentPage < estimatedPages) {
-            currentPage++;
-            const percent = Math.min(Math.floor((currentPage / estimatedPages) * 90), 90);
-            if (progressBar) progressBar.style.width = percent + '%';
-            paragraphs += Math.floor(Math.random() * 10) + 5;
-            if (currentPage % 3 === 0) images += Math.floor(Math.random() * 2) + 1;
-            const el = id => document.getElementById(id);
-            if (el('processedPages')) el('processedPages').textContent = currentPage;
-            if (el('extractedParagraphs')) el('extractedParagraphs').textContent = paragraphs;
-            if (el('detectedImages')) el('detectedImages').textContent = images;
-            if (el('conversionMessage')) el('conversionMessage').textContent = `{{ _("Extraction de la page") }} ${currentPage}/${estimatedPages}`;
-        } else {
-            clearInterval(progressInterval);
+        if (progress < 90) {
+            progress += 5;
+            if (progressBar) progressBar.style.width = progress + '%';
+            if (processedPagesSpan) {
+                const pages = Math.ceil(progress / 10);
+                processedPagesSpan.textContent = pages;
+            }
+            if (paragraphsSpan) {
+                paragraphsSpan.textContent = Math.floor(progress * 3);
+            }
+            if (imagesSpan) {
+                imagesSpan.textContent = Math.floor(progress / 10);
+            }
+            if (conversionMessageSpan) {
+                conversionMessageSpan.textContent = '{{ _("Traitement en cours...") }}';
+            }
+            if (conversionDetailsSpan) {
+                conversionDetailsSpan.innerHTML = '<i class="fas fa-cog fa-spin me-1"></i> {{ _("Analyse du document...") }}';
+            }
         }
-    }, 400);
-
+    }, 500);
+    
+    console.log('Envoi de la requête POST...');
+    
     fetch('{{ url_for("conversion.universal_converter", conversion_type="pdf-en-word") }}', {
         method: 'POST',
         body: formData
     })
     .then(async response => {
+        console.log('Réponse reçue:', response.status, response.statusText);
         clearInterval(progressInterval);
+        
         if (progressBar) progressBar.style.width = '100%';
-
+        
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erreur serveur ' + response.status);
+            let errorMsg = `Erreur serveur: ${response.status}`;
+            try {
+                const errorData = await response.json();
+                errorMsg = errorData.error || errorMsg;
+            } catch(e) {}
+            throw new Error(errorMsg);
         }
+        
         const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
-
+        if (contentType.includes('text/html')) {
+            throw new Error('Erreur serveur inattendue');
+        }
+        
         const blob = await response.blob();
-        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
-
-        downloadUrl = window.URL.createObjectURL(blob);
-        const contentDisposition = response.headers.get('Content-Disposition') || '';
-        let filename = file.name.replace(/\.pdf$/i, '') + '.docx';
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
-
+        console.log('Blob reçu:', blob.size, 'bytes');
+        
+        if (blob.size === 0) {
+            throw new Error('Fichier téléchargé vide');
+        }
+        
+        downloadUrl = URL.createObjectURL(blob);
         const downloadLink = document.getElementById('downloadLink');
         if (downloadLink) {
             downloadLink.href = downloadUrl;
-            downloadLink.setAttribute('download', filename);
+            const fileName = file.name.replace(/\.pdf$/i, '') + '.docx';
+            downloadLink.setAttribute('download', fileName);
         }
-
-        simulateFinalStats(file, estimatedPages);
+        
+        // Afficher les statistiques finales
+        const finalPagesSpan = document.getElementById('finalPages');
+        const finalWordsSpan = document.getElementById('finalWords');
+        const finalCharsSpan = document.getElementById('finalChars');
+        const finalSizeSpan = document.getElementById('finalSize');
+        
+        if (finalPagesSpan) finalPagesSpan.textContent = Math.ceil(progress / 10);
+        if (finalWordsSpan) finalWordsSpan.textContent = Math.floor(progress * 30);
+        if (finalCharsSpan) finalCharsSpan.textContent = Math.floor(progress * 150);
+        if (finalSizeSpan) finalSizeSpan.textContent = (blob.size / (1024 * 1024)).toFixed(2) + ' MB';
+        
         updateStep(3);
     })
     .catch(error => {
+        console.error('Erreur:', error);
         clearInterval(progressInterval);
         updateStep(1);
         showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
     });
 }
 
-function simulateFinalStats(file, pages) {
-    const words = pages * 300;
-    const el = id => document.getElementById(id);
-    if (el('finalPages')) el('finalPages').textContent = pages;
-    if (el('finalWords')) el('finalWords').textContent = words.toLocaleString();
-    if (el('finalChars')) el('finalChars').textContent = (words * 5).toLocaleString();
-    if (el('finalSize')) el('finalSize').textContent = (file.size * 1.1 / (1024 * 1024)).toFixed(2) + ' MB';
-}
-
 function resetConversion() {
-    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
-    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
-
-    const uploadManager = window.uploadManagers?.['pdfWordUploadZone'];
-    if (uploadManager) {
-        const files = uploadManager.getFiles();
-        for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
+    console.log('resetConversion appelée');
+    
+    if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+        downloadUrl = null;
     }
-
+    
+    if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+    }
+    
+    const fileInput = document.getElementById('pdfFile');
+    if (fileInput) fileInput.value = '';
+    
     const errorDiv = document.getElementById('conversionError');
     if (errorDiv) errorDiv.style.display = 'none';
+    
     const progressBar = document.getElementById('conversionProgress');
     if (progressBar) progressBar.style.width = '0%';
-
+    
     updateStep(1);
 }
 
+// Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
-    const tryBind = (attempt = 0) => {
-        const um = window.uploadManagers?.['pdfWordUploadZone'];
-        if (um) {
-            const origHandle = um.handleFiles.bind(um);
-            um.handleFiles = function(fl) { origHandle(fl); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
-            const origRemove = um.removeFile.bind(um);
-            um.removeFile = function(i) { origRemove(i); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
-        } else if (attempt < 10) {
-            setTimeout(() => tryBind(attempt + 1), 300);
-        }
-    };
-    tryBind();
+    console.log('DOM chargé - initialisation pdf_to_word');
+    
+    const convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.addEventListener('click', startConversion);
+        console.log('Bouton convertBtn configuré');
+    } else {
+        console.error('Bouton convertBtn non trouvé');
+    }
+    
+    const fileInput = document.getElementById('pdfFile');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            console.log('Fichier sélectionné:', e.target.files[0]?.name);
+        });
+    }
 });
 
-window.addEventListener('beforeunload', () => {
-    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
-    if (progressInterval) clearInterval(progressInterval);
+// Nettoyer l'URL object avant de quitter la page
+window.addEventListener('beforeunload', function() {
+    if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+    }
+    if (progressInterval) {
+        clearInterval(progressInterval);
+    }
 });
 </script>
+
 {% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}

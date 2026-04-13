@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-10 21:55+0000\n"
+"POT-Creation-Date: 2026-04-13 15:02+0000\n"
 "PO-Revision-Date: 2026-04-10 18:54+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: nl\n"
@@ -26,7 +26,7 @@ msgstr "Convertisseur van fiches"
 msgid "Word vers PDF"
 msgstr "Word versus PDF"
 
-#: app.py:539 templates/base.html:369 templates/base.html:513
+#: app.py:539 templates/base.html:295 templates/base.html:439
 msgid "Fusionner PDF"
 msgstr "Fusionner-pdf"
 
@@ -59,7 +59,7 @@ msgstr "Waarderingskosten"
 msgid "Exemple rating"
 msgstr "Voorbeeld beoordeling"
 
-#: blueprints/admin.py:157 blueprints/admin.py:461 templates/base.html:346
+#: blueprints/admin.py:157 blueprints/admin.py:461 templates/base.html:272
 #: templates/base_legal.html:242
 msgid "Accueil"
 msgstr "Accueil"
@@ -74,7 +74,7 @@ msgstr "Fusion-pdf"
 msgid "Division PDF"
 msgstr "Divisie PDF"
 
-#: blueprints/admin.py:163 blueprints/admin.py:467 templates/base.html:372
+#: blueprints/admin.py:163 blueprints/admin.py:467 templates/base.html:298
 #: templates/legal/about.html:48
 msgid "Rotation PDF"
 msgstr "Rotatie-pdf"
@@ -160,7 +160,7 @@ msgstr "Stuur een bericht naar een gezant met succes!"
 msgid "Une erreur technique est survenue. Veuillez réessayer."
 msgstr "Een foutieve techniek is het gevolg. Veuillez reessayer."
 
-#: blueprints/legal/routes.py:220 templates/base.html:410
+#: blueprints/legal/routes.py:220 templates/base.html:336
 #: templates/base_legal.html:285
 msgid "Contact"
 msgstr "Contact"
@@ -247,7 +247,7 @@ msgstr "%(filename)s is geen PDF-bestand"
 #: blueprints/pdf/routes.py:127 blueprints/pdf/routes.py:516
 #, python-format
 msgid "%(filename)s est vide"
-msgstr "%(bestandsnaam)s geschatte video"
+msgstr "%(filename)s geschatte video"
 
 #: blueprints/pdf/routes.py:130 blueprints/pdf/routes.py:519
 #, python-format
@@ -350,11 +350,11 @@ msgstr "Uw evaluatie is een hulp bij het verbeteren van onze dienstverlening."
 msgid "Une erreur est survenue. Veuillez réessayer."
 msgstr "Er is een fout opgetreden. Veuillez reessayer."
 
-#: templates/base.html:35
+#: templates/base.html:34
 msgid "PDF Fusion Pro - Outils PDF Gratuits"
 msgstr "PDF Fusion Pro - Beschikt over gratis PDF-bestanden"
 
-#: templates/base.html:37
+#: templates/base.html:36
 msgid ""
 "Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos "
 "fichiers en ligne. Rapide, sécurisé et sans installation."
@@ -362,7 +362,7 @@ msgstr ""
 "Er zijn gratis PDF-bestanden beschikbaar voor fusie, deler, compressie en"
 " conversie van uw bestanden. Snel, veilig en zonder installatie."
 
-#: templates/base.html:39
+#: templates/base.html:38
 msgid ""
 "PDF, convertisseur, fusionner, diviser, compresser, OCR, Word, Excel, "
 "PowerPoint, image"
@@ -370,139 +370,140 @@ msgstr ""
 "PDF, convertisseur, fusionner, deler, compressieprogramma, OCR, Word, "
 "Excel, PowerPoint, afbeelding"
 
-#: templates/base.html:44
+#: templates/base.html:43
 msgid "PDF Fusion Pro - Convertisseur de fichiers"
 msgstr "PDF Fusion Pro - Bestandsconversie"
 
-#: templates/base.html:45
+#: templates/base.html:44
 msgid "Convertissez gratuitement vos fichiers PDF, Word, Excel, images en ligne"
 msgstr ""
 "Converteer gratis naar bestanden in PDF, Word, Excel, afbeeldingen in "
 "ligne"
 
-#: templates/base.html:331 templates/base.html:506 templates/base.html:533
+#: templates/base.html:257 templates/base.html:432 templates/base.html:459
 #: templates/base_legal.html:227
 msgid "PDF Fusion Pro"
 msgstr "PDF Fusion Pro"
 
-#: templates/base.html:353 templates/base_legal.html:278
-#: templates/conversion/conversion_base.html:195
+#: templates/base.html:279 templates/base_legal.html:278
+#: templates/conversion/conversion_base.html:283
+#: templates/conversion/conversion_base.html:358
 msgid "Convertir"
 msgstr "Converteer"
 
-#: templates/base.html:356 templates/conversion/excel_to_pdf.html:60
-#: templates/conversion/html_to_pdf.html:85
+#: templates/base.html:282 templates/conversion/excel_to_pdf.html:60
+#: templates/conversion/html_to_pdf.html:101
 #: templates/conversion/image_to_pdf.html:79
 #: templates/conversion/jpg_to_pdf.html:78
 #: templates/conversion/png_to_pdf.html:78
 #: templates/conversion/powerpoint_to_pdf.html:90
 #: templates/conversion/txt_to_pdf.html:93
-#: templates/conversion/word_to_pdf.html:178
+#: templates/conversion/word_to_pdf.html:165
 msgid "Convertir en PDF"
 msgstr "Converteer en PDF"
 
-#: templates/base.html:357
+#: templates/base.html:283
 msgid "Word en PDF"
 msgstr "Word en PDF"
 
-#: templates/base.html:358
+#: templates/base.html:284
 msgid "Excel en PDF"
 msgstr "Excel en PDF"
 
-#: templates/base.html:359
+#: templates/base.html:285
 msgid "PowerPoint en PDF"
 msgstr "PowerPoint en PDF"
 
-#: templates/base.html:360
+#: templates/base.html:286
 msgid "Image en PDF"
 msgstr "Afbeelding en PDF"
 
-#: templates/base.html:362
+#: templates/base.html:288
 msgid "Convertir depuis PDF"
 msgstr "Converteer naar PDF"
 
-#: templates/base.html:363
+#: templates/base.html:289
 msgid "PDF en Word"
 msgstr "PDF en Word"
 
-#: templates/base.html:364
+#: templates/base.html:290
 msgid "PDF en Excel"
 msgstr "PDF en Excel"
 
-#: templates/base.html:365
+#: templates/base.html:291
 msgid "PDF en Image"
 msgstr "PDF en Afbeelding"
 
-#: templates/base.html:366
+#: templates/base.html:292
 msgid "PDF en PDF/A"
 msgstr "PDF en PDF/A"
 
-#: templates/base.html:368
+#: templates/base.html:294
 msgid "Outils PDF"
 msgstr "Outils PDF"
 
-#: templates/base.html:370 templates/base.html:514
+#: templates/base.html:296 templates/base.html:440
 msgid "Diviser PDF"
 msgstr "Deler pdf"
 
-#: templates/base.html:371 templates/base.html:516
+#: templates/base.html:297 templates/base.html:442
 msgid "Compresser PDF"
 msgstr "Compressie-pdf"
 
-#: templates/base.html:373
+#: templates/base.html:299
 msgid "Protéger PDF"
 msgstr "Beschermer PDF"
 
-#: templates/base.html:374
+#: templates/base.html:300
 msgid "Déverrouiller PDF"
 msgstr "Deverrouiller PDF"
 
-#: templates/base.html:376
+#: templates/base.html:302
 msgid "Autres conversions"
 msgstr "Autres-conversies"
 
-#: templates/base.html:377
+#: templates/base.html:303
 msgid "Image en Word"
 msgstr "Beeld en Woord"
 
-#: templates/base.html:378
+#: templates/base.html:304
 msgid "Image en Excel"
 msgstr "Afbeelding en Excel"
 
-#: templates/base.html:379
+#: templates/base.html:305
 msgid "CSV en Excel"
 msgstr "CSV en Excel"
 
-#: templates/base.html:380
+#: templates/base.html:306
 msgid "Excel en CSV"
 msgstr "Excel en CSV"
 
-#: templates/base.html:382 templates/pdf/index.html:105
+#: templates/base.html:308 templates/pdf/index.html:105
 msgid "Toutes les conversions"
 msgstr "Prijst minder conversies"
 
-#: templates/base.html:389 templates/base_legal.html:249
+#: templates/base.html:315 templates/base_legal.html:249
 msgid "Fusionner"
 msgstr "Fusionner"
 
-#: templates/base.html:394 templates/base_legal.html:256
+#: templates/base.html:320 templates/base_legal.html:256
 msgid "Diviser"
 msgstr "Deler"
 
-#: templates/base.html:399 templates/base_legal.html:263
+#: templates/base.html:325 templates/base_legal.html:263
 msgid "Tourner"
 msgstr "Tourner"
 
-#: templates/base.html:404 templates/base_legal.html:270
+#: templates/base.html:330 templates/base_legal.html:270
 msgid "Compresser"
 msgstr "Compressor"
 
-#: templates/base.html:417 templates/base.html:520 templates/base.html:522
+#: templates/base.html:343 templates/base.html:446 templates/base.html:448
 #: templates/base_legal.html:292 templates/base_legal.html:521
 msgid "À propos"
 msgstr "Voorstellen"
 
-#: templates/base.html:507
+#: templates/base.html:433
 msgid ""
 "Outils PDF gratuits en ligne. Convertissez, fusionnez, divisez et "
 "compressez vos fichiers PDF."
@@ -510,62 +511,62 @@ msgstr ""
 "Outils PDF gratis online. Converteer, fusioneer, verdeel en comprimeer uw"
 " PDF-bestanden."
 
-#: templates/base.html:508
+#: templates/base.html:434
 msgid ""
 "Vos fichiers sont traités de manière sécurisée et supprimés "
 "automatiquement."
 msgstr "Uw fiches zijn beveiligd met veilige en superieure automatisering."
 
-#: templates/base.html:511
+#: templates/base.html:437
 msgid "Outils"
 msgstr "Outils"
 
-#: templates/base.html:515
+#: templates/base.html:441
 msgid "Tourner PDF"
 msgstr "Tourner-pdf"
 
-#: templates/base.html:523 templates/base_legal.html:509
+#: templates/base.html:449 templates/base_legal.html:509
 msgid "Mentions légales"
 msgstr "Vermeldt juridische zaken"
 
-#: templates/base.html:524 templates/base_legal.html:513
+#: templates/base.html:450 templates/base_legal.html:513
 #: templates/legal/about.html:76
 msgid "Confidentialité"
 msgstr "Vertrouwelijk"
 
-#: templates/base.html:525
+#: templates/base.html:451
 msgid "Conditions d'utilisation"
 msgstr "Gebruiksvoorwaarden"
 
-#: templates/base.html:533
+#: templates/base.html:459
 msgid "Tous droits réservés."
 msgstr "Tous droits reserves."
 
-#: templates/base.html:536 templates/base_legal.html:504
+#: templates/base.html:462 templates/base_legal.html:504
 msgid "Version"
 msgstr "Versie"
 
-#: templates/base.html:537
+#: templates/base.html:463
 msgid "Hébergé sur Render"
 msgstr "Hébergé sur Render"
 
-#: templates/base.html:548
+#: templates/base.html:474
 msgid "Chargement..."
 msgstr "Afrekening..."
 
-#: templates/base.html:550
+#: templates/base.html:476 templates/conversion/pdf_to_word.html:286
 msgid "Traitement en cours..."
 msgstr "Traitement en cursus..."
 
-#: templates/base.html:551
+#: templates/base.html:477
 msgid "Veuillez patienter"
 msgstr "Veuillez-patiënt"
 
-#: templates/base.html:624
+#: templates/base.html:566
 msgid "Soutenez notre outil gratuit !"
 msgstr "Soutenez is niet gratis!"
 
-#: templates/base.html:625
+#: templates/base.html:567
 msgid ""
 "Ce service est entièrement gratuit grâce à vous. Un petit clic sur une "
 "publicité nous aide énormément à maintenir et améliorer PDF Fusion Pro."
@@ -574,7 +575,7 @@ msgstr ""
 "publiciteitshulpmiddel voor het onderhoud en de verbetering van PDF "
 "Fusion Pro."
 
-#: templates/base.html:626
+#: templates/base.html:568
 msgid "Je comprends"
 msgstr "Je begrijpt het"
 
@@ -593,8 +594,9 @@ msgstr "Retour à l'accueil"
 msgid "caractères"
 msgstr "karakters"
 
-#: templates/conversion/conversion_base.html:191
-#: templates/conversion/conversion_base.html:199
+#: templates/conversion/conversion_base.html:279
+#: templates/conversion/conversion_base.html:287
+#: templates/conversion/conversion_base.html:412
 #: templates/conversion/csv_to_excel.html:101
 #: templates/conversion/excel_to_csv.html:108
 #: templates/conversion/excel_to_pdf.html:91
@@ -605,56 +607,145 @@ msgstr "karakters"
 msgid "Télécharger"
 msgstr "Telecharger"
 
-#: templates/conversion/conversion_base.html:212
+#: templates/conversion/conversion_base.html:298
+#: templates/conversion/image_to_word.html:21
+msgid "Glissez-déposez vos fichiers ici"
+msgstr "Glissez-déposez vos fiches ici"
+
+#: templates/conversion/conversion_base.html:299
+#: templates/conversion/csv_to_excel.html:22
+#: templates/conversion/excel_to_csv.html:22
+#: templates/conversion/excel_to_pdf.html:22
+#: templates/conversion/html_to_pdf.html:23
+#: templates/conversion/image_to_excel.html:21
+#: templates/conversion/image_to_pdf.html:22
+#: templates/conversion/image_to_word.html:22
+#: templates/conversion/jpg_to_pdf.html:22
+#: templates/conversion/pdf_to_doc.html:22
+#: templates/conversion/pdf_to_excel.html:22
+#: templates/conversion/pdf_to_html.html:22
+#: templates/conversion/pdf_to_image.html:22
+#: templates/conversion/pdf_to_pdfa.html:22
+#: templates/conversion/pdf_to_ppt.html:22
+#: templates/conversion/pdf_to_txt.html:32
+#: templates/conversion/png_to_pdf.html:22
+#: templates/conversion/powerpoint_to_pdf.html:22
+#: templates/conversion/prepare_form.html:22
+#: templates/conversion/redact_pdf.html:22
+#: templates/conversion/sign_pdf.html:22
+#: templates/conversion/txt_to_pdf.html:22 templates/pdf/index.html:154
+msgid "ou"
+msgstr "ou"
+
+#: templates/conversion/conversion_base.html:301
+msgid "Parcourir"
+msgstr ""
+
+#: templates/conversion/conversion_base.html:305
+#, fuzzy
+msgid "Formats acceptés :"
+msgstr "Geaccepteerd formaat: TXT"
+
+#: templates/conversion/conversion_base.html:308
+msgid "jusqu'à"
+msgstr ""
+
+#: templates/conversion/conversion_base.html:309
+#, fuzzy
+msgid "fichiers"
+msgstr "Meer video"
+
+#: templates/conversion/conversion_base.html:309
+#, fuzzy
+msgid "fichier"
+msgstr "Meer video"
+
+#: templates/conversion/conversion_base.html:310
+msgid "max"
+msgstr ""
+
+#: templates/conversion/conversion_base.html:321
+msgid "Importer depuis le cloud"
+msgstr ""
+
+#: templates/conversion/conversion_base.html:369
 #: templates/conversion/index.html:216
 msgid "Sécurisé"
 msgstr "Beveiligd"
 
-#: templates/conversion/conversion_base.html:213
+#: templates/conversion/conversion_base.html:370
 msgid "Vos fichiers sont supprimés après conversion"
 msgstr "Uw fiches zijn niet superieur aan de conversie"
 
-#: templates/conversion/conversion_base.html:217
+#: templates/conversion/conversion_base.html:374
 #: templates/conversion/index.html:221
 msgid "Rapide"
 msgstr "Snel"
 
-#: templates/conversion/conversion_base.html:218
+#: templates/conversion/conversion_base.html:375
 msgid "Conversion en quelques secondes"
 msgstr "Conversie in quelques seconden"
 
-#: templates/conversion/conversion_base.html:222
+#: templates/conversion/conversion_base.html:379
 msgid "Confidentiel"
 msgstr "Vertrouwelijk"
 
-#: templates/conversion/conversion_base.html:223
+#: templates/conversion/conversion_base.html:380
 msgid "Personne n'accède à vos fichiers"
 msgstr "Personne n'accède à vos fiches"
 
-#: templates/conversion/conversion_base.html:227
+#: templates/conversion/conversion_base.html:384
 msgid "Accessible"
 msgstr "Toegankelijk"
 
-#: templates/conversion/conversion_base.html:228
+#: templates/conversion/conversion_base.html:385
 msgid "Utilisez depuis n'importe où"
 msgstr "Gebruik de importeerfunctie"
 
-#: templates/conversion/conversion_base.html:237
+#: templates/conversion/conversion_base.html:394
 #: templates/conversion/index.html:270
 msgid "Comment ça marche ?"
 msgstr "Commentaar ça marche?"
 
-#: templates/conversion/conversion_base.html:240
+#: templates/conversion/conversion_base.html:396
 msgid "Téléchargez votre fichier"
 msgstr "Telechargez votre fichier"
 
-#: templates/conversion/conversion_base.html:243
+#: templates/conversion/conversion_base.html:397
 msgid "Notre système le convertit automatiquement en"
 msgstr "Let op: het automatische conversiesysteem is ingeschakeld"
 
-#: templates/conversion/conversion_base.html:245
+#: templates/conversion/conversion_base.html:398
 msgid "Téléchargez ensuite votre fichier converti."
 msgstr "Téléchargez ensuite votre fichier converti."
+
+#: templates/conversion/conversion_base.html:409
+#: templates/conversion/csv_to_excel.html:98
+#: templates/conversion/excel_to_csv.html:105
+#: templates/conversion/excel_to_pdf.html:88
+#: templates/conversion/html_to_pdf.html:123
+#: templates/conversion/image_to_pdf.html:110
+#: templates/conversion/jpg_to_pdf.html:103
+#: templates/conversion/pdf_to_html.html:102
+#: templates/conversion/png_to_pdf.html:103
+#: templates/conversion/txt_to_pdf.html:118
+msgid "Conversion terminée !"
+msgstr "Conversie terminée!"
+
+#: templates/conversion/conversion_base.html:410
+#, fuzzy
+msgid "Votre fichier est prêt à être téléchargé"
+msgstr "Uw HTML-code is gratis"
+
+#: templates/conversion/conversion_base.html:415
+#: templates/conversion/html_to_pdf.html:132
+msgid "Convertir un autre fichier"
+msgstr "Converteer een ander document"
+
+#: templates/conversion/conversion_base.html:490
+#, fuzzy
+msgid "Veuillez sélectionner au moins un fichier"
+msgstr "Maak een keuze uit een beter CSV-bestand"
 
 #: templates/conversion/csv_to_excel.html:10
 msgid "Téléchargez vos fichiers CSV"
@@ -668,32 +759,6 @@ msgstr "Selecteer de bestanden die u in Excel kunt converteren"
 msgid "Glissez-déposez vos fichiers CSV ici"
 msgstr "Glissez-déposez vos fiches CSV ici"
 
-#: templates/conversion/csv_to_excel.html:22
-#: templates/conversion/excel_to_csv.html:22
-#: templates/conversion/excel_to_pdf.html:22
-#: templates/conversion/html_to_pdf.html:22
-#: templates/conversion/image_to_excel.html:21
-#: templates/conversion/image_to_pdf.html:22
-#: templates/conversion/image_to_word.html:22
-#: templates/conversion/jpg_to_pdf.html:22
-#: templates/conversion/pdf_to_doc.html:22
-#: templates/conversion/pdf_to_excel.html:22
-#: templates/conversion/pdf_to_html.html:22
-#: templates/conversion/pdf_to_image.html:22
-#: templates/conversion/pdf_to_pdfa.html:22
-#: templates/conversion/pdf_to_ppt.html:22
-#: templates/conversion/pdf_to_txt.html:32
-#: templates/conversion/pdf_to_word.html:22
-#: templates/conversion/png_to_pdf.html:22
-#: templates/conversion/powerpoint_to_pdf.html:22
-#: templates/conversion/prepare_form.html:22
-#: templates/conversion/redact_pdf.html:22
-#: templates/conversion/sign_pdf.html:22
-#: templates/conversion/txt_to_pdf.html:22
-#: templates/conversion/word_to_pdf.html:43 templates/pdf/index.html:154
-msgid "ou"
-msgstr "ou"
-
 #: templates/conversion/csv_to_excel.html:26
 msgid "Formats acceptés : CSV, TXT (jusqu'à 50MB par fichier)"
 msgstr "Geaccepteerde formaten: CSV, TXT (slechts 50MB per fichier)"
@@ -701,17 +766,17 @@ msgstr "Geaccepteerde formaten: CSV, TXT (slechts 50MB per fichier)"
 #: templates/conversion/csv_to_excel.html:36
 #: templates/conversion/excel_to_csv.html:36
 #: templates/conversion/excel_to_pdf.html:36
-#: templates/conversion/html_to_pdf.html:43
+#: templates/conversion/html_to_pdf.html:54
 #: templates/conversion/image_to_pdf.html:37
 #: templates/conversion/jpg_to_pdf.html:36
 #: templates/conversion/pdf_to_doc.html:37
 #: templates/conversion/pdf_to_html.html:36
 #: templates/conversion/pdf_to_image.html:37
 #: templates/conversion/pdf_to_ppt.html:37
-#: templates/conversion/pdf_to_word.html:37
+#: templates/conversion/pdf_to_word.html:24
 #: templates/conversion/png_to_pdf.html:36
 #: templates/conversion/powerpoint_to_pdf.html:37
-#: templates/conversion/word_to_pdf.html:58
+#: templates/conversion/word_to_pdf.html:45
 msgid "Options de conversion"
 msgstr "Opties voor conversie"
 
@@ -766,36 +831,35 @@ msgstr "Converteer naar Excel"
 #: templates/conversion/pdf_to_image.html:95
 #: templates/conversion/pdf_to_pdfa.html:120
 #: templates/conversion/pdf_to_ppt.html:99
-#: templates/conversion/pdf_to_word.html:100
+#: templates/conversion/pdf_to_word.html:87
 #: templates/conversion/powerpoint_to_pdf.html:93
 #: templates/conversion/prepare_form.html:173
 #: templates/conversion/protect_pdf.html:84
 #: templates/conversion/redact_pdf.html:201
 #: templates/conversion/sign_pdf.html:185
 #: templates/conversion/unlock_pdf.html:56
-#: templates/conversion/word_to_pdf.html:181 templates/pdf/compress.html:51
-#: templates/pdf/merge.html:36 templates/pdf/rotate.html:57
-#: templates/pdf/split.html:44
+#: templates/conversion/word_to_pdf.html:168 templates/pdf/pdf_base.html:93
 msgid "Réinitialiser"
 msgstr "Opnieuw initialiseren"
 
 #: templates/conversion/csv_to_excel.html:84
 #: templates/conversion/excel_to_csv.html:91
 #: templates/conversion/excel_to_pdf.html:74
-#: templates/conversion/html_to_pdf.html:96
+#: templates/conversion/html_to_pdf.html:110
 #: templates/conversion/image_to_pdf.html:93
 #: templates/conversion/jpg_to_pdf.html:89
 #: templates/conversion/pdf_to_doc.html:113
 #: templates/conversion/pdf_to_html.html:88
 #: templates/conversion/pdf_to_image.html:107
 #: templates/conversion/pdf_to_ppt.html:111
-#: templates/conversion/pdf_to_word.html:112
+#: templates/conversion/pdf_to_word.html:99
 #: templates/conversion/png_to_pdf.html:89
 #: templates/conversion/powerpoint_to_pdf.html:105
 #: templates/conversion/txt_to_pdf.html:104
 #: templates/conversion/word_to_pdf.html:16
+#: templates/conversion/word_to_pdf.html:180
 #: templates/conversion/word_to_pdf.html:194
-#: templates/conversion/word_to_pdf.html:208
+#: templates/conversion/word_to_pdf.html:396
 msgid "Conversion en cours..."
 msgstr "Conversie en natuurlijk..."
 
@@ -804,19 +868,6 @@ msgstr "Conversie en natuurlijk..."
 #: templates/conversion/excel_to_pdf.html:75
 msgid "Veuillez patienter pendant le traitement de vos fichiers"
 msgstr "Veuillez patiënt hanger le eigenschap van uw fiches"
-
-#: templates/conversion/csv_to_excel.html:98
-#: templates/conversion/excel_to_csv.html:105
-#: templates/conversion/excel_to_pdf.html:88
-#: templates/conversion/html_to_pdf.html:110
-#: templates/conversion/image_to_pdf.html:110
-#: templates/conversion/jpg_to_pdf.html:103
-#: templates/conversion/pdf_to_html.html:102
-#: templates/conversion/png_to_pdf.html:103
-#: templates/conversion/txt_to_pdf.html:118
-#: templates/conversion/word_to_pdf.html:355
-msgid "Conversion terminée !"
-msgstr "Conversie terminée!"
 
 #: templates/conversion/csv_to_excel.html:99
 #: templates/conversion/image_to_excel.html:186
@@ -836,7 +887,6 @@ msgstr "Maak een keuze uit een beter CSV-bestand"
 #: templates/conversion/csv_to_excel.html:210
 #: templates/conversion/excel_to_csv.html:217
 #: templates/conversion/excel_to_pdf.html:199
-#: templates/conversion/html_to_pdf.html:246
 #: templates/conversion/image_to_pdf.html:233
 #: templates/conversion/jpg_to_pdf.html:215
 #: templates/conversion/pdf_to_doc.html:267
@@ -844,11 +894,11 @@ msgstr "Maak een keuze uit een beter CSV-bestand"
 #: templates/conversion/pdf_to_image.html:324
 #: templates/conversion/pdf_to_pdfa.html:340
 #: templates/conversion/pdf_to_ppt.html:322
-#: templates/conversion/pdf_to_word.html:323
+#: templates/conversion/pdf_to_word.html:352
 #: templates/conversion/png_to_pdf.html:198
 #: templates/conversion/powerpoint_to_pdf.html:313
 #: templates/conversion/txt_to_pdf.html:232
-#: templates/conversion/word_to_pdf.html:475
+#: templates/conversion/word_to_pdf.html:460
 msgid "Erreur lors de la conversion :"
 msgstr "Erreur lors de la conversie:"
 
@@ -858,7 +908,7 @@ msgstr "Erreur lors de la conversie:"
 #: templates/conversion/pdf_to_image.html:243
 #: templates/conversion/pdf_to_pdfa.html:263
 #: templates/conversion/pdf_to_ppt.html:247
-#: templates/conversion/pdf_to_word.html:252
+#: templates/conversion/pdf_to_word.html:240
 #: templates/conversion/protect_pdf.html:141
 #: templates/conversion/redact_pdf.html:430
 #: templates/conversion/sign_pdf.html:363
@@ -912,7 +962,6 @@ msgstr "Wijzig, voeg tekst of afbeeldingen toe aan uw document"
 #: templates/conversion/pdf_to_pdfa.html:21
 #: templates/conversion/pdf_to_ppt.html:21
 #: templates/conversion/pdf_to_txt.html:31
-#: templates/conversion/pdf_to_word.html:21
 #: templates/conversion/redact_pdf.html:21
 #: templates/conversion/sign_pdf.html:21
 msgid "Glissez-déposez votre fichier PDF ici"
@@ -1166,7 +1215,7 @@ msgid "Formats acceptés : XLS, XLSX, XLSM (jusqu'à 50MB par fichier)"
 msgstr "Geaccepteerde formaten: XLS, XLSX, XLSM (slechts 50MB per fichier)"
 
 #: templates/conversion/excel_to_pdf.html:40
-#: templates/conversion/html_to_pdf.html:55
+#: templates/conversion/html_to_pdf.html:68
 #: templates/conversion/image_to_pdf.html:41
 #: templates/conversion/jpg_to_pdf.html:49
 #: templates/conversion/png_to_pdf.html:49
@@ -1174,27 +1223,25 @@ msgid "Orientation :"
 msgstr "Oriëntatie:"
 
 #: templates/conversion/excel_to_pdf.html:42
-#: templates/conversion/html_to_pdf.html:57
+#: templates/conversion/html_to_pdf.html:70
 #: templates/conversion/image_to_pdf.html:43
 #: templates/conversion/jpg_to_pdf.html:52
 #: templates/conversion/png_to_pdf.html:52
-#: templates/conversion/word_to_pdf.html:79
-#: templates/conversion/word_to_pdf.html:486
+#: templates/conversion/word_to_pdf.html:66
 msgid "Portrait"
 msgstr "Portret"
 
 #: templates/conversion/excel_to_pdf.html:43
-#: templates/conversion/html_to_pdf.html:58
+#: templates/conversion/html_to_pdf.html:71
 #: templates/conversion/image_to_pdf.html:44
 #: templates/conversion/jpg_to_pdf.html:53
 #: templates/conversion/png_to_pdf.html:53
-#: templates/conversion/word_to_pdf.html:84
-#: templates/conversion/word_to_pdf.html:486
+#: templates/conversion/word_to_pdf.html:71
 msgid "Paysage"
 msgstr "Betaal"
 
 #: templates/conversion/excel_to_pdf.html:47
-#: templates/conversion/html_to_pdf.html:47
+#: templates/conversion/html_to_pdf.html:59
 #: templates/conversion/image_to_pdf.html:57
 #: templates/conversion/jpg_to_pdf.html:40
 #: templates/conversion/png_to_pdf.html:40
@@ -1211,19 +1258,19 @@ msgstr "Brief"
 msgid "Vos fichiers PDF sont prêts à être téléchargés"
 msgstr "Uw PDF-bestanden worden afgedrukt op de televisie"
 
-#: templates/conversion/html_to_pdf.html:10
+#: templates/conversion/html_to_pdf.html:11
 msgid "Téléchargez votre fichier HTML"
 msgstr "Download uw HTML-bestand"
 
-#: templates/conversion/html_to_pdf.html:11
+#: templates/conversion/html_to_pdf.html:12
 msgid "ou collez votre code directement"
 msgstr "U heeft de coderichting nodig"
 
-#: templates/conversion/html_to_pdf.html:21
+#: templates/conversion/html_to_pdf.html:22
 msgid "Glissez-déposez votre fichier HTML ici"
 msgstr "Glissez-déposez votre fichier HTML ici"
 
-#: templates/conversion/html_to_pdf.html:26
+#: templates/conversion/html_to_pdf.html:27
 msgid "Formats acceptés : HTML, HTM"
 msgstr "Geaccepteerde formaten: HTML, HTM"
 
@@ -1231,53 +1278,29 @@ msgstr "Geaccepteerde formaten: HTML, HTM"
 msgid "Ou collez votre code HTML :"
 msgstr "U kunt uw HTML-code gebruiken:"
 
-#: templates/conversion/html_to_pdf.html:37
-msgid ""
-"&lt;!DOCTYPE html&gt;\n"
-"&lt;html&gt;\n"
-"&lt;head&gt;\n"
-"    &lt;title&gt;Ma page&lt;/title&gt;\n"
-"&lt;/head&gt;\n"
-"&lt;body&gt;\n"
-"    &lt;h1&gt;Titre&lt;/h1&gt;\n"
-"    &lt;p&gt;Contenu...&lt;/p&gt;\n"
-"&lt;/body&gt;\n"
-"&lt;/html&gt;"
-msgstr ""
-"&lt;!DOCTYPE html&gt;\n"
-"&lt;html&gt;\n"
-"&lt;hoofd&gt;\n"
-"    &lt;titel&gt;Ma-pagina&lt;/titel&gt;\n"
-"&lt;/hoofd&gt;\n"
-"&lt;lichaam&gt;\n"
-"    &lt;h1&gt;Titre&lt;/h1&gt;\n"
-"    &lt;p&gt;Inhoud...&lt;/p&gt;\n"
-"&lt;/lichaam&gt;\n"
-"&lt;/html&gt;"
-
-#: templates/conversion/html_to_pdf.html:50
+#: templates/conversion/html_to_pdf.html:62
 #: templates/conversion/txt_to_pdf.html:50
 msgid "Lettre"
 msgstr "Letre"
 
-#: templates/conversion/html_to_pdf.html:62
+#: templates/conversion/html_to_pdf.html:76
 msgid "Marges (mm) :"
 msgstr "Marges (mm):"
 
-#: templates/conversion/html_to_pdf.html:69
+#: templates/conversion/html_to_pdf.html:84
 #: templates/conversion/pdf_to_ppt.html:68
 msgid "Inclure les images"
 msgstr "Voeg afbeeldingen toe"
 
-#: templates/conversion/html_to_pdf.html:75
+#: templates/conversion/html_to_pdf.html:91
 msgid "Activer JavaScript"
 msgstr "Actiever JavaScript"
 
-#: templates/conversion/html_to_pdf.html:97
+#: templates/conversion/html_to_pdf.html:111
 msgid "Veuillez patienter pendant le traitement de votre fichier"
 msgstr "Veuillez patiënt hanger le eigenschap van uw fichier"
 
-#: templates/conversion/html_to_pdf.html:111
+#: templates/conversion/html_to_pdf.html:124
 #: templates/conversion/image_to_pdf.html:111
 #: templates/conversion/jpg_to_pdf.html:104
 #: templates/conversion/png_to_pdf.html:104
@@ -1285,20 +1308,22 @@ msgstr "Veuillez patiënt hanger le eigenschap van uw fichier"
 msgid "Votre PDF est prêt à être téléchargé"
 msgstr "Uw PDF is gratis"
 
-#: templates/conversion/html_to_pdf.html:113
+#: templates/conversion/html_to_pdf.html:127
 #: templates/conversion/jpg_to_pdf.html:106
 #: templates/conversion/png_to_pdf.html:106
 #: templates/conversion/txt_to_pdf.html:121
 msgid "Télécharger le PDF"
 msgstr "Download de PDF"
 
-#: templates/conversion/html_to_pdf.html:117
-msgid "Convertir un autre fichier"
-msgstr "Converteer een ander document"
-
-#: templates/conversion/html_to_pdf.html:181
-msgid "Veuillez sélectionner un fichier ou coller du code HTML"
+#: templates/conversion/html_to_pdf.html:188
+#, fuzzy
+msgid "Veuillez fournir un fichier ou du code HTML"
 msgstr "Selecteer een bestand of code-HTML"
+
+#: templates/conversion/html_to_pdf.html:230
+#, fuzzy
+msgid "Erreur lors de la conversion"
+msgstr "Erreur lors de la conversie:"
 
 #: templates/conversion/image_to_excel.html:10
 msgid "Téléchargez votre image ou PDF"
@@ -1334,7 +1359,7 @@ msgstr "Tesseract OCR — automatische detectie van colonnes en en-têtes"
 #: templates/conversion/image_to_excel.html:49
 #: templates/conversion/pdf_to_doc.html:42
 #: templates/conversion/pdf_to_excel.html:42
-#: templates/conversion/pdf_to_word.html:42
+#: templates/conversion/pdf_to_word.html:29
 msgid "Mode d'extraction"
 msgstr "Extractiewijze"
 
@@ -1485,6 +1510,7 @@ msgstr "Hoog (fichier plus gros)"
 
 #: templates/conversion/image_to_pdf.html:52
 #: templates/conversion/jpg_to_pdf.html:60
+#: templates/conversion/pdf_to_image.html:65
 #: templates/conversion/sign_pdf.html:108
 msgid "Moyenne"
 msgstr "Moyenne"
@@ -1541,10 +1567,6 @@ msgstr "Voeg de tekst van uw afbeeldingen toe"
 msgid "Convertissez images et PDF en documents Word éditables avec OCR"
 msgstr "Converteer afbeeldingen en PDF naar documenten Word-editables met OCR"
 
-#: templates/conversion/image_to_word.html:21
-msgid "Glissez-déposez vos fichiers ici"
-msgstr "Glissez-déposez vos fiches ici"
-
 #: templates/conversion/image_to_word.html:37
 msgid "Paramètres OCR avancés"
 msgstr "Geavanceerde OCR-parameters"
@@ -1556,7 +1578,7 @@ msgstr "Talen van verkenning"
 #: templates/conversion/image_to_word.html:49
 #: templates/conversion/pdf_to_doc.html:54
 #: templates/conversion/pdf_to_excel.html:54
-#: templates/conversion/pdf_to_word.html:54
+#: templates/conversion/pdf_to_word.html:41
 #: templates/conversion/prepare_form.html:123
 msgid "Français"
 msgstr "Frans"
@@ -1564,7 +1586,7 @@ msgstr "Frans"
 #: templates/conversion/image_to_word.html:53
 #: templates/conversion/pdf_to_doc.html:55
 #: templates/conversion/pdf_to_excel.html:55
-#: templates/conversion/pdf_to_word.html:55
+#: templates/conversion/pdf_to_word.html:42
 #: templates/conversion/prepare_form.html:124
 msgid "Anglais"
 msgstr "Engels"
@@ -1572,7 +1594,7 @@ msgstr "Engels"
 #: templates/conversion/image_to_word.html:57
 #: templates/conversion/pdf_to_doc.html:57
 #: templates/conversion/pdf_to_excel.html:57
-#: templates/conversion/pdf_to_word.html:57
+#: templates/conversion/pdf_to_word.html:44
 #: templates/conversion/prepare_form.html:126
 msgid "Espagnol"
 msgstr "Espagnol"
@@ -1580,7 +1602,7 @@ msgstr "Espagnol"
 #: templates/conversion/image_to_word.html:63
 #: templates/conversion/pdf_to_doc.html:56
 #: templates/conversion/pdf_to_excel.html:56
-#: templates/conversion/pdf_to_word.html:56
+#: templates/conversion/pdf_to_word.html:43
 #: templates/conversion/prepare_form.html:125
 msgid "Allemand"
 msgstr "Allemand"
@@ -1588,7 +1610,7 @@ msgstr "Allemand"
 #: templates/conversion/image_to_word.html:67
 #: templates/conversion/pdf_to_doc.html:58
 #: templates/conversion/pdf_to_excel.html:58
-#: templates/conversion/pdf_to_word.html:58
+#: templates/conversion/pdf_to_word.html:45
 #: templates/conversion/prepare_form.html:127
 msgid "Italien"
 msgstr "Italiaans"
@@ -1612,7 +1634,7 @@ msgstr "Hoog (plus précis)"
 #: templates/conversion/image_to_word.html:91
 #: templates/conversion/pdf_to_doc.html:45
 #: templates/conversion/pdf_to_txt.html:61
-#: templates/conversion/word_to_pdf.html:117
+#: templates/conversion/word_to_pdf.html:104
 msgid "Conserver la mise en page"
 msgstr "Conserveer de mise op pagina"
 
@@ -1686,7 +1708,7 @@ msgid "Votre document Word est prêt au téléchargement"
 msgstr "Uw document Word is gratis"
 
 #: templates/conversion/image_to_word.html:167
-#: templates/conversion/pdf_to_word.html:168
+#: templates/conversion/pdf_to_word.html:155
 msgid "Télécharger Word"
 msgstr "Telecharger Woord"
 
@@ -1753,7 +1775,6 @@ msgstr "Organisatie en paragrafen"
 #: templates/conversion/prepare_form.html:308
 #: templates/conversion/redact_pdf.html:469
 #: templates/conversion/redact_pdf.html:488
-#: templates/conversion/word_to_pdf.html:442
 msgid "Finalisation..."
 msgstr "Afronding..."
 
@@ -1998,7 +2019,6 @@ msgstr "Transformeer uw documenten PDF en formaat Word-compatibel met oude versi
 #: templates/conversion/pdf_to_image.html:26
 #: templates/conversion/pdf_to_pdfa.html:26
 #: templates/conversion/pdf_to_ppt.html:26
-#: templates/conversion/pdf_to_word.html:26
 msgid "Format accepté : PDF (jusqu'à 50MB)"
 msgstr "Geaccepteerd formaat: PDF (slechts 50MB)"
 
@@ -2012,39 +2032,39 @@ msgid "Texte et images"
 msgstr "Tekst en afbeeldingen"
 
 #: templates/conversion/pdf_to_doc.html:48
-#: templates/conversion/pdf_to_word.html:48
+#: templates/conversion/pdf_to_word.html:35
 msgid "Choisissez le niveau de détail à conserver"
 msgstr "Kies het detailniveau voor conservering"
 
 #: templates/conversion/pdf_to_doc.html:52
 #: templates/conversion/pdf_to_excel.html:52
-#: templates/conversion/pdf_to_word.html:52
+#: templates/conversion/pdf_to_word.html:39
 msgid "Langue du document"
 msgstr "Langue du document"
 
 #: templates/conversion/pdf_to_doc.html:60
-#: templates/conversion/pdf_to_word.html:60
+#: templates/conversion/pdf_to_word.html:47
 msgid "Améliore la reconnaissance du texte"
 msgstr "Améliore la reconnaissance du texte"
 
 #: templates/conversion/pdf_to_doc.html:69
-#: templates/conversion/pdf_to_word.html:69
+#: templates/conversion/pdf_to_word.html:56
 msgid "Détecter les tableaux"
 msgstr "Ontdek de tableaus"
 
 #: templates/conversion/pdf_to_doc.html:70
-#: templates/conversion/pdf_to_word.html:70
+#: templates/conversion/pdf_to_word.html:57
 msgid "Convertit automatiquement les tableaux en format Word"
 msgstr "Converteer automatisch de tabellen naar het Word-formaat"
 
 #: templates/conversion/pdf_to_doc.html:79
 #: templates/conversion/pdf_to_excel.html:77
-#: templates/conversion/pdf_to_word.html:79
+#: templates/conversion/pdf_to_word.html:66
 msgid "Conserver la mise en forme"
 msgstr "Bewaar de vorm en vorm"
 
 #: templates/conversion/pdf_to_doc.html:80
-#: templates/conversion/pdf_to_word.html:80
+#: templates/conversion/pdf_to_word.html:67
 msgid "Maintient les polices, tailles et styles"
 msgstr "Onderhoud het beleid, de staarten en de stijlen"
 
@@ -2069,13 +2089,13 @@ msgid "Convertir en DOC"
 msgstr "Convertir en DOC"
 
 #: templates/conversion/pdf_to_doc.html:115
-#: templates/conversion/pdf_to_word.html:114
+#: templates/conversion/pdf_to_word.html:101
 msgid "Analyse et conversion de votre PDF..."
 msgstr "Analyseer en converteer uw PDF..."
 
 #: templates/conversion/pdf_to_doc.html:123
 #: templates/conversion/pdf_to_doc.html:274
-#: templates/conversion/pdf_to_word.html:149
+#: templates/conversion/pdf_to_word.html:136
 msgid "Extraction du texte..."
 msgstr "Extractie van tekst..."
 
@@ -2083,9 +2103,9 @@ msgstr "Extractie van tekst..."
 #: templates/conversion/pdf_to_image.html:156
 #: templates/conversion/pdf_to_pdfa.html:181
 #: templates/conversion/pdf_to_ppt.html:160
-#: templates/conversion/pdf_to_word.html:161
+#: templates/conversion/pdf_to_word.html:148
 #: templates/conversion/powerpoint_to_pdf.html:154
-#: templates/conversion/word_to_pdf.html:257
+#: templates/conversion/word_to_pdf.html:243
 msgid "Conversion réussie !"
 msgstr "Conversie réussie!"
 
@@ -2101,16 +2121,16 @@ msgstr "Telecharger DOC"
 #: templates/conversion/pdf_to_image.html:167
 #: templates/conversion/pdf_to_pdfa.html:192
 #: templates/conversion/pdf_to_ppt.html:171
-#: templates/conversion/pdf_to_word.html:172
+#: templates/conversion/pdf_to_word.html:159
 #: templates/conversion/powerpoint_to_pdf.html:165
-#: templates/conversion/word_to_pdf.html:293
+#: templates/conversion/word_to_pdf.html:279
 msgid "Nouvelle conversion"
 msgstr "Nieuwe conversie"
 
 #: templates/conversion/pdf_to_doc.html:155
 #: templates/conversion/pdf_to_pdfa.html:145
 #: templates/conversion/pdf_to_ppt.html:124
-#: templates/conversion/pdf_to_word.html:125
+#: templates/conversion/pdf_to_word.html:112
 msgid "Pages traitées"
 msgstr "Pagina's traitées"
 
@@ -2122,7 +2142,7 @@ msgstr "Taille van het boek"
 #: templates/conversion/pdf_to_image.html:192
 #: templates/conversion/pdf_to_ppt.html:188
 #: templates/conversion/powerpoint_to_pdf.html:198
-#: templates/conversion/word_to_pdf.html:237
+#: templates/conversion/word_to_pdf.html:223
 msgid "Format"
 msgstr "Formaat"
 
@@ -2257,6 +2277,7 @@ msgid "Feuilles"
 msgstr "Feuilles"
 
 #: templates/conversion/pdf_to_excel.html:253
+#: templates/conversion/pdf_to_word.html:289
 #: templates/conversion/redact_pdf.html:466
 msgid "Analyse du document..."
 msgstr "Analyseer uw document..."
@@ -2404,16 +2425,14 @@ msgid "Qualité (pour JPG)"
 msgstr "Kwaliteit (voor JPG)"
 
 #: templates/conversion/pdf_to_image.html:64
-msgid "Haute (90-100%)"
-msgstr "Hoog (90-100%)"
-
-#: templates/conversion/pdf_to_image.html:65
-msgid "Moyenne (70-80%)"
-msgstr "Moyenne (70-80%)"
+#, fuzzy
+msgid "Haute"
+msgstr "Datum"
 
 #: templates/conversion/pdf_to_image.html:66
-msgid "Basse (50-60%)"
-msgstr "Basse (50-60%)"
+#, fuzzy
+msgid "Basse"
+msgstr "Epaisse"
 
 #: templates/conversion/pdf_to_image.html:68
 msgid "Uniquement pour le format JPG"
@@ -2684,7 +2703,7 @@ msgid "Version:"
 msgstr "Versie:"
 
 #: templates/conversion/pdf_to_pdfa.html:355
-#: templates/conversion/word_to_pdf.html:482
+#: templates/conversion/word_to_pdf.html:443
 msgid "Pages:"
 msgstr "Pagina's:"
 
@@ -2793,7 +2812,7 @@ msgid "Télécharger PowerPoint"
 msgstr "Telecharger PowerPoint"
 
 #: templates/conversion/pdf_to_ppt.html:196
-#: templates/conversion/pdf_to_word.html:205
+#: templates/conversion/pdf_to_word.html:192
 msgid "Taille"
 msgstr "Taille"
 
@@ -2890,23 +2909,34 @@ msgstr ""
 "Transformeer uw PDF-documenten en Word-aanpasbare documenten met een "
 "bewaarde pagina"
 
-#: templates/conversion/pdf_to_word.html:44
+#: templates/conversion/pdf_to_word.html:16
+#, fuzzy
+msgid "Sélectionnez votre fichier PDF"
+msgstr "Téléchargez votre fichier PDF"
+
+#: templates/conversion/pdf_to_word.html:18
+#: templates/conversion/protect_pdf.html:27
+#: templates/conversion/unlock_pdf.html:27 templates/pdf/pdf_base.html:76
+msgid "PDF uniquement • Taille max : 50MB"
+msgstr "PDF uniekheid • Taille max : 50MB"
+
+#: templates/conversion/pdf_to_word.html:31
 msgid "Texte uniquement (plus léger)"
 msgstr "Texte uniekheid (plus léger)"
 
-#: templates/conversion/pdf_to_word.html:45
+#: templates/conversion/pdf_to_word.html:32
 msgid "Conserver la mise en page (recommandé)"
 msgstr "Conserver la mise en page (aanbevolen)"
 
-#: templates/conversion/pdf_to_word.html:46
+#: templates/conversion/pdf_to_word.html:33
 msgid "Texte et images (complet)"
 msgstr "Tekst en afbeeldingen (compleet)"
 
-#: templates/conversion/pdf_to_word.html:90
+#: templates/conversion/pdf_to_word.html:77
 msgid "Format Word"
 msgstr "Woord opmaken"
 
-#: templates/conversion/pdf_to_word.html:90
+#: templates/conversion/pdf_to_word.html:77
 msgid ""
 "Le fichier généré est au format DOCX, compatible avec Microsoft Word 2007"
 " et versions ultérieures, ainsi qu'avec LibreOffice et Google Docs."
@@ -2915,53 +2945,37 @@ msgstr ""
 "Microsoft Word 2007 en de nieuwste versies, inclusief LibreOffice en "
 "Google Docs."
 
-#: templates/conversion/pdf_to_word.html:97
+#: templates/conversion/pdf_to_word.html:84
 msgid "Convertir en Word"
 msgstr "Convertir en Word"
 
-#: templates/conversion/pdf_to_word.html:133
+#: templates/conversion/pdf_to_word.html:120
 msgid "Paragraphes"
 msgstr "Paragrafen"
 
-#: templates/conversion/pdf_to_word.html:141
+#: templates/conversion/pdf_to_word.html:128
 msgid "Images détectées"
 msgstr "Afbeeldingen détectés"
 
-#: templates/conversion/pdf_to_word.html:163
+#: templates/conversion/pdf_to_word.html:150
 msgid "Votre document Word est prêt"
 msgstr "Uw document Word is prachtig"
 
-#: templates/conversion/pdf_to_word.html:181
+#: templates/conversion/pdf_to_word.html:168
 msgid "Pages"
 msgstr "Pagina's"
 
-#: templates/conversion/pdf_to_word.html:189
+#: templates/conversion/pdf_to_word.html:176
 msgid "Mots"
 msgstr "Motten"
 
-#: templates/conversion/pdf_to_word.html:197
+#: templates/conversion/pdf_to_word.html:184
 msgid "Caractères"
 msgstr "Karakters"
 
-#: templates/conversion/pdf_to_word.html:214
-msgid "Aperçu du texte extrait"
-msgstr "Aperçu du texte extrait"
-
-#: templates/conversion/pdf_to_word.html:218
-msgid ""
-"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod "
-"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim "
-"veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
-"commodo consequat."
+#: templates/conversion/pdf_to_word.html:249
+msgid "Le fichier doit être un PDF"
 msgstr ""
-"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Het kan gebeuren"
-" dat u tijdens uw werk een ongeluk krijgt en veel geld krijgt. Ut enim ad"
-" minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
-"ex ea commodo consequat."
-
-#: templates/conversion/pdf_to_word.html:281
-msgid "Extraction de la page"
-msgstr "Extractie van de pagina"
 
 #: templates/conversion/png_to_pdf.html:10
 msgid "Téléchargez vos images PNG"
@@ -3014,7 +3028,7 @@ msgid "Qualité du PDF"
 msgstr "Kwaliteit van PDF"
 
 #: templates/conversion/powerpoint_to_pdf.html:64
-#: templates/conversion/word_to_pdf.html:104
+#: templates/conversion/word_to_pdf.html:91
 msgid "Haute (pour impression)"
 msgstr "Haute (gietafdruk)"
 
@@ -3047,7 +3061,7 @@ msgid "Choisissez comment traiter plusieurs fichiers"
 msgstr "Choisissez comment traiter plusieurs ficiers"
 
 #: templates/conversion/powerpoint_to_pdf.html:83
-#: templates/conversion/word_to_pdf.html:171
+#: templates/conversion/word_to_pdf.html:158
 msgid "Format PDF"
 msgstr "Formaat PDF"
 
@@ -3358,8 +3372,7 @@ msgstr ""
 "Bescherm uw PDF met een mot de passe pour empêcher toute ouverture of "
 "wijziging die niet is toegestaan."
 
-#: templates/conversion/protect_pdf.html:25 templates/pdf/compress.html:21
-#: templates/pdf/rotate.html:21 templates/pdf/split.html:21
+#: templates/conversion/protect_pdf.html:25 templates/pdf/pdf_base.html:74
 msgid "Déposez votre PDF ici"
 msgstr "Plaats uw PDF ici"
 
@@ -3367,13 +3380,6 @@ msgstr "Plaats uw PDF ici"
 #: templates/conversion/unlock_pdf.html:26
 msgid "Glissez-déposez ou cliquez pour sélectionner"
 msgstr "Glissez-déposez of kliekje voor selectie"
-
-#: templates/conversion/protect_pdf.html:27
-#: templates/conversion/unlock_pdf.html:27 templates/pdf/compress.html:23
-#: templates/pdf/merge.html:23 templates/pdf/rotate.html:23
-#: templates/pdf/split.html:23
-msgid "PDF uniquement • Taille max : 50MB"
-msgstr "PDF uniekheid • Taille max : 50MB"
 
 #: templates/conversion/protect_pdf.html:39
 msgid "Mot de passe d'ouverture"
@@ -3408,7 +3414,7 @@ msgid "Permet de restreindre la modification"
 msgstr "Laat de wijziging beperken"
 
 #: templates/conversion/protect_pdf.html:62
-#: templates/conversion/word_to_pdf.html:155
+#: templates/conversion/word_to_pdf.html:142
 msgid "Permissions"
 msgstr "Machtigingen"
 
@@ -3437,7 +3443,7 @@ msgstr ""
 " herstelproces terechtgekomen."
 
 #: templates/conversion/protect_pdf.html:81
-#: templates/conversion/word_to_pdf.html:139
+#: templates/conversion/word_to_pdf.html:126
 msgid "Protéger le PDF"
 msgstr "Bescherm de PDF"
 
@@ -3694,7 +3700,7 @@ msgstr "Uitwissen"
 msgid "Fin"
 msgstr "Vin"
 
-#: templates/conversion/sign_pdf.html:74 templates/pdf/compress.html:38
+#: templates/conversion/sign_pdf.html:74 templates/pdf/compress.html:14
 msgid "Moyen"
 msgstr "Moyen"
 
@@ -3739,7 +3745,7 @@ msgid "Script simple"
 msgstr "Eenvoudig script"
 
 #: templates/conversion/sign_pdf.html:100
-#: templates/conversion/word_to_pdf.html:230
+#: templates/conversion/word_to_pdf.html:216
 msgid "Standard"
 msgstr "Standaard"
 
@@ -3957,132 +3963,133 @@ msgstr "Converteer uw document Word en PDF"
 msgid "Transformez vos fichiers DOC/DOCX en PDF avec une mise en page préservée"
 msgstr "Transformeer uw DOC/DOCX-bestanden naar PDF met een opgeslagen pagina"
 
-#: templates/conversion/word_to_pdf.html:42
-msgid "Glissez-déposez votre document Word ici"
-msgstr "Glissez-déposez uw document Word ici"
+#: templates/conversion/word_to_pdf.html:37
+#, fuzzy
+msgid "Sélectionnez votre document Word"
+msgstr "Selecteer een Word-document"
 
-#: templates/conversion/word_to_pdf.html:47
+#: templates/conversion/word_to_pdf.html:39
 msgid "Formats acceptés : DOC, DOCX (jusqu'à 50MB)"
 msgstr "Geaccepteerde formaten: DOC, DOCX (slechts 50MB)"
 
-#: templates/conversion/word_to_pdf.html:63
+#: templates/conversion/word_to_pdf.html:50
 msgid "Format de page"
 msgstr "Formatteer de pagina"
 
-#: templates/conversion/word_to_pdf.html:65
+#: templates/conversion/word_to_pdf.html:52
 msgid "A4 (210 × 297 mm)"
 msgstr "A4 (210 × 297 mm)"
 
-#: templates/conversion/word_to_pdf.html:66
+#: templates/conversion/word_to_pdf.html:53
 msgid "Letter (8.5 × 11 in)"
 msgstr "Brief (8,5 x 11 inch)"
 
-#: templates/conversion/word_to_pdf.html:67
+#: templates/conversion/word_to_pdf.html:54
 msgid "Legal (8.5 × 14 in)"
 msgstr "Juridisch (8,5 x 14 inch)"
 
-#: templates/conversion/word_to_pdf.html:68
+#: templates/conversion/word_to_pdf.html:55
 msgid "A3 (297 × 420 mm)"
 msgstr "A3 (297 × 420 mm)"
 
-#: templates/conversion/word_to_pdf.html:69
+#: templates/conversion/word_to_pdf.html:56
 msgid "A5 (148 × 210 mm)"
 msgstr "A5 (148 × 210 mm)"
 
-#: templates/conversion/word_to_pdf.html:71
+#: templates/conversion/word_to_pdf.html:58
 msgid "Format standard pour la plupart des documents"
 msgstr "Standaardformaat voor het grote aantal documenten"
 
-#: templates/conversion/word_to_pdf.html:75
+#: templates/conversion/word_to_pdf.html:62
 msgid "Orientation"
 msgstr "Oriëntatie"
 
-#: templates/conversion/word_to_pdf.html:90
+#: templates/conversion/word_to_pdf.html:77
 msgid "Marges"
 msgstr "Marges"
 
-#: templates/conversion/word_to_pdf.html:92
+#: templates/conversion/word_to_pdf.html:79
 msgid "Normales (2.5 cm)"
 msgstr "Normaal (2,5 cm)"
 
-#: templates/conversion/word_to_pdf.html:93
+#: templates/conversion/word_to_pdf.html:80
 msgid "Étroites (1.3 cm)"
 msgstr "Étroieten (1,3 cm)"
 
-#: templates/conversion/word_to_pdf.html:94
+#: templates/conversion/word_to_pdf.html:81
 msgid "Modérées (1.9 cm)"
 msgstr "Moderen (1,9 cm)"
 
-#: templates/conversion/word_to_pdf.html:95
+#: templates/conversion/word_to_pdf.html:82
 msgid "Larges (5 cm)"
 msgstr "Grote maten (5 cm)"
 
-#: templates/conversion/word_to_pdf.html:97
+#: templates/conversion/word_to_pdf.html:84
 msgid "Espace entre le texte et les bords"
 msgstr "Ruimte tussen de tekst en de borden"
 
-#: templates/conversion/word_to_pdf.html:101
-#: templates/conversion/word_to_pdf.html:229
+#: templates/conversion/word_to_pdf.html:88
+#: templates/conversion/word_to_pdf.html:215
 msgid "Qualité"
 msgstr "Kwaliteit"
 
-#: templates/conversion/word_to_pdf.html:103
+#: templates/conversion/word_to_pdf.html:90
 msgid "Standard (équilibré)"
 msgstr "Standaard (équilibré)"
 
-#: templates/conversion/word_to_pdf.html:105
+#: templates/conversion/word_to_pdf.html:92
 msgid "Optimisé écran (taille réduite)"
 msgstr "Optimisé écran (taille réduite)"
 
-#: templates/conversion/word_to_pdf.html:106
+#: templates/conversion/word_to_pdf.html:93
 msgid "Optimisé impression"
 msgstr "Geoptimaliseerde indruk"
 
-#: templates/conversion/word_to_pdf.html:108
+#: templates/conversion/word_to_pdf.html:95
 msgid "Influence la taille du fichier final"
 msgstr "Invloed op de taille van het uiteindelijke resultaat"
 
-#: templates/conversion/word_to_pdf.html:118
+#: templates/conversion/word_to_pdf.html:105
 msgid "Préserve les polices, tableaux et styles"
 msgstr "Bewaar het beleid, de tableaus en de stijlen"
 
-#: templates/conversion/word_to_pdf.html:127
+#: templates/conversion/word_to_pdf.html:114
 msgid "Inclure les signets"
 msgstr "Inclusief zegels"
 
-#: templates/conversion/word_to_pdf.html:128
+#: templates/conversion/word_to_pdf.html:115
 msgid "Pour une navigation plus facile"
 msgstr "Geef een navigatie plus gemak"
 
-#: templates/conversion/word_to_pdf.html:140
+#: templates/conversion/word_to_pdf.html:127
 msgid "Ajouter un mot de passe et des restrictions"
 msgstr "Voeg een mot de passe en de beperkingen toe"
 
-#: templates/conversion/word_to_pdf.html:151
+#: templates/conversion/word_to_pdf.html:138
 msgid "Mot de passe"
 msgstr "Mot de passe"
 
-#: templates/conversion/word_to_pdf.html:152
+#: templates/conversion/word_to_pdf.html:139
 msgid "Min. 6 caractères"
 msgstr "Min. 6 karakters"
 
-#: templates/conversion/word_to_pdf.html:157
+#: templates/conversion/word_to_pdf.html:144
 msgid "Visualisation seule"
 msgstr "Visualisatie seule"
 
-#: templates/conversion/word_to_pdf.html:158
+#: templates/conversion/word_to_pdf.html:145
 msgid "Impression autorisée"
 msgstr "Gemachtigde impressie"
 
-#: templates/conversion/word_to_pdf.html:159
+#: templates/conversion/word_to_pdf.html:146
 msgid "Modification autorisée"
 msgstr "Wijziging toegestaan"
 
-#: templates/conversion/word_to_pdf.html:160
+#: templates/conversion/word_to_pdf.html:147
 msgid "Toutes permissions"
 msgstr "Toutes-machtigingen"
 
-#: templates/conversion/word_to_pdf.html:171
+#: templates/conversion/word_to_pdf.html:158
 msgid ""
 "Compatible avec tous les lecteurs PDF. Les polices sont intégrées pour "
 "une reproduction fidèle."
@@ -4090,108 +4097,72 @@ msgstr ""
 "Compatibel met alle docenten PDF. Het beleid is geïntegreerd voor een "
 "reproductieve trouw."
 
-#: templates/conversion/word_to_pdf.html:195
-#: templates/conversion/word_to_pdf.html:419
+#: templates/conversion/word_to_pdf.html:181
 msgid "Analyse de la structure"
 msgstr "Analyseer de structuur"
 
-#: templates/conversion/word_to_pdf.html:210
+#: templates/conversion/word_to_pdf.html:196
 msgid "Analyse et conversion de votre document Word..."
 msgstr "Analyseer en converteer uw document Word..."
 
-#: templates/conversion/word_to_pdf.html:221
+#: templates/conversion/word_to_pdf.html:207
 msgid "Pages estimées"
 msgstr "Pagina's schattingen"
 
-#: templates/conversion/word_to_pdf.html:245
-#: templates/conversion/word_to_pdf.html:419
+#: templates/conversion/word_to_pdf.html:231
 msgid "Lecture du document Word..."
 msgstr "Lezing van het document Word..."
 
-#: templates/conversion/word_to_pdf.html:259
-#: templates/conversion/word_to_pdf.html:356
+#: templates/conversion/word_to_pdf.html:245
 msgid "Votre PDF est prêt au téléchargement"
 msgstr "Uw PDF is gratis"
 
-#: templates/conversion/word_to_pdf.html:267
+#: templates/conversion/word_to_pdf.html:253
 msgid "document.pdf"
 msgstr "document.pdf"
 
-#: templates/conversion/word_to_pdf.html:269
+#: templates/conversion/word_to_pdf.html:255
 msgid "Taille: 0 MB | Pages: 0"
 msgstr "Taille: 0 MB | Pagina's: 0"
 
-#: templates/conversion/word_to_pdf.html:278
+#: templates/conversion/word_to_pdf.html:264
 msgid "Détails"
 msgstr "Details"
 
-#: templates/conversion/word_to_pdf.html:280
+#: templates/conversion/word_to_pdf.html:266
 msgid "Format: A4<br>Orientation: Portrait<br>Qualité: Standard"
 msgstr "Formaat: A4<br>Oriëntatie: Portret<br>Kwaliteit: Standaard"
 
-#: templates/conversion/word_to_pdf.html:289
+#: templates/conversion/word_to_pdf.html:275
 msgid "Télécharger PDF"
 msgstr "Telecharger PDF"
 
-#: templates/conversion/word_to_pdf.html:301
-msgid "PDF vers Word"
-msgstr "PDF versus Word"
+#: templates/conversion/word_to_pdf.html:356
+#, fuzzy
+msgid "Veuillez sélectionner un fichier Word"
+msgstr "Bekijk een selectie van een pdf-bestand"
 
-#: templates/conversion/word_to_pdf.html:386
-msgid "Veuillez sélectionner un document Word"
-msgstr "Selecteer een Word-document"
+#: templates/conversion/word_to_pdf.html:366
+msgid "Le fichier doit être au format DOC ou DOCX"
+msgstr ""
 
-#: templates/conversion/word_to_pdf.html:420
-msgid "Extraction des styles..."
-msgstr "Extractie van stijlen..."
+#: templates/conversion/word_to_pdf.html:396
+#, fuzzy
+msgid "Traitement du document..."
+msgstr "Traitement OCR..."
 
-#: templates/conversion/word_to_pdf.html:420
-msgid "Préservation des polices"
-msgstr "Behoud van het beleid"
-
-#: templates/conversion/word_to_pdf.html:421
-msgid "Traitement des images..."
-msgstr "Traitement van afbeeldingen..."
-
-#: templates/conversion/word_to_pdf.html:421
-msgid "Optimisation des graphiques"
-msgstr "Grafische optimalisatie"
-
-#: templates/conversion/word_to_pdf.html:422
-msgid "Génération du PDF..."
-msgstr "Generatie van PDF..."
-
-#: templates/conversion/word_to_pdf.html:422
-msgid "Création des pages"
-msgstr "Creatie van pagina's"
-
-#: templates/conversion/word_to_pdf.html:423
-msgid "Application des paramètres..."
-msgstr "Toepassing van parameters..."
-
-#: templates/conversion/word_to_pdf.html:423
-msgid "Configuration finale"
-msgstr "Configuratie finale"
-
-#: templates/conversion/word_to_pdf.html:442
-msgid "Votre PDF est prêt"
-msgstr "Uw PDF is goed"
-
-#: templates/conversion/word_to_pdf.html:482
+#: templates/conversion/word_to_pdf.html:443
 msgid "Taille:"
 msgstr "Taille:"
 
-#: templates/conversion/word_to_pdf.html:489
-msgid "Format:"
-msgstr "Formaat:"
+#: templates/conversion/word_to_pdf.html:445
+#, fuzzy
+msgid "Terminé"
+msgstr "Terminé!"
 
-#: templates/conversion/word_to_pdf.html:489
-msgid "Orientation:"
-msgstr "Oriëntatie:"
-
-#: templates/conversion/word_to_pdf.html:489
-msgid "Qualité:"
-msgstr "Kwaliteit:"
+#: templates/conversion/word_to_pdf.html:445
+msgid "Votre PDF est prêt"
+msgstr "Uw PDF is goed"
 
 #: templates/errors/404.html:6
 msgid "Page non trouvée - PDF Fusion Pro"
@@ -4304,9 +4275,7 @@ msgstr "Publicité - Soutenez notre service gratuit"
 msgid "Annonce"
 msgstr "Aankondigen"
 
-#: templates/includes/adsterra_ads.html:110 templates/pdf/compress.html:68
-#: templates/pdf/merge.html:54 templates/pdf/rotate.html:74
-#: templates/pdf/split.html:63
+#: templates/includes/adsterra_ads.html:110 templates/pdf/pdf_base.html:140
 msgid ""
 "Cet outil est entièrement gratuit. Un clic sur les annonces nous aide à "
 "le maintenir !"
@@ -4540,7 +4509,10 @@ msgstr ""
 
 #: templates/legal/legal.html:10
 msgid "Éditeur du service"
-msgstr "Editor van dienst"
+msgstr ""
+"Editor van dienst%(app_name)s is ontwikkeld en onderhouden door "
+"%(developer_name)s, een gepassioneerde ontwikkeling bij het creëren van "
+"outils webhulpprogramma's en toegankelijke toepassingen. %(app_name)s"
 
 #: templates/legal/legal.html:11
 #, python-format
@@ -4548,9 +4520,6 @@ msgid ""
 "%(app_name)s est développé et maintenu par %(developer_name)s, un "
 "développeur passionné par la création d'outils web utiles et accessibles."
 msgstr ""
-"%(app_name) is ontwikkeld en onderhouden door %(developer_name)s, een "
-"gepassioneerde ontwikkeling bij het creëren van outils webhulpprogramma's"
-" en toegankelijke toepassingen."
 
 #: templates/legal/legal.html:19
 msgid "Pour nous contacter :"
@@ -4965,53 +4934,35 @@ msgstr "Stel een vraag over de voorwaarden:"
 msgid "Nous contacter via le formulaire"
 msgstr "Neem contact op via het formulier"
 
-#: templates/pdf/compress.html:3
-msgid "Compresser PDF - PDF Fusion Pro"
-msgstr "Compressieprogramma PDF - PDF Fusion Pro"
-
-#: templates/pdf/compress.html:4
-msgid "Réduisez la taille de vos fichiers PDF tout en conservant la qualité."
-msgstr "Verklein de taille van uw pdf-bestanden met behoud van de kwaliteit."
-
-#: templates/pdf/compress.html:11 templates/pdf/index.html:85
+#: templates/pdf/compress.html:3 templates/pdf/index.html:85
 msgid "Compresser un PDF"
 msgstr "Compressie van pdf"
 
-#: templates/pdf/compress.html:12
+#: templates/pdf/compress.html:4
 msgid "Déposez votre fichier PDF et obtenez une version plus légère."
 msgstr ""
 "Zorg ervoor dat u een PDF-bestand maakt en een versie plus een versie "
 "krijgt."
 
-#: templates/pdf/compress.html:22 templates/pdf/rotate.html:22
-#: templates/pdf/split.html:22
-msgid "Glissez-déposez votre fichier ou cliquez pour parcourir"
-msgstr "Glissez-déposez votre ficchier of kliekje voor het parcourir"
-
-#: templates/pdf/compress.html:33
+#: templates/pdf/compress.html:9
 msgid "Niveau de compression"
 msgstr "Compressieniveau"
 
-#: templates/pdf/compress.html:36
+#: templates/pdf/compress.html:12
 msgid "Faible"
 msgstr "Fabel"
 
-#: templates/pdf/compress.html:40
+#: templates/pdf/compress.html:16
 msgid "Fort"
 msgstr "Fort"
 
-#: templates/pdf/compress.html:42
+#: templates/pdf/compress.html:18
 msgid "Compression plus forte = fichier plus petit, qualité réduite"
 msgstr "Compressie plus forte = fichier plus petit, qualité réduite"
 
-#: templates/pdf/compress.html:48
+#: templates/pdf/compress.html:23
 msgid "Compresser le PDF"
 msgstr "Compressiebestand pdf"
-
-#: templates/pdf/compress.html:59 templates/pdf/merge.html:45
-#: templates/pdf/rotate.html:65 templates/pdf/split.html:53
-msgid "Sponsorisé"
-msgstr "Sponsoren"
 
 #: templates/pdf/index.html:3
 msgid "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
@@ -5071,7 +5022,7 @@ msgstr "Verdeel een pdf"
 msgid "Extrayez des pages spécifiques ou divisez par plages"
 msgstr "Extra pagina's die specifiek zijn of verdeeld over verschillende pagina's"
 
-#: templates/pdf/index.html:49 templates/pdf/split.html:11
+#: templates/pdf/index.html:49 templates/pdf/split.html:3
 msgid "Diviser un PDF"
 msgstr "Deel een PDF"
 
@@ -5087,7 +5038,7 @@ msgstr "Tourner een pdf-bestand"
 msgid "Faites pivoter des pages spécifiques ou l'ensemble du document"
 msgstr "U kunt de specifieke pagina's of het documentensemble omdraaien"
 
-#: templates/pdf/index.html:67 templates/pdf/rotate.html:11
+#: templates/pdf/index.html:67 templates/pdf/rotate.html:3
 msgid "Tourner un PDF"
 msgstr "Tourner in PDF"
 
@@ -5180,94 +5131,214 @@ msgid "Chiffrement SSL et suppression automatique des fichiers"
 msgstr "SSL uitschakelen en automatische onderdrukking van bestanden"
 
 #: templates/pdf/merge.html:3
-msgid "Fusionner PDF - PDF Fusion Pro"
-msgstr "Fusionner PDF - PDF Fusion Pro"
-
-#: templates/pdf/merge.html:4
-msgid ""
-"Fusionnez plusieurs fichiers PDF en un seul document, facilement et "
-"rapidement."
-msgstr ""
-"Fusionnez plusieurs fichiers PDF en un seul document, facilement et "
-"rapidement."
-
-#: templates/pdf/merge.html:11
 msgid "Fusionner plusieurs PDF"
 msgstr "Fusionner plusieurs pdf"
 
-#: templates/pdf/merge.html:12
+#: templates/pdf/merge.html:4
 msgid "Déposez vos fichiers PDF et obtenez un document unique fusionné."
 msgstr "Plaats uw PDF-bestanden en verkrijg een uniek samengevoegd document."
 
-#: templates/pdf/merge.html:21
-msgid "Déposez vos PDF ici"
-msgstr "Déposez vos PDF ici"
-
-#: templates/pdf/merge.html:22
-msgid "Glissez-déposez vos fichiers ou cliquez pour parcourir"
-msgstr "Glissez-déposez vos fiches of kliekjes voor het parcourir"
-
-#: templates/pdf/merge.html:33
+#: templates/pdf/merge.html:10
 msgid "Fusionner les PDF"
 msgstr "Fusionner-bestanden PDF"
 
-#: templates/pdf/rotate.html:3
-msgid "Tourner PDF - PDF Fusion Pro"
-msgstr "Tourner PDF - PDF Fusion Pro"
+#: templates/pdf/pdf_base.html:61
+#, fuzzy
+msgid "Outil PDF"
+msgstr "Outils PDF"
+
+#: templates/pdf/pdf_base.html:62
+#, fuzzy
+msgid "Traitez votre fichier PDF"
+msgstr "Téléchargez votre fichier PDF"
+
+#: templates/pdf/pdf_base.html:75
+msgid "Glissez-déposez votre fichier ou cliquez pour parcourir"
+msgstr "Glissez-déposez votre ficchier of kliekje voor het parcourir"
+
+#: templates/pdf/pdf_base.html:90
+msgid "Exécuter"
+msgstr ""
+
+#: templates/pdf/pdf_base.html:102
+msgid "Ou importez depuis le cloud"
+msgstr ""
+
+#: templates/pdf/pdf_base.html:131
+msgid "Sponsorisé"
+msgstr "Sponsoren"
 
 #: templates/pdf/rotate.html:4
-msgid "Corrigez l'orientation de vos fichiers PDF en quelques clics."
-msgstr "Corrigeer de oriëntatie van uw PDF-bestanden en klik op klikken."
-
-#: templates/pdf/rotate.html:12
 msgid "Déposez votre fichier PDF et choisissez l'angle de rotation."
 msgstr "Plaats uw PDF-bestand en kies de rotatiehoek."
 
-#: templates/pdf/rotate.html:33
+#: templates/pdf/rotate.html:9
 msgid "Pages à tourner"
 msgstr "Pagina's à tourner"
 
-#: templates/pdf/rotate.html:34 templates/pdf/split.html:34
+#: templates/pdf/rotate.html:10 templates/pdf/split.html:10
 msgid "Ex: 1,3-5 ou 'all' pour toutes"
 msgstr "Bijvoorbeeld: 1,3-5 of 'alle' giet toutes"
 
-#: templates/pdf/rotate.html:35
+#: templates/pdf/rotate.html:11
 msgid "Format: numéros séparés par des virgules, plages avec tiret"
 msgstr "Formaat: numéros séparés par des virgules, plages avec Tiret"
 
-#: templates/pdf/rotate.html:38
+#: templates/pdf/rotate.html:14
 msgid "Angle de rotation"
 msgstr "Rotatiehoek"
 
-#: templates/pdf/rotate.html:54
+#: templates/pdf/rotate.html:29
 msgid "Tourner le PDF"
 msgstr "Tourner le PDF"
 
-#: templates/pdf/split.html:3
-msgid "Diviser PDF - PDF Fusion Pro"
-msgstr "Deler PDF - PDF Fusion Pro"
-
 #: templates/pdf/split.html:4
-msgid ""
-"Divisez vos fichiers PDF en plusieurs documents selon les pages "
-"sélectionnées."
-msgstr "Verdeel uw PDF-bestanden en extra documenten op de geselecteerde pagina's."
-
-#: templates/pdf/split.html:12
 msgid "Déposez votre fichier PDF et sélectionnez les pages à extraire."
 msgstr "Plaats uw PDF-bestand en selecteer extra pagina's."
 
-#: templates/pdf/split.html:33
+#: templates/pdf/split.html:9
 msgid "Pages à extraire"
 msgstr "Pagina's à extraire"
 
-#: templates/pdf/split.html:35
+#: templates/pdf/split.html:11
 msgid "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\""
 msgstr ""
 "Formaat: numéros séparés par des virgules, plages avec Tiret. "
 "Bijvoorbeeld: \"1,3-5\""
 
-#: templates/pdf/split.html:41
+#: templates/pdf/split.html:16
 msgid "Diviser le PDF"
 msgstr "Verdeel het PDF-bestand"
+
+#~ msgid ""
+#~ "&lt;!DOCTYPE html&gt;\n"
+#~ "&lt;html&gt;\n"
+#~ "&lt;head&gt;\n"
+#~ "    &lt;title&gt;Ma page&lt;/title&gt;\n"
+#~ "&lt;/head&gt;\n"
+#~ "&lt;body&gt;\n"
+#~ "    &lt;h1&gt;Titre&lt;/h1&gt;\n"
+#~ "    &lt;p&gt;Contenu...&lt;/p&gt;\n"
+#~ "&lt;/body&gt;\n"
+#~ "&lt;/html&gt;"
+#~ msgstr ""
+#~ "&lt;!DOCTYPE html&gt;\n"
+#~ "&lt;html&gt;\n"
+#~ "&lt;hoofd&gt;\n"
+#~ "    &lt;titel&gt;Ma-pagina&lt;/titel&gt;\n"
+#~ "&lt;/hoofd&gt;\n"
+#~ "&lt;lichaam&gt;\n"
+#~ "    &lt;h1&gt;Titre&lt;/h1&gt;\n"
+#~ "    &lt;p&gt;Inhoud...&lt;/p&gt;\n"
+#~ "&lt;/lichaam&gt;\n"
+#~ "&lt;/html&gt;"
+
+#~ msgid "Haute (90-100%)"
+#~ msgstr "Hoog (90-100%)"
+
+#~ msgid "Moyenne (70-80%)"
+#~ msgstr "Moyenne (70-80%)"
+
+#~ msgid "Basse (50-60%)"
+#~ msgstr "Basse (50-60%)"
+
+#~ msgid "Aperçu du texte extrait"
+#~ msgstr "Aperçu du texte extrait"
+
+#~ msgid ""
+#~ "Lorem ipsum dolor sit amet, consectetur"
+#~ " adipiscing elit. Sed do eiusmod "
+#~ "tempor incididunt ut labore et dolore"
+#~ " magna aliqua. Ut enim ad minim "
+#~ "veniam, quis nostrud exercitation ullamco "
+#~ "laboris nisi ut aliquip ex ea "
+#~ "commodo consequat."
+#~ msgstr ""
+#~ "Lorem ipsum dolor sit amet, consectetur"
+#~ " adipiscing elit. Het kan gebeuren "
+#~ "dat u tijdens uw werk een ongeluk"
+#~ " krijgt en veel geld krijgt. Ut "
+#~ "enim ad minim veniam, quis nostrud "
+#~ "exercitation ullamco laboris nisi ut "
+#~ "aliquip ex ea commodo consequat."
+
+#~ msgid "Extraction de la page"
+#~ msgstr "Extractie van de pagina"
+
+#~ msgid "Glissez-déposez votre document Word ici"
+#~ msgstr "Glissez-déposez uw document Word ici"
+
+#~ msgid "PDF vers Word"
+#~ msgstr "PDF versus Word"
+
+#~ msgid "Extraction des styles..."
+#~ msgstr "Extractie van stijlen..."
+
+#~ msgid "Préservation des polices"
+#~ msgstr "Behoud van het beleid"
+
+#~ msgid "Traitement des images..."
+#~ msgstr "Traitement van afbeeldingen..."
+
+#~ msgid "Optimisation des graphiques"
+#~ msgstr "Grafische optimalisatie"
+
+#~ msgid "Génération du PDF..."
+#~ msgstr "Generatie van PDF..."
+
+#~ msgid "Création des pages"
+#~ msgstr "Creatie van pagina's"
+
+#~ msgid "Application des paramètres..."
+#~ msgstr "Toepassing van parameters..."
+
+#~ msgid "Configuration finale"
+#~ msgstr "Configuratie finale"
+
+#~ msgid "Format:"
+#~ msgstr "Formaat:"
+
+#~ msgid "Orientation:"
+#~ msgstr "Oriëntatie:"
+
+#~ msgid "Qualité:"
+#~ msgstr "Kwaliteit:"
+
+#~ msgid "Compresser PDF - PDF Fusion Pro"
+#~ msgstr "Compressieprogramma PDF - PDF Fusion Pro"
+
+#~ msgid "Réduisez la taille de vos fichiers PDF tout en conservant la qualité."
+#~ msgstr "Verklein de taille van uw pdf-bestanden met behoud van de kwaliteit."
+
+#~ msgid "Fusionner PDF - PDF Fusion Pro"
+#~ msgstr "Fusionner PDF - PDF Fusion Pro"
+
+#~ msgid ""
+#~ "Fusionnez plusieurs fichiers PDF en un"
+#~ " seul document, facilement et rapidement."
+#~ msgstr ""
+#~ "Fusionnez plusieurs fichiers PDF en un"
+#~ " seul document, facilement et rapidement."
+
+#~ msgid "Déposez vos PDF ici"
+#~ msgstr "Déposez vos PDF ici"
+
+#~ msgid "Glissez-déposez vos fichiers ou cliquez pour parcourir"
+#~ msgstr "Glissez-déposez vos fiches of kliekjes voor het parcourir"
+
+#~ msgid "Tourner PDF - PDF Fusion Pro"
+#~ msgstr "Tourner PDF - PDF Fusion Pro"
+
+#~ msgid "Corrigez l'orientation de vos fichiers PDF en quelques clics."
+#~ msgstr "Corrigeer de oriëntatie van uw PDF-bestanden en klik op klikken."
+
+#~ msgid "Diviser PDF - PDF Fusion Pro"
+#~ msgstr "Deler PDF - PDF Fusion Pro"
+
+#~ msgid ""
+#~ "Divisez vos fichiers PDF en plusieurs"
+#~ " documents selon les pages sélectionnées."
+#~ msgstr ""
+#~ "Verdeel uw PDF-bestanden en extra "
+#~ "documenten op de geselecteerde pagina's."
 
