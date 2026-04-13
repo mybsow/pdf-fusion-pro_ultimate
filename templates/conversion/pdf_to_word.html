@@ -1,3 +1,83 @@
+
+
+Commencer l'essai gratuit
+
+Partager
+Pour le template `word_to_pdf.html`, je vais insérer le code de gestion de l'erreur 429 après la récupération du fetch, afin d'afficher un message d'erreur clair si le quota est dépassé, améliorant ainsi la robustesse.
+
+J'ai préparé les instructions pour insérer la gestion d'erreur 429 dans pdf_to_word.html, pour améliorer la robustesse face au dépassement de quota.
+
+Je vais rédiger les instructions pour insérer la gestion d'erreur 429 dans le fichier html pdf_to_word, afin d'améliorer la robustesse face aux dépassements de quota.
+
+Lite
+Voici les instructions précises pour insérer le code de gestion de l'erreur 429 dans vos deux templates HTML. J'ai détaillé l'emplacement exact pour pdf_to_word.html et word_to_pdf.html afin de garantir que l'utilisateur reçoive un message clair en cas de dépassement de quota.
+Instructions pour
+Instructions pour pdf_to_word.html
+Pour insérer le code de gestion de l'erreur 429 dans le fichier pdf_to_word.html, vous devez le placer dans le bloc .then() de la fonction fetch qui gère la réponse de la conversion. Cela permettra de détecter spécifiquement le statut HTTP 429 avant de traiter d'autres types d'erreurs.
+Recherchez la section suivante dans votre fichier pdf_to_word.html (autour de la ligne 300-306, selon votre formatage) :
+JavaScript
+    .then(async response => {
+        console.log(\'Réponse reçue:\', response.status, response.statusText);
+        clearInterval(progressInterval);
+        
+        if (progressBar) progressBar.style.width = \'100%\';
+        
+        if (!response.ok) {
+            let errorMsg = `Erreur serveur: ${response.status}`;
+            try {
+                const errorData = await response.json();
+                errorMsg = errorData.error || errorMsg;
+            } catch(e) {}
+            throw new Error(errorMsg);
+        }
+Insérez le code fourni avant la ligne if (!response.ok) { :
+JavaScript
+    .then(async response => {
+        console.log(\'Réponse reçue:\', response.status, response.statusText);
+        clearInterval(progressInterval);
+        
+        if (progressBar) progressBar.style.width = \'100%\';
+        
+        // NOUVEAU CODE ICI
+        if (response.status === 429) {
+            throw new Error("Quota d'utilisation dépassé. Merci de patienter avant la prochaine conversion.");
+        }
+        // FIN NOUVEAU CODE
+
+        if (!response.ok) {
+            let errorMsg = `Erreur serveur: ${response.status}`;
+            try {
+                const errorData = await response.json();
+                errorMsg = errorData.error || errorMsg;
+            } catch(e) {}
+            throw new Error(errorMsg);
+        }
+Cette modification garantira que si le serveur renvoie un statut 429, l'erreur spécifique de dépassement de quota sera affichée à l'utilisateur, plutôt qu'un message d'erreur générique.
+Instructions pour
+Markdown · 1.87 KB
+Voir tous les fichiers de cette tâche
+Comment était ce résultat ?
+pasted_content_4.txt
+Texte · 17.83 KB
+aucun de mes boutons ne marche. Je ne peux pas lancer la conevrsion, ni reinitialiser
+Lite
+Je suis désolé d'apprendre que vos boutons ne fonctionnent plus. Ce type de problème survient souvent à cause d'une erreur de syntaxe JavaScript qui bloque l'exécution du reste du script. Je vais examiner immédiatement le fichier que vous avez envoyé pour identifier l'erreur et vous aider à la corriger.
+J'ai préparé l'insertion du gestionnaire d'erreur 429 dans le template PDF_to_Word, notamment en vérifiant la réponse JSON et affichant un message clair si le quota API est dépassé.
+
+Lite
+J'ai identifié l'erreur qui bloquait vos boutons. Lors de l'insertion du nouveau code, une ligne a été coupée et un bloc catch contenait une structure incorrecte, ce qui empêchait le script de se charger.
+Voici le fichier pdf_to_word.html entièrement corrigé et prêt à l'emploi. J'ai également intégré proprement la gestion du quota 429. Vous pouvez remplacer tout le contenu de votre fichier par celui-ci.
+pdf_to_word_corrige.html
+Code · 16.82 KB
+Voir tous les fichiers de cette tâche
+Tâche terminée
+Comment était ce résultat ?
+Suggestions de suivi
+
+
+
+
+pdf_to_word_corrige.html
 {% extends "conversion/conversion_base.html" %}
 
 {% block title %}{{ title }}{% endblock %}
@@ -303,6 +383,11 @@ function startConversion() {
         
         if (progressBar) progressBar.style.width = '100%';
         
+        // Gestion spécifique du quota
+        if (response.status === 429) {
+            throw new Error("Quota d'utilisation dépassé. Merci de patienter avant la prochaine conversion.");
+        }
+        
         if (!response.ok) {
             let errorMsg = `Erreur serveur: ${response.status}`;
             try {
@@ -345,28 +430,11 @@ function startConversion() {
         
         updateStep(3);
     })
-    .catch(async error => {
+    .catch(error => {
         console.error('Erreur:', error);
         clearInterval(progressInterval);
         updateStep(1);
-
-        let userMessage = '{{ _("Erreur lors de la conversion :") }} ' + error.message;
-
-        // Tenter de lire la réponse d'erreur du serveur si disponible
-        if (error.response && error.response.json) {
-            try {
-                const errorData = await error.response.json();
-                if (errorData.code === 429 || errorData.error.includes('Quota exceeded')) {
-                    userMessage = '{{ _("Conversion échouée : Quota de l\'API Gemini dépassé. Veuillez réessayer dans quelques minutes ou contacter le support pour une augmentation de quota.") }}';
-                } else if (errorData.error) {
-                    userMessage = '{{ _("Erreur serveur :") }} ' + errorData.error;
-                }
-            } catch (e) {
-                console.warn('Impossible de parser l\'erreur JSON:', e);
-            }
-        }
-
-        showError(userMessage);
+        showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
     });
 }
 
