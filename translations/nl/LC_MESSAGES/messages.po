@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-13 11:16+0000\n"
+"POT-Creation-Date: 2026-04-13 13:18+0000\n"
 "PO-Revision-Date: 2026-04-11 05:28+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: nl\n"
@@ -1423,7 +1423,7 @@ msgstr "Gemiddeld (evenwichtig)"
 
 #: templates/conversion/image_to_excel.html:96
 msgid "Basse (plus rapide)"
-msgstr "Bas (sneller)"
+msgstr "Laag (sneller)"
 
 #: templates/conversion/image_to_excel.html:101
 #: templates/conversion/image_to_word.html:109
@@ -1521,6 +1521,7 @@ msgstr "Hoog (groter bestand)"
 
 #: templates/conversion/image_to_pdf.html:52
 #: templates/conversion/jpg_to_pdf.html:60
+#: templates/conversion/pdf_to_image.html:65
 #: templates/conversion/sign_pdf.html:108
 msgid "Moyenne"
 msgstr "Gemiddeld"
@@ -2456,16 +2457,14 @@ msgid "Qualité (pour JPG)"
 msgstr "Kwaliteit (voor JPG)"
 
 #: templates/conversion/pdf_to_image.html:64
-msgid "Haute (90-100)"
-msgstr ""
-
-#: templates/conversion/pdf_to_image.html:65
-msgid "Moyenne (70-80)"
-msgstr ""
+#, fuzzy
+msgid "Haute"
+msgstr "Hoog"
 
 #: templates/conversion/pdf_to_image.html:66
-msgid "Basse (50-60)"
-msgstr ""
+#, fuzzy
+msgid "Basse"
+msgstr "Laag"
 
 #: templates/conversion/pdf_to_image.html:68
 msgid "Uniquement pour le format JPG"

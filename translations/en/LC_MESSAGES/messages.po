@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-13 11:16+0000\n"
+"POT-Creation-Date: 2026-04-13 13:18+0000\n"
 "PO-Revision-Date: 2026-04-11 05:28+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -1416,7 +1416,7 @@ msgstr "High (slower)"
 
 #: templates/conversion/image_to_excel.html:95
 msgid "Moyenne (équilibré)"
-msgstr "Average (balanced)"
+msgstr "Medium (balanced)"
 
 #: templates/conversion/image_to_excel.html:96
 msgid "Basse (plus rapide)"
@@ -1515,9 +1515,10 @@ msgstr "High (larger file)"
 
 #: templates/conversion/image_to_pdf.html:52
 #: templates/conversion/jpg_to_pdf.html:60
+#: templates/conversion/pdf_to_image.html:65
 #: templates/conversion/sign_pdf.html:108
 msgid "Moyenne"
-msgstr "Average"
+msgstr "Medium"
 
 #: templates/conversion/image_to_pdf.html:53
 #: templates/conversion/jpg_to_pdf.html:61
@@ -2446,16 +2447,14 @@ msgid "Qualité (pour JPG)"
 msgstr "Quality (for JPG)"
 
 #: templates/conversion/pdf_to_image.html:64
-msgid "Haute (90-100)"
-msgstr ""
-
-#: templates/conversion/pdf_to_image.html:65
-msgid "Moyenne (70-80)"
-msgstr ""
+#, fuzzy
+msgid "Haute"
+msgstr "High"
 
 #: templates/conversion/pdf_to_image.html:66
-msgid "Basse (50-60)"
-msgstr ""
+#, fuzzy
+msgid "Basse"
+msgstr "Low"
 
 #: templates/conversion/pdf_to_image.html:68
 msgid "Uniquement pour le format JPG"
@@ -3077,7 +3076,7 @@ msgstr "High (for printing)"
 
 #: templates/conversion/powerpoint_to_pdf.html:65
 msgid "Moyenne (pour partage)"
-msgstr "Average (for sharing)"
+msgstr "Medium (for sharing)"
 
 #: templates/conversion/powerpoint_to_pdf.html:66
 msgid "Basse (pour email)"
