@@ -36,7 +36,7 @@ RUN apt-get update && \
         tesseract-ocr-deu \
         tesseract-ocr-spa \
         tesseract-ocr-ita \
-        tesseract-ocr Por \
+        tesseract-ocr-Por \
         tesseract-ocr-rus \
         tesseract-ocr-ara \
         tesseract-ocr-chi-sim \
