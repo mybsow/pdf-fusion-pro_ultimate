@@ -1080,6 +1080,10 @@ def convert_word_to_pdf(file, form_data=None):
                 _docx_to_pdf_reportlab(doc, fb_pdf, f.filename)
                 if os.path.exists(fb_pdf) and os.path.getsize(fb_pdf) > 100:
                     generated_pdfs.append(fb_pdf)
+                # ✅ Libérer la mémoire du document docx après traitement
+                del doc
+                import gc
+                gc.collect()
             except Exception as e2:
                 logger.error(f"Fallback docx→pdf failed: {e2}")
  
@@ -1091,13 +1095,22 @@ def convert_word_to_pdf(file, form_data=None):
         if merge_output and len(generated_pdfs) > 1:
             merged = os.path.join(temp_dir, "merged.pdf")
             merger = PdfMerger()
-            for p in generated_pdfs: merger.append(p)
-            merger.write(merged); merger.close()
-            with open(merged,"rb") as fh: data = fh.read()
+            for p in generated_pdfs: 
+                merger.append(p)
+            merger.write(merged)
+            merger.close()
+            
+            # ✅ Libérer la mémoire du merger
+            del merger
+            gc.collect()
+            
+            with open(merged,"rb") as fh: 
+                data = fh.read()
             cleanup_temp_directory(temp_dir)
             return send_bytes(data, "application/pdf", "converted_documents.pdf")
  
-        with open(generated_pdfs[0],"rb") as fh: data = fh.read()
+        with open(generated_pdfs[0],"rb") as fh: 
+            data = fh.read()
         out_name = Path(original_names[0]).stem + ".pdf"
         cleanup_temp_directory(temp_dir)
         return send_bytes(data, "application/pdf", out_name)
@@ -1126,7 +1139,8 @@ def _docx_to_pdf_reportlab(doc: "Document", output_path: str, filename: str):
  
     for para in doc.paragraphs:
         text = para.text.strip()
-        if not text: continue
+        if not text: 
+            continue
         style_name = para.style.name if para.style else ""
         if "Heading 1" in style_name:
             story.append(Paragraph(text, h1_style))
@@ -1136,11 +1150,21 @@ def _docx_to_pdf_reportlab(doc: "Document", output_path: str, filename: str):
             # Échappement HTML basique
             safe = text.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
             story.append(Paragraph(safe, body_style))
+    
+    # ✅ Libérer la mémoire des paragraphes après traitement
+    del doc
+    import gc
+    gc.collect()
  
     pdf = SimpleDocTemplate(output_path, pagesize=A4,
                              leftMargin=55, rightMargin=55,
                              topMargin=55, bottomMargin=55)
     pdf.build(story)
+    
+    # ✅ Libérer la mémoire du story et du pdf
+    del story
+    del pdf
+    gc.collect()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1645,7 +1669,7 @@ def convert_pdf_to_word(file, form_data=None):
     original = file.filename
     form_data = form_data or {}
     language = form_data.get("language", "fra")
-    dpi = max(150, min(int(form_data.get("dpi", "200")), 300))
+    dpi = max(150, min(int(form_data.get("dpi", "150")), 300))
     add_page_breaks = str(form_data.get("add_page_breaks", "true")).lower() == "true"
 
     logger.info(f"[PDF→Word/Gemini] Démarrage pour : {original}")
@@ -1773,6 +1797,17 @@ def convert_pdf_to_word(file, form_data=None):
                             doc.add_paragraph(line.strip())
                 else:
                     doc.add_paragraph("[Aucun contenu détecté sur cette page]")
+
+            # ✅ NETTOYAGE MÉMOIRE APRÈS CHAQUE PAGE
+            del pil_img
+            del gemini_out
+            import gc
+            gc.collect()
+
+        # ✅ NETTOYAGE MÉMOIRE APRÈS TOUTES LES PAGES
+        del pages_images
+        gc.collect()
+
 
         # Exporter le document
         output = BytesIO()

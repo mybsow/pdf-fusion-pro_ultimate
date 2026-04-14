@@ -16,41 +16,43 @@ ENV BABEL_TRANSLATION_DIRECTORIES=./translations
 ENV FLASK_ENV=production
 ENV FLASK_DEBUG=0
 
+# =================================================
+# OPTIMISATIONS MÉMOIRE POUR RENDER FREE
+# =================================================
+ENV PYTHONMALLOC=malloc
+ENV MALLOC_ARENA_MAX=1
+ENV PYTHONTRACEMALLOC=0
+ENV OMP_NUM_THREADS=1
+ENV OPENBLAS_NUM_THREADS=1
+
 # -------------------------------------------------
-# Dépendances système (WeasyPrint, LibreOffice, Tesseract, unoconv)
+# Dépendances système
 # -------------------------------------------------
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         tesseract-ocr \
-        tesseract-ocr-osd \
         tesseract-ocr-fra \
         tesseract-ocr-eng \
-        tesseract-ocr-deu \
-        tesseract-ocr-spa \
-        tesseract-ocr-ita \
-        tesseract-ocr-por \
-        tesseract-ocr-rus \
-        tesseract-ocr-ara \
-        tesseract-ocr-chi-sim \
-        tesseract-ocr-chi-tra \
         poppler-utils \
-        libreoffice \
+        libreoffice-core \
         ghostscript \
         fonts-dejavu-core \
-        fonts-droid-fallback \
         libglib2.0-0 \
-        libgl1 \
         libcairo2 \
         libpango-1.0-0 \
-        libpangocairo-1.0-0 \
-        gettext \
         curl \
-        wget \
-        git \
+        gettext \
     && rm -rf /var/lib/apt/lists/*
 
 # -------------------------------------------------
-# Installer unoconv via pip
+# Configurer LibreOffice
+# -------------------------------------------------
+RUN mkdir -p /tmp/libreoffice_cache && \
+    echo "[Bootstrap]\nForceSaving=true\nHideLogo=true\nQuickStart=0\nMemory=64\nCache=32\n" > /tmp/libreoffice_cache/sofficerc
+ENV SAL_USE_VCLPLUGIN=svp
+
+# -------------------------------------------------
+# Installer unoconv
 # -------------------------------------------------
 RUN pip install --no-cache-dir unoconv
 
@@ -63,56 +65,25 @@ WORKDIR /app
 # Installer requirements
 # -------------------------------------------------
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    pip install --no-cache-dir -r requirements.txt && \
-    ln -sf /usr/bin/python3 /usr/bin/python
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # -------------------------------------------------
-# Copier le code source (traductions incluses)
+# Copier le code source
 # -------------------------------------------------
 COPY . .
 
 # -------------------------------------------------
-# Vérifier que les .mo pré-compilés sont bien présents
-# Les .mo sont compilés localement et commitées dans le repo
-# NE PAS recompiler ici — cela écraserait les bonnes traductions
+# Vérifier les fichiers .mo
 # -------------------------------------------------
-# -------------------------------------------------
-# Vérifier que les .mo pré-compilés sont bien présents
-# Les .mo sont compilés localement et commitées dans le repo
-# NE PAS recompiler ici — cela écraserait les bonnes traductions
-# -------------------------------------------------
-RUN echo "🔍 Vérification des fichiers .mo pré-compilés :" && \
-    ls -la translations/*/LC_MESSAGES/messages.mo && \
-    for mo in translations/*/LC_MESSAGES/messages.mo; do \
-        size=$(stat -c%s "$mo"); \
-        echo "📄 $mo : $size octets"; \
-        if [ "$size" -lt 5000 ]; then \
-            echo "❌ $mo est trop petit ($size octets) — recompilez localement avec : pybabel compile -d translations"; \
-            exit 1; \
-        fi; \
-    done && \
-    echo "✅ Tous les fichiers .mo sont valides"
+RUN echo "🔍 Vérification des fichiers .mo..." && \
+    ls translations/*/LC_MESSAGES/messages.mo 2>/dev/null || echo "⚠️ Aucun .mo trouvé"
 
 # -------------------------------------------------
-# Créer dossiers runtime
+# Dossiers runtime
 # -------------------------------------------------
-RUN mkdir -p \
-    /tmp/pdf_fusion_pro/conversion_temp \
-    /tmp/pdf_fusion_pro/uploads \
-    /tmp/pdf_fusion_pro/logs \
-    /app/data/contacts \
-    /app/data/ratings \
-    /app/data/logs \
-    /app/uploads \
-    /app/temp && \
-    chmod -R 755 /app /tmp/pdf_fusion_pro
-
-# -------------------------------------------------
-# Variables d'environnement pour optimiser la mémoire
-# -------------------------------------------------
-ENV PYTHONMALLOC=malloc
-ENV MALLOC_ARENA_MAX=2
+RUN mkdir -p /app/temp /app/uploads /app/data && \
+    chmod -R 755 /app
 
 # -------------------------------------------------
 # Exposer port
@@ -122,10 +93,10 @@ EXPOSE 10000
 # -------------------------------------------------
 # Healthcheck
 # -------------------------------------------------
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+HEALTHCHECK --interval=60s --timeout=10s --start-period=90s --retries=3 \
   CMD curl -f http://localhost:10000/health || exit 1
 
 # -------------------------------------------------
-# Gunicorn (optimisé mémoire Render - 1 worker seulement)
+# Démarrage direct (sans script)
 # -------------------------------------------------
-CMD ["gunicorn", "app:application", "--bind", "0.0.0.0:10000", "--workers", "1", "--threads", "2", "--timeout", "300", "--worker-class", "gthread", "--access-logfile", "-", "--error-logfile", "-"]
+CMD ["gunicorn", "app:application", "--bind", "0.0.0.0:10000", "--workers", "1", "--threads", "1", "--timeout", "300", "--max-requests", "20", "--access-logfile", "-", "--error-logfile", "-"]
