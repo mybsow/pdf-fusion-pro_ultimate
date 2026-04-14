@@ -302,6 +302,8 @@ def extract_json(text):
 
 from flask_babel import gettext as _, lazy_gettext as _l
 import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 CONVERSION_MAP = {
     # ==================== CONVERTIR EN PDF ====================
@@ -2325,7 +2327,7 @@ logger = logging.getLogger("PDF2XLS_GEMINI")
 
 # Configuration de l'API Gemini
 # La clé API doit être définie dans GOOGLE_API_KEY sur Render
-genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
+client = genai.Client(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 from utils.image_utils import encode_image_to_pil
 
@@ -3734,7 +3736,7 @@ def reconstruct_text_from_columns(columns: Dict[int, List[Dict]]) -> str:
 
 logger = logging.getLogger(__name__)
 
-genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
+client = genai.Client(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 def ai_restructure_text(text: str, model_name: str = "gemini-2.5-flash") -> str:
     """
@@ -3797,11 +3799,19 @@ def call_gemini_vision(pil_image, prompt):
         if pil_image.mode != "RGB":
             pil_image = pil_image.convert("RGB")
 
-        model = genai.GenerativeModel("gemini-2.5-flash")
+        # Convertir PIL en bytes
+        import io
+        img_bytes = io.BytesIO()
+        pil_image.save(img_bytes, format="JPEG")
+        img_bytes = img_bytes.getvalue()
 
-        response = model.generate_content(
-            [prompt, pil_image],
-            generation_config=genai.types.GenerationConfig(
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[
+                types.Part.from_text(prompt),
+                types.Part.from_bytes(data=img_bytes, mime_type="image/jpeg")
+            ],
+            config=types.GenerateContentConfig(
                 response_mime_type="application/json"
             )
         )
@@ -3811,9 +3821,9 @@ def call_gemini_vision(pil_image, prompt):
 
         data = extract_json(content)
         
-        # ✅ NETTOYAGE IMMÉDIAT
         import gc
-        del pil_image  # Supprimer l'image de la mémoire
+        del pil_image
+        del img_bytes
         gc.collect()
 
         if data is None:
@@ -4025,7 +4035,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("IMG2WORD_V2")
 
 # Configuration de l\'API Gemini
-genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
+client = genai.Client(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 from utils.image_utils import encode_image_to_pil
 
@@ -4209,7 +4219,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("IMG2XLS_V2")
 
 # Configuration de l'API Gemini
-genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
+client = genai.Client(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 from utils.image_utils import encode_image_to_pil
 

@@ -33,6 +33,14 @@ RUN apt-get update && \
         tesseract-ocr \
         tesseract-ocr-fra \
         tesseract-ocr-eng \
+        tesseract-ocr-deu \
+        tesseract-ocr-spa \
+        tesseract-ocr-ita \
+        tesseract-ocr Por \
+        tesseract-ocr-rus \
+        tesseract-ocr-ara \
+        tesseract-ocr-chi-sim \
+        tesseract-ocr-chi-tra \
         poppler-utils \
         libreoffice-core \
         ghostscript \
