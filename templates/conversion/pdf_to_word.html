@@ -11,19 +11,14 @@
         <p class="text-muted">{{ _('Transformez vos PDF en documents Word modifiables avec mise en page préservée') }}</p>
     </div>
 
-    <!-- Zone d'upload simplifiée -->
     <div class="mb-4">
         <label class="form-label fw-bold">{{ _('Sélectionnez votre fichier PDF') }}</label>
         <input type="file" id="pdfFile" class="form-control" accept=".pdf">
         <small class="text-muted">{{ _('PDF uniquement • Taille max : 50MB') }}</small>
     </div>
 
-    <!-- Options de conversion -->
     <div class="file-info-card mt-4">
-        <h5 class="mb-4">
-            <i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}
-        </h5>
-        
+        <h5 class="mb-4"><i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}</h5>
         <div class="row g-4">
             <div class="col-md-6">
                 <label for="extractionMode" class="form-label fw-bold">{{ _("Mode d'extraction") }}</label>
@@ -32,9 +27,7 @@
                     <option value="layout" selected>{{ _('Conserver la mise en page (recommandé)') }}</option>
                     <option value="full">{{ _('Texte et images (complet)') }}</option>
                 </select>
-                <small class="text-muted">{{ _('Choisissez le niveau de détail à conserver') }}</small>
             </div>
-            
             <div class="col-md-6">
                 <label for="language" class="form-label fw-bold">{{ _('Langue du document') }}</label>
                 <select class="form-select" id="language">
@@ -44,9 +37,7 @@
                     <option value="spa">{{ _('Espagnol') }}</option>
                     <option value="ita">{{ _('Italien') }}</option>
                 </select>
-                <small class="text-muted">{{ _('Améliore la reconnaissance du texte') }}</small>
             </div>
-
             <div class="col-12">
                 <div class="row">
                     <div class="col-md-6">
@@ -54,150 +45,53 @@
                             <input class="form-check-input" type="checkbox" id="detectTables" checked>
                             <label class="form-check-label" for="detectTables">
                                 <strong>{{ _('Détecter les tableaux') }}</strong>
-                                <small class="d-block text-muted">{{ _('Convertit automatiquement les tableaux en format Word') }}</small>
                             </label>
                         </div>
                     </div>
-                    
                     <div class="col-md-6">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="preserveFormatting" checked>
                             <label class="form-check-label" for="preserveFormatting">
                                 <strong>{{ _('Conserver la mise en forme') }}</strong>
-                                <small class="d-block text-muted">{{ _('Maintient les polices, tailles et styles') }}</small>
                             </label>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="alert alert-info mt-4">
-            <i class="fas fa-info-circle me-2"></i>
-            <strong>{{ _('Format Word') }}:</strong> {{ _('Le fichier généré est au format DOCX, compatible avec Microsoft Word 2007 et versions ultérieures, ainsi qu\'avec LibreOffice et Google Docs.') }}
-        </div>
     </div>
 
-    <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn">
-            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en Word') }}
-        </button>
-        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
-        </button>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn">{{ _('Convertir en Word') }}</button>
+        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">{{ _('Réinitialiser') }}</button>
     </div>
 </div>
 
-<!-- Étape 2: Conversion en cours -->
+<!-- Étape 2: Conversion -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="mb-4">
-            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
-        </div>
-        
-        <h3 class="mb-4">{{ _('Conversion en cours...') }}</h3>
-        <p class="text-muted mb-4" id="conversionMessage">
-            {{ _('Analyse et conversion de votre PDF...') }}
-        </p>
-        
-        <!-- Barre de progression visible -->
+        <i class="fas fa-cog fa-spin fa-4x text-primary mb-4"></i>
+        <h3 class="mb-3">{{ _('Conversion en cours...') }}</h3>
         <div class="progress-container mx-auto" style="max-width: 500px;">
             <div class="progress bg-light rounded-pill" style="height: 10px;">
-                <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" role="progressbar" style="width: 0%;"></div>
+                <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" style="width: 0%;"></div>
             </div>
         </div>
-        <p class="mt-2 text-muted small" id="progressPercent">0%</p>
-        
-        <div class="row mt-5 g-4">
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="text-muted">{{ _('Pages traitées') }}</h6>
-                        <div class="display-6 text-primary" id="processedPages">0</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="text-muted">{{ _('Paragraphes') }}</h6>
-                        <div class="display-6 text-success" id="extractedParagraphs">0</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="text-muted">{{ _('Images détectées') }}</h6>
-                        <div class="display-6 text-warning" id="detectedImages">0</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="mt-4 text-muted small" id="conversionDetails">
-            <i class="fas fa-file-pdf me-1"></i> {{ _('Extraction du texte...') }}
-        </div>
+        <p class="mt-2 text-muted" id="progressPercent">0%</p>
+        <p class="text-muted" id="conversionMessage">{{ _('Analyse du document...') }}</p>
     </div>
 </div>
 
 <!-- Étape 3: Téléchargement -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="success-animation" style="background-color: #2b579a;">
-            <i class="fas fa-file-word"></i>
+        <div class="success-animation bg-success rounded-circle d-inline-flex p-4 mb-4">
+            <i class="fas fa-file-word fa-3x text-white"></i>
         </div>
-        
         <h3 class="mb-3">{{ _('Conversion réussie !') }}</h3>
-        <p class="text-muted mb-4">
-            {{ _('Votre document Word est prêt') }}
-        </p>
-        
-        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
-            <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>
-                <i class="fas fa-download me-2"></i>{{ _('Télécharger Word') }}
-            </a>
-            
-            <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>{{ _('Nouvelle conversion') }}
-            </button>
-        </div>
-
-        <div class="row mt-5 g-4">
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="text-muted">{{ _('Pages') }}</h6>
-                        <div class="display-6 text-primary" id="finalPages">0</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="text-muted">{{ _('Mots') }}</h6>
-                        <div class="display-6 text-success" id="finalWords">0</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="text-muted">{{ _('Caractères') }}</h6>
-                        <div class="display-6 text-warning" id="finalChars">0</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="text-muted">{{ _('Taille') }}</h6>
-                        <div class="display-6 text-info" id="finalSize">0 MB</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <p class="text-muted mb-4">{{ _('Votre document Word est prêt') }}</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>{{ _('Télécharger Word') }}</a>
+        <button class="btn btn-outline-primary btn-lg ms-2" onclick="resetConversion()">{{ _('Nouvelle conversion') }}</button>
     </div>
 </div>
 
@@ -206,9 +100,9 @@ let downloadUrl = null;
 let progressInterval = null;
 
 function updateStep(step) {
-    const step1 = document.getElementById('step1Content');
-    const step2 = document.getElementById('step2Content');
-    const step3 = document.getElementById('step3Content');
+    var step1 = document.getElementById('step1Content');
+    var step2 = document.getElementById('step2Content');
+    var step3 = document.getElementById('step3Content');
     
     if (step1) step1.style.display = step === 1 ? 'block' : 'none';
     if (step2) step2.style.display = step === 2 ? 'block' : 'none';
@@ -216,53 +110,39 @@ function updateStep(step) {
 }
 
 function showError(message) {
-    let errorDiv = document.getElementById('conversionError');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'conversionError';
-        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-        const step1 = document.getElementById('step1Content');
-        if (step1) step1.prepend(errorDiv);
-    }
-    const msgSpan = document.getElementById('conversionErrorMsg');
-    if (msgSpan) msgSpan.textContent = message;
-    errorDiv.style.display = 'block';
-    setTimeout(() => {
-        if (errorDiv) errorDiv.style.display = 'none';
-    }, 5000);
+    var errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    var step1 = document.getElementById('step1Content');
+    if (step1) step1.prepend(errorDiv);
+    setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
 }
 
-function updateProgress(percent, message, detail) {
-    const progressBar = document.getElementById('conversionProgress');
-    const percentSpan = document.getElementById('progressPercent');
-    const msgSpan = document.getElementById('conversionMessage');
-    const detailSpan = document.getElementById('conversionDetails');
+function updateProgress(percent, message) {
+    var progressBar = document.getElementById('conversionProgress');
+    var percentSpan = document.getElementById('progressPercent');
+    var msgSpan = document.getElementById('conversionMessage');
     
     if (progressBar) progressBar.style.width = percent + '%';
     if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
     if (msgSpan) msgSpan.textContent = message;
-    if (detailSpan) detailSpan.innerHTML = '<i class="fas fa-cog fa-spin me-1"></i> ' + detail;
 }
 
 function startConversion() {
-    console.log('=== startConversion PDF → Word ===');
-    
-    const fileInput = document.getElementById('pdfFile');
+    var fileInput = document.getElementById('pdfFile');
     if (!fileInput || !fileInput.files.length) {
         showError('Veuillez sélectionner un fichier PDF');
         return;
     }
     
-    const file = fileInput.files[0];
-    console.log('Fichier:', file.name, file.size);
+    var file = fileInput.files[0];
     
     if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
         showError('Le fichier doit être un PDF');
         return;
     }
     
-    const formData = new FormData();
+    var formData = new FormData();
     formData.append('file', file);
     formData.append('mode', document.getElementById('extractionMode').value);
     formData.append('language', document.getElementById('language').value);
@@ -271,19 +151,14 @@ function startConversion() {
     
     updateStep(2);
     
-    let progress = 0;
-    updateProgress(0, 'Démarrage de la conversion...', 'Initialisation');
+    var progress = 0;
+    updateProgress(0, 'Démarrage...');
     
-    progressInterval = setInterval(() => {
-        if (progress < 95) {
+    progressInterval = setInterval(function() {
+        if (progress < 90) {
             progress += Math.random() * 15;
-            progress = Math.min(progress, 95);
-            updateProgress(progress, 'Conversion en cours...', 'Analyse du document');
-            
-            const pages = Math.ceil(progress / 10);
-            document.getElementById('processedPages').textContent = pages;
-            document.getElementById('extractedParagraphs').textContent = Math.floor(progress * 3);
-            document.getElementById('detectedImages').textContent = Math.floor(progress / 10);
+            progress = Math.min(progress, 90);
+            updateProgress(progress, 'Conversion en cours...');
         }
     }, 400);
     
@@ -291,32 +166,32 @@ function startConversion() {
         method: 'POST',
         body: formData
     })
-    .then(async response => {
+    .then(function(response) {
         clearInterval(progressInterval);
         
-        if (!response.ok) throw new Error(`Erreur ${response.status}`);
+        if (!response.ok) throw new Error('Erreur ' + response.status);
         
-        const blob = await response.blob();
+        return response.blob();
+    })
+    .then(function(blob) {
         if (blob.size === 0) throw new Error('Fichier vide');
         
-        updateProgress(100, 'Conversion terminée !', 'Préparation du téléchargement');
+        updateProgress(100, 'Finalisation...');
         
         if (downloadUrl) URL.revokeObjectURL(downloadUrl);
         downloadUrl = URL.createObjectURL(blob);
         
-        const downloadLink = document.getElementById('downloadLink');
-        downloadLink.href = downloadUrl;
-        downloadLink.download = file.name.replace(/\.pdf$/i, '') + '.docx';
-        
-        document.getElementById('finalPages').textContent = Math.ceil(progress / 10);
-        document.getElementById('finalWords').textContent = Math.floor(progress * 30);
-        document.getElementById('finalChars').textContent = Math.floor(progress * 150);
-        document.getElementById('finalSize').textContent = (blob.size / (1024 * 1024)).toFixed(2) + ' MB';
+        var downloadLink = document.getElementById('downloadLink');
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.download = file.name.replace(/\.pdf$/i, '') + '.docx';
+        }
         
         updateStep(3);
-        downloadLink.click();
+        if (downloadLink) downloadLink.click();
     })
-    .catch(error => {
+    .catch(function(error) {
+        console.error('Erreur:', error);
         clearInterval(progressInterval);
         updateStep(1);
         showError('Erreur: ' + error.message);
@@ -326,12 +201,16 @@ function startConversion() {
 function resetConversion() {
     if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     if (progressInterval) clearInterval(progressInterval);
-    document.getElementById('pdfFile').value = '';
+    var fileInput = document.getElementById('pdfFile');
+    if (fileInput) fileInput.value = '';
     updateStep(1);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('convertBtn').addEventListener('click', startConversion);
+document.addEventListener('DOMContentLoaded', function() {
+    var convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.addEventListener('click', startConversion);
+    }
 });
 </script>
 

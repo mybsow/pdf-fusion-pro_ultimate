@@ -94,17 +94,22 @@ let downloadUrl = null;
 let progressInterval = null;
 
 function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    const step1 = document.getElementById('step1Content');
+    const step2 = document.getElementById('step2Content');
+    const step3 = document.getElementById('step3Content');
+    
+    if (step1) step1.style.display = step === 1 ? 'block' : 'none';
+    if (step2) step2.style.display = step === 2 ? 'block' : 'none';
+    if (step3) step3.style.display = step === 3 ? 'block' : 'none';
 }
 
 function showError(message) {
     const errorDiv = document.createElement('div');
     errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-    document.getElementById('step1Content').prepend(errorDiv);
-    setTimeout(() => errorDiv.remove(), 5000);
+    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    const step1 = document.getElementById('step1Content');
+    if (step1) step1.prepend(errorDiv);
+    setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
 }
 
 function updateProgress(percent, message) {
@@ -158,7 +163,7 @@ function startConversion() {
     let progress = 0;
     updateProgress(0, 'Démarrage...');
     
-    progressInterval = setInterval(() => {
+    progressInterval = setInterval(function() {
         if (progress < 95) {
             progress += Math.random() * 15;
             progress = Math.min(progress, 95);
@@ -170,10 +175,10 @@ function startConversion() {
         method: 'POST',
         body: formData
     })
-    .then(async response => {
+    .then(async function(response) {
         clearInterval(progressInterval);
         
-        if (!response.ok) throw new Error(`Erreur ${response.status}`);
+        if (!response.ok) throw new Error('Erreur ' + response.status);
         
         const blob = await response.blob();
         if (blob.size === 0) throw new Error('Fichier vide');
@@ -184,14 +189,17 @@ function startConversion() {
         downloadUrl = URL.createObjectURL(blob);
         
         const downloadLink = document.getElementById('downloadLink');
-        downloadLink.href = downloadUrl;
-        downloadLink.download = file.name.replace(/\.[^/.]+$/, '') + '.pdf';
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.download = file.name.replace(/\.[^/.]+$/, '') + '.pdf';
+        }
         
         updateStep(3);
         hideToast();
-        downloadLink.click();
+        if (downloadLink) downloadLink.click();
     })
-    .catch(error => {
+    .catch(function(error) {
+        console.error('Erreur:', error);
         clearInterval(progressInterval);
         hideToast();
         updateStep(1);
@@ -202,16 +210,24 @@ function startConversion() {
 function resetConversion() {
     if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     if (progressInterval) clearInterval(progressInterval);
-    document.getElementById('wordFile').value = '';
+    const fileInput = document.getElementById('wordFile');
+    if (fileInput) fileInput.value = '';
     updateStep(1);
     hideToast();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('convertBtn').addEventListener('click', startConversion);
-    document.getElementById('wordFile').addEventListener('change', (e) => {
-        console.log('Fichier sélectionné:', e.target.files[0]?.name);
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    const convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.addEventListener('click', startConversion);
+    }
+    
+    const fileInput = document.getElementById('wordFile');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            console.log('Fichier sélectionné:', e.target.files[0]?.name);
+        });
+    }
 });
 </script>
 
