@@ -3,24 +3,18 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block converter_content %}
-<!-- Toast de progression fixe -->
-<div id="progressToast" style="display:none; position:fixed; bottom:24px; right:24px; width:320px;
-     background:var(--bs-body-bg, #fff); border:1px solid rgba(0,0,0,0.12); border-radius:12px;
-     padding:16px 18px; z-index:9999; box-shadow:0 4px 20px rgba(0,0,0,0.13);">
-    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-        <div class="spinner-border spinner-border-sm text-primary" role="status" id="toastSpinnerIcon"></div>
-        <div id="toastSuccessIcon" style="display:none; color:#198754; font-size:18px;">
-            <i class="fas fa-check-circle"></i>
+<!-- Toast de progression -->
+<div id="progressToast" style="display:none; position:fixed; bottom:24px; right:24px; width:320px; background:white; border-radius:12px; padding:16px; z-index:9999; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+    <div style="display:flex; align-items:center; gap:10px;">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+        <div style="flex:1;">
+            <div style="font-weight:600;" id="toastMsg">Conversion en cours...</div>
+            <div style="font-size:12px; color:#6c757d;" id="toastDetail">Traitement...</div>
         </div>
-        <div style="flex:1; min-width:0;">
-            <div style="font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="toastMsg">{{ _('Conversion en cours...') }}</div>
-            <div style="font-size:12px; color:#6c757d; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="toastDetail">{{ _('Lecture du document...') }}</div>
-        </div>
-        <span style="font-size:13px; font-weight:700; color:#0d6efd; min-width:36px; text-align:right;" id="toastPct">0%</span>
+        <span id="toastPct" style="font-weight:700;">0%</span>
     </div>
-    <div class="progress" style="height:6px; border-radius:4px; overflow:hidden;">
-        <div class="progress-bar" id="toastProgressBar" role="progressbar"
-             style="width:0%; transition:width 0.5s ease; background:#0d6efd;"></div>
+    <div class="progress mt-2" style="height:4px;">
+        <div class="progress-bar bg-primary" id="toastProgressBar" style="width:0%"></div>
     </div>
 </div>
 
@@ -28,257 +22,70 @@
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-file-word upload-icon" style="color: #2b579a;"></i>
-        <h3>{{ _('Convertissez votre document Word en PDF') }}</h3>
-        <p class="text-muted">{{ _('Transformez vos fichiers DOC/DOCX en PDF avec une mise en page préservée') }}</p>
+        <h3>Convertissez votre document Word en PDF</h3>
+        <p class="text-muted">Transformez vos fichiers DOC/DOCX en PDF</p>
     </div>
 
-    <!-- Zone d'upload simplifiée -->
     <div class="mb-4">
-        <label class="form-label fw-bold">{{ _('Sélectionnez votre document Word') }}</label>
+        <label class="form-label fw-bold">Sélectionnez votre document Word</label>
         <input type="file" id="wordFile" class="form-control" accept=".doc,.docx">
-        <small class="text-muted">{{ _('Formats acceptés : DOC, DOCX (jusqu\'à 50MB)') }}</small>
+        <small class="text-muted">Formats acceptés : DOC, DOCX (jusqu'à 50MB)</small>
     </div>
 
-    <!-- Options de conversion -->
     <div class="file-info-card mt-4">
-        <h5 class="mb-4">
-            <i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}
-        </h5>
-        
+        <h5 class="mb-4"><i class="fas fa-cog me-2"></i>Options de conversion</h5>
         <div class="row g-4">
             <div class="col-md-6">
-                <label for="pageFormat" class="form-label fw-bold">{{ _('Format de page') }}</label>
+                <label for="pageFormat" class="form-label fw-bold">Format de page</label>
                 <select class="form-select" id="pageFormat">
-                    <option value="A4" selected>{{ _('A4 (210 × 297 mm)') }}</option>
-                    <option value="Letter">{{ _('Letter (8.5 × 11 in)') }}</option>
-                    <option value="Legal">{{ _('Legal (8.5 × 14 in)') }}</option>
-                    <option value="A3">{{ _('A3 (297 × 420 mm)') }}</option>
-                    <option value="A5">{{ _('A5 (148 × 210 mm)') }}</option>
+                    <option value="A4">A4 (210 × 297 mm)</option>
+                    <option value="Letter">Letter (8.5 × 11 in)</option>
+                    <option value="Legal">Legal (8.5 × 14 in)</option>
                 </select>
-                <small class="text-muted">{{ _('Format standard pour la plupart des documents') }}</small>
             </div>
-            
             <div class="col-md-6">
-                <label class="form-label fw-bold">{{ _('Orientation') }}</label>
-                <div class="btn-group w-100" role="group">
+                <label class="form-label fw-bold">Orientation</label>
+                <div class="btn-group w-100">
                     <input type="radio" class="btn-check" name="orientation" id="portrait" value="portrait" checked>
-                    <label class="btn btn-outline-primary" for="portrait">
-                        <i class="fas fa-file-alt me-1"></i>{{ _('Portrait') }}
-                    </label>
-                    
+                    <label class="btn btn-outline-primary" for="portrait">Portrait</label>
                     <input type="radio" class="btn-check" name="orientation" id="landscape" value="landscape">
-                    <label class="btn btn-outline-primary" for="landscape">
-                        <i class="fas fa-file me-1"></i>{{ _('Paysage') }}
-                    </label>
+                    <label class="btn btn-outline-primary" for="landscape">Paysage</label>
                 </div>
             </div>
-
-            <div class="col-md-6">
-                <label for="margins" class="form-label fw-bold">{{ _('Marges') }}</label>
-                <select class="form-select" id="margins">
-                    <option value="normal" selected>{{ _('Normales (2.5 cm)') }}</option>
-                    <option value="narrow">{{ _('Étroites (1.3 cm)') }}</option>
-                    <option value="moderate">{{ _('Modérées (1.9 cm)') }}</option>
-                    <option value="wide">{{ _('Larges (5 cm)') }}</option>
-                </select>
-                <small class="text-muted">{{ _('Espace entre le texte et les bords') }}</small>
-            </div>
-            
-            <div class="col-md-6">
-                <label for="quality" class="form-label fw-bold">{{ _('Qualité') }}</label>
-                <select class="form-select" id="quality">
-                    <option value="standard" selected>{{ _('Standard (équilibré)') }}</option>
-                    <option value="high">{{ _('Haute (pour impression)') }}</option>
-                    <option value="screen">{{ _('Optimisé écran (taille réduite)') }}</option>
-                    <option value="print">{{ _('Optimisé impression') }}</option>
-                </select>
-                <small class="text-muted">{{ _('Influence la taille du fichier final') }}</small>
-            </div>
-
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="preserveLayout" checked>
-                            <label class="form-check-label" for="preserveLayout">
-                                <strong>{{ _('Conserver la mise en page') }}</strong>
-                                <small class="d-block text-muted">{{ _('Préserve les polices, tableaux et styles') }}</small>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="includeBookmarks" checked>
-                            <label class="form-check-label" for="includeBookmarks">
-                                <strong>{{ _('Inclure les signets') }}</strong>
-                                <small class="d-block text-muted">{{ _('Pour une navigation plus facile') }}</small>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12">
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="protectPDF">
-                    <label class="form-check-label" for="protectPDF">
-                        <strong>{{ _('Protéger le PDF') }}</strong>
-                        <small class="d-block text-muted">{{ _('Ajouter un mot de passe et des restrictions') }}</small>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Protection options (cachées par défaut) -->
-            <div id="protectionOptions" class="col-12" style="display: none;">
-                <div class="card border-0 bg-light">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="password" class="form-label">{{ _('Mot de passe') }}</label>
-                                <input type="password" class="form-control" id="password" placeholder="{{ _('Min. 6 caractères') }}">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="permissions" class="form-label">{{ _('Permissions') }}</label>
-                                <select class="form-select" id="permissions">
-                                    <option value="view">{{ _('Visualisation seule') }}</option>
-                                    <option value="print">{{ _('Impression autorisée') }}</option>
-                                    <option value="edit">{{ _('Modification autorisée') }}</option>
-                                    <option value="full">{{ _('Toutes permissions') }}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="alert alert-info mt-4">
-            <i class="fas fa-info-circle me-2"></i>
-            <strong>{{ _('Format PDF') }}:</strong> {{ _('Compatible avec tous les lecteurs PDF. Les polices sont intégrées pour une reproduction fidèle.') }}
         </div>
     </div>
 
-    <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn">
-            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PDF') }}
-        </button>
-        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
-            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
-        </button>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn">Convertir en PDF</button>
+        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">Réinitialiser</button>
     </div>
 </div>
 
-<!-- Étape 2: Conversion en cours -->
+<!-- Étape 2: Conversion -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
-        <div id="progressBanner" class="d-flex align-items-center gap-3 p-3 mb-4 rounded-3"
-             style="background:#f0f6ff; border:1px solid #c7deff; text-align:left;">
-            <div class="spinner-border text-primary flex-shrink-0" role="status" style="width:1.4rem; height:1.4rem; border-width:2.5px;"></div>
-            <div style="flex:1; min-width:0;">
-                <div class="fw-semibold" style="font-size:15px;" id="bannerMsg">{{ _('Conversion en cours...') }}</div>
-                <div style="font-size:13px; color:#6c757d;" id="bannerDetail">{{ _('Analyse de la structure') }}</div>
-                <div class="progress mt-2" style="height:6px; border-radius:4px;">
-                    <div class="progress-bar" id="bannerProgressBar" role="progressbar"
-                         style="width:0%; transition:width 0.5s ease;"></div>
-                </div>
-            </div>
-            <span class="fw-bold text-primary" style="font-size:16px; min-width:40px; text-align:right;" id="bannerPct">0%</span>
-        </div>
-
-        <div class="mb-4">
-            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
-        </div>
-        
-        <h3 class="mb-4">{{ _('Conversion en cours...') }}</h3>
-        <p class="text-muted mb-4" id="conversionMessage">
-            {{ _('Analyse et conversion de votre document...') }}
-        </p>
-        
+        <i class="fas fa-cog fa-spin fa-4x text-primary mb-4"></i>
+        <h3 class="mb-3">Conversion en cours...</h3>
         <div class="progress-container mx-auto" style="max-width: 500px;">
-            <div class="progress-bar bg-primary" id="conversionProgress" style="width: 0%; height: 8px; border-radius: 4px;"></div>
-        </div>
-        
-        <div class="row mt-5 g-4">
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="text-muted">{{ _('Pages estimées') }}</h6>
-                        <div class="display-6 text-primary" id="estimatedPages">0</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="text-muted">{{ _('Qualité') }}</h6>
-                        <div class="display-6 text-success" id="qualitySetting">{{ _('Standard') }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="text-muted">{{ _('Format') }}</h6>
-                        <div class="display-6 text-warning" id="formatSetting">A4</div>
-                    </div>
-                </div>
+            <div class="progress bg-light rounded-pill" style="height: 10px;">
+                <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" style="width: 0%;"></div>
             </div>
         </div>
-        
-        <div class="mt-4 text-muted small" id="conversionDetails">
-            <i class="fas fa-file-word me-1"></i> {{ _('Lecture du document Word...') }}
-        </div>
+        <p class="mt-2 text-muted" id="progressPercent">0%</p>
+        <p class="text-muted" id="conversionMessage">Analyse du document...</p>
     </div>
 </div>
 
 <!-- Étape 3: Téléchargement -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="success-animation" style="background-color: #2b579a;">
-            <i class="fas fa-file-pdf"></i>
+        <div class="success-animation bg-success rounded-circle d-inline-flex p-4 mb-4">
+            <i class="fas fa-file-pdf fa-3x text-white"></i>
         </div>
-        
-        <h3 class="mb-3">{{ _('Conversion réussie !') }}</h3>
-        <p class="text-muted mb-4">
-            {{ _('Votre PDF est prêt au téléchargement') }}
-        </p>
-        
-        <div class="row g-4 mb-4">
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="fas fa-file-pdf fa-2x text-danger mb-3"></i>
-                        <h5 id="pdfFileName">{{ _('document.pdf') }}</h5>
-                        <p class="small text-muted" id="pdfFileInfo">
-                            {{ _('Taille: 0 MB | Pages: 0') }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="fas fa-info-circle fa-2x text-primary mb-3"></i>
-                        <h5>{{ _('Détails') }}</h5>
-                        <p class="small text-muted" id="conversionDetailsInfo">
-                            {{ _('Format: A4<br>Orientation: Portrait<br>Qualité: Standard') | safe }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
-            <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>
-                <i class="fas fa-download me-2"></i>{{ _('Télécharger PDF') }}
-            </a>
-            
-            <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>{{ _('Nouvelle conversion') }}
-            </button>
-        </div>
+        <h3 class="mb-3">Conversion réussie !</h3>
+        <p class="text-muted mb-4">Votre PDF est prêt au téléchargement</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>Télécharger PDF</a>
+        <button class="btn btn-outline-primary btn-lg ms-2" onclick="resetConversion()">Nouvelle conversion</button>
     </div>
 </div>
 
@@ -286,83 +93,54 @@
 let downloadUrl = null;
 let progressInterval = null;
 
-function el(id) {
-    return document.getElementById(id);
-}
-
 function updateStep(step) {
-    const step1 = document.getElementById('step1Content');
-    const step2 = document.getElementById('step2Content');
-    const step3 = document.getElementById('step3Content');
-    
-    if (step1) step1.style.display = step === 1 ? 'block' : 'none';
-    if (step2) step2.style.display = step === 2 ? 'block' : 'none';
-    if (step3) step3.style.display = step === 3 ? 'block' : 'none';
+    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
 }
 
 function showError(message) {
-    let errorDiv = document.getElementById('conversionError');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'conversionError';
-        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-        const step1 = document.getElementById('step1Content');
-        if (step1) step1.prepend(errorDiv);
-    }
-    const msgSpan = document.getElementById('conversionErrorMsg');
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+    document.getElementById('step1Content').prepend(errorDiv);
+    setTimeout(() => errorDiv.remove(), 5000);
+}
+
+function updateProgress(percent, message) {
+    const progressBar = document.getElementById('conversionProgress');
+    const percentSpan = document.getElementById('progressPercent');
+    const msgSpan = document.getElementById('conversionMessage');
+    const toastBar = document.getElementById('toastProgressBar');
+    const toastPct = document.getElementById('toastPct');
+    const toastMsg = document.getElementById('toastMsg');
+    
+    if (progressBar) progressBar.style.width = percent + '%';
+    if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
     if (msgSpan) msgSpan.textContent = message;
-    errorDiv.style.display = 'block';
-    setTimeout(() => {
-        if (errorDiv) errorDiv.style.display = 'none';
-    }, 5000);
+    if (toastBar) toastBar.style.width = percent + '%';
+    if (toastPct) toastPct.textContent = Math.round(percent) + '%';
+    if (toastMsg) toastMsg.textContent = message;
 }
 
 function showToast() {
-    const toast = el('progressToast');
+    const toast = document.getElementById('progressToast');
     if (toast) toast.style.display = 'block';
 }
 
 function hideToast() {
-    const toast = el('progressToast');
+    const toast = document.getElementById('progressToast');
     if (toast) toast.style.display = 'none';
 }
 
-function syncProgress(pct, msg, detail) {
-    const progressBar = document.getElementById('conversionProgress');
-    const bannerBar = document.getElementById('bannerProgressBar');
-    const toastBar = document.getElementById('toastProgressBar');
-    const bannerPct = document.getElementById('bannerPct');
-    const toastPct = document.getElementById('toastPct');
-    const conversionMsg = document.getElementById('conversionMessage');
-    const conversionDetails = document.getElementById('conversionDetails');
-    
-    if (progressBar) progressBar.style.width = pct + '%';
-    if (bannerBar) bannerBar.style.width = pct + '%';
-    if (toastBar) toastBar.style.width = pct + '%';
-    if (bannerPct) bannerPct.textContent = pct + '%';
-    if (toastPct) toastPct.textContent = pct + '%';
-    if (conversionMsg) conversionMsg.textContent = msg;
-    if (conversionDetails) conversionDetails.innerHTML = detail;
-}
-
 function startConversion() {
-    console.log('=== startConversion Word → PDF ===');
-    
     const fileInput = document.getElementById('wordFile');
-    if (!fileInput) {
-        showError('Champ fichier non trouvé');
-        return;
-    }
-    
-    if (!fileInput.files || fileInput.files.length === 0) {
+    if (!fileInput || !fileInput.files.length) {
         showError('Veuillez sélectionner un fichier Word');
         return;
     }
     
     const file = fileInput.files[0];
-    console.log('Fichier sélectionné:', file.name, file.size, 'bytes');
-    
     const ext = file.name.split('.').pop().toLowerCase();
     if (ext !== 'doc' && ext !== 'docx') {
         showError('Le fichier doit être au format DOC ou DOCX');
@@ -371,180 +149,69 @@ function startConversion() {
     
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('page_format', el('pageFormat').value);
+    formData.append('page_format', document.getElementById('pageFormat').value);
     formData.append('orientation', document.querySelector('input[name="orientation"]:checked').value);
-    formData.append('margins', el('margins').value);
-    formData.append('quality', el('quality').value);
-    formData.append('preserve_layout', el('preserveLayout').checked ? 'true' : 'false');
-    formData.append('include_bookmarks', el('includeBookmarks').checked ? 'true' : 'false');
-    
-    if (el('protectPDF').checked) {
-        formData.append('protect_pdf', 'true');
-        formData.append('password', el('password').value);
-        formData.append('permissions', el('permissions').value);
-    }
     
     updateStep(2);
     showToast();
     
     let progress = 0;
-    const estimatedPages = Math.max(1, Math.ceil(file.size / 15000));
-    const pagesSpan = document.getElementById('estimatedPages');
-    if (pagesSpan) pagesSpan.textContent = estimatedPages;
+    updateProgress(0, 'Démarrage...');
     
     progressInterval = setInterval(() => {
-        if (progress < 90) {
-            progress += 10;
-            syncProgress(progress, "Conversion en cours...", "Traitement du document...");
+        if (progress < 95) {
+            progress += Math.random() * 15;
+            progress = Math.min(progress, 95);
+            updateProgress(progress, 'Conversion en cours...');
         }
-    }, 600);
-    
-    console.log('Envoi de la requête POST...');
+    }, 400);
     
     fetch('/conversion/word-en-pdf', {
         method: 'POST',
         body: formData
     })
     .then(async response => {
-        console.log('Réponse reçue:', response.status, response.statusText);
         clearInterval(progressInterval);
         
-        if (response.status === 429) {
-            throw new Error("Quota d'utilisation dépassé. Veuillez patienter.");
-        }
-        
-        if (!response.ok) {
-            let errorMsg = `Erreur serveur: ${response.status}`;
-            try {
-                const errorData = await response.json();
-                errorMsg = errorData.error || errorMsg;
-            } catch(e) {
-                const errorText = await response.text();
-                errorMsg = errorText || errorMsg;
-            }
-            throw new Error(errorMsg);
-        }
-        
-        const contentType = response.headers.get('Content-Type') || '';
-        if (!contentType.includes('application/pdf') && !contentType.includes('application/octet-stream')) {
-            console.warn('Content-Type inattendu:', contentType);
-        }
+        if (!response.ok) throw new Error(`Erreur ${response.status}`);
         
         const blob = await response.blob();
-        console.log('Blob reçu:', blob.size, 'bytes');
+        if (blob.size === 0) throw new Error('Fichier vide');
         
-        if (blob.size === 0) {
-            throw new Error('Fichier téléchargé vide');
-        }
+        updateProgress(100, 'Finalisation...');
         
-        if (downloadUrl) {
-            URL.revokeObjectURL(downloadUrl);
-        }
-        
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
         downloadUrl = URL.createObjectURL(blob);
+        
         const downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.download = file.name.replace(/\.[^/.]+$/, '') + '.pdf';
-            
-            // ✅ Téléchargement automatique
-            downloadLink.click();
-        }
-        
-        const fileSize = (blob.size / (1024 * 1024)).toFixed(2);
-        const fileNameSpan = document.getElementById('pdfFileName');
-        const fileInfoSpan = document.getElementById('pdfFileInfo');
-        if (fileNameSpan) fileNameSpan.textContent = file.name.replace(/\.[^/.]+$/, '') + '.pdf';
-        if (fileInfoSpan) fileInfoSpan.innerHTML = `Taille: ${fileSize} MB | Pages: ${estimatedPages}`;
-        
-        syncProgress(100, "Terminé", "Votre PDF est prêt");
-        
-        const spinnerIcon = document.getElementById('toastSpinnerIcon');
-        const successIcon = document.getElementById('toastSuccessIcon');
-        if (spinnerIcon) spinnerIcon.style.display = 'none';
-        if (successIcon) successIcon.style.display = 'inline-block';
+        downloadLink.href = downloadUrl;
+        downloadLink.download = file.name.replace(/\.[^/.]+$/, '') + '.pdf';
         
         updateStep(3);
+        hideToast();
+        downloadLink.click();
     })
     .catch(error => {
-        console.error('Erreur:', error);
         clearInterval(progressInterval);
         hideToast();
         updateStep(1);
-        showError('Erreur lors de la conversion : ' + error.message);
+        showError('Erreur: ' + error.message);
     });
 }
 
 function resetConversion() {
-    console.log('resetConversion appelée');
-    
-    if (downloadUrl) {
-        URL.revokeObjectURL(downloadUrl);
-        downloadUrl = null;
-    }
-    
-    if (progressInterval) {
-        clearInterval(progressInterval);
-        progressInterval = null;
-    }
-    
-    const fileInput = document.getElementById('wordFile');
-    if (fileInput) fileInput.value = '';
-    
-    const errorDiv = document.getElementById('conversionError');
-    if (errorDiv) errorDiv.style.display = 'none';
-    
-    const progressBar = document.getElementById('conversionProgress');
-    if (progressBar) progressBar.style.width = '0%';
-    
-    const bannerBar = document.getElementById('bannerProgressBar');
-    if (bannerBar) bannerBar.style.width = '0%';
-    
-    const toastBar = document.getElementById('toastProgressBar');
-    if (toastBar) toastBar.style.width = '0%';
-    
-    const spinnerIcon = document.getElementById('toastSpinnerIcon');
-    const successIcon = document.getElementById('toastSuccessIcon');
-    if (spinnerIcon) spinnerIcon.style.display = 'inline-block';
-    if (successIcon) successIcon.style.display = 'none';
-    
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+    if (progressInterval) clearInterval(progressInterval);
+    document.getElementById('wordFile').value = '';
     updateStep(1);
+    hideToast();
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM chargé - initialisation word_to_pdf');
-    
-    const convertBtn = document.getElementById('convertBtn');
-    if (convertBtn) {
-        convertBtn.addEventListener('click', startConversion);
-        console.log('Bouton convertBtn configuré');
-    }
-    
-    const fileInput = document.getElementById('wordFile');
-    if (fileInput) {
-        fileInput.addEventListener('change', function(e) {
-            console.log('Fichier sélectionné:', e.target.files[0]?.name);
-            const convertBtn = document.getElementById('convertBtn');
-            if (convertBtn) convertBtn.disabled = false;
-        });
-    }
-    
-    const protectCheckbox = document.getElementById('protectPDF');
-    const protectionOptions = document.getElementById('protectionOptions');
-    if (protectCheckbox && protectionOptions) {
-        protectCheckbox.addEventListener('change', function() {
-            protectionOptions.style.display = this.checked ? 'block' : 'none';
-        });
-    }
-});
-
-window.addEventListener('beforeunload', function() {
-    if (downloadUrl) {
-        URL.revokeObjectURL(downloadUrl);
-    }
-    if (progressInterval) {
-        clearInterval(progressInterval);
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('convertBtn').addEventListener('click', startConversion);
+    document.getElementById('wordFile').addEventListener('change', (e) => {
+        console.log('Fichier sélectionné:', e.target.files[0]?.name);
+    });
 });
 </script>
 
