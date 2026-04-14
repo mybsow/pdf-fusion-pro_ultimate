@@ -73,7 +73,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-success btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+        <button class="btn btn-success btn-lg px-5" id="convertBtn" disabled>
             <i class="fas fa-file-csv me-2"></i>{{ _('Convertir en CSV') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
@@ -115,14 +115,26 @@
     </div>
 </div>
 
+{% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
 <script>
 let downloadUrl = null;
 let progressInterval = null;
 
 function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    const s1 = document.getElementById('step1Content');
+    const s2 = document.getElementById('step2Content');
+    const s3 = document.getElementById('step3Content');
+    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+        window.updateStep(step);
+    }
 }
 
 function showError(message) {
@@ -131,28 +143,64 @@ function showError(message) {
         errorDiv = document.createElement('div');
         errorDiv.id = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = `
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <span id="conversionErrorMsg"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.getElementById('step1Content').prepend(errorDiv);
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        const s1 = document.getElementById('step1Content');
+        if (s1) s1.prepend(errorDiv);
     }
-    document.getElementById('conversionErrorMsg').textContent = message;
+    const msgSpan = document.getElementById('conversionErrorMsg');
+    if (msgSpan) msgSpan.textContent = message;
     errorDiv.style.display = 'block';
+    setTimeout(function() {
+        if (errorDiv) errorDiv.style.display = 'none';
+    }, 8000);
+}
+
+function updateButtonState() {
+    const manager = window.uploadManagers && window.uploadManagers.excelUploadZone;
+    const convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.disabled = !manager || !manager.files || manager.files.length === 0;
+    }
+}
+
+function bindUploadManager() {
+    const manager = window.uploadManagers && window.uploadManagers.excelUploadZone;
+    if (!manager) {
+        setTimeout(bindUploadManager, 200);
+        return;
+    }
+
+    const originalHandleFiles = manager.handleFiles;
+    if (originalHandleFiles) {
+        manager.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+    }
+
+    const originalRemoveFile = manager.removeFile;
+    if (originalRemoveFile) {
+        manager.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+
+    updateButtonState();
 }
 
 function startConversion() {
-    const uploadManager = window.uploadManagers?.['excelUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
+    const manager = window.uploadManagers && window.uploadManagers.excelUploadZone;
+    if (!manager || !manager.files || manager.files.length === 0) {
         showError('{{ _("Veuillez sélectionner au moins un fichier Excel") }}');
         return;
     }
 
     const formData = new FormData();
-    uploadManager.getFiles().forEach(file => {
-        formData.append('files', file);
-    });
+    const files = manager.getFiles();
+    for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+    }
 
     formData.append('separator', document.getElementById('separator').value);
     formData.append('sheet', document.getElementById('sheet').value);
@@ -162,45 +210,41 @@ function startConversion() {
     updateStep(2);
 
     let progress = 0;
+    const totalFiles = files.length;
+    let currentFile = 0;
     const progressBar = document.getElementById('progressBar');
-    progressInterval = setInterval(() => {
+
+    progressInterval = setInterval(function() {
         if (progress < 90) {
-            progress += 10;
+            if (currentFile < totalFiles) {
+                currentFile++;
+                progress = Math.min(Math.floor((currentFile / totalFiles) * 90), 90);
+            } else {
+                progress += 5;
+            }
             if (progressBar) progressBar.style.width = progress + '%';
         }
-    }, 500);
+    }, 400);
 
     fetch('{{ url_for("conversion.universal_converter", conversion_type="excel-en-csv") }}', {
         method: 'POST',
         body: formData
     })
-    .then(async response => {
+    .then(function(response) {
         clearInterval(progressInterval);
         if (progressBar) progressBar.style.width = '100%';
+        return response.blob();
+    })
+    .then(function(blob) {
+        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erreur serveur ' + response.status);
-        }
-
-        const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) {
-            throw new Error('Le serveur a retourné une erreur. Vérifiez les fichiers.');
-        }
-
-        const blob = await response.blob();
-        if (blob.size === 0) {
-            throw new Error('Fichier téléchargé vide.');
-        }
-
-        downloadUrl = window.URL.createObjectURL(blob);
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        downloadUrl = URL.createObjectURL(blob);
 
         const contentDisposition = response.headers.get('Content-Disposition') || '';
         let filename = 'converted.csv';
         const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match && match[1]) {
-            filename = match[1].replace(/['"]/g, '');
-        }
+        if (match && match[1]) filename = match[1].replace(/['"]/g, '');
 
         const downloadLink = document.getElementById('downloadLink');
         if (downloadLink) {
@@ -210,46 +254,46 @@ function startConversion() {
 
         updateStep(3);
     })
-    .catch(error => {
+    .catch(function(error) {
         clearInterval(progressInterval);
-        console.error('Erreur conversion:', error);
         updateStep(1);
         showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
     });
 }
 
 function resetConversion() {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-        downloadUrl = null;
-    }
+    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
 
-    if (progressInterval) {
-        clearInterval(progressInterval);
-        progressInterval = null;
-    }
-
-    const uploadManager = window.uploadManagers?.['excelUploadZone'];
-    if (uploadManager) {
-        const files = uploadManager.getFiles();
-        for (let i = files.length - 1; i >= 0; i--) {
-            uploadManager.removeFile(i);
-        }
+    const manager = window.uploadManagers && window.uploadManagers.excelUploadZone;
+    if (manager && manager.removeFile) {
+        const files = manager.getFiles();
+        for (let i = files.length - 1; i >= 0; i--) manager.removeFile(i);
     }
 
     const errorDiv = document.getElementById('conversionError');
     if (errorDiv) errorDiv.style.display = 'none';
-
     const progressBar = document.getElementById('progressBar');
     if (progressBar) progressBar.style.width = '0%';
 
     updateStep(1);
 }
 
-window.addEventListener('beforeunload', () => {
-    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+document.addEventListener('DOMContentLoaded', function() {
+    bindUploadManager();
+    
+    const convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        // Supprimer l'ancien onclick et ajouter un écouteur
+        const newBtn = convertBtn.cloneNode(true);
+        convertBtn.parentNode.replaceChild(newBtn, convertBtn);
+        newBtn.addEventListener('click', startConversion);
+    }
+});
+
+window.addEventListener('beforeunload', function() {
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     if (progressInterval) clearInterval(progressInterval);
 });
 </script>
-{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}

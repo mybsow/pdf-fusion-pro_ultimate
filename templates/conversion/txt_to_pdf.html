@@ -89,7 +89,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn" disabled>
             <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PDF') }}
         </button>
     </div>
@@ -128,14 +128,26 @@
     </div>
 </div>
 
+{% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
 <script>
 let downloadUrl = null;
 let progressInterval = null;
 
 function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    const s1 = document.getElementById('step1Content');
+    const s2 = document.getElementById('step2Content');
+    const s3 = document.getElementById('step3Content');
+    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+        window.updateStep(step);
+    }
 }
 
 function showError(message) {
@@ -145,22 +157,51 @@ function showError(message) {
         errorDiv.id = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
         errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-        document.getElementById('step1Content').prepend(errorDiv);
+        const s1 = document.getElementById('step1Content');
+        if (s1) s1.prepend(errorDiv);
     }
-    document.getElementById('conversionErrorMsg').textContent = message;
+    const msgSpan = document.getElementById('conversionErrorMsg');
+    if (msgSpan) msgSpan.textContent = message;
     errorDiv.style.display = 'block';
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('textContent')?.addEventListener('input', updateConvertButton);
-});
 
 function updateConvertButton() {
     const uploadManager = window.uploadManagers?.['txtUploadZone'];
     const hasFile = uploadManager && uploadManager.getFiles().length > 0;
-    const hasText = document.getElementById('textContent')?.value.trim().length > 0;
-    const btn = document.getElementById('convertBtn');
-    if (btn) btn.disabled = !(hasFile || hasText);
+    const textarea = document.getElementById('textContent');
+    const hasText = textarea && textarea.value.trim().length > 0;
+    const convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) convertBtn.disabled = !(hasFile || hasText);
+}
+
+function updateButtonState() {
+    updateConvertButton();
+}
+
+function bindUploadManager() {
+    const manager = window.uploadManagers && window.uploadManagers.txtUploadZone;
+    if (!manager) {
+        setTimeout(bindUploadManager, 200);
+        return;
+    }
+
+    const originalHandleFiles = manager.handleFiles;
+    if (originalHandleFiles) {
+        manager.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+    }
+
+    const originalRemoveFile = manager.removeFile;
+    if (originalRemoveFile) {
+        manager.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+
+    updateButtonState();
 }
 
 function startConversion() {
@@ -169,10 +210,12 @@ function startConversion() {
     const files = uploadManager ? uploadManager.getFiles() : [];
 
     const formData = new FormData();
+    
     if (files.length > 0) {
         formData.append('file', files[0]);
-    } else if (textContent?.value.trim()) {
-        formData.append('file', new Blob([textContent.value], { type: 'text/plain' }), 'document.txt');
+    } else if (textContent && textContent.value.trim()) {
+        const blob = new Blob([textContent.value], { type: 'text/plain' });
+        formData.append('file', blob, 'document.txt');
     } else {
         showError('{{ _("Veuillez saisir du texte ou sélectionner un fichier") }}');
         return;
@@ -207,13 +250,13 @@ function startConversion() {
             const errorText = await response.text();
             throw new Error(errorText || 'Erreur serveur ' + response.status);
         }
-        const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
 
         const blob = await response.blob();
         if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
 
-        downloadUrl = window.URL.createObjectURL(blob);
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        downloadUrl = URL.createObjectURL(blob);
+
         const contentDisposition = response.headers.get('Content-Disposition') || '';
         let filename = 'document.pdf';
         const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
@@ -224,6 +267,7 @@ function startConversion() {
             downloadLink.href = downloadUrl;
             downloadLink.setAttribute('download', filename);
         }
+
         updateStep(3);
     })
     .catch(error => {
@@ -234,7 +278,7 @@ function startConversion() {
 }
 
 function resetConversion() {
-    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
     if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
 
     const uploadManager = window.uploadManagers?.['txtUploadZone'];
@@ -245,19 +289,30 @@ function resetConversion() {
 
     const textContent = document.getElementById('textContent');
     if (textContent) textContent.value = '';
+
     const errorDiv = document.getElementById('conversionError');
     if (errorDiv) errorDiv.style.display = 'none';
     const progressBar = document.getElementById('progressBar');
     if (progressBar) progressBar.style.width = '0%';
 
-    updateConvertButton();
+    updateButtonState();
     updateStep(1);
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    bindUploadManager();
+    
+    const textContent = document.getElementById('textContent');
+    if (textContent) {
+        textContent.addEventListener('input', updateButtonState);
+    }
+    
+    updateButtonState();
+});
+
 window.addEventListener('beforeunload', () => {
-    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     if (progressInterval) clearInterval(progressInterval);
 });
 </script>
-{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}

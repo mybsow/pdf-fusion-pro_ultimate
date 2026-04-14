@@ -28,3 +28,185 @@
 {% set button_id = 'compressButton' %}
 {% set upload_manager = 'compressUploadZone' %}
 {% set multiple = false %}
+
+{% block pdf_extra_js %}
+{{ super() }}
+<script>
+(function() {
+    'use strict';
+    
+    var downloadUrl = null;
+    var progressInterval = null;
+    
+    function updateProgress(percent, message) {
+        var progressBar = document.getElementById('conversionProgress');
+        var percentSpan = document.getElementById('progressPercent');
+        var msgSpan = document.getElementById('conversionMessage');
+        
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
+        if (msgSpan) msgSpan.textContent = message;
+    }
+    
+    function showError(message) {
+        var errorDiv = document.getElementById('conversionError');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'conversionError';
+            errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+            var step1 = document.getElementById('step1Content');
+            if (step1) step1.prepend(errorDiv);
+        }
+        var msgSpan = document.getElementById('conversionErrorMsg');
+        if (msgSpan) msgSpan.textContent = message;
+        errorDiv.style.display = 'block';
+        setTimeout(function() {
+            if (errorDiv) errorDiv.style.display = 'none';
+        }, 8000);
+    }
+    
+    function startCompression() {
+        var manager = window.uploadManagers && window.uploadManagers.compressUploadZone;
+        if (!manager || !manager.files || manager.files.length === 0) {
+            showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
+            return;
+        }
+        
+        var file = manager.getFiles()[0];
+        var compressionLevel = document.querySelector('input[name="compressionLevel"]:checked').value;
+        
+        var formData = new FormData();
+        formData.append('file', file);
+        formData.append('compression', compressionLevel);
+        
+        var step1 = document.getElementById('step1Content');
+        var step2 = document.getElementById('step2Content');
+        var step3 = document.getElementById('step3Content');
+        
+        if (step1) step1.style.display = 'none';
+        if (step2) step2.style.display = 'block';
+        if (step3) step3.style.display = 'none';
+        
+        var progress = 0;
+        var progressBar = document.getElementById('conversionProgress');
+        progressInterval = setInterval(function() {
+            if (progress < 90) {
+                progress += 10;
+                if (progressBar) progressBar.style.width = progress + '%';
+                updateProgress(progress, '{{ _("Compression en cours...") }}');
+            }
+        }, 300);
+        
+        fetch('{{ url_for("pdf.compress") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(response) {
+            clearInterval(progressInterval);
+            if (progressBar) progressBar.style.width = '100%';
+            
+            if (!response.ok) throw new Error('Erreur serveur ' + response.status);
+            return response.blob();
+        })
+        .then(function(blob) {
+            if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+            
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
+            
+            var downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.download = file.name.replace(/\.pdf$/i, '') + '_compressed.pdf';
+            }
+            
+            if (step1) step1.style.display = 'none';
+            if (step2) step2.style.display = 'none';
+            if (step3) step3.style.display = 'block';
+        })
+        .catch(function(error) {
+            clearInterval(progressInterval);
+            if (step1) step1.style.display = 'block';
+            if (step2) step2.style.display = 'none';
+            if (step3) step3.style.display = 'none';
+            showError('{{ _("Erreur lors de la compression :") }} ' + error.message);
+        });
+    }
+    
+    function resetCompression() {
+        if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+        if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+        
+        var manager = window.uploadManagers && window.uploadManagers.compressUploadZone;
+        if (manager && manager.removeFile) {
+            var files = manager.getFiles();
+            for (var i = files.length - 1; i >= 0; i--) manager.removeFile(i);
+        }
+        
+        var step1 = document.getElementById('step1Content');
+        var step2 = document.getElementById('step2Content');
+        var step3 = document.getElementById('step3Content');
+        if (step1) step1.style.display = 'block';
+        if (step2) step2.style.display = 'none';
+        if (step3) step3.style.display = 'none';
+        
+        var progressBar = document.getElementById('conversionProgress');
+        if (progressBar) progressBar.style.width = '0%';
+        
+        var errorDiv = document.getElementById('conversionError');
+        if (errorDiv) errorDiv.style.display = 'none';
+    }
+    
+    window.resetCompression = resetCompression;
+    
+    function updateButtonState() {
+        var manager = window.uploadManagers && window.uploadManagers.compressUploadZone;
+        var convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.disabled = !manager || !manager.files || manager.files.length === 0;
+        }
+    }
+    
+    function bindUploadManager() {
+        var manager = window.uploadManagers && window.uploadManagers.compressUploadZone;
+        if (!manager) {
+            setTimeout(bindUploadManager, 200);
+            return;
+        }
+        
+        var originalHandleFiles = manager.handleFiles;
+        if (originalHandleFiles) {
+            manager.handleFiles = function(fileList) {
+                originalHandleFiles.call(this, fileList);
+                updateButtonState();
+            };
+        }
+        
+        var originalRemoveFile = manager.removeFile;
+        if (originalRemoveFile) {
+            manager.removeFile = function(index) {
+                originalRemoveFile.call(this, index);
+                updateButtonState();
+            };
+        }
+        
+        updateButtonState();
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        bindUploadManager();
+        
+        var convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', startCompression);
+        }
+    });
+    
+    window.addEventListener('beforeunload', function() {
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        if (progressInterval) clearInterval(progressInterval);
+    });
+})();
+</script>
+{% endblock %}

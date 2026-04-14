@@ -52,7 +52,7 @@
                         <button class="btn btn-success btn-lg" id="unlockButton" disabled>
                             <i class="fas fa-unlock me-2"></i>{{ _('Déverrouiller le PDF') }}
                         </button>
-                        <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.unlockUploadZone.removeFile(0)">
+                        <button class="btn btn-outline-secondary btn-lg" onclick="resetUpload()">
                             <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
                         </button>
                     </div>
@@ -62,69 +62,128 @@
     </div>
 </div>
 
+{% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block extra_js %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const unlockButton = document.getElementById('unlockButton');
-    const password = document.getElementById('password');
+(function() {
+    'use strict';
+    
+    let downloadUrl = null;
     
     function updateButtonState() {
-        const manager = window.uploadManagers?.unlockUploadZone;
-        unlockButton.disabled = !manager?.files?.length;
+        const manager = window.uploadManagers && window.uploadManagers.unlockUploadZone;
+        const unlockButton = document.getElementById('unlockButton');
+        if (unlockButton) {
+            unlockButton.disabled = !manager || !manager.files || manager.files.length === 0;
+        }
     }
     
-    password.addEventListener('input', updateButtonState);
-    
-    const originalHandleFiles = window.uploadManagers?.unlockUploadZone?.handleFiles;
-    if (originalHandleFiles) {
-        window.uploadManagers.unlockUploadZone.handleFiles = function(fileList) {
-            originalHandleFiles.call(this, fileList);
-            updateButtonState();
-        };
+    function showError(message) {
+        let errorDiv = document.getElementById('conversionError');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'conversionError';
+            errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+            const cardBody = document.querySelector('.card-body');
+            if (cardBody) cardBody.prepend(errorDiv);
+        }
+        const msgSpan = document.getElementById('conversionErrorMsg');
+        if (msgSpan) msgSpan.textContent = message;
+        errorDiv.style.display = 'block';
+        setTimeout(function() {
+            if (errorDiv) errorDiv.style.display = 'none';
+        }, 8000);
     }
     
-    const originalRemoveFile = window.uploadManagers?.unlockUploadZone?.removeFile;
-    if (originalRemoveFile) {
-        window.uploadManagers.unlockUploadZone.removeFile = function(index) {
-            originalRemoveFile.call(this, index);
-            updateButtonState();
-        };
-    }
-    
-    unlockButton.addEventListener('click', async function(e) {
-        e.preventDefault();
+    function resetUpload() {
+        const manager = window.uploadManagers && window.uploadManagers.unlockUploadZone;
+        if (manager && manager.removeFile) {
+            const files = manager.getFiles();
+            for (let i = files.length - 1; i >= 0; i--) {
+                manager.removeFile(i);
+            }
+        }
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) passwordInput.value = '';
         
-        const manager = window.uploadManagers?.unlockUploadZone;
-        if (!manager?.files?.length) {
-            alert('{{ _("Veuillez sélectionner un fichier PDF") }}');
+        const errorDiv = document.getElementById('conversionError');
+        if (errorDiv) errorDiv.style.display = 'none';
+        
+        updateButtonState();
+    }
+    
+    window.resetUpload = resetUpload;
+    
+    function bindUploadManager() {
+        const manager = window.uploadManagers && window.uploadManagers.unlockUploadZone;
+        if (!manager) {
+            setTimeout(bindUploadManager, 200);
             return;
         }
         
+        const originalHandleFiles = manager.handleFiles;
+        if (originalHandleFiles) {
+            manager.handleFiles = function(fileList) {
+                originalHandleFiles.call(this, fileList);
+                updateButtonState();
+            };
+        }
+        
+        const originalRemoveFile = manager.removeFile;
+        if (originalRemoveFile) {
+            manager.removeFile = function(index) {
+                originalRemoveFile.call(this, index);
+                updateButtonState();
+            };
+        }
+        
+        updateButtonState();
+    }
+    
+    function startUnlock() {
+        const manager = window.uploadManagers && window.uploadManagers.unlockUploadZone;
+        if (!manager || !manager.files || manager.files.length === 0) {
+            showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
+            return;
+        }
+        
+        const passwordInput = document.getElementById('password');
         const loader = document.getElementById('loaderOverlay');
-        if (loader) loader.style.display = 'flex';
         
         const formData = new FormData();
         formData.append('file', manager.files[0]);
-        if (password.value) {
-            formData.append('password', password.value);
+        if (passwordInput && passwordInput.value) {
+            formData.append('password', passwordInput.value);
         }
         
-        try {
-            const response = await fetch('/conversion/deverrouiller-pdf', {
-                method: 'POST',
-                body: formData
-            });
-            
+        if (loader) loader.style.display = 'flex';
+        
+        fetch('/conversion/deverrouiller-pdf', {
+            method: 'POST',
+            body: formData
+        })
+        .then(async function(response) {
             if (!response.ok) {
-                const error = await response.text();
-                throw new Error(error || '{{ _("Erreur lors du déverrouillage") }}');
+                const errorText = await response.text();
+                throw new Error(errorText || '{{ _("Erreur lors du déverrouillage") }}');
             }
             
             const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
+            if (blob.size === 0) throw new Error('Fichier téléchargé vide');
             
-            // Extraire le nom du fichier de l'en-tête Content-Disposition
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            
             let filename = '{{ _("document_deverrouille.pdf") }}';
             const contentDisposition = response.headers.get('Content-Disposition');
             if (contentDisposition) {
@@ -138,25 +197,33 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            
-        } catch (error) {
+        })
+        .catch(function(error) {
             console.error('{{ _("Erreur:") }}', error);
-            const errDiv = document.createElement('div');
-            errDiv.className = 'alert alert-danger mt-3';
-            errDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${error.message}`;
-            document.querySelector('.card-body').prepend(errDiv);
-            setTimeout(() => errDiv.remove(), 8000);
-        } finally {
+            showError(error.message);
+        })
+        .finally(function() {
             if (loader) loader.style.display = 'none';
+        });
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        bindUploadManager();
+        
+        const unlockButton = document.getElementById('unlockButton');
+        if (unlockButton) {
+            unlockButton.addEventListener('click', startUnlock);
+        }
+        
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', updateButtonState);
         }
     });
-});
+    
+    window.addEventListener('beforeunload', function() {
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+    });
+})();
 </script>
-{% block cloud_buttons %}{{ super() }}{% endblock %}
-{% endblock %}
-
-{% block extra_js %}
-<script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
-<script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
 {% endblock %}

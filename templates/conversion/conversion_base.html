@@ -164,6 +164,18 @@
 .btn-cloud:hover {
     transform: translateY(-2px);
 }
+/* Styles pour la progression */
+.progress-container {
+    margin: 20px auto;
+    max-width: 500px;
+}
+.progress-bar {
+    transition: width 0.3s ease;
+}
+/* Styles pour les étapes */
+.step-container {
+    transition: all 0.3s ease;
+}
 @media (max-width: 768px) {
     .converter-hero { padding: 3rem 1rem; }
     .converter-card { padding: 1.5rem; }
@@ -291,74 +303,116 @@
     <!-- Carte principale -->
     <div class="converter-card">
         {% block converter_content %}
-        <!-- Formulaire d'upload par défaut -->
-        <form id="uploadForm" method="POST" enctype="multipart/form-data" action="{{ url_for('conversion.universal_converter', conversion_type=conversion_type) }}">
-            <div class="upload-zone" id="uploadZone">
-                <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                <h5 class="mb-2">{{ _('Glissez-déposez vos fichiers ici') }}</h5>
-                <p class="text-muted mb-2">{{ _('ou') }}</p>
-                <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
-                    <i class="fas fa-folder-open me-1"></i>{{ _('Parcourir') }}
-                </button>
-                <input type="file" id="fileInput" name="files" class="d-none" accept="{{ accept }}" {% if max_files > 1 %}multiple{% endif %}>
-                <p class="text-muted small mt-2 mb-0">
-                    {{ _('Formats acceptés :') }} 
-                    {% set clean_accept = accept|replace('.', '')|upper %}
-                    {{ clean_accept }} 
-                    ({{ _('jusqu\'à') }} {{ max_files }} 
-                    {% if max_files > 1 %}{{ _('fichiers') }}{% else %}{{ _('fichier') }}{% endif %}, 
-                    {{ _('max') }} 50MB)
-                </p>
-            </div>
+        <!-- ================= ÉTAPE 1 : UPLOAD ================= -->
+        <div id="step1Content" class="step-container">
+            <form id="uploadForm" method="POST" enctype="multipart/form-data" action="{{ url_for('conversion.universal_converter', conversion_type=conversion_type) }}">
+                <div class="upload-zone" id="uploadZone">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <h5 class="mb-2">{{ _('Glissez-déposez vos fichiers ici') }}</h5>
+                    <p class="text-muted mb-2">{{ _('ou') }}</p>
+                    <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-1"></i>{{ _('Parcourir') }}
+                    </button>
+                    <input type="file" id="fileInput" name="files" class="d-none" accept="{{ accept }}" {% if max_files > 1 %}multiple{% endif %}>
+                    <p class="text-muted small mt-2 mb-0">
+                        {{ _('Formats acceptés :') }} 
+                        {% set clean_accept = accept|replace('.', '')|upper %}
+                        {{ clean_accept }} 
+                        ({{ _('jusqu\'à') }} {{ max_files }} 
+                        {% if max_files > 1 %}{{ _('fichiers') }}{% else %}{{ _('fichier') }}{% endif %}, 
+                        {{ _('max') }} 50MB)
+                    </p>
+                </div>
 
-            <!-- Bloc dédié aux boutons cloud -->
-            {% block cloud_buttons %}
-            <div class="cloud-buttons-container">
-                <div class="position-relative">
-                    <hr>
-                    <div class="cloud-buttons-title">
-                        <i class="fas fa-cloud-upload-alt me-1"></i>
-                        {{ _('Importer depuis le cloud') }}
+                <!-- Bloc dédié aux boutons cloud -->
+                {% block cloud_buttons %}
+                <div class="cloud-buttons-container">
+                    <div class="position-relative">
+                        <hr>
+                        <div class="cloud-buttons-title">
+                            <i class="fas fa-cloud-upload-alt me-1"></i>
+                            {{ _('Importer depuis le cloud') }}
+                        </div>
+                    </div>
+                    <div class="cloud-btn-group">
+                        <button type="button" class="cloud-btn cloud-btn-google" onclick="window.cloudUpload && cloudUpload.open('google')">
+                            <i class="fab fa-google-drive"></i>
+                            <span>Google Drive</span>
+                        </button>
+                        <button type="button" class="cloud-btn cloud-btn-onedrive" onclick="window.cloudUpload && cloudUpload.open('onedrive')">
+                            <i class="fab fa-microsoft"></i>
+                            <span>OneDrive</span>
+                        </button>
+                        <button type="button" class="cloud-btn cloud-btn-dropbox" onclick="window.cloudUpload && cloudUpload.open('dropbox')">
+                            <i class="fab fa-dropbox"></i>
+                            <span>Dropbox</span>
+                        </button>
+                        <button type="button" class="cloud-btn cloud-btn-icloud" onclick="window.cloudUpload && cloudUpload.open('icloud')">
+                            <i class="fab fa-apple"></i>
+                            <span>iCloud</span>
+                        </button>
+                        <button type="button" class="cloud-btn cloud-btn-box" onclick="window.cloudUpload && cloudUpload.open('box')">
+                            <i class="fas fa-box"></i>
+                            <span>Box</span>
+                        </button>
+                        <button type="button" class="cloud-btn cloud-btn-pcloud" onclick="window.cloudUpload && cloudUpload.open('pcloud')">
+                            <i class="fas fa-cloud"></i>
+                            <span>pCloud</span>
+                        </button>
                     </div>
                 </div>
-                <div class="cloud-btn-group">
-                    <button type="button" class="cloud-btn cloud-btn-google" onclick="window.cloudUpload && cloudUpload.open('google')">
-                        <i class="fab fa-google-drive"></i>
-                        <span>Google Drive</span>
+                {% endblock %}
+                
+                <!-- Options spécifiques à chaque conversion -->
+                {% block conversion_options %}{% endblock %}
+                
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn">
+                        <i class="fas fa-exchange-alt me-2"></i>{{ _('Convertir') }}
                     </button>
-                    <button type="button" class="cloud-btn cloud-btn-onedrive" onclick="window.cloudUpload && cloudUpload.open('onedrive')">
-                        <i class="fab fa-microsoft"></i>
-                        <span>OneDrive</span>
-                    </button>
-                    <button type="button" class="cloud-btn cloud-btn-dropbox" onclick="window.cloudUpload && cloudUpload.open('dropbox')">
-                        <i class="fab fa-dropbox"></i>
-                        <span>Dropbox</span>
-                    </button>
-                    <button type="button" class="cloud-btn cloud-btn-icloud" onclick="window.cloudUpload && cloudUpload.open('icloud')">
-                        <i class="fab fa-apple"></i>
-                        <span>iCloud</span>
-                    </button>
-                    <button type="button" class="cloud-btn cloud-btn-box" onclick="window.cloudUpload && cloudUpload.open('box')">
-                        <i class="fas fa-box"></i>
-                        <span>Box</span>
-                    </button>
-                    <button type="button" class="cloud-btn cloud-btn-pcloud" onclick="window.cloudUpload && cloudUpload.open('pcloud')">
-                        <i class="fas fa-cloud"></i>
-                        <span>pCloud</span>
+                </div>
+            </form>
+        </div>
+        
+        <!-- ================= ÉTAPE 2 : TRAITEMENT ================= -->
+        <div id="step2Content" class="step-container" style="display: none;">
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
+                </div>
+                <h3 class="mb-3">{{ _('Conversion en cours...') }}</h3>
+                <p class="text-muted mb-4" id="conversionMessage">
+                    {{ _('Analyse du document...') }}
+                </p>
+                <div class="progress-container mx-auto">
+                    <div class="progress bg-light rounded-pill" style="height: 10px;">
+                        <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <p class="mt-2 text-muted" id="progressPercent">0%</p>
+            </div>
+        </div>
+        
+        <!-- ================= ÉTAPE 3 : TÉLÉCHARGEMENT ================= -->
+        <div id="step3Content" class="step-container" style="display: none;">
+            <div class="text-center py-5">
+                <div class="success-animation">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="mb-3">{{ _('Conversion terminée !') }}</h3>
+                <p class="text-muted mb-4">
+                    {{ _('Votre fichier est prêt à être téléchargé') }}
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>
+                        <i class="fas fa-download me-2"></i>{{ _('Télécharger') }}
+                    </a>
+                    <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
+                        <i class="fas fa-redo me-2"></i>{{ _('Nouvelle conversion') }}
                     </button>
                 </div>
             </div>
-            {% endblock %}
-            
-            <!-- Options spécifiques à chaque conversion -->
-            {% block conversion_options %}{% endblock %}
-            
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn">
-                    <i class="fas fa-exchange-alt me-2"></i>{{ _('Convertir') }}
-                </button>
-            </div>
-        </form>
+        </div>
         {% endblock %}
     </div>
 
@@ -400,21 +454,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Message de succès (caché par défaut) -->
-    <div id="successMessage" class="text-center" style="display: none;">
-        <div class="success-animation">
-            <i class="fas fa-check-circle"></i>
-        </div>
-        <h3 class="mb-3">{{ _('Conversion terminée !') }}</h3>
-        <p class="mb-4">{{ _('Votre fichier est prêt à être téléchargé') }}</p>
-        <a href="#" id="downloadLink" class="btn btn-success btn-lg">
-            <i class="fas fa-download me-2"></i>{{ _('Télécharger') }}
-        </a>
-        <button onclick="location.reload()" class="btn btn-outline-secondary ms-2">
-            <i class="fas fa-redo me-1"></i>{{ _('Convertir un autre fichier') }}
-        </button>
-    </div>
 </div>
 
 <script>
@@ -449,6 +488,19 @@ function hideLoader() {
     updateStep(3);
 }
 
+function resetConversion() {
+    // Réinitialiser le formulaire et les étapes
+    const step1 = document.getElementById('step1Content');
+    const step2 = document.getElementById('step2Content');
+    const step3 = document.getElementById('step3Content');
+    
+    if (step1) step1.style.display = 'block';
+    if (step2) step2.style.display = 'none';
+    if (step3) step3.style.display = 'none';
+    
+    updateStep(1);
+}
+
 // Gestion du drag & drop
 const uploadZone = document.getElementById('uploadZone');
 const fileInput = document.getElementById('fileInput');
@@ -469,7 +521,6 @@ if (uploadZone) {
         const files = e.dataTransfer.files;
         if (fileInput) {
             fileInput.files = files;
-            // Déclencher l'événement change
             const event = new Event('change', { bubbles: true });
             fileInput.dispatchEvent(event);
         }
@@ -502,6 +553,13 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('☁️ Cloud upload ready');
     }
 });
+
+// Rendre les fonctions disponibles globalement pour les templates enfants
+window.updateStep = updateStep;
+window.showError = showError;
+window.resetConversion = resetConversion;
+window.showLoader = showLoader;
+window.hideLoader = hideLoader;
 </script>
 {% endblock %}
 

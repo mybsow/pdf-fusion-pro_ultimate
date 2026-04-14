@@ -209,185 +209,199 @@
     </div>
 </div>
 
-<script>
-let downloadUrl = null;
-let progressInterval = null;
-let detectedFields = [];
-
-function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
-}
-
-function showError(message) {
-    let errorDiv = document.getElementById('conversionError');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'conversionError';
-        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-        document.getElementById('step1Content').prepend(errorDiv);
-    }
-    document.getElementById('conversionErrorMsg').textContent = message;
-    errorDiv.style.display = 'block';
-}
-
-// --- Détection des champs (inchangé, simplement ajout de showError/hideLoader) ---
-function detectFields() {
-    const uploadManager = window.uploadManagers?.['docUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('{{ _("Veuillez d\'abord télécharger un document") }}');
-        return;
-    }
-    const loader = document.getElementById('loaderOverlay');
-    if (loader) loader.style.display = 'flex';
-    setTimeout(() => {
-        detectedFields = [
-            { type: 'text', label: '{{ _("Nom complet") }}', page: 1, required: true },
-            { type: 'text', label: '{{ _("Prénom") }}', page: 1, required: true },
-            { type: 'text', label: '{{ _("Adresse") }}', page: 1, required: false },
-            { type: 'text', label: '{{ _("Code postal") }}', page: 1, required: false },
-            { type: 'text', label: '{{ _("Ville") }}', page: 1, required: false },
-            { type: 'email', label: '{{ _("Email") }}', page: 1, required: true },
-            { type: 'tel', label: '{{ _("Téléphone") }}', page: 1, required: false },
-            { type: 'checkbox', label: '{{ _("J\'accepte les conditions") }}', page: 2, required: true },
-            { type: 'signature', label: '{{ _("Signature") }}', page: 2, required: true },
-            { type: 'date', label: '{{ _("Date") }}', page: 2, required: true }
-        ];
-        updateFieldsTable();
-        document.getElementById('formPreview').style.display = 'block';
-        if (loader) loader.style.display = 'none';
-    }, 2000);
-}
-
-function updateFieldsTable() {
-    const tbody = document.querySelector('#fieldsTable tbody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    detectedFields.forEach((field, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `<td><span class="badge bg-secondary"><i class="fas fa-${getFieldIcon(field.type)} me-1"></i>${field.type}</span></td><td>${field.label}</td><td>${field.page}</td><td><button class="btn btn-sm btn-outline-primary" onclick="editField(${index})"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="deleteField(${index})"><i class="fas fa-trash"></i></button></td>`;
-        tbody.appendChild(row);
-    });
-}
-
-function getFieldIcon(type) {
-    return { text: 'font', email: 'envelope', tel: 'phone', checkbox: 'check-square', signature: 'pen', date: 'calendar', number: 'hashtag' }[type] || 'font';
-}
-
-function editField(index) { alert('{{ _("Édition du champ - À implémenter") }}'); }
-function deleteField(index) { detectedFields.splice(index, 1); updateFieldsTable(); }
-function loadPreview() { alert('{{ _("Chargement de l\'aperçu - À implémenter avec PDF.js") }}'); }
-
-function startConversion() {
-    const uploadManager = window.uploadManagers?.['docUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('{{ _("Veuillez sélectionner un document") }}');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', uploadManager.getFiles()[0]);
-    formData.append('form_type', document.querySelector('input[name="formType"]:checked').value);
-    formData.append('detect_fields', document.getElementById('detectFields').value);
-    formData.append('language', document.getElementById('formLanguage').value);
-    formData.append('color', document.getElementById('formColor').value);
-    formData.append('border_style', document.getElementById('formBorder').value);
-    formData.append('add_placeholders', document.getElementById('addPlaceholders').checked ? 'true' : 'false');
-    formData.append('make_required', document.getElementById('makeRequired').checked ? 'true' : 'false');
-    formData.append('add_submit', document.getElementById('addSubmitButton').checked ? 'true' : 'false');
-    formData.append('fields', JSON.stringify(detectedFields));
-
-    updateStep(2);
-
-    let progress = 0;
-    const messages = [
-        '{{ _("Analyse du document source...") }}', '{{ _("Conversion en PDF...") }}',
-        '{{ _("Détection des champs...") }}', '{{ _("Création des champs interactifs...") }}',
-        '{{ _("Ajout des propriétés du formulaire...") }}', '{{ _("Finalisation...") }}'
-    ];
-    let msgIndex = 0;
-    const progressBar = document.getElementById('progressBar');
-    const progressMsg = document.getElementById('progressMessage');
-
-    progressInterval = setInterval(() => {
-        if (progress < 90) {
-            progress += 2;
-            if (progressBar) progressBar.style.width = progress + '%';
-            if (progress % 16 === 0 && msgIndex < messages.length - 1) {
-                msgIndex++;
-                if (progressMsg) progressMsg.textContent = messages[msgIndex];
-            }
-        }
-    }, 200);
-
-    fetch('{{ url_for("conversion.universal_converter", conversion_type="prepare-form") }}', {
-        method: 'POST',
-        body: formData
-    })
-    .then(async response => {
-        clearInterval(progressInterval);
-        if (progressBar) progressBar.style.width = '100%';
-        if (progressMsg) progressMsg.textContent = '{{ _("Terminé !") }}';
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erreur serveur ' + response.status);
-        }
-        const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
-
-        const blob = await response.blob();
-        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
-
-        downloadUrl = window.URL.createObjectURL(blob);
-        const contentDisposition = response.headers.get('Content-Disposition') || '';
-        let filename = '{{ _("formulaire.pdf") }}';
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
-
-        const downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.setAttribute('download', filename);
-        }
-        updateStep(3);
-    })
-    .catch(error => {
-        clearInterval(progressInterval);
-        updateStep(1);
-        showError('{{ _("Erreur lors de la création du formulaire :") }} ' + error.message);
-    });
-}
-
-function resetConversion() {
-    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
-    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
-
-    const uploadManager = window.uploadManagers?.['docUploadZone'];
-    if (uploadManager) {
-        const files = uploadManager.getFiles();
-        for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
-    }
-
-    detectedFields = [];
-    const tbody = document.querySelector('#fieldsTable tbody');
-    if (tbody) tbody.innerHTML = `<tr class="text-muted"><td colspan="4" class="text-center">{{ _('Lancez la détection pour voir les champs') }}</td></tr>`;
-    const fp = document.getElementById('formPreview');
-    if (fp) fp.style.display = 'none';
-    const errorDiv = document.getElementById('conversionError');
-    if (errorDiv) errorDiv.style.display = 'none';
-    const progressBar = document.getElementById('progressBar');
-    if (progressBar) progressBar.style.width = '0%';
-
-    updateStep(1);
-}
-
-window.addEventListener('beforeunload', () => {
-    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
-    if (progressInterval) clearInterval(progressInterval);
-});
-</script>
 {% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    let downloadUrl = null;
+    let progressInterval = null;
+    let detectedFields = [];
+
+    function updateStep(step) {
+        const s1 = document.getElementById('step1Content');
+        const s2 = document.getElementById('step2Content');
+        const s3 = document.getElementById('step3Content');
+        if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+        if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+        if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+        // Synchronisation avec le parent
+        if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+            window.updateStep(step);
+        }
+    }
+
+    function showError(message) {
+        let errorDiv = document.getElementById('conversionError');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'conversionError';
+            errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+            const s1 = document.getElementById('step1Content');
+            if (s1) s1.prepend(errorDiv);
+        }
+        const msgSpan = document.getElementById('conversionErrorMsg');
+        if (msgSpan) msgSpan.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    function detectFields() {
+        const uploadManager = window.uploadManagers?.['docUploadZone'];
+        if (!uploadManager || uploadManager.getFiles().length === 0) {
+            showError('{{ _("Veuillez d\'abord télécharger un document") }}');
+            return;
+        }
+        const loader = document.getElementById('loaderOverlay');
+        if (loader) loader.style.display = 'flex';
+        setTimeout(() => {
+            detectedFields = [
+                { type: 'text', label: '{{ _("Nom complet") }}', page: 1, required: true },
+                { type: 'text', label: '{{ _("Prénom") }}', page: 1, required: true },
+                { type: 'text', label: '{{ _("Adresse") }}', page: 1, required: false },
+                { type: 'text', label: '{{ _("Code postal") }}', page: 1, required: false },
+                { type: 'text', label: '{{ _("Ville") }}', page: 1, required: false },
+                { type: 'email', label: '{{ _("Email") }}', page: 1, required: true },
+                { type: 'tel', label: '{{ _("Téléphone") }}', page: 1, required: false },
+                { type: 'checkbox', label: '{{ _("J\'accepte les conditions") }}', page: 2, required: true },
+                { type: 'signature', label: '{{ _("Signature") }}', page: 2, required: true },
+                { type: 'date', label: '{{ _("Date") }}', page: 2, required: true }
+            ];
+            updateFieldsTable();
+            const fp = document.getElementById('formPreview');
+            if (fp) fp.style.display = 'block';
+            if (loader) loader.style.display = 'none';
+        }, 2000);
+    }
+
+    function updateFieldsTable() {
+        const tbody = document.querySelector('#fieldsTable tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        detectedFields.forEach((field, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td><span class="badge bg-secondary"><i class="fas fa-${getFieldIcon(field.type)} me-1"></i>${field.type}</span></td><td>${field.label}</td><td>${field.page}</td><td><button class="btn btn-sm btn-outline-primary" onclick="editField(${index})"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="deleteField(${index})"><i class="fas fa-trash"></i></button></td>`;
+            tbody.appendChild(row);
+        });
+    }
+
+    function getFieldIcon(type) {
+        return { text: 'font', email: 'envelope', tel: 'phone', checkbox: 'check-square', signature: 'pen', date: 'calendar', number: 'hashtag' }[type] || 'font';
+    }
+
+    function editField(index) { alert('{{ _("Édition du champ - À implémenter") }}'); }
+    function deleteField(index) { detectedFields.splice(index, 1); updateFieldsTable(); }
+    function loadPreview() { alert('{{ _("Chargement de l\'aperçu - À implémenter avec PDF.js") }}'); }
+
+    function startConversion() {
+        const uploadManager = window.uploadManagers?.['docUploadZone'];
+        if (!uploadManager || uploadManager.getFiles().length === 0) {
+            showError('{{ _("Veuillez sélectionner un document") }}');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', uploadManager.getFiles()[0]);
+        formData.append('form_type', document.querySelector('input[name="formType"]:checked').value);
+        formData.append('detect_fields', document.getElementById('detectFields').value);
+        formData.append('language', document.getElementById('formLanguage').value);
+        formData.append('color', document.getElementById('formColor').value);
+        formData.append('border_style', document.getElementById('formBorder').value);
+        formData.append('add_placeholders', document.getElementById('addPlaceholders').checked ? 'true' : 'false');
+        formData.append('make_required', document.getElementById('makeRequired').checked ? 'true' : 'false');
+        formData.append('add_submit', document.getElementById('addSubmitButton').checked ? 'true' : 'false');
+        formData.append('fields', JSON.stringify(detectedFields));
+
+        updateStep(2);
+
+        let progress = 0;
+        const messages = [
+            '{{ _("Analyse du document source...") }}', '{{ _("Conversion en PDF...") }}',
+            '{{ _("Détection des champs...") }}', '{{ _("Création des champs interactifs...") }}',
+            '{{ _("Ajout des propriétés du formulaire...") }}', '{{ _("Finalisation...") }}'
+        ];
+        let msgIndex = 0;
+        const progressBar = document.getElementById('progressBar');
+        const progressMsg = document.getElementById('progressMessage');
+
+        progressInterval = setInterval(() => {
+            if (progress < 90) {
+                progress += 2;
+                if (progressBar) progressBar.style.width = progress + '%';
+                if (progress % 16 === 0 && msgIndex < messages.length - 1) {
+                    msgIndex++;
+                    if (progressMsg) progressMsg.textContent = messages[msgIndex];
+                }
+            }
+        }, 200);
+
+        fetch('{{ url_for("conversion.universal_converter", conversion_type="prepare-form") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(async response => {
+            clearInterval(progressInterval);
+            if (progressBar) progressBar.style.width = '100%';
+            if (progressMsg) progressMsg.textContent = '{{ _("Terminé !") }}';
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Erreur serveur ' + response.status);
+            }
+            const contentType = response.headers.get('Content-Type') || '';
+            if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
+
+            const blob = await response.blob();
+            if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+
+            downloadUrl = window.URL.createObjectURL(blob);
+            const contentDisposition = response.headers.get('Content-Disposition') || '';
+            let filename = '{{ _("formulaire.pdf") }}';
+            const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+            if (match?.[1]) filename = match[1].replace(/['"]/g, '');
+
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.setAttribute('download', filename);
+            }
+            updateStep(3);
+        })
+        .catch(error => {
+            clearInterval(progressInterval);
+            updateStep(1);
+            showError('{{ _("Erreur lors de la création du formulaire :") }} ' + error.message);
+        });
+    }
+
+    function resetConversion() {
+        if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+        if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+
+        const uploadManager = window.uploadManagers?.['docUploadZone'];
+        if (uploadManager) {
+            const files = uploadManager.getFiles();
+            for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
+        }
+
+        detectedFields = [];
+        const tbody = document.querySelector('#fieldsTable tbody');
+        if (tbody) tbody.innerHTML = `<tr class="text-muted"><td colspan="4" class="text-center">{{ _('Lancez la détection pour voir les champs') }}</td></tr>`;
+        const fp = document.getElementById('formPreview');
+        if (fp) fp.style.display = 'none';
+        const errorDiv = document.getElementById('conversionError');
+        if (errorDiv) errorDiv.style.display = 'none';
+        const progressBar = document.getElementById('progressBar');
+        if (progressBar) progressBar.style.width = '0%';
+
+        updateStep(1);
+    }
+
+    window.addEventListener('beforeunload', () => {
+        if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+        if (progressInterval) clearInterval(progressInterval);
+    });
+</script>
 {% endblock %}

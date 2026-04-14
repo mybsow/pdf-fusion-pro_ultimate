@@ -191,7 +191,7 @@
 
                         <input type="radio" class="btn-check" name="pageAction" id="actionDelete" value="delete">
                         <label class="btn btn-outline-primary" for="actionDelete">
-                            <i class="fas fa-trash me-2"></i>{{ _('Supprimer') }}
+                            <i class="fas fa-trash-alt me-2"></i>{{ _('Supprimer') }}
                         </label>
 
                         <input type="radio" class="btn-check" name="pageAction" id="actionRotate" value="rotate">
@@ -282,219 +282,241 @@
     </div>
 </div>
 
-<script>
-// ── Lecture des chaînes i18n et URLs depuis le DOM (pas de Jinja2 dans le JS) ──
-const _i18n = (function () {
-    const el = document.getElementById('js-i18n');
-    return {
-        errNoPdf:     el.dataset.errNoPdf,
-        errSystem:    el.dataset.errSystem,
-        errNoText:    el.dataset.errNoText,
-        errNoImage:   el.dataset.errNoImage,
-        errNoDelete:  el.dataset.errNoDelete,
-        errNoRotate:  el.dataset.errNoRotate,
-        errEdition:   el.dataset.errEdition,
-        errServer:    el.dataset.errServer,
-        urlConverter: el.dataset.urlConverter
-    };
-})();
-
-let downloadUrl = null;
-let progressInterval = null;
-
-function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
-}
-
-function showError(message) {
-    let errorDiv = document.getElementById('conversionError');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'conversionError';
-        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>'
-            + '<span id="conversionErrorMsg"></span>'
-            + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
-        document.getElementById('step1Content').prepend(errorDiv);
-    }
-    document.getElementById('conversionErrorMsg').textContent = message;
-    errorDiv.style.display = 'block';
-}
-
-// ── Listeners DOM sûrs (pas de Jinja2) ──
-document.getElementById('imageSize') && document.getElementById('imageSize').addEventListener('change', function () {
-    const customOptions = document.getElementById('customSizeOptions');
-    if (customOptions) {
-        customOptions.style.display = this.value === 'custom' ? 'block' : 'none';
-    }
-});
-
-document.querySelectorAll('input[name="pageAction"]').forEach(function (radio) {
-    radio.addEventListener('change', function () {
-        document.getElementById('reorderSection').style.display = this.value === 'reorder' ? 'block' : 'none';
-        document.getElementById('deleteSection').style.display  = this.value === 'delete'  ? 'block' : 'none';
-        document.getElementById('rotateSection').style.display  = this.value === 'rotate'  ? 'block' : 'none';
-    });
-});
-
-function startConversion() {
-    if (!window.uploadManagers) {
-        showError(_i18n.errSystem);
-        return;
-    }
-
-    const uploadManager = window.uploadManagers['pdfUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError(_i18n.errNoPdf);
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', uploadManager.getFiles()[0]);
-
-    const activeTabLink = document.querySelector('#editTabs .nav-link.active');
-    const activeTabId   = activeTabLink ? activeTabLink.id : '';
-
-    if (activeTabId === 'text-tab') {
-        const textContent = document.getElementById('textContent').value.trim();
-        if (!textContent) {
-            showError(_i18n.errNoText);
-            return;
-        }
-        formData.append('edit_type',    'add_text');
-        formData.append('text_content', textContent);
-        formData.append('page_number',  document.getElementById('textPage').value);
-        formData.append('position_x',   document.getElementById('textX').value);
-        formData.append('position_y',   document.getElementById('textY').value);
-        formData.append('font_size',    document.getElementById('textSize').value);
-        formData.append('font_color',   document.getElementById('textColor').value);
-        formData.append('font_family',  document.getElementById('textFont').value);
-    }
-    else if (activeTabId === 'image-tab') {
-        const imageManager = window.uploadManagers['imageUploadZone'];
-        if (!imageManager || imageManager.getFiles().length === 0) {
-            showError(_i18n.errNoImage);
-            return;
-        }
-        formData.append('edit_type',   'add_image');
-        formData.append('image_file',  imageManager.getFiles()[0]);
-        formData.append('page_number', document.getElementById('imagePage').value);
-        formData.append('position_x',  document.getElementById('imageX').value);
-        formData.append('position_y',  document.getElementById('imageY').value);
-        formData.append('image_size',  document.getElementById('imageSize').value);
-        if (document.getElementById('imageSize').value === 'custom') {
-            formData.append('image_width',  document.getElementById('imageWidth').value);
-            formData.append('image_height', document.getElementById('imageHeight').value);
-        }
-    }
-    else if (activeTabId === 'pages-tab') {
-        const pageActionRadio = document.querySelector('input[name="pageAction"]:checked');
-        const pageAction = pageActionRadio ? pageActionRadio.value : 'reorder';
-        formData.append('edit_type', pageAction);
-
-        if (pageAction === 'delete') {
-            const pagesToDelete = document.getElementById('pagesToDelete').value.trim();
-            if (!pagesToDelete) {
-                showError(_i18n.errNoDelete);
-                return;
-            }
-            formData.append('pages_to_delete', pagesToDelete);
-        } else if (pageAction === 'rotate') {
-            const pagesToRotate = document.getElementById('rotatePages').value.trim();
-            if (!pagesToRotate) {
-                showError(_i18n.errNoRotate);
-                return;
-            }
-            formData.append('pages_to_rotate', pagesToRotate);
-            formData.append('rotate_angle', document.getElementById('rotateAngle').value);
-        } else if (pageAction === 'reorder') {
-            const order = [];
-            document.querySelectorAll('#pageThumbnails .col-3').forEach(function (el, index) {
-                order.push(index + 1);
-            });
-            formData.append('page_order', order.join(','));
-        }
-    }
-
-    updateStep(2);
-
-    let progress = 0;
-    const progressBar = document.getElementById('progressBar');
-    progressInterval = setInterval(function () {
-        if (progress < 90) {
-            progress += 10;
-            if (progressBar) progressBar.style.width = progress + '%';
-        }
-    }, 500);
-
-    fetch(_i18n.urlConverter, {
-        method: 'POST',
-        body: formData
-    })
-    .then(function (response) {
-        clearInterval(progressInterval);
-        if (progressBar) progressBar.style.width = '100%';
-
-        if (!response.ok) {
-            return response.text().then(function (txt) {
-                throw new Error(txt || _i18n.errServer + ' ' + response.status);
-            });
-        }
-
-        return response.blob().then(function (blob) {
-            downloadUrl = window.URL.createObjectURL(blob);
-
-            const contentDisposition = response.headers.get('Content-Disposition') || '';
-            let filename = 'edited.pdf';
-            const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-            if (match && match[1]) {
-                filename = match[1].replace(/['"]/g, '');
-            }
-
-            const downloadLink = document.getElementById('downloadLink');
-            if (downloadLink) {
-                downloadLink.href = downloadUrl;
-                downloadLink.setAttribute('download', filename);
-            }
-            updateStep(3);
-        });
-    })
-    .catch(function (error) {
-        clearInterval(progressInterval);
-        updateStep(1);
-        showError(_i18n.errEdition + ' ' + error.message);
-    });
-}
-
-function resetConversion() {
-    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
-    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
-
-    if (window.uploadManagers) {
-        ['pdfUploadZone', 'imageUploadZone'].forEach(function (id) {
-            const manager = window.uploadManagers[id];
-            if (manager) {
-                const files = manager.getFiles();
-                for (let i = files.length - 1; i >= 0; i--) manager.removeFile(i);
-            }
-        });
-    }
-
-    const errorDiv = document.getElementById('conversionError');
-    if (errorDiv) errorDiv.style.display = 'none';
-
-    const progressBar = document.getElementById('progressBar');
-    if (progressBar) progressBar.style.width = '0%';
-
-    updateStep(1);
-}
-
-window.addEventListener('beforeunload', function () {
-    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
-    if (progressInterval) clearInterval(progressInterval);
-});
-</script>
 {% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // ── Lecture des chaînes i18n et URLs depuis le DOM (pas de Jinja2 dans le JS) ──
+    const _i18n = (function () {
+        const el = document.getElementById('js-i18n');
+        return {
+            errNoPdf:     el.dataset.errNoPdf,
+            errSystem:    el.dataset.errSystem,
+            errNoText:    el.dataset.errNoText,
+            errNoImage:   el.dataset.errNoImage,
+            errNoDelete:  el.dataset.errNoDelete,
+            errNoRotate:  el.dataset.errNoRotate,
+            errEdition:   el.dataset.errEdition,
+            errServer:    el.dataset.errServer,
+            urlConverter: el.dataset.urlConverter
+        };
+    })();
+
+    let downloadUrl = null;
+    let progressInterval = null;
+
+    function updateStep(step) {
+        const s1 = document.getElementById('step1Content');
+        const s2 = document.getElementById('step2Content');
+        const s3 = document.getElementById('step3Content');
+        if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+        if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+        if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+        // Synchronisation avec le parent
+        if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+            window.updateStep(step);
+        }
+    }
+
+    function showError(message) {
+        let errorDiv = document.getElementById('conversionError');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'conversionError';
+            errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>'
+                + '<span id="conversionErrorMsg"></span>'
+                + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+            const s1 = document.getElementById('step1Content');
+            if (s1) s1.prepend(errorDiv);
+        }
+        const msgSpan = document.getElementById('conversionErrorMsg');
+        if (msgSpan) msgSpan.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    // ── Listeners DOM sûrs (pas de Jinja2) ──
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageSizeSelect = document.getElementById('imageSize');
+        if (imageSizeSelect) {
+            imageSizeSelect.addEventListener('change', function () {
+                const customOptions = document.getElementById('customSizeOptions');
+                if (customOptions) {
+                    customOptions.style.display = this.value === 'custom' ? 'block' : 'none';
+                }
+            });
+        }
+
+        document.querySelectorAll('input[name="pageAction"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                const reorder = document.getElementById('reorderSection');
+                const del = document.getElementById('deleteSection');
+                const rot = document.getElementById('rotateSection');
+                if (reorder) reorder.style.display = this.value === 'reorder' ? 'block' : 'none';
+                if (del) del.style.display  = this.value === 'delete'  ? 'block' : 'none';
+                if (rot) rot.style.display  = this.value === 'rotate'  ? 'block' : 'none';
+            });
+        });
+    });
+
+    function startConversion() {
+        if (!window.uploadManagers) {
+            showError(_i18n.errSystem);
+            return;
+        }
+
+        const uploadManager = window.uploadManagers['pdfUploadZone'];
+        if (!uploadManager || uploadManager.getFiles().length === 0) {
+            showError(_i18n.errNoPdf);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', uploadManager.getFiles()[0]);
+
+        const activeTabLink = document.querySelector('#editTabs .nav-link.active');
+        const activeTabId   = activeTabLink ? activeTabLink.id : '';
+
+        if (activeTabId === 'text-tab') {
+            const textContent = document.getElementById('textContent').value.trim();
+            if (!textContent) {
+                showError(_i18n.errNoText);
+                return;
+            }
+            formData.append('edit_type',    'add_text');
+            formData.append('text_content', textContent);
+            formData.append('page_number',  document.getElementById('textPage').value);
+            formData.append('position_x',   document.getElementById('textX').value);
+            formData.append('position_y',   document.getElementById('textY').value);
+            formData.append('font_size',    document.getElementById('textSize').value);
+            formData.append('font_color',   document.getElementById('textColor').value);
+            formData.append('font_family',  document.getElementById('textFont').value);
+        }
+        else if (activeTabId === 'image-tab') {
+            const imageManager = window.uploadManagers['imageUploadZone'];
+            if (!imageManager || imageManager.getFiles().length === 0) {
+                showError(_i18n.errNoImage);
+                return;
+            }
+            formData.append('edit_type',   'add_image');
+            formData.append('image_file',  imageManager.getFiles()[0]);
+            formData.append('page_number', document.getElementById('imagePage').value);
+            formData.append('position_x',  document.getElementById('imageX').value);
+            formData.append('position_y',  document.getElementById('imageY').value);
+            formData.append('image_size',  document.getElementById('imageSize').value);
+            if (document.getElementById('imageSize').value === 'custom') {
+                formData.append('image_width',  document.getElementById('imageWidth').value);
+                formData.append('image_height', document.getElementById('imageHeight').value);
+            }
+        }
+        else if (activeTabId === 'pages-tab') {
+            const pageActionRadio = document.querySelector('input[name="pageAction"]:checked');
+            const pageAction = pageActionRadio ? pageActionRadio.value : 'reorder';
+            formData.append('edit_type', pageAction);
+
+            if (pageAction === 'delete') {
+                const pagesToDelete = document.getElementById('pagesToDelete').value.trim();
+                if (!pagesToDelete) {
+                    showError(_i18n.errNoDelete);
+                    return;
+                }
+                formData.append('pages_to_delete', pagesToDelete);
+            } else if (pageAction === 'rotate') {
+                const pagesToRotate = document.getElementById('rotatePages').value.trim();
+                if (!pagesToRotate) {
+                    showError(_i18n.errNoRotate);
+                    return;
+                }
+                formData.append('pages_to_rotate', pagesToRotate);
+                formData.append('rotate_angle', document.getElementById('rotateAngle').value);
+            } else if (pageAction === 'reorder') {
+                const order = [];
+                document.querySelectorAll('#pageThumbnails .col-3').forEach(function (el, index) {
+                    order.push(index + 1);
+                });
+                formData.append('page_order', order.join(','));
+            }
+        }
+
+        updateStep(2);
+
+        let progress = 0;
+        const progressBar = document.getElementById('progressBar');
+        progressInterval = setInterval(function () {
+            if (progress < 90) {
+                progress += 10;
+                if (progressBar) progressBar.style.width = progress + '%';
+            }
+        }, 500);
+
+        fetch(_i18n.urlConverter, {
+            method: 'POST',
+            body: formData
+        })
+        .then(function (response) {
+            clearInterval(progressInterval);
+            if (progressBar) progressBar.style.width = '100%';
+
+            if (!response.ok) {
+                return response.text().then(function (txt) {
+                    throw new Error(txt || _i18n.errServer + ' ' + response.status);
+                });
+            }
+
+            return response.blob().then(function (blob) {
+                downloadUrl = window.URL.createObjectURL(blob);
+
+                const contentDisposition = response.headers.get('Content-Disposition') || '';
+                let filename = 'edited.pdf';
+                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (match && match[1]) {
+                    filename = match[1].replace(/['"]/g, '');
+                }
+
+                const downloadLink = document.getElementById('downloadLink');
+                if (downloadLink) {
+                    downloadLink.href = downloadUrl;
+                    downloadLink.setAttribute('download', filename);
+                }
+                updateStep(3);
+            });
+        })
+        .catch(function (error) {
+            clearInterval(progressInterval);
+            updateStep(1);
+            showError(_i18n.errEdition + ' ' + error.message);
+        });
+    }
+
+    function resetConversion() {
+        if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+        if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+
+        if (window.uploadManagers) {
+            ['pdfUploadZone', 'imageUploadZone'].forEach(function (id) {
+                const manager = window.uploadManagers[id];
+                if (manager) {
+                    const files = manager.getFiles();
+                    for (let i = files.length - 1; i >= 0; i--) manager.removeFile(i);
+                }
+            });
+        }
+
+        const errorDiv = document.getElementById('conversionError');
+        if (errorDiv) errorDiv.style.display = 'none';
+
+        const progressBar = document.getElementById('progressBar');
+        if (progressBar) progressBar.style.width = '0%';
+
+        updateStep(1);
+    }
+
+    window.addEventListener('beforeunload', function () {
+        if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+        if (progressInterval) clearInterval(progressInterval);
+    });
+</script>
 {% endblock %}

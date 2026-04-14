@@ -178,7 +178,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-success btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+        <button class="btn btn-success btn-lg px-5" id="convertBtn" disabled>
             <i class="fas fa-pen me-2"></i>{{ _('Signer le PDF') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
@@ -220,6 +220,11 @@
     </div>
 </div>
 
+{% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
 <script>
 let downloadUrl = null;
 let progressInterval = null;
@@ -230,9 +235,16 @@ let penSize = 2;
 let penColor = '#000000';
 
 function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    const s1 = document.getElementById('step1Content');
+    const s2 = document.getElementById('step2Content');
+    const s3 = document.getElementById('step3Content');
+    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+        window.updateStep(step);
+    }
 }
 
 function showError(message) {
@@ -242,14 +254,49 @@ function showError(message) {
         errorDiv.id = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
         errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-        document.getElementById('step1Content').prepend(errorDiv);
+        const s1 = document.getElementById('step1Content');
+        if (s1) s1.prepend(errorDiv);
     }
-    document.getElementById('conversionErrorMsg').textContent = message;
+    const msgSpan = document.getElementById('conversionErrorMsg');
+    if (msgSpan) msgSpan.textContent = message;
     errorDiv.style.display = 'block';
 }
 
-// ===== CANVAS DE SIGNATURE =====
-document.addEventListener('DOMContentLoaded', () => {
+function updateButtonState() {
+    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
+    const convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.disabled = !uploadManager || uploadManager.getFiles().length === 0;
+    }
+}
+
+function bindUploadManager() {
+    const manager = window.uploadManagers && window.uploadManagers.pdfUploadZone;
+    if (!manager) {
+        setTimeout(bindUploadManager, 200);
+        return;
+    }
+
+    const originalHandleFiles = manager.handleFiles;
+    if (originalHandleFiles) {
+        manager.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+    }
+
+    const originalRemoveFile = manager.removeFile;
+    if (originalRemoveFile) {
+        manager.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+
+    updateButtonState();
+}
+
+function initSignatureCanvas() {
     signatureCanvas = document.getElementById('signatureCanvas');
     if (!signatureCanvas) return;
     ctx = signatureCanvas.getContext('2d');
@@ -265,40 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
     signatureCanvas.addEventListener('touchstart', startDrawingTouch, { passive: false });
     signatureCanvas.addEventListener('touchmove', drawTouch, { passive: false });
     signatureCanvas.addEventListener('touchend', stopDrawing);
-
-    // Gestionnaires type signature
-    document.querySelectorAll('input[name="signatureType"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            document.getElementById('drawSection').style.display = this.value === 'draw' ? 'block' : 'none';
-            document.getElementById('typeSection').style.display = this.value === 'type' ? 'block' : 'none';
-            document.getElementById('uploadSection').style.display = this.value === 'upload' ? 'block' : 'none';
-            if (this.value === 'type') updateTypePreview();
-        });
-    });
-
-    document.getElementById('addReason')?.addEventListener('change', function() {
-        const reasonInput = document.getElementById('reasonInput');
-        if (reasonInput) reasonInput.style.display = this.checked ? 'block' : 'none';
-    });
-
-    document.getElementById('typedSignature')?.addEventListener('input', updateTypePreview);
-    document.getElementById('signatureFont')?.addEventListener('change', updateTypePreview);
-    document.getElementById('signatureSize')?.addEventListener('change', updateTypePreview);
-
-    // Bind upload manager
-    const tryBind = (attempt = 0) => {
-        const um = window.uploadManagers?.['pdfUploadZone'];
-        if (um) {
-            const origHandle = um.handleFiles.bind(um);
-            um.handleFiles = function(fl) { origHandle(fl); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
-            const origRemove = um.removeFile.bind(um);
-            um.removeFile = function(i) { origRemove(i); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
-        } else if (attempt < 10) {
-            setTimeout(() => tryBind(attempt + 1), 300);
-        }
-    };
-    tryBind();
-});
+}
 
 function startDrawing(e) {
     isDrawing = true;
@@ -353,10 +367,68 @@ function updateTypePreview() {
     const previewSection = document.getElementById('previewSection');
     const previewEl = document.getElementById('signaturePreview');
     if (previewSection) previewSection.style.display = 'block';
-    if (previewEl) previewEl.innerHTML = `<span style="font-family:${font};font-size:${size}px;color:#0000FF;">${text}</span>`;
+    if (previewEl) previewEl.innerHTML = `<span style="font-family:${font};font-size:${size}px;color:#0000FF;">${escapeHtml(text)}</span>`;
 }
 
-// ===== CONVERSION =====
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function sendConversion(formData) {
+    updateStep(2);
+
+    let progress = 0;
+    const progressBar = document.getElementById('progressBar');
+    progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 10;
+            if (progressBar) progressBar.style.width = progress + '%';
+        }
+    }, 500);
+
+    fetch('{{ url_for("conversion.universal_converter", conversion_type="sign-pdf") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(async response => {
+        clearInterval(progressInterval);
+        if (progressBar) progressBar.style.width = '100%';
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Erreur serveur ' + response.status);
+        }
+
+        const blob = await response.blob();
+        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        downloadUrl = URL.createObjectURL(blob);
+
+        const contentDisposition = response.headers.get('Content-Disposition') || '';
+        const uploadManager = window.uploadManagers?.['pdfUploadZone'];
+        const file = uploadManager?.getFiles()[0];
+        let filename = (file?.name?.replace(/\.pdf$/i, '') || 'document') + '_signed.pdf';
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
+
+        const downloadLink = document.getElementById('downloadLink');
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.setAttribute('download', filename);
+        }
+
+        updateStep(3);
+    })
+    .catch(error => {
+        clearInterval(progressInterval);
+        updateStep(1);
+        showError('{{ _("Erreur lors de la signature :") }} ' + error.message);
+    });
+}
+
 function startConversion() {
     const uploadManager = window.uploadManagers?.['pdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
@@ -392,6 +464,7 @@ function startConversion() {
         formData.append('signature_text', text);
         formData.append('font_family', document.getElementById('signatureFont')?.value || 'Courier');
         formData.append('font_size', document.getElementById('signatureSize')?.value || '24');
+        sendConversion(formData);
     } else if (signatureType === 'upload') {
         const sigManager = window.uploadManagers?.['signatureUploadZone'];
         if (!sigManager || sigManager.getFiles().length === 0) {
@@ -399,65 +472,12 @@ function startConversion() {
             return;
         }
         formData.append('signature_image', sigManager.getFiles()[0]);
+        sendConversion(formData);
     }
-
-    sendConversion(formData);
-}
-
-function sendConversion(formData) {
-    updateStep(2);
-
-    let progress = 0;
-    const progressBar = document.getElementById('progressBar');
-    progressInterval = setInterval(() => {
-        if (progress < 90) {
-            progress += 10;
-            if (progressBar) progressBar.style.width = progress + '%';
-        }
-    }, 500);
-
-    const file = window.uploadManagers?.['pdfUploadZone']?.getFiles()[0];
-
-    fetch('{{ url_for("conversion.universal_converter", conversion_type="sign-pdf") }}', {
-        method: 'POST',
-        body: formData
-    })
-    .then(async response => {
-        clearInterval(progressInterval);
-        if (progressBar) progressBar.style.width = '100%';
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erreur serveur ' + response.status);
-        }
-        const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
-
-        const blob = await response.blob();
-        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
-
-        downloadUrl = window.URL.createObjectURL(blob);
-        const contentDisposition = response.headers.get('Content-Disposition') || '';
-        let filename = (file?.name?.replace(/\.pdf$/i, '') || 'document') + '_signed.pdf';
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
-
-        const downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.setAttribute('download', filename);
-        }
-        updateStep(3);
-    })
-    .catch(error => {
-        clearInterval(progressInterval);
-        updateStep(1);
-        showError('{{ _("Erreur lors de la signature :") }} ' + error.message);
-    });
 }
 
 function resetConversion() {
-    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
     if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
 
     const uploadManager = window.uploadManagers?.['pdfUploadZone'];
@@ -476,10 +496,42 @@ function resetConversion() {
     updateStep(1);
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    bindUploadManager();
+    initSignatureCanvas();
+
+    document.querySelectorAll('input[name="signatureType"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const drawSection = document.getElementById('drawSection');
+            const typeSection = document.getElementById('typeSection');
+            const uploadSection = document.getElementById('uploadSection');
+            
+            if (drawSection) drawSection.style.display = this.value === 'draw' ? 'block' : 'none';
+            if (typeSection) typeSection.style.display = this.value === 'type' ? 'block' : 'none';
+            if (uploadSection) uploadSection.style.display = this.value === 'upload' ? 'block' : 'none';
+            if (this.value === 'type') updateTypePreview();
+        });
+    });
+
+    const addReason = document.getElementById('addReason');
+    const reasonInput = document.getElementById('reasonInput');
+    if (addReason && reasonInput) {
+        addReason.addEventListener('change', function() {
+            reasonInput.style.display = this.checked ? 'block' : 'none';
+        });
+    }
+
+    const typedSignature = document.getElementById('typedSignature');
+    const signatureFont = document.getElementById('signatureFont');
+    const signatureSize = document.getElementById('signatureSize');
+    if (typedSignature) typedSignature.addEventListener('input', updateTypePreview);
+    if (signatureFont) signatureFont.addEventListener('change', updateTypePreview);
+    if (signatureSize) signatureSize.addEventListener('change', updateTypePreview);
+});
+
 window.addEventListener('beforeunload', () => {
-    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     if (progressInterval) clearInterval(progressInterval);
 });
 </script>
-{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}

@@ -237,6 +237,11 @@
     </div>
 </div>
 
+{% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
 <script>
 let downloadUrl = null;
 let progressInterval = null;
@@ -252,9 +257,16 @@ let canvas = null;
 let ctx = null;
 
 function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    const s1 = document.getElementById('step1Content');
+    const s2 = document.getElementById('step2Content');
+    const s3 = document.getElementById('step3Content');
+    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+        window.updateStep(step);
+    }
 }
 
 function showError(message) {
@@ -264,13 +276,38 @@ function showError(message) {
         errorDiv.id = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
         errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-        document.getElementById('step1Content').prepend(errorDiv);
+        const s1 = document.getElementById('step1Content');
+        if (s1) s1.prepend(errorDiv);
     }
-    document.getElementById('conversionErrorMsg').textContent = message;
+    const msgSpan = document.getElementById('conversionErrorMsg');
+    if (msgSpan) msgSpan.textContent = message;
     errorDiv.style.display = 'block';
 }
 
-// ===== DESSIN DE ZONES =====
+function addTextToList() {
+    const input = document.getElementById('searchText');
+    const text = input?.value.trim();
+    if (!text) return;
+    const list = document.getElementById('textList');
+    if (!list) return;
+    const badge = document.createElement('div');
+    badge.className = 'badge bg-secondary me-2 mb-2 p-2';
+    badge.setAttribute('data-text', text);
+    badge.innerHTML = `${escapeHtml(text)} <i class="fas fa-times ms-2" onclick="removeText(this)" style="cursor:pointer;"></i>`;
+    list.appendChild(badge);
+    input.value = '';
+}
+
+function removeText(element) {
+    element.parentElement?.remove();
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 function initAreaDrawing() {
     canvas = document.getElementById('pdfCanvas');
     if (!canvas) return;
@@ -356,7 +393,8 @@ function updateAreasList() {
         listDiv = document.createElement('div');
         listDiv.id = 'areasList';
         listDiv.className = 'mt-3';
-        document.querySelector('#pdfPreview .border')?.appendChild(listDiv);
+        const previewDiv = document.querySelector('#pdfPreview .border');
+        if (previewDiv) previewDiv.appendChild(listDiv);
     }
     listDiv.innerHTML = '<h6 class="mb-2">{{ _("Zones dessinées :") }}</h6>';
     if (redactAreas.length === 0) {
@@ -404,26 +442,6 @@ async function loadPdfPreview() {
     }
 }
 
-// ===== TEXTE ET MOTIFS =====
-function addTextToList() {
-    const input = document.getElementById('searchText');
-    const text = input?.value.trim();
-    if (!text) return;
-    const list = document.getElementById('textList');
-    if (!list) return;
-    const badge = document.createElement('div');
-    badge.className = 'badge bg-secondary me-2 mb-2 p-2';
-    badge.setAttribute('data-text', text);
-    badge.innerHTML = `${text} <i class="fas fa-times ms-2" onclick="removeText(this)" style="cursor:pointer;"></i>`;
-    list.appendChild(badge);
-    input.value = '';
-}
-
-function removeText(element) {
-    element.parentElement?.remove();
-}
-
-// ===== CONVERSION =====
 function startConversion() {
     const uploadManager = window.uploadManagers?.['pdfUploadZone'];
     if (!uploadManager || uploadManager.getFiles().length === 0) {
@@ -462,19 +480,12 @@ function startConversion() {
     let progress = 0;
     const progressBar = document.getElementById('progressBar');
     const progressMsg = document.getElementById('progressMessage');
-    const messages = [
-        '{{ _("Analyse du document...") }}',
-        '{{ _("Recherche du contenu sensible...") }}',
-        '{{ _("Application du caviardage...") }}',
-        '{{ _("Finalisation...") }}'
-    ];
 
     progressInterval = setInterval(() => {
         if (progress < 90) {
             progress += 5;
             if (progressBar) progressBar.style.width = progress + '%';
-            const msgIdx = progress < 30 ? 0 : progress < 60 ? 1 : progress < 85 ? 2 : 3;
-            if (progressMsg) progressMsg.textContent = messages[msgIdx];
+            if (progressMsg) progressMsg.textContent = '{{ _("Traitement en cours...") }} ' + progress + '%';
         }
     }, 300);
 
@@ -491,13 +502,13 @@ function startConversion() {
             const errorText = await response.text();
             throw new Error(errorText || 'Erreur serveur ' + response.status);
         }
-        const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
 
         const blob = await response.blob();
         if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
 
-        downloadUrl = window.URL.createObjectURL(blob);
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        downloadUrl = URL.createObjectURL(blob);
+
         const contentDisposition = response.headers.get('Content-Disposition') || '';
         let filename = file.name.replace(/\.pdf$/i, '') + '_redacted.pdf';
         const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
@@ -508,6 +519,7 @@ function startConversion() {
             downloadLink.href = downloadUrl;
             downloadLink.setAttribute('download', filename);
         }
+
         updateStep(3);
     })
     .catch(error => {
@@ -518,7 +530,7 @@ function startConversion() {
 }
 
 function resetConversion() {
-    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
     if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
 
     const uploadManager = window.uploadManagers?.['pdfUploadZone'];
@@ -531,7 +543,6 @@ function resetConversion() {
     pdfDocument = null;
     pdfImage = null;
 
-    canvas = document.getElementById('pdfCanvas');
     if (canvas) {
         ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -548,26 +559,72 @@ function resetConversion() {
     updateStep(1);
 }
 
-// ===== GESTIONNAIRES D'ÉVÉNEMENTS =====
-document.querySelectorAll('input[name="redactType"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        document.getElementById('textSection').style.display = this.value === 'text' ? 'block' : 'none';
-        document.getElementById('areaSection').style.display = this.value === 'area' ? 'block' : 'none';
-        document.getElementById('pdfPreview').style.display = this.value === 'area' ? 'block' : 'none';
-        document.getElementById('patternSection').style.display = this.value === 'pattern' ? 'block' : 'none';
-        if (this.value === 'area') setTimeout(loadPdfPreview, 500);
-    });
-});
+function updateButtonState() {
+    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
+    const convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.disabled = !uploadManager || uploadManager.getFiles().length === 0;
+    }
+}
 
-document.getElementById('pages')?.addEventListener('change', function() {
+function bindUploadManager() {
+    const manager = window.uploadManagers && window.uploadManagers.pdfUploadZone;
+    if (!manager) {
+        setTimeout(bindUploadManager, 200);
+        return;
+    }
+
+    const originalHandleFiles = manager.handleFiles;
+    if (originalHandleFiles) {
+        manager.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+    }
+
+    const originalRemoveFile = manager.removeFile;
+    if (originalRemoveFile) {
+        manager.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+
+    updateButtonState();
+}
+
+// Écouteurs d'événements
+document.addEventListener('DOMContentLoaded', function() {
+    bindUploadManager();
+
+    document.querySelectorAll('input[name="redactType"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const textSection = document.getElementById('textSection');
+            const areaSection = document.getElementById('areaSection');
+            const pdfPreview = document.getElementById('pdfPreview');
+            const patternSection = document.getElementById('patternSection');
+            
+            if (textSection) textSection.style.display = this.value === 'text' ? 'block' : 'none';
+            if (areaSection) areaSection.style.display = this.value === 'area' ? 'block' : 'none';
+            if (pdfPreview) pdfPreview.style.display = this.value === 'area' ? 'block' : 'none';
+            if (patternSection) patternSection.style.display = this.value === 'pattern' ? 'block' : 'none';
+            
+            if (this.value === 'area') setTimeout(loadPdfPreview, 500);
+        });
+    });
+
+    const pagesSelect = document.getElementById('pages');
     const pageRange = document.getElementById('pageRange');
-    if (pageRange) pageRange.disabled = this.value !== 'range';
+    if (pagesSelect && pageRange) {
+        pagesSelect.addEventListener('change', function() {
+            pageRange.disabled = this.value !== 'range';
+        });
+    }
 });
 
 window.addEventListener('beforeunload', () => {
-    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     if (progressInterval) clearInterval(progressInterval);
 });
 </script>
-{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}

@@ -89,7 +89,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-success btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+        <button class="btn btn-success btn-lg px-5" id="convertBtn" disabled>
             <i class="fas fa-sync-alt me-2"></i>{{ _('Extraire vers Excel') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
@@ -207,14 +207,26 @@
     </div>
 </div>
 
+{% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
 <script>
 let downloadUrl = null;
 let progressInterval = null;
 
 function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    const s1 = document.getElementById('step1Content');
+    const s2 = document.getElementById('step2Content');
+    const s3 = document.getElementById('step3Content');
+    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+        window.updateStep(step);
+    }
 }
 
 function showError(message) {
@@ -223,21 +235,60 @@ function showError(message) {
         errorDiv = document.createElement('div');
         errorDiv.id = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-        document.getElementById('step1Content').prepend(errorDiv);
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        const s1 = document.getElementById('step1Content');
+        if (s1) s1.prepend(errorDiv);
     }
-    document.getElementById('conversionErrorMsg').textContent = message;
+    const msgSpan = document.getElementById('conversionErrorMsg');
+    if (msgSpan) msgSpan.textContent = message;
     errorDiv.style.display = 'block';
+    setTimeout(function() {
+        if (errorDiv) errorDiv.style.display = 'none';
+    }, 8000);
+}
+
+function updateButtonState() {
+    const manager = window.uploadManagers && window.uploadManagers.pdfExcelUploadZone;
+    const convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.disabled = !manager || !manager.files || manager.files.length === 0;
+    }
+}
+
+function bindUploadManager() {
+    const manager = window.uploadManagers && window.uploadManagers.pdfExcelUploadZone;
+    if (!manager) {
+        setTimeout(bindUploadManager, 200);
+        return;
+    }
+
+    const originalHandleFiles = manager.handleFiles;
+    if (originalHandleFiles) {
+        manager.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+    }
+
+    const originalRemoveFile = manager.removeFile;
+    if (originalRemoveFile) {
+        manager.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+
+    updateButtonState();
 }
 
 function startConversion() {
-    const uploadManager = window.uploadManagers?.['pdfExcelUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
+    const manager = window.uploadManagers && window.uploadManagers.pdfExcelUploadZone;
+    if (!manager || !manager.files || manager.files.length === 0) {
         showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
         return;
     }
 
-    const file = uploadManager.getFiles()[0];
+    const file = manager.getFiles()[0];
     const formData = new FormData();
     formData.append('file', file);
     formData.append('mode', document.getElementById('extractionMode').value);
@@ -254,22 +305,24 @@ function startConversion() {
         { percent: 30, msg: '{{ _("Recherche de tableaux...") }}', detail: '{{ _("Identification des structures tabulaires") }}', tables: Math.floor(pages * 0.5), rows: pages * 5, cols: 3 },
         { percent: 50, msg: '{{ _("Extraction des données...") }}', detail: '{{ _("Récupération du contenu des cellules") }}', tables: Math.floor(pages * 0.8), rows: pages * 12, cols: 5 },
         { percent: 70, msg: '{{ _("Traitement OCR...") }}', detail: '{{ _("Reconnaissance de texte dans les images") }}', tables: pages, rows: pages * 20, cols: 6 },
-        { percent: 90, msg: '{{ _("Structuration des données...") }}', detail: '{{ _("Organisation en feuilles Excel") }}', tables: pages, rows: pages * 25, cols: 8 },
+        { percent: 90, msg: '{{ _("Structuration des données...") }}', detail: '{{ _("Organisation en feuilles Excel") }}', tables: pages, rows: pages * 25, cols: 8 }
     ];
 
     const progressBar = document.getElementById('extractionProgress');
-    progressInterval = setInterval(() => {
+    progressInterval = setInterval(function() {
         if (simStep < simSteps.length) {
-            const s = simSteps[simStep++];
+            var s = simSteps[simStep++];
             if (progressBar) progressBar.style.width = s.percent + '%';
-            const msgEl = document.getElementById('extractionMessage');
-            const detailEl = document.getElementById('extractionDetails');
+            var msgEl = document.getElementById('extractionMessage');
+            var detailEl = document.getElementById('extractionDetails');
             if (msgEl) msgEl.textContent = s.msg;
-            if (detailEl) detailEl.innerHTML = `<i class="fas fa-cog fa-spin me-1"></i> ${s.detail}`;
-            const el = id => document.getElementById(id);
-            if (el('detectedTables')) el('detectedTables').textContent = s.tables;
-            if (el('extractedRows')) el('extractedRows').textContent = s.rows;
-            if (el('detectedColumns')) el('detectedColumns').textContent = s.cols;
+            if (detailEl) detailEl.innerHTML = '<i class="fas fa-cog fa-spin me-1"></i> ' + s.detail;
+            var tablesEl = document.getElementById('detectedTables');
+            var rowsEl = document.getElementById('extractedRows');
+            var colsEl = document.getElementById('detectedColumns');
+            if (tablesEl) tablesEl.textContent = s.tables;
+            if (rowsEl) rowsEl.textContent = s.rows;
+            if (colsEl) colsEl.textContent = s.cols;
         } else {
             clearInterval(progressInterval);
         }
@@ -279,25 +332,21 @@ function startConversion() {
         method: 'POST',
         body: formData
     })
-    .then(async response => {
+    .then(function(response) {
         clearInterval(progressInterval);
         if (progressBar) progressBar.style.width = '100%';
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erreur serveur ' + response.status);
-        }
-        const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
-
-        const blob = await response.blob();
+        return response.blob();
+    })
+    .then(function(blob) {
         if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
 
-        downloadUrl = window.URL.createObjectURL(blob);
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        downloadUrl = URL.createObjectURL(blob);
+
         const contentDisposition = response.headers.get('Content-Disposition') || '';
         let filename = file.name.replace(/\.pdf$/i, '') + '.xlsx';
         const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
+        if (match && match[1]) filename = match[1].replace(/['"]/g, '');
 
         const downloadLink = document.getElementById('downloadLink');
         if (downloadLink) {
@@ -305,62 +354,57 @@ function startConversion() {
             downloadLink.setAttribute('download', filename);
         }
 
-        simulateFinalStats(file, pages);
+        var rows = pages * 25;
+        var cols = 8;
+        var finalTables = document.getElementById('finalTables');
+        var finalRows = document.getElementById('finalRows');
+        var finalCells = document.getElementById('finalCells');
+        var finalSheets = document.getElementById('finalSheets');
+        
+        if (finalTables) finalTables.textContent = pages;
+        if (finalRows) finalRows.textContent = rows;
+        if (finalCells) finalCells.textContent = rows * cols;
+        if (finalSheets) finalSheets.textContent = Math.min(pages, 3);
+
         updateStep(3);
     })
-    .catch(error => {
+    .catch(function(error) {
         clearInterval(progressInterval);
         updateStep(1);
         showError('{{ _("Erreur lors de l\'extraction :") }} ' + error.message);
     });
 }
 
-function simulateFinalStats(file, pages) {
-    const rows = pages * 25, cols = 8;
-    const el = id => document.getElementById(id);
-    if (el('finalTables')) el('finalTables').textContent = pages;
-    if (el('finalRows')) el('finalRows').textContent = rows;
-    if (el('finalCells')) el('finalCells').textContent = rows * cols;
-    if (el('finalSheets')) el('finalSheets').textContent = Math.min(pages, 3);
-}
-
 function resetConversion() {
-    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
     if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
 
-    const uploadManager = window.uploadManagers?.['pdfExcelUploadZone'];
-    if (uploadManager) {
-        const files = uploadManager.getFiles();
-        for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
+    const manager = window.uploadManagers && window.uploadManagers.pdfExcelUploadZone;
+    if (manager && manager.removeFile) {
+        var files = manager.getFiles();
+        for (var i = files.length - 1; i >= 0; i--) manager.removeFile(i);
     }
 
-    const errorDiv = document.getElementById('conversionError');
+    var errorDiv = document.getElementById('conversionError');
     if (errorDiv) errorDiv.style.display = 'none';
-    const progressBar = document.getElementById('extractionProgress');
+    var progressBar = document.getElementById('extractionProgress');
     if (progressBar) progressBar.style.width = '0%';
 
     updateStep(1);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const tryBind = (attempt = 0) => {
-        const um = window.uploadManagers?.['pdfExcelUploadZone'];
-        if (um) {
-            const origHandle = um.handleFiles.bind(um);
-            um.handleFiles = function(fl) { origHandle(fl); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
-            const origRemove = um.removeFile.bind(um);
-            um.removeFile = function(i) { origRemove(i); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
-        } else if (attempt < 10) {
-            setTimeout(() => tryBind(attempt + 1), 300);
-        }
-    };
-    tryBind();
+    bindUploadManager();
+    
+    var convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.addEventListener('click', startConversion);
+    }
 });
 
-window.addEventListener('beforeunload', () => {
-    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+window.addEventListener('beforeunload', function() {
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     if (progressInterval) clearInterval(progressInterval);
 });
 </script>
-{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}

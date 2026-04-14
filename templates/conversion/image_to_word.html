@@ -119,7 +119,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn" disabled>
             <i class="fas fa-magic me-2"></i>{{ _('Extraire et convertir en Word') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
@@ -210,14 +210,26 @@
     </div>
 </div>
 
+{% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
 <script>
 let downloadUrl = null;
 let ocrProgressInterval = null;
 
 function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    const s1 = document.getElementById('step1Content');
+    const s2 = document.getElementById('step2Content');
+    const s3 = document.getElementById('step3Content');
+    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+        window.updateStep(step);
+    }
 }
 
 function showError(message) {
@@ -226,29 +238,64 @@ function showError(message) {
         errorDiv = document.createElement('div');
         errorDiv.id = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = `
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <span id="conversionErrorMsg"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.getElementById('step1Content').prepend(errorDiv);
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        const s1 = document.getElementById('step1Content');
+        if (s1) s1.prepend(errorDiv);
     }
-    document.getElementById('conversionErrorMsg').textContent = message;
+    const msgSpan = document.getElementById('conversionErrorMsg');
+    if (msgSpan) msgSpan.textContent = message;
     errorDiv.style.display = 'block';
+    setTimeout(function() {
+        if (errorDiv) errorDiv.style.display = 'none';
+    }, 8000);
+}
+
+function updateButtonState() {
+    const manager = window.uploadManagers && window.uploadManagers.imageWordUploadZone;
+    const convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.disabled = !manager || !manager.files || manager.files.length === 0;
+    }
+}
+
+function bindUploadManager() {
+    const manager = window.uploadManagers && window.uploadManagers.imageWordUploadZone;
+    if (!manager) {
+        setTimeout(bindUploadManager, 200);
+        return;
+    }
+
+    const originalHandleFiles = manager.handleFiles;
+    if (originalHandleFiles) {
+        manager.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+    }
+
+    const originalRemoveFile = manager.removeFile;
+    if (originalRemoveFile) {
+        manager.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+
+    updateButtonState();
 }
 
 function startConversion() {
-    const uploadManager = window.uploadManagers?.['imageWordUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
+    const manager = window.uploadManagers && window.uploadManagers.imageWordUploadZone;
+    if (!manager || !manager.files || manager.files.length === 0) {
         showError('{{ _("Veuillez sélectionner un fichier") }}');
         return;
     }
 
     const formData = new FormData();
-    formData.append('file', uploadManager.getFiles()[0]);
+    formData.append('file', manager.getFiles()[0]);
 
     const languages = Array.from(document.querySelectorAll('input[name="languages"]:checked'))
-        .map(cb => cb.value).join(',');
+        .map(function(cb) { return cb.value; }).join(',');
     formData.append('languages', languages || 'fra');
     formData.append('confidence', document.getElementById('confidenceLevel').value);
     formData.append('preserve_layout', document.getElementById('preserveLayout').checked ? 'true' : 'false');
@@ -257,7 +304,6 @@ function startConversion() {
 
     updateStep(2);
 
-    // ✅ Progression simulée jusqu'à 90% max
     const progressBar = document.getElementById('conversionProgress');
     const ocrMessage = document.getElementById('ocrMessage');
     const ocrDetails = document.getElementById('ocrDetails');
@@ -268,17 +314,16 @@ function startConversion() {
         { percent: 45, message: '{{ _("Reconnaissance des caractères...") }}',    detail: '{{ _("Analyse des formes et patterns") }}' },
         { percent: 60, message: '{{ _("Correction orthographique...") }}',        detail: '{{ _("Vérification du vocabulaire") }}' },
         { percent: 75, message: '{{ _("Structuration du document...") }}',        detail: '{{ _("Organisation en paragraphes") }}' },
-        { percent: 90, message: '{{ _("Finalisation...") }}',                     detail: '{{ _("Préparation du document Word") }}' },
+        { percent: 90, message: '{{ _("Finalisation...") }}',                     detail: '{{ _("Préparation du document Word") }}' }
     ];
 
     let stepIndex = 0;
-    // ✅ Utiliser setInterval au lieu de setTimeout récursif pour pouvoir l'arrêter
-    ocrProgressInterval = setInterval(() => {
+    ocrProgressInterval = setInterval(function() {
         if (stepIndex < steps.length) {
-            const step = steps[stepIndex];
+            var step = steps[stepIndex];
             if (progressBar) progressBar.style.width = step.percent + '%';
             if (ocrMessage) ocrMessage.textContent = step.message;
-            if (ocrDetails) ocrDetails.innerHTML = `<i class="fas fa-search me-1"></i> ${step.detail}`;
+            if (ocrDetails) ocrDetails.innerHTML = '<i class="fas fa-search me-1"></i> ' + step.detail;
             stepIndex++;
         } else {
             clearInterval(ocrProgressInterval);
@@ -289,36 +334,23 @@ function startConversion() {
         method: 'POST',
         body: formData
     })
-    .then(async response => {
-        clearInterval(ocrProgressInterval);  // ✅ Stopper la simulation
-
+    .then(function(response) {
+        clearInterval(ocrProgressInterval);
         if (progressBar) progressBar.style.width = '100%';
         if (ocrMessage) ocrMessage.textContent = '{{ _("Extraction terminée !") }}';
-        if (ocrDetails) ocrDetails.innerHTML = `<i class="fas fa-check me-1"></i> {{ _("Document prêt") }}`;
+        if (ocrDetails) ocrDetails.innerHTML = '<i class="fas fa-check me-1"></i> {{ _("Document prêt") }}';
+        return response.blob();
+    })
+    .then(function(blob) {
+        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erreur serveur ' + response.status);
-        }
-
-        const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) {
-            throw new Error('Le serveur a retourné une erreur. Vérifiez le fichier.');
-        }
-
-        const blob = await response.blob();
-        if (blob.size === 0) {
-            throw new Error('Fichier téléchargé vide.');
-        }
-
-        downloadUrl = window.URL.createObjectURL(blob);
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        downloadUrl = URL.createObjectURL(blob);
 
         const contentDisposition = response.headers.get('Content-Disposition') || '';
         let filename = 'extraction.docx';
         const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match && match[1]) {
-            filename = match[1].replace(/['"]/g, '');
-        }
+        if (match && match[1]) filename = match[1].replace(/['"]/g, '');
 
         const downloadLink = document.getElementById('downloadLink');
         if (downloadLink) {
@@ -326,93 +358,69 @@ function startConversion() {
             downloadLink.setAttribute('download', filename);
         }
 
-        // Statistiques simulées (cosmétiques)
-        const chars = Math.floor(Math.random() * 2000) + 1000;
-        const words = Math.floor(chars / 6);
-        const lines = Math.floor(words / 12) + 1;
-        const confidence = Math.floor(Math.random() * 15) + 85;
-        document.getElementById('statsChars').textContent = chars.toLocaleString();
-        document.getElementById('statsWords').textContent = words.toLocaleString();
-        document.getElementById('statsLines').textContent = lines;
-        document.getElementById('statsConfidence').textContent = confidence + '%';
+        var chars = Math.floor(Math.random() * 2000) + 1000;
+        var words = Math.floor(chars / 6);
+        var lines = Math.floor(words / 12) + 1;
+        var confidence = Math.floor(Math.random() * 15) + 85;
+        
+        var statsChars = document.getElementById('statsChars');
+        var statsWords = document.getElementById('statsWords');
+        var statsLines = document.getElementById('statsLines');
+        var statsConfidence = document.getElementById('statsConfidence');
+        
+        if (statsChars) statsChars.textContent = chars.toLocaleString();
+        if (statsWords) statsWords.textContent = words.toLocaleString();
+        if (statsLines) statsLines.textContent = lines;
+        if (statsConfidence) statsConfidence.textContent = confidence + '%';
 
         updateStep(3);
     })
-    .catch(error => {
+    .catch(function(error) {
         clearInterval(ocrProgressInterval);
-        console.error('Erreur conversion:', error);
         updateStep(1);
         showError('{{ _("Erreur lors de l\'extraction :") }} ' + error.message);
     });
 }
 
 function resetConversion() {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-        downloadUrl = null;
+    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (ocrProgressInterval) { clearInterval(ocrProgressInterval); ocrProgressInterval = null; }
+
+    const manager = window.uploadManagers && window.uploadManagers.imageWordUploadZone;
+    if (manager && manager.removeFile) {
+        var files = manager.getFiles();
+        for (var i = files.length - 1; i >= 0; i--) manager.removeFile(i);
     }
 
-    if (ocrProgressInterval) {
-        clearInterval(ocrProgressInterval);
-        ocrProgressInterval = null;
-    }
-
-    const uploadManager = window.uploadManagers?.['imageWordUploadZone'];
-    if (uploadManager) {
-        const files = uploadManager.getFiles();
-        for (let i = files.length - 1; i >= 0; i--) {
-            uploadManager.removeFile(i);
-        }
-    }
-
-    const errorDiv = document.getElementById('conversionError');
+    var errorDiv = document.getElementById('conversionError');
     if (errorDiv) errorDiv.style.display = 'none';
-
-    const progressBar = document.getElementById('conversionProgress');
+    
+    var progressBar = document.getElementById('conversionProgress');
     if (progressBar) progressBar.style.width = '0%';
 
     updateStep(1);
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Slider confiance
-    const confidenceSlider = document.getElementById('confidenceLevel');
-    const confidenceValue = document.getElementById('confidenceValue');
-    if (confidenceSlider) {
-        confidenceSlider.addEventListener('input', function () {
-            if (confidenceValue) confidenceValue.textContent = this.value + '%';
+document.addEventListener('DOMContentLoaded', function() {
+    var confidenceSlider = document.getElementById('confidenceLevel');
+    var confidenceValue = document.getElementById('confidenceValue');
+    if (confidenceSlider && confidenceValue) {
+        confidenceSlider.addEventListener('input', function() {
+            confidenceValue.textContent = this.value + '%';
         });
     }
-
-    // ✅ Bind uploadManager avec retry
-    function tryBindUploadManager(attempts) {
-        const uploadManager = window.uploadManagers?.['imageWordUploadZone'];
-        if (uploadManager) {
-            const originalHandleFiles = uploadManager.handleFiles.bind(uploadManager);
-            uploadManager.handleFiles = function (fileList) {
-                originalHandleFiles(fileList);
-                const btn = document.getElementById('convertBtn');
-                if (btn) btn.disabled = this.getFiles().length === 0;
-            };
-
-            const originalRemoveFile = uploadManager.removeFile.bind(uploadManager);
-            uploadManager.removeFile = function (index) {
-                originalRemoveFile(index);
-                const btn = document.getElementById('convertBtn');
-                if (btn) btn.disabled = this.getFiles().length === 0;
-            };
-        } else if (attempts > 0) {
-            setTimeout(() => tryBindUploadManager(attempts - 1), 300);
-        }
+    
+    bindUploadManager();
+    
+    var convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.addEventListener('click', startConversion);
     }
-
-    tryBindUploadManager(10);
 });
 
-window.addEventListener('beforeunload', () => {
-    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+window.addEventListener('beforeunload', function() {
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     if (ocrProgressInterval) clearInterval(ocrProgressInterval);
 });
 </script>
-{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}

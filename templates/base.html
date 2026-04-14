@@ -516,7 +516,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded',function(){
-    document.getElementById('yr').textContent=new Date().getFullYear();
+    document.getElementById('currentYear').textContent=new Date().getFullYear();
     document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el){new bootstrap.Tooltip(el)});
 });
 // PDF.js worker — initialisé une fois chargé
@@ -554,11 +554,11 @@ document.addEventListener('DOMContentLoaded',function(){
 
 <!-- Message de soutien — affiché toutes les 20 min -->
 <script>
-(function(){
-    var I18N={
-        t:"{{ _('Soutenez notre outil gratuit !') | e }}",
-        b:"{{ _('Je comprends') | e }}"
-    };
+var I18N = {
+    supportTitle: "{{ _('Soutenez notre outil gratuit !') | e }}",
+    supportText: "{{ _('Ce service est entièrement gratuit grâce à vous. Un petit clic sur une publicité nous aide énormément à maintenir et améliorer PDF Fusion Pro.') | e }}",
+    supportBtn: "{{ _('Je comprends') | e }}"
+};
 </script>
 <script>
 (function() {
@@ -604,18 +604,42 @@ document.addEventListener('DOMContentLoaded',function(){
 
         setTimeout(closeSupportMessage, 12000);
     }
-    window.closeAr=function(){
-        var m=document.getElementById('arMsg');
-        if(m){m.style.opacity='0';m.style.transition='opacity .3s';setTimeout(function(){if(m.parentNode)m.parentNode.removeChild(m)},300)}
+
+    window.closeSupportMessage = function() {
+        var msg = document.getElementById('adsterraSupportMessage');
+        if (msg) {
+            msg.style.opacity = '0';
+            msg.style.transition = 'opacity 0.3s';
+            setTimeout(function() {
+                if (msg.parentNode) msg.parentNode.removeChild(msg);
+            }, 300);
+        }
     };
-    // Afficher après 20 min si pas encore vu aujourd'hui
-    var last=parseInt(localStorage.getItem('ar_t')||'0',10);
-    if(!last){setTimeout(function(){show();localStorage.setItem('ar_t',String(Date.now()))},20*60*1000)}
+
+    function checkReminder() {
+        var now = Date.now();
+        if (now - lastReminder > 20 * 60 * 1000) {
+            showSupportMessage();
+            lastReminder = now;
+            localStorage.setItem('adsterra_last_reminder', String(lastReminder));
+        }
+    }
+
+    setInterval(checkReminder, 5 * 60 * 1000);
+
+    setTimeout(function() {
+        if (!parseInt(localStorage.getItem('adsterra_last_reminder') || '0', 10)) {
+            showSupportMessage();
+            localStorage.setItem('adsterra_last_reminder', String(Date.now()));
+        }
+    }, 20 * 60 * 1000);
 })();
 </script>
 
+{# ── Blocs pour les templates enfants ── #}
 {% block cloud_buttons %}{% endblock %}
 {% block scripts %}{% endblock %}
 {% block extra_js %}{% endblock %}
+
 </body>
 </html>

@@ -50,6 +50,38 @@
         padding: 8px 20px;
     }
     .btn-cloud:hover { transform: translateY(-2px); }
+    
+    /* Styles pour les étapes de progression */
+    .step-container {
+        transition: all 0.3s ease;
+    }
+    .progress-container {
+        margin: 20px auto;
+        max-width: 500px;
+    }
+    .progress-bar {
+        transition: width 0.3s ease;
+    }
+    .success-animation {
+        width: 80px;
+        height: 80px;
+        background: #28a745;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        animation: bounceIn 0.6s ease;
+    }
+    .success-animation i {
+        font-size: 40px;
+        color: white;
+    }
+    @keyframes bounceIn {
+        0% { transform: scale(0); opacity: 0; }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); opacity: 1; }
+    }
 </style>
 {% endblock %}
 
@@ -65,63 +97,107 @@
 <div class="row">
     <div class="col-lg-8">
         <div class="tool-container">
-            <!-- Zone d'upload -->
-            <div class="upload-zone-pro" id="{{ upload_zone_id }}" 
-                 data-info-id="{{ file_info_id }}" 
-                 data-btn-id="{{ button_id }}">
-                <div class="upload-inner">
-                    <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                    <h4 class="upload-title">{{ _('Déposez votre PDF ici') }}</h4>
-                    <p class="upload-subtitle">{{ _('Glissez-déposez votre fichier ou cliquez pour parcourir') }}</p>
-                    <div class="upload-info">{{ _('PDF uniquement • Taille max : 50MB') }}</div>
+            
+            <!-- ================= ÉTAPE 1 : UPLOAD ================= -->
+            <div id="step1Content" class="step-container">
+                <!-- Zone d'upload -->
+                <div class="upload-zone-pro" id="{{ upload_zone_id }}" 
+                     data-info-id="{{ file_info_id }}" 
+                     data-btn-id="{{ button_id }}">
+                    <div class="upload-inner">
+                        <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                        <h4 class="upload-title">{{ _('Déposez votre PDF ici') }}</h4>
+                        <p class="upload-subtitle">{{ _('Glissez-déposez votre fichier ou cliquez pour parcourir') }}</p>
+                        <div class="upload-info">{{ _('PDF uniquement • Taille max : 50MB') }}</div>
+                    </div>
+                    <input type="file" accept=".pdf" {% if multiple %}multiple{% endif %} style="display:none;">
                 </div>
-                <input type="file" accept=".pdf" {% if multiple %}multiple{% endif %} style="display:none;">
-            </div>
 
-            <div id="{{ file_info_id }}" class="file-list mt-3"></div>
-            <div id="{{ upload_zone_id }}Thumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
+                <div id="{{ file_info_id }}" class="file-list mt-3"></div>
+                <div id="{{ upload_zone_id }}Thumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
 
-            <!-- Options spécifiques (à surcharger) -->
-            {% block pdf_options %}{% endblock %}
+                <!-- Options spécifiques (à surcharger) -->
+                {% block pdf_options %}{% endblock %}
 
-            <!-- Boutons d'action -->
-            <div class="action-buttons mt-4">
-                <button class="btn btn-primary btn-lg" id="{{ button_id }}" disabled>
-                    <i class="fas fa-{{ button_icon }} me-2"></i>{% block button_text %}{{ _('Exécuter') }}{% endblock %}
-                </button>
-                <button class="btn btn-outline-secondary btn-lg" onclick="window.uploadManagers.{{ upload_manager }}.removeFile(0)">
-                    <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
-                </button>
-            </div>
+                <!-- Boutons d'action -->
+                <div class="action-buttons mt-4">
+                    <button class="btn btn-primary btn-lg" id="{{ button_id }}" disabled>
+                        <i class="fas fa-{{ button_icon }} me-2"></i>{% block button_text %}{{ _('Exécuter') }}{% endblock %}
+                    </button>
+                    <button class="btn btn-outline-secondary btn-lg" onclick="resetConversion()">
+                        <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
+                    </button>
+                </div>
 
-            <!-- ================= BOUTONS CLOUD ================= -->
-            <div class="btn-cloud-group text-center">
-                <div class="position-relative">
-                    <hr class="my-3">
-                    <div class="text-center">
-                        <span class="px-3 bg-white text-muted small">{{ _('Ou importez depuis le cloud') }}</span>
+                <!-- Boutons cloud -->
+                <div class="btn-cloud-group text-center">
+                    <div class="position-relative">
+                        <hr class="my-3">
+                        <div class="text-center">
+                            <span class="px-3 bg-white text-muted small">{{ _('Ou importez depuis le cloud') }}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
+                        <button type="button" class="btn btn-outline-danger btn-cloud" 
+                                onclick="window.cloudUpload && cloudUpload.open('google')">
+                            <i class="fab fa-google-drive me-1"></i>Google Drive
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-cloud" 
+                                onclick="window.cloudUpload && cloudUpload.open('onedrive')">
+                            <i class="fab fa-microsoft me-1"></i>OneDrive
+                        </button>
+                        <button type="button" class="btn btn-outline-info btn-cloud" 
+                                onclick="window.cloudUpload && cloudUpload.open('dropbox')">
+                            <i class="fab fa-dropbox me-1"></i>Dropbox
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-cloud" 
+                                onclick="window.cloudUpload && cloudUpload.open('icloud')">
+                            <i class="fab fa-apple me-1"></i>iCloud
+                        </button>
                     </div>
                 </div>
-                <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
-                    <button type="button" class="btn btn-outline-danger btn-cloud" 
-                            onclick="window.cloudUpload && cloudUpload.open('google')">
-                        <i class="fab fa-google-drive me-1"></i>Google Drive
-                    </button>
-                    <button type="button" class="btn btn-outline-primary btn-cloud" 
-                            onclick="window.cloudUpload && cloudUpload.open('onedrive')">
-                        <i class="fab fa-microsoft me-1"></i>OneDrive
-                    </button>
-                    <button type="button" class="btn btn-outline-info btn-cloud" 
-                            onclick="window.cloudUpload && cloudUpload.open('dropbox')">
-                        <i class="fab fa-dropbox me-1"></i>Dropbox
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary btn-cloud" 
-                            onclick="window.cloudUpload && cloudUpload.open('icloud')">
-                        <i class="fab fa-apple me-1"></i>iCloud
-                    </button>
+            </div>
+            
+            <!-- ================= ÉTAPE 2 : TRAITEMENT ================= -->
+            <div id="step2Content" class="step-container" style="display: none;">
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
+                    </div>
+                    <h3 class="mb-3">{{ _('Traitement en cours...') }}</h3>
+                    <p class="text-muted mb-4" id="conversionMessage">
+                        {{ _('Analyse du document...') }}
+                    </p>
+                    <div class="progress-container mx-auto">
+                        <div class="progress bg-light rounded-pill" style="height: 10px;">
+                            <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-muted" id="progressPercent">0%</p>
                 </div>
             </div>
-            <!-- ================= FIN BOUTONS CLOUD ================= -->
+            
+            <!-- ================= ÉTAPE 3 : TÉLÉCHARGEMENT ================= -->
+            <div id="step3Content" class="step-container" style="display: none;">
+                <div class="text-center py-5">
+                    <div class="success-animation">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3 class="mb-3">{{ _('Opération réussie !') }}</h3>
+                    <p class="text-muted mb-4">
+                        {{ _('Votre fichier est prêt au téléchargement') }}
+                    </p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>
+                            <i class="fas fa-download me-2"></i>{{ _('Télécharger') }}
+                        </a>
+                        <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
+                            <i class="fas fa-redo me-2"></i>{{ _('Nouveau fichier') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
         </div>
     </div>
     
@@ -141,6 +217,68 @@
         </div>
     </div>
 </div>
+
+<script>
+// Fonctions globales pour la gestion des étapes
+function updateStep(step) {
+    var step1 = document.getElementById('step1Content');
+    var step2 = document.getElementById('step2Content');
+    var step3 = document.getElementById('step3Content');
+    
+    if (step1) step1.style.display = step === 1 ? 'block' : 'none';
+    if (step2) step2.style.display = step === 2 ? 'block' : 'none';
+    if (step3) step3.style.display = step === 3 ? 'block' : 'none';
+}
+
+function showError(message) {
+    var errorDiv = document.getElementById('conversionError');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'conversionError';
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        var step1 = document.getElementById('step1Content');
+        if (step1) step1.prepend(errorDiv);
+    }
+    var msgSpan = document.getElementById('conversionErrorMsg');
+    if (msgSpan) msgSpan.textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(function() {
+        if (errorDiv) errorDiv.style.display = 'none';
+    }, 8000);
+}
+
+function resetConversion() {
+    var downloadUrl = window.downloadUrl;
+    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); window.downloadUrl = null; }
+    
+    var progressInterval = window.progressInterval;
+    if (progressInterval) { clearInterval(progressInterval); window.progressInterval = null; }
+    
+    var manager = window.uploadManagers && window.uploadManagers['{{ upload_zone_id }}'];
+    if (manager && manager.removeFile) {
+        var files = manager.getFiles();
+        for (var i = files.length - 1; i >= 0; i--) manager.removeFile(i);
+    }
+    
+    var errorDiv = document.getElementById('conversionError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    
+    var progressBar = document.getElementById('conversionProgress');
+    if (progressBar) progressBar.style.width = '0%';
+    
+    var percentSpan = document.getElementById('progressPercent');
+    if (percentSpan) percentSpan.textContent = '0%';
+    
+    updateStep(1);
+}
+
+// Rendre la fonction disponible globalement
+window.resetConversion = resetConversion;
+window.updateStep = updateStep;
+window.showError = showError;
+</script>
+
 {% endblock %}
 
 {% block extra_js %}

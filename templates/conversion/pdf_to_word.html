@@ -95,124 +95,133 @@
     </div>
 </div>
 
-<script>
-let downloadUrl = null;
-let progressInterval = null;
-
-function updateStep(step) {
-    var step1 = document.getElementById('step1Content');
-    var step2 = document.getElementById('step2Content');
-    var step3 = document.getElementById('step3Content');
-    
-    if (step1) step1.style.display = step === 1 ? 'block' : 'none';
-    if (step2) step2.style.display = step === 2 ? 'block' : 'none';
-    if (step3) step3.style.display = step === 3 ? 'block' : 'none';
-}
-
-function showError(message) {
-    var errorDiv = document.createElement('div');
-    errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
-    var step1 = document.getElementById('step1Content');
-    if (step1) step1.prepend(errorDiv);
-    setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
-}
-
-function updateProgress(percent, message) {
-    var progressBar = document.getElementById('conversionProgress');
-    var percentSpan = document.getElementById('progressPercent');
-    var msgSpan = document.getElementById('conversionMessage');
-    
-    if (progressBar) progressBar.style.width = percent + '%';
-    if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
-    if (msgSpan) msgSpan.textContent = message;
-}
-
-function startConversion() {
-    var fileInput = document.getElementById('pdfFile');
-    if (!fileInput || !fileInput.files.length) {
-        showError('Veuillez sélectionner un fichier PDF');
-        return;
-    }
-    
-    var file = fileInput.files[0];
-    
-    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-        showError('Le fichier doit être un PDF');
-        return;
-    }
-    
-    var formData = new FormData();
-    formData.append('file', file);
-    formData.append('mode', document.getElementById('extractionMode').value);
-    formData.append('language', document.getElementById('language').value);
-    formData.append('detect_tables', document.getElementById('detectTables').checked);
-    formData.append('preserve_formatting', document.getElementById('preserveFormatting').checked);
-    
-    updateStep(2);
-    
-    var progress = 0;
-    updateProgress(0, 'Démarrage...');
-    
-    progressInterval = setInterval(function() {
-        if (progress < 90) {
-            progress += Math.random() * 15;
-            progress = Math.min(progress, 90);
-            updateProgress(progress, 'Conversion en cours...');
-        }
-    }, 400);
-    
-    fetch('/conversion/pdf-en-word', {
-        method: 'POST',
-        body: formData
-    })
-    .then(function(response) {
-        clearInterval(progressInterval);
-        
-        if (!response.ok) throw new Error('Erreur ' + response.status);
-        
-        return response.blob();
-    })
-    .then(function(blob) {
-        if (blob.size === 0) throw new Error('Fichier vide');
-        
-        updateProgress(100, 'Finalisation...');
-        
-        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-        downloadUrl = URL.createObjectURL(blob);
-        
-        var downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.download = file.name.replace(/\.pdf$/i, '') + '.docx';
-        }
-        
-        updateStep(3);
-        if (downloadLink) downloadLink.click();
-    })
-    .catch(function(error) {
-        console.error('Erreur:', error);
-        clearInterval(progressInterval);
-        updateStep(1);
-        showError('Erreur: ' + error.message);
-    });
-}
-
-function resetConversion() {
-    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-    if (progressInterval) clearInterval(progressInterval);
-    var fileInput = document.getElementById('pdfFile');
-    if (fileInput) fileInput.value = '';
-    updateStep(1);
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    var convertBtn = document.getElementById('convertBtn');
-    if (convertBtn) {
-        convertBtn.addEventListener('click', startConversion);
-    }
-});
-</script>
-
 {% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Correction : Le script est placé dans le bloc scripts pour éviter les conflits
+    // et garantir que le DOM est chargé.
+    
+    let downloadUrl = null;
+    let progressInterval = null;
+
+    function updateStep(step) {
+        var step1 = document.getElementById('step1Content');
+        var step2 = document.getElementById('step2Content');
+        var step3 = document.getElementById('step3Content');
+        
+        if (step1) step1.style.display = step === 1 ? 'block' : 'none';
+        if (step2) step2.style.display = step === 2 ? 'block' : 'none';
+        if (step3) step3.style.display = step === 3 ? 'block' : 'none';
+
+        // Synchronisation avec les étapes visuelles du parent si elles existent
+        if (window.updateStep && typeof window.updateStep === 'function') {
+            window.updateStep(step);
+        }
+    }
+
+    function showError(message) {
+        var errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        var step1 = document.getElementById('step1Content');
+        if (step1) step1.prepend(errorDiv);
+        setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
+    }
+
+    function updateProgress(percent, message) {
+        var progressBar = document.getElementById('conversionProgress');
+        var percentSpan = document.getElementById('progressPercent');
+        var msgSpan = document.getElementById('conversionMessage');
+        
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
+        if (msgSpan) msgSpan.textContent = message;
+    }
+
+    function startConversion() {
+        var fileInput = document.getElementById('pdfFile');
+        if (!fileInput || !fileInput.files.length) {
+            showError('Veuillez sélectionner un fichier PDF');
+            return;
+        }
+        
+        var file = fileInput.files[0];
+        
+        if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+            showError('Le fichier doit être un PDF');
+            return;
+        }
+        
+        var formData = new FormData();
+        formData.append('file', file);
+        formData.append('mode', document.getElementById('extractionMode').value);
+        formData.append('language', document.getElementById('language').value);
+        formData.append('detect_tables', document.getElementById('detectTables').checked);
+        formData.append('preserve_formatting', document.getElementById('preserveFormatting').checked);
+        
+        updateStep(2);
+        
+        var progress = 0;
+        updateProgress(0, 'Démarrage...');
+        
+        progressInterval = setInterval(function() {
+            if (progress < 90) {
+                progress += Math.random() * 15;
+                progress = Math.min(progress, 90);
+                updateProgress(progress, 'Conversion en cours...');
+            }
+        }, 400);
+        
+        fetch('/conversion/pdf-en-word', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(response) {
+            clearInterval(progressInterval);
+            if (!response.ok) throw new Error('Erreur ' + response.status);
+            return response.blob();
+        })
+        .then(function(blob) {
+            if (blob.size === 0) throw new Error('Fichier vide');
+            
+            updateProgress(100, 'Finalisation...');
+            
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
+            
+            var downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.download = file.name.replace(/\.pdf$/i, '') + '.docx';
+            }
+            
+            updateStep(3);
+            if (downloadLink) downloadLink.click();
+        })
+        .catch(function(error) {
+            console.error('Erreur:', error);
+            clearInterval(progressInterval);
+            updateStep(1);
+            showError('Erreur: ' + error.message);
+        });
+    }
+
+    function resetConversion() {
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        if (progressInterval) clearInterval(progressInterval);
+        var fileInput = document.getElementById('pdfFile');
+        if (fileInput) fileInput.value = '';
+        updateStep(1);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', startConversion);
+        }
+    });
+</script>
 {% endblock %}

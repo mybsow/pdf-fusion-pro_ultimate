@@ -89,7 +89,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn" disabled>
             <i class="fas fa-sync-alt me-2"></i>{{ _('Extraire le texte') }}
         </button>
     </div>
@@ -128,54 +128,91 @@
     </div>
 </div>
 
+{% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
 <script>
-// ── Lecture des chaînes i18n depuis le DOM (pas de Jinja2 dans le JS) ──
-const _i18n = (function () {
-    const el = document.getElementById('js-i18n');
+// ── Lecture des chaînes i18n depuis le DOM ──
+var i18n = (function() {
+    var el = document.getElementById('js-i18n');
     return {
-        errNoFile:       el.dataset.errNoFile,
-        errNoPages:      el.dataset.errNoPages,
-        errInvalidRange: el.dataset.errInvalidRange,
-        errExtraction:   el.dataset.errExtraction,
-        urlConverter:    el.dataset.urlConverter
+        errNoFile: el.getAttribute('data-err-no-file'),
+        errNoPages: el.getAttribute('data-err-no-pages'),
+        errInvalidRange: el.getAttribute('data-err-invalid-range'),
+        errExtraction: el.getAttribute('data-err-extraction'),
+        urlConverter: el.getAttribute('data-url-converter')
     };
 })();
 
-let downloadUrl = null;
-let progressInterval = null;
+var downloadUrl = null;
+var progressInterval = null;
 
 function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    var s1 = document.getElementById('step1Content');
+    var s2 = document.getElementById('step2Content');
+    var s3 = document.getElementById('step3Content');
+    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+        window.updateStep(step);
+    }
 }
 
 function showError(message) {
-    let errorDiv = document.getElementById('conversionError');
+    var errorDiv = document.getElementById('conversionError');
     if (!errorDiv) {
         errorDiv = document.createElement('div');
         errorDiv.id = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>'
-            + '<span id="conversionErrorMsg"></span>'
-            + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
-        document.getElementById('step1Content').prepend(errorDiv);
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        var s1 = document.getElementById('step1Content');
+        if (s1) s1.prepend(errorDiv);
     }
-    document.getElementById('conversionErrorMsg').textContent = message;
+    var msgSpan = document.getElementById('conversionErrorMsg');
+    if (msgSpan) msgSpan.textContent = message;
     errorDiv.style.display = 'block';
+    setTimeout(function() {
+        if (errorDiv) errorDiv.style.display = 'none';
+    }, 8000);
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    const extractAllPages = document.getElementById('extractAllPages');
-    const pageRangeGroup  = document.getElementById('pageRangeGroup');
-    if (extractAllPages) {
-        extractAllPages.addEventListener('change', function () {
-            if (pageRangeGroup) {
-                pageRangeGroup.style.display = this.checked ? 'none' : 'block';
-            }
-        });
+function updateButtonState() {
+    var manager = window.uploadManagers && window.uploadManagers.pdfUploadZone;
+    var convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.disabled = !manager || !manager.files || manager.files.length === 0;
     }
-});
+}
+
+function bindUploadManager() {
+    var manager = window.uploadManagers && window.uploadManagers.pdfUploadZone;
+    if (!manager) {
+        setTimeout(bindUploadManager, 200);
+        return;
+    }
+
+    var originalHandleFiles = manager.handleFiles;
+    if (originalHandleFiles) {
+        manager.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+    }
+
+    var originalRemoveFile = manager.removeFile;
+    if (originalRemoveFile) {
+        manager.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+
+    updateButtonState();
+}
 
 function validatePageRange(range) {
     if (!range) return false;
@@ -183,31 +220,31 @@ function validatePageRange(range) {
 }
 
 function startConversion() {
-    const uploadManager = window.uploadManagers && window.uploadManagers['pdfUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError(_i18n.errNoFile);
+    var manager = window.uploadManagers && window.uploadManagers.pdfUploadZone;
+    if (!manager || !manager.files || manager.files.length === 0) {
+        showError(i18n.errNoFile);
         return;
     }
 
-    const extractAll = document.getElementById('extractAllPages').checked;
+    var extractAll = document.getElementById('extractAllPages').checked;
     if (!extractAll) {
-        const pageRange = document.getElementById('pageRange').value.trim();
+        var pageRange = document.getElementById('pageRange').value.trim();
         if (!pageRange) {
-            showError(_i18n.errNoPages);
+            showError(i18n.errNoPages);
             return;
         }
         if (!validatePageRange(pageRange)) {
-            showError(_i18n.errInvalidRange);
+            showError(i18n.errInvalidRange);
             return;
         }
     }
 
-    const file = uploadManager.getFiles()[0];
-    const formData = new FormData();
+    var file = manager.getFiles()[0];
+    var formData = new FormData();
     formData.append('file', file);
-    formData.append('encoding',        document.getElementById('encoding').value);
-    formData.append('preserveLayout',  document.getElementById('preserveLayout').checked  ? 'true' : 'false');
-    formData.append('addPageMarkers',  document.getElementById('addPageMarkers').checked   ? 'true' : 'false');
+    formData.append('encoding', document.getElementById('encoding').value);
+    formData.append('preserveLayout', document.getElementById('preserveLayout').checked ? 'true' : 'false');
+    formData.append('addPageMarkers', document.getElementById('addPageMarkers').checked ? 'true' : 'false');
     formData.append('extractAllPages', extractAll ? 'true' : 'false');
     if (!extractAll) {
         formData.append('pageRange', document.getElementById('pageRange').value);
@@ -215,87 +252,93 @@ function startConversion() {
 
     updateStep(2);
 
-    let progress = 0;
-    const progressBar = document.getElementById('progressBar');
-    progressInterval = setInterval(function () {
+    var progress = 0;
+    var progressBar = document.getElementById('progressBar');
+    progressInterval = setInterval(function() {
         if (progress < 90) {
             progress += 10;
             if (progressBar) progressBar.style.width = progress + '%';
         }
     }, 500);
 
-    fetch(_i18n.urlConverter, {
+    fetch(i18n.urlConverter, {
         method: 'POST',
         body: formData
     })
-    .then(function (response) {
+    .then(function(response) {
         clearInterval(progressInterval);
         if (progressBar) progressBar.style.width = '100%';
-
-        if (!response.ok) {
-            return response.text().then(function (txt) {
-                throw new Error(txt || 'Erreur serveur ' + response.status);
-            });
-        }
-
-        const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) {
-            throw new Error('Erreur serveur inattendue.');
-        }
-
-        return response.blob().then(function (blob) {
-            if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
-
-            downloadUrl = window.URL.createObjectURL(blob);
-
-            const contentDisposition = response.headers.get('Content-Disposition') || '';
-            let filename = file.name.replace(/\.pdf$/i, '') + '.txt';
-            const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-            if (match && match[1]) {
-                filename = match[1].replace(/['"]/g, '');
-            }
-
-            const downloadLink = document.getElementById('downloadLink');
-            if (downloadLink) {
-                downloadLink.href = downloadUrl;
-                downloadLink.setAttribute('download', filename);
-            }
-            updateStep(3);
-        });
+        return response.blob();
     })
-    .catch(function (error) {
+    .then(function(blob) {
+        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        downloadUrl = URL.createObjectURL(blob);
+
+        var contentDisposition = response.headers.get('Content-Disposition') || '';
+        var filename = file.name.replace(/\.pdf$/i, '') + '.txt';
+        var match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+            filename = match[1].replace(/['"]/g, '');
+        }
+
+        var downloadLink = document.getElementById('downloadLink');
+        if (downloadLink) {
+            downloadLink.href = downloadUrl;
+            downloadLink.setAttribute('download', filename);
+        }
+
+        updateStep(3);
+    })
+    .catch(function(error) {
         clearInterval(progressInterval);
         updateStep(1);
-        showError(_i18n.errExtraction + ' ' + error.message);
+        showError(i18n.errExtraction + ' ' + error.message);
     });
 }
 
 function resetConversion() {
-    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
     if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
 
-    const uploadManager = window.uploadManagers && window.uploadManagers['pdfUploadZone'];
-    if (uploadManager) {
-        const files = uploadManager.getFiles();
-        for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
+    var manager = window.uploadManagers && window.uploadManagers.pdfUploadZone;
+    if (manager && manager.removeFile) {
+        var files = manager.getFiles();
+        for (var i = files.length - 1; i >= 0; i--) manager.removeFile(i);
     }
 
-    const pageRangeEl = document.getElementById('pageRange');
+    var pageRangeEl = document.getElementById('pageRange');
     if (pageRangeEl) pageRangeEl.value = '';
 
-    const errorDiv = document.getElementById('conversionError');
+    var errorDiv = document.getElementById('conversionError');
     if (errorDiv) errorDiv.style.display = 'none';
-
-    const progressBar = document.getElementById('progressBar');
+    var progressBar = document.getElementById('progressBar');
     if (progressBar) progressBar.style.width = '0%';
 
     updateStep(1);
 }
 
-window.addEventListener('beforeunload', function () {
-    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+document.addEventListener('DOMContentLoaded', function() {
+    var extractAllPages = document.getElementById('extractAllPages');
+    var pageRangeGroup = document.getElementById('pageRangeGroup');
+    if (extractAllPages && pageRangeGroup) {
+        extractAllPages.addEventListener('change', function() {
+            pageRangeGroup.style.display = this.checked ? 'none' : 'block';
+        });
+    }
+    
+    bindUploadManager();
+    
+    var convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.addEventListener('click', startConversion);
+    }
+});
+
+window.addEventListener('beforeunload', function() {
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     if (progressInterval) clearInterval(progressInterval);
 });
 </script>
-{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}

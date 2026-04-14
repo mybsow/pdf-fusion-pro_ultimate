@@ -89,147 +89,153 @@
     </div>
 </div>
 
+{% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
 <script>
-let downloadUrl = null;
-let progressInterval = null;
+    let downloadUrl = null;
+    let progressInterval = null;
 
-function updateStep(step) {
-    const step1 = document.getElementById('step1Content');
-    const step2 = document.getElementById('step2Content');
-    const step3 = document.getElementById('step3Content');
-    
-    if (step1) step1.style.display = step === 1 ? 'block' : 'none';
-    if (step2) step2.style.display = step === 2 ? 'block' : 'none';
-    if (step3) step3.style.display = step === 3 ? 'block' : 'none';
-}
+    function updateStep(step) {
+        const step1 = document.getElementById('step1Content');
+        const step2 = document.getElementById('step2Content');
+        const step3 = document.getElementById('step3Content');
+        
+        if (step1) step1.style.display = step === 1 ? 'block' : 'none';
+        if (step2) step2.style.display = step === 2 ? 'block' : 'none';
+        if (step3) step3.style.display = step === 3 ? 'block' : 'none';
 
-function showError(message) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
-    const step1 = document.getElementById('step1Content');
-    if (step1) step1.prepend(errorDiv);
-    setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
-}
-
-function updateProgress(percent, message) {
-    const progressBar = document.getElementById('conversionProgress');
-    const percentSpan = document.getElementById('progressPercent');
-    const msgSpan = document.getElementById('conversionMessage');
-    const toastBar = document.getElementById('toastProgressBar');
-    const toastPct = document.getElementById('toastPct');
-    const toastMsg = document.getElementById('toastMsg');
-    
-    if (progressBar) progressBar.style.width = percent + '%';
-    if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
-    if (msgSpan) msgSpan.textContent = message;
-    if (toastBar) toastBar.style.width = percent + '%';
-    if (toastPct) toastPct.textContent = Math.round(percent) + '%';
-    if (toastMsg) toastMsg.textContent = message;
-}
-
-function showToast() {
-    const toast = document.getElementById('progressToast');
-    if (toast) toast.style.display = 'block';
-}
-
-function hideToast() {
-    const toast = document.getElementById('progressToast');
-    if (toast) toast.style.display = 'none';
-}
-
-function startConversion() {
-    const fileInput = document.getElementById('wordFile');
-    if (!fileInput || !fileInput.files.length) {
-        showError('Veuillez sélectionner un fichier Word');
-        return;
-    }
-    
-    const file = fileInput.files[0];
-    const ext = file.name.split('.').pop().toLowerCase();
-    if (ext !== 'doc' && ext !== 'docx') {
-        showError('Le fichier doit être au format DOC ou DOCX');
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('page_format', document.getElementById('pageFormat').value);
-    formData.append('orientation', document.querySelector('input[name="orientation"]:checked').value);
-    
-    updateStep(2);
-    showToast();
-    
-    let progress = 0;
-    updateProgress(0, 'Démarrage...');
-    
-    progressInterval = setInterval(function() {
-        if (progress < 95) {
-            progress += Math.random() * 15;
-            progress = Math.min(progress, 95);
-            updateProgress(progress, 'Conversion en cours...');
+        // Synchronisation avec le parent
+        if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+            window.updateStep(step);
         }
-    }, 400);
-    
-    fetch('/conversion/word-en-pdf', {
-        method: 'POST',
-        body: formData
-    })
-    .then(async function(response) {
-        clearInterval(progressInterval);
+    }
+
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        const step1 = document.getElementById('step1Content');
+        if (step1) step1.prepend(errorDiv);
+        setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
+    }
+
+    function updateProgress(percent, message) {
+        const progressBar = document.getElementById('conversionProgress');
+        const percentSpan = document.getElementById('progressPercent');
+        const msgSpan = document.getElementById('conversionMessage');
+        const toastBar = document.getElementById('toastProgressBar');
+        const toastPct = document.getElementById('toastPct');
+        const toastMsg = document.getElementById('toastMsg');
         
-        if (!response.ok) throw new Error('Erreur ' + response.status);
-        
-        const blob = await response.blob();
-        if (blob.size === 0) throw new Error('Fichier vide');
-        
-        updateProgress(100, 'Finalisation...');
-        
-        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-        downloadUrl = URL.createObjectURL(blob);
-        
-        const downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.download = file.name.replace(/\.[^/.]+$/, '') + '.pdf';
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
+        if (msgSpan) msgSpan.textContent = message;
+        if (toastBar) toastBar.style.width = percent + '%';
+        if (toastPct) toastPct.textContent = Math.round(percent) + '%';
+        if (toastMsg) toastMsg.textContent = message;
+    }
+
+    function showToast() {
+        const toast = document.getElementById('progressToast');
+        if (toast) toast.style.display = 'block';
+    }
+
+    function hideToast() {
+        const toast = document.getElementById('progressToast');
+        if (toast) toast.style.display = 'none';
+    }
+
+    function startConversion() {
+        const fileInput = document.getElementById('wordFile');
+        if (!fileInput || !fileInput.files.length) {
+            showError('Veuillez sélectionner un fichier Word');
+            return;
         }
         
-        updateStep(3);
-        hideToast();
-        if (downloadLink) downloadLink.click();
-    })
-    .catch(function(error) {
-        console.error('Erreur:', error);
-        clearInterval(progressInterval);
-        hideToast();
-        updateStep(1);
-        showError('Erreur: ' + error.message);
-    });
-}
-
-function resetConversion() {
-    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-    if (progressInterval) clearInterval(progressInterval);
-    const fileInput = document.getElementById('wordFile');
-    if (fileInput) fileInput.value = '';
-    updateStep(1);
-    hideToast();
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const convertBtn = document.getElementById('convertBtn');
-    if (convertBtn) {
-        convertBtn.addEventListener('click', startConversion);
-    }
-    
-    const fileInput = document.getElementById('wordFile');
-    if (fileInput) {
-        fileInput.addEventListener('change', function(e) {
-            console.log('Fichier sélectionné:', e.target.files[0]?.name);
+        const file = fileInput.files[0];
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (ext !== 'doc' && ext !== 'docx') {
+            showError('Le fichier doit être au format DOC ou DOCX');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('page_format', document.getElementById('pageFormat').value);
+        formData.append('orientation', document.querySelector('input[name="orientation"]:checked').value);
+        
+        updateStep(2);
+        showToast();
+        
+        let progress = 0;
+        updateProgress(0, 'Démarrage...');
+        
+        progressInterval = setInterval(function() {
+            if (progress < 95) {
+                progress += Math.random() * 15;
+                progress = Math.min(progress, 95);
+                updateProgress(progress, 'Conversion en cours...');
+            }
+        }, 400);
+        
+        fetch('/conversion/word-en-pdf', {
+            method: 'POST',
+            body: formData
+        })
+        .then(async function(response) {
+            clearInterval(progressInterval);
+            if (!response.ok) throw new Error('Erreur ' + response.status);
+            const blob = await response.blob();
+            if (blob.size === 0) throw new Error('Fichier vide');
+            
+            updateProgress(100, 'Finalisation...');
+            
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
+            
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.download = file.name.replace(/\.[^/.]+$/, '') + '.pdf';
+            }
+            
+            updateStep(3);
+            hideToast();
+            if (downloadLink) downloadLink.click();
+        })
+        .catch(function(error) {
+            console.error('Erreur:', error);
+            clearInterval(progressInterval);
+            hideToast();
+            updateStep(1);
+            showError('Erreur: ' + error.message);
         });
     }
-});
-</script>
 
-{% block cloud_buttons %}{{ super() }}{% endblock %}
+    function resetConversion() {
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        if (progressInterval) clearInterval(progressInterval);
+        const fileInput = document.getElementById('wordFile');
+        if (fileInput) fileInput.value = '';
+        updateStep(1);
+        hideToast();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', startConversion);
+        }
+        
+        const fileInput = document.getElementById('wordFile');
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                console.log('Fichier sélectionné:', e.target.files[0]?.name);
+            });
+        }
+    });
+</script>
 {% endblock %}

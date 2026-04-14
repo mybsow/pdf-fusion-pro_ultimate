@@ -120,149 +120,162 @@
     </div>
 </div>
 
+{% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
 <script>
-let downloadUrl = null;
+    let downloadUrl = null;
 
-function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
-}
+    function updateStep(step) {
+        const s1 = document.getElementById('step1Content');
+        const s2 = document.getElementById('step2Content');
+        const s3 = document.getElementById('step3Content');
+        if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+        if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+        if (s3) s3.style.display = step === 3 ? 'block' : 'none';
 
-function showError(message) {
-    let errorDiv = document.getElementById('conversionError');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'conversionError';
-        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = `
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <span id="conversionErrorMsg"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.getElementById('step1Content').prepend(errorDiv);
-    }
-    document.getElementById('conversionErrorMsg').textContent = message;
-    errorDiv.style.display = 'block';
-}
-
-function startConversion() {
-    const uploadManager = window.uploadManagers?.['imageUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('{{ _("Veuillez sélectionner au moins une image") }}');
-        return;
+        // Synchronisation avec le parent
+        if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+            window.updateStep(step);
+        }
     }
 
-    const formData = new FormData();
-    uploadManager.getFiles().forEach(file => {
-        formData.append('files', file);
-    });
+    function showError(message) {
+        let errorDiv = document.getElementById('conversionError');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'conversionError';
+            errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            errorDiv.innerHTML = `
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span id="conversionErrorMsg"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            const s1 = document.getElementById('step1Content');
+            if (s1) s1.prepend(errorDiv);
+        }
+        const msgSpan = document.getElementById('conversionErrorMsg');
+        if (msgSpan) msgSpan.textContent = message;
+        errorDiv.style.display = 'block';
+    }
 
-    formData.append('orientation', document.getElementById('orientation').value);
-    formData.append('quality', document.getElementById('quality').value);
-    formData.append('pageSize', document.getElementById('pageSize').value);
-    formData.append('merge', document.getElementById('mergeFiles').checked ? 'true' : 'false');
+    function startConversion() {
+        const uploadManager = window.uploadManagers?.['imageUploadZone'];
+        if (!uploadManager || uploadManager.getFiles().length === 0) {
+            showError('{{ _("Veuillez sélectionner au moins une image") }}');
+            return;
+        }
 
-    updateStep(2);
+        const formData = new FormData();
+        uploadManager.getFiles().forEach(file => {
+            formData.append('files', file);
+        });
 
-    const totalFiles = uploadManager.getFiles().length;
-    const progressBar = document.getElementById('progressBar');
-    const progressStatus = document.getElementById('progressStatus');
+        formData.append('orientation', document.getElementById('orientation').value);
+        formData.append('quality', document.getElementById('quality').value);
+        formData.append('pageSize', document.getElementById('pageSize').value);
+        formData.append('merge', document.getElementById('mergeFiles').checked ? 'true' : 'false');
 
-    // ✅ Progression simulée jusqu'à 90% max
-    let progress = 0;
-    const interval = setInterval(() => {
-        if (progress < 90) {
-            progress += Math.max(3, Math.floor(60 / totalFiles));
-            if (progress > 90) progress = 90;
-            if (progressBar) progressBar.style.width = progress + '%';
-            const processed = Math.floor(progress * totalFiles / 100);
+        updateStep(2);
+
+        const totalFiles = uploadManager.getFiles().length;
+        const progressBar = document.getElementById('progressBar');
+        const progressStatus = document.getElementById('progressStatus');
+
+        let progress = 0;
+        const interval = setInterval(() => {
+            if (progress < 90) {
+                progress += Math.max(3, Math.floor(60 / totalFiles));
+                if (progress > 90) progress = 90;
+                if (progressBar) progressBar.style.width = progress + '%';
+                const processed = Math.floor(progress * totalFiles / 100);
+                if (progressStatus) {
+                    progressStatus.textContent = `{{ _("Traitement de") }} ${processed}/${totalFiles} {{ _("images...") }}`;
+                }
+            }
+        }, 500);
+
+        fetch('{{ url_for("conversion.universal_converter", conversion_type="image-en-pdf") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(async response => {
+            clearInterval(interval);
+            if (progressBar) progressBar.style.width = '100%';
             if (progressStatus) {
-                progressStatus.textContent = `{{ _("Traitement de") }} ${processed}/${totalFiles} {{ _("images...") }}`;
+                progressStatus.textContent = `{{ _("Traitement de") }} ${totalFiles}/${totalFiles} {{ _("images terminé") }}`;
+            }
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Erreur serveur ' + response.status);
+            }
+
+            const contentType = response.headers.get('Content-Type') || '';
+            if (contentType.includes('text/html')) {
+                throw new Error('Le serveur a retourné une erreur. Vérifiez les fichiers.');
+            }
+
+            const blob = await response.blob();
+            if (blob.size === 0) {
+                throw new Error('Fichier téléchargé vide.');
+            }
+
+            downloadUrl = window.URL.createObjectURL(blob);
+
+            const contentDisposition = response.headers.get('Content-Disposition') || '';
+            let filename = 'images.pdf';
+            const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+            if (match && match[1]) {
+                filename = match[1].replace(/['"]/g, '');
+            }
+
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.setAttribute('download', filename);
+            }
+
+            updateStep(3);
+        })
+        .catch(error => {
+            clearInterval(interval);
+            console.error('Erreur conversion:', error);
+            updateStep(1);
+            showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
+        });
+    }
+
+    function resetConversion() {
+        if (downloadUrl) {
+            window.URL.revokeObjectURL(downloadUrl);
+            downloadUrl = null;
+        }
+
+        const uploadManager = window.uploadManagers?.['imageUploadZone'];
+        if (uploadManager) {
+            const files = uploadManager.getFiles();
+            for (let i = files.length - 1; i >= 0; i--) {
+                uploadManager.removeFile(i);
             }
         }
-    }, 500);
 
-    fetch('{{ url_for("conversion.universal_converter", conversion_type="image-en-pdf") }}', {
-        method: 'POST',
-        body: formData
-    })
-    .then(async response => {
-        clearInterval(interval);  // ✅ Stopper la simulation
-        if (progressBar) progressBar.style.width = '100%';
-        if (progressStatus) {
-            progressStatus.textContent = `{{ _("Traitement de") }} ${totalFiles}/${totalFiles} {{ _("images terminé") }}`;
-        }
+        const thumbnails = document.getElementById('imageUploadZoneThumbnails');
+        if (thumbnails) thumbnails.innerHTML = '';
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erreur serveur ' + response.status);
-        }
+        const errorDiv = document.getElementById('conversionError');
+        if (errorDiv) errorDiv.style.display = 'none';
 
-        const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) {
-            throw new Error('Le serveur a retourné une erreur. Vérifiez les fichiers.');
-        }
+        const progressBar = document.getElementById('progressBar');
+        if (progressBar) progressBar.style.width = '0%';
 
-        const blob = await response.blob();
-        if (blob.size === 0) {
-            throw new Error('Fichier téléchargé vide.');
-        }
-
-        downloadUrl = window.URL.createObjectURL(blob);
-
-        const contentDisposition = response.headers.get('Content-Disposition') || '';
-        let filename = 'images.pdf';
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match && match[1]) {
-            filename = match[1].replace(/['"]/g, '');
-        }
-
-        const downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.setAttribute('download', filename);
-        }
-
-        updateStep(3);
-    })
-    .catch(error => {
-        clearInterval(interval);
-        console.error('Erreur conversion:', error);
         updateStep(1);
-        showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
+    }
+
+    window.addEventListener('beforeunload', () => {
+        if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
     });
-}
-
-function resetConversion() {
-    if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-        downloadUrl = null;
-    }
-
-    const uploadManager = window.uploadManagers?.['imageUploadZone'];
-    if (uploadManager) {
-        const files = uploadManager.getFiles();
-        for (let i = files.length - 1; i >= 0; i--) {
-            uploadManager.removeFile(i);
-        }
-    }
-
-    const thumbnails = document.getElementById('imageUploadZoneThumbnails');
-    if (thumbnails) thumbnails.innerHTML = '';
-
-    const errorDiv = document.getElementById('conversionError');
-    if (errorDiv) errorDiv.style.display = 'none';
-
-    const progressBar = document.getElementById('progressBar');
-    if (progressBar) progressBar.style.width = '0%';
-
-    updateStep(1);
-}
-
-window.addEventListener('beforeunload', () => {
-    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
-});
 </script>
-{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}

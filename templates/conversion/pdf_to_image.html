@@ -61,9 +61,9 @@
             <div class="col-md-6">
                 <label for="quality" class="form-label fw-bold">{{ _('Qualité (pour JPG)') }}</label>
                 <select class="form-select" id="quality" disabled>
-                    <option value="high">{{ _('Haute') }} (90-100%)</option>
-                    <option value="medium">{{ _('Moyenne') }} (70-80%)</option>
-                    <option value="low">{{ _('Basse') }} (50-60%)</option>
+                    <option value="high">{{ _('Haute') }} (90-100)</option>
+                    <option value="medium">{{ _('Moyenne') }} (70-80)</option>
+                    <option value="low">{{ _('Basse') }} (50-60)</option>
                 </select>
                 <small class="text-muted">{{ _('Uniquement pour le format JPG') }}</small>
             </div>
@@ -88,7 +88,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn" disabled>
             <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en images') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
@@ -214,14 +214,26 @@
     </div>
 </div>
 
+{% block cloud_buttons %}{{ super() }}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
 <script>
 let downloadUrl = null;
 let progressInterval = null;
 
 function updateStep(step) {
-    document.getElementById('step1Content').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step2Content').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step3Content').style.display = step === 3 ? 'block' : 'none';
+    const s1 = document.getElementById('step1Content');
+    const s2 = document.getElementById('step2Content');
+    const s3 = document.getElementById('step3Content');
+    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+        window.updateStep(step);
+    }
 }
 
 function showError(message) {
@@ -230,21 +242,60 @@ function showError(message) {
         errorDiv = document.createElement('div');
         errorDiv.id = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-        document.getElementById('step1Content').prepend(errorDiv);
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        const s1 = document.getElementById('step1Content');
+        if (s1) s1.prepend(errorDiv);
     }
-    document.getElementById('conversionErrorMsg').textContent = message;
+    const msgSpan = document.getElementById('conversionErrorMsg');
+    if (msgSpan) msgSpan.textContent = message;
     errorDiv.style.display = 'block';
+    setTimeout(function() {
+        if (errorDiv) errorDiv.style.display = 'none';
+    }, 8000);
+}
+
+function updateButtonState() {
+    const manager = window.uploadManagers && window.uploadManagers.pdfImageUploadZone;
+    const convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.disabled = !manager || !manager.files || manager.files.length === 0;
+    }
+}
+
+function bindUploadManager() {
+    const manager = window.uploadManagers && window.uploadManagers.pdfImageUploadZone;
+    if (!manager) {
+        setTimeout(bindUploadManager, 200);
+        return;
+    }
+
+    const originalHandleFiles = manager.handleFiles;
+    if (originalHandleFiles) {
+        manager.handleFiles = function(fileList) {
+            originalHandleFiles.call(this, fileList);
+            updateButtonState();
+        };
+    }
+
+    const originalRemoveFile = manager.removeFile;
+    if (originalRemoveFile) {
+        manager.removeFile = function(index) {
+            originalRemoveFile.call(this, index);
+            updateButtonState();
+        };
+    }
+
+    updateButtonState();
 }
 
 function startConversion() {
-    const uploadManager = window.uploadManagers?.['pdfImageUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
+    const manager = window.uploadManagers && window.uploadManagers.pdfImageUploadZone;
+    if (!manager || !manager.files || manager.files.length === 0) {
         showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
         return;
     }
 
-    const file = uploadManager.getFiles()[0];
+    const file = manager.getFiles()[0];
     const formData = new FormData();
     formData.append('file', file);
     formData.append('format', document.getElementById('imageFormat').value);
@@ -256,7 +307,7 @@ function startConversion() {
     updateStep(2);
 
     const estimatedPages = Math.max(1, Math.floor(file.size / (200 * 1024)));
-    const totalPagesEl = document.getElementById('totalPages');
+    var totalPagesEl = document.getElementById('totalPages');
     if (totalPagesEl) totalPagesEl.textContent = estimatedPages;
 
     const format = document.getElementById('imageFormat').value;
@@ -266,19 +317,21 @@ function startConversion() {
     let currentPage = 0;
     const progressBar = document.getElementById('conversionProgress');
 
-    progressInterval = setInterval(() => {
+    progressInterval = setInterval(function() {
         if (currentPage < estimatedPages) {
             currentPage++;
-            const percent = Math.min(Math.floor((currentPage / estimatedPages) * 90), 90);
+            var percent = Math.min(Math.floor((currentPage / estimatedPages) * 90), 90);
             if (progressBar) progressBar.style.width = percent + '%';
-            const msgEl = document.getElementById('conversionMessage');
-            const detailEl = document.getElementById('conversionDetails');
-            const convertedEl = document.getElementById('convertedPages');
-            const sizeEl = document.getElementById('estimatedSize');
+            
+            var msgEl = document.getElementById('conversionMessage');
+            var detailEl = document.getElementById('conversionDetails');
+            var convertedEl = document.getElementById('convertedPages');
+            var sizeEl = document.getElementById('estimatedSize');
+            
             if (convertedEl) convertedEl.textContent = currentPage;
             if (sizeEl) sizeEl.textContent = (currentPage * sizePerPage).toFixed(1) + ' MB';
-            if (msgEl) msgEl.textContent = `{{ _("Conversion de la page") }} ${currentPage}/${estimatedPages}`;
-            if (detailEl) detailEl.innerHTML = `<i class="fas fa-image me-1"></i> {{ _("Page") }} ${currentPage} {{ _("convertie en") }} ${format.toUpperCase()}`;
+            if (msgEl) msgEl.textContent = '{{ _("Conversion de la page") }} ' + currentPage + '/' + estimatedPages;
+            if (detailEl) detailEl.innerHTML = '<i class="fas fa-image me-1"></i> {{ _("Page") }} ' + currentPage + ' {{ _("convertie en") }} ' + format.toUpperCase();
         } else {
             clearInterval(progressInterval);
         }
@@ -288,25 +341,21 @@ function startConversion() {
         method: 'POST',
         body: formData
     })
-    .then(async response => {
+    .then(function(response) {
         clearInterval(progressInterval);
         if (progressBar) progressBar.style.width = '100%';
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erreur serveur ' + response.status);
-        }
-        const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
-
-        const blob = await response.blob();
+        return response.blob();
+    })
+    .then(function(blob) {
         if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
 
-        downloadUrl = window.URL.createObjectURL(blob);
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        downloadUrl = URL.createObjectURL(blob);
+
         const contentDisposition = response.headers.get('Content-Disposition') || '';
         let filename = file.name.replace(/\.pdf$/i, '') + '_images.zip';
         const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
+        if (match && match[1]) filename = match[1].replace(/['"]/g, '');
 
         const downloadLink = document.getElementById('downloadLink');
         if (downloadLink) {
@@ -315,10 +364,20 @@ function startConversion() {
         }
 
         simulatePreview(estimatedPages);
-        simulateFinalStats(estimatedPages);
+        
+        var finalPages = document.getElementById('finalPages');
+        var finalFormat = document.getElementById('finalFormat');
+        var finalDpi = document.getElementById('finalDpi');
+        var finalTotalSize = document.getElementById('finalTotalSize');
+        
+        if (finalPages) finalPages.textContent = estimatedPages;
+        if (finalFormat) finalFormat.textContent = format.toUpperCase();
+        if (finalDpi) finalDpi.textContent = dpi + ' DPI';
+        if (finalTotalSize) finalTotalSize.textContent = (estimatedPages * sizePerPage).toFixed(1) + ' MB';
+
         updateStep(3);
     })
-    .catch(error => {
+    .catch(function(error) {
         clearInterval(progressInterval);
         updateStep(1);
         showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
@@ -326,74 +385,56 @@ function startConversion() {
 }
 
 function simulatePreview(totalPages) {
-    const preview = document.getElementById('imagePreview');
+    var preview = document.getElementById('imagePreview');
     if (!preview) return;
     preview.innerHTML = '';
-    const pagesToShow = Math.min(totalPages, 6);
-    for (let i = 1; i <= pagesToShow; i++) {
-        const col = document.createElement('div');
+    var pagesToShow = Math.min(totalPages, 6);
+    for (var i = 1; i <= pagesToShow; i++) {
+        var col = document.createElement('div');
         col.className = 'col-6 col-md-4 col-lg-2';
-        col.innerHTML = `<div class="card border-0 shadow-sm"><div class="card-body text-center p-2"><div class="bg-light rounded p-3 mb-2" style="height:100px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-file-image fa-3x text-secondary"></i></div><small class="text-muted">{{ _('Page') }} ${i}</small></div></div>`;
+        col.innerHTML = '<div class="card border-0 shadow-sm"><div class="card-body text-center p-2"><div class="bg-light rounded p-3 mb-2" style="height:100px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-file-image fa-3x text-secondary"></i></div><small class="text-muted">{{ _("Page") }} ' + i + '</small></div></div>';
         preview.appendChild(col);
     }
 }
 
-function simulateFinalStats(totalPages) {
-    const format = document.getElementById('imageFormat').value.toUpperCase();
-    const dpi = document.getElementById('dpi').value;
-    const quality = document.getElementById('quality').value;
-    const dpiNum = parseInt(dpi);
-    const sizePerPage = (dpiNum * dpiNum * 3) / (1024 * 1024) * (quality === 'high' ? 1.5 : quality === 'low' ? 0.7 : 1);
-    const el = id => document.getElementById(id);
-    if (el('finalPages')) el('finalPages').textContent = totalPages;
-    if (el('finalFormat')) el('finalFormat').textContent = format;
-    if (el('finalDpi')) el('finalDpi').textContent = dpi + ' DPI';
-    if (el('finalTotalSize')) el('finalTotalSize').textContent = (totalPages * sizePerPage).toFixed(1) + ' MB';
-}
-
 function resetConversion() {
-    if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
     if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
 
-    const uploadManager = window.uploadManagers?.['pdfImageUploadZone'];
-    if (uploadManager) {
-        const files = uploadManager.getFiles();
-        for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
+    const manager = window.uploadManagers && window.uploadManagers.pdfImageUploadZone;
+    if (manager && manager.removeFile) {
+        var files = manager.getFiles();
+        for (var i = files.length - 1; i >= 0; i--) manager.removeFile(i);
     }
 
-    const errorDiv = document.getElementById('conversionError');
+    var errorDiv = document.getElementById('conversionError');
     if (errorDiv) errorDiv.style.display = 'none';
-    const progressBar = document.getElementById('conversionProgress');
+    var progressBar = document.getElementById('conversionProgress');
     if (progressBar) progressBar.style.width = '0%';
 
     updateStep(1);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const formatSelect = document.getElementById('imageFormat');
-    const qualitySelect = document.getElementById('quality');
-    if (formatSelect) formatSelect.addEventListener('change', function() {
-        if (qualitySelect) qualitySelect.disabled = this.value !== 'jpg';
-    });
-
-    const tryBind = (attempt = 0) => {
-        const um = window.uploadManagers?.['pdfImageUploadZone'];
-        if (um) {
-            const origHandle = um.handleFiles.bind(um);
-            um.handleFiles = function(fl) { origHandle(fl); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
-            const origRemove = um.removeFile.bind(um);
-            um.removeFile = function(i) { origRemove(i); document.getElementById('convertBtn').disabled = this.getFiles().length === 0; };
-        } else if (attempt < 10) {
-            setTimeout(() => tryBind(attempt + 1), 300);
-        }
-    };
-    tryBind();
+    var formatSelect = document.getElementById('imageFormat');
+    var qualitySelect = document.getElementById('quality');
+    if (formatSelect && qualitySelect) {
+        formatSelect.addEventListener('change', function() {
+            qualitySelect.disabled = this.value !== 'jpg';
+        });
+    }
+    
+    bindUploadManager();
+    
+    var convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        convertBtn.addEventListener('click', startConversion);
+    }
 });
 
-window.addEventListener('beforeunload', () => {
-    if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+window.addEventListener('beforeunload', function() {
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     if (progressInterval) clearInterval(progressInterval);
 });
 </script>
-{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}
