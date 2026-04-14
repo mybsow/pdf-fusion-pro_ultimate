@@ -13,16 +13,19 @@ import os
 import logging
 from pathlib import Path
 from flask_babel import Babel
-from config import AppConfig   # ajustez l'import selon votre structure
 
 
 os.environ['OMP_THREAD_LIMIT'] = '1'  # Limite les threads d'OCR
+# ↓ Limite OpenBLAS (utilisé par numpy/sklearn) — évite les threads cachés
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
+os.environ['MKL_NUM_THREADS'] = '1'
+os.environ['NUMEXPR_NUM_THREADS'] = '1'
 
 # ============================================================
 # Logging — configuré en premier
 # ============================================================
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.WARNING,
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
 logger = logging.getLogger(__name__)
@@ -30,51 +33,55 @@ logger = logging.getLogger(__name__)
 # ============================================================
 # Variables OCR globales
 # ============================================================
+# ── Imports conditionnels légers (ne pas charger au démarrage si absent) ──
 try:
     import pytesseract
     PYTESSERACT_AVAILABLE = True
 except ImportError:
     PYTESSERACT_AVAILABLE = False
     pytesseract = None
-
-try:
-    import cv2
-    OPENCV_AVAILABLE = True
-    cv2.setNumThreads(0)
-except ImportError:
-    OPENCV_AVAILABLE = False
-
+ 
 try:
     from pdf2image import convert_from_path
     PDF2IMAGE_AVAILABLE = True
 except ImportError:
     PDF2IMAGE_AVAILABLE = False
+ 
+# cv2 : lazy — ne pas importer au démarrage (économise ~30 MB)
+OPENCV_AVAILABLE = None   # None = pas encore vérifié
+ 
+def _check_opencv():
+    global OPENCV_AVAILABLE
+    if OPENCV_AVAILABLE is None:
+        try:
+            import cv2
+            cv2.setNumThreads(0)
+            OPENCV_AVAILABLE = True
+        except ImportError:
+            OPENCV_AVAILABLE = False
+    return OPENCV_AVAILABLE
 
-from config import AppConfig
+
 
 # ============================================================
 # Factory — toute la configuration EST dans create_app()
 # ============================================================
 def create_app():
-    logger.info("🚀 Initialisation Flask...")
-
-    app = Flask(__name__)   # ✅ créé ICI, pas au niveau module
-
-    # --------------------------------------------------------
-    # Configuration Flask
-    # --------------------------------------------------------
+    logger.info("Initialisation Flask...")
+    app = Flask(__name__)
+ 
+    # ── Configuration ──────────────────────────────────────────────────────
     app.config.from_object(AppConfig)
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", AppConfig.SECRET_KEY)
     app.config["UPLOAD_FOLDER"] = tempfile.gettempdir()
     app.config["MAX_CONTENT_LENGTH"] = AppConfig.MAX_CONTENT_SIZE
     app.config['PREFERRED_URL_SCHEME'] = 'https'
-    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000
-
-    # ✅ Cookies de session sécurisés (indispensable sur Render HTTPS)
+    # ↓ Cache 1 an pour les statiques (réduit les requêtes sur Render)
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31_536_000
     app.config['SESSION_COOKIE_SECURE'] = True
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-    app.config['PERMANENT_SESSION_LIFETIME'] = 86400 * 30  # 30 jours
+    app.config['PERMANENT_SESSION_LIFETIME'] = 86_400 * 30
 
     # Proxy reverse
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
@@ -185,11 +192,13 @@ def create_app():
         response.headers["X-Frame-Options"] = "SAMEORIGIN"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         if not app.debug:
-            response.headers["Strict-Transport-Security"] = (
-                "max-age=31536000; includeSubDomains"
-            )
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+ 
         if "static" in request.path:
-            response.headers["Cache-Control"] = "public, max-age=31536000"
+            # ↓ Cache agressif pour CSS/JS/images (Render sert depuis CDN Edge)
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        elif request.path in ("/health", "/robots.txt", "/sitemap.xml"):
+            response.headers["Cache-Control"] = "public, max-age=3600"
         return response
 
     # --------------------------------------------------------
@@ -199,14 +208,12 @@ def create_app():
         import shutil, subprocess
         status = {
             "enabled": bool(AppConfig.OCR_ENABLED),
-            "tesseract": None,
-            "poppler": None,
-            "lang_fra": None,
+            "tesseract": None, "poppler": None, "lang_fra": None,
             "python_packages": {
                 "pytesseract": PYTESSERACT_AVAILABLE,
                 "Pillow": False,
                 "pdf2image": PDF2IMAGE_AVAILABLE,
-                "opencv-python": OPENCV_AVAILABLE,
+                "opencv-python": _check_opencv(),  # ← lazy
             },
             "errors": [],
         }
@@ -216,18 +223,13 @@ def create_app():
                 status["python_packages"]["Pillow"] = True
             except ImportError:
                 pass
-
             if not AppConfig.OCR_ENABLED:
                 return status
-
-            paths = [
-                '/usr/bin/tesseract', '/usr/local/bin/tesseract',
-                '/bin/tesseract', shutil.which("tesseract"),
-            ]
+            paths = ['/usr/bin/tesseract', '/usr/local/bin/tesseract', '/bin/tesseract',
+                     shutil.which("tesseract")]
             tesseract_path = next((p for p in paths if p and os.path.exists(p)), None)
             status["tesseract"] = tesseract_path
             status["poppler"] = shutil.which("pdftoppm") or '/usr/bin/pdftoppm'
-
             if tesseract_path and PYTESSERACT_AVAILABLE:
                 pytesseract.pytesseract.tesseract_cmd = tesseract_path
                 version = pytesseract.get_tesseract_version()
@@ -236,13 +238,10 @@ def create_app():
                     langs = pytesseract.get_languages(config='')
                     status["lang_fra"] = "fra" in langs
                 except Exception:
-                    result = subprocess.run(
-                        [tesseract_path, '--list-langs'],
-                        capture_output=True, text=True
-                    )
+                    result = subprocess.run([tesseract_path, '--list-langs'],
+                                            capture_output=True, text=True)
                     if result.returncode == 0:
-                        langs = result.stdout.strip().split('\n')[1:]
-                        status["lang_fra"] = "fra" in langs
+                        status["lang_fra"] = "fra" in result.stdout.strip().split('\n')[1:]
         except Exception as e:
             status["errors"].append(str(e))
         return status

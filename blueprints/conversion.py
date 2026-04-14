@@ -187,11 +187,16 @@ except ImportError:
     HAS_NUMPY = False
 
 # ✅ PyMuPDF (fitz)
-try:
-    import fitz
-    HAS_FITZ = True
-except ImportError:
-    HAS_FITZ = False
+def _import_fitz():
+    """Import fitz (PyMuPDF) uniquement pour redact_pdf / edit_pdf."""
+    global fitz, HAS_FITZ
+    try:
+        import fitz as _fitz
+        fitz = _fitz
+        HAS_FITZ = True
+    except ImportError:
+        HAS_FITZ = False
+    return HAS_FITZ
 
 # ✅ chardet
 try:
@@ -201,12 +206,15 @@ except ImportError:
     HAS_CHARDET = False
 
 # ✅ scikit-learn KMeans — requis par detect_columns_from_words()
-try:
-    from sklearn.cluster import KMeans
-    HAS_SKLEARN = True
-except ImportError:
-    HAS_SKLEARN = False
-    logger.warning("[WARN] scikit-learn non installé, détection de colonnes désactivée")
+def _import_sklearn():
+    """Import sklearn uniquement quand detect_columns_from_words() est appelée."""
+    global KMeans, HAS_SKLEARN
+    try:
+        from sklearn.cluster import KMeans
+        HAS_SKLEARN = True
+    except ImportError:
+        HAS_SKLEARN = False
+    return HAS_SKLEARN
 
 # LibreOffice — via subprocess, pas d'import Python
 import subprocess
@@ -236,17 +244,17 @@ conversion_bp = Blueprint(
     url_prefix='/conversion'
 )
 
-@conversion_bp.after_request
-def cleanup_memory(response):
-    """Nettoie la mémoire après chaque requête."""
-    import gc
-    gc.collect()
+#@conversion_bp.after_request
+#def cleanup_memory(response):
+    #"""Nettoie la mémoire après chaque requête."""
+    #import gc
+    #gc.collect()
     
     # Log mémoire (optionnel, pour debug)
-    if hasattr(current_app, 'logger'):
-        current_app.logger.debug(f"Mémoire après requête: {gc.get_count()}")
+    #if hasattr(current_app, 'logger'):
+        #current_app.logger.debug(f"Mémoire après requête: {gc.get_count()}")
     
-    return response
+    #return response
 
 # =========================
 # CHECK DEPENDENCIES
@@ -1371,80 +1379,68 @@ def _get_exif_rotation(img) -> int:
 
 
 def convert_images_to_pdf(files, form_data=None):
-    """
-    Images (JPG/PNG/WEBP/BMP/TIFF/GIF) → PDF.
- 
-    AMÉLIORATIONS :
-    - Correction rotation EXIF sécurisée (ne crashe plus sur PNG/WEBP)
-    - Compression JPEG adaptative selon qualité choisie
-    - Support GIF animé (première frame)
-    - Marges configurables
-    - Watermark optionnel
-    """
     files, error = normalize_files_input(files, max_files=30)
     if error: return error
     if not HAS_PILLOW or not HAS_REPORTLAB:
         return {"error": "Pillow ou reportlab non installé"}
  
     form_data   = form_data or {}
-    page_size   = form_data.get("pageSize","A4")
-    orientation = form_data.get("orientation","portrait")
-    quality_opt = form_data.get("quality","medium")
-    margin_mm   = float(form_data.get("margin","5"))
-    fit_mode    = form_data.get("fit","contain")  # contain | cover | original
+    page_size   = form_data.get("pageSize", "A4")
+    orientation = form_data.get("orientation", "portrait")
+    quality_opt = form_data.get("quality", "medium")
+    margin_mm   = float(form_data.get("margin", "5"))
+    fit_mode    = form_data.get("fit", "contain")
  
     pagesize = A4 if page_size == "A4" else letter
     if orientation == "landscape":
         pagesize = (pagesize[1], pagesize[0])
     pw, ph = pagesize
-    margin = margin_mm * (72/25.4)   # mm → points
-    quality = {"high":95,"medium":82,"low":60}.get(quality_opt, 82)
+    margin  = margin_mm * (72 / 25.4)
+    quality = {"high": 95, "medium": 82, "low": 60}.get(quality_opt, 82)
  
-    allowed = {".jpg",".jpeg",".png",".webp",".bmp",".tiff",".tif",".gif"}
-    valid = sorted(
+    allowed = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff", ".tif", ".gif"}
+    valid   = sorted(
         [f for f in files if validate_file_extension(f.filename, allowed)],
         key=lambda x: x.filename.lower()
     )
     if not valid:
         return {"error": "Aucune image valide"}
  
-    output = BytesIO()
-    c = canvas.Canvas(output, pagesize=pagesize)
+    output    = BytesIO()
+    c         = canvas.Canvas(output, pagesize=pagesize)
     processed = 0
  
     for f in valid:
+        import gc
         try:
             f.stream.seek(0)
             img = Image.open(f.stream)
             img.load()
-            # GIF → première frame
             if getattr(img, "is_animated", False):
                 img.seek(0); img = img.copy()
-            # Rotation EXIF
             angle = _get_exif_rotation(img)
             if angle:
                 img = img.rotate(angle, expand=True)
             img = _ensure_rgb(img)
  
             iw, ih = img.size
-            max_w = pw - 2*margin
-            max_h = ph - 2*margin
+            max_w  = pw - 2 * margin
+            max_h  = ph - 2 * margin
  
             if fit_mode == "cover":
-                scale = max(max_w/iw, max_h/ih)
-                nw, nh = int(iw*scale), int(ih*scale)
-                # Recadrage centré
-                left = (nw-int(max_w))//2; top = (nh-int(max_h))//2
-                img = img.crop((int(left/scale), int(top/scale),
-                                int((left+max_w)/scale), int((top+max_h)/scale)))
+                scale = max(max_w / iw, max_h / ih)
+                nw, nh = int(iw * scale), int(ih * scale)
+                left  = (nw - int(max_w)) // 2
+                top   = (nh - int(max_h)) // 2
+                img   = img.crop((int(left / scale), int(top / scale),
+                                  int((left + max_w) / scale), int((top + max_h) / scale)))
                 nw, nh = int(max_w), int(max_h)
             elif fit_mode == "original":
-                # Taille native en points (72dpi base)
-                nw = min(iw * 72/96, max_w)
-                nh = min(ih * 72/96, max_h)
-            else:  # contain
-                scale = min(max_w/iw, max_h/ih)
-                nw, nh = iw*scale, ih*scale
+                nw = min(iw * 72 / 96, max_w)
+                nh = min(ih * 72 / 96, max_h)
+            else:
+                scale  = min(max_w / iw, max_h / ih)
+                nw, nh = iw * scale, ih * scale
  
             x = margin + (max_w - nw) / 2
             y = margin + (max_h - nh) / 2
@@ -1455,11 +1451,18 @@ def convert_images_to_pdf(files, form_data=None):
             c.drawImage(ImageReader(buf), x, y, width=nw, height=nh)
             c.showPage()
             processed += 1
+ 
+            # ← Libérer IMMÉDIATEMENT après chaque page dessinée
+            del img
+            del buf
+            gc.collect()
+ 
         except Exception as e:
-            logger.warning(f"Image ignorée {getattr(f,'filename','?')}: {e}")
+            logger.warning(f"Image ignorée {getattr(f, 'filename', '?')}: {e}")
  
     if processed == 0:
         return {"error": "Aucune image traitée"}
+ 
     c.save()
     output.seek(0)
     return send_file(output, mimetype="application/pdf",
@@ -1648,17 +1651,7 @@ Règles :
 # ─────────────────────────────────────────────────────────────────────────────
 # PDF → WORD  (avec Gemini)
 # ─────────────────────────────────────────────────────────────────────────────
-
 def convert_pdf_to_word(file, form_data=None):
-    """
-    PDF → Word (.docx) via Gemini 2.5 Flash.
-
-    Chaque page PDF est convertie en image, envoyée à Gemini qui retourne
-    le contenu structuré (titres, paragraphes, tableaux, listes).
-    Le document Word est ensuite construit à partir de ce JSON.
-
-    Fallback : si Gemini échoue sur une page, pdfplumber/pypdf prend le relais.
-    """
     file, error = normalize_file_input(file)
     if error:
         return error
@@ -1666,498 +1659,330 @@ def convert_pdf_to_word(file, form_data=None):
         return {"error": "python-docx non installé"}
     if not HAS_PDF2IMAGE:
         return {"error": "pdf2image non installé"}
-
+ 
     original = file.filename
     form_data = form_data or {}
     language = form_data.get("language", "fra")
-    dpi = max(150, min(int(form_data.get("dpi", "150")), 300))
+    # ↓ DPI réduit : 150 → 120 (−36 % mémoire par page, qualité suffisante pour OCR)
+    dpi = max(120, min(int(form_data.get("dpi", "120")), 200))
     add_page_breaks = str(form_data.get("add_page_breaks", "true")).lower() == "true"
-
-    logger.info(f"[PDF→Word/Gemini] Démarrage pour : {original}")
-
+ 
     temp_dir = create_temp_directory("pdf2word_gemini_")
-
+ 
     try:
         input_path = secure_save(file, temp_dir)
-
-        # Convertir toutes les pages en images
-        pages_images = convert_from_path(input_path, dpi=dpi)
-        if not pages_images:
-            return {"error": "Aucune page détectée dans le PDF"}
-
-        logger.info(f"[PDF→Word/Gemini] {len(pages_images)} page(s) à traiter")
-
-        # Créer le document Word
+ 
+        # Compter les pages SANS charger les images
+        import pypdf as _pypdf
+        with open(input_path, "rb") as fh:
+            total_pages = len(_pypdf.PdfReader(fh).pages)
+ 
         doc = Document()
-
-        # Style de base
         try:
-            style = doc.styles["Normal"]
-            style.font.name = "Calibri"
-            style.font.size = Pt(11)
+            doc.styles["Normal"].font.name = "Calibri"
+            doc.styles["Normal"].font.size = Pt(11)
         except Exception:
             pass
-
-        # En-tête du document
+ 
         doc.add_heading(Path(original).stem, 0)
         doc.add_paragraph(
             f"Converti le {datetime.now().strftime('%d/%m/%Y %H:%M')} "
-            f"— {len(pages_images)} page(s) — Gemini 2.5 Flash"
+            f"— {total_pages} page(s) — Gemini 2.5 Flash"
         )
         doc.add_paragraph()
-
-        # Traitement page par page
-        for page_num, pil_img in enumerate(pages_images, 1):
-            logger.info(f"[PDF→Word/Gemini] Traitement page {page_num}/{len(pages_images)}")
-
+ 
+        # ← CLEF : traiter UNE page à la fois, libérer immédiatement
+        for page_num in range(1, total_pages + 1):
+            import gc
+ 
+            # Convertir SEULEMENT cette page (first_page/last_page)
+            page_images = convert_from_path(
+                input_path, dpi=dpi,
+                first_page=page_num, last_page=page_num
+            )
+ 
+            if not page_images:
+                continue
+ 
+            pil_img = page_images[0]
+            del page_images  # libérer la liste immédiatement
+ 
             if page_num > 1 and add_page_breaks:
                 doc.add_page_break()
-
             doc.add_heading(f"Page {page_num}", level=1)
-
-            # Appel Gemini
+ 
             gemini_out = _gemini_extract_page_content(_ensure_rgb(pil_img), language)
             content = gemini_out.get("content", [])
-
+ 
+            # Libérer AVANT d'écrire dans le doc (écriture = peu de mémoire)
+            del pil_img
+            del gemini_out
+            gc.collect()
+ 
             if content:
                 for item in content:
                     item_type = item.get("type", "paragraph")
                     text = item.get("text", "").strip()
-
                     if item_type == "heading1" and text:
                         doc.add_heading(text, level=2)
-
                     elif item_type == "heading2" and text:
                         doc.add_heading(text, level=3)
-
                     elif item_type == "paragraph" and text:
                         for line in text.split("\n"):
-                            line = line.strip()
-                            if line:
-                                doc.add_paragraph(line)
-
+                            if line.strip():
+                                doc.add_paragraph(line.strip())
                     elif item_type == "list_item" and text:
                         p = doc.add_paragraph(style="List Bullet")
                         p.add_run(text)
-
                     elif item_type == "table":
                         header = item.get("header", [])
                         rows = item.get("rows", [])
                         if header and rows:
                             try:
                                 num_cols = len(header)
-                                word_table = doc.add_table(
-                                    rows=len(rows) + 1, cols=num_cols
-                                )
+                                word_table = doc.add_table(rows=len(rows) + 1, cols=num_cols)
                                 word_table.style = "Table Grid"
-                                # En-têtes
                                 for ci, col_name in enumerate(header):
                                     cell = word_table.cell(0, ci)
                                     cell.text = str(col_name)
                                     for para in cell.paragraphs:
                                         for run in para.runs:
                                             run.bold = True
-                                # Données
                                 for ri, row_data in enumerate(rows):
                                     for ci, cell_text in enumerate(row_data):
                                         if ci < num_cols:
-                                            word_table.cell(ri + 1, ci).text = str(
-                                                cell_text or ""
-                                            )
+                                            word_table.cell(ri + 1, ci).text = str(cell_text or "")
                                 doc.add_paragraph()
                             except Exception as e:
                                 logger.warning(f"Tableau page {page_num} ignoré: {e}")
-
             else:
-                # Fallback pdfplumber / pypdf si Gemini ne retourne rien
-                logger.info(f"[PDF→Word/Gemini] Fallback texte brut page {page_num}")
+                # Fallback texte brut
                 fallback_text = ""
                 if HAS_PDFPLUMBER:
                     try:
                         with pdfplumber.open(input_path) as pdf:
                             if page_num - 1 < len(pdf.pages):
-                                fallback_text = (
-                                    pdf.pages[page_num - 1].extract_text() or ""
-                                ).strip()
+                                fallback_text = (pdf.pages[page_num - 1].extract_text() or "").strip()
                     except Exception:
                         pass
                 if not fallback_text and HAS_PYPDF:
                     try:
                         reader = pypdf.PdfReader(input_path)
                         if page_num - 1 < len(reader.pages):
-                            fallback_text = (
-                                reader.pages[page_num - 1].extract_text() or ""
-                            ).replace("\x00", "").strip()
+                            fallback_text = (reader.pages[page_num - 1].extract_text() or "").replace("\x00", "").strip()
                     except Exception:
                         pass
-
                 if fallback_text:
-                    doc.add_paragraph("[Extraction de secours — pdfplumber/pypdf]")
                     for line in fallback_text.split("\n"):
                         if line.strip():
                             doc.add_paragraph(line.strip())
                 else:
                     doc.add_paragraph("[Aucun contenu détecté sur cette page]")
 
-            # ✅ NETTOYAGE MÉMOIRE APRÈS CHAQUE PAGE
-            del pil_img
-            del gemini_out
-            import gc
-            gc.collect()
-
-        # ✅ NETTOYAGE MÉMOIRE APRÈS TOUTES LES PAGES
-        del pages_images
-        gc.collect()
-
-
         # Exporter le document
         output = BytesIO()
         doc.save(output)
         output.seek(0)
-
+        del doc
+        import gc; gc.collect()
+ 
         cleanup_temp_directory(temp_dir)
-        logger.info(f"[PDF→Word/Gemini] Document généré ({output.getbuffer().nbytes} octets)")
-
         return send_file(
             output,
             mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             as_attachment=True,
             download_name=Path(original).stem + ".docx",
         )
-
+ 
     except Exception as e:
         cleanup_temp_directory(temp_dir)
-        logger.error(f"[PDF→Word/Gemini] Erreur : {e}\n{traceback.format_exc()}")
+        logger.error(f"[PDF→Word] Erreur : {e}\n{traceback.format_exc()}")
         return {"error": f"Erreur PDF→Word : {e}"}
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PDF → TXT  (avec Gemini)
 # ─────────────────────────────────────────────────────────────────────────────
-
 def convert_pdf_to_txt(file, form_data=None):
-    """
-    PDF → TXT via Gemini 2.5 Flash.
-
-    Chaque page PDF est convertie en image, envoyée à Gemini qui retourne
-    le texte structuré (titres, paragraphes, listes, tableaux en texte).
-    Le fichier TXT final est reconstruit proprement.
-
-    Fallback : pdfplumber/pypdf si Gemini échoue sur une page.
-    """
     file, error = normalize_file_input(file)
     if error:
         return error
     if not HAS_PDF2IMAGE:
         return {"error": "pdf2image non installé"}
-
+ 
     original = file.filename
     form_data = form_data or {}
     language = form_data.get("language", "fra")
     encoding = form_data.get("encoding", "utf-8")
     add_markers = str(form_data.get("addPageMarkers", "true")).lower() == "true"
-    dpi = max(150, min(int(form_data.get("dpi", "200")), 300))
-
-    logger.info(f"[PDF→TXT/Gemini] Démarrage pour : {original}")
-
+    dpi = max(120, min(int(form_data.get("dpi", "120")), 200))  # réduit
+ 
     temp_dir = create_temp_directory("pdf2txt_gemini_")
-
+ 
     try:
         input_path = secure_save(file, temp_dir)
-
-        pages_images = convert_from_path(input_path, dpi=dpi)
-        if not pages_images:
-            return {"error": "Aucune page détectée dans le PDF"}
-
-        logger.info(f"[PDF→TXT/Gemini] {len(pages_images)} page(s) à traiter")
-
+ 
+        import pypdf as _pypdf
+        with open(input_path, "rb") as fh:
+            total_pages = len(_pypdf.PdfReader(fh).pages)
+ 
         lines_out = []
-
-        # En-tête du fichier
         if add_markers:
             lines_out += [
                 "=" * 80,
                 f"DOCUMENT : {original}",
                 f"Date     : {datetime.now().strftime('%d/%m/%Y %H:%M')}",
-                f"Pages    : {len(pages_images)}",
-                f"Moteur   : Gemini 2.5 Flash",
-                "=" * 80,
-                "",
+                f"Pages    : {total_pages}",
+                "=" * 80, "",
             ]
-
-        for page_num, pil_img in enumerate(pages_images, 1):
-            logger.info(f"[PDF→TXT/Gemini] Traitement page {page_num}/{len(pages_images)}")
-
+ 
+        for page_num in range(1, total_pages + 1):
+            import gc
+            page_images = convert_from_path(
+                input_path, dpi=dpi,
+                first_page=page_num, last_page=page_num
+            )
+            if not page_images:
+                continue
+ 
+            pil_img = page_images[0]
+            del page_images
+ 
             if add_markers:
                 lines_out.append(f"\n{'─' * 40}  PAGE {page_num}  {'─' * 40}\n")
-
-            # Appel Gemini
+ 
             gemini_out = _gemini_extract_page_text(_ensure_rgb(pil_img), language)
             sections = gemini_out.get("sections", [])
-
+ 
+            del pil_img
+            del gemini_out
+            gc.collect()
+ 
             if sections:
                 for section in sections:
                     stype = section.get("type", "body")
                     text = section.get("text", "").strip()
                     items = section.get("items", [])
-
                     if stype == "title" and text:
-                        lines_out.append("")
-                        lines_out.append(text.upper())
-                        lines_out.append("-" * min(len(text), 60))
-
+                        lines_out += ["", text.upper(), "-" * min(len(text), 60)]
                     elif stype == "body" and text:
-                        lines_out.append(text)
-                        lines_out.append("")
-
+                        lines_out += [text, ""]
                     elif stype == "list" and items:
-                        for item in items:
-                            if item.strip():
-                                lines_out.append(f"  • {item.strip()}")
+                        lines_out += [f"  • {it.strip()}" for it in items if it.strip()]
                         lines_out.append("")
-
                     elif stype == "table_text" and text:
-                        lines_out.append(text)
-                        lines_out.append("")
-
+                        lines_out += [text, ""]
             else:
-                # Fallback pdfplumber / pypdf
-                logger.info(f"[PDF→TXT/Gemini] Fallback page {page_num}")
                 fallback_text = ""
                 if HAS_PDFPLUMBER:
                     try:
                         with pdfplumber.open(input_path) as pdf:
                             if page_num - 1 < len(pdf.pages):
-                                fallback_text = (
-                                    pdf.pages[page_num - 1].extract_text(
-                                        x_tolerance=3, y_tolerance=3
-                                    ) or ""
-                                ).strip()
+                                fallback_text = (pdf.pages[page_num - 1].extract_text(x_tolerance=3, y_tolerance=3) or "").strip()
                     except Exception:
                         pass
                 if not fallback_text and HAS_PYPDF:
                     try:
                         reader = pypdf.PdfReader(input_path)
                         if page_num - 1 < len(reader.pages):
-                            fallback_text = (
-                                reader.pages[page_num - 1].extract_text() or ""
-                            ).replace("\x00", "").strip()
+                            fallback_text = (reader.pages[page_num - 1].extract_text() or "").replace("\x00", "").strip()
                     except Exception:
                         pass
-
-                if fallback_text:
-                    lines_out.append(fallback_text)
-                else:
-                    lines_out.append("[Aucun texte détecté sur cette page]")
-
+                lines_out.append(fallback_text or "[Aucun texte détecté]")
+ 
             lines_out.append("")
-
-        # Pied de fichier
+ 
         if add_markers:
-            lines_out += [
-                "",
-                "=" * 80,
-                f"FIN DU DOCUMENT — {len(pages_images)} page(s)",
-                "=" * 80,
-            ]
-
+            lines_out += ["", "=" * 80, f"FIN — {total_pages} page(s)", "=" * 80]
+ 
         final = "\n".join(lines_out)
         output = BytesIO(final.encode(encoding, errors="replace"))
         output.seek(0)
-
+        del lines_out
+        import gc; gc.collect()
+ 
         cleanup_temp_directory(temp_dir)
-        logger.info(f"[PDF→TXT/Gemini] Fichier TXT généré")
-
-        return send_file(
-            output,
-            mimetype="text/plain",
-            as_attachment=True,
-            download_name=Path(original).stem + ".txt",
-        )
-
+        return send_file(output, mimetype="text/plain", as_attachment=True,
+                         download_name=Path(original).stem + ".txt")
+ 
     except Exception as e:
         cleanup_temp_directory(temp_dir)
-        logger.error(f"[PDF→TXT/Gemini] Erreur : {e}\n{traceback.format_exc()}")
+        logger.error(f"[PDF→TXT] Erreur : {e}\n{traceback.format_exc()}")
         return {"error": f"Erreur PDF→TXT : {e}"}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PDF → HTML  (avec Gemini)
 # ─────────────────────────────────────────────────────────────────────────────
-
 def convert_pdf_to_html(file, form_data=None):
-    """
-    PDF → HTML sémantique via Gemini 2.5 Flash.
-
-    Chaque page PDF est convertie en image, envoyée à Gemini qui retourne
-    la structure HTML (h1/h2/h3, p, ul, ol, table).
-    Un fichier HTML5 complet et responsive est généré.
-
-    Fallback : extraction texte brut via pdfplumber/pypdf si Gemini échoue.
-    """
     file, error = normalize_file_input(file)
     if error:
         return error
     if not HAS_PDF2IMAGE:
         return {"error": "pdf2image non installé"}
-
+ 
     original = file.filename
     form_data = form_data or {}
     language = form_data.get("language", "fra")
     encoding = form_data.get("encoding", "utf-8")
-    page_size = form_data.get("pageSize", "A4")
-    include_imgs = str(form_data.get("include_images", "false")).lower() == "true"
-    dpi = max(150, min(int(form_data.get("dpi", "200")), 300))
-    img_dpi = max(72, min(int(form_data.get("img_dpi", "120")), 200))
-
-    logger.info(f"[PDF→HTML/Gemini] Démarrage pour : {original}")
-
+    dpi = max(120, min(int(form_data.get("dpi", "120")), 200))
+ 
     temp_dir = create_temp_directory("pdf2html_gemini_")
-
+ 
     try:
         input_path = secure_save(file, temp_dir)
-
-        pages_images = convert_from_path(input_path, dpi=dpi)
-        if not pages_images:
-            return {"error": "Aucune page détectée dans le PDF"}
-
-        logger.info(f"[PDF→HTML/Gemini] {len(pages_images)} page(s) à traiter")
-
-        # Images basse résolution pour intégration base64 (optionnel)
-        pages_img_display = []
-        if include_imgs:
-            pages_img_display = convert_from_path(input_path, dpi=img_dpi)
-
-        # ── CSS responsive ────────────────────────────────────────────────────
+ 
+        import pypdf as _pypdf
+        with open(input_path, "rb") as fh:
+            total_pages = len(_pypdf.PdfReader(fh).pages)
+ 
+        title_escaped = _he(Path(original).stem)
         css = """
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-    font-family: Georgia, 'Times New Roman', serif;
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 30px 20px;
-    color: #1a1a1a;
-    background: #ffffff;
-    line-height: 1.75;
-}
-header {
-    border-bottom: 3px solid #1a3a6b;
-    padding-bottom: 16px;
-    margin-bottom: 30px;
-}
+body { font-family: Georgia, serif; max-width: 960px; margin: 0 auto; padding: 30px 20px; color: #1a1a1a; line-height: 1.75; }
+header { border-bottom: 3px solid #1a3a6b; padding-bottom: 16px; margin-bottom: 30px; }
 header h1 { font-size: 1.9em; color: #1a3a6b; }
-header .meta { font-size: 0.85em; color: #666; margin-top: 6px; }
-.page {
-    margin-bottom: 55px;
-    padding-bottom: 35px;
-    border-bottom: 1px solid #e0e0e0;
-}
-.page-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 18px;
-}
-.page-number {
-    background: #1a3a6b;
-    color: #fff;
-    font-size: 0.78em;
-    font-weight: bold;
-    padding: 3px 10px;
-    border-radius: 12px;
-    white-space: nowrap;
-}
+.page { margin-bottom: 55px; padding-bottom: 35px; border-bottom: 1px solid #e0e0e0; }
+.page-number { background: #1a3a6b; color: #fff; font-size: .78em; font-weight: bold; padding: 3px 10px; border-radius: 12px; }
 h1 { font-size: 1.65em; color: #1a3a6b; margin: 24px 0 12px; }
-h2 { font-size: 1.35em; color: #16213e; margin: 20px 0 10px; }
-h3 { font-size: 1.15em; color: #2c3e50; margin: 16px 0 8px; }
-p  { margin-bottom: 12px; }
+h2 { font-size: 1.35em; margin: 20px 0 10px; }
+p { margin-bottom: 12px; }
 ul, ol { margin: 10px 0 14px 28px; }
-li { margin-bottom: 5px; }
-table {
-    border-collapse: collapse;
-    width: 100%;
-    margin: 18px 0;
-    font-size: 0.92em;
-}
-th {
-    background: #1a3a6b;
-    color: #ffffff;
-    padding: 9px 14px;
-    text-align: left;
-    font-weight: 600;
-}
-td {
-    border: 1px solid #c8d0da;
-    padding: 7px 12px;
-}
+table { border-collapse: collapse; width: 100%; margin: 18px 0; font-size: .92em; }
+th { background: #1a3a6b; color: #fff; padding: 9px 14px; }
+td { border: 1px solid #c8d0da; padding: 7px 12px; }
 tr:nth-child(even) td { background: #f0f4f9; }
-.page-img {
-    max-width: 100%;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin: 16px 0;
-    display: block;
-    box-shadow: 0 2px 6px rgba(0,0,0,.08);
-}
-.fallback-note {
-    color: #b94a48;
-    font-size: 0.82em;
-    font-style: italic;
-    margin-bottom: 8px;
-}
-footer {
-    margin-top: 50px;
-    padding-top: 16px;
-    border-top: 2px solid #1a3a6b;
-    font-size: 0.8em;
-    color: #888;
-    text-align: center;
-}
-@media print {
-    .page { page-break-after: always; }
-    body { padding: 0; max-width: 100%; }
-}
-@media (max-width: 640px) {
-    body { padding: 16px 12px; }
-    table { font-size: 0.78em; }
-}
+footer { margin-top: 50px; border-top: 2px solid #1a3a6b; font-size: .8em; color: #888; text-align: center; }
 """
-
-        title_escaped = _he(Path(original).stem)
         html_parts = [
-            f'<!DOCTYPE html>',
-            f'<html lang="{language}">',
-            f'<head>',
-            f'  <meta charset="{encoding}">',
-            f'  <meta name="viewport" content="width=device-width, initial-scale=1">',
-            f'  <meta name="generator" content="PDF Fusion Pro — Gemini 2.5 Flash">',
-            f'  <title>{title_escaped}</title>',
-            f'  <style>{css}</style>',
-            f'</head>',
-            f'<body>',
-            f'<header>',
-            f'  <h1>{title_escaped}</h1>',
-            f'  <div class="meta">',
-            f'    Converti le {datetime.now().strftime("%d/%m/%Y à %H:%M")} &nbsp;|&nbsp;'
-            f'    {len(pages_images)} page(s) &nbsp;|&nbsp; Gemini 2.5 Flash',
-            f'  </div>',
-            f'</header>',
+            f'<!DOCTYPE html><html lang="{language}"><head>',
+            f'<meta charset="{encoding}"><meta name="viewport" content="width=device-width,initial-scale=1">',
+            f'<title>{title_escaped}</title><style>{css}</style></head><body>',
+            f'<header><h1>{title_escaped}</h1>',
+            f'<div style="font-size:.85em;color:#666">Converti le {datetime.now().strftime("%d/%m/%Y à %H:%M")} · {total_pages} page(s)</div></header>',
         ]
-
-        for page_num, pil_img in enumerate(pages_images, 1):
-            logger.info(f"[PDF→HTML/Gemini] Traitement page {page_num}/{len(pages_images)}")
-
-            html_parts.append(f'<article class="page" id="page-{page_num}">')
-            html_parts.append(
-                f'  <div class="page-header">'
-                f'<span class="page-number">Page {page_num} / {len(pages_images)}</span>'
-                f'</div>'
+ 
+        for page_num in range(1, total_pages + 1):
+            import gc
+            page_images = convert_from_path(
+                input_path, dpi=dpi,
+                first_page=page_num, last_page=page_num
             )
-
-            # Appel Gemini
+            if not page_images:
+                continue
+ 
+            pil_img = page_images[0]
+            del page_images
+ 
+            html_parts.append(f'<article class="page" id="page-{page_num}">')
+            html_parts.append(f'<div style="margin-bottom:18px"><span class="page-number">Page {page_num} / {total_pages}</span></div>')
+ 
             gemini_out = _gemini_extract_page_html(_ensure_rgb(pil_img), language)
             blocks = gemini_out.get("html_blocks", [])
-
+ 
+            del pil_img
+            del gemini_out
+            gc.collect()
+ 
             if blocks:
                 for block in blocks:
                     tag = block.get("tag", "p")
@@ -2165,115 +1990,75 @@ footer {
                     items = block.get("items", [])
                     header = block.get("header", [])
                     rows = block.get("rows", [])
-
+ 
                     if tag in ("h1", "h2", "h3") and content:
-                        html_parts.append(f'  <{tag}>{_he(content)}</{tag}>')
-
+                        html_parts.append(f'<{tag}>{_he(content)}</{tag}>')
                     elif tag == "p" and content:
-                        # Préserve les sauts de ligne internes
-                        safe_content = _he(content).replace("\n", "<br>")
-                        html_parts.append(f'  <p>{safe_content}</p>')
-
+                        html_parts.append(f'<p>{_he(content).replace(chr(10), "<br>")}</p>')
                     elif tag in ("ul", "ol") and items:
-                        html_parts.append(f'  <{tag}>')
+                        html_parts.append(f'<{tag}>')
                         for it in items:
                             if it.strip():
-                                html_parts.append(f'    <li>{_he(it.strip())}</li>')
-                        html_parts.append(f'  </{tag}>')
-
+                                html_parts.append(f'<li>{_he(it.strip())}</li>')
+                        html_parts.append(f'</{tag}>')
                     elif tag == "table" and header:
-                        html_parts.append('  <table>')
-                        html_parts.append('    <thead><tr>')
+                        html_parts.append('<table><thead><tr>')
                         for col in header:
-                            html_parts.append(f'      <th>{_he(str(col))}</th>')
-                        html_parts.append('    </tr></thead>')
+                            html_parts.append(f'<th>{_he(str(col))}</th>')
+                        html_parts.append('</tr></thead>')
                         if rows:
-                            html_parts.append('    <tbody>')
+                            html_parts.append('<tbody>')
                             for row in rows:
-                                html_parts.append('      <tr>')
+                                html_parts.append('<tr>')
                                 for cell in row:
-                                    html_parts.append(f'        <td>{_he(str(cell or ""))}</td>')
-                                html_parts.append('      </tr>')
-                            html_parts.append('    </tbody>')
-                        html_parts.append('  </table>')
-
+                                    html_parts.append(f'<td>{_he(str(cell or ""))}</td>')
+                                html_parts.append('</tr>')
+                            html_parts.append('</tbody>')
+                        html_parts.append('</table>')
             else:
-                # Fallback pdfplumber / pypdf
-                logger.info(f"[PDF→HTML/Gemini] Fallback page {page_num}")
-                html_parts.append('  <p class="fallback-note">[Extraction de secours]</p>')
                 fallback_text = ""
                 if HAS_PDFPLUMBER:
                     try:
                         with pdfplumber.open(input_path) as pdf:
                             if page_num - 1 < len(pdf.pages):
-                                fallback_text = (
-                                    pdf.pages[page_num - 1].extract_text() or ""
-                                ).strip()
+                                fallback_text = (pdf.pages[page_num - 1].extract_text() or "").strip()
                     except Exception:
                         pass
                 if not fallback_text and HAS_PYPDF:
                     try:
                         reader = pypdf.PdfReader(input_path)
                         if page_num - 1 < len(reader.pages):
-                            fallback_text = (
-                                reader.pages[page_num - 1].extract_text() or ""
-                            ).replace("\x00", "").strip()
+                            fallback_text = (reader.pages[page_num - 1].extract_text() or "").replace("\x00", "").strip()
                     except Exception:
                         pass
-
                 if fallback_text:
                     for para in fallback_text.split("\n\n"):
                         if para.strip():
-                            html_parts.append(
-                                f'  <p>{_he(para).replace(chr(10), "<br>")}</p>'
-                            )
+                            html_parts.append(f'<p>{_he(para).replace(chr(10), "<br>")}</p>')
                 else:
-                    html_parts.append("  <p><em>[Aucun contenu détecté]</em></p>")
-
-            # Image de la page intégrée en base64 (optionnel)
-            if include_imgs and page_num - 1 < len(pages_img_display):
-                try:
-                    buf = BytesIO()
-                    pages_img_display[page_num - 1].save(buf, "JPEG", quality=72)
-                    import base64
-                    b64 = base64.b64encode(buf.getvalue()).decode()
-                    html_parts.append(
-                        f'  <img class="page-img"'
-                        f' src="data:image/jpeg;base64,{b64}"'
-                        f' alt="Aperçu page {page_num}">'
-                    )
-                except Exception as e:
-                    logger.warning(f"Image page {page_num} ignorée : {e}")
-
+                    html_parts.append("<p><em>[Aucun contenu détecté]</em></p>")
+ 
             html_parts.append('</article>')
-
-        # Pied de page
+ 
         html_parts += [
-            '<footer>',
-            f'  Généré par <strong>PDF Fusion Pro</strong> &nbsp;·&nbsp; Gemini 2.5 Flash'
-            f' &nbsp;·&nbsp; {datetime.now().strftime("%d/%m/%Y")}',
-            '</footer>',
-            '</body>',
-            '</html>',
+            '<footer>Généré par <strong>PDF Fusion Pro</strong> · Gemini 2.5 Flash</footer>',
+            '</body></html>',
         ]
-
+ 
         html_str = "\n".join(html_parts)
+        del html_parts
         output = BytesIO(html_str.encode(encoding, errors="replace"))
+        del html_str
         output.seek(0)
-
+        import gc; gc.collect()
+ 
         cleanup_temp_directory(temp_dir)
-        logger.info(f"[PDF→HTML/Gemini] Fichier HTML généré")
-
-        return send_file(
-            output,
-            mimetype=f"text/html; charset={encoding}",
-            as_attachment=True,
-            download_name=Path(original).stem + ".html",
-        )
-
+        return send_file(output, mimetype=f"text/html; charset={encoding}",
+                         as_attachment=True, download_name=Path(original).stem + ".html")
+ 
     except Exception as e:
         cleanup_temp_directory(temp_dir)
-        logger.error(f"[PDF→HTML/Gemini] Erreur : {e}\n{traceback.format_exc()}")
+        logger.error(f"[PDF→HTML] Erreur : {e}\n{traceback.format_exc()}")
         return {"error": f"Erreur PDF→HTML : {e}"}
 
 
@@ -2372,98 +2157,79 @@ def get_content_from_gemini(image_input, language="fra"):
 
     return data
 
-def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data: Optional[Dict] = None):
-    """
-    Convertit un PDF en document Excel (.xlsx) en utilisant Gemini 2.5 Flash.
-    """
+def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data=None):
     if not isinstance(original_filename, str):
         original_filename = "document.pdf"
-            
-    logger.info("Démarrage de la conversion PDF vers Excel pour : " + str(original_filename))
-    
-    language = "fra"
-    if form_data and "language" in form_data:
-        language = form_data["language"]
-    
+ 
+    language = (form_data or {}).get("language", "fra")
     temp_dir = None
+ 
     try:
         now = datetime.now()
-        timestamp = now.strftime("%Y%m%d%H%M%S%f")
-        folder_name = "pdf2img_" + timestamp
-        temp_dir = Path("/tmp") / folder_name
-        temp_dir.mkdir(parents=True, exist_ok=True)
-        
+        temp_dir = Path(tempfile.mkdtemp(prefix="pdf2xls_"))
         safe_name = secure_filename(original_filename)
         temp_pdf_path = temp_dir / safe_name
         file_input.save(str(temp_pdf_path))
-        file_input.seek(0)
-
-        images = convert_from_path(str(temp_pdf_path), dpi=200)
+ 
+        import pypdf as _pypdf
+        with open(str(temp_pdf_path), "rb") as fh:
+            total_pages = len(_pypdf.PdfReader(fh).pages)
+ 
         all_extracted_tables = []
-
-        for page_num, img in enumerate(images, 1):
-            logger.info("Traitement de la page " + str(page_num) + " du PDF.")
-            
-            # ✅ CORRECTION : Utiliser get_table_from_gemini au lieu de get_content_from_gemini
+ 
+        for page_num in range(1, total_pages + 1):
+            import gc
+            # Une seule page à la fois
+            imgs = convert_from_path(str(temp_pdf_path), dpi=150,
+                                     first_page=page_num, last_page=page_num)
+            if not imgs:
+                continue
+ 
+            img = imgs[0]
+            del imgs
+ 
             gemini_output = get_table_from_gemini(img, language)
-            
+            del img
+            gc.collect()
+ 
             if gemini_output and "tables" in gemini_output and gemini_output["tables"]:
                 for table in gemini_output["tables"]:
                     all_extracted_tables.append({"page": page_num, "table_data": table})
-            
-            # ✅ FALLBACK : Si pas de tableaux mais du contenu, créer un tableau simple
-            elif gemini_output and "content" in gemini_output and gemini_output["content"]:
-                # Convertir les paragraphes en tableau simple
+            elif gemini_output and "content" in gemini_output:
                 rows = []
                 for item in gemini_output["content"]:
-                    if item.get("type") == "paragraph" and item.get("text"):
-                        rows.append([item["text"]])
-                    elif item.get("type") == "table":
-                        # Si c'est déjà un tableau dans content
+                    if item.get("type") == "table":
                         all_extracted_tables.append({
-                            "page": page_num, 
+                            "page": page_num,
                             "table_data": {
                                 "header": item.get("header", ["Contenu"]),
                                 "rows": item.get("rows", [])
                             }
                         })
-                
+                    elif item.get("type") == "paragraph" and item.get("text"):
+                        rows.append([item["text"]])
                 if rows:
                     all_extracted_tables.append({
                         "page": page_num,
-                        "table_data": {
-                            "header": ["Contenu extrait"],
-                            "rows": rows
-                        }
+                        "table_data": {"header": ["Contenu extrait"], "rows": rows}
                     })
-
+ 
         if not all_extracted_tables:
-            return jsonify({"error": "Aucun contenu n'a pu être extrait du PDF."}), 400
-
-        # Export Excel (reste identique)
+            return jsonify({"error": "Aucun contenu extrait."}), 400
+ 
         output = BytesIO()
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
             workbook = writer.book
             fmt_header = workbook.add_format({
-                "bold": True, 
-                "bg_color": "#2D6A9F", 
-                "font_color": "#FFFFFF",
-                "border": 1, 
-                "text_wrap": True, 
-                "valign": "vcenter", 
-                "align": "center"
+                "bold": True, "bg_color": "#2D6A9F", "font_color": "#FFFFFF",
+                "border": 1, "text_wrap": True, "valign": "vcenter", "align": "center"
             })
-            
             for i, extracted_table in enumerate(all_extracted_tables):
                 page_num = extracted_table["page"]
                 table = extracted_table["table_data"]
-                
-                sheet_name = "P" + str(page_num) + "_T" + str(i+1)
-                sheet_name = sheet_name[:31]
-                
+                sheet_name = f"P{page_num}_T{i+1}"[:31]
                 df = pd.DataFrame(table["rows"], columns=table["header"])
                 df.to_excel(writer, index=False, sheet_name=sheet_name)
-                
                 worksheet = writer.sheets[sheet_name]
                 for col_num, value in enumerate(df.columns.values):
                     worksheet.write(0, col_num, value, fmt_header)
@@ -2471,36 +2237,30 @@ def convert_pdf_to_excel(file_input, original_filename="document.pdf", form_data
                     max_len = max(col_data.map(len).max() if not col_data.empty else 0, len(str(value))) + 2
                     worksheet.set_column(col_num, col_num, min(max_len, 50))
                 worksheet.freeze_panes(1, 0)
-
-            date_str = now.strftime("%Y-%m-%d %H:%M:%S")
-            summary_data = {
+            pd.DataFrame({
                 "Propriété": ["Date", "Modèle", "Fichier", "Pages", "Tableaux"],
-                "Valeur": [date_str, "Gemini 2.5 Flash", original_filename, len(images), len(all_extracted_tables)]
-            }
-            pd.DataFrame(summary_data).to_excel(writer, index=False, sheet_name="Résumé")
-            
+                "Valeur": [now.strftime("%Y-%m-%d %H:%M:%S"), "Gemini 2.5 Flash",
+                           original_filename, total_pages, len(all_extracted_tables)]
+            }).to_excel(writer, index=False, sheet_name="Résumé")
+ 
+        del all_extracted_tables
+        import gc; gc.collect()
         output.seek(0)
-        
-        download_name = "resultat.xlsx"
-        if original_filename:
-            download_name = Path(original_filename).stem[:50] + ".xlsx"  
-
-        # ✅ À la fin, juste avant le return
-        import gc
-        gc.collect()
-        
+        download_name = Path(original_filename).stem[:50] + ".xlsx"
         return send_file(
             output,
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            as_attachment=True,
-            download_name=download_name
+            as_attachment=True, download_name=download_name
         )
+ 
     except Exception as e:
-        logger.error("Erreur PDF vers Excel : " + str(e))
-        return jsonify({"error": "Erreur lors de la conversion : " + str(e)}), 500
+        logger.error(f"PDF→Excel : {e}")
+        return jsonify({"error": str(e)}), 500
     finally:
+        # ← finally GARANTI même si Gemini lève une exception
         if temp_dir and temp_dir.exists():
-            shutil.rmtree(str(temp_dir))
+            import shutil as _sh
+            _sh.rmtree(str(temp_dir), ignore_errors=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -3675,33 +3435,25 @@ def _run_ocr_full(img, ocr_lang: str, config: str, preserve_layout: bool,
 
 
 # ================= FONCTIONS DE POST-TRAITEMENT =================
-
-def detect_columns_from_words(words: List[Dict], max_columns: int = 4) -> Dict[int, List[Dict]]:
+def detect_columns_from_words(words, max_columns=4):
     if not words:
         return {0: []}
-
-    # ✅ Fallback si scikit-learn absent
     if not HAS_SKLEARN:
-        logger.warning("scikit-learn absent, retour colonne unique")
+        _import_sklearn()          # ← lazy load ici seulement
+    if not HAS_SKLEARN:
         return {0: words}
-
+    import numpy as np
     X_coords = np.array([[w["left"]] for w in words])
     k = min(max_columns, len(words))
     if k < 2:
         return {0: words}
-
-    kmeans = KMeans(n_clusters=k, n_init="auto", random_state=42)
+    from sklearn.cluster import KMeans as _KM
+    kmeans = _KM(n_clusters=k, n_init="auto", random_state=42)
     labels = kmeans.fit_predict(X_coords)
-
     columns = {}
     for w, lab in zip(words, labels):
         columns.setdefault(lab, []).append(w)
-
-    sorted_cols = dict(sorted(
-        columns.items(),
-        key=lambda kv: np.mean([w["left"] for w in kv[1]])
-    ))
-    return sorted_cols
+    return dict(sorted(columns.items(), key=lambda kv: sum(w["left"] for w in kv[1]) / len(kv[1])))
 
 def reconstruct_text_from_columns(columns: Dict[int, List[Dict]]) -> str:
     """
