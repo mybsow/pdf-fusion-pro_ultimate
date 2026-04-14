@@ -13,6 +13,7 @@ import os
 import logging
 from pathlib import Path
 from flask_babel import Babel
+from config import AppConfig
 
 
 os.environ['OMP_THREAD_LIMIT'] = '1'  # Limite les threads d'OCR
