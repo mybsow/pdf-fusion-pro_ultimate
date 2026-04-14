@@ -1,4 +1,3 @@
-<!-- pdf_to_word_corrige.html -->
 {% extends "conversion/conversion_base.html" %}
 
 {% block title %}{{ title }}{% endblock %}
@@ -152,7 +151,7 @@
         </p>
         
         <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
-            <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
+            <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>
                 <i class="fas fa-download me-2"></i>{{ _('Télécharger Word') }}
             </a>
             
@@ -226,10 +225,13 @@ function showError(message) {
     const msgSpan = document.getElementById('conversionErrorMsg');
     if (msgSpan) msgSpan.textContent = message;
     errorDiv.style.display = 'block';
+    setTimeout(() => {
+        if (errorDiv) errorDiv.style.display = 'none';
+    }, 5000);
 }
 
 function startConversion() {
-    console.log('=== startConversion appelée ===');
+    console.log('=== startConversion PDF → Word ===');
     
     const fileInput = document.getElementById('pdfFile');
     if (!fileInput) {
@@ -238,16 +240,16 @@ function startConversion() {
     }
     
     if (!fileInput.files || fileInput.files.length === 0) {
-        showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
+        showError('Veuillez sélectionner un fichier PDF');
         return;
     }
     
     const file = fileInput.files[0];
-    console.log('Fichier sélectionné:', file.name, file.size, file.type);
+    console.log('Fichier sélectionné:', file.name, file.size, 'bytes');
     
     // Vérifier que c'est un PDF
     if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-        showError('{{ _("Le fichier doit être un PDF") }}');
+        showError('Le fichier doit être un PDF');
         return;
     }
     
@@ -284,17 +286,17 @@ function startConversion() {
                 imagesSpan.textContent = Math.floor(progress / 10);
             }
             if (conversionMessageSpan) {
-                conversionMessageSpan.textContent = '{{ _("Traitement en cours...") }}';
+                conversionMessageSpan.textContent = 'Traitement en cours...';
             }
             if (conversionDetailsSpan) {
-                conversionDetailsSpan.innerHTML = '<i class="fas fa-cog fa-spin me-1"></i> {{ _("Analyse du document...") }}';
+                conversionDetailsSpan.innerHTML = '<i class="fas fa-cog fa-spin me-1"></i> Analyse du document...';
             }
         }
     }, 500);
     
     console.log('Envoi de la requête POST...');
     
-    fetch('{{ url_for("conversion.universal_converter", conversion_type="pdf-en-word") }}', {
+    fetch('/conversion/pdf-en-word', {
         method: 'POST',
         body: formData
     })
@@ -304,9 +306,8 @@ function startConversion() {
         
         if (progressBar) progressBar.style.width = '100%';
         
-        // Gestion spécifique du quota
         if (response.status === 429) {
-            throw new Error("Quota d'utilisation dépassé. Merci de patienter avant la prochaine conversion.");
+            throw new Error("Quota d'utilisation dépassé. Veuillez patienter.");
         }
         
         if (!response.ok) {
@@ -314,13 +315,16 @@ function startConversion() {
             try {
                 const errorData = await response.json();
                 errorMsg = errorData.error || errorMsg;
-            } catch(e) {}
+            } catch(e) {
+                const errorText = await response.text();
+                errorMsg = errorText || errorMsg;
+            }
             throw new Error(errorMsg);
         }
         
         const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) {
-            throw new Error('Erreur serveur inattendue');
+        if (!contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+            console.warn('Content-Type inattendu:', contentType);
         }
         
         const blob = await response.blob();
@@ -330,12 +334,18 @@ function startConversion() {
             throw new Error('Fichier téléchargé vide');
         }
         
+        if (downloadUrl) {
+            URL.revokeObjectURL(downloadUrl);
+        }
+        
         downloadUrl = URL.createObjectURL(blob);
         const downloadLink = document.getElementById('downloadLink');
         if (downloadLink) {
             downloadLink.href = downloadUrl;
-            const fileName = file.name.replace(/\.pdf$/i, '') + '.docx';
-            downloadLink.setAttribute('download', fileName);
+            downloadLink.download = file.name.replace(/\.pdf$/i, '') + '.docx';
+            
+            // ✅ Téléchargement automatique
+            downloadLink.click();
         }
         
         // Afficher les statistiques finales
@@ -344,7 +354,8 @@ function startConversion() {
         const finalCharsSpan = document.getElementById('finalChars');
         const finalSizeSpan = document.getElementById('finalSize');
         
-        if (finalPagesSpan) finalPagesSpan.textContent = Math.ceil(progress / 10);
+        const pages = Math.ceil(progress / 10);
+        if (finalPagesSpan) finalPagesSpan.textContent = pages;
         if (finalWordsSpan) finalWordsSpan.textContent = Math.floor(progress * 30);
         if (finalCharsSpan) finalCharsSpan.textContent = Math.floor(progress * 150);
         if (finalSizeSpan) finalSizeSpan.textContent = (blob.size / (1024 * 1024)).toFixed(2) + ' MB';
@@ -355,7 +366,7 @@ function startConversion() {
         console.error('Erreur:', error);
         clearInterval(progressInterval);
         updateStep(1);
-        showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
+        showError('Erreur lors de la conversion : ' + error.message);
     });
 }
 
@@ -384,7 +395,6 @@ function resetConversion() {
     updateStep(1);
 }
 
-// Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM chargé - initialisation pdf_to_word');
     
@@ -392,8 +402,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (convertBtn) {
         convertBtn.addEventListener('click', startConversion);
         console.log('Bouton convertBtn configuré');
-    } else {
-        console.error('Bouton convertBtn non trouvé');
+        
+        // Activer le bouton par défaut (pas de fichier nécessaire pour l'instant)
+        convertBtn.disabled = false;
     }
     
     const fileInput = document.getElementById('pdfFile');
@@ -404,7 +415,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Nettoyer l'URL object avant de quitter la page
 window.addEventListener('beforeunload', function() {
     if (downloadUrl) {
         URL.revokeObjectURL(downloadUrl);
