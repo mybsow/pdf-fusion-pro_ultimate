@@ -1,7 +1,41 @@
-// static/js/cloud/upload.js - Version avec message clair
+// static/js/cloud/upload.js - Version compatible Babel
 
 (function() {
     if (window.cloudUpload) return;
+
+    // Fonction de traduction (fallback)
+    const t = (window.i18n && window.i18n.t) || function(key, params = {}) {
+        // Fallback en français - CES CHAÎNES SERONT REMPLACÉES PAR LE BACKEND
+        const fallbacks = {
+            'how_to_use': 'Comment utiliser {service}',
+            'download_file': 'Téléchargez votre fichier',
+            'download_file_desc': 'Depuis {service} vers votre ordinateur',
+            'come_back': 'Revenez sur cette page',
+            'come_back_desc': "L'onglet de {service} s'est ouvert",
+            'use_browse': 'Utilisez le bouton "Parcourir"',
+            'use_browse_desc': 'Pour sélectionner le fichier téléchargé',
+            'understood': "J'ai compris",
+            'cloud_upload_ready': '☁️ Upload cloud prêt - Ouvre les services cloud'
+        };
+        let text = fallbacks[key] || key;
+        Object.keys(params).forEach(p => {
+            text = text.replace(`{${p}}`, params[p]);
+        });
+        return text;
+    };
+
+    // Pour l'extraction Babel - Ces lignes sont ignorées à l'exécution mais lues par Babel
+    const _extract = [
+        t('how_to_use', { service: '' }),
+        t('download_file'),
+        t('download_file_desc', { service: '' }),
+        t('come_back'),
+        t('come_back_desc', { service: '' }),
+        t('use_browse'),
+        t('use_browse_desc'),
+        t('understood'),
+        t('cloud_upload_ready')
+    ];
 
     const CLOUD_SERVICES = [
         { id: 'google', name: 'Google Drive', url: 'https://drive.google.com', icon: 'fab fa-google-drive', color: '#4285F4' },
@@ -16,16 +50,12 @@
         open: function(providerId) {
             const service = CLOUD_SERVICES.find(s => s.id === providerId);
             if (service) {
-                // Ouvrir dans un nouvel onglet
                 window.open(service.url, '_blank');
-                
-                // Afficher un message explicatif
                 this.showInstructions(service.name);
             }
         },
         
         showInstructions: function(serviceName) {
-            // Supprimer l'ancien modal s'il existe
             const oldModal = document.getElementById('cloudInstructionsModal');
             if (oldModal) oldModal.remove();
             
@@ -57,21 +87,21 @@
                     </div>
                     <h4 style="margin-bottom: 15px; text-align: center;">
                         <i class="fas fa-info-circle text-primary me-2"></i>
-                        Comment utiliser ${serviceName}
+                        ${t('how_to_use', { service: serviceName })}
                     </h4>
                     <div style="background: #f0f7ff; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
                         <ol style="margin: 0; padding-left: 20px; color: #2c3e50;">
                             <li style="margin-bottom: 12px;">
-                                <strong>Téléchargez votre fichier</strong><br>
-                                <span style="font-size: 14px; color: #6c757d;">Depuis ${serviceName} vers votre ordinateur</span>
+                                <strong>${t('download_file')}</strong><br>
+                                <span style="font-size: 14px; color: #6c757d;">${t('download_file_desc', { service: serviceName })}</span>
                             </li>
                             <li style="margin-bottom: 12px;">
-                                <strong>Revenez sur cette page</strong><br>
-                                <span style="font-size: 14px; color: #6c757d;">L'onglet de ${serviceName} s'est ouvert</span>
+                                <strong>${t('come_back')}</strong><br>
+                                <span style="font-size: 14px; color: #6c757d;">${t('come_back_desc', { service: serviceName })}</span>
                             </li>
                             <li>
-                                <strong>Utilisez le bouton "Parcourir"</strong><br>
-                                <span style="font-size: 14px; color: #6c757d;">Pour sélectionner le fichier téléchargé</span>
+                                <strong>${t('use_browse')}</strong><br>
+                                <span style="font-size: 14px; color: #6c757d;">${t('use_browse_desc')}</span>
                             </li>
                         </ol>
                     </div>
@@ -86,34 +116,23 @@
                             cursor: pointer;
                             transition: all 0.3s;
                         " onmouseover="this.style.background='#3367d6'" onmouseout="this.style.background='#4285F4'">
-                            J'ai compris
+                            ${t('understood')}
                         </button>
                     </div>
                 </div>
             `;
             
-            // Ajouter les animations
+            // Animations...
             const style = document.createElement('style');
             style.textContent = `
-                @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                @keyframes slideUp {
-                    from { transform: translateY(20px); opacity: 0; }
-                    to { transform: translateY(0); opacity: 1; }
-                }
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
             `;
             document.head.appendChild(style);
-            
             document.body.appendChild(modal);
             
-            // Fermer en cliquant à l'extérieur
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) modal.remove();
-            });
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
             
-            // Fermer avec Escape
             const escHandler = (e) => {
                 if (e.key === 'Escape') {
                     modal.remove();
@@ -128,8 +147,5 @@
         }
     };
 
-    // En bas du fichier, après window.cloudUpload = { ... }
-    console.log('✅ cloudUpload initialisé', Object.keys(window.cloudUpload));
-    
-    console.log('☁️ Cloud upload ready - Ouvre les services cloud');
+    console.log(t('cloud_upload_ready'));
 })();
