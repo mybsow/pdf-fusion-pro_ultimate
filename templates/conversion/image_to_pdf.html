@@ -7,38 +7,31 @@
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-file-image upload-icon" style="color: #e74c3c;"></i>
-        <h3>{{ _('Téléchargez vos images') }}</h3>
-        <p class="text-muted">{{ _('Sélectionnez les images à convertir en PDF') }}</p>
+        <h3>{{ _('Convertissez vos images en PDF') }}</h3>
+        <p class="text-muted">{{ _('Transformez vos images en document PDF') }}</p>
     </div>
 
-    <!-- Zone d'upload avec UploadManager -->
-    <div id="imageUploadZone" 
-         class="upload-zone-pro upload-zone" 
-         data-info-id="fileInfo"
-         data-btn-id="convertBtn"
-         style="cursor: pointer;">
-        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>{{ _('Glissez-déposez vos images ici') }}</h4>
-        <p class="text-muted">{{ _('ou') }}</p>
-        <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.bmp,.gif,.tiff,.webp" multiple style="display: none;">
-        <p class="text-muted small mt-3">
-            <i class="fas fa-info-circle"></i> 
-            {{ _('Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu\'à 50MB par fichier)') }}
-        </p>
+    <div class="mb-4">
+        <label class="form-label fw-bold">{{ _('Sélectionnez vos images') }}</label>
+        
+        <!-- INPUT FILE PERSONNALISÉ -->
+        <div class="custom-file-upload">
+            <input type="file" id="imageFileInput" accept=".jpg,.jpeg,.png,.bmp,.gif,.tiff,.webp" multiple style="display: none;">
+            <button type="button" class="btn btn-outline-primary btn-lg w-100" onclick="document.getElementById('imageFileInput').click()">
+                <i class="fas fa-folder-open me-2"></i>{{ _('Sélectionner des images') }}
+            </button>
+            <div id="imageFileInputName" class="text-muted mt-2 text-center">{{ _('Aucune image sélectionnée') }}</div>
+        </div>
+        
+        <small class="text-muted">{{ _('Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu\'à 50MB par fichier)') }}</small>
     </div>
-
-    <!-- Liste des fichiers avec miniatures -->
-    <div id="fileInfo" class="file-list mt-4"></div>
-    <div id="imageUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
 
     <!-- Options de conversion -->
     <div class="file-info-card mt-4">
-        <h5 class="mb-3">
-            <i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}
-        </h5>
-        <div class="row g-3">
+        <h5 class="mb-4"><i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}</h5>
+        <div class="row g-4">
             <div class="col-md-6">
-                <label for="orientation" class="form-label fw-bold">{{ _('Orientation :') }}</label>
+                <label for="orientation" class="form-label fw-bold">{{ _('Orientation') }}</label>
                 <select class="form-select" id="orientation">
                     <option value="portrait">{{ _('Portrait') }}</option>
                     <option value="landscape">{{ _('Paysage') }}</option>
@@ -46,7 +39,7 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="quality" class="form-label fw-bold">{{ _('Qualité :') }}</label>
+                <label for="quality" class="form-label fw-bold">{{ _('Qualité') }}</label>
                 <select class="form-select" id="quality">
                     <option value="high">{{ _('Haute (fichier plus gros)') }}</option>
                     <option value="medium" selected>{{ _('Moyenne') }}</option>
@@ -54,7 +47,7 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="pageSize" class="form-label fw-bold">{{ _('Format de page :') }}</label>
+                <label for="pageSize" class="form-label fw-bold">{{ _('Format de page') }}</label>
                 <select class="form-select" id="pageSize">
                     <option value="A4">A4</option>
                     <option value="letter">{{ _('Letter') }}</option>
@@ -63,10 +56,10 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <div class="form-check mt-4">
+                <div class="form-check mt-2">
                     <input class="form-check-input" type="checkbox" id="mergeFiles" checked>
                     <label class="form-check-label" for="mergeFiles">
-                        {{ _('Fusionner toutes les images en un seul PDF') }}
+                        <strong>{{ _('Fusionner toutes les images en un seul PDF') }}</strong>
                     </label>
                 </div>
             </div>
@@ -75,7 +68,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn">
             <i class="fas fa-file-pdf me-2"></i>{{ _('Convertir en PDF') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
@@ -87,14 +80,15 @@
 <!-- Étape 2 : Conversion en cours -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="mb-4">
-            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
+        <i class="fas fa-cog fa-spin fa-4x text-primary mb-4"></i>
+        <h3 class="mb-3">{{ _('Conversion en cours...') }}</h3>
+        <div class="progress-container mx-auto" style="max-width: 500px;">
+            <div class="progress bg-light rounded-pill" style="height: 10px;">
+                <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" style="width: 0%;"></div>
+            </div>
         </div>
-        <h3>{{ _('Conversion en cours...') }}</h3>
-        <p class="text-muted">{{ _('Veuillez patienter pendant le traitement de vos images') }}</p>
-        <div class="progress-container">
-            <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
-        </div>
+        <p class="mt-2 text-muted" id="progressPercent">0%</p>
+        <p class="text-muted" id="conversionMessage">{{ _('Analyse des images...') }}</p>
         <p class="text-muted small mt-3" id="progressStatus">
             {{ _('Traitement de 0/{total} images...') }}
         </p>
@@ -104,19 +98,13 @@
 <!-- Étape 3 : Téléchargement -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="success-animation">
-            <i class="fas fa-check"></i>
+        <div class="success-animation bg-success rounded-circle d-inline-flex p-4 mb-4">
+            <i class="fas fa-file-pdf fa-3x text-white"></i>
         </div>
-        <h3>{{ _('Conversion terminée !') }}</h3>
-        <p class="text-muted">{{ _('Votre PDF est prêt à être téléchargé') }}</p>
-        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>{{ _('Télécharger') }}
-        </a>
-        <div class="mt-4">
-            <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>{{ _('Convertir d\'autres images') }}
-            </button>
-        </div>
+        <h3 class="mb-3">{{ _('Conversion réussie !') }}</h3>
+        <p class="text-muted mb-4">{{ _('Votre PDF est prêt au téléchargement') }}</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>{{ _('Télécharger PDF') }}</a>
+        <button class="btn btn-outline-primary btn-lg ms-2" onclick="resetConversion()">{{ _('Nouvelle conversion') }}</button>
     </div>
 </div>
 
@@ -126,50 +114,84 @@
 {% block scripts %}
 {{ super() }}
 <script>
+    // Messages i18n pour JavaScript
+    const i18nMessages = {
+        selectAtLeastOne: "{{ _('Veuillez sélectionner au moins une image') }}",
+        starting: "{{ _('Démarrage...') }}",
+        converting: "{{ _('Conversion en cours...') }}",
+        finalizing: "{{ _('Finalisation...') }}",
+        errorPrefix: "{{ _('Erreur') }}",
+        conversionError: "{{ _('Erreur lors de la conversion :') }}",
+        noFileSelected: "{{ _('Aucune image sélectionnée') }}",
+        processing: "{{ _('Traitement de') }}",
+        images: "{{ _('images...') }}",
+        completed: "{{ _('images terminé') }}"
+    };
+
     let downloadUrl = null;
+    let progressInterval = null;
+    let selectedFiles = [];
 
     function updateStep(step) {
         const s1 = document.getElementById('step1Content');
         const s2 = document.getElementById('step2Content');
         const s3 = document.getElementById('step3Content');
+        
         if (s1) s1.style.display = step === 1 ? 'block' : 'none';
         if (s2) s2.style.display = step === 2 ? 'block' : 'none';
         if (s3) s3.style.display = step === 3 ? 'block' : 'none';
 
-        // Synchronisation avec le parent
         if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
             window.updateStep(step);
         }
     }
 
     function showError(message) {
-        let errorDiv = document.getElementById('conversionError');
-        if (!errorDiv) {
-            errorDiv = document.createElement('div');
-            errorDiv.id = 'conversionError';
-            errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-            errorDiv.innerHTML = `
-                <i class="fas fa-exclamation-circle me-2"></i>
-                <span id="conversionErrorMsg"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            const s1 = document.getElementById('step1Content');
-            if (s1) s1.prepend(errorDiv);
-        }
-        const msgSpan = document.getElementById('conversionErrorMsg');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        const s1 = document.getElementById('step1Content');
+        if (s1) s1.prepend(errorDiv);
+        setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
+    }
+
+    function updateProgress(percent, message) {
+        const progressBar = document.getElementById('conversionProgress');
+        const percentSpan = document.getElementById('progressPercent');
+        const msgSpan = document.getElementById('conversionMessage');
+        
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
         if (msgSpan) msgSpan.textContent = message;
-        errorDiv.style.display = 'block';
+    }
+
+    function updateFileNameDisplay() {
+        const display = document.getElementById('imageFileInputName');
+        if (display) {
+            if (selectedFiles.length > 0) {
+                const names = selectedFiles.map(f => f.name).join(', ');
+                display.textContent = names.length > 50 ? names.substring(0, 47) + '...' : names;
+            } else {
+                display.textContent = i18nMessages.noFileSelected;
+            }
+        }
+    }
+
+    function updateConvertButton() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.disabled = selectedFiles.length === 0;
+        }
     }
 
     function startConversion() {
-        const uploadManager = window.uploadManagers?.['imageUploadZone'];
-        if (!uploadManager || uploadManager.getFiles().length === 0) {
-            showError('{{ _("Veuillez sélectionner au moins une image") }}');
+        if (selectedFiles.length === 0) {
+            showError(i18nMessages.selectAtLeastOne);
             return;
         }
 
         const formData = new FormData();
-        uploadManager.getFiles().forEach(file => {
+        selectedFiles.forEach(file => {
             formData.append('files', file);
         });
 
@@ -180,102 +202,106 @@
 
         updateStep(2);
 
-        const totalFiles = uploadManager.getFiles().length;
-        const progressBar = document.getElementById('progressBar');
-        const progressStatus = document.getElementById('progressStatus');
-
+        const totalFiles = selectedFiles.length;
         let progress = 0;
-        const interval = setInterval(() => {
-            if (progress < 90) {
+        updateProgress(0, i18nMessages.starting);
+        
+        const progressStatus = document.getElementById('progressStatus');
+        if (progressStatus) {
+            progressStatus.textContent = `${i18nMessages.processing} 0/${totalFiles} ${i18nMessages.images}`;
+        }
+
+        progressInterval = setInterval(function() {
+            if (progress < 95) {
                 progress += Math.max(3, Math.floor(60 / totalFiles));
-                if (progress > 90) progress = 90;
-                if (progressBar) progressBar.style.width = progress + '%';
+                progress = Math.min(progress, 95);
+                updateProgress(progress, i18nMessages.converting);
+                
                 const processed = Math.floor(progress * totalFiles / 100);
                 if (progressStatus) {
-                    progressStatus.textContent = `{{ _("Traitement de") }} ${processed}/${totalFiles} {{ _("images...") }}`;
+                    progressStatus.textContent = `${i18nMessages.processing} ${processed}/${totalFiles} ${i18nMessages.images}`;
                 }
             }
-        }, 500);
+        }, 400);
 
         fetch('{{ url_for("conversion.universal_converter", conversion_type="image-en-pdf") }}', {
             method: 'POST',
             body: formData
         })
-        .then(async response => {
-            clearInterval(interval);
-            if (progressBar) progressBar.style.width = '100%';
-            if (progressStatus) {
-                progressStatus.textContent = `{{ _("Traitement de") }} ${totalFiles}/${totalFiles} {{ _("images terminé") }}`;
-            }
-
+        .then(async function(response) {
+            clearInterval(progressInterval);
+            
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(errorText || 'Erreur serveur ' + response.status);
+                throw new Error(errorText || i18nMessages.errorPrefix + ' ' + response.status);
             }
 
-            const contentType = response.headers.get('Content-Type') || '';
-            if (contentType.includes('text/html')) {
-                throw new Error('Le serveur a retourné une erreur. Vérifiez les fichiers.');
+            updateProgress(100, i18nMessages.finalizing);
+            if (progressStatus) {
+                progressStatus.textContent = `${i18nMessages.processing} ${totalFiles}/${totalFiles} ${i18nMessages.completed}`;
             }
 
             const blob = await response.blob();
-            if (blob.size === 0) {
-                throw new Error('Fichier téléchargé vide.');
-            }
+            if (blob.size === 0) throw new Error('Fichier vide');
 
-            downloadUrl = window.URL.createObjectURL(blob);
-
-            const contentDisposition = response.headers.get('Content-Disposition') || '';
-            let filename = 'images.pdf';
-            const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-            if (match && match[1]) {
-                filename = match[1].replace(/['"]/g, '');
-            }
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
 
             const downloadLink = document.getElementById('downloadLink');
             if (downloadLink) {
                 downloadLink.href = downloadUrl;
-                downloadLink.setAttribute('download', filename);
+                downloadLink.download = 'images.pdf';
             }
 
             updateStep(3);
         })
-        .catch(error => {
-            clearInterval(interval);
-            console.error('Erreur conversion:', error);
+        .catch(function(error) {
+            console.error('Erreur:', error);
+            clearInterval(progressInterval);
             updateStep(1);
-            showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
+            showError(i18nMessages.conversionError + ' ' + error.message);
         });
     }
 
     function resetConversion() {
-        if (downloadUrl) {
-            window.URL.revokeObjectURL(downloadUrl);
-            downloadUrl = null;
-        }
-
-        const uploadManager = window.uploadManagers?.['imageUploadZone'];
-        if (uploadManager) {
-            const files = uploadManager.getFiles();
-            for (let i = files.length - 1; i >= 0; i--) {
-                uploadManager.removeFile(i);
-            }
-        }
-
-        const thumbnails = document.getElementById('imageUploadZoneThumbnails');
-        if (thumbnails) thumbnails.innerHTML = '';
-
-        const errorDiv = document.getElementById('conversionError');
-        if (errorDiv) errorDiv.style.display = 'none';
-
-        const progressBar = document.getElementById('progressBar');
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        if (progressInterval) clearInterval(progressInterval);
+        
+        selectedFiles = [];
+        const fileInput = document.getElementById('imageFileInput');
+        if (fileInput) fileInput.value = '';
+        
+        const progressBar = document.getElementById('conversionProgress');
         if (progressBar) progressBar.style.width = '0%';
-
+        
+        updateFileNameDisplay();
+        updateConvertButton();
         updateStep(1);
     }
 
-    window.addEventListener('beforeunload', () => {
-        if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
+    document.addEventListener('DOMContentLoaded', function() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', startConversion);
+        }
+        
+        // Gérer l'input file personnalisé
+        const fileInput = document.getElementById('imageFileInput');
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedFiles = Array.from(e.target.files);
+                updateFileNameDisplay();
+            } else {
+                selectedFiles = [];
+                updateFileNameDisplay();
+            }
+            updateConvertButton();
+        });
+        
+        updateConvertButton();
     });
+
+    window.startConversion = startConversion;
+    window.resetConversion = resetConversion;
 </script>
 {% endblock %}

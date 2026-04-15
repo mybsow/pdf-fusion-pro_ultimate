@@ -21,28 +21,24 @@
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-edit upload-icon" style="color: #3498db;"></i>
-        <h3>{{ _('Téléchargez votre PDF') }}</h3>
+        <h3>{{ _('Éditez votre PDF') }}</h3>
         <p class="text-muted">{{ _('Modifiez, ajoutez du texte ou des images à votre document') }}</p>
     </div>
 
-    <!-- Zone d'upload avec UploadManager -->
-    <div id="pdfUploadZone" 
-         class="upload-zone-pro upload-zone" 
-         data-info-id="fileInfo"
-         data-btn-id="convertBtn"
-         style="cursor: pointer;">
-        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
-        <p class="text-muted">{{ _('ou cliquez pour sélectionner') }}</p>
-        <input type="file" class="file-input" accept=".pdf" style="display: none;">
-        <p class="text-muted small mt-3">
-            <i class="fas fa-info-circle"></i> 
-            {{ _('Formats acceptés : PDF (jusqu\'à 100MB)') }}
-        </p>
+    <div class="mb-4">
+        <label class="form-label fw-bold">{{ _('Sélectionnez votre fichier PDF') }}</label>
+        
+        <!-- INPUT FILE PERSONNALISÉ -->
+        <div class="custom-file-upload">
+            <input type="file" id="pdfFileInput" accept=".pdf" style="display: none;">
+            <button type="button" class="btn btn-outline-primary btn-lg w-100" onclick="document.getElementById('pdfFileInput').click()">
+                <i class="fas fa-folder-open me-2"></i>{{ _('Sélectionner un fichier') }}
+            </button>
+            <div id="pdfFileInputName" class="text-muted mt-2 text-center">{{ _('Aucun fichier sélectionné') }}</div>
+        </div>
+        
+        <small class="text-muted">{{ _('Formats acceptés : PDF (jusqu\'à 100MB)') }}</small>
     </div>
-
-    <!-- Liste des fichiers -->
-    <div id="fileInfo" class="file-list mt-4"></div>
 
     <!-- Onglets d'édition -->
     <div class="file-info-card mt-4">
@@ -129,16 +125,18 @@
             <div class="tab-pane fade" id="image" role="tabpanel" aria-labelledby="image-tab">
                 <h6 class="mb-3">{{ _('Ajouter une image au PDF') }}</h6>
 
-                <div class="upload-zone-pro upload-zone small-zone mb-3" id="imageUploadZone"
-                     data-info-id="imageFileInfo"
-                     style="cursor: pointer;">
-                    <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
-                    <p>{{ _('Glissez-déposez votre image ici') }}</p>
-                    <p class="text-muted small">{{ _('ou cliquez pour sélectionner') }}</p>
-                    <input type="file" class="file-input" accept=".jpg,.jpeg,.png,.gif,.bmp,.webp" style="display: none;">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">{{ _('Sélectionnez votre image') }}</label>
+                    
+                    <!-- INPUT FILE PERSONNALISÉ POUR IMAGE -->
+                    <div class="custom-file-upload">
+                        <input type="file" id="imageFileInput" accept=".jpg,.jpeg,.png,.gif,.bmp,.webp" style="display: none;">
+                        <button type="button" class="btn btn-outline-secondary w-100" onclick="document.getElementById('imageFileInput').click()">
+                            <i class="fas fa-image me-2"></i>{{ _('Sélectionner une image') }}
+                        </button>
+                        <div id="imageFileInputName" class="text-muted small mt-2 text-center">{{ _('Aucune image sélectionnée') }}</div>
+                    </div>
                 </div>
-
-                <div id="imageFileInfo" class="file-list mb-3"></div>
 
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -240,7 +238,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn">
             <i class="fas fa-edit me-2"></i>{{ _('Appliquer les modifications') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
@@ -252,33 +250,28 @@
 <!-- Étape 2 : Conversion en cours -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="mb-4">
-            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
+        <i class="fas fa-cog fa-spin fa-4x text-primary mb-4"></i>
+        <h3 class="mb-3">{{ _('Édition en cours...') }}</h3>
+        <div class="progress-container mx-auto" style="max-width: 500px;">
+            <div class="progress bg-light rounded-pill" style="height: 10px;">
+                <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" style="width: 0%;"></div>
+            </div>
         </div>
-        <h3>{{ _('Édition en cours...') }}</h3>
-        <p class="text-muted">{{ _('Application des modifications au document') }}</p>
-        <div class="progress-container">
-            <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
-        </div>
+        <p class="mt-2 text-muted" id="progressPercent">0%</p>
+        <p class="text-muted" id="conversionMessage">{{ _('Application des modifications...') }}</p>
     </div>
 </div>
 
 <!-- Étape 3 : Téléchargement -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="success-animation">
-            <i class="fas fa-check"></i>
+        <div class="success-animation bg-success rounded-circle d-inline-flex p-4 mb-4">
+            <i class="fas fa-check fa-3x text-white"></i>
         </div>
-        <h3>{{ _('Édition terminée !') }}</h3>
-        <p class="text-muted">{{ _('Votre PDF modifié est prêt à être téléchargé') }}</p>
-        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF modifié') }}
-        </a>
-        <div class="mt-4">
-            <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>{{ _('Éditer un autre PDF') }}
-            </button>
-        </div>
+        <h3 class="mb-3">{{ _('Édition terminée !') }}</h3>
+        <p class="text-muted mb-4">{{ _('Votre PDF modifié est prêt à être téléchargé') }}</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>{{ _('Télécharger le PDF modifié') }}</a>
+        <button class="btn btn-outline-primary btn-lg ms-2" onclick="resetConversion()">{{ _('Éditer un autre PDF') }}</button>
     </div>
 </div>
 
@@ -288,24 +281,33 @@
 {% block scripts %}
 {{ super() }}
 <script>
-    // ── Lecture des chaînes i18n et URLs depuis le DOM (pas de Jinja2 dans le JS) ──
+    // Messages i18n
+    const i18nMessages = {
+        noFileSelected: "{{ _('Aucun fichier sélectionné') }}",
+        noImageSelected: "{{ _('Aucune image sélectionnée') }}",
+        selectPDF: "{{ _('Veuillez sélectionner un fichier PDF') }}",
+        selectImage: "{{ _('Veuillez sélectionner une image') }}",
+        enterText: "{{ _('Veuillez entrer du texte à ajouter') }}",
+        enterPagesToDelete: "{{ _('Veuillez entrer les pages à supprimer') }}",
+        enterPagesToRotate: "{{ _('Veuillez entrer les pages à faire pivoter') }}",
+        starting: "{{ _('Démarrage...') }}",
+        processing: "{{ _('Traitement en cours...') }}",
+        finalizing: "{{ _('Finalisation...') }}",
+        errorEdition: "{{ _('Erreur lors de l\'édition :') }}"
+    };
+
+    // ── Lecture des chaînes i18n depuis le DOM ──
     const _i18n = (function () {
         const el = document.getElementById('js-i18n');
         return {
-            errNoPdf:     el.dataset.errNoPdf,
-            errSystem:    el.dataset.errSystem,
-            errNoText:    el.dataset.errNoText,
-            errNoImage:   el.dataset.errNoImage,
-            errNoDelete:  el.dataset.errNoDelete,
-            errNoRotate:  el.dataset.errNoRotate,
-            errEdition:   el.dataset.errEdition,
-            errServer:    el.dataset.errServer,
             urlConverter: el.dataset.urlConverter
         };
     })();
 
     let downloadUrl = null;
     let progressInterval = null;
+    let selectedPDF = null;
+    let selectedImage = null;
 
     function updateStep(step) {
         const s1 = document.getElementById('step1Content');
@@ -315,7 +317,6 @@
         if (s2) s2.style.display = step === 2 ? 'block' : 'none';
         if (s3) s3.style.display = step === 3 ? 'block' : 'none';
 
-        // Synchronisation avec le parent
         if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
             window.updateStep(step);
         }
@@ -327,18 +328,26 @@
             errorDiv = document.createElement('div');
             errorDiv.id = 'conversionError';
             errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-            errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>'
-                + '<span id="conversionErrorMsg"></span>'
-                + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+            errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
             const s1 = document.getElementById('step1Content');
             if (s1) s1.prepend(errorDiv);
         }
         const msgSpan = document.getElementById('conversionErrorMsg');
         if (msgSpan) msgSpan.textContent = message;
         errorDiv.style.display = 'block';
+        setTimeout(() => { if (errorDiv) errorDiv.style.display = 'none'; }, 5000);
     }
 
-    // ── Listeners DOM sûrs (pas de Jinja2) ──
+    function updateProgress(percent, message) {
+        const progressBar = document.getElementById('conversionProgress');
+        const percentSpan = document.getElementById('progressPercent');
+        const msgSpan = document.getElementById('conversionMessage');
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
+        if (msgSpan) msgSpan.textContent = message;
+    }
+
+    // ── Listeners DOM ──
     document.addEventListener('DOMContentLoaded', function() {
         const imageSizeSelect = document.getElementById('imageSize');
         if (imageSizeSelect) {
@@ -360,55 +369,80 @@
                 if (rot) rot.style.display  = this.value === 'rotate'  ? 'block' : 'none';
             });
         });
+
+        // Gérer l'input PDF
+        const pdfInput = document.getElementById('pdfFileInput');
+        const pdfDisplay = document.getElementById('pdfFileInputName');
+        pdfInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedPDF = e.target.files[0];
+                pdfDisplay.textContent = selectedPDF.name;
+            } else {
+                selectedPDF = null;
+                pdfDisplay.textContent = i18nMessages.noFileSelected;
+            }
+        });
+
+        // Gérer l'input Image
+        const imageInput = document.getElementById('imageFileInput');
+        const imageDisplay = document.getElementById('imageFileInputName');
+        imageInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedImage = e.target.files[0];
+                imageDisplay.textContent = selectedImage.name;
+            } else {
+                selectedImage = null;
+                imageDisplay.textContent = i18nMessages.noImageSelected;
+            }
+        });
+
+        // Bouton Convertir
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', startConversion);
+        }
     });
 
     function startConversion() {
-        if (!window.uploadManagers) {
-            showError(_i18n.errSystem);
-            return;
-        }
-
-        const uploadManager = window.uploadManagers['pdfUploadZone'];
-        if (!uploadManager || uploadManager.getFiles().length === 0) {
-            showError(_i18n.errNoPdf);
+        if (!selectedPDF) {
+            showError(i18nMessages.selectPDF);
             return;
         }
 
         const formData = new FormData();
-        formData.append('file', uploadManager.getFiles()[0]);
+        formData.append('file', selectedPDF);
 
         const activeTabLink = document.querySelector('#editTabs .nav-link.active');
-        const activeTabId   = activeTabLink ? activeTabLink.id : '';
+        const activeTabId = activeTabLink ? activeTabLink.id : '';
 
         if (activeTabId === 'text-tab') {
             const textContent = document.getElementById('textContent').value.trim();
             if (!textContent) {
-                showError(_i18n.errNoText);
+                showError(i18nMessages.enterText);
                 return;
             }
-            formData.append('edit_type',    'add_text');
+            formData.append('edit_type', 'add_text');
             formData.append('text_content', textContent);
-            formData.append('page_number',  document.getElementById('textPage').value);
-            formData.append('position_x',   document.getElementById('textX').value);
-            formData.append('position_y',   document.getElementById('textY').value);
-            formData.append('font_size',    document.getElementById('textSize').value);
-            formData.append('font_color',   document.getElementById('textColor').value);
-            formData.append('font_family',  document.getElementById('textFont').value);
+            formData.append('page_number', document.getElementById('textPage').value);
+            formData.append('position_x', document.getElementById('textX').value);
+            formData.append('position_y', document.getElementById('textY').value);
+            formData.append('font_size', document.getElementById('textSize').value);
+            formData.append('font_color', document.getElementById('textColor').value);
+            formData.append('font_family', document.getElementById('textFont').value);
         }
         else if (activeTabId === 'image-tab') {
-            const imageManager = window.uploadManagers['imageUploadZone'];
-            if (!imageManager || imageManager.getFiles().length === 0) {
-                showError(_i18n.errNoImage);
+            if (!selectedImage) {
+                showError(i18nMessages.selectImage);
                 return;
             }
-            formData.append('edit_type',   'add_image');
-            formData.append('image_file',  imageManager.getFiles()[0]);
+            formData.append('edit_type', 'add_image');
+            formData.append('image_file', selectedImage);
             formData.append('page_number', document.getElementById('imagePage').value);
-            formData.append('position_x',  document.getElementById('imageX').value);
-            formData.append('position_y',  document.getElementById('imageY').value);
-            formData.append('image_size',  document.getElementById('imageSize').value);
+            formData.append('position_x', document.getElementById('imageX').value);
+            formData.append('position_y', document.getElementById('imageY').value);
+            formData.append('image_size', document.getElementById('imageSize').value);
             if (document.getElementById('imageSize').value === 'custom') {
-                formData.append('image_width',  document.getElementById('imageWidth').value);
+                formData.append('image_width', document.getElementById('imageWidth').value);
                 formData.append('image_height', document.getElementById('imageHeight').value);
             }
         }
@@ -420,103 +454,82 @@
             if (pageAction === 'delete') {
                 const pagesToDelete = document.getElementById('pagesToDelete').value.trim();
                 if (!pagesToDelete) {
-                    showError(_i18n.errNoDelete);
+                    showError(i18nMessages.enterPagesToDelete);
                     return;
                 }
                 formData.append('pages_to_delete', pagesToDelete);
             } else if (pageAction === 'rotate') {
                 const pagesToRotate = document.getElementById('rotatePages').value.trim();
                 if (!pagesToRotate) {
-                    showError(_i18n.errNoRotate);
+                    showError(i18nMessages.enterPagesToRotate);
                     return;
                 }
                 formData.append('pages_to_rotate', pagesToRotate);
                 formData.append('rotate_angle', document.getElementById('rotateAngle').value);
             } else if (pageAction === 'reorder') {
-                const order = [];
-                document.querySelectorAll('#pageThumbnails .col-3').forEach(function (el, index) {
-                    order.push(index + 1);
-                });
-                formData.append('page_order', order.join(','));
+                formData.append('page_order', '1-999');
             }
         }
 
         updateStep(2);
+        updateProgress(0, i18nMessages.starting);
 
-        let progress = 0;
-        const progressBar = document.getElementById('progressBar');
         progressInterval = setInterval(function () {
-            if (progress < 90) {
-                progress += 10;
-                if (progressBar) progressBar.style.width = progress + '%';
+            const progressBar = document.getElementById('conversionProgress');
+            const currentWidth = progressBar ? parseInt(progressBar.style.width) || 0 : 0;
+            if (currentWidth < 90) {
+                updateProgress(currentWidth + 5, i18nMessages.processing);
             }
-        }, 500);
+        }, 400);
 
         fetch(_i18n.urlConverter, {
             method: 'POST',
             body: formData
         })
-        .then(function (response) {
+        .then(response => {
             clearInterval(progressInterval);
-            if (progressBar) progressBar.style.width = '100%';
-
-            if (!response.ok) {
-                return response.text().then(function (txt) {
-                    throw new Error(txt || _i18n.errServer + ' ' + response.status);
-                });
-            }
-
-            return response.blob().then(function (blob) {
-                downloadUrl = window.URL.createObjectURL(blob);
-
-                const contentDisposition = response.headers.get('Content-Disposition') || '';
-                let filename = 'edited.pdf';
-                const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-                if (match && match[1]) {
-                    filename = match[1].replace(/['"]/g, '');
-                }
-
-                const downloadLink = document.getElementById('downloadLink');
-                if (downloadLink) {
-                    downloadLink.href = downloadUrl;
-                    downloadLink.setAttribute('download', filename);
-                }
-                updateStep(3);
-            });
+            if (!response.ok) throw new Error('Erreur ' + response.status);
+            return response.blob();
         })
-        .catch(function (error) {
+        .then(blob => {
+            updateProgress(100, i18nMessages.finalizing);
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
+            
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.download = 'edited.pdf';
+            }
+            updateStep(3);
+        })
+        .catch(error => {
             clearInterval(progressInterval);
             updateStep(1);
-            showError(_i18n.errEdition + ' ' + error.message);
+            showError(i18nMessages.errorEdition + ' ' + error.message);
         });
     }
 
     function resetConversion() {
-        if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
+        if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
         if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
 
-        if (window.uploadManagers) {
-            ['pdfUploadZone', 'imageUploadZone'].forEach(function (id) {
-                const manager = window.uploadManagers[id];
-                if (manager) {
-                    const files = manager.getFiles();
-                    for (let i = files.length - 1; i >= 0; i--) manager.removeFile(i);
-                }
-            });
-        }
+        selectedPDF = null;
+        selectedImage = null;
+        
+        document.getElementById('pdfFileInput').value = '';
+        document.getElementById('pdfFileInputName').textContent = i18nMessages.noFileSelected;
+        document.getElementById('imageFileInput').value = '';
+        document.getElementById('imageFileInputName').textContent = i18nMessages.noImageSelected;
+        document.getElementById('textContent').value = '';
 
         const errorDiv = document.getElementById('conversionError');
         if (errorDiv) errorDiv.style.display = 'none';
 
-        const progressBar = document.getElementById('progressBar');
-        if (progressBar) progressBar.style.width = '0%';
-
         updateStep(1);
     }
 
-    window.addEventListener('beforeunload', function () {
-        if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
-        if (progressInterval) clearInterval(progressInterval);
-    });
+    window.startConversion = startConversion;
+    window.resetConversion = resetConversion;
 </script>
 {% endblock %}

@@ -7,38 +7,34 @@
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-file-signature upload-icon" style="color: #9b59b6;"></i>
-        <h3>{{ _('Téléchargez votre document') }}</h3>
+        <h3>{{ _('Créez votre formulaire PDF') }}</h3>
         <p class="text-muted">{{ _('Transformez vos documents en formulaires PDF interactifs') }}</p>
     </div>
 
-    <!-- Zone d'upload avec UploadManager -->
-    <div id="docUploadZone" 
-         class="upload-zone-pro upload-zone" 
-         data-info-id="fileInfo"
-         data-btn-id="convertBtn"
-         style="cursor: pointer;">
-        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>{{ _('Glissez-déposez votre document ici') }}</h4>
-        <p class="text-muted">{{ _('ou') }}</p>
-        <input type="file" class="file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" multiple style="display: none;">
-        <p class="text-muted small mt-3">
-            <i class="fas fa-info-circle"></i> 
-            {{ _('Formats acceptés : PDF, Word, Excel, Images (jusqu\'à 50MB)') }}
-        </p>
+    <div class="mb-4">
+        <label class="form-label fw-bold">{{ _('Sélectionnez votre document') }}</label>
+        
+        <!-- INPUT FILE PERSONNALISÉ -->
+        <div class="custom-file-upload">
+            <input type="file" id="docFileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" style="display: none;">
+            <button type="button" class="btn btn-outline-primary btn-lg w-100" onclick="document.getElementById('docFileInput').click()">
+                <i class="fas fa-folder-open me-2"></i>{{ _('Sélectionner un fichier') }}
+            </button>
+            <div id="docFileInputName" class="text-muted mt-2 text-center">{{ _('Aucun fichier sélectionné') }}</div>
+        </div>
+        
+        <small class="text-muted">{{ _('Formats acceptés : PDF, Word, Excel, Images (jusqu\'à 50MB)') }}</small>
     </div>
-
-    <!-- Liste des fichiers -->
-    <div id="fileInfo" class="file-list mt-4"></div>
 
     <!-- Options du formulaire -->
     <div class="file-info-card mt-4">
-        <h5 class="mb-3">
+        <h5 class="mb-4">
             <i class="fas fa-cog me-2"></i>{{ _('Configuration du formulaire') }}
         </h5>
 
         <!-- Type de formulaire -->
         <div class="mb-4">
-            <label class="form-label fw-bold">{{ _('Type de formulaire :') }}</label>
+            <label class="form-label fw-bold">{{ _('Type de formulaire') }}</label>
             <div class="btn-group w-100" role="group">
                 <input type="radio" class="btn-check" name="formType" id="formInteractive" value="interactive" checked>
                 <label class="btn btn-outline-primary" for="formInteractive">
@@ -54,7 +50,7 @@
 
         <!-- Détection automatique des champs -->
         <div class="mb-4">
-            <label class="form-label fw-bold">{{ _('Détection des champs :') }}</label>
+            <label class="form-label fw-bold">{{ _('Détection des champs') }}</label>
             <div class="row g-3">
                 <div class="col-md-6">
                     <select class="form-select" id="detectFields">
@@ -116,9 +112,9 @@
         </div>
 
         <!-- Options supplémentaires -->
-        <div class="row g-3 mt-3">
+        <div class="row g-4 mt-2">
             <div class="col-md-4">
-                <label for="formLanguage" class="form-label fw-bold">{{ _('Langue du formulaire :') }}</label>
+                <label for="formLanguage" class="form-label fw-bold">{{ _('Langue du formulaire') }}</label>
                 <select class="form-select" id="formLanguage">
                     <option value="fr">{{ _('Français') }}</option>
                     <option value="en">{{ _('Anglais') }}</option>
@@ -128,11 +124,11 @@
                 </select>
             </div>
             <div class="col-md-4">
-                <label for="formColor" class="form-label fw-bold">{{ _('Couleur des champs :') }}</label>
-                <input type="color" class="form-control form-control-color" id="formColor" value="#9b59b6">
+                <label for="formColor" class="form-label fw-bold">{{ _('Couleur des champs') }}</label>
+                <input type="color" class="form-control form-control-color w-100" id="formColor" value="#9b59b6">
             </div>
             <div class="col-md-4">
-                <label for="formBorder" class="form-label fw-bold">{{ _('Style des champs :') }}</label>
+                <label for="formBorder" class="form-label fw-bold">{{ _('Style des champs') }}</label>
                 <select class="form-select" id="formBorder">
                     <option value="underline">{{ _('Souligné') }}</option>
                     <option value="border">{{ _('Encadré') }}</option>
@@ -146,19 +142,21 @@
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="addPlaceholders" checked>
                 <label class="form-check-label" for="addPlaceholders">
-                    {{ _('Ajouter des textes indicatifs (ex: "Nom", "Prénom"...)') }}
+                    <strong>{{ _('Ajouter des textes indicatifs') }}</strong>
+                    <small class="d-block text-muted">{{ _('Ex: "Nom", "Prénom"...') }}</small>
                 </label>
             </div>
-            <div class="form-check">
+            <div class="form-check mt-2">
                 <input class="form-check-input" type="checkbox" id="makeRequired" checked>
                 <label class="form-check-label" for="makeRequired">
-                    {{ _('Marquer les champs obligatoires (avec *)') }}
+                    <strong>{{ _('Marquer les champs obligatoires') }}</strong>
+                    <small class="d-block text-muted">{{ _('Ajoute un astérisque (*) aux champs requis') }}</small>
                 </label>
             </div>
-            <div class="form-check">
+            <div class="form-check mt-2">
                 <input class="form-check-input" type="checkbox" id="addSubmitButton">
                 <label class="form-check-label" for="addSubmitButton">
-                    {{ _('Ajouter un bouton de soumission') }}
+                    <strong>{{ _('Ajouter un bouton de soumission') }}</strong>
                 </label>
             </div>
         </div>
@@ -166,7 +164,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn">
             <i class="fas fa-file-signature me-2"></i>{{ _('Créer le formulaire PDF') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
@@ -178,34 +176,28 @@
 <!-- Étape 2 : Conversion en cours -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="mb-4">
-            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
+        <i class="fas fa-cog fa-spin fa-4x text-primary mb-4"></i>
+        <h3 class="mb-3">{{ _('Création du formulaire...') }}</h3>
+        <div class="progress-container mx-auto" style="max-width: 500px;">
+            <div class="progress bg-light rounded-pill" style="height: 10px;">
+                <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" style="width: 0%; background: #9b59b6;"></div>
+            </div>
         </div>
-        <h3>{{ _('Création du formulaire...') }}</h3>
-        <p class="text-muted">{{ _('Analyse du document et création des champs interactifs') }}</p>
-        <div class="progress-container">
-            <div class="progress-bar" style="width: 0%; background: #9b59b6;" id="progressBar"></div>
-        </div>
-        <p class="text-muted mt-3" id="progressMessage">{{ _('Analyse du document source...') }}</p>
+        <p class="mt-2 text-muted" id="progressPercent">0%</p>
+        <p class="text-muted" id="progressMessage">{{ _('Analyse du document source...') }}</p>
     </div>
 </div>
 
 <!-- Étape 3 : Téléchargement -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="success-animation">
-            <i class="fas fa-check"></i>
+        <div class="success-animation bg-success rounded-circle d-inline-flex p-4 mb-4">
+            <i class="fas fa-file-signature fa-3x text-white"></i>
         </div>
-        <h3>{{ _('Formulaire créé !') }}</h3>
-        <p class="text-muted">{{ _('Votre formulaire PDF interactif est prêt') }}</p>
-        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>{{ _('Télécharger le formulaire') }}
-        </a>
-        <div class="mt-4">
-            <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>{{ _('Créer un autre formulaire') }}
-            </button>
-        </div>
+        <h3 class="mb-3">{{ _('Formulaire créé !') }}</h3>
+        <p class="text-muted mb-4">{{ _('Votre formulaire PDF interactif est prêt') }}</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>{{ _('Télécharger le formulaire') }}</a>
+        <button class="btn btn-outline-primary btn-lg ms-2" onclick="resetConversion()">{{ _('Nouveau formulaire') }}</button>
     </div>
 </div>
 
@@ -215,8 +207,43 @@
 {% block scripts %}
 {{ super() }}
 <script>
+    // Messages i18n pour JavaScript
+    const i18nMessages = {
+        selectFile: "{{ _('Veuillez sélectionner un document') }}",
+        starting: "{{ _('Démarrage...') }}",
+        analyzing: "{{ _('Analyse du document source...') }}",
+        converting: "{{ _('Conversion en PDF...') }}",
+        detecting: "{{ _('Détection des champs...') }}",
+        creating: "{{ _('Création des champs interactifs...') }}",
+        finalizing: "{{ _('Finalisation...') }}",
+        completed: "{{ _('Terminé !') }}",
+        errorPrefix: "{{ _('Erreur') }}",
+        formError: "{{ _('Erreur lors de la création du formulaire :') }}",
+        noFileSelected: "{{ _('Aucun fichier sélectionné') }}",
+        name: "{{ _('Nom complet') }}",
+        firstName: "{{ _('Prénom') }}",
+        address: "{{ _('Adresse') }}",
+        postalCode: "{{ _('Code postal') }}",
+        city: "{{ _('Ville') }}",
+        email: "{{ _('Email') }}",
+        phone: "{{ _('Téléphone') }}",
+        acceptConditions: "{{ _('J\'accepte les conditions') }}",
+        signature: "{{ _('Signature') }}",
+        date: "{{ _('Date') }}"
+    };
+
+    const PROGRESS_MESSAGES = [
+        i18nMessages.analyzing,
+        i18nMessages.converting,
+        i18nMessages.detecting,
+        i18nMessages.creating,
+        '{{ _("Ajout des propriétés du formulaire...") }}',
+        i18nMessages.finalizing
+    ];
+
     let downloadUrl = null;
     let progressInterval = null;
+    let selectedFile = null;
     let detectedFields = [];
 
     function updateStep(step) {
@@ -227,53 +254,74 @@
         if (s2) s2.style.display = step === 2 ? 'block' : 'none';
         if (s3) s3.style.display = step === 3 ? 'block' : 'none';
 
-        // Synchronisation avec le parent
         if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
             window.updateStep(step);
         }
     }
 
     function showError(message) {
-        let errorDiv = document.getElementById('conversionError');
-        if (!errorDiv) {
-            errorDiv = document.createElement('div');
-            errorDiv.id = 'conversionError';
-            errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-            errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-            const s1 = document.getElementById('step1Content');
-            if (s1) s1.prepend(errorDiv);
-        }
-        const msgSpan = document.getElementById('conversionErrorMsg');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        const s1 = document.getElementById('step1Content');
+        if (s1) s1.prepend(errorDiv);
+        setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
+    }
+
+    function updateProgress(percent, message) {
+        const progressBar = document.getElementById('conversionProgress');
+        const percentSpan = document.getElementById('progressPercent');
+        const msgSpan = document.getElementById('progressMessage');
+        
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
         if (msgSpan) msgSpan.textContent = message;
-        errorDiv.style.display = 'block';
+    }
+
+    function updateFileNameDisplay() {
+        const display = document.getElementById('docFileInputName');
+        if (display) {
+            if (selectedFile) {
+                display.textContent = selectedFile.name;
+            } else {
+                display.textContent = i18nMessages.noFileSelected;
+            }
+        }
+    }
+
+    function updateConvertButton() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.disabled = !selectedFile;
+        }
+    }
+
+    function getFieldIcon(type) {
+        const icons = { text: 'font', email: 'envelope', tel: 'phone', checkbox: 'check-square', signature: 'pen', date: 'calendar', number: 'hashtag' };
+        return icons[type] || 'font';
     }
 
     function detectFields() {
-        const uploadManager = window.uploadManagers?.['docUploadZone'];
-        if (!uploadManager || uploadManager.getFiles().length === 0) {
-            showError('{{ _("Veuillez d\'abord télécharger un document") }}');
+        if (!selectedFile) {
+            showError(i18nMessages.selectFile);
             return;
         }
-        const loader = document.getElementById('loaderOverlay');
-        if (loader) loader.style.display = 'flex';
-        setTimeout(() => {
-            detectedFields = [
-                { type: 'text', label: '{{ _("Nom complet") }}', page: 1, required: true },
-                { type: 'text', label: '{{ _("Prénom") }}', page: 1, required: true },
-                { type: 'text', label: '{{ _("Adresse") }}', page: 1, required: false },
-                { type: 'text', label: '{{ _("Code postal") }}', page: 1, required: false },
-                { type: 'text', label: '{{ _("Ville") }}', page: 1, required: false },
-                { type: 'email', label: '{{ _("Email") }}', page: 1, required: true },
-                { type: 'tel', label: '{{ _("Téléphone") }}', page: 1, required: false },
-                { type: 'checkbox', label: '{{ _("J\'accepte les conditions") }}', page: 2, required: true },
-                { type: 'signature', label: '{{ _("Signature") }}', page: 2, required: true },
-                { type: 'date', label: '{{ _("Date") }}', page: 2, required: true }
-            ];
-            updateFieldsTable();
-            const fp = document.getElementById('formPreview');
-            if (fp) fp.style.display = 'block';
-            if (loader) loader.style.display = 'none';
-        }, 2000);
+        
+        detectedFields = [
+            { type: 'text', label: i18nMessages.name, page: 1, required: true },
+            { type: 'text', label: i18nMessages.firstName, page: 1, required: true },
+            { type: 'text', label: i18nMessages.address, page: 1, required: false },
+            { type: 'text', label: i18nMessages.postalCode, page: 1, required: false },
+            { type: 'text', label: i18nMessages.city, page: 1, required: false },
+            { type: 'email', label: i18nMessages.email, page: 1, required: true },
+            { type: 'tel', label: i18nMessages.phone, page: 1, required: false },
+            { type: 'checkbox', label: i18nMessages.acceptConditions, page: 2, required: true },
+            { type: 'signature', label: i18nMessages.signature, page: 2, required: true },
+            { type: 'date', label: i18nMessages.date, page: 2, required: true }
+        ];
+        
+        updateFieldsTable();
+        document.getElementById('formPreview').style.display = 'block';
     }
 
     function updateFieldsTable() {
@@ -287,23 +335,27 @@
         });
     }
 
-    function getFieldIcon(type) {
-        return { text: 'font', email: 'envelope', tel: 'phone', checkbox: 'check-square', signature: 'pen', date: 'calendar', number: 'hashtag' }[type] || 'font';
+    function editField(index) { 
+        alert('{{ _("Édition du champ - À implémenter") }}'); 
+    }
+    
+    function deleteField(index) { 
+        detectedFields.splice(index, 1); 
+        updateFieldsTable(); 
+    }
+    
+    function loadPreview() { 
+        alert('{{ _("Chargement de l\'aperçu - À implémenter avec PDF.js") }}'); 
     }
 
-    function editField(index) { alert('{{ _("Édition du champ - À implémenter") }}'); }
-    function deleteField(index) { detectedFields.splice(index, 1); updateFieldsTable(); }
-    function loadPreview() { alert('{{ _("Chargement de l\'aperçu - À implémenter avec PDF.js") }}'); }
-
     function startConversion() {
-        const uploadManager = window.uploadManagers?.['docUploadZone'];
-        if (!uploadManager || uploadManager.getFiles().length === 0) {
-            showError('{{ _("Veuillez sélectionner un document") }}');
+        if (!selectedFile) {
+            showError(i18nMessages.selectFile);
             return;
         }
 
         const formData = new FormData();
-        formData.append('file', uploadManager.getFiles()[0]);
+        formData.append('file', selectedFile);
         formData.append('form_type', document.querySelector('input[name="formType"]:checked').value);
         formData.append('detect_fields', document.getElementById('detectFields').value);
         formData.append('language', document.getElementById('formLanguage').value);
@@ -317,25 +369,19 @@
         updateStep(2);
 
         let progress = 0;
-        const messages = [
-            '{{ _("Analyse du document source...") }}', '{{ _("Conversion en PDF...") }}',
-            '{{ _("Détection des champs...") }}', '{{ _("Création des champs interactifs...") }}',
-            '{{ _("Ajout des propriétés du formulaire...") }}', '{{ _("Finalisation...") }}'
-        ];
         let msgIndex = 0;
-        const progressBar = document.getElementById('progressBar');
-        const progressMsg = document.getElementById('progressMessage');
+        updateProgress(0, i18nMessages.starting);
 
         progressInterval = setInterval(() => {
-            if (progress < 90) {
-                progress += 2;
-                if (progressBar) progressBar.style.width = progress + '%';
-                if (progress % 16 === 0 && msgIndex < messages.length - 1) {
+            if (progress < 95) {
+                progress += Math.random() * 10;
+                progress = Math.min(progress, 95);
+                updateProgress(progress, PROGRESS_MESSAGES[msgIndex] || i18nMessages.finalizing);
+                if (progress > (msgIndex + 1) * 16 && msgIndex < PROGRESS_MESSAGES.length - 1) {
                     msgIndex++;
-                    if (progressMsg) progressMsg.textContent = messages[msgIndex];
                 }
             }
-        }, 200);
+        }, 300);
 
         fetch('{{ url_for("conversion.universal_converter", conversion_type="prepare-form") }}', {
             method: 'POST',
@@ -343,65 +389,80 @@
         })
         .then(async response => {
             clearInterval(progressInterval);
-            if (progressBar) progressBar.style.width = '100%';
-            if (progressMsg) progressMsg.textContent = '{{ _("Terminé !") }}';
+            updateProgress(100, i18nMessages.completed);
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || 'Erreur serveur ' + response.status);
-            }
-            const contentType = response.headers.get('Content-Type') || '';
-            if (contentType.includes('text/html')) throw new Error('Erreur serveur inattendue.');
+            if (!response.ok) throw new Error(i18nMessages.errorPrefix + ' ' + response.status);
 
             const blob = await response.blob();
-            if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+            if (blob.size === 0) throw new Error('Fichier vide');
 
-            downloadUrl = window.URL.createObjectURL(blob);
-            const contentDisposition = response.headers.get('Content-Disposition') || '';
-            let filename = '{{ _("formulaire.pdf") }}';
-            const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-            if (match?.[1]) filename = match[1].replace(/['"]/g, '');
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
 
             const downloadLink = document.getElementById('downloadLink');
             if (downloadLink) {
                 downloadLink.href = downloadUrl;
-                downloadLink.setAttribute('download', filename);
+                downloadLink.download = 'formulaire.pdf';
             }
+
             updateStep(3);
         })
         .catch(error => {
             clearInterval(progressInterval);
             updateStep(1);
-            showError('{{ _("Erreur lors de la création du formulaire :") }} ' + error.message);
+            showError(i18nMessages.formError + ' ' + error.message);
         });
     }
 
     function resetConversion() {
-        if (downloadUrl) { window.URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
-        if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
-
-        const uploadManager = window.uploadManagers?.['docUploadZone'];
-        if (uploadManager) {
-            const files = uploadManager.getFiles();
-            for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
-        }
-
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        if (progressInterval) clearInterval(progressInterval);
+        
+        selectedFile = null;
+        const fileInput = document.getElementById('docFileInput');
+        if (fileInput) fileInput.value = '';
+        
         detectedFields = [];
         const tbody = document.querySelector('#fieldsTable tbody');
         if (tbody) tbody.innerHTML = `<tr class="text-muted"><td colspan="4" class="text-center">{{ _('Lancez la détection pour voir les champs') }}</td></tr>`;
-        const fp = document.getElementById('formPreview');
-        if (fp) fp.style.display = 'none';
-        const errorDiv = document.getElementById('conversionError');
-        if (errorDiv) errorDiv.style.display = 'none';
-        const progressBar = document.getElementById('progressBar');
+        
+        document.getElementById('formPreview').style.display = 'none';
+        
+        const progressBar = document.getElementById('conversionProgress');
         if (progressBar) progressBar.style.width = '0%';
-
+        
+        updateFileNameDisplay();
+        updateConvertButton();
         updateStep(1);
     }
 
-    window.addEventListener('beforeunload', () => {
-        if (downloadUrl) window.URL.revokeObjectURL(downloadUrl);
-        if (progressInterval) clearInterval(progressInterval);
+    document.addEventListener('DOMContentLoaded', function() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', startConversion);
+        }
+        
+        // Gérer l'input file personnalisé
+        const fileInput = document.getElementById('docFileInput');
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                updateFileNameDisplay();
+            } else {
+                selectedFile = null;
+                updateFileNameDisplay();
+            }
+            updateConvertButton();
+        });
+        
+        updateConvertButton();
     });
+
+    window.detectFields = detectFields;
+    window.editField = editField;
+    window.deleteField = deleteField;
+    window.loadPreview = loadPreview;
+    window.startConversion = startConversion;
+    window.resetConversion = resetConversion;
 </script>
 {% endblock %}

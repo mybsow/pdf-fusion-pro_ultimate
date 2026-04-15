@@ -11,25 +11,20 @@
         <p class="text-muted">{{ _('Le format PDF/A garantit la pérennité de vos documents pour l\'archivage à long terme') }}</p>
     </div>
 
-    <!-- Zone d'upload avec UploadManager -->
-    <div id="pdfPdfaUploadZone" 
-         class="upload-zone-pro upload-zone" 
-         data-info-id="fileInfo"
-         data-btn-id="convertBtn"
-         style="cursor: pointer;">
-        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
-        <p class="text-muted">{{ _('ou') }}</p>
-        <input type="file" class="file-input" accept=".pdf" style="display: none;">
-        <p class="text-muted small mt-3">
-            <i class="fas fa-info-circle"></i> 
-            {{ _('Format accepté : PDF (jusqu\'à 50MB)') }}
-        </p>
+    <div class="mb-4">
+        <label class="form-label fw-bold">{{ _('Sélectionnez votre fichier PDF') }}</label>
+        
+        <!-- INPUT FILE PERSONNALISÉ -->
+        <div class="custom-file-upload">
+            <input type="file" id="pdfFileInput" accept=".pdf" style="display: none;">
+            <button type="button" class="btn btn-outline-primary btn-lg w-100" onclick="document.getElementById('pdfFileInput').click()">
+                <i class="fas fa-folder-open me-2"></i>{{ _('Sélectionner un fichier') }}
+            </button>
+            <div id="pdfFileInputName" class="text-muted mt-2 text-center">{{ _('Aucun fichier sélectionné') }}</div>
+        </div>
+        
+        <small class="text-muted">{{ _('Format accepté : PDF (jusqu\'à 50MB)') }}</small>
     </div>
-
-    <!-- Liste des fichiers et miniatures -->
-    <div id="fileInfo" class="file-list mt-4"></div>
-    <div id="pdfPdfaUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
 
     <!-- Options de conversion -->
     <div class="file-info-card mt-4">
@@ -113,7 +108,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn" disabled>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn">
             <i class="fas fa-archive me-2"></i>{{ _('Convertir en PDF/A') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
@@ -125,18 +120,15 @@
 <!-- Étape 2: Conversion en cours -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="mb-4">
-            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
-        </div>
-        
-        <h3 class="mb-4">{{ _('Conversion en PDF/A en cours...') }}</h3>
-        <p class="text-muted mb-4" id="conversionMessage">
-            {{ _('Analyse et conversion du document...') }}
-        </p>
-        
+        <i class="fas fa-cog fa-spin fa-4x text-primary mb-4"></i>
+        <h3 class="mb-3">{{ _('Conversion en PDF/A en cours...') }}</h3>
         <div class="progress-container mx-auto" style="max-width: 500px;">
-            <div class="progress-bar" id="conversionProgress" style="width: 0%;"></div>
+            <div class="progress bg-light rounded-pill" style="height: 10px;">
+                <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" style="width: 0%;"></div>
+            </div>
         </div>
+        <p class="mt-2 text-muted" id="progressPercent">0%</p>
+        <p class="text-muted" id="conversionMessage">{{ _('Analyse et conversion du document...') }}</p>
         
         <div class="row mt-5 g-4">
             <div class="col-md-4">
@@ -165,7 +157,7 @@
             </div>
         </div>
         
-        <div class="mt-4 text-muted small" id="conversionDetails">
+        <div class="mt-3 text-muted small" id="conversionDetails">
             <i class="fas fa-file-pdf me-1"></i> {{ _('Vérification de la conformité PDF/A...') }}
         </div>
     </div>
@@ -174,20 +166,16 @@
 <!-- Étape 3: Téléchargement -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="success-animation">
-            <i class="fas fa-archive"></i>
+        <div class="success-animation bg-success rounded-circle d-inline-flex p-4 mb-4">
+            <i class="fas fa-archive fa-3x text-white"></i>
         </div>
-        
         <h3 class="mb-3">{{ _('Conversion réussie !') }}</h3>
-        <p class="text-muted mb-4">
-            {{ _('Votre document PDF/A est prêt pour l\'archivage') }}
-        </p>
+        <p class="text-muted mb-4">{{ _('Votre document PDF/A est prêt pour l\'archivage') }}</p>
         
         <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
-            <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
+            <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>
                 <i class="fas fa-download me-2"></i>{{ _('Télécharger PDF/A') }}
             </a>
-            
             <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
                 <i class="fas fa-redo me-2"></i>{{ _('Nouvelle conversion') }}
             </button>
@@ -201,7 +189,7 @@
                     <div class="text-start">
                         <h5 class="mb-1">{{ _('Document certifié PDF/A') }}</h5>
                         <p class="text-muted small mb-0" id="certificateInfo">
-                            {{ _('Version: PDF/A-2b • Pages: 0 • Date:') }} {{ now().strftime('%d/%m/%Y') }}
+                            {{ _('Version: PDF/A-2b • Pages: 0') }}
                         </p>
                         <p class="text-muted small mb-0 mt-2">
                             <i class="fas fa-check-circle text-success me-1"></i>
@@ -240,202 +228,202 @@
 {% block scripts %}
 {{ super() }}
 <script>
-let downloadUrl = null;
-let progressInterval = null;
+    // Messages i18n pour JavaScript
+    const i18nMessages = {
+        selectFile: "{{ _('Veuillez sélectionner un fichier PDF') }}",
+        starting: "{{ _('Démarrage...') }}",
+        conversionError: "{{ _('Erreur lors de la conversion :') }}",
+        noFileSelected: "{{ _('Aucun fichier sélectionné') }}",
+        conversion: "{{ _('Conversion') }}",
+        embeddingFonts: "{{ _('Incorporation des polices - Page') }}",
+        validatingCompliance: "{{ _('Validation de la conformité...') }}"
+    };
 
-function updateStep(step) {
-    const s1 = document.getElementById('step1Content');
-    const s2 = document.getElementById('step2Content');
-    const s3 = document.getElementById('step3Content');
-    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
-    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
-    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+    const VERSION_NAMES = {
+        '1b': 'PDF/A-1b', '1a': 'PDF/A-1a', '2b': 'PDF/A-2b',
+        '2u': 'PDF/A-2u', '3b': 'PDF/A-3b', '3u': 'PDF/A-3u'
+    };
 
-    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
-        window.updateStep(step);
+    let downloadUrl = null;
+    let progressInterval = null;
+    let selectedFile = null;
+
+    function updateStep(step) {
+        const s1 = document.getElementById('step1Content');
+        const s2 = document.getElementById('step2Content');
+        const s3 = document.getElementById('step3Content');
+        if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+        if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+        if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+        if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+            window.updateStep(step);
+        }
     }
-}
 
-function showError(message) {
-    let errorDiv = document.getElementById('conversionError');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'conversionError';
+    function showError(message) {
+        const errorDiv = document.createElement('div');
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
         const s1 = document.getElementById('step1Content');
         if (s1) s1.prepend(errorDiv);
-    }
-    const msgSpan = document.getElementById('conversionErrorMsg');
-    if (msgSpan) msgSpan.textContent = message;
-    errorDiv.style.display = 'block';
-    setTimeout(function() {
-        if (errorDiv) errorDiv.style.display = 'none';
-    }, 8000);
-}
-
-function updateButtonState() {
-    const manager = window.uploadManagers && window.uploadManagers.pdfPdfaUploadZone;
-    const convertBtn = document.getElementById('convertBtn');
-    if (convertBtn) {
-        convertBtn.disabled = !manager || !manager.files || manager.files.length === 0;
-    }
-}
-
-function bindUploadManager() {
-    const manager = window.uploadManagers && window.uploadManagers.pdfPdfaUploadZone;
-    if (!manager) {
-        setTimeout(bindUploadManager, 200);
-        return;
+        setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
     }
 
-    const originalHandleFiles = manager.handleFiles;
-    if (originalHandleFiles) {
-        manager.handleFiles = function(fileList) {
-            originalHandleFiles.call(this, fileList);
-            updateButtonState();
-        };
+    function updateProgress(percent, message, detail) {
+        const progressBar = document.getElementById('conversionProgress');
+        const percentSpan = document.getElementById('progressPercent');
+        const msgSpan = document.getElementById('conversionMessage');
+        const detailSpan = document.getElementById('conversionDetails');
+        
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
+        if (msgSpan) msgSpan.textContent = message;
+        if (detailSpan) detailSpan.innerHTML = '<i class="fas fa-file-pdf me-1"></i> ' + detail;
     }
 
-    const originalRemoveFile = manager.removeFile;
-    if (originalRemoveFile) {
-        manager.removeFile = function(index) {
-            originalRemoveFile.call(this, index);
-            updateButtonState();
-        };
+    function updateFileNameDisplay() {
+        const display = document.getElementById('pdfFileInputName');
+        if (display) {
+            if (selectedFile) {
+                display.textContent = selectedFile.name;
+            } else {
+                display.textContent = i18nMessages.noFileSelected;
+            }
+        }
     }
 
-    updateButtonState();
-}
-
-function startConversion() {
-    const manager = window.uploadManagers && window.uploadManagers.pdfPdfaUploadZone;
-    if (!manager || !manager.files || manager.files.length === 0) {
-        showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
-        return;
+    function updateConvertButton() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.disabled = !selectedFile;
+        }
     }
 
-    const file = manager.getFiles()[0];
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('version', document.getElementById('pdfaVersion').value);
+    function startConversion() {
+        if (!selectedFile) {
+            showError(i18nMessages.selectFile);
+            return;
+        }
 
-    updateStep(2);
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('version', document.getElementById('pdfaVersion').value);
 
-    const estimatedPages = Math.max(1, Math.floor(file.size / (200 * 1024)));
-    const progressBar = document.getElementById('conversionProgress');
-    let currentPage = 0;
-    let fontsFound = 0;
+        updateStep(2);
 
-    const versionSelect = document.getElementById('pdfaVersion');
-    const version = versionSelect.options[versionSelect.selectedIndex]?.value || '2b';
-    const versionNames = { '1b': 'PDF/A-1b', '1a': 'PDF/A-1a', '2b': 'PDF/A-2b', '2u': 'PDF/A-2u', '3b': 'PDF/A-3b', '3u': 'PDF/A-3u' };
-    const versionName = versionNames[version] || 'PDF/A-2b';
+        const estimatedPages = Math.max(1, Math.floor(selectedFile.size / (200 * 1024)));
+        const version = document.getElementById('pdfaVersion').value;
+        const versionName = VERSION_NAMES[version] || 'PDF/A-2b';
+        
+        let currentPage = 0;
+        let fontsFound = 0;
+        
+        updateProgress(0, i18nMessages.starting, '{{ _("Vérification de la conformité PDF/A...") }}');
 
-    progressInterval = setInterval(function() {
-        if (currentPage < estimatedPages) {
-            currentPage++;
-            var percent = Math.min(Math.floor((currentPage / estimatedPages) * 90), 90);
-            if (progressBar) progressBar.style.width = percent + '%';
-            if (currentPage % 3 === 0) fontsFound += Math.floor(Math.random() * 2) + 1;
-            
-            var pagesEl = document.getElementById('processedPages');
-            var fontsEl = document.getElementById('embeddedFonts');
-            var complianceEl = document.getElementById('compliance');
-            var msgEl = document.getElementById('conversionMessage');
-            var detailEl = document.getElementById('conversionDetails');
-            
-            if (pagesEl) pagesEl.textContent = currentPage;
-            if (fontsEl) fontsEl.textContent = fontsFound;
-            if (complianceEl) complianceEl.textContent = Math.min(percent + 10, 99) + '%';
-            if (msgEl) msgEl.textContent = '{{ _("Conversion") }} ' + versionName;
-            if (detailEl) detailEl.innerHTML = '<i class="fas fa-font me-1"></i> {{ _("Incorporation des polices - Page") }} ' + currentPage + '/' + estimatedPages;
-        } else {
+        progressInterval = setInterval(function() {
+            if (currentPage < estimatedPages) {
+                currentPage++;
+                const percent = Math.min(Math.floor((currentPage / estimatedPages) * 90), 90);
+                if (currentPage % 3 === 0) fontsFound += Math.floor(Math.random() * 2) + 1;
+                
+                const message = i18nMessages.conversion + ' ' + versionName;
+                const detail = i18nMessages.embeddingFonts + ' ' + currentPage + '/' + estimatedPages;
+                
+                updateProgress(percent, message, detail);
+                
+                document.getElementById('processedPages').textContent = currentPage;
+                document.getElementById('embeddedFonts').textContent = fontsFound;
+                document.getElementById('compliance').textContent = Math.min(percent + 10, 99) + '%';
+            } else {
+                clearInterval(progressInterval);
+                document.getElementById('compliance').textContent = '100%';
+                updateProgress(100, i18nMessages.validatingCompliance, '{{ _("Finalisation...") }}');
+            }
+        }, 400);
+
+        fetch('{{ url_for("conversion.universal_converter", conversion_type="pdf-en-pdfa") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(async function(response) {
             clearInterval(progressInterval);
-            var complianceEl = document.getElementById('compliance');
-            if (complianceEl) complianceEl.textContent = '100%';
-            var msgEl = document.getElementById('conversionMessage');
-            if (msgEl) msgEl.textContent = '{{ _("Validation de la conformité...") }}';
-        }
-    }, 400);
+            
+            if (!response.ok) throw new Error('Erreur ' + response.status);
+            
+            updateProgress(100, '{{ _("Conversion terminée !") }}', '{{ _("Document prêt") }}');
 
-    fetch('{{ url_for("conversion.universal_converter", conversion_type="pdf-en-pdfa") }}', {
-        method: 'POST',
-        body: formData
-    })
-    .then(function(response) {
-        clearInterval(progressInterval);
-        if (progressBar) progressBar.style.width = '100%';
-        return response.blob();
-    })
-    .then(function(blob) {
-        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+            const blob = await response.blob();
+            if (blob.size === 0) throw new Error('Fichier vide');
 
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
+
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.download = selectedFile.name.replace(/\.pdf$/i, '') + '_pdfa.pdf';
+            }
+
+            // Statistiques finales
+            const originalSize = (selectedFile.size / (1024 * 1024)).toFixed(2);
+            const pdfaSize = (selectedFile.size * (1 + Math.random() * 0.2) / (1024 * 1024)).toFixed(2);
+            
+            document.getElementById('originalSize').textContent = originalSize + ' MB';
+            document.getElementById('pdfaSize').textContent = pdfaSize + ' MB';
+            
+            document.getElementById('certificateInfo').innerHTML = 
+                '{{ _("Version:") }} ' + versionName + ' • {{ _("Pages:") }} ' + estimatedPages;
+
+            updateStep(3);
+        })
+        .catch(function(error) {
+            console.error('Erreur:', error);
+            clearInterval(progressInterval);
+            updateStep(1);
+            showError(i18nMessages.conversionError + ' ' + error.message);
+        });
+    }
+
+    function resetConversion() {
         if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-        downloadUrl = URL.createObjectURL(blob);
-
-        const contentDisposition = response.headers.get('Content-Disposition') || '';
-        let filename = file.name.replace(/\.pdf$/i, '') + '_pdfa.pdf';
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match && match[1]) filename = match[1].replace(/['"]/g, '');
-
-        const downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.setAttribute('download', filename);
-        }
-
-        var originalSize = (file.size / (1024 * 1024)).toFixed(2);
-        var pdfaSize = (file.size * (1 + Math.random() * 0.2) / (1024 * 1024)).toFixed(2);
-        var originalSizeEl = document.getElementById('originalSize');
-        var pdfaSizeEl = document.getElementById('pdfaSize');
-        var certInfoEl = document.getElementById('certificateInfo');
+        if (progressInterval) clearInterval(progressInterval);
         
-        if (originalSizeEl) originalSizeEl.textContent = originalSize + ' MB';
-        if (pdfaSizeEl) pdfaSizeEl.textContent = pdfaSize + ' MB';
+        selectedFile = null;
+        const fileInput = document.getElementById('pdfFileInput');
+        if (fileInput) fileInput.value = '';
         
-        var dateStr = new Date().toLocaleDateString('fr-FR');
-        if (certInfoEl) certInfoEl.innerHTML = '{{ _("Version:") }} ' + versionName + ' • {{ _("Pages:") }} ' + estimatedPages + ' • {{ _("Date:") }} ' + dateStr;
-
-        updateStep(3);
-    })
-    .catch(function(error) {
-        clearInterval(progressInterval);
+        const progressBar = document.getElementById('conversionProgress');
+        if (progressBar) progressBar.style.width = '0%';
+        
+        updateFileNameDisplay();
+        updateConvertButton();
         updateStep(1);
-        showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', startConversion);
+        }
+        
+        // Gérer l'input file personnalisé
+        const fileInput = document.getElementById('pdfFileInput');
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                updateFileNameDisplay();
+            } else {
+                selectedFile = null;
+                updateFileNameDisplay();
+            }
+            updateConvertButton();
+        });
+        
+        updateConvertButton();
     });
-}
 
-function resetConversion() {
-    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
-    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
-
-    const manager = window.uploadManagers && window.uploadManagers.pdfPdfaUploadZone;
-    if (manager && manager.removeFile) {
-        var files = manager.getFiles();
-        for (var i = files.length - 1; i >= 0; i--) manager.removeFile(i);
-    }
-
-    var errorDiv = document.getElementById('conversionError');
-    if (errorDiv) errorDiv.style.display = 'none';
-    var progressBar = document.getElementById('conversionProgress');
-    if (progressBar) progressBar.style.width = '0%';
-
-    updateStep(1);
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    bindUploadManager();
-    
-    var convertBtn = document.getElementById('convertBtn');
-    if (convertBtn) {
-        convertBtn.addEventListener('click', startConversion);
-    }
-});
-
-window.addEventListener('beforeunload', function() {
-    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-    if (progressInterval) clearInterval(progressInterval);
-});
+    window.startConversion = startConversion;
+    window.resetConversion = resetConversion;
 </script>
 {% endblock %}

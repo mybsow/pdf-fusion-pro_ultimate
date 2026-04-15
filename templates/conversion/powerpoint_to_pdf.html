@@ -11,25 +11,20 @@
         <p class="text-muted">{{ _('Transformez vos fichiers PPT/PPTX en documents PDF faciles à partager') }}</p>
     </div>
 
-    <!-- Zone d'upload avec UploadManager -->
-    <div id="pptPdfUploadZone" 
-         class="upload-zone-pro upload-zone" 
-         data-info-id="fileInfo"
-         data-btn-id="convertBtn"
-         style="cursor: pointer;">
-        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>{{ _('Glissez-déposez vos fichiers PowerPoint ici') }}</h4>
-        <p class="text-muted">{{ _('ou') }}</p>
-        <input type="file" class="file-input" accept=".ppt,.pptx" multiple style="display: none;">
-        <p class="text-muted small mt-3">
-            <i class="fas fa-info-circle"></i> 
-            {{ _('Formats acceptés : PPT, PPTX (jusqu\'à 50MB par fichier, 5 fichiers max)') }}
-        </p>
+    <div class="mb-4">
+        <label class="form-label fw-bold">{{ _('Sélectionnez vos fichiers PowerPoint') }}</label>
+        
+        <!-- INPUT FILE PERSONNALISÉ -->
+        <div class="custom-file-upload">
+            <input type="file" id="pptFileInput" accept=".ppt,.pptx" multiple style="display: none;">
+            <button type="button" class="btn btn-outline-primary btn-lg w-100" onclick="document.getElementById('pptFileInput').click()">
+                <i class="fas fa-folder-open me-2"></i>{{ _('Sélectionner des fichiers') }}
+            </button>
+            <div id="pptFileInputName" class="text-muted mt-2 text-center">{{ _('Aucun fichier sélectionné') }}</div>
+        </div>
+        
+        <small class="text-muted">{{ _('Formats acceptés : PPT, PPTX (jusqu\'à 50MB par fichier, 5 fichiers max)') }}</small>
     </div>
-
-    <!-- Liste des fichiers et miniatures -->
-    <div id="fileInfo" class="file-list mt-4"></div>
-    <div id="pptPdfUploadZoneThumbnails" class="upload-thumbnails d-flex flex-wrap gap-2 mt-3"></div>
 
     <!-- Options de conversion -->
     <div class="file-info-card mt-4">
@@ -86,8 +81,8 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-danger btn-lg px-5" id="convertBtn" disabled>
-            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PDF') }}
+        <button class="btn btn-danger btn-lg px-5" id="convertBtn">
+            <i class="fas fa-file-pdf me-2"></i>{{ _('Convertir en PDF') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
             <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
@@ -98,18 +93,15 @@
 <!-- Étape 2: Conversion en cours -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="mb-4">
-            <i class="fas fa-cog fa-spin fa-4x text-danger"></i>
-        </div>
-        
-        <h3 class="mb-4">{{ _('Conversion en cours...') }}</h3>
-        <p class="text-muted mb-4" id="conversionMessage">
-            {{ _('Analyse et conversion de vos présentations...') }}
-        </p>
-        
+        <i class="fas fa-cog fa-spin fa-4x text-danger mb-4"></i>
+        <h3 class="mb-3">{{ _('Conversion en cours...') }}</h3>
         <div class="progress-container mx-auto" style="max-width: 500px;">
-            <div class="progress-bar bg-danger" id="conversionProgress" style="width: 0%;"></div>
+            <div class="progress bg-light rounded-pill" style="height: 10px;">
+                <div class="progress-bar bg-danger rounded-pill" id="conversionProgress" style="width: 0%;"></div>
+            </div>
         </div>
+        <p class="mt-2 text-muted" id="progressPercent">0%</p>
+        <p class="text-muted" id="conversionMessage">{{ _('Analyse et conversion de vos présentations...') }}</p>
         
         <div class="row mt-5 g-4">
             <div class="col-md-4">
@@ -138,7 +130,7 @@
             </div>
         </div>
         
-        <div class="mt-4 text-muted small" id="conversionDetails">
+        <div class="mt-3 text-muted small" id="conversionDetails">
             <i class="fas fa-file-powerpoint me-1"></i> {{ _('Chargement des fichiers...') }}
         </div>
     </div>
@@ -147,20 +139,16 @@
 <!-- Étape 3: Téléchargement -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="success-animation" style="background-color: #d24726;">
-            <i class="fas fa-file-pdf"></i>
+        <div class="success-animation bg-success rounded-circle d-inline-flex p-4 mb-4">
+            <i class="fas fa-file-pdf fa-3x text-white"></i>
         </div>
-        
         <h3 class="mb-3">{{ _('Conversion réussie !') }}</h3>
-        <p class="text-muted mb-4">
-            {{ _('Vos fichiers PDF sont prêts') }}
-        </p>
+        <p class="text-muted mb-4">{{ _('Vos fichiers PDF sont prêts') }}</p>
         
         <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
-            <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
+            <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>
                 <i class="fas fa-download me-2"></i>{{ _('Télécharger') }}
             </a>
-            
             <button class="btn btn-outline-primary btn-lg px-5" onclick="resetConversion()">
                 <i class="fas fa-redo me-2"></i>{{ _('Nouvelle conversion') }}
             </button>
@@ -218,198 +206,197 @@
 {% block scripts %}
 {{ super() }}
 <script>
-let downloadUrl = null;
-let progressInterval = null;
+    // Messages i18n pour JavaScript
+    const i18nMessages = {
+        selectFiles: "{{ _('Veuillez sélectionner au moins un fichier PowerPoint') }}",
+        starting: "{{ _('Démarrage...') }}",
+        conversionError: "{{ _('Erreur lors de la conversion :') }}",
+        noFileSelected: "{{ _('Aucun fichier sélectionné') }}",
+        convertingFile: "{{ _('Conversion du fichier') }}"
+    };
 
-function updateStep(step) {
-    const s1 = document.getElementById('step1Content');
-    const s2 = document.getElementById('step2Content');
-    const s3 = document.getElementById('step3Content');
-    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
-    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
-    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+    let downloadUrl = null;
+    let progressInterval = null;
+    let selectedFiles = [];
 
-    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
-        window.updateStep(step);
+    function updateStep(step) {
+        const s1 = document.getElementById('step1Content');
+        const s2 = document.getElementById('step2Content');
+        const s3 = document.getElementById('step3Content');
+        if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+        if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+        if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+        if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+            window.updateStep(step);
+        }
     }
-}
 
-function showError(message) {
-    let errorDiv = document.getElementById('conversionError');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'conversionError';
+    function showError(message) {
+        const errorDiv = document.createElement('div');
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
         const s1 = document.getElementById('step1Content');
         if (s1) s1.prepend(errorDiv);
-    }
-    const msgSpan = document.getElementById('conversionErrorMsg');
-    if (msgSpan) msgSpan.textContent = message;
-    errorDiv.style.display = 'block';
-    setTimeout(function() {
-        if (errorDiv) errorDiv.style.display = 'none';
-    }, 8000);
-}
-
-function updateButtonState() {
-    const manager = window.uploadManagers && window.uploadManagers.pptPdfUploadZone;
-    const convertBtn = document.getElementById('convertBtn');
-    if (convertBtn) {
-        convertBtn.disabled = !manager || !manager.files || manager.files.length === 0;
-    }
-}
-
-function bindUploadManager() {
-    const manager = window.uploadManagers && window.uploadManagers.pptPdfUploadZone;
-    if (!manager) {
-        setTimeout(bindUploadManager, 200);
-        return;
+        setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
     }
 
-    const originalHandleFiles = manager.handleFiles;
-    if (originalHandleFiles) {
-        manager.handleFiles = function(fileList) {
-            originalHandleFiles.call(this, fileList);
-            updateButtonState();
-        };
+    function updateProgress(percent, message, detail) {
+        const progressBar = document.getElementById('conversionProgress');
+        const percentSpan = document.getElementById('progressPercent');
+        const msgSpan = document.getElementById('conversionMessage');
+        const detailSpan = document.getElementById('conversionDetails');
+        
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
+        if (msgSpan) msgSpan.textContent = message;
+        if (detailSpan) detailSpan.innerHTML = '<i class="fas fa-file-powerpoint me-1"></i> ' + detail;
     }
 
-    const originalRemoveFile = manager.removeFile;
-    if (originalRemoveFile) {
-        manager.removeFile = function(index) {
-            originalRemoveFile.call(this, index);
-            updateButtonState();
-        };
-    }
-
-    updateButtonState();
-}
-
-function startConversion() {
-    const manager = window.uploadManagers && window.uploadManagers.pptPdfUploadZone;
-    if (!manager || !manager.files || manager.files.length === 0) {
-        showError('{{ _("Veuillez sélectionner au moins un fichier PowerPoint") }}');
-        return;
-    }
-
-    const files = manager.getFiles();
-    const formData = new FormData();
-    files.forEach(function(file) { formData.append('files', file); });
-    formData.append('include_notes', document.getElementById('includeNotes').checked ? 'true' : 'false');
-    formData.append('include_comments', document.getElementById('includeComments').checked ? 'true' : 'false');
-    formData.append('quality', document.getElementById('pdfQuality').value);
-    formData.append('merge', document.getElementById('mergeFiles').value === 'merge' ? 'true' : 'false');
-
-    updateStep(2);
-
-    const totalFiles = files.length;
-    let currentFile = 0;
-    let slidesDone = 0;
-    let imagesCount = 0;
-    const progressBar = document.getElementById('conversionProgress');
-    const processedFilesSpan = document.getElementById('processedFiles');
-    const processedSlidesSpan = document.getElementById('processedSlides');
-    const embeddedImagesSpan = document.getElementById('embeddedImages');
-    const conversionMsgSpan = document.getElementById('conversionMessage');
-
-    progressInterval = setInterval(function() {
-        if (currentFile < totalFiles) {
-            currentFile++;
-            const percent = Math.min(Math.floor((currentFile / totalFiles) * 90), 90);
-            if (progressBar) progressBar.style.width = percent + '%';
-            slidesDone = currentFile * 15;
-            imagesCount += Math.floor(Math.random() * 5) + 3;
-            if (processedFilesSpan) processedFilesSpan.textContent = currentFile;
-            if (processedSlidesSpan) processedSlidesSpan.textContent = slidesDone;
-            if (embeddedImagesSpan) embeddedImagesSpan.textContent = imagesCount;
-            if (conversionMsgSpan) conversionMsgSpan.textContent = '{{ _("Conversion du fichier") }} ' + currentFile + '/' + totalFiles;
+    function updateFileNameDisplay() {
+        const display = document.getElementById('pptFileInputName');
+        if (display) {
+            if (selectedFiles.length > 0) {
+                const names = selectedFiles.map(f => f.name).join(', ');
+                display.textContent = names.length > 50 ? names.substring(0, 47) + '...' : names;
+            } else {
+                display.textContent = i18nMessages.noFileSelected;
+            }
         }
-    }, 600);
+    }
 
-    fetch('{{ url_for("conversion.universal_converter", conversion_type="powerpoint-en-pdf") }}', {
-        method: 'POST',
-        body: formData
-    })
-    .then(function(response) {
-        clearInterval(progressInterval);
-        if (progressBar) progressBar.style.width = '100%';
-        return response.blob();
-    })
-    .then(function(blob) {
-        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+    function updateConvertButton() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.disabled = selectedFiles.length === 0;
+        }
+    }
 
+    function simulateFinalStats(files) {
+        let totalSize = 0;
+        for (let i = 0; i < files.length; i++) {
+            totalSize += files[i].size;
+        }
+        const mergeOption = document.getElementById('mergeFiles').value;
+        
+        document.getElementById('finalFiles').textContent = files.length;
+        document.getElementById('finalSlides').textContent = files.length * 15;
+        document.getElementById('finalFormat').textContent = mergeOption === 'merge' ? '{{ _("PDF unique") }}' : '{{ _("PDFs (ZIP)") }}';
+        document.getElementById('finalTotalSize').textContent = (totalSize * 0.7 / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function startConversion() {
+        if (selectedFiles.length === 0) {
+            showError(i18nMessages.selectFiles);
+            return;
+        }
+
+        const formData = new FormData();
+        selectedFiles.forEach(file => formData.append('files', file));
+        formData.append('include_notes', document.getElementById('includeNotes').checked ? 'true' : 'false');
+        formData.append('include_comments', document.getElementById('includeComments').checked ? 'true' : 'false');
+        formData.append('quality', document.getElementById('pdfQuality').value);
+        formData.append('merge', document.getElementById('mergeFiles').value === 'merge' ? 'true' : 'false');
+
+        updateStep(2);
+
+        const totalFiles = selectedFiles.length;
+        let currentFile = 0;
+        let slidesDone = 0;
+        let imagesCount = 0;
+        
+        updateProgress(0, i18nMessages.starting, '{{ _("Chargement des fichiers...") }}');
+
+        progressInterval = setInterval(function() {
+            if (currentFile < totalFiles) {
+                currentFile++;
+                const percent = Math.min(Math.floor((currentFile / totalFiles) * 90), 90);
+                slidesDone = currentFile * 15;
+                imagesCount += Math.floor(Math.random() * 5) + 3;
+                
+                const message = i18nMessages.convertingFile + ' ' + currentFile + '/' + totalFiles;
+                
+                updateProgress(percent, message, '{{ _("Traitement en cours...") }}');
+                
+                document.getElementById('processedFiles').textContent = currentFile;
+                document.getElementById('processedSlides').textContent = slidesDone;
+                document.getElementById('embeddedImages').textContent = imagesCount;
+            }
+        }, 600);
+
+        fetch('{{ url_for("conversion.universal_converter", conversion_type="powerpoint-en-pdf") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(async function(response) {
+            clearInterval(progressInterval);
+            
+            if (!response.ok) throw new Error('Erreur ' + response.status);
+            
+            updateProgress(100, '{{ _("Conversion terminée !") }}', '{{ _("Fichiers prêts") }}');
+
+            const blob = await response.blob();
+            if (blob.size === 0) throw new Error('Fichier vide');
+
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
+
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.download = totalFiles > 1 ? 'presentations_converted.zip' : selectedFiles[0].name.replace(/\.[^/.]+$/, '') + '.pdf';
+            }
+
+            simulateFinalStats(selectedFiles);
+            updateStep(3);
+        })
+        .catch(function(error) {
+            console.error('Erreur:', error);
+            clearInterval(progressInterval);
+            updateStep(1);
+            showError(i18nMessages.conversionError + ' ' + error.message);
+        });
+    }
+
+    function resetConversion() {
         if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-        downloadUrl = URL.createObjectURL(blob);
-
-        const contentDisposition = response.headers.get('Content-Disposition') || '';
-        let filename = totalFiles > 1 ? 'presentations_converted.zip' : (files[0].name.replace(/\.[^/.]+$/, '') + '.pdf');
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match && match[1]) filename = match[1].replace(/['"]/g, '');
-
-        const downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.setAttribute('download', filename);
-        }
-
-        simulateFinalStats(files);
-        updateStep(3);
-    })
-    .catch(function(error) {
-        clearInterval(progressInterval);
+        if (progressInterval) clearInterval(progressInterval);
+        
+        selectedFiles = [];
+        const fileInput = document.getElementById('pptFileInput');
+        if (fileInput) fileInput.value = '';
+        
+        const progressBar = document.getElementById('conversionProgress');
+        if (progressBar) progressBar.style.width = '0%';
+        
+        updateFileNameDisplay();
+        updateConvertButton();
         updateStep(1);
-        showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', startConversion);
+        }
+        
+        // Gérer l'input file personnalisé
+        const fileInput = document.getElementById('pptFileInput');
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedFiles = Array.from(e.target.files);
+                updateFileNameDisplay();
+            } else {
+                selectedFiles = [];
+                updateFileNameDisplay();
+            }
+            updateConvertButton();
+        });
+        
+        updateConvertButton();
     });
-}
 
-function simulateFinalStats(files) {
-    let totalSize = 0;
-    for (var i = 0; i < files.length; i++) {
-        totalSize += files[i].size;
-    }
-    const mergeOption = document.getElementById('mergeFiles').value;
-    const finalFilesSpan = document.getElementById('finalFiles');
-    const finalSlidesSpan = document.getElementById('finalSlides');
-    const finalFormatSpan = document.getElementById('finalFormat');
-    const finalTotalSizeSpan = document.getElementById('finalTotalSize');
-    
-    if (finalFilesSpan) finalFilesSpan.textContent = files.length;
-    if (finalSlidesSpan) finalSlidesSpan.textContent = files.length * 15;
-    if (finalFormatSpan) finalFormatSpan.textContent = mergeOption === 'merge' ? '{{ _("PDF unique") }}' : '{{ _("PDFs (ZIP)") }}';
-    if (finalTotalSizeSpan) finalTotalSizeSpan.textContent = (totalSize * 0.7 / (1024 * 1024)).toFixed(2) + ' MB';
-}
-
-function resetConversion() {
-    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
-    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
-
-    const manager = window.uploadManagers && window.uploadManagers.pptPdfUploadZone;
-    if (manager && manager.removeFile) {
-        const files = manager.getFiles();
-        for (var i = files.length - 1; i >= 0; i--) manager.removeFile(i);
-    }
-
-    const errorDiv = document.getElementById('conversionError');
-    if (errorDiv) errorDiv.style.display = 'none';
-    const progressBar = document.getElementById('conversionProgress');
-    if (progressBar) progressBar.style.width = '0%';
-
-    updateStep(1);
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    bindUploadManager();
-    
-    const convertBtn = document.getElementById('convertBtn');
-    if (convertBtn) {
-        convertBtn.addEventListener('click', startConversion);
-    }
-});
-
-window.addEventListener('beforeunload', function() {
-    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-    if (progressInterval) clearInterval(progressInterval);
-});
+    window.startConversion = startConversion;
+    window.resetConversion = resetConversion;
 </script>
 {% endblock %}

@@ -11,24 +11,20 @@
         <p class="text-muted">{{ _('Ajoutez un mot de passe pour sécuriser votre document') }}</p>
     </div>
 
-    <!-- Zone d'upload -->
-    <div id="protectUploadZone" 
-         class="upload-zone-pro upload-zone" 
-         data-info-id="fileInfo"
-         data-btn-id="convertBtn"
-         style="cursor: pointer;">
-        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>{{ _('Glissez-déposez votre PDF ici') }}</h4>
-        <p class="text-muted">{{ _('ou') }}</p>
-        <input type="file" class="file-input" accept=".pdf" style="display: none;">
-        <p class="text-muted small mt-3">
-            <i class="fas fa-info-circle"></i> 
-            {{ _('PDF uniquement • Taille max : 50MB') }}
-        </p>
+    <div class="mb-4">
+        <label class="form-label fw-bold">{{ _('Sélectionnez votre fichier PDF') }}</label>
+        
+        <!-- INPUT FILE PERSONNALISÉ -->
+        <div class="custom-file-upload">
+            <input type="file" id="pdfFileInput" accept=".pdf" style="display: none;">
+            <button type="button" class="btn btn-outline-primary btn-lg w-100" onclick="document.getElementById('pdfFileInput').click()">
+                <i class="fas fa-folder-open me-2"></i>{{ _('Sélectionner un fichier') }}
+            </button>
+            <div id="pdfFileInputName" class="text-muted mt-2 text-center">{{ _('Aucun fichier sélectionné') }}</div>
+        </div>
+        
+        <small class="text-muted">{{ _('PDF uniquement • Taille max : 50MB') }}</small>
     </div>
-
-    <!-- Liste des fichiers -->
-    <div id="fileInfo" class="file-list mt-4"></div>
 
     <!-- Options de protection -->
     <div class="file-info-card mt-4">
@@ -74,7 +70,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn">
             <i class="fas fa-lock me-2"></i>{{ _('Protéger le PDF') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
@@ -86,34 +82,28 @@
 <!-- Étape 2 : Conversion en cours -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="mb-4">
-            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
+        <i class="fas fa-cog fa-spin fa-4x text-primary mb-4"></i>
+        <h3 class="mb-3">{{ _('Protection en cours...') }}</h3>
+        <div class="progress-container mx-auto" style="max-width: 500px;">
+            <div class="progress bg-light rounded-pill" style="height: 10px;">
+                <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" style="width: 0%; background: #e67e22;"></div>
+            </div>
         </div>
-        <h3>{{ _('Protection en cours...') }}</h3>
-        <p class="text-muted">{{ _('Ajout du mot de passe et des restrictions') }}</p>
-        <div class="progress-container">
-            <div class="progress-bar" style="width: 0%; background: #e67e22;" id="progressBar"></div>
-        </div>
-        <p class="text-muted mt-3" id="progressMessage">{{ _('Application de la protection...') }}</p>
+        <p class="mt-2 text-muted" id="progressPercent">0%</p>
+        <p class="text-muted" id="progressMessage">{{ _('Application de la protection...') }}</p>
     </div>
 </div>
 
 <!-- Étape 3 : Téléchargement -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="success-animation">
-            <i class="fas fa-check"></i>
+        <div class="success-animation bg-success rounded-circle d-inline-flex p-4 mb-4">
+            <i class="fas fa-lock fa-3x text-white"></i>
         </div>
-        <h3>{{ _('PDF protégé !') }}</h3>
-        <p class="text-muted">{{ _('Votre PDF est maintenant protégé par mot de passe') }}</p>
-        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF protégé') }}
-        </a>
-        <div class="mt-4">
-            <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>{{ _('Protéger un autre PDF') }}
-            </button>
-        </div>
+        <h3 class="mb-3">{{ _('PDF protégé !') }}</h3>
+        <p class="text-muted mb-4">{{ _('Votre PDF est maintenant protégé par mot de passe') }}</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>{{ _('Télécharger le PDF protégé') }}</a>
+        <button class="btn btn-outline-primary btn-lg ms-2" onclick="resetConversion()">{{ _('Protéger un autre PDF') }}</button>
     </div>
 </div>
 
@@ -123,8 +113,22 @@
 {% block scripts %}
 {{ super() }}
 <script>
+    // Messages i18n pour JavaScript
+    const i18nMessages = {
+        selectFile: "{{ _('Veuillez sélectionner un fichier PDF') }}",
+        enterPassword: "{{ _('Veuillez entrer un mot de passe') }}",
+        passwordsDontMatch: "{{ _('Les mots de passe ne correspondent pas') }}",
+        starting: "{{ _('Démarrage...') }}",
+        protecting: "{{ _('Application de la protection...') }}",
+        completed: "{{ _('Terminé !') }}",
+        errorPrefix: "{{ _('Erreur') }}",
+        protectionError: "{{ _('Erreur lors de la protection :') }}",
+        noFileSelected: "{{ _('Aucun fichier sélectionné') }}"
+    };
+
     let downloadUrl = null;
     let progressInterval = null;
+    let selectedFile = null;
 
     function updateStep(step) {
         const s1 = document.getElementById('step1Content');
@@ -134,31 +138,51 @@
         if (s2) s2.style.display = step === 2 ? 'block' : 'none';
         if (s3) s3.style.display = step === 3 ? 'block' : 'none';
 
-        // Synchronisation avec le parent
         if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
             window.updateStep(step);
         }
     }
 
     function showError(message) {
-        let errorDiv = document.getElementById('conversionError');
-        if (!errorDiv) {
-            errorDiv = document.createElement('div');
-            errorDiv.id = 'conversionError';
-            errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-            errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-            const s1 = document.getElementById('step1Content');
-            if (s1) s1.prepend(errorDiv);
-        }
-        const msgSpan = document.getElementById('conversionErrorMsg');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        const s1 = document.getElementById('step1Content');
+        if (s1) s1.prepend(errorDiv);
+        setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
+    }
+
+    function updateProgress(percent, message) {
+        const progressBar = document.getElementById('conversionProgress');
+        const percentSpan = document.getElementById('progressPercent');
+        const msgSpan = document.getElementById('progressMessage');
+        
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
         if (msgSpan) msgSpan.textContent = message;
-        errorDiv.style.display = 'block';
+    }
+
+    function updateFileNameDisplay() {
+        const display = document.getElementById('pdfFileInputName');
+        if (display) {
+            if (selectedFile) {
+                display.textContent = selectedFile.name;
+            } else {
+                display.textContent = i18nMessages.noFileSelected;
+            }
+        }
+    }
+
+    function updateConvertButton() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.disabled = !selectedFile;
+        }
     }
 
     function startConversion() {
-        const uploadManager = window.uploadManagers?.['protectUploadZone'];
-        if (!uploadManager || uploadManager.getFiles().length === 0) {
-            showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
+        if (!selectedFile) {
+            showError(i18nMessages.selectFile);
             return;
         }
 
@@ -166,17 +190,17 @@
         const confirmPassword = document.getElementById('confirmPassword');
 
         if (!password.value) {
-            showError('{{ _("Veuillez entrer un mot de passe") }}');
+            showError(i18nMessages.enterPassword);
             return;
         }
 
         if (password.value !== confirmPassword.value) {
-            showError('{{ _("Les mots de passe ne correspondent pas") }}');
+            showError(i18nMessages.passwordsDontMatch);
             return;
         }
 
         const formData = new FormData();
-        formData.append('file', uploadManager.getFiles()[0]);
+        formData.append('file', selectedFile);
         formData.append('user_password', password.value);
         
         const ownerPassword = document.getElementById('ownerPassword');
@@ -191,14 +215,13 @@
         updateStep(2);
 
         let progress = 0;
-        const progressBar = document.getElementById('progressBar');
-        const progressMsg = document.getElementById('progressMessage');
+        updateProgress(0, i18nMessages.starting);
 
         progressInterval = setInterval(() => {
-            if (progress < 90) {
-                progress += 10;
-                if (progressBar) progressBar.style.width = progress + '%';
-                if (progressMsg) progressMsg.textContent = '{{ _("Application de la protection...") }} ' + progress + '%';
+            if (progress < 95) {
+                progress += Math.random() * 15;
+                progress = Math.min(progress, 95);
+                updateProgress(progress, i18nMessages.protecting + ' ' + Math.round(progress) + '%');
             }
         }, 300);
 
@@ -208,29 +231,20 @@
         })
         .then(async response => {
             clearInterval(progressInterval);
-            if (progressBar) progressBar.style.width = '100%';
-            if (progressMsg) progressMsg.textContent = '{{ _("Terminé !") }}';
+            updateProgress(100, i18nMessages.completed);
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || 'Erreur serveur ' + response.status);
-            }
+            if (!response.ok) throw new Error(i18nMessages.errorPrefix + ' ' + response.status);
 
             const blob = await response.blob();
-            if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+            if (blob.size === 0) throw new Error('Fichier vide');
 
             if (downloadUrl) URL.revokeObjectURL(downloadUrl);
             downloadUrl = URL.createObjectURL(blob);
 
-            const contentDisposition = response.headers.get('Content-Disposition') || '';
-            let filename = '{{ _("document_protege.pdf") }}';
-            const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-            if (match?.[1]) filename = match[1].replace(/['"]/g, '');
-
             const downloadLink = document.getElementById('downloadLink');
             if (downloadLink) {
                 downloadLink.href = downloadUrl;
-                downloadLink.setAttribute('download', filename);
+                downloadLink.download = selectedFile.name.replace(/\.pdf$/i, '') + '_protege.pdf';
             }
 
             updateStep(3);
@@ -238,76 +252,53 @@
         .catch(error => {
             clearInterval(progressInterval);
             updateStep(1);
-            showError('{{ _("Erreur lors de la protection :") }} ' + error.message);
+            showError(i18nMessages.protectionError + ' ' + error.message);
         });
     }
 
     function resetConversion() {
-        if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
-        if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
-
-        const uploadManager = window.uploadManagers?.['protectUploadZone'];
-        if (uploadManager) {
-            const files = uploadManager.getFiles();
-            for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
-        }
-
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('confirmPassword');
-        const ownerPassword = document.getElementById('ownerPassword');
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        if (progressInterval) clearInterval(progressInterval);
         
-        if (password) password.value = '';
-        if (confirmPassword) confirmPassword.value = '';
-        if (ownerPassword) ownerPassword.value = '';
-
-        const errorDiv = document.getElementById('conversionError');
-        if (errorDiv) errorDiv.style.display = 'none';
-        const progressBar = document.getElementById('progressBar');
+        selectedFile = null;
+        const fileInput = document.getElementById('pdfFileInput');
+        if (fileInput) fileInput.value = '';
+        
+        document.getElementById('password').value = '';
+        document.getElementById('confirmPassword').value = '';
+        document.getElementById('ownerPassword').value = '';
+        
+        const progressBar = document.getElementById('conversionProgress');
         if (progressBar) progressBar.style.width = '0%';
-
+        
+        updateFileNameDisplay();
+        updateConvertButton();
         updateStep(1);
     }
 
-    function updateButtonState() {
-        const uploadManager = window.uploadManagers?.['protectUploadZone'];
+    document.addEventListener('DOMContentLoaded', function() {
         const convertBtn = document.getElementById('convertBtn');
         if (convertBtn) {
-            convertBtn.disabled = !uploadManager || uploadManager.getFiles().length === 0;
+            convertBtn.addEventListener('click', startConversion);
         }
-    }
-
-    // Attendre que l'UploadManager soit chargé
-    function bindUploadManager() {
-        const manager = window.uploadManagers && window.uploadManagers.protectUploadZone;
-        if (!manager) {
-            setTimeout(bindUploadManager, 200);
-            return;
-        }
-
-        const originalHandleFiles = manager.handleFiles;
-        if (originalHandleFiles) {
-            manager.handleFiles = function(fileList) {
-                originalHandleFiles.call(this, fileList);
-                updateButtonState();
-            };
-        }
-
-        const originalRemoveFile = manager.removeFile;
-        if (originalRemoveFile) {
-            manager.removeFile = function(index) {
-                originalRemoveFile.call(this, index);
-                updateButtonState();
-            };
-        }
-
-        updateButtonState();
-    }
-
-    bindUploadManager();
-
-    window.addEventListener('beforeunload', () => {
-        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-        if (progressInterval) clearInterval(progressInterval);
+        
+        // Gérer l'input file personnalisé
+        const fileInput = document.getElementById('pdfFileInput');
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                updateFileNameDisplay();
+            } else {
+                selectedFile = null;
+                updateFileNameDisplay();
+            }
+            updateConvertButton();
+        });
+        
+        updateConvertButton();
     });
+
+    window.startConversion = startConversion;
+    window.resetConversion = resetConversion;
 </script>
 {% endblock %}

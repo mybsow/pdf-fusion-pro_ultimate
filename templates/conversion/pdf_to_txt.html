@@ -16,38 +16,34 @@
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
-        <i class="fas fa-file-pdf upload-icon"></i>
-        <h3>{{ _('Téléchargez votre fichier PDF') }}</h3>
-        <p class="text-muted">{{ _('Sélectionnez le PDF dont vous voulez extraire le texte') }}</p>
+        <i class="fas fa-file-alt upload-icon" style="color: #6c757d;"></i>
+        <h3>{{ _('Convertissez votre PDF en texte') }}</h3>
+        <p class="text-muted">{{ _('Extrayez le texte de votre document PDF') }}</p>
     </div>
 
-    <!-- Upload Zone avec UploadManager -->
-    <div id="pdfUploadZone" 
-         class="upload-zone-pro upload-zone" 
-         data-info-id="fileInfo"
-         data-btn-id="convertBtn"
-         style="cursor: pointer;">
-        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
-        <p class="text-muted">{{ _('ou') }}</p>
-        <input type="file" class="file-input" accept=".pdf" style="display: none;">
-        <p class="text-muted small mt-3">
-            <i class="fas fa-info-circle"></i> 
-            {{ _('Format accepté : PDF') }}
-        </p>
+    <div class="mb-4">
+        <label class="form-label fw-bold">{{ _('Sélectionnez votre fichier PDF') }}</label>
+        
+        <!-- INPUT FILE PERSONNALISÉ -->
+        <div class="custom-file-upload">
+            <input type="file" id="pdfFileInput" accept=".pdf" style="display: none;">
+            <button type="button" class="btn btn-outline-primary btn-lg w-100" onclick="document.getElementById('pdfFileInput').click()">
+                <i class="fas fa-folder-open me-2"></i>{{ _('Sélectionner un fichier') }}
+            </button>
+            <div id="pdfFileInputName" class="text-muted mt-2 text-center">{{ _('Aucun fichier sélectionné') }}</div>
+        </div>
+        
+        <small class="text-muted">{{ _('Format accepté : PDF') }}</small>
     </div>
-
-    <!-- Liste des fichiers -->
-    <div id="fileInfo" class="file-list mt-4"></div>
 
     <!-- Options d'extraction -->
     <div class="file-info-card mt-4">
-        <h5 class="mb-3">
+        <h5 class="mb-4">
             <i class="fas fa-cog me-2"></i>{{ _('Options d\'extraction') }}
         </h5>
-        <div class="row g-3">
+        <div class="row g-4">
             <div class="col-md-6">
-                <label for="encoding" class="form-label">{{ _('Encodage :') }}</label>
+                <label for="encoding" class="form-label fw-bold">{{ _('Encodage') }}</label>
                 <select id="encoding" class="form-select">
                     <option value="utf-8">UTF-8</option>
                     <option value="iso-8859-1">ISO-8859-1</option>
@@ -55,16 +51,16 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <div class="form-check mt-4">
+                <div class="form-check mt-2">
                     <input class="form-check-input" type="checkbox" id="preserveLayout">
                     <label class="form-check-label" for="preserveLayout">
-                        {{ _('Conserver la mise en page') }}
+                        <strong>{{ _('Conserver la mise en page') }}</strong>
                     </label>
                 </div>
-                <div class="form-check">
+                <div class="form-check mt-2">
                     <input class="form-check-input" type="checkbox" id="addPageMarkers" checked>
                     <label class="form-check-label" for="addPageMarkers">
-                        {{ _('Ajouter des marqueurs de page') }}
+                        <strong>{{ _('Ajouter des marqueurs de page') }}</strong>
                     </label>
                 </div>
             </div>
@@ -72,25 +68,26 @@
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="extractAllPages" checked>
                     <label class="form-check-label" for="extractAllPages">
-                        {{ _('Extraire toutes les pages') }}
+                        <strong>{{ _('Extraire toutes les pages') }}</strong>
                     </label>
                 </div>
             </div>
             <div class="col-12" id="pageRangeGroup" style="display: none;">
-                <label for="pageRange" class="form-label">{{ _('Pages à extraire :') }}</label>
+                <label for="pageRange" class="form-label fw-bold">{{ _('Pages à extraire') }}</label>
                 <input type="text" id="pageRange" class="form-control" 
                        placeholder="{{ _('Exemple: 1-5,8,11-13') }}">
-                <div class="form-text">
-                    {{ _('Spécifiez les pages à extraire (ex: 1-3,5,7-9)') }}
-                </div>
+                <small class="text-muted">{{ _('Spécifiez les pages à extraire (ex: 1-3,5,7-9)') }}</small>
             </div>
         </div>
     </div>
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn" disabled>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn">
             <i class="fas fa-sync-alt me-2"></i>{{ _('Extraire le texte') }}
+        </button>
+        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -98,33 +95,28 @@
 <!-- Étape 2 : Extraction en cours -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="mb-4">
-            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
+        <i class="fas fa-cog fa-spin fa-4x text-primary mb-4"></i>
+        <h3 class="mb-3">{{ _('Extraction en cours...') }}</h3>
+        <div class="progress-container mx-auto" style="max-width: 500px;">
+            <div class="progress bg-light rounded-pill" style="height: 10px;">
+                <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" style="width: 0%;"></div>
+            </div>
         </div>
-        <h3>{{ _('Extraction en cours...') }}</h3>
-        <p class="text-muted">{{ _('Veuillez patienter pendant l\'extraction du texte') }}</p>
-        <div class="progress-container">
-            <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
-        </div>
+        <p class="mt-2 text-muted" id="progressPercent">0%</p>
+        <p class="text-muted" id="conversionMessage">{{ _('Analyse du document...') }}</p>
     </div>
 </div>
 
 <!-- Étape 3 : Téléchargement -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="success-animation">
-            <i class="fas fa-check"></i>
+        <div class="success-animation bg-success rounded-circle d-inline-flex p-4 mb-4">
+            <i class="fas fa-file-alt fa-3x text-white"></i>
         </div>
-        <h3>{{ _('Extraction terminée !') }}</h3>
-        <p class="text-muted">{{ _('Votre fichier texte est prêt à être téléchargé') }}</p>
-        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>{{ _('Télécharger le texte') }}
-        </a>
-        <div class="mt-4">
-            <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>{{ _('Extraire un autre PDF') }}
-            </button>
-        </div>
+        <h3 class="mb-3">{{ _('Extraction terminée !') }}</h3>
+        <p class="text-muted mb-4">{{ _('Votre fichier texte est prêt au téléchargement') }}</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>{{ _('Télécharger le texte') }}</a>
+        <button class="btn btn-outline-primary btn-lg ms-2" onclick="resetConversion()">{{ _('Nouvelle extraction') }}</button>
     </div>
 </div>
 
@@ -134,211 +126,210 @@
 {% block scripts %}
 {{ super() }}
 <script>
-// ── Lecture des chaînes i18n depuis le DOM ──
-var i18n = (function() {
-    var el = document.getElementById('js-i18n');
-    return {
-        errNoFile: el.getAttribute('data-err-no-file'),
-        errNoPages: el.getAttribute('data-err-no-pages'),
-        errInvalidRange: el.getAttribute('data-err-invalid-range'),
-        errExtraction: el.getAttribute('data-err-extraction'),
-        urlConverter: el.getAttribute('data-url-converter')
+    // ── Lecture des chaînes i18n depuis le DOM ──
+    const i18n = (function() {
+        const el = document.getElementById('js-i18n');
+        return {
+            errNoFile: el.getAttribute('data-err-no-file'),
+            errNoPages: el.getAttribute('data-err-no-pages'),
+            errInvalidRange: el.getAttribute('data-err-invalid-range'),
+            errExtraction: el.getAttribute('data-err-extraction'),
+            urlConverter: el.getAttribute('data-url-converter')
+        };
+    })();
+
+    // Messages supplémentaires
+    const i18nMessages = {
+        starting: "{{ _('Démarrage...') }}",
+        extracting: "{{ _('Extraction en cours...') }}",
+        finalizing: "{{ _('Finalisation...') }}",
+        noFileSelected: "{{ _('Aucun fichier sélectionné') }}"
     };
-})();
 
-var downloadUrl = null;
-var progressInterval = null;
+    let downloadUrl = null;
+    let progressInterval = null;
+    let selectedFile = null;
 
-function updateStep(step) {
-    var s1 = document.getElementById('step1Content');
-    var s2 = document.getElementById('step2Content');
-    var s3 = document.getElementById('step3Content');
-    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
-    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
-    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+    function updateStep(step) {
+        const s1 = document.getElementById('step1Content');
+        const s2 = document.getElementById('step2Content');
+        const s3 = document.getElementById('step3Content');
+        if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+        if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+        if (s3) s3.style.display = step === 3 ? 'block' : 'none';
 
-    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
-        window.updateStep(step);
+        if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+            window.updateStep(step);
+        }
     }
-}
 
-function showError(message) {
-    var errorDiv = document.getElementById('conversionError');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'conversionError';
+    function showError(message) {
+        const errorDiv = document.createElement('div');
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
-        var s1 = document.getElementById('step1Content');
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        const s1 = document.getElementById('step1Content');
         if (s1) s1.prepend(errorDiv);
-    }
-    var msgSpan = document.getElementById('conversionErrorMsg');
-    if (msgSpan) msgSpan.textContent = message;
-    errorDiv.style.display = 'block';
-    setTimeout(function() {
-        if (errorDiv) errorDiv.style.display = 'none';
-    }, 8000);
-}
-
-function updateButtonState() {
-    var manager = window.uploadManagers && window.uploadManagers.pdfUploadZone;
-    var convertBtn = document.getElementById('convertBtn');
-    if (convertBtn) {
-        convertBtn.disabled = !manager || !manager.files || manager.files.length === 0;
-    }
-}
-
-function bindUploadManager() {
-    var manager = window.uploadManagers && window.uploadManagers.pdfUploadZone;
-    if (!manager) {
-        setTimeout(bindUploadManager, 200);
-        return;
+        setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
     }
 
-    var originalHandleFiles = manager.handleFiles;
-    if (originalHandleFiles) {
-        manager.handleFiles = function(fileList) {
-            originalHandleFiles.call(this, fileList);
-            updateButtonState();
-        };
+    function updateProgress(percent, message) {
+        const progressBar = document.getElementById('conversionProgress');
+        const percentSpan = document.getElementById('progressPercent');
+        const msgSpan = document.getElementById('conversionMessage');
+        
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
+        if (msgSpan) msgSpan.textContent = message;
     }
 
-    var originalRemoveFile = manager.removeFile;
-    if (originalRemoveFile) {
-        manager.removeFile = function(index) {
-            originalRemoveFile.call(this, index);
-            updateButtonState();
-        };
+    function updateFileNameDisplay() {
+        const display = document.getElementById('pdfFileInputName');
+        if (display) {
+            if (selectedFile) {
+                display.textContent = selectedFile.name;
+            } else {
+                display.textContent = i18nMessages.noFileSelected;
+            }
+        }
     }
 
-    updateButtonState();
-}
-
-function validatePageRange(range) {
-    if (!range) return false;
-    return /^(\d+(-\d+)?)(,\d+(-\d+)?)*$/.test(range);
-}
-
-function startConversion() {
-    var manager = window.uploadManagers && window.uploadManagers.pdfUploadZone;
-    if (!manager || !manager.files || manager.files.length === 0) {
-        showError(i18n.errNoFile);
-        return;
+    function updateConvertButton() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.disabled = !selectedFile;
+        }
     }
 
-    var extractAll = document.getElementById('extractAllPages').checked;
-    if (!extractAll) {
-        var pageRange = document.getElementById('pageRange').value.trim();
-        if (!pageRange) {
-            showError(i18n.errNoPages);
+    function validatePageRange(range) {
+        if (!range) return false;
+        return /^(\d+(-\d+)?)(,\d+(-\d+)?)*$/.test(range);
+    }
+
+    function startConversion() {
+        if (!selectedFile) {
+            showError(i18n.errNoFile);
             return;
         }
-        if (!validatePageRange(pageRange)) {
-            showError(i18n.errInvalidRange);
-            return;
-        }
-    }
 
-    var file = manager.getFiles()[0];
-    var formData = new FormData();
-    formData.append('file', file);
-    formData.append('encoding', document.getElementById('encoding').value);
-    formData.append('preserveLayout', document.getElementById('preserveLayout').checked ? 'true' : 'false');
-    formData.append('addPageMarkers', document.getElementById('addPageMarkers').checked ? 'true' : 'false');
-    formData.append('extractAllPages', extractAll ? 'true' : 'false');
-    if (!extractAll) {
-        formData.append('pageRange', document.getElementById('pageRange').value);
-    }
-
-    updateStep(2);
-
-    var progress = 0;
-    var progressBar = document.getElementById('progressBar');
-    progressInterval = setInterval(function() {
-        if (progress < 90) {
-            progress += 10;
-            if (progressBar) progressBar.style.width = progress + '%';
-        }
-    }, 500);
-
-    fetch(i18n.urlConverter, {
-        method: 'POST',
-        body: formData
-    })
-    .then(function(response) {
-        clearInterval(progressInterval);
-        if (progressBar) progressBar.style.width = '100%';
-        return response.blob();
-    })
-    .then(function(blob) {
-        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
-
-        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-        downloadUrl = URL.createObjectURL(blob);
-
-        var contentDisposition = response.headers.get('Content-Disposition') || '';
-        var filename = file.name.replace(/\.pdf$/i, '') + '.txt';
-        var match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match && match[1]) {
-            filename = match[1].replace(/['"]/g, '');
+        const extractAll = document.getElementById('extractAllPages').checked;
+        if (!extractAll) {
+            const pageRange = document.getElementById('pageRange').value.trim();
+            if (!pageRange) {
+                showError(i18n.errNoPages);
+                return;
+            }
+            if (!validatePageRange(pageRange)) {
+                showError(i18n.errInvalidRange);
+                return;
+            }
         }
 
-        var downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.setAttribute('download', filename);
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('encoding', document.getElementById('encoding').value);
+        formData.append('preserveLayout', document.getElementById('preserveLayout').checked ? 'true' : 'false');
+        formData.append('addPageMarkers', document.getElementById('addPageMarkers').checked ? 'true' : 'false');
+        formData.append('extractAllPages', extractAll ? 'true' : 'false');
+        if (!extractAll) {
+            formData.append('pageRange', document.getElementById('pageRange').value);
         }
 
-        updateStep(3);
-    })
-    .catch(function(error) {
-        clearInterval(progressInterval);
-        updateStep(1);
-        showError(i18n.errExtraction + ' ' + error.message);
-    });
-}
+        updateStep(2);
 
-function resetConversion() {
-    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
-    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+        let progress = 0;
+        updateProgress(0, i18nMessages.starting);
 
-    var manager = window.uploadManagers && window.uploadManagers.pdfUploadZone;
-    if (manager && manager.removeFile) {
-        var files = manager.getFiles();
-        for (var i = files.length - 1; i >= 0; i--) manager.removeFile(i);
-    }
+        progressInterval = setInterval(function() {
+            if (progress < 95) {
+                progress += Math.random() * 15;
+                progress = Math.min(progress, 95);
+                updateProgress(progress, i18nMessages.extracting);
+            }
+        }, 400);
 
-    var pageRangeEl = document.getElementById('pageRange');
-    if (pageRangeEl) pageRangeEl.value = '';
+        fetch(i18n.urlConverter, {
+            method: 'POST',
+            body: formData
+        })
+        .then(async function(response) {
+            clearInterval(progressInterval);
+            
+            if (!response.ok) throw new Error('Erreur ' + response.status);
+            
+            updateProgress(100, i18nMessages.finalizing);
 
-    var errorDiv = document.getElementById('conversionError');
-    if (errorDiv) errorDiv.style.display = 'none';
-    var progressBar = document.getElementById('progressBar');
-    if (progressBar) progressBar.style.width = '0%';
+            const blob = await response.blob();
+            if (blob.size === 0) throw new Error('Fichier vide');
 
-    updateStep(1);
-}
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
 
-document.addEventListener('DOMContentLoaded', function() {
-    var extractAllPages = document.getElementById('extractAllPages');
-    var pageRangeGroup = document.getElementById('pageRangeGroup');
-    if (extractAllPages && pageRangeGroup) {
-        extractAllPages.addEventListener('change', function() {
-            pageRangeGroup.style.display = this.checked ? 'none' : 'block';
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.download = selectedFile.name.replace(/\.pdf$/i, '') + '.txt';
+            }
+
+            updateStep(3);
+        })
+        .catch(function(error) {
+            console.error('Erreur:', error);
+            clearInterval(progressInterval);
+            updateStep(1);
+            showError(i18n.errExtraction + ' ' + error.message);
         });
     }
-    
-    bindUploadManager();
-    
-    var convertBtn = document.getElementById('convertBtn');
-    if (convertBtn) {
-        convertBtn.addEventListener('click', startConversion);
-    }
-});
 
-window.addEventListener('beforeunload', function() {
-    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-    if (progressInterval) clearInterval(progressInterval);
-});
+    function resetConversion() {
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        if (progressInterval) clearInterval(progressInterval);
+        
+        selectedFile = null;
+        const fileInput = document.getElementById('pdfFileInput');
+        if (fileInput) fileInput.value = '';
+        
+        const pageRangeEl = document.getElementById('pageRange');
+        if (pageRangeEl) pageRangeEl.value = '';
+        
+        const progressBar = document.getElementById('conversionProgress');
+        if (progressBar) progressBar.style.width = '0%';
+        
+        updateFileNameDisplay();
+        updateConvertButton();
+        updateStep(1);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const extractAllPages = document.getElementById('extractAllPages');
+        const pageRangeGroup = document.getElementById('pageRangeGroup');
+        if (extractAllPages && pageRangeGroup) {
+            extractAllPages.addEventListener('change', function() {
+                pageRangeGroup.style.display = this.checked ? 'none' : 'block';
+            });
+        }
+        
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', startConversion);
+        }
+        
+        // Gérer l'input file personnalisé
+        const fileInput = document.getElementById('pdfFileInput');
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                updateFileNameDisplay();
+            } else {
+                selectedFile = null;
+                updateFileNameDisplay();
+            }
+            updateConvertButton();
+        });
+        
+        updateConvertButton();
+    });
+
+    window.startConversion = startConversion;
+    window.resetConversion = resetConversion;
 </script>
 {% endblock %}

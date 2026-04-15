@@ -6,29 +6,25 @@
 <!-- Étape 1 : Upload -->
 <div id="step1Content">
     <div class="text-center mb-4">
-        <i class="fas fa-file-alt upload-icon"></i>
-        <h3>{{ _('Téléchargez votre fichier texte') }}</h3>
-        <p class="text-muted">{{ _('ou collez votre texte directement') }}</p>
+        <i class="fas fa-file-alt upload-icon" style="color: #6c757d;"></i>
+        <h3>{{ _('Convertissez votre texte en PDF') }}</h3>
+        <p class="text-muted">{{ _('Téléchargez un fichier texte ou collez votre contenu directement') }}</p>
     </div>
 
-    <!-- Upload Zone avec UploadManager -->
-    <div id="txtUploadZone" 
-         class="upload-zone-pro upload-zone" 
-         data-info-id="fileInfo"
-         data-btn-id="convertBtn"
-         style="cursor: pointer;">
-        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>{{ _('Glissez-déposez votre fichier texte ici') }}</h4>
-        <p class="text-muted">{{ _('ou') }}</p>
-        <input type="file" class="file-input" accept=".txt" style="display: none;">
-        <p class="text-muted small mt-3">
-            <i class="fas fa-info-circle"></i> 
-            {{ _('Format accepté : TXT') }}
-        </p>
+    <div class="mb-4">
+        <label class="form-label fw-bold">{{ _('Sélectionnez votre fichier texte') }}</label>
+        
+        <!-- INPUT FILE PERSONNALISÉ -->
+        <div class="custom-file-upload">
+            <input type="file" id="txtFileInput" accept=".txt" style="display: none;">
+            <button type="button" class="btn btn-outline-primary btn-lg w-100" onclick="document.getElementById('txtFileInput').click()">
+                <i class="fas fa-folder-open me-2"></i>{{ _('Sélectionner un fichier') }}
+            </button>
+            <div id="txtFileInputName" class="text-muted mt-2 text-center">{{ _('Aucun fichier sélectionné') }}</div>
+        </div>
+        
+        <small class="text-muted">{{ _('Format accepté : TXT') }}</small>
     </div>
-
-    <!-- Liste des fichiers -->
-    <div id="fileInfo" class="file-list mt-4"></div>
 
     <!-- Text Editor -->
     <div class="mt-4">
@@ -39,20 +35,20 @@
 
     <!-- Options de formatage -->
     <div class="file-info-card mt-4">
-        <h5 class="mb-3">
+        <h5 class="mb-4">
             <i class="fas fa-cog me-2"></i>{{ _('Options de formatage') }}
         </h5>
-        <div class="row g-3">
+        <div class="row g-4">
             <div class="col-md-6">
-                <label for="pageSize" class="form-label">{{ _('Format de page :') }}</label>
+                <label for="pageSize" class="form-label fw-bold">{{ _('Format de page') }}</label>
                 <select id="pageSize" class="form-select">
                     <option value="A4">A4</option>
-                    <option value="letter">{{ _('Lettre') }}</option>
+                    <option value="letter">{{ _('Letter') }}</option>
                     <option value="legal">Legal</option>
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="fontFamily" class="form-label">{{ _('Police :') }}</label>
+                <label for="fontFamily" class="form-label fw-bold">{{ _('Police') }}</label>
                 <select id="fontFamily" class="form-select">
                     <option value="Helvetica">Helvetica</option>
                     <option value="Times-Roman">{{ _('Times New Roman') }}</option>
@@ -60,7 +56,7 @@
                 </select>
             </div>
             <div class="col-md-4">
-                <label for="fontSize" class="form-label">{{ _('Taille :') }}</label>
+                <label for="fontSize" class="form-label fw-bold">{{ _('Taille') }}</label>
                 <select id="fontSize" class="form-select">
                     <option value="10">10</option>
                     <option value="11">11</option>
@@ -69,7 +65,7 @@
                 </select>
             </div>
             <div class="col-md-4">
-                <label for="lineSpacing" class="form-label">{{ _('Interligne :') }}</label>
+                <label for="lineSpacing" class="form-label fw-bold">{{ _('Interligne') }}</label>
                 <select id="lineSpacing" class="form-select">
                     <option value="1">{{ _('Simple') }}</option>
                     <option value="1.5">1,5</option>
@@ -77,10 +73,10 @@
                 </select>
             </div>
             <div class="col-md-4">
-                <div class="form-check mt-4">
+                <div class="form-check mt-2">
                     <input class="form-check-input" type="checkbox" id="addPageNumbers" checked>
                     <label class="form-check-label" for="addPageNumbers">
-                        {{ _('Numéros de page') }}
+                        <strong>{{ _('Numéros de page') }}</strong>
                     </label>
                 </div>
             </div>
@@ -89,8 +85,11 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn" disabled>
-            <i class="fas fa-sync-alt me-2"></i>{{ _('Convertir en PDF') }}
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn">
+            <i class="fas fa-file-pdf me-2"></i>{{ _('Convertir en PDF') }}
+        </button>
+        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
+            <i class="fas fa-redo me-2"></i>{{ _('Réinitialiser') }}
         </button>
     </div>
 </div>
@@ -98,33 +97,28 @@
 <!-- Étape 2 : Conversion en cours -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="mb-4">
-            <i class="fas fa-cog fa-spin fa-4x text-primary"></i>
+        <i class="fas fa-cog fa-spin fa-4x text-primary mb-4"></i>
+        <h3 class="mb-3">{{ _('Conversion en cours...') }}</h3>
+        <div class="progress-container mx-auto" style="max-width: 500px;">
+            <div class="progress bg-light rounded-pill" style="height: 10px;">
+                <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" style="width: 0%;"></div>
+            </div>
         </div>
-        <h3>{{ _('Conversion en cours...') }}</h3>
-        <p class="text-muted">{{ _('Veuillez patienter pendant le traitement de votre texte') }}</p>
-        <div class="progress-container">
-            <div class="progress-bar" style="width: 0%;" id="progressBar"></div>
-        </div>
+        <p class="mt-2 text-muted" id="progressPercent">0%</p>
+        <p class="text-muted" id="conversionMessage">{{ _('Analyse du texte...') }}</p>
     </div>
 </div>
 
 <!-- Étape 3 : Téléchargement -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="success-animation">
-            <i class="fas fa-check"></i>
+        <div class="success-animation bg-success rounded-circle d-inline-flex p-4 mb-4">
+            <i class="fas fa-file-pdf fa-3x text-white"></i>
         </div>
-        <h3>{{ _('Conversion terminée !') }}</h3>
-        <p class="text-muted">{{ _('Votre PDF est prêt à être téléchargé') }}</p>
-        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF') }}
-        </a>
-        <div class="mt-4">
-            <button class="btn btn-outline-primary" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>{{ _('Convertir un autre texte') }}
-            </button>
-        </div>
+        <h3 class="mb-3">{{ _('Conversion réussie !') }}</h3>
+        <p class="text-muted mb-4">{{ _('Votre PDF est prêt au téléchargement') }}</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>{{ _('Télécharger PDF') }}</a>
+        <button class="btn btn-outline-primary btn-lg ms-2" onclick="resetConversion()">{{ _('Nouvelle conversion') }}</button>
     </div>
 </div>
 
@@ -134,185 +128,190 @@
 {% block scripts %}
 {{ super() }}
 <script>
-let downloadUrl = null;
-let progressInterval = null;
+    // Messages i18n pour JavaScript
+    const i18nMessages = {
+        selectFileOrText: "{{ _('Veuillez saisir du texte ou sélectionner un fichier') }}",
+        starting: "{{ _('Démarrage...') }}",
+        converting: "{{ _('Conversion en cours...') }}",
+        finalizing: "{{ _('Finalisation...') }}",
+        errorPrefix: "{{ _('Erreur') }}",
+        conversionError: "{{ _('Erreur lors de la conversion :') }}",
+        noFileSelected: "{{ _('Aucun fichier sélectionné') }}"
+    };
 
-function updateStep(step) {
-    const s1 = document.getElementById('step1Content');
-    const s2 = document.getElementById('step2Content');
-    const s3 = document.getElementById('step3Content');
-    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
-    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
-    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+    let downloadUrl = null;
+    let progressInterval = null;
+    let selectedFile = null;
 
-    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
-        window.updateStep(step);
+    function updateStep(step) {
+        const s1 = document.getElementById('step1Content');
+        const s2 = document.getElementById('step2Content');
+        const s3 = document.getElementById('step3Content');
+        
+        if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+        if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+        if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+        if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+            window.updateStep(step);
+        }
     }
-}
 
-function showError(message) {
-    let errorDiv = document.getElementById('conversionError');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'conversionError';
+    function showError(message) {
+        const errorDiv = document.createElement('div');
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
         const s1 = document.getElementById('step1Content');
         if (s1) s1.prepend(errorDiv);
-    }
-    const msgSpan = document.getElementById('conversionErrorMsg');
-    if (msgSpan) msgSpan.textContent = message;
-    errorDiv.style.display = 'block';
-}
-
-function updateConvertButton() {
-    const uploadManager = window.uploadManagers?.['txtUploadZone'];
-    const hasFile = uploadManager && uploadManager.getFiles().length > 0;
-    const textarea = document.getElementById('textContent');
-    const hasText = textarea && textarea.value.trim().length > 0;
-    const convertBtn = document.getElementById('convertBtn');
-    if (convertBtn) convertBtn.disabled = !(hasFile || hasText);
-}
-
-function updateButtonState() {
-    updateConvertButton();
-}
-
-function bindUploadManager() {
-    const manager = window.uploadManagers && window.uploadManagers.txtUploadZone;
-    if (!manager) {
-        setTimeout(bindUploadManager, 200);
-        return;
+        setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
     }
 
-    const originalHandleFiles = manager.handleFiles;
-    if (originalHandleFiles) {
-        manager.handleFiles = function(fileList) {
-            originalHandleFiles.call(this, fileList);
-            updateButtonState();
-        };
+    function updateProgress(percent, message) {
+        const progressBar = document.getElementById('conversionProgress');
+        const percentSpan = document.getElementById('progressPercent');
+        const msgSpan = document.getElementById('conversionMessage');
+        
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
+        if (msgSpan) msgSpan.textContent = message;
     }
 
-    const originalRemoveFile = manager.removeFile;
-    if (originalRemoveFile) {
-        manager.removeFile = function(index) {
-            originalRemoveFile.call(this, index);
-            updateButtonState();
-        };
-    }
-
-    updateButtonState();
-}
-
-function startConversion() {
-    const uploadManager = window.uploadManagers?.['txtUploadZone'];
-    const textContent = document.getElementById('textContent');
-    const files = uploadManager ? uploadManager.getFiles() : [];
-
-    const formData = new FormData();
-    
-    if (files.length > 0) {
-        formData.append('file', files[0]);
-    } else if (textContent && textContent.value.trim()) {
-        const blob = new Blob([textContent.value], { type: 'text/plain' });
-        formData.append('file', blob, 'document.txt');
-    } else {
-        showError('{{ _("Veuillez saisir du texte ou sélectionner un fichier") }}');
-        return;
-    }
-
-    formData.append('pageSize', document.getElementById('pageSize').value);
-    formData.append('fontFamily', document.getElementById('fontFamily').value);
-    formData.append('fontSize', document.getElementById('fontSize').value);
-    formData.append('lineSpacing', document.getElementById('lineSpacing').value);
-    formData.append('addPageNumbers', document.getElementById('addPageNumbers').checked ? 'true' : 'false');
-
-    updateStep(2);
-
-    let progress = 0;
-    const progressBar = document.getElementById('progressBar');
-    progressInterval = setInterval(() => {
-        if (progress < 90) {
-            progress += 10;
-            if (progressBar) progressBar.style.width = progress + '%';
+    function updateFileNameDisplay() {
+        const display = document.getElementById('txtFileInputName');
+        if (display) {
+            if (selectedFile) {
+                display.textContent = selectedFile.name;
+            } else {
+                display.textContent = i18nMessages.noFileSelected;
+            }
         }
-    }, 500);
+    }
 
-    fetch('{{ url_for("conversion.universal_converter", conversion_type="txt-en-pdf") }}', {
-        method: 'POST',
-        body: formData
-    })
-    .then(async response => {
-        clearInterval(progressInterval);
-        if (progressBar) progressBar.style.width = '100%';
+    function updateConvertButton() {
+        const textarea = document.getElementById('textContent');
+        const hasText = textarea && textarea.value.trim().length > 0;
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.disabled = !(selectedFile || hasText);
+        }
+    }
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erreur serveur ' + response.status);
+    function startConversion() {
+        const textContent = document.getElementById('textContent');
+        const hasText = textContent && textContent.value.trim().length > 0;
+
+        if (!selectedFile && !hasText) {
+            showError(i18nMessages.selectFileOrText);
+            return;
         }
 
-        const blob = await response.blob();
-        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
+        const formData = new FormData();
+        
+        if (selectedFile) {
+            formData.append('file', selectedFile);
+        } else {
+            const blob = new Blob([textContent.value], { type: 'text/plain' });
+            formData.append('file', blob, 'document.txt');
+        }
 
+        formData.append('pageSize', document.getElementById('pageSize').value);
+        formData.append('fontFamily', document.getElementById('fontFamily').value);
+        formData.append('fontSize', document.getElementById('fontSize').value);
+        formData.append('lineSpacing', document.getElementById('lineSpacing').value);
+        formData.append('addPageNumbers', document.getElementById('addPageNumbers').checked ? 'true' : 'false');
+
+        updateStep(2);
+
+        let progress = 0;
+        updateProgress(0, i18nMessages.starting);
+
+        progressInterval = setInterval(() => {
+            if (progress < 95) {
+                progress += Math.random() * 15;
+                progress = Math.min(progress, 95);
+                updateProgress(progress, i18nMessages.converting);
+            }
+        }, 400);
+
+        fetch('{{ url_for("conversion.universal_converter", conversion_type="txt-en-pdf") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(async response => {
+            clearInterval(progressInterval);
+            
+            if (!response.ok) throw new Error(i18nMessages.errorPrefix + ' ' + response.status);
+            
+            updateProgress(100, i18nMessages.finalizing);
+
+            const blob = await response.blob();
+            if (blob.size === 0) throw new Error('Fichier vide');
+
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
+
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.download = 'document.pdf';
+            }
+
+            updateStep(3);
+        })
+        .catch(error => {
+            clearInterval(progressInterval);
+            updateStep(1);
+            showError(i18nMessages.conversionError + ' ' + error.message);
+        });
+    }
+
+    function resetConversion() {
         if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-        downloadUrl = URL.createObjectURL(blob);
-
-        const contentDisposition = response.headers.get('Content-Disposition') || '';
-        let filename = 'document.pdf';
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
-
-        const downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.setAttribute('download', filename);
-        }
-
-        updateStep(3);
-    })
-    .catch(error => {
-        clearInterval(progressInterval);
+        if (progressInterval) clearInterval(progressInterval);
+        
+        selectedFile = null;
+        const fileInput = document.getElementById('txtFileInput');
+        if (fileInput) fileInput.value = '';
+        
+        const textContent = document.getElementById('textContent');
+        if (textContent) textContent.value = '';
+        
+        const progressBar = document.getElementById('conversionProgress');
+        if (progressBar) progressBar.style.width = '0%';
+        
+        updateFileNameDisplay();
+        updateConvertButton();
         updateStep(1);
-        showError('{{ _("Erreur lors de la conversion :") }} ' + error.message);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', startConversion);
+        }
+        
+        // Gérer l'input file personnalisé
+        const fileInput = document.getElementById('txtFileInput');
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                updateFileNameDisplay();
+            } else {
+                selectedFile = null;
+                updateFileNameDisplay();
+            }
+            updateConvertButton();
+        });
+        
+        const textContent = document.getElementById('textContent');
+        if (textContent) {
+            textContent.addEventListener('input', updateConvertButton);
+        }
+        
+        updateConvertButton();
     });
-}
 
-function resetConversion() {
-    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
-    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
-
-    const uploadManager = window.uploadManagers?.['txtUploadZone'];
-    if (uploadManager) {
-        const files = uploadManager.getFiles();
-        for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
-    }
-
-    const textContent = document.getElementById('textContent');
-    if (textContent) textContent.value = '';
-
-    const errorDiv = document.getElementById('conversionError');
-    if (errorDiv) errorDiv.style.display = 'none';
-    const progressBar = document.getElementById('progressBar');
-    if (progressBar) progressBar.style.width = '0%';
-
-    updateButtonState();
-    updateStep(1);
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    bindUploadManager();
-    
-    const textContent = document.getElementById('textContent');
-    if (textContent) {
-        textContent.addEventListener('input', updateButtonState);
-    }
-    
-    updateButtonState();
-});
-
-window.addEventListener('beforeunload', () => {
-    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-    if (progressInterval) clearInterval(progressInterval);
-});
+    window.startConversion = startConversion;
+    window.resetConversion = resetConversion;
 </script>
 {% endblock %}

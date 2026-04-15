@@ -7,38 +7,34 @@
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-mask upload-icon" style="color: #e67e22;"></i>
-        <h3>{{ _('Téléchargez votre PDF') }}</h3>
+        <h3>{{ _('Caviardez votre PDF') }}</h3>
         <p class="text-muted">{{ _('Supprimez définitivement le contenu sensible de votre document') }}</p>
     </div>
 
-    <!-- Zone d'upload avec UploadManager -->
-    <div id="pdfUploadZone" 
-         class="upload-zone-pro upload-zone" 
-         data-info-id="fileInfo"
-         data-btn-id="convertBtn"
-         style="cursor: pointer;">
-        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-        <h4>{{ _('Glissez-déposez votre fichier PDF ici') }}</h4>
-        <p class="text-muted">{{ _('ou') }}</p>
-        <input type="file" class="file-input" accept=".pdf" multiple style="display: none;">
-        <p class="text-muted small mt-3">
-            <i class="fas fa-info-circle"></i> 
-            {{ _('Formats acceptés : PDF (jusqu\'à 100MB)') }}
-        </p>
+    <div class="mb-4">
+        <label class="form-label fw-bold">{{ _('Sélectionnez votre fichier PDF') }}</label>
+        
+        <!-- INPUT FILE PERSONNALISÉ -->
+        <div class="custom-file-upload">
+            <input type="file" id="pdfFileInput" accept=".pdf" style="display: none;">
+            <button type="button" class="btn btn-outline-primary btn-lg w-100" onclick="document.getElementById('pdfFileInput').click()">
+                <i class="fas fa-folder-open me-2"></i>{{ _('Sélectionner un fichier') }}
+            </button>
+            <div id="pdfFileInputName" class="text-muted mt-2 text-center">{{ _('Aucun fichier sélectionné') }}</div>
+        </div>
+        
+        <small class="text-muted">{{ _('Formats acceptés : PDF (jusqu\'à 100MB)') }}</small>
     </div>
-
-    <!-- Liste des fichiers -->
-    <div id="fileInfo" class="file-list mt-4"></div>
 
     <!-- Options de caviardage -->
     <div class="file-info-card mt-4">
-        <h5 class="mb-3">
+        <h5 class="mb-4">
             <i class="fas fa-cog me-2"></i>{{ _('Options de caviardage') }}
         </h5>
         
         <!-- Type de caviardage -->
         <div class="mb-4">
-            <label class="form-label fw-bold">{{ _('Type de caviardage :') }}</label>
+            <label class="form-label fw-bold">{{ _('Type de caviardage') }}</label>
             <div class="btn-group w-100" role="group">
                 <input type="radio" class="btn-check" name="redactType" id="typeText" value="text" checked>
                 <label class="btn btn-outline-primary" for="typeText">
@@ -59,7 +55,7 @@
 
         <!-- Section Texte spécifique -->
         <div id="textSection" class="mb-4">
-            <label for="searchText" class="form-label fw-bold">{{ _('Texte à caviarder :') }}</label>
+            <label for="searchText" class="form-label fw-bold">{{ _('Texte à caviarder') }}</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-search"></i></span>
                 <input type="text" class="form-control" id="searchText" 
@@ -89,7 +85,7 @@
             
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label for="areaColor" class="form-label fw-bold">{{ _('Couleur :') }}</label>
+                    <label for="areaColor" class="form-label fw-bold">{{ _('Couleur') }}</label>
                     <div class="d-flex">
                         <input type="color" class="form-control form-control-color me-2" id="areaColor" value="#000000" style="width: 60px;">
                         <select class="form-select" id="areaOpacity">
@@ -101,7 +97,7 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label for="areaBorder" class="form-label fw-bold">{{ _('Bordure :') }}</label>
+                    <label for="areaBorder" class="form-label fw-bold">{{ _('Bordure') }}</label>
                     <select class="form-select" id="areaBorder">
                         <option value="none">{{ _('Sans bordure') }}</option>
                         <option value="thin">{{ _('Fine') }}</option>
@@ -113,7 +109,7 @@
 
         <!-- Section Motif -->
         <div id="patternSection" class="mb-4" style="display:none;">
-            <label class="form-label fw-bold">{{ _('Motifs à caviarder :') }}</label>
+            <label class="form-label fw-bold">{{ _('Motifs à caviarder') }}</label>
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="form-check">
@@ -161,9 +157,9 @@
         <hr>
 
         <!-- Pages à traiter -->
-        <div class="row g-3">
+        <div class="row g-4">
             <div class="col-md-6">
-                <label for="pages" class="form-label fw-bold">{{ _('Pages à traiter :') }}</label>
+                <label for="pages" class="form-label fw-bold">{{ _('Pages à traiter') }}</label>
                 <select class="form-select" id="pages">
                     <option value="all">{{ _('Toutes les pages') }}</option>
                     <option value="range">{{ _('Sélectionner des pages') }}</option>
@@ -172,19 +168,19 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="pageRange" class="form-label fw-bold">{{ _('Plage de pages (si sélection) :') }}</label>
+                <label for="pageRange" class="form-label fw-bold">{{ _('Plage de pages') }}</label>
                 <input type="text" class="form-control" id="pageRange" placeholder="{{ _('Ex: 1-5, 8, 11-13') }}" disabled>
             </div>
         </div>
     </div>
 
-    <!-- Aperçu du PDF (si zone rectangulaire sélectionnée) -->
+    <!-- Aperçu du PDF -->
     <div id="pdfPreview" class="mt-4" style="display:none;">
         <h5 class="mb-3">
             <i class="fas fa-eye me-2"></i>{{ _('Aperçu du PDF - Dessinez les zones à caviarder') }}
         </h5>
         <div class="border rounded p-3 bg-light">
-            <canvas id="pdfCanvas" style="width:100%; height:500px; background: #f5f5f5;"></canvas>
+            <canvas id="pdfCanvas" style="width:100%; height:400px; background: #f5f5f5;"></canvas>
             <p class="text-muted small mt-2">
                 <i class="fas fa-mouse-pointer me-1"></i>
                 {{ _('Cliquez et faites glisser pour dessiner un rectangle de caviardage') }}
@@ -194,7 +190,7 @@
 
     <!-- Bouton de conversion -->
     <div class="text-center mt-4">
-        <button class="btn btn-warning btn-lg px-5" id="convertBtn" onclick="startConversion()" disabled>
+        <button class="btn btn-warning btn-lg px-5" id="convertBtn">
             <i class="fas fa-mask me-2"></i>{{ _('Caviarder le PDF') }}
         </button>
         <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">
@@ -206,34 +202,28 @@
 <!-- Étape 2 : Conversion en cours -->
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="mb-4">
-            <i class="fas fa-cog fa-spin fa-4x text-warning"></i>
+        <i class="fas fa-cog fa-spin fa-4x text-warning mb-4"></i>
+        <h3 class="mb-3">{{ _('Caviardage en cours...') }}</h3>
+        <div class="progress-container mx-auto" style="max-width: 500px;">
+            <div class="progress bg-light rounded-pill" style="height: 10px;">
+                <div class="progress-bar bg-warning rounded-pill" id="conversionProgress" style="width: 0%;"></div>
+            </div>
         </div>
-        <h3>{{ _('Caviardage en cours...') }}</h3>
-        <p class="text-muted">{{ _('Analyse et suppression du contenu sensible') }}</p>
-        <div class="progress-container">
-            <div class="progress-bar" style="width: 0%; background: #e67e22;" id="progressBar"></div>
-        </div>
-        <p class="text-muted mt-3" id="progressMessage">{{ _('Préparation...') }}</p>
+        <p class="mt-2 text-muted" id="progressPercent">0%</p>
+        <p class="text-muted" id="progressMessage">{{ _('Préparation...') }}</p>
     </div>
 </div>
 
 <!-- Étape 3 : Téléchargement -->
 <div id="step3Content" style="display: none;">
     <div class="text-center py-5">
-        <div class="success-animation">
-            <i class="fas fa-check"></i>
+        <div class="success-animation bg-success rounded-circle d-inline-flex p-4 mb-4">
+            <i class="fas fa-mask fa-3x text-white"></i>
         </div>
-        <h3>{{ _('Caviardage terminé !') }}</h3>
-        <p class="text-muted">{{ _('Le contenu sensible a été supprimé définitivement') }}</p>
-        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink">
-            <i class="fas fa-download me-2"></i>{{ _('Télécharger le PDF caviardé') }}
-        </a>
-        <div class="mt-4">
-            <button class="btn btn-outline-warning" onclick="resetConversion()">
-                <i class="fas fa-redo me-2"></i>{{ _('Caviarder un autre PDF') }}
-            </button>
-        </div>
+        <h3 class="mb-3">{{ _('Caviardage terminé !') }}</h3>
+        <p class="text-muted mb-4">{{ _('Le contenu sensible a été supprimé définitivement') }}</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>{{ _('Télécharger le PDF caviardé') }}</a>
+        <button class="btn btn-outline-warning btn-lg ms-2" onclick="resetConversion()">{{ _('Caviarder un autre PDF') }}</button>
     </div>
 </div>
 
@@ -243,388 +233,392 @@
 {% block scripts %}
 {{ super() }}
 <script>
-let downloadUrl = null;
-let progressInterval = null;
-let redactAreas = [];
-let pdfDocument = null;
-let isDrawingArea = false;
-let startX, startY;
-let currentRect = null;
-let pdfDimensions = { width: 0, height: 0 };
-let currentPage = 1;
-let pdfImage = null;
-let canvas = null;
-let ctx = null;
+    // Messages i18n pour JavaScript
+    const i18nMessages = {
+        selectFile: "{{ _('Veuillez sélectionner un fichier PDF') }}",
+        starting: "{{ _('Démarrage...') }}",
+        processing: "{{ _('Traitement en cours...') }}",
+        finalizing: "{{ _('Finalisation...') }}",
+        errorPrefix: "{{ _('Erreur') }}",
+        redactError: "{{ _('Erreur lors du caviardage :') }}",
+        noFileSelected: "{{ _('Aucun fichier sélectionné') }}",
+        zone: "{{ _('Zone') }}",
+        noZones: "{{ _('Aucune zone dessinée') }}",
+        loadError: "{{ _('Erreur lors du chargement de l\'aperçu PDF') }}"
+    };
 
-function updateStep(step) {
-    const s1 = document.getElementById('step1Content');
-    const s2 = document.getElementById('step2Content');
-    const s3 = document.getElementById('step3Content');
-    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
-    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
-    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+    let downloadUrl = null;
+    let progressInterval = null;
+    let selectedFile = null;
+    let redactAreas = [];
+    let pdfDocument = null;
+    let isDrawingArea = false;
+    let startX, startY;
+    let currentRect = null;
+    let pdfDimensions = { width: 0, height: 0 };
+    let currentPage = 1;
+    let pdfImage = null;
+    let canvas = null;
+    let ctx = null;
 
-    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
-        window.updateStep(step);
+    function updateStep(step) {
+        const s1 = document.getElementById('step1Content');
+        const s2 = document.getElementById('step2Content');
+        const s3 = document.getElementById('step3Content');
+        if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+        if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+        if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+        if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+            window.updateStep(step);
+        }
     }
-}
 
-function showError(message) {
-    let errorDiv = document.getElementById('conversionError');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'conversionError';
+    function showError(message) {
+        const errorDiv = document.createElement('div');
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
         const s1 = document.getElementById('step1Content');
         if (s1) s1.prepend(errorDiv);
+        setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
     }
-    const msgSpan = document.getElementById('conversionErrorMsg');
-    if (msgSpan) msgSpan.textContent = message;
-    errorDiv.style.display = 'block';
-}
 
-function addTextToList() {
-    const input = document.getElementById('searchText');
-    const text = input?.value.trim();
-    if (!text) return;
-    const list = document.getElementById('textList');
-    if (!list) return;
-    const badge = document.createElement('div');
-    badge.className = 'badge bg-secondary me-2 mb-2 p-2';
-    badge.setAttribute('data-text', text);
-    badge.innerHTML = `${escapeHtml(text)} <i class="fas fa-times ms-2" onclick="removeText(this)" style="cursor:pointer;"></i>`;
-    list.appendChild(badge);
-    input.value = '';
-}
-
-function removeText(element) {
-    element.parentElement?.remove();
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function initAreaDrawing() {
-    canvas = document.getElementById('pdfCanvas');
-    if (!canvas) return;
-    ctx = canvas.getContext('2d');
-    canvas.addEventListener('mousedown', startDrawArea);
-    canvas.addEventListener('mousemove', drawArea);
-    canvas.addEventListener('mouseup', endDrawArea);
-    canvas.addEventListener('mouseleave', cancelDrawArea);
-}
-
-function startDrawArea(e) {
-    if (document.querySelector('input[name="redactType"]:checked')?.value !== 'area') return;
-    isDrawingArea = true;
-    const rect = canvas.getBoundingClientRect();
-    startX = e.clientX - rect.left;
-    startY = e.clientY - rect.top;
-    if (pdfDimensions.width > 0 && pdfDimensions.height > 0) {
-        currentRect = {
-            x: startX * (pdfDimensions.width / canvas.width),
-            y: startY * (pdfDimensions.height / canvas.height),
-            width: 0, height: 0, page: currentPage
-        };
+    function updateProgress(percent, message) {
+        const progressBar = document.getElementById('conversionProgress');
+        const percentSpan = document.getElementById('progressPercent');
+        const msgSpan = document.getElementById('progressMessage');
+        
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
+        if (msgSpan) msgSpan.textContent = message;
     }
-}
 
-function drawArea(e) {
-    if (!isDrawingArea) return;
-    const rect = canvas.getBoundingClientRect();
-    const currentX = e.clientX - rect.left;
-    const currentY = e.clientY - rect.top;
-    if (pdfDimensions.width > 0 && pdfDimensions.height > 0 && currentRect) {
-        currentRect.width = (currentX - startX) * (pdfDimensions.width / canvas.width);
-        currentRect.height = (currentY - startY) * (pdfDimensions.height / canvas.height);
+    function updateFileNameDisplay() {
+        const display = document.getElementById('pdfFileInputName');
+        if (display) {
+            if (selectedFile) {
+                display.textContent = selectedFile.name;
+            } else {
+                display.textContent = i18nMessages.noFileSelected;
+            }
+        }
     }
-    drawCanvasWithAreas();
-}
 
-function endDrawArea() {
-    if (!isDrawingArea || !currentRect) return;
-    isDrawingArea = false;
-    if (Math.abs(currentRect.width) > 5 && Math.abs(currentRect.height) > 5) {
-        if (currentRect.width < 0) { currentRect.x += currentRect.width; currentRect.width = Math.abs(currentRect.width); }
-        if (currentRect.height < 0) { currentRect.y += currentRect.height; currentRect.height = Math.abs(currentRect.height); }
-        redactAreas.push({ ...currentRect });
-        updateAreasList();
+    function updateConvertButton() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.disabled = !selectedFile;
+        }
     }
-    currentRect = null;
-    drawCanvasWithAreas();
-}
 
-function cancelDrawArea() {
-    isDrawingArea = false;
-    currentRect = null;
-    drawCanvasWithAreas();
-}
-
-function drawCanvasWithAreas() {
-    if (!ctx || !canvas) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (pdfImage) ctx.drawImage(pdfImage, 0, 0, canvas.width, canvas.height);
-
-    const scaleX = pdfDimensions.width > 0 ? canvas.width / pdfDimensions.width : 1;
-    const scaleY = pdfDimensions.height > 0 ? canvas.height / pdfDimensions.height : 1;
-
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    redactAreas.forEach(area => {
-        ctx.fillRect(area.x * scaleX, area.y * scaleY, area.width * scaleX, area.height * scaleY);
-    });
-
-    if (currentRect) {
-        ctx.fillStyle = 'rgba(255,0,0,0.3)';
-        let x = currentRect.x * scaleX, y = currentRect.y * scaleY;
-        let w = currentRect.width * scaleX, h = currentRect.height * scaleY;
-        if (w < 0) { x += w; w = Math.abs(w); }
-        if (h < 0) { y += h; h = Math.abs(h); }
-        ctx.fillRect(x, y, w, h);
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
-}
 
-function updateAreasList() {
-    let listDiv = document.getElementById('areasList');
-    if (!listDiv) {
-        listDiv = document.createElement('div');
-        listDiv.id = 'areasList';
-        listDiv.className = 'mt-3';
-        const previewDiv = document.querySelector('#pdfPreview .border');
-        if (previewDiv) previewDiv.appendChild(listDiv);
+    function addTextToList() {
+        const input = document.getElementById('searchText');
+        const text = input?.value.trim();
+        if (!text) return;
+        const list = document.getElementById('textList');
+        if (!list) return;
+        const badge = document.createElement('div');
+        badge.className = 'badge bg-secondary me-2 mb-2 p-2';
+        badge.setAttribute('data-text', text);
+        badge.innerHTML = `${escapeHtml(text)} <i class="fas fa-times ms-2" onclick="removeText(this)" style="cursor:pointer;"></i>`;
+        list.appendChild(badge);
+        input.value = '';
     }
-    listDiv.innerHTML = '<h6 class="mb-2">{{ _("Zones dessinées :") }}</h6>';
-    if (redactAreas.length === 0) {
-        listDiv.innerHTML += '<p class="text-muted small">{{ _("Aucune zone dessinée") }}</p>';
-    } else {
-        redactAreas.forEach((area, index) => {
-            const div = document.createElement('div');
-            div.className = 'badge bg-secondary me-2 mb-2 p-2';
-            div.innerHTML = `{{ _('Zone') }} ${index + 1} (${Math.round(area.width)}×${Math.round(area.height)}) <i class="fas fa-times ms-2" onclick="removeArea(${index})" style="cursor:pointer;"></i>`;
-            listDiv.appendChild(div);
-        });
+
+    function removeText(element) {
+        element.parentElement?.remove();
     }
-}
 
-function removeArea(index) {
-    redactAreas.splice(index, 1);
-    updateAreasList();
-    drawCanvasWithAreas();
-}
-
-async function loadPdfPreview() {
-    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) return;
-    const file = uploadManager.getFiles()[0];
-    const arrayBuffer = await file.arrayBuffer();
-    if (typeof pdfjsLib === 'undefined') return;
-    try {
-        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-        pdfDocument = await loadingTask.promise;
-        const page = await pdfDocument.getPage(1);
-        const viewport = page.getViewport({ scale: 1.5 });
+    function initAreaDrawing() {
         canvas = document.getElementById('pdfCanvas');
         if (!canvas) return;
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        pdfDimensions = { width: viewport.width, height: viewport.height };
-        const context = canvas.getContext('2d');
-        await page.render({ canvasContext: context, viewport }).promise;
-        pdfImage = new Image();
-        pdfImage.src = canvas.toDataURL();
-        initAreaDrawing();
-    } catch (error) {
-        console.error('Erreur chargement PDF:', error);
-        showError('{{ _("Erreur lors du chargement de l\'aperçu PDF") }}');
-    }
-}
-
-function startConversion() {
-    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
-    if (!uploadManager || uploadManager.getFiles().length === 0) {
-        showError('{{ _("Veuillez sélectionner un fichier PDF") }}');
-        return;
-    }
-
-    const file = uploadManager.getFiles()[0];
-    const redactType = document.querySelector('input[name="redactType"]:checked')?.value || 'text';
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('redact_type', redactType);
-    formData.append('redact_color', document.getElementById('areaColor')?.value || '#000000');
-
-    const textList = [];
-    document.querySelectorAll('#textList .badge').forEach(badge => {
-        const t = badge.getAttribute('data-text');
-        if (t) textList.push(t);
-    });
-    formData.append('search_text', textList.join(','));
-
-    if (redactType === 'pattern') {
-        const patterns = [];
-        document.querySelectorAll('#patternSection input:checked').forEach(cb => patterns.push(cb.value));
-        formData.append('patterns', patterns.join(','));
-    }
-
-    const pagesVal = document.getElementById('pages')?.value || 'all';
-    formData.append('pages', pagesVal === 'range' ? (document.getElementById('pageRange')?.value || '') : pagesVal);
-
-    if (redactAreas.length > 0) formData.append('areas', JSON.stringify(redactAreas));
-
-    updateStep(2);
-
-    let progress = 0;
-    const progressBar = document.getElementById('progressBar');
-    const progressMsg = document.getElementById('progressMessage');
-
-    progressInterval = setInterval(() => {
-        if (progress < 90) {
-            progress += 5;
-            if (progressBar) progressBar.style.width = progress + '%';
-            if (progressMsg) progressMsg.textContent = '{{ _("Traitement en cours...") }} ' + progress + '%';
-        }
-    }, 300);
-
-    fetch('{{ url_for("conversion.universal_converter", conversion_type="redact-pdf") }}', {
-        method: 'POST',
-        body: formData
-    })
-    .then(async response => {
-        clearInterval(progressInterval);
-        if (progressBar) progressBar.style.width = '100%';
-        if (progressMsg) progressMsg.textContent = '{{ _("Finalisation...") }}';
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erreur serveur ' + response.status);
-        }
-
-        const blob = await response.blob();
-        if (blob.size === 0) throw new Error('Fichier téléchargé vide.');
-
-        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-        downloadUrl = URL.createObjectURL(blob);
-
-        const contentDisposition = response.headers.get('Content-Disposition') || '';
-        let filename = file.name.replace(/\.pdf$/i, '') + '_redacted.pdf';
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match?.[1]) filename = match[1].replace(/['"]/g, '');
-
-        const downloadLink = document.getElementById('downloadLink');
-        if (downloadLink) {
-            downloadLink.href = downloadUrl;
-            downloadLink.setAttribute('download', filename);
-        }
-
-        updateStep(3);
-    })
-    .catch(error => {
-        clearInterval(progressInterval);
-        updateStep(1);
-        showError('{{ _("Erreur lors du caviardage :") }} ' + error.message);
-    });
-}
-
-function resetConversion() {
-    if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
-    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
-
-    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
-    if (uploadManager) {
-        const files = uploadManager.getFiles();
-        for (let i = files.length - 1; i >= 0; i--) uploadManager.removeFile(i);
-    }
-
-    redactAreas = [];
-    pdfDocument = null;
-    pdfImage = null;
-
-    if (canvas) {
         ctx = canvas.getContext('2d');
+        canvas.addEventListener('mousedown', startDrawArea);
+        canvas.addEventListener('mousemove', drawArea);
+        canvas.addEventListener('mouseup', endDrawArea);
+        canvas.addEventListener('mouseleave', cancelDrawArea);
+    }
+
+    function startDrawArea(e) {
+        if (document.querySelector('input[name="redactType"]:checked')?.value !== 'area') return;
+        isDrawingArea = true;
+        const rect = canvas.getBoundingClientRect();
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+        if (pdfDimensions.width > 0 && pdfDimensions.height > 0) {
+            currentRect = {
+                x: startX * (pdfDimensions.width / canvas.width),
+                y: startY * (pdfDimensions.height / canvas.height),
+                width: 0, height: 0, page: currentPage
+            };
+        }
+    }
+
+    function drawArea(e) {
+        if (!isDrawingArea) return;
+        const rect = canvas.getBoundingClientRect();
+        const currentX = e.clientX - rect.left;
+        const currentY = e.clientY - rect.top;
+        if (pdfDimensions.width > 0 && pdfDimensions.height > 0 && currentRect) {
+            currentRect.width = (currentX - startX) * (pdfDimensions.width / canvas.width);
+            currentRect.height = (currentY - startY) * (pdfDimensions.height / canvas.height);
+        }
+        drawCanvasWithAreas();
+    }
+
+    function endDrawArea() {
+        if (!isDrawingArea || !currentRect) return;
+        isDrawingArea = false;
+        if (Math.abs(currentRect.width) > 5 && Math.abs(currentRect.height) > 5) {
+            if (currentRect.width < 0) { currentRect.x += currentRect.width; currentRect.width = Math.abs(currentRect.width); }
+            if (currentRect.height < 0) { currentRect.y += currentRect.height; currentRect.height = Math.abs(currentRect.height); }
+            redactAreas.push({ ...currentRect });
+            updateAreasList();
+        }
+        currentRect = null;
+        drawCanvasWithAreas();
+    }
+
+    function cancelDrawArea() {
+        isDrawingArea = false;
+        currentRect = null;
+        drawCanvasWithAreas();
+    }
+
+    function drawCanvasWithAreas() {
+        if (!ctx || !canvas) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+        if (pdfImage) ctx.drawImage(pdfImage, 0, 0, canvas.width, canvas.height);
 
-    const areasList = document.getElementById('areasList');
-    if (areasList) areasList.innerHTML = '';
+        const scaleX = pdfDimensions.width > 0 ? canvas.width / pdfDimensions.width : 1;
+        const scaleY = pdfDimensions.height > 0 ? canvas.height / pdfDimensions.height : 1;
 
-    const errorDiv = document.getElementById('conversionError');
-    if (errorDiv) errorDiv.style.display = 'none';
-    const progressBar = document.getElementById('progressBar');
-    if (progressBar) progressBar.style.width = '0%';
-
-    updateStep(1);
-}
-
-function updateButtonState() {
-    const uploadManager = window.uploadManagers?.['pdfUploadZone'];
-    const convertBtn = document.getElementById('convertBtn');
-    if (convertBtn) {
-        convertBtn.disabled = !uploadManager || uploadManager.getFiles().length === 0;
-    }
-}
-
-function bindUploadManager() {
-    const manager = window.uploadManagers && window.uploadManagers.pdfUploadZone;
-    if (!manager) {
-        setTimeout(bindUploadManager, 200);
-        return;
-    }
-
-    const originalHandleFiles = manager.handleFiles;
-    if (originalHandleFiles) {
-        manager.handleFiles = function(fileList) {
-            originalHandleFiles.call(this, fileList);
-            updateButtonState();
-        };
-    }
-
-    const originalRemoveFile = manager.removeFile;
-    if (originalRemoveFile) {
-        manager.removeFile = function(index) {
-            originalRemoveFile.call(this, index);
-            updateButtonState();
-        };
-    }
-
-    updateButtonState();
-}
-
-// Écouteurs d'événements
-document.addEventListener('DOMContentLoaded', function() {
-    bindUploadManager();
-
-    document.querySelectorAll('input[name="redactType"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            const textSection = document.getElementById('textSection');
-            const areaSection = document.getElementById('areaSection');
-            const pdfPreview = document.getElementById('pdfPreview');
-            const patternSection = document.getElementById('patternSection');
-            
-            if (textSection) textSection.style.display = this.value === 'text' ? 'block' : 'none';
-            if (areaSection) areaSection.style.display = this.value === 'area' ? 'block' : 'none';
-            if (pdfPreview) pdfPreview.style.display = this.value === 'area' ? 'block' : 'none';
-            if (patternSection) patternSection.style.display = this.value === 'pattern' ? 'block' : 'none';
-            
-            if (this.value === 'area') setTimeout(loadPdfPreview, 500);
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        redactAreas.forEach(area => {
+            ctx.fillRect(area.x * scaleX, area.y * scaleY, area.width * scaleX, area.height * scaleY);
         });
+
+        if (currentRect) {
+            ctx.fillStyle = 'rgba(255,0,0,0.3)';
+            let x = currentRect.x * scaleX, y = currentRect.y * scaleY;
+            let w = currentRect.width * scaleX, h = currentRect.height * scaleY;
+            if (w < 0) { x += w; w = Math.abs(w); }
+            if (h < 0) { y += h; h = Math.abs(h); }
+            ctx.fillRect(x, y, w, h);
+        }
+    }
+
+    function updateAreasList() {
+        let listDiv = document.getElementById('areasList');
+        if (!listDiv) {
+            listDiv = document.createElement('div');
+            listDiv.id = 'areasList';
+            listDiv.className = 'mt-3';
+            const previewDiv = document.querySelector('#pdfPreview .border');
+            if (previewDiv) previewDiv.appendChild(listDiv);
+        }
+        listDiv.innerHTML = '<h6 class="mb-2">{{ _("Zones dessinées :") }}</h6>';
+        if (redactAreas.length === 0) {
+            listDiv.innerHTML += '<p class="text-muted small">' + i18nMessages.noZones + '</p>';
+        } else {
+            redactAreas.forEach((area, index) => {
+                const div = document.createElement('div');
+                div.className = 'badge bg-secondary me-2 mb-2 p-2';
+                div.innerHTML = i18nMessages.zone + ' ' + (index + 1) + ' (' + Math.round(area.width) + '×' + Math.round(area.height) + ') <i class="fas fa-times ms-2" onclick="removeArea(' + index + ')" style="cursor:pointer;"></i>';
+                listDiv.appendChild(div);
+            });
+        }
+    }
+
+    function removeArea(index) {
+        redactAreas.splice(index, 1);
+        updateAreasList();
+        drawCanvasWithAreas();
+    }
+
+    async function loadPdfPreview() {
+        if (!selectedFile) return;
+        const arrayBuffer = await selectedFile.arrayBuffer();
+        if (typeof pdfjsLib === 'undefined') return;
+        try {
+            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            pdfDocument = await loadingTask.promise;
+            const page = await pdfDocument.getPage(1);
+            const viewport = page.getViewport({ scale: 1.5 });
+            canvas = document.getElementById('pdfCanvas');
+            if (!canvas) return;
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            pdfDimensions = { width: viewport.width, height: viewport.height };
+            const context = canvas.getContext('2d');
+            await page.render({ canvasContext: context, viewport }).promise;
+            pdfImage = new Image();
+            pdfImage.src = canvas.toDataURL();
+            initAreaDrawing();
+        } catch (error) {
+            console.error('Erreur chargement PDF:', error);
+            showError(i18nMessages.loadError);
+        }
+    }
+
+    function startConversion() {
+        if (!selectedFile) {
+            showError(i18nMessages.selectFile);
+            return;
+        }
+
+        const redactType = document.querySelector('input[name="redactType"]:checked')?.value || 'text';
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('redact_type', redactType);
+        formData.append('redact_color', document.getElementById('areaColor')?.value || '#000000');
+
+        const textList = [];
+        document.querySelectorAll('#textList .badge').forEach(badge => {
+            const t = badge.getAttribute('data-text');
+            if (t) textList.push(t);
+        });
+        formData.append('search_text', textList.join(','));
+
+        if (redactType === 'pattern') {
+            const patterns = [];
+            document.querySelectorAll('#patternSection input:checked').forEach(cb => patterns.push(cb.value));
+            formData.append('patterns', patterns.join(','));
+        }
+
+        const pagesVal = document.getElementById('pages')?.value || 'all';
+        formData.append('pages', pagesVal === 'range' ? (document.getElementById('pageRange')?.value || '') : pagesVal);
+
+        if (redactAreas.length > 0) formData.append('areas', JSON.stringify(redactAreas));
+
+        updateStep(2);
+
+        let progress = 0;
+        updateProgress(0, i18nMessages.starting);
+
+        progressInterval = setInterval(() => {
+            if (progress < 95) {
+                progress += Math.random() * 10;
+                progress = Math.min(progress, 95);
+                updateProgress(progress, i18nMessages.processing + ' ' + Math.round(progress) + '%');
+            }
+        }, 300);
+
+        fetch('{{ url_for("conversion.universal_converter", conversion_type="redact-pdf") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(async response => {
+            clearInterval(progressInterval);
+            updateProgress(100, i18nMessages.finalizing);
+
+            if (!response.ok) throw new Error(i18nMessages.errorPrefix + ' ' + response.status);
+
+            const blob = await response.blob();
+            if (blob.size === 0) throw new Error('Fichier vide');
+
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
+
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.download = selectedFile.name.replace(/\.pdf$/i, '') + '_redacted.pdf';
+            }
+
+            updateStep(3);
+        })
+        .catch(error => {
+            clearInterval(progressInterval);
+            updateStep(1);
+            showError(i18nMessages.redactError + ' ' + error.message);
+        });
+    }
+
+    function resetConversion() {
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        if (progressInterval) clearInterval(progressInterval);
+        
+        selectedFile = null;
+        const fileInput = document.getElementById('pdfFileInput');
+        if (fileInput) fileInput.value = '';
+        
+        redactAreas = [];
+        pdfDocument = null;
+        pdfImage = null;
+
+        if (canvas && ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        const areasList = document.getElementById('areasList');
+        if (areasList) areasList.innerHTML = '';
+
+        const progressBar = document.getElementById('conversionProgress');
+        if (progressBar) progressBar.style.width = '0%';
+        
+        updateFileNameDisplay();
+        updateConvertButton();
+        updateStep(1);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', startConversion);
+        }
+        
+        // Gérer l'input file personnalisé
+        const fileInput = document.getElementById('pdfFileInput');
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                updateFileNameDisplay();
+            } else {
+                selectedFile = null;
+                updateFileNameDisplay();
+            }
+            updateConvertButton();
+        });
+
+        document.querySelectorAll('input[name="redactType"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const textSection = document.getElementById('textSection');
+                const areaSection = document.getElementById('areaSection');
+                const pdfPreview = document.getElementById('pdfPreview');
+                const patternSection = document.getElementById('patternSection');
+                
+                if (textSection) textSection.style.display = this.value === 'text' ? 'block' : 'none';
+                if (areaSection) areaSection.style.display = this.value === 'area' ? 'block' : 'none';
+                if (pdfPreview) pdfPreview.style.display = this.value === 'area' ? 'block' : 'none';
+                if (patternSection) patternSection.style.display = this.value === 'pattern' ? 'block' : 'none';
+                
+                if (this.value === 'area') setTimeout(loadPdfPreview, 500);
+            });
+        });
+
+        const pagesSelect = document.getElementById('pages');
+        const pageRange = document.getElementById('pageRange');
+        if (pagesSelect && pageRange) {
+            pagesSelect.addEventListener('change', function() {
+                pageRange.disabled = this.value !== 'range';
+            });
+        }
+        
+        updateConvertButton();
     });
 
-    const pagesSelect = document.getElementById('pages');
-    const pageRange = document.getElementById('pageRange');
-    if (pagesSelect && pageRange) {
-        pagesSelect.addEventListener('change', function() {
-            pageRange.disabled = this.value !== 'range';
-        });
-    }
-});
-
-window.addEventListener('beforeunload', () => {
-    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-    if (progressInterval) clearInterval(progressInterval);
-});
+    window.addTextToList = addTextToList;
+    window.removeText = removeText;
+    window.removeArea = removeArea;
+    window.startConversion = startConversion;
+    window.resetConversion = resetConversion;
 </script>
 {% endblock %}

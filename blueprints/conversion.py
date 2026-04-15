@@ -1651,153 +1651,42 @@ Règles :
 # ─────────────────────────────────────────────────────────────────────────────
 # PDF → WORD  (avec Gemini)
 # ─────────────────────────────────────────────────────────────────────────────
-def convert_pdf_to_word(file, form_data=None):
+def convert_pdf_to_doc(file, form_data=None):
+    """
+    Convertit un PDF en .doc (format Word ancien).
+    Réutilise convert_pdf_to_word puis renomme l'extension .docx → .doc.
+    La mise en forme est identique (image pleine page par page).
+    """
     file, error = normalize_file_input(file)
     if error:
         return error
-    if not HAS_DOCX:
-        return {"error": "python-docx non installé"}
-    if not HAS_PDF2IMAGE:
-        return {"error": "pdf2image non installé"}
- 
-    original = file.filename
-    form_data = form_data or {}
-    language = form_data.get("language", "fra")
-    # ↓ DPI réduit : 150 → 120 (−36 % mémoire par page, qualité suffisante pour OCR)
-    dpi = max(120, min(int(form_data.get("dpi", "120")), 200))
-    add_page_breaks = str(form_data.get("add_page_breaks", "true")).lower() == "true"
- 
-    temp_dir = create_temp_directory("pdf2word_gemini_")
  
     try:
-        input_path = secure_save(file, temp_dir)
+        response = convert_pdf_to_word(file, form_data)
  
-        # Compter les pages SANS charger les images
-        import pypdf as _pypdf
-        with open(input_path, "rb") as fh:
-            total_pages = len(_pypdf.PdfReader(fh).pages)
+        # Propager les erreurs dict
+        if isinstance(response, dict) and "error" in response:
+            return response
  
-        doc = Document()
-        try:
-            doc.styles["Normal"].font.name = "Calibri"
-            doc.styles["Normal"].font.size = Pt(11)
-        except Exception:
-            pass
+        # Vérifier que c'est une réponse Flask valide
+        if not hasattr(response, "headers"):
+            return {"error": "Réponse inattendue du convertisseur PDF→DOCX"}
  
-        doc.add_heading(Path(original).stem, 0)
-        doc.add_paragraph(
-            f"Converti le {datetime.now().strftime('%d/%m/%Y %H:%M')} "
-            f"— {total_pages} page(s) — Gemini 2.5 Flash"
+        # Renommer .docx → .doc dans les headers
+        content_disp = response.headers.get("Content-Disposition", "")
+        if ".docx" in content_disp:
+            response.headers["Content-Disposition"] = content_disp.replace(".docx", ".doc")
+ 
+        # Changer le mimetype pour .doc
+        response.headers["Content-Type"] = (
+            "application/msword"
         )
-        doc.add_paragraph()
  
-        # ← CLEF : traiter UNE page à la fois, libérer immédiatement
-        for page_num in range(1, total_pages + 1):
-            import gc
- 
-            # Convertir SEULEMENT cette page (first_page/last_page)
-            page_images = convert_from_path(
-                input_path, dpi=dpi,
-                first_page=page_num, last_page=page_num
-            )
- 
-            if not page_images:
-                continue
- 
-            pil_img = page_images[0]
-            del page_images  # libérer la liste immédiatement
- 
-            if page_num > 1 and add_page_breaks:
-                doc.add_page_break()
-            doc.add_heading(f"Page {page_num}", level=1)
- 
-            gemini_out = _gemini_extract_page_content(_ensure_rgb(pil_img), language)
-            content = gemini_out.get("content", [])
- 
-            # Libérer AVANT d'écrire dans le doc (écriture = peu de mémoire)
-            del pil_img
-            del gemini_out
-            gc.collect()
- 
-            if content:
-                for item in content:
-                    item_type = item.get("type", "paragraph")
-                    text = item.get("text", "").strip()
-                    if item_type == "heading1" and text:
-                        doc.add_heading(text, level=2)
-                    elif item_type == "heading2" and text:
-                        doc.add_heading(text, level=3)
-                    elif item_type == "paragraph" and text:
-                        for line in text.split("\n"):
-                            if line.strip():
-                                doc.add_paragraph(line.strip())
-                    elif item_type == "list_item" and text:
-                        p = doc.add_paragraph(style="List Bullet")
-                        p.add_run(text)
-                    elif item_type == "table":
-                        header = item.get("header", [])
-                        rows = item.get("rows", [])
-                        if header and rows:
-                            try:
-                                num_cols = len(header)
-                                word_table = doc.add_table(rows=len(rows) + 1, cols=num_cols)
-                                word_table.style = "Table Grid"
-                                for ci, col_name in enumerate(header):
-                                    cell = word_table.cell(0, ci)
-                                    cell.text = str(col_name)
-                                    for para in cell.paragraphs:
-                                        for run in para.runs:
-                                            run.bold = True
-                                for ri, row_data in enumerate(rows):
-                                    for ci, cell_text in enumerate(row_data):
-                                        if ci < num_cols:
-                                            word_table.cell(ri + 1, ci).text = str(cell_text or "")
-                                doc.add_paragraph()
-                            except Exception as e:
-                                logger.warning(f"Tableau page {page_num} ignoré: {e}")
-            else:
-                # Fallback texte brut
-                fallback_text = ""
-                if HAS_PDFPLUMBER:
-                    try:
-                        with pdfplumber.open(input_path) as pdf:
-                            if page_num - 1 < len(pdf.pages):
-                                fallback_text = (pdf.pages[page_num - 1].extract_text() or "").strip()
-                    except Exception:
-                        pass
-                if not fallback_text and HAS_PYPDF:
-                    try:
-                        reader = pypdf.PdfReader(input_path)
-                        if page_num - 1 < len(reader.pages):
-                            fallback_text = (reader.pages[page_num - 1].extract_text() or "").replace("\x00", "").strip()
-                    except Exception:
-                        pass
-                if fallback_text:
-                    for line in fallback_text.split("\n"):
-                        if line.strip():
-                            doc.add_paragraph(line.strip())
-                else:
-                    doc.add_paragraph("[Aucun contenu détecté sur cette page]")
-
-        # Exporter le document
-        output = BytesIO()
-        doc.save(output)
-        output.seek(0)
-        del doc
-        import gc; gc.collect()
- 
-        cleanup_temp_directory(temp_dir)
-        return send_file(
-            output,
-            mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            as_attachment=True,
-            download_name=Path(original).stem + ".docx",
-        )
+        return response
  
     except Exception as e:
-        cleanup_temp_directory(temp_dir)
-        logger.error(f"[PDF→Word] Erreur : {e}\n{traceback.format_exc()}")
-        return {"error": f"Erreur PDF→Word : {e}"}
+        logger.error(f"[PDF→DOC] Erreur : {e}\n{traceback.format_exc()}")
+        return {"error": f"Erreur PDF→DOC : {e}"}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PDF → TXT  (avec Gemini)
@@ -2067,39 +1956,40 @@ footer { margin-top: 50px; border-top: 2px solid #1a3a6b; font-size: .8em; color
 # ─────────────────────────────────────────────────────────────────────────────
 def convert_pdf_to_doc(file, form_data=None):
     """
-    Convertit un PDF en document Word (.doc)
-    En réutilisant la conversion PDF->DOCX puis renommage pour compatibilité.
+    Convertit un PDF en .doc (format Word ancien).
+    Réutilise convert_pdf_to_word puis renomme l'extension .docx → .doc.
+    La mise en forme est identique (image pleine page par page).
     """
-
-    # Normalisation
     file, error = normalize_file_input(file)
     if error:
         return error
-
+ 
     try:
-        # Réutilisation de convert_pdf_to_word
         response = convert_pdf_to_word(file, form_data)
-
-        # Si la conversion retourne une erreur, on la transmet
+ 
+        # Propager les erreurs dict
         if isinstance(response, dict) and "error" in response:
             return response
-
-        # Vérification que c'est bien un objet Flask response
+ 
+        # Vérifier que c'est une réponse Flask valide
         if not hasattr(response, "headers"):
-            return {"error": "Réponse inattendue du convertisseur PDF->DOCX"}
-
-        # Renommer le fichier de sortie .docx → .doc
+            return {"error": "Réponse inattendue du convertisseur PDF→DOCX"}
+ 
+        # Renommer .docx → .doc dans les headers
         content_disp = response.headers.get("Content-Disposition", "")
         if ".docx" in content_disp:
-            content_disp = content_disp.replace(".docx", ".doc")
-            response.headers["Content-Disposition"] = content_disp
-
+            response.headers["Content-Disposition"] = content_disp.replace(".docx", ".doc")
+ 
+        # Changer le mimetype pour .doc
+        response.headers["Content-Type"] = (
+            "application/msword"
+        )
+ 
         return response
-
+ 
     except Exception as e:
-        logger.error(f"❌ Erreur PDF->DOC: {e}")
-        logger.error(traceback.format_exc())
-        return {"error": f"Erreur lors de la conversion: {str(e)}"}
+        logger.error(f"[PDF→DOC] Erreur : {e}\n{traceback.format_exc()}")
+        return {"error": f"Erreur PDF→DOC : {e}"}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
