@@ -1,11 +1,11 @@
-// static/js/cloud/upload.js - Version compatible Babel
+// static/js/cloud/upload.js - Version avec i18n dynamique
 
 (function() {
     if (window.cloudUpload) return;
 
-    // Fonction de traduction (fallback)
+    // Fonction de traduction - utilise window.i18n si disponible
     const t = (window.i18n && window.i18n.t) || function(key, params = {}) {
-        // Fallback en français - CES CHAÎNES SERONT REMPLACÉES PAR LE BACKEND
+        // Fallback en français
         const fallbacks = {
             'how_to_use': 'Comment utiliser {service}',
             'download_file': 'Téléchargez votre fichier',
@@ -23,19 +23,6 @@
         });
         return text;
     };
-
-    // Pour l'extraction Babel - Ces lignes sont ignorées à l'exécution mais lues par Babel
-    const _extract = [
-        t('how_to_use', { service: '' }),
-        t('download_file'),
-        t('download_file_desc', { service: '' }),
-        t('come_back'),
-        t('come_back_desc', { service: '' }),
-        t('use_browse'),
-        t('use_browse_desc'),
-        t('understood'),
-        t('cloud_upload_ready')
-    ];
 
     const CLOUD_SERVICES = [
         { id: 'google', name: 'Google Drive', url: 'https://drive.google.com', icon: 'fab fa-google-drive', color: '#4285F4' },
@@ -122,7 +109,6 @@
                 </div>
             `;
             
-            // Animations...
             const style = document.createElement('style');
             style.textContent = `
                 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
