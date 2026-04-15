@@ -1,9 +1,13 @@
-import os
-import polib
-import re
-from deep_translator import GoogleTranslator
+#!/usr/bin/env python3
+# scripts/translate_all.py
 
-LANG_MAP = {
+from deep_translator import GoogleTranslator
+import os
+import re
+import time
+
+# Mapping des langues pour Google Translate
+LANGS = {
     "fr": "fr",
     "en": "en",
     "es": "es",
@@ -11,166 +15,216 @@ LANG_MAP = {
     "it": "it",
     "pt": "pt",
     "nl": "nl",
-    "ru": "ru",
     "ar": "ar",
     "ja": "ja",
-    "zh": "zh-CN",
+    "ru": "ru",
+    "zh": "zh-CN"  # Important: zh-CN et pas zh
 }
 
-def is_same_text(a, b):
-    return (a or "").strip().lower() == (b or "").strip().lower()
+def extract_msgid_full(lines, start_index):
+    """Extrait un msgid complet (peut être multiligne)"""
+    msgid_parts = []
+    i = start_index
+    
+    # Vérifier si c'est un msgid multiligne (msgid "" sur sa propre ligne)
+    if lines[i].strip() == 'msgid ""':
+        i += 1
+        # Lire toutes les lignes suivantes qui commencent par "
+        while i < len(lines) and lines[i].strip().startswith('"') and not lines[i].strip().startswith('msgstr'):
+            match = re.search(r'"([^"]*)"', lines[i])
+            if match:
+                msgid_parts.append(match.group(1))
+            i += 1
+        return ''.join(msgid_parts), i - 1
+    
+    # Msgid sur une seule ligne
+    match = re.search(r'msgid "(.+)"', lines[i])
+    if match:
+        return match.group(1), i
+    
+    return None, i
 
-def should_skip(text):
-    text = text.strip()
-
-    if not text:
+def is_msgstr_empty(lines, msgstr_start_idx):
+    """Vérifie si un msgstr est vraiment vide (même multiligne)"""
+    i = msgstr_start_idx
+    line = lines[i]
+    
+    # Cas simple: msgstr "" sur une ligne
+    if line.strip() == 'msgstr ""':
         return True
-
-    if len(text) <= 2:
+    
+    # Cas multiligne: msgstr "" puis lignes vides ""
+    if line.strip() == 'msgstr ""':
+        i += 1
+        while i < len(lines):
+            current = lines[i].strip()
+            # Si on trouve du texte non vide, le msgstr n'est pas vide
+            if current.startswith('"') and current != '""':
+                # Vérifier si la ligne contient autre chose que des guillemets vides
+                match = re.search(r'"([^"]*)"', lines[i])
+                if match and match.group(1).strip():
+                    return False
+            # Si on arrive au prochain msgid, on a fini
+            if current.startswith('msgid') or current.startswith('#:'):
+                break
+            i += 1
         return True
-
-    if text in [":", ".", "-", "|"]:
-        return True
-
-    if "%(" in text:  # variables Flask
-        return True
-
-    if "<" in text and ">" in text:  # HTML
-        return True
-
-    if "lorem ipsum" in text.lower():
-        return True
-
+    
     return False
 
-
-PLACEHOLDER_PATTERN = re.compile(r"%\([^)]+\)[sd]")
-
-def protect_placeholders(text):
-    """Remplace %(xxx)s par tokens temporaires"""
-    placeholders = PLACEHOLDER_PATTERN.findall(text)
-    mapping = {}
-
-    for i, ph in enumerate(placeholders):
-        token = f"__VAR_{i}__"
-        text = text.replace(ph, token)
-        mapping[token] = ph
-
-    return text, mapping
-
-
-def restore_placeholders(text, mapping):
-    """Remet les placeholders d'origine"""
-    for token, ph in mapping.items():
-        text = text.replace(token, ph)
-    return text
-
+def get_msgstr_end_index(lines, msgstr_start_idx):
+    """Trouve l'index de fin du bloc msgstr"""
+    i = msgstr_start_idx
+    if lines[i].strip() == 'msgstr ""':
+        i += 1
+        # Continuer tant qu'on est dans le bloc msgstr multiligne
+        while i < len(lines):
+            current = lines[i].strip()
+            if current.startswith('"') and not current.startswith('msgstr'):
+                i += 1
+            else:
+                break
+    return i
 
 def translate_text(text, target_lang):
+    """Traduit un texte avec gestion des erreurs"""
+    if not text or len(text) < 2:
+        return text
+    
+    # Ne pas traduire les placeholders seuls
+    if re.match(r'^%\([a-z_]+\)[sd]$', text):
+        return text
+    
     try:
-        if not text.strip():
-            return text
-
-        # 🔒 protéger variables
-        protected_text, mapping = protect_placeholders(text)
-
-        translated = GoogleTranslator(
-            source="fr",
-            target=target_lang
-        ).translate(protected_text)
-
-        # 🔁 fallback via anglais
-        if not translated or translated.strip() == protected_text.strip():
-            print(f"⚠️ Fallback EN [{target_lang}] : {text}")
-
-            en_text = GoogleTranslator(source="fr", target="en").translate(protected_text)
-            translated = GoogleTranslator(source="en", target=target_lang).translate(en_text)
-
-        # 🔒 restaurer variables
-        translated = restore_placeholders(translated, mapping)
-
+        translator = GoogleTranslator(source='fr', target=target_lang)
+        translated = translator.translate(text)
+        time.sleep(0.1)  # Pause pour éviter la limitation d'API
         return translated
-
     except Exception as e:
-        print(f"❌ Erreur [{target_lang}] : {text} -> {e}")
+        print(f"      ⚠️ Erreur: {text[:50]}... -> {e}")
         return text
 
+def split_text_for_po(text, max_length=70):
+    """Divise un texte long en plusieurs lignes pour le format .po"""
+    if len(text) <= max_length:
+        return [text]
+    
+    words = text.split()
+    lines = []
+    current_line = ""
+    
+    for word in words:
+        if len(current_line) + len(word) + 1 <= max_length:
+            current_line += (" " + word) if current_line else word
+        else:
+            lines.append(current_line)
+            current_line = word
+    
+    if current_line:
+        lines.append(current_line)
+    
+    return lines
 
-def process_po_file(po_path, target_lang):
-    print(f"📄 Traitement: {po_path}")
-
-    po = polib.pofile(po_path)
-    updated = 0
-
-    for entry in po:
-        text = (entry.msgid or "").strip()
-
-        if not text:
-            continue
-
-        if should_skip(text):
-            continue
-
-        current = (entry.msgstr or "").strip()
-
-        needs_translation = (
-            not current
-            or is_same_text(current, text)
-            or looks_french(current)
-        )
-
-        if not needs_translation:
-            continue
-
-        translated = translate_text(text, target_lang)
-
-        if translated and not is_same_text(translated, text):
-            entry.msgstr = translated
-            updated += 1
-
-    po.save()
-    print(f"✅ {updated} traductions ajoutées\n")
-
-
-def process_directory(base_dir):
-    for root, dirs, files in os.walk(base_dir):
-        for file in files:
-            if file.endswith(".po"):
-                po_path = os.path.join(root, file)
-
-                parts = po_path.split(os.sep)
-                if len(parts) < 3:
-                    continue
-
-                lang = parts[-3]
-
-                if lang in LANG_MAP:
-                    process_po_file(po_path, LANG_MAP[lang])
+def process_po_file(po_file, lang_code):
+    """Traduit les msgstr vides dans un fichier .po (gère les multilignes)"""
+    
+    if not os.path.exists(po_file):
+        print(f"  ❌ {lang_code}: fichier non trouvé")
+        return 0
+    
+    print(f"  🌍 Traduction de {lang_code}...")
+    
+    with open(po_file, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+    
+    new_lines = []
+    translated_count = 0
+    total_empty = 0
+    skipped_count = 0
+    i = 0
+    
+    while i < len(lines):
+        line = lines[i]
+        
+        # Détecter le début d'un msgid
+        if line.startswith('msgid'):
+            # Extraire le msgid complet
+            msgid, msgid_end = extract_msgid_full(lines, i)
+            
+            # Chercher le msgstr correspondant
+            j = msgid_end + 1
+            msgstr_line_index = -1
+            
+            while j < len(lines):
+                if lines[j].startswith('msgstr'):
+                    msgstr_line_index = j
+                    break
+                j += 1
+            
+            if msgstr_line_index != -1:
+                # Vérifier si le msgstr est VRAIMENT vide
+                if is_msgstr_empty(lines, msgstr_line_index):
+                    total_empty += 1
+                    
+                    # Ignorer les entêtes du fichier .po
+                    if msgid and not msgid.startswith('Project-Id-Version') and not msgid.startswith('Plural-Forms'):
+                        # Traduire
+                        print(f"      🌐 Traduction: {msgid[:60]}...")
+                        translated = translate_text(msgid, lang_code)
+                        
+                        # Formater la traduction pour .po
+                        translated_lines = split_text_for_po(translated)
+                        
+                        # Remplacer le bloc msgstr
+                        if len(translated_lines) == 1:
+                            lines[msgstr_line_index] = f'msgstr "{translated_lines[0]}"\n'
+                        else:
+                            lines[msgstr_line_index] = 'msgstr ""\n'
+                            for idx, tline in enumerate(translated_lines):
+                                lines.insert(msgstr_line_index + 1 + idx, f'"{tline}"\n')
+                        
+                        translated_count += 1
+                        
+                        if translated_count % 10 == 0:
+                            print(f"      ✅ {translated_count} traductions...")
                 else:
-                    print(f"⚠️ Langue ignorée: {lang}")
+                    skipped_count += 1
+            
+            # Ajouter toutes les lignes jusqu'à la fin de cette entrée
+            msgstr_end = get_msgstr_end_index(lines, msgstr_line_index) if msgstr_line_index != -1 else j
+            for k in range(i, msgstr_end):
+                if k < len(lines):
+                    new_lines.append(lines[k])
+            
+            i = msgstr_end
+        else:
+            new_lines.append(line)
+            i += 1
+    
+    # Sauvegarder si des modifications ont été faites
+    if translated_count > 0:
+        with open(po_file, "w", encoding="utf-8") as f:
+            f.writelines(new_lines)
+        print(f"  ✅ {lang_code}: {translated_count} traductions ajoutées ({skipped_count} déjà traduites)")
+    else:
+        print(f"  ✓ {lang_code}: toutes les entrées sont déjà traduites ({skipped_count} existantes)")
+    
+    return translated_count
 
-def looks_french(text):
-    french_markers = [
-        " le ", " la ", " les ", " des ", " du ",
-        " une ", " un ", " et ", " ou ",
-        " avec ", " pour ", " vos ", " votre ",
-        " fichier", " fichiers", " convert", " outil"
-    ]
-
-    t = " " + text.lower() + " "
-
-    return any(word in t for word in french_markers)
-
-def is_probably_french(text):
-    return looks_french(text) and not any(ord(c) > 127 for c in text)
-
+def main():
+    print("🤖 Traduction des msgstr vides (gère les multilignes)")
+    print("=" * 60)
+    print()
+    
+    total = 0
+    for lang_code, target_lang in LANGS.items():
+        po_file = f"translations/{lang_code}/LC_MESSAGES/messages.po"
+        total += process_po_file(po_file, target_lang)
+        print()
+    
+    print(f"📊 Total: {total} nouvelles traductions ajoutées")
+    print()
+    print("✨ Terminé!")
 
 if __name__ == "__main__":
-    import sys
-
-    if len(sys.argv) != 2:
-        print("Usage: python translate_po.py translations")
-        sys.exit(1)
-
-    process_directory(sys.argv[1])
-    print("🎯 Traduction terminée.")
+    main()

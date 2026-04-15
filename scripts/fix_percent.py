@@ -1,94 +1,77 @@
 #!/usr/bin/env python3
-import os
+# scripts/fix_placeholders.py
+
 import re
+import os
 import sys
 
-def smart_fix_po_file(po_file):
-    """Corrige intelligemment les problèmes de formatage"""
-    
-    with open(po_file, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-    
-    modified = False
-    new_lines = []
-    
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        
-        # Détecter les lignes msgstr
-        if line.startswith('msgstr "') and i > 0:
-            # Vérifier la ligne msgid précédente
-            msgid_line = lines[i-1] if i-1 >= 0 else ""
-            
-            # Corriger les doubles pourcentages
-            if '100%' in line and not '100%%' in line:
-                line = line.replace('100%', '100%%')
-                modified = True
-                print(f"  ✅ 100% corrigé dans {po_file}:{i+1}")
-            
-            # Vérifier la cohérence des placeholders avec msgid
-            if msgid_line.startswith('msgid "'):
-                # Extraire les placeholders du msgid
-                id_placeholders = set(re.findall(r'(%\([^)]+\)[diouxXeEfFgGcs])', msgid_line))
-                # Extraire les placeholders du msgstr
-                str_placeholders = set(re.findall(r'(%\([^)]+\)[diouxXeEfFgGcs])', line))
-                
-                # Vérifier si des placeholders manquent
-                missing = id_placeholders - str_placeholders
-                if missing:
-                    print(f"  ⚠️ Placeholders manquants dans {po_file}:{i+1} - {missing}")
-                    # Option: ajouter automatiquement
-                    for ph in missing:
-                        line = line.replace('msgstr "', f'msgstr "{ph} ')
-                        modified = True
-                        print(f"  ✅ {ph} ajouté automatiquement")
-        
-        new_lines.append(line)
-        i += 1
-    
-    if modified:
-        # Sauvegarde automatique
-        backup = po_file + '.smart.bak'
-        if not os.path.exists(backup):
-            with open(backup, 'w', encoding='utf-8') as f:
-                f.writelines(lines)
-            print(f"  💾 Backup créé: {backup}")
-        
-        with open(po_file, 'w', encoding='utf-8') as f:
-            f.writelines(new_lines)
-        return True
-    
-    return False
+# Mapping des placeholders à corriger
+FIXES = {
+    # Italien
+    'nomefile': 'filename',
+    'nome': 'name',
+    # Allemand
+    'Dateiname': 'filename',
+    # Japonais
+    'ファイル名': 'filename',
+    # Russe
+    'хостинг': 'hosting',
+    # Néerlandais
+    'bestandsnaam': 'filename',
+    # Chinois
+    '文件名': 'filename',
+}
 
-def main():
-    translations_dir = 'translations'
-    print("🔍 CORRECTION INTELLIGENTE DES FICHIERS .po")
-    print("=" * 50)
+def fix_placeholders_in_file(po_file):
+    """Corrige les placeholders mal traduits dans un fichier .po"""
     
-    if not os.path.exists(translations_dir):
-        print(f"❌ Dossier {translations_dir} non trouvé")
-        return 1
+    if not os.path.exists(po_file):
+        return 0
+    
+    with open(po_file, "r", encoding="utf-8") as f:
+        content = f.read()
     
     fixed_count = 0
-    for lang in os.listdir(translations_dir):
-        po_file = os.path.join(translations_dir, lang, 'LC_MESSAGES', 'messages.po')
-        if os.path.exists(po_file):
-            print(f"\n📁 Traitement de {lang}...")
-            if smart_fix_po_file(po_file):
-                fixed_count += 1
     
-    print("\n" + "=" * 50)
-    print(f"📊 RÉSUMÉ: {fixed_count} fichiers modifiés")
-    print("\n🔄 Recompilez avec: pybabel compile -d translations")
-    return 0
+    # Corriger %(xxx)s -> %(yyy)s
+    for wrong, correct in FIXES.items():
+        pattern = f'%\\({wrong}\\)s'
+        replacement = f'%({correct})s'
+        new_content, count = re.subn(pattern, replacement, content)
+        if count > 0:
+            content = new_content
+            fixed_count += count
+            print(f"   🔧 {wrong} -> {correct} ({count} fois)")
+    
+    # Sauvegarder
+    with open(po_file, "w", encoding="utf-8") as f:
+        f.write(content)
+    
+    return fixed_count
+
+def main():
+    print("🔧 Correction des placeholders dans les fichiers .po")
+    print("=" * 55)
+    
+    total_fixed = 0
+    po_files = [
+        "translations/it/LC_MESSAGES/messages.po",
+        "translations/de/LC_MESSAGES/messages.po",
+        "translations/ja/LC_MESSAGES/messages.po",
+        "translations/ru/LC_MESSAGES/messages.po",
+        "translations/nl/LC_MESSAGES/messages.po",
+        "translations/zh/LC_MESSAGES/messages.po",
+    ]
+    
+    for po_file in po_files:
+        if os.path.exists(po_file):
+            print(f"\n📁 {po_file}")
+            fixed = fix_placeholders_in_file(po_file)
+            total_fixed += fixed
+            if fixed == 0:
+                print("   ✓ Aucune correction nécessaire")
+    
+    print(f"\n✅ Total: {total_fixed} placeholders corrigés")
 
 if __name__ == "__main__":
-    # Détection automatique de l'environnement
-    try:
-        # En mode interactif (terminal)
-        sys.exit(main())
-    except EOFError:
-        # Dans Docker (pas de terminal)
-        print("🚀 Mode automatique Docker détecté")
-        sys.exit(main())
+    main()
