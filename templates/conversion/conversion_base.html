@@ -326,6 +326,7 @@
 
                 <!-- Bloc dédié aux boutons cloud -->
                 {% block cloud_buttons %}
+                    {% if not cloud_buttons_rendered %}
                 <div class="cloud-buttons-container">
                     <div class="position-relative">
                         <hr>
@@ -361,8 +362,10 @@
                         </button>
                     </div>
                 </div>
+                    {% set cloud_buttons_rendered = true %}
+                    {% endif %}
                 {% endblock %}
-                
+    
                 <!-- Options spécifiques à chaque conversion -->
                 {% block conversion_options %}{% endblock %}
                 

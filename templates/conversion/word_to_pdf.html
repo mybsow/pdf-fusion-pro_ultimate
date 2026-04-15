@@ -89,7 +89,7 @@
     </div>
 </div>
 
-{# Les boutons cloud sont déjà dans conversion_base.html #}
+{% block cloud_buttons %}{{ super() }}{% endblock %}
 {% endblock %}
 
 {% block scripts %}
