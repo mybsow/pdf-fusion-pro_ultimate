@@ -13,7 +13,16 @@
 
     <div class="mb-4">
         <label class="form-label fw-bold">{{ _('Sélectionnez votre fichier PDF') }}</label>
-        <input type="file" id="pdfFile" class="form-control" accept=".pdf">
+        
+        <!-- INPUT FILE PERSONNALISÉ -->
+        <div class="custom-file-upload">
+            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+            <button type="button" class="btn btn-outline-primary btn-lg w-100" onclick="document.getElementById('pdfFile').click()">
+                <i class="fas fa-folder-open me-2"></i>{{ _('Sélectionner un fichier') }}
+            </button>
+            <div id="selectedFileName" class="text-muted mt-2 text-center">{{ _('Aucun fichier sélectionné') }}</div>
+        </div>
+        
         <small class="text-muted">{{ _('PDF uniquement • Taille max : 50MB') }}</small>
     </div>
 
@@ -101,8 +110,17 @@
 {% block scripts %}
 {{ super() }}
 <script>
-    // Correction : Le script est placé dans le bloc scripts pour éviter les conflits
-    // et garantir que le DOM est chargé.
+    // Messages i18n pour JavaScript
+    const i18nMessages = {
+        selectFile: "{{ _('Veuillez sélectionner un fichier PDF') }}",
+        invalidFormat: "{{ _('Le fichier doit être un PDF') }}",
+        starting: "{{ _('Démarrage...') }}",
+        converting: "{{ _('Conversion en cours...') }}",
+        finalizing: "{{ _('Finalisation...') }}",
+        errorPrefix: "{{ _('Erreur') }}",
+        emptyFile: "{{ _('Fichier vide') }}",
+        noFileSelected: "{{ _('Aucun fichier sélectionné') }}"
+    };
     
     let downloadUrl = null;
     let progressInterval = null;
@@ -116,7 +134,6 @@
         if (step2) step2.style.display = step === 2 ? 'block' : 'none';
         if (step3) step3.style.display = step === 3 ? 'block' : 'none';
 
-        // Synchronisation avec les étapes visuelles du parent si elles existent
         if (window.updateStep && typeof window.updateStep === 'function') {
             window.updateStep(step);
         }
@@ -144,14 +161,14 @@
     function startConversion() {
         var fileInput = document.getElementById('pdfFile');
         if (!fileInput || !fileInput.files.length) {
-            showError('Veuillez sélectionner un fichier PDF');
+            showError(i18nMessages.selectFile);
             return;
         }
         
         var file = fileInput.files[0];
         
         if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-            showError('Le fichier doit être un PDF');
+            showError(i18nMessages.invalidFormat);
             return;
         }
         
@@ -165,13 +182,13 @@
         updateStep(2);
         
         var progress = 0;
-        updateProgress(0, 'Démarrage...');
+        updateProgress(0, i18nMessages.starting);
         
         progressInterval = setInterval(function() {
             if (progress < 90) {
                 progress += Math.random() * 15;
                 progress = Math.min(progress, 90);
-                updateProgress(progress, 'Conversion en cours...');
+                updateProgress(progress, i18nMessages.converting);
             }
         }, 400);
         
@@ -181,13 +198,13 @@
         })
         .then(function(response) {
             clearInterval(progressInterval);
-            if (!response.ok) throw new Error('Erreur ' + response.status);
+            if (!response.ok) throw new Error(i18nMessages.errorPrefix + ' ' + response.status);
             return response.blob();
         })
         .then(function(blob) {
-            if (blob.size === 0) throw new Error('Fichier vide');
+            if (blob.size === 0) throw new Error(i18nMessages.emptyFile);
             
-            updateProgress(100, 'Finalisation...');
+            updateProgress(100, i18nMessages.finalizing);
             
             if (downloadUrl) URL.revokeObjectURL(downloadUrl);
             downloadUrl = URL.createObjectURL(blob);
@@ -205,7 +222,7 @@
             console.error('Erreur:', error);
             clearInterval(progressInterval);
             updateStep(1);
-            showError('Erreur: ' + error.message);
+            showError(error.message);
         });
     }
 
@@ -214,6 +231,7 @@
         if (progressInterval) clearInterval(progressInterval);
         var fileInput = document.getElementById('pdfFile');
         if (fileInput) fileInput.value = '';
+        document.getElementById('selectedFileName').textContent = i18nMessages.noFileSelected;
         updateStep(1);
     }
 
@@ -222,6 +240,18 @@
         if (convertBtn) {
             convertBtn.addEventListener('click', startConversion);
         }
+        
+        // Mise à jour du nom du fichier sélectionné
+        var fileInput = document.getElementById('pdfFile');
+        var fileNameDisplay = document.getElementById('selectedFileName');
+        
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                fileNameDisplay.textContent = e.target.files[0].name;
+            } else {
+                fileNameDisplay.textContent = i18nMessages.noFileSelected;
+            }
+        });
     });
 </script>
 {% endblock %}

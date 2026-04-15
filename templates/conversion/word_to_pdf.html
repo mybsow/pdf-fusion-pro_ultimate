@@ -28,7 +28,16 @@
 
     <div class="mb-4">
         <label class="form-label fw-bold">{{ _('Sélectionnez votre document Word') }}</label>
-        <input type="file" id="wordFile" class="form-control" accept=".doc,.docx">
+        
+        <!-- INPUT FILE PERSONNALISÉ -->
+        <div class="custom-file-upload">
+            <input type="file" id="wordFile" accept=".doc,.docx" style="display: none;">
+            <button type="button" class="btn btn-outline-primary btn-lg w-100" onclick="document.getElementById('wordFile').click()">
+                <i class="fas fa-folder-open me-2"></i>{{ _('Sélectionner un fichier') }}
+            </button>
+            <div id="selectedFileName" class="text-muted mt-2 text-center">{{ _('Aucun fichier sélectionné') }}</div>
+        </div>
+        
         <small class="text-muted">{{ _('Formats acceptés : DOC, DOCX (jusqu\'à 50MB)') }}</small>
     </div>
 
@@ -103,7 +112,8 @@
         converting: "{{ _('Conversion en cours...') }}",
         finalizing: "{{ _('Finalisation...') }}",
         errorPrefix: "{{ _('Erreur') }}",
-        emptyFile: "{{ _('Fichier vide') }}"
+        emptyFile: "{{ _('Fichier vide') }}",
+        noFileSelected: "{{ _('Aucun fichier sélectionné') }}"
     };
 
     let downloadUrl = null;
@@ -230,6 +240,7 @@
         if (progressInterval) clearInterval(progressInterval);
         const fileInput = document.getElementById('wordFile');
         if (fileInput) fileInput.value = '';
+        document.getElementById('selectedFileName').textContent = i18nMessages.noFileSelected;
         updateStep(1);
         hideToast();
     }
@@ -239,6 +250,18 @@
         if (convertBtn) {
             convertBtn.addEventListener('click', startConversion);
         }
+        
+        // Mise à jour du nom du fichier sélectionné
+        const fileInput = document.getElementById('wordFile');
+        const fileNameDisplay = document.getElementById('selectedFileName');
+        
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                fileNameDisplay.textContent = e.target.files[0].name;
+            } else {
+                fileNameDisplay.textContent = i18nMessages.noFileSelected;
+            }
+        });
     });
 </script>
 {% endblock %}
