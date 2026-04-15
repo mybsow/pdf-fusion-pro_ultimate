@@ -1,0 +1,600 @@
+TEXTES EXTRAITS DES TEMPLATES CONVERSION
+============================================================
+
+
+templates/conversion/excel_to_csv.html
+--------------------------------------------------
+  - = 0; i--) manager.removeFile(i);
+    }
+
+    const errorDiv = document.getElementById('conversionError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) progressBar.style.width = '0%';
+
+    updateStep(1);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    bindUploadManager();
+    
+    const convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        // Supprimer l'ancien onclick et ajouter un écouteur
+        const newBtn = convertBtn.cloneNode(true);
+        convertBtn.parentNode.replaceChild(newBtn, convertBtn);
+        newBtn.addEventListener('click', startConversion);
+    }
+});
+
+window.addEventListener('beforeunload', function() {
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+    if (progressInterval) clearInterval(progressInterval);
+});
+  - {{ _('Première feuille') }}
+
+templates/conversion/pdf_to_word.html
+--------------------------------------------------
+  - ';
+        var step1 = document.getElementById('step1Content');
+        if (step1) step1.prepend(errorDiv);
+        setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
+    }
+
+    function updateProgress(percent, message) {
+        var progressBar = document.getElementById('conversionProgress');
+        var percentSpan = document.getElementById('progressPercent');
+        var msgSpan = document.getElementById('conversionMessage');
+        
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
+        if (msgSpan) msgSpan.textContent = message;
+    }
+
+    function startConversion() {
+        var fileInput = document.getElementById('pdfFile');
+        if (!fileInput || !fileInput.files.length) {
+            showError('Veuillez sélectionner un fichier PDF');
+            return;
+        }
+        
+        var file = fileInput.files[0];
+        
+        if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+            showError('Le fichier doit être un PDF');
+            return;
+        }
+        
+        var formData = new FormData();
+        formData.append('file', file);
+        formData.append('mode', document.getElementById('extractionMode').value);
+        formData.append('language', document.getElementById('language').value);
+        formData.append('detect_tables', document.getElementById('detectTables').checked);
+        formData.append('preserve_formatting', document.getElementById('preserveFormatting').checked);
+        
+        updateStep(2);
+        
+        var progress = 0;
+        updateProgress(0, 'Démarrage...');
+        
+        progressInterval = setInterval(function() {
+            if (progress
+  - // Correction : Le script est placé dans le bloc scripts pour éviter les conflits
+    // et garantir que le DOM est chargé.
+    
+    let downloadUrl = null;
+    let progressInterval = null;
+
+    function updateStep(step) {
+        var step1 = document.getElementById('step1Content');
+        var step2 = document.getElementById('step2Content');
+        var step3 = document.getElementById('step3Content');
+        
+        if (step1) step1.style.display = step === 1 ? 'block' : 'none';
+        if (step2) step2.style.display = step === 2 ? 'block' : 'none';
+        if (step3) step3.style.display = step === 3 ? 'block' : 'none';
+
+        // Synchronisation avec les étapes visuelles du parent si elles existent
+        if (window.updateStep && typeof window.updateStep === 'function') {
+            window.updateStep(step);
+        }
+    }
+
+    function showError(message) {
+        var errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = '
+  - {{ _('Conserver la mise en page (recommandé)') }}
+  - {{ _('Français') }}
+  - {{ _('Réinitialiser') }}
+  - {{ _('Texte uniquement (plus léger)') }}
+
+templates/conversion/word_to_pdf.html
+--------------------------------------------------
+  - ';
+        const step1 = document.getElementById('step1Content');
+        if (step1) step1.prepend(errorDiv);
+        setTimeout(function() { if (errorDiv) errorDiv.remove(); }, 5000);
+    }
+
+    function updateProgress(percent, message) {
+        const progressBar = document.getElementById('conversionProgress');
+        const percentSpan = document.getElementById('progressPercent');
+        const msgSpan = document.getElementById('conversionMessage');
+        const toastBar = document.getElementById('toastProgressBar');
+        const toastPct = document.getElementById('toastPct');
+        const toastMsg = document.getElementById('toastMsg');
+        
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
+        if (msgSpan) msgSpan.textContent = message;
+        if (toastBar) toastBar.style.width = percent + '%';
+        if (toastPct) toastPct.textContent = Math.round(percent) + '%';
+        if (toastMsg) toastMsg.textContent = message;
+    }
+
+    function showToast() {
+        const toast = document.getElementById('progressToast');
+        if (toast) toast.style.display = 'block';
+    }
+
+    function hideToast() {
+        const toast = document.getElementById('progressToast');
+        if (toast) toast.style.display = 'none';
+    }
+
+    function startConversion() {
+        const fileInput = document.getElementById('wordFile');
+        if (!fileInput || !fileInput.files.length) {
+            showError('Veuillez sélectionner un fichier Word');
+            return;
+        }
+        
+        const file = fileInput.files[0];
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (ext !== 'doc' && ext !== 'docx') {
+            showError('Le fichier doit être au format DOC ou DOCX');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('page_format', document.getElementById('pageFormat').value);
+        formData.append('orientation', document.querySelector('input[name="orientation"]:checked').value);
+        
+        updateStep(2);
+        showToast();
+        
+        let progress = 0;
+        updateProgress(0, 'Démarrage...');
+        
+        progressInterval = setInterval(function() {
+            if (progress
+  - Conversion réussie !
+  - Formats acceptés : DOC, DOCX (jusqu'à 50MB)
+  - Réinitialiser
+  - Sélectionnez votre document Word
+  - Télécharger PDF
+  - Votre PDF est prêt au téléchargement
+
+templates/conversion/pdf_to_image.html
+--------------------------------------------------
+  - {{ _('300 DPI (haute qualité, impression)') }}
+  - {{ _('600 DPI (très haute qualité)') }}
+  - {{ _('72 DPI (web, léger)') }}
+  - {{ _('JPG (taille réduite, compression)') }}
+  - {{ _('PNG (qualité supérieure, sans perte)') }}
+
+templates/conversion/pdf_to_pdfa.html
+--------------------------------------------------
+  - {{ _('PDF/A-2b (2011) - Niveau B (recommandé)') }}
+
+templates/conversion/edit_pdf.html
+--------------------------------------------------
+  - ';
+            const s1 = document.getElementById('step1Content');
+            if (s1) s1.prepend(errorDiv);
+        }
+        const msgSpan = document.getElementById('conversionErrorMsg');
+        if (msgSpan) msgSpan.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    // ── Listeners DOM sûrs (pas de Jinja2) ──
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageSizeSelect = document.getElementById('imageSize');
+        if (imageSizeSelect) {
+            imageSizeSelect.addEventListener('change', function () {
+                const customOptions = document.getElementById('customSizeOptions');
+                if (customOptions) {
+                    customOptions.style.display = this.value === 'custom' ? 'block' : 'none';
+                }
+            });
+        }
+
+        document.querySelectorAll('input[name="pageAction"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                const reorder = document.getElementById('reorderSection');
+                const del = document.getElementById('deleteSection');
+                const rot = document.getElementById('rotateSection');
+                if (reorder) reorder.style.display = this.value === 'reorder' ? 'block' : 'none';
+                if (del) del.style.display  = this.value === 'delete'  ? 'block' : 'none';
+                if (rot) rot.style.display  = this.value === 'rotate'  ? 'block' : 'none';
+            });
+        });
+    });
+
+    function startConversion() {
+        if (!window.uploadManagers) {
+            showError(_i18n.errSystem);
+            return;
+        }
+
+        const uploadManager = window.uploadManagers['pdfUploadZone'];
+        if (!uploadManager || uploadManager.getFiles().length === 0) {
+            showError(_i18n.errNoPdf);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', uploadManager.getFiles()[0]);
+
+        const activeTabLink = document.querySelector('#editTabs .nav-link.active');
+        const activeTabId   = activeTabLink ? activeTabLink.id : '';
+
+        if (activeTabId === 'text-tab') {
+            const textContent = document.getElementById('textContent').value.trim();
+            if (!textContent) {
+                showError(_i18n.errNoText);
+                return;
+            }
+            formData.append('edit_type',    'add_text');
+            formData.append('text_content', textContent);
+            formData.append('page_number',  document.getElementById('textPage').value);
+            formData.append('position_x',   document.getElementById('textX').value);
+            formData.append('position_y',   document.getElementById('textY').value);
+            formData.append('font_size',    document.getElementById('textSize').value);
+            formData.append('font_color',   document.getElementById('textColor').value);
+            formData.append('font_family',  document.getElementById('textFont').value);
+        }
+        else if (activeTabId === 'image-tab') {
+            const imageManager = window.uploadManagers['imageUploadZone'];
+            if (!imageManager || imageManager.getFiles().length === 0) {
+                showError(_i18n.errNoImage);
+                return;
+            }
+            formData.append('edit_type',   'add_image');
+            formData.append('image_file',  imageManager.getFiles()[0]);
+            formData.append('page_number', document.getElementById('imagePage').value);
+            formData.append('position_x',  document.getElementById('imageX').value);
+            formData.append('position_y',  document.getElementById('imageY').value);
+            formData.append('image_size',  document.getElementById('imageSize').value);
+            if (document.getElementById('imageSize').value === 'custom') {
+                formData.append('image_width',  document.getElementById('imageWidth').value);
+                formData.append('image_height', document.getElementById('imageHeight').value);
+            }
+        }
+        else if (activeTabId === 'pages-tab') {
+            const pageActionRadio = document.querySelector('input[name="pageAction"]:checked');
+            const pageAction = pageActionRadio ? pageActionRadio.value : 'reorder';
+            formData.append('edit_type', pageAction);
+
+            if (pageAction === 'delete') {
+                const pagesToDelete = document.getElementById('pagesToDelete').value.trim();
+                if (!pagesToDelete) {
+                    showError(_i18n.errNoDelete);
+                    return;
+                }
+                formData.append('pages_to_delete', pagesToDelete);
+            } else if (pageAction === 'rotate') {
+                const pagesToRotate = document.getElementById('rotatePages').value.trim();
+                if (!pagesToRotate) {
+                    showError(_i18n.errNoRotate);
+                    return;
+                }
+                formData.append('pages_to_rotate', pagesToRotate);
+                formData.append('rotate_angle', document.getElementById('rotateAngle').value);
+            } else if (pageAction === 'reorder') {
+                const order = [];
+                document.querySelectorAll('#pageThumbnails .col-3').forEach(function (el, index) {
+                    order.push(index + 1);
+                });
+                formData.append('page_order', order.join(','));
+            }
+        }
+
+        updateStep(2);
+
+        let progress = 0;
+        const progressBar = document.getElementById('progressBar');
+        progressInterval = setInterval(function () {
+            if (progress
+  - // ── Lecture des chaînes i18n et URLs depuis le DOM (pas de Jinja2 dans le JS) ──
+    const _i18n = (function () {
+        const el = document.getElementById('js-i18n');
+        return {
+            errNoPdf:     el.dataset.errNoPdf,
+            errSystem:    el.dataset.errSystem,
+            errNoText:    el.dataset.errNoText,
+            errNoImage:   el.dataset.errNoImage,
+            errNoDelete:  el.dataset.errNoDelete,
+            errNoRotate:  el.dataset.errNoRotate,
+            errEdition:   el.dataset.errEdition,
+            errServer:    el.dataset.errServer,
+            urlConverter: el.dataset.urlConverter
+        };
+    })();
+
+    let downloadUrl = null;
+    let progressInterval = null;
+
+    function updateStep(step) {
+        const s1 = document.getElementById('step1Content');
+        const s2 = document.getElementById('step2Content');
+        const s3 = document.getElementById('step3Content');
+        if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+        if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+        if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+        // Synchronisation avec le parent
+        if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+            window.updateStep(step);
+        }
+    }
+
+    function showError(message) {
+        let errorDiv = document.getElementById('conversionError');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'conversionError';
+            errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            errorDiv.innerHTML = '
+  - {{ _('Ajuster à la page') }}
+  - {{ _('Personnalisée') }}
+
+templates/conversion/pdf_to_txt.html
+--------------------------------------------------
+  - // ── Lecture des chaînes i18n depuis le DOM ──
+var i18n = (function() {
+    var el = document.getElementById('js-i18n');
+    return {
+        errNoFile: el.getAttribute('data-err-no-file'),
+        errNoPages: el.getAttribute('data-err-no-pages'),
+        errInvalidRange: el.getAttribute('data-err-invalid-range'),
+        errExtraction: el.getAttribute('data-err-extraction'),
+        urlConverter: el.getAttribute('data-url-converter')
+    };
+})();
+
+var downloadUrl = null;
+var progressInterval = null;
+
+function updateStep(step) {
+    var s1 = document.getElementById('step1Content');
+    var s2 = document.getElementById('step2Content');
+    var s3 = document.getElementById('step3Content');
+    if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+    if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+    if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+    if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+        window.updateStep(step);
+    }
+}
+
+function showError(message) {
+    var errorDiv = document.getElementById('conversionError');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'conversionError';
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorDiv.innerHTML = '
+
+templates/conversion/image_to_word.html
+--------------------------------------------------
+  - {{ _('Binarisation (recommandé)') }}
+  - {{ _('Réduction du bruit') }}
+
+templates/conversion/pdf_to_doc.html
+--------------------------------------------------
+  - {{ _('Français') }}
+
+templates/conversion/sign_pdf.html
+--------------------------------------------------
+  - {{ _('Très grande') }}
+  - {{ _('Élégant') }}
+
+templates/conversion/pdf_to_ppt.html
+--------------------------------------------------
+  - {{ _('Standard (4:3) - Écrans classiques') }}
+  - {{ _('Widescreen (16:9) - Écrans larges') }}
+
+templates/conversion/prepare_form.html
+--------------------------------------------------
+  - {{ _('Automatique (recommandé)') }}
+  - {{ _('Cases à cocher') }}
+  - {{ _('Encadré') }}
+  - {{ _('Fond coloré') }}
+  - {{ _('Français') }}
+  - {{ _('Manuel (je définis les champs)') }}
+  - {{ _('Souligné') }}
+
+templates/conversion/powerpoint_to_pdf.html
+--------------------------------------------------
+  - {{ _('PDF séparés (ZIP)') }}
+
+templates/conversion/index.html
+--------------------------------------------------
+  - {# ── Canonical explicite — évite le contenu dupliqué /conversion vs /conversion/ ── #}
+  - {# ── Données structurées FAQ schema.org — aide Google à afficher des rich snippets ── #}
+  - {# ── Liens de debug — masqués en CSS, accessibles uniquement en dev ── #}
+
+templates/conversion/jpg_to_pdf.html
+--------------------------------------------------
+  - {{ _('Haute (recommandé)') }}
+
+templates/conversion/excel_to_pdf.html
+--------------------------------------------------
+  - = 0; i--) manager.removeFile(i);
+    }
+
+    const errorDiv = document.getElementById('conversionError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) progressBar.style.width = '0%';
+
+    updateStep(1);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    bindUploadManager();
+    
+    const convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        // Supprimer l'ancien onclick et ajouter un écouteur
+        const newBtn = convertBtn.cloneNode(true);
+        convertBtn.parentNode.replaceChild(newBtn, convertBtn);
+        newBtn.addEventListener('click', startConversion);
+    }
+});
+
+window.addEventListener('beforeunload', function() {
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+    if (progressInterval) clearInterval(progressInterval);
+});
+
+templates/conversion/redact_pdf.html
+--------------------------------------------------
+  - {{ _('Dernière page uniquement') }}
+  - {{ _('Première page uniquement') }}
+  - {{ _('Sélectionner des pages') }}
+  - {{ _('Épaisse') }}
+
+templates/conversion/conversion_base.html
+--------------------------------------------------
+  - updateStep(1));
+
+// ── Boutons cloud — CORRECTION ──────────────────────────────────────────────
+// Les boutons utilisent data-cloud="..." au lieu d'onclick inline.
+// On attache les listeners ici, après que cloud-upload.js est chargé (il est
+// inclus dans base.html avant ce bloc). En cas d'échec de chargement du script,
+// un fallback ouvre directement l'URL du service dans un nouvel onglet.
+document.addEventListener('DOMContentLoaded', function () {
+    var CLOUD_FALLBACK_URLS = {
+        google:   'https://drive.google.com',
+        onedrive: 'https://onedrive.live.com',
+        dropbox:  'https://www.dropbox.com',
+        icloud:   'https://www.icloud.com',
+        box:      'https://www.box.com',
+        pcloud:   'https://www.pcloud.com'
+    };
+
+    document.querySelectorAll('[data-cloud]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var provider = this.getAttribute('data-cloud');
+            if (typeof window.cloudUpload !== 'undefined') {
+                // Script chargé correctement → comportement normal
+                window.cloudUpload.open(provider);
+            } else {
+                // Fallback : ouverture directe dans un nouvel onglet
+                var url = CLOUD_FALLBACK_URLS[provider];
+                if (url) {
+                    window.open(url, '_blank');
+                }
+                console.warn('[cloud] cloudUpload non disponible, ouverture directe de', provider);
+            }
+        });
+    });
+});
+// ────────────────────────────────────────────────────────────────────────────
+
+// Rendre les fonctions disponibles globalement pour les templates enfants
+window.updateStep      = updateStep;
+window.showError       = showError;
+window.resetConversion = resetConversion;
+window.showLoader      = showLoader;
+window.hideLoader      = hideLoader;
+  - {#
+                        CORRECTION : les onclick inline sont remplacés par data-cloud="..."
+                        Les event listeners sont attachés en bas de page, après le chargement
+                        de cloud-upload.js, avec un fallback d'ouverture directe si le script
+                        n'est pas encore disponible.
+                    #}
+
+templates/conversion/image_to_excel.html
+--------------------------------------------------
+  - Détection des structures tabulaires...
+  - var MSG_OCR_MESSAGES = [
+        "Pretraitement de l'image...",
+        "Detection des contours...",
+        "Identification des colonnes...",
+        "Extraction du contenu...",
+        "Structuration des donnees..."
+    ];
+    var MSG_FINALIZING       = "Finalisation...";
+    var MSG_ROWS             = "lignes extraites";
+    var MSG_ERR_FILE         = "Veuillez selectionner un fichier";
+    var MSG_ERR_CONV         = "Erreur lors de l'extraction :";
+    var MSG_TESSERACT_RESULT = "Extrait par Tesseract OCR";
+    var MSG_TEXT_RESULT      = "Extraction texte brut";
+    
+    var downloadUrl = null;
+    
+    // ── Navigation ───────────────────────────────────────────────────────────────
+    function updateStep(step) {
+        const s1 = document.getElementById('step1Content');
+        const s2 = document.getElementById('step2Content');
+        const s3 = document.getElementById('step3Content');
+        if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+        if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+        if (s3) s3.style.display = step === 3 ? 'block' : 'none';
+
+        // Synchronisation avec le parent si nécessaire
+        if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
+            window.updateStep(step);
+        }
+    }
+    
+    function showError(message) {
+        var errorDiv = document.getElementById('conversionError');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id        = 'conversionError';
+            errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            errorDiv.innerHTML = '
+  - {{ _('Moyenne (équilibré)') }}
+
+templates/conversion/csv_to_excel.html
+--------------------------------------------------
+  - = 0; i--) manager.removeFile(i);
+    }
+
+    const errorDiv = document.getElementById('conversionError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) progressBar.style.width = '0%';
+
+    updateStep(1);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    bindUploadManager();
+    
+    const convertBtn = document.getElementById('convertBtn');
+    if (convertBtn) {
+        // Supprimer l'ancien onclick et ajouter un écouteur
+        const newBtn = convertBtn.cloneNode(true);
+        convertBtn.parentNode.replaceChild(newBtn, convertBtn);
+        newBtn.addEventListener('click', startConversion);
+    }
+});
+
+window.addEventListener('beforeunload', function() {
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+    if (progressInterval) clearInterval(progressInterval);
+});
+
+templates/conversion/pdf_to_excel.html
+--------------------------------------------------
+  - {{ _('Détection intelligente') }}
+  - {{ _('Français') }}

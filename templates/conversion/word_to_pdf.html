@@ -8,8 +8,8 @@
     <div style="display:flex; align-items:center; gap:10px;">
         <div class="spinner-border spinner-border-sm text-primary"></div>
         <div style="flex:1;">
-            <div style="font-weight:600;" id="toastMsg">Conversion en cours...</div>
-            <div style="font-size:12px; color:#6c757d;" id="toastDetail">Traitement...</div>
+            <div style="font-weight:600;" id="toastMsg">{{ _('Conversion en cours...') }}</div>
+            <div style="font-size:12px; color:#6c757d;" id="toastDetail">{{ _('Traitement...') }}</div>
         </div>
         <span id="toastPct" style="font-weight:700;">0%</span>
     </div>
@@ -22,42 +22,42 @@
 <div id="step1Content">
     <div class="text-center mb-4">
         <i class="fas fa-file-word upload-icon" style="color: #2b579a;"></i>
-        <h3>Convertissez votre document Word en PDF</h3>
-        <p class="text-muted">Transformez vos fichiers DOC/DOCX en PDF</p>
+        <h3>{{ _('Convertissez votre document Word en PDF') }}</h3>
+        <p class="text-muted">{{ _('Transformez vos fichiers DOC/DOCX en PDF') }}</p>
     </div>
 
     <div class="mb-4">
-        <label class="form-label fw-bold">Sélectionnez votre document Word</label>
+        <label class="form-label fw-bold">{{ _('Sélectionnez votre document Word') }}</label>
         <input type="file" id="wordFile" class="form-control" accept=".doc,.docx">
-        <small class="text-muted">Formats acceptés : DOC, DOCX (jusqu'à 50MB)</small>
+        <small class="text-muted">{{ _('Formats acceptés : DOC, DOCX (jusqu\'à 50MB)') }}</small>
     </div>
 
     <div class="file-info-card mt-4">
-        <h5 class="mb-4"><i class="fas fa-cog me-2"></i>Options de conversion</h5>
+        <h5 class="mb-4"><i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}</h5>
         <div class="row g-4">
             <div class="col-md-6">
-                <label for="pageFormat" class="form-label fw-bold">Format de page</label>
+                <label for="pageFormat" class="form-label fw-bold">{{ _('Format de page') }}</label>
                 <select class="form-select" id="pageFormat">
-                    <option value="A4">A4 (210 × 297 mm)</option>
-                    <option value="Letter">Letter (8.5 × 11 in)</option>
-                    <option value="Legal">Legal (8.5 × 14 in)</option>
+                    <option value="A4">{{ _('A4 (210 × 297 mm)') }}</option>
+                    <option value="Letter">{{ _('Letter (8.5 × 11 in)') }}</option>
+                    <option value="Legal">{{ _('Legal (8.5 × 14 in)') }}</option>
                 </select>
             </div>
             <div class="col-md-6">
-                <label class="form-label fw-bold">Orientation</label>
+                <label class="form-label fw-bold">{{ _('Orientation') }}</label>
                 <div class="btn-group w-100">
                     <input type="radio" class="btn-check" name="orientation" id="portrait" value="portrait" checked>
-                    <label class="btn btn-outline-primary" for="portrait">Portrait</label>
+                    <label class="btn btn-outline-primary" for="portrait">{{ _('Portrait') }}</label>
                     <input type="radio" class="btn-check" name="orientation" id="landscape" value="landscape">
-                    <label class="btn btn-outline-primary" for="landscape">Paysage</label>
+                    <label class="btn btn-outline-primary" for="landscape">{{ _('Paysage') }}</label>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="text-center mt-4">
-        <button class="btn btn-primary btn-lg px-5" id="convertBtn">Convertir en PDF</button>
-        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">Réinitialiser</button>
+        <button class="btn btn-primary btn-lg px-5" id="convertBtn">{{ _('Convertir en PDF') }}</button>
+        <button class="btn btn-outline-secondary btn-lg ms-2" onclick="resetConversion()">{{ _('Réinitialiser') }}</button>
     </div>
 </div>
 
@@ -65,14 +65,14 @@
 <div id="step2Content" style="display: none;">
     <div class="text-center py-5">
         <i class="fas fa-cog fa-spin fa-4x text-primary mb-4"></i>
-        <h3 class="mb-3">Conversion en cours...</h3>
+        <h3 class="mb-3">{{ _('Conversion en cours...') }}</h3>
         <div class="progress-container mx-auto" style="max-width: 500px;">
             <div class="progress bg-light rounded-pill" style="height: 10px;">
                 <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" style="width: 0%;"></div>
             </div>
         </div>
         <p class="mt-2 text-muted" id="progressPercent">0%</p>
-        <p class="text-muted" id="conversionMessage">Analyse du document...</p>
+        <p class="text-muted" id="conversionMessage">{{ _('Analyse du document...') }}</p>
     </div>
 </div>
 
@@ -82,10 +82,10 @@
         <div class="success-animation bg-success rounded-circle d-inline-flex p-4 mb-4">
             <i class="fas fa-file-pdf fa-3x text-white"></i>
         </div>
-        <h3 class="mb-3">Conversion réussie !</h3>
-        <p class="text-muted mb-4">Votre PDF est prêt au téléchargement</p>
-        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>Télécharger PDF</a>
-        <button class="btn btn-outline-primary btn-lg ms-2" onclick="resetConversion()">Nouvelle conversion</button>
+        <h3 class="mb-3">{{ _('Conversion réussie !') }}</h3>
+        <p class="text-muted mb-4">{{ _('Votre PDF est prêt au téléchargement') }}</p>
+        <a href="#" class="btn btn-success btn-lg px-5" id="downloadLink" download>{{ _('Télécharger PDF') }}</a>
+        <button class="btn btn-outline-primary btn-lg ms-2" onclick="resetConversion()">{{ _('Nouvelle conversion') }}</button>
     </div>
 </div>
 
@@ -95,6 +95,17 @@
 {% block scripts %}
 {{ super() }}
 <script>
+    // Messages i18n pour JavaScript
+    const i18nMessages = {
+        selectFile: "{{ _('Veuillez sélectionner un fichier Word') }}",
+        invalidFormat: "{{ _('Le fichier doit être au format DOC ou DOCX') }}",
+        starting: "{{ _('Démarrage...') }}",
+        converting: "{{ _('Conversion en cours...') }}",
+        finalizing: "{{ _('Finalisation...') }}",
+        errorPrefix: "{{ _('Erreur') }}",
+        emptyFile: "{{ _('Fichier vide') }}"
+    };
+
     let downloadUrl = null;
     let progressInterval = null;
 
@@ -107,7 +118,6 @@
         if (step2) step2.style.display = step === 2 ? 'block' : 'none';
         if (step3) step3.style.display = step === 3 ? 'block' : 'none';
 
-        // Synchronisation avec le parent
         if (window.updateStep && typeof window.updateStep === 'function' && window.updateStep !== updateStep) {
             window.updateStep(step);
         }
@@ -151,14 +161,14 @@
     function startConversion() {
         const fileInput = document.getElementById('wordFile');
         if (!fileInput || !fileInput.files.length) {
-            showError('Veuillez sélectionner un fichier Word');
+            showError(i18nMessages.selectFile);
             return;
         }
         
         const file = fileInput.files[0];
         const ext = file.name.split('.').pop().toLowerCase();
         if (ext !== 'doc' && ext !== 'docx') {
-            showError('Le fichier doit être au format DOC ou DOCX');
+            showError(i18nMessages.invalidFormat);
             return;
         }
         
@@ -171,13 +181,13 @@
         showToast();
         
         let progress = 0;
-        updateProgress(0, 'Démarrage...');
+        updateProgress(0, i18nMessages.starting);
         
         progressInterval = setInterval(function() {
             if (progress < 95) {
                 progress += Math.random() * 15;
                 progress = Math.min(progress, 95);
-                updateProgress(progress, 'Conversion en cours...');
+                updateProgress(progress, i18nMessages.converting);
             }
         }, 400);
         
@@ -187,11 +197,11 @@
         })
         .then(async function(response) {
             clearInterval(progressInterval);
-            if (!response.ok) throw new Error('Erreur ' + response.status);
+            if (!response.ok) throw new Error(i18nMessages.errorPrefix + ' ' + response.status);
             const blob = await response.blob();
-            if (blob.size === 0) throw new Error('Fichier vide');
+            if (blob.size === 0) throw new Error(i18nMessages.emptyFile);
             
-            updateProgress(100, 'Finalisation...');
+            updateProgress(100, i18nMessages.finalizing);
             
             if (downloadUrl) URL.revokeObjectURL(downloadUrl);
             downloadUrl = URL.createObjectURL(blob);
@@ -211,7 +221,7 @@
             clearInterval(progressInterval);
             hideToast();
             updateStep(1);
-            showError('Erreur: ' + error.message);
+            showError(error.message);
         });
     }
 
@@ -228,13 +238,6 @@
         const convertBtn = document.getElementById('convertBtn');
         if (convertBtn) {
             convertBtn.addEventListener('click', startConversion);
-        }
-        
-        const fileInput = document.getElementById('wordFile');
-        if (fileInput) {
-            fileInput.addEventListener('change', function(e) {
-                console.log('Fichier sélectionné:', e.target.files[0]?.name);
-            });
         }
     });
 </script>
