@@ -1,4 +1,4 @@
-// static/js/cloud/upload.js - Version moderne et pro
+// static/js/cloud/upload.js - Version avec message clair
 
 (function() {
     if (window.cloudUpload) return;
@@ -16,74 +16,111 @@
         open: function(providerId) {
             const service = CLOUD_SERVICES.find(s => s.id === providerId);
             if (service) {
+                // Ouvrir dans un nouvel onglet
                 window.open(service.url, '_blank');
-                this.showToast(service.name);
+                
+                // Afficher un message explicatif
+                this.showInstructions(service.name);
             }
         },
         
-        showToast: function(serviceName) {
-            let toast = document.getElementById('cloudToast');
-            if (!toast) {
-                toast = document.createElement('div');
-                toast.id = 'cloudToast';
-                toast.className = 'cloud-toast';
-                toast.innerHTML = `
-                    <div class="cloud-toast-content">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <div>
-                            <strong>${serviceName}</strong>
-                            <p>Téléchargez votre fichier puis utilisez "Parcourir"</p>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(toast);
-                
-                // Style du toast
-                const style = document.createElement('style');
-                style.textContent = `
-                    .cloud-toast {
-                        position: fixed;
-                        bottom: 30px;
-                        right: 30px;
-                        background: white;
-                        border-radius: 12px;
-                        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-                        padding: 16px 24px;
-                        z-index: 10000;
-                        transform: translateX(400px);
-                        transition: transform 0.3s ease;
-                        border-left: 4px solid #4285F4;
-                        max-width: 350px;
-                    }
-                    .cloud-toast.show {
-                        transform: translateX(0);
-                    }
-                    .cloud-toast-content {
-                        display: flex;
-                        align-items: center;
-                        gap: 15px;
-                    }
-                    .cloud-toast-content i {
-                        font-size: 28px;
-                        color: #4285F4;
-                    }
-                    .cloud-toast-content strong {
-                        display: block;
-                        margin-bottom: 4px;
-                        color: #2c3e50;
-                    }
-                    .cloud-toast-content p {
-                        margin: 0;
-                        font-size: 13px;
-                        color: #6c757d;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
+        showInstructions: function(serviceName) {
+            // Supprimer l'ancien modal s'il existe
+            const oldModal = document.getElementById('cloudInstructionsModal');
+            if (oldModal) oldModal.remove();
             
-            toast.querySelector('strong').textContent = serviceName;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 4000);
+            const modal = document.createElement('div');
+            modal.id = 'cloudInstructionsModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10001;
+                animation: fadeIn 0.2s ease;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    border-radius: 20px;
+                    padding: 30px;
+                    max-width: 450px;
+                    width: 90%;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    animation: slideUp 0.3s ease;
+                ">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <i class="fas fa-cloud-download-alt" style="font-size: 48px; color: #4285F4;"></i>
+                    </div>
+                    <h4 style="margin-bottom: 15px; text-align: center;">
+                        <i class="fas fa-info-circle text-primary me-2"></i>
+                        Comment utiliser ${serviceName}
+                    </h4>
+                    <div style="background: #f0f7ff; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <ol style="margin: 0; padding-left: 20px; color: #2c3e50;">
+                            <li style="margin-bottom: 12px;">
+                                <strong>Téléchargez votre fichier</strong><br>
+                                <span style="font-size: 14px; color: #6c757d;">Depuis ${serviceName} vers votre ordinateur</span>
+                            </li>
+                            <li style="margin-bottom: 12px;">
+                                <strong>Revenez sur cette page</strong><br>
+                                <span style="font-size: 14px; color: #6c757d;">L'onglet de ${serviceName} s'est ouvert</span>
+                            </li>
+                            <li>
+                                <strong>Utilisez le bouton "Parcourir"</strong><br>
+                                <span style="font-size: 14px; color: #6c757d;">Pour sélectionner le fichier téléchargé</span>
+                            </li>
+                        </ol>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button onclick="this.closest('#cloudInstructionsModal').remove()" style="
+                            background: #4285F4;
+                            color: white;
+                            border: none;
+                            padding: 12px 30px;
+                            border-radius: 50px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s;
+                        " onmouseover="this.style.background='#3367d6'" onmouseout="this.style.background='#4285F4'">
+                            J'ai compris
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Ajouter les animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes slideUp {
+                    from { transform: translateY(20px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(modal);
+            
+            // Fermer en cliquant à l'extérieur
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+            
+            // Fermer avec Escape
+            const escHandler = (e) => {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                    document.removeEventListener('keydown', escHandler);
+                }
+            };
+            document.addEventListener('keydown', escHandler);
         },
         
         getServices: function() {
@@ -91,5 +128,5 @@
         }
     };
     
-    console.log('☁️ Cloud upload ready');
+    console.log('☁️ Cloud upload ready - Ouvre les services cloud');
 })();
