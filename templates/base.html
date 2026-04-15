@@ -513,6 +513,8 @@
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 <script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 <script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
+<!-- Chargement explicite du script cloud -->
+<script src="{{ url_for('static', filename='js/cloud/upload.js') }}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded',function(){
@@ -639,6 +641,7 @@ var I18N = {
 {# ── Blocs pour les templates enfants ── #}
 {#% block cloud_buttons %}{% endblock %#}
 {% block scripts %}{% endblock %}
+{{ super() }}
 {% block extra_js %}{% endblock %}
 
 </body>
