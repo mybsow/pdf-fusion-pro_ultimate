@@ -1,23 +1,26 @@
-// static/js/cloud/upload.js - Version avec i18n dynamique
+// static/js/cloud/upload.js - Version simplifiée qui fonctionne
 
 (function() {
     if (window.cloudUpload) return;
 
-    // Fonction de traduction - utilise window.i18n si disponible
-    const t = (window.i18n && window.i18n.t) || function(key, params = {}) {
-        // Fallback en français
-        const fallbacks = {
-            'how_to_use': 'Comment utiliser {service}',
-            'download_file': 'Téléchargez votre fichier',
-            'download_file_desc': 'Depuis {service} vers votre ordinateur',
-            'come_back': 'Revenez sur cette page',
-            'come_back_desc': "L'onglet de {service} s'est ouvert",
-            'use_browse': 'Utilisez le bouton "Parcourir"',
-            'use_browse_desc': 'Pour sélectionner le fichier téléchargé',
-            'understood': "J'ai compris",
-            'cloud_upload_ready': '☁️ Upload cloud prêt - Ouvre les services cloud'
-        };
-        let text = fallbacks[key] || key;
+    // Lire les traductions depuis l'élément caché
+    const i18nEl = document.getElementById('js-i18n-cloud');
+    
+    const translations = i18nEl ? {
+        'how_to_use': i18nEl.dataset.howToUse || 'Comment utiliser {service}',
+        'download_file': i18nEl.dataset.downloadFile || 'Téléchargez votre fichier',
+        'download_file_desc': i18nEl.dataset.downloadFileDesc || 'Depuis {service} vers votre ordinateur',
+        'come_back': i18nEl.dataset.comeBack || 'Revenez sur cette page',
+        'come_back_desc': i18nEl.dataset.comeBackDesc || "L'onglet de {service} s'est ouvert",
+        'use_browse': i18nEl.dataset.useBrowse || 'Utilisez le bouton "Parcourir"',
+        'use_browse_desc': i18nEl.dataset.useBrowseDesc || 'Pour sélectionner le fichier téléchargé',
+        'understood': i18nEl.dataset.understood || "J'ai compris",
+        'cloud_upload_ready': i18nEl.dataset.cloudReady || '☁️ Upload cloud prêt - Ouvre les services cloud'
+    } : {};
+
+    // Fonction de traduction
+    const t = function(key, params = {}) {
+        let text = translations[key] || key;
         Object.keys(params).forEach(p => {
             text = text.replace(`{${p}}`, params[p]);
         });
@@ -132,6 +135,4 @@
             return CLOUD_SERVICES;
         }
     };
-
-    console.log(t('cloud_upload_ready'));
 })();
