@@ -4,19 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
 msgid ""
-msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-15 14:21+0000\n"
-"PO-Revision-Date: 2026-04-15 09:09+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: zh\n"
-"Language-Team: zh <LL@li.org>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.18.0\n"
+msgstr "Project-Id-Version: PROJECT VERSION\nReport-Msgid-Bugs-To: EMAIL@ADDRESS\nPOT-Creation-Date: 2026-04-15 15:42+0000\nPO-Revision-Date: 2026-04-15 15:43+0000\nLast-Translator: FULL NAME <EMAIL@ADDRESS>\nLanguage: zh\nLanguage-Team: zh <LL@li.org>\nPlural-Forms: nplurals=1; plural=0;\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\nContent-Transfer-Encoding: 8bit\nGenerated-By: Babel 2.18.0\n"
 
 #: app.py:509 templates/conversion/index.html:120
 msgid "Convertisseur de fichiers"
@@ -37,7 +25,7 @@ msgstr "日期未知"
 #: blueprints/admin.py:49 blueprints/admin.py:54 blueprints/admin.py:57
 #: blueprints/admin.py:60
 msgid "s"
-msgstr ""
+msgstr "s"
 
 #: blueprints/admin.py:61
 msgid "à l'instant"
@@ -62,7 +50,7 @@ msgstr "评级示例"
 #: blueprints/admin.py:157 blueprints/admin.py:461 templates/base.html:323
 #: templates/base_legal.html:242
 msgid "Accueil"
-msgstr ""
+msgstr "欢迎"
 
 #: blueprints/admin.py:159 blueprints/admin.py:463
 #: templates/legal/about.html:24
@@ -101,14 +89,12 @@ msgid "Stats régénérées"
 msgstr "再生统计数据"
 
 #: blueprints/admin.py:228
-#, fuzzy
 msgid "messages"
-msgstr "您的留言"
+msgstr "消息"
 
 #: blueprints/admin.py:228
-#, fuzzy
 msgid "ratings"
-msgstr "评级已加载"
+msgstr "收视率"
 
 #: blueprints/admin.py:231
 msgid "Erreur lors de la génération des stats"
@@ -135,17 +121,16 @@ msgid "Toutes les Évaluations"
 msgstr "所有评论"
 
 #: blueprints/admin.py:642
-#, fuzzy
 msgid "✅ Fichier contacts.json est valide"
-msgstr "文件无效"
+msgstr "✅ Contacts.json 文件有效"
 
 #: blueprints/admin.py:647
 msgid "✅ Fichier contacts.json réinitialisé (était vide)"
-msgstr ""
+msgstr "✅contacts.json 文件重置（为空）"
 
 #: blueprints/admin.py:664
 msgid "✅ Fichier contacts.json créé"
-msgstr ""
+msgstr "✅ 已创建 Contacts.json 文件"
 
 #: blueprints/legal/routes.py:205
 msgid "Veuillez remplir tous les champs obligatoires."
@@ -165,9 +150,8 @@ msgstr "发生技术错误。请再试一次。"
 
 #: blueprints/legal/routes.py:220 templates/base.html:379
 #: templates/base_legal.html:285
-#, fuzzy
 msgid "Contact"
-msgstr "联系我们"
+msgstr "接触"
 
 #: blueprints/legal/routes.py:221 templates/legal/legal.html:21
 #: templates/legal/privacy.html:46
@@ -271,12 +255,12 @@ msgstr "至少需要 2 个 PDF"
 #: blueprints/pdf/routes.py:160
 #, python-format
 msgid "Maximum %(max)d fichiers"
-msgstr "Maximum %(max)d fichiers"
+msgstr "最多 %(max)d 个文件"
 
 #: blueprints/pdf/routes.py:176
 #, python-format
 msgid "Fichier %(name)s contient trop de pages"
-msgstr "Fichier %(name)s contient trop de pages"
+msgstr "文件 %(name)s 包含太多页"
 
 #: blueprints/pdf/routes.py:211 blueprints/pdf/routes.py:294
 #: blueprints/pdf/routes.py:362 blueprints/pdf/routes.py:429
@@ -288,7 +272,7 @@ msgstr "服务器内部错误"
 #: blueprints/pdf/routes.py:240 blueprints/pdf/routes.py:325
 #: blueprints/pdf/routes.py:391
 msgid "Fichier contient trop de pages"
-msgstr "Fichier contient trop de pages"
+msgstr "文件包含太多页面"
 
 #: blueprints/pdf/routes.py:458
 msgid "Format non supporté"
@@ -311,9 +295,8 @@ msgid "Merci pour votre évaluation !"
 msgstr "感谢您的评论！"
 
 #: blueprints/pdf/routes.py:629
-#, fuzzy
 msgid "Fermer"
-msgstr "犯错-"
+msgstr "关闭"
 
 #: blueprints/pdf/routes.py:633
 msgid "Votre avis compte !"
@@ -329,7 +312,7 @@ msgstr "谢谢 ！您有什么改进建议吗？"
 
 #: blueprints/pdf/routes.py:652
 msgid "Envoyer mon évaluation"
-msgstr "Envoyer mon évaluation"
+msgstr "提交我的评论"
 
 #: blueprints/pdf/routes.py:657
 msgid "Peut-être plus tard"
@@ -360,15 +343,11 @@ msgid "PDF Fusion Pro - Outils PDF Gratuits"
 msgstr "PDF Fusion Pro - 免费 PDF 工具"
 
 #: templates/base.html:30
-msgid ""
-"Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos "
-"fichiers en ligne. Rapide, sécurisé et sans installation."
+msgid "Outils PDF gratuits pour fusionner, diviser, compresser et convertir vos fichiers en ligne. Rapide, sécurisé et sans installation."
 msgstr "免费的 PDF 工具可在线合并、分割、压缩和转换您的文件。快速、安全且免安装。"
 
 #: templates/base.html:32
-msgid ""
-"PDF, convertisseur, fusionner, diviser, compresser, OCR, Word, Excel, "
-"PowerPoint, image"
+msgid "PDF, convertisseur, fusionner, diviser, compresser, OCR, Word, Excel, PowerPoint, image"
 msgstr "PDF、转换器、合并、分割、压缩、OCR、Word、Excel、PowerPoint、图像"
 
 #: templates/base.html:35
@@ -383,9 +362,8 @@ msgstr "PDF 融合专业版"
 #: templates/base.html:329 templates/base_legal.html:278
 #: templates/conversion/conversion_base.html:295
 #: templates/conversion/conversion_base.html:380
-#, fuzzy
 msgid "Convertir"
-msgstr "转换为"
+msgstr "转变"
 
 #: templates/base.html:332 templates/conversion/excel_to_pdf.html:60
 #: templates/conversion/html_to_pdf.html:101
@@ -455,24 +433,20 @@ msgid "Toutes les conversions"
 msgstr "所有转换"
 
 #: templates/base.html:358 templates/base_legal.html:249
-#, fuzzy
 msgid "Fusionner"
-msgstr "合并PDF"
+msgstr "合并"
 
 #: templates/base.html:363 templates/base_legal.html:256
-#, fuzzy
 msgid "Diviser"
-msgstr "分割PDF"
+msgstr "划分"
 
 #: templates/base.html:368 templates/base_legal.html:263
-#, fuzzy
 msgid "Tourner"
-msgstr "转PDF"
+msgstr "转动"
 
 #: templates/base.html:373 templates/base_legal.html:270
-#, fuzzy
 msgid "Compresser"
-msgstr "压缩PDF"
+msgstr "压缩"
 
 #: templates/base.html:386 templates/base.html:468 templates/base.html:470
 #: templates/base_legal.html:292 templates/base_legal.html:521
@@ -484,15 +458,12 @@ msgid "Outils PDF gratuits en ligne."
 msgstr "免费在线 PDF 工具。"
 
 #: templates/base.html:456
-msgid ""
-"Vos fichiers sont traités de manière sécurisée et supprimés "
-"automatiquement."
+msgid "Vos fichiers sont traités de manière sécurisée et supprimés automatiquement."
 msgstr "您的文件将得到安全处理并自动删除。"
 
 #: templates/base.html:459
-#, fuzzy
 msgid "Outils"
-msgstr "PDF工具"
+msgstr "工具"
 
 #: templates/base.html:463
 msgid "Tourner PDF"
@@ -516,9 +487,8 @@ msgid "Tous droits réservés."
 msgstr "版权所有。"
 
 #: templates/base.html:484 templates/base_legal.html:504
-#, fuzzy
 msgid "Version"
-msgstr "版本："
+msgstr "版本"
 
 #: templates/base.html:485
 msgid "Hébergé sur Render"
@@ -538,19 +508,55 @@ msgid "Soutenez notre outil gratuit !"
 msgstr "支持我们的免费工具！"
 
 #: templates/base.html:562
-msgid ""
-"Ce service est entièrement gratuit grâce à vous. Un petit clic sur une "
-"publicité nous aide énormément à maintenir et améliorer PDF Fusion Pro."
+msgid "Ce service est entièrement gratuit grâce à vous. Un petit clic sur une publicité nous aide énormément à maintenir et améliorer PDF Fusion Pro."
 msgstr "感谢您的帮助，这项服务完全免费。只需点击广告即可大大帮助我们维护和改进 PDF Fusion Pro。"
 
 #: templates/base.html:563
 msgid "Je comprends"
 msgstr "我明白"
 
+#: templates/base.html:652
+#, python-brace-format
+msgid "Comment utiliser {service}"
+msgstr "如何使用{服务}"
+
+#: templates/base.html:653 templates/conversion/conversion_base.html:459
+msgid "Téléchargez votre fichier"
+msgstr "上传您的文件"
+
+#: templates/base.html:654
+#, python-brace-format
+msgid "Depuis {service} vers votre ordinateur"
+msgstr "从 {service} 到您的计算机"
+
+#: templates/base.html:655
+msgid "Revenez sur cette page"
+msgstr "返回此页面"
+
+#: templates/base.html:656
+#, python-brace-format
+msgid "L'onglet de {service} s'est ouvert"
+msgstr "{服务}选项卡已打开"
+
+#: templates/base.html:657
+msgid "Utilisez le bouton \"Parcourir\"
+msgstr "使用“浏览”按钮"
+
+#: templates/base.html:658
+msgid "Pour sélectionner le fichier téléchargé"
+msgstr "选择下载的文件"
+
+#: templates/base.html:659
+msgid "J'ai compris"
+msgstr "知道了"
+
+#: templates/base.html:660
+msgid "☁️ Upload cloud prêt - Ouvre les services cloud"
+msgstr "☁️ 上传云就绪 - 打开云服务"
+
 #: templates/base_legal.html:517
-#, fuzzy
 msgid "Conditions"
-msgstr "内容处置"
+msgstr "条款"
 
 #: templates/base_legal.html:527 templates/errors/404.html:101
 #: templates/errors/413.html:147 templates/errors/500.html:172
@@ -605,11 +611,11 @@ msgstr "将您的文件拖放到此处"
 #: templates/conversion/sign_pdf.html:22
 #: templates/conversion/txt_to_pdf.html:22 templates/pdf/index.html:154
 msgid "ou"
-msgstr ""
+msgstr "或者"
 
 #: templates/conversion/conversion_base.html:314
 msgid "Parcourir"
-msgstr ""
+msgstr "浏览"
 
 #: templates/conversion/conversion_base.html:318
 msgid "Formats acceptés :"
@@ -620,18 +626,16 @@ msgid "jusqu'à"
 msgstr "直到"
 
 #: templates/conversion/conversion_base.html:322
-#, fuzzy
 msgid "fichiers"
-msgstr "空文件"
+msgstr "文件"
 
 #: templates/conversion/conversion_base.html:322
-#, fuzzy
 msgid "fichier"
-msgstr "空文件"
+msgstr "文件"
 
 #: templates/conversion/conversion_base.html:323
 msgid "max"
-msgstr ""
+msgstr "最大限度"
 
 #: templates/conversion/conversion_base.html:335
 msgid "Importer depuis le cloud"
@@ -662,9 +666,8 @@ msgstr "转换正在进行中..."
 #: templates/conversion/pdf_to_excel.html:304
 #: templates/conversion/pdf_to_word.html:81
 #: templates/conversion/word_to_pdf.html:75 templates/pdf/pdf_base.html:169
-#, fuzzy
 msgid "Analyse du document..."
-msgstr "源文件分析..."
+msgstr "文档分析..."
 
 #: templates/conversion/conversion_base.html:411
 #: templates/conversion/csv_to_excel.html:98
@@ -705,18 +708,16 @@ msgstr "转换后您的文件将被删除"
 
 #: templates/conversion/conversion_base.html:437
 #: templates/conversion/index.html:221
-#, fuzzy
 msgid "Rapide"
-msgstr "快速链接"
+msgstr "快速地"
 
 #: templates/conversion/conversion_base.html:438
 msgid "Conversion en quelques secondes"
 msgstr "以秒为单位的转换"
 
 #: templates/conversion/conversion_base.html:442
-#, fuzzy
 msgid "Confidentiel"
-msgstr "保密性"
+msgstr "机密的"
 
 #: templates/conversion/conversion_base.html:443
 msgid "Personne n'accède à vos fichiers"
@@ -724,7 +725,7 @@ msgstr "没有人访问您的文件"
 
 #: templates/conversion/conversion_base.html:447
 msgid "Accessible"
-msgstr ""
+msgstr "无障碍"
 
 #: templates/conversion/conversion_base.html:448
 msgid "Utilisez depuis n'importe où"
@@ -734,10 +735,6 @@ msgstr "随时随地使用"
 #: templates/conversion/index.html:270
 msgid "Comment ça marche ?"
 msgstr "它是如何运作的？"
-
-#: templates/conversion/conversion_base.html:459
-msgid "Téléchargez votre fichier"
-msgstr "上传您的文件"
 
 #: templates/conversion/conversion_base.html:460
 msgid "Notre système le convertit automatiquement en"
@@ -764,9 +761,8 @@ msgid "Glissez-déposez vos fichiers CSV ici"
 msgstr "将您的 CSV 文件拖放到此处"
 
 #: templates/conversion/csv_to_excel.html:26
-#, fuzzy
 msgid "Formats acceptés : CSV, TXT (jusqu'à 50MB par fichier)"
-msgstr "接受的格式：JPG、PNG、BMP、GIF、TIFF、WEBP（每个文件最大 50MB）"
+msgstr "接受的格式：CSV、TXT（每个文件最多 50MB）"
 
 #: templates/conversion/csv_to_excel.html:36
 #: templates/conversion/excel_to_csv.html:36
@@ -793,22 +789,22 @@ msgstr "分隔符："
 #: templates/conversion/csv_to_excel.html:42
 #: templates/conversion/excel_to_csv.html:42
 msgid "Virgule (,)"
-msgstr ""
+msgstr "逗号 (,)"
 
 #: templates/conversion/csv_to_excel.html:43
 #: templates/conversion/excel_to_csv.html:43
 msgid "Point-virgule (;)"
-msgstr ""
+msgstr "分号 (;)"
 
 #: templates/conversion/csv_to_excel.html:44
 #: templates/conversion/excel_to_csv.html:44
 msgid "Tabulation"
-msgstr ""
+msgstr "制表"
 
 #: templates/conversion/csv_to_excel.html:45
 #: templates/conversion/excel_to_csv.html:45
 msgid "Pipe (|)"
-msgstr ""
+msgstr "口交 (|)"
 
 #: templates/conversion/csv_to_excel.html:49
 #: templates/conversion/pdf_to_html.html:48
@@ -956,9 +952,8 @@ msgstr "或点击选择"
 #: templates/conversion/edit_pdf.html:40
 #: templates/conversion/redact_pdf.html:26
 #: templates/conversion/sign_pdf.html:26
-#, fuzzy
 msgid "Formats acceptés : PDF (jusqu'à 100MB)"
-msgstr "接受的格式：PDF"
+msgstr "接受的格式：PDF（最大 100MB）"
 
 #: templates/conversion/edit_pdf.html:53
 msgid "Ajouter du texte"
@@ -989,9 +984,8 @@ msgid "Page d'insertion :"
 msgstr "插入页面："
 
 #: templates/conversion/edit_pdf.html:85
-#, fuzzy
 msgid "Position (points) :"
-msgstr "Y位置："
+msgstr "位置（分）："
 
 #: templates/conversion/edit_pdf.html:97 templates/conversion/edit_pdf.html:149
 #: templates/conversion/sign_pdf.html:105
@@ -1038,7 +1032,6 @@ msgstr "将您的图像拖放到此处"
 msgid "Taille originale"
 msgstr "原始尺寸"
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/edit_pdf.html:152
 msgid "Ajuster à la page"
 msgstr "适合页面"
@@ -1048,23 +1041,20 @@ msgid "Personnalisée"
 msgstr "个性化"
 
 #: templates/conversion/edit_pdf.html:157
-#, fuzzy
 msgid "Position X (points) :"
-msgstr "位置X："
+msgstr "位置 X（点）："
 
 #: templates/conversion/edit_pdf.html:161
-#, fuzzy
 msgid "Position Y (points) :"
-msgstr "Y位置："
+msgstr "Y 位置（点）："
 
 #: templates/conversion/edit_pdf.html:169
-#, fuzzy
 msgid "Largeur (points) :"
-msgstr "下载幻灯片"
+msgstr "宽度（点）："
 
 #: templates/conversion/edit_pdf.html:173
 msgid "Hauteur (points) :"
-msgstr ""
+msgstr "高度（点）："
 
 #: templates/conversion/edit_pdf.html:182
 msgid "Gestion des pages"
@@ -1079,14 +1069,12 @@ msgid "Réorganiser"
 msgstr "改组"
 
 #: templates/conversion/edit_pdf.html:194
-#, fuzzy
 msgid "Supprimer"
-msgstr "要删除的页面："
+msgstr "删除"
 
 #: templates/conversion/edit_pdf.html:199
-#, fuzzy
 msgid "Rotation"
-msgstr "旋转 PDF"
+msgstr "旋转"
 
 #: templates/conversion/edit_pdf.html:207
 msgid "Faites glisser les pages pour les réorganiser"
@@ -1111,11 +1099,11 @@ msgstr "角落 ："
 
 #: templates/conversion/edit_pdf.html:230
 msgid "horaire"
-msgstr ""
+msgstr "每小时"
 
 #: templates/conversion/edit_pdf.html:232
 msgid "antihoraire"
-msgstr ""
+msgstr "逆时针"
 
 #: templates/conversion/edit_pdf.html:244
 msgid "Appliquer les modifications"
@@ -1160,23 +1148,20 @@ msgid "Glissez-déposez vos fichiers Excel ici"
 msgstr "将您的 Excel 文件拖放到此处"
 
 #: templates/conversion/excel_to_csv.html:26
-#, fuzzy
 msgid "Formats acceptés : XLS, XLSX (jusqu'à 50MB par fichier)"
-msgstr "接受的格式：JPG、PNG、BMP、GIF、TIFF、WEBP（每个文件最大 50MB）"
+msgstr "接受的格式：XLS、XLSX（每个文件最多 50MB）"
 
 #: templates/conversion/excel_to_csv.html:49
 msgid "Feuille à exporter :"
 msgstr "要导出的表："
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/excel_to_csv.html:51
 msgid "Première feuille"
 msgstr "第一张"
 
 #: templates/conversion/excel_to_csv.html:52
-#, fuzzy
 msgid "Toutes les feuilles (archive ZIP)"
-msgstr "将所有图像分组到 ZIP 存档中"
+msgstr "所有工作表（ZIP 存档）"
 
 #: templates/conversion/excel_to_csv.html:59
 msgid "Inclure les en-têtes"
@@ -1184,7 +1169,7 @@ msgstr "包含标题"
 
 #: templates/conversion/excel_to_csv.html:67
 msgid "Ajouter BOM UTF-8 (compatible Excel)"
-msgstr ""
+msgstr "添加 BOM UTF-8（Excel 兼容）"
 
 #: templates/conversion/excel_to_csv.html:77
 msgid "Convertir en CSV"
@@ -1204,9 +1189,8 @@ msgid "Sélectionnez les fichiers à convertir en PDF"
 msgstr "选择要转换为 PDF 的文件"
 
 #: templates/conversion/excel_to_pdf.html:26
-#, fuzzy
 msgid "Formats acceptés : XLS, XLSX, XLSM (jusqu'à 50MB par fichier)"
-msgstr "接受的格式：JPG、PNG、BMP、GIF、TIFF、WEBP（每个文件最大 50MB）"
+msgstr "接受的格式：XLS、XLSX、XLSM（每个文件最多 50MB）"
 
 #: templates/conversion/excel_to_pdf.html:40
 #: templates/conversion/html_to_pdf.html:68
@@ -1222,9 +1206,8 @@ msgstr "方向 ："
 #: templates/conversion/jpg_to_pdf.html:52
 #: templates/conversion/png_to_pdf.html:52
 #: templates/conversion/word_to_pdf.html:50
-#, fuzzy
 msgid "Portrait"
-msgstr "已处理的 PDF"
+msgstr "肖像"
 
 #: templates/conversion/excel_to_pdf.html:43
 #: templates/conversion/html_to_pdf.html:71
@@ -1232,9 +1215,8 @@ msgstr "已处理的 PDF"
 #: templates/conversion/jpg_to_pdf.html:53
 #: templates/conversion/png_to_pdf.html:53
 #: templates/conversion/word_to_pdf.html:52
-#, fuzzy
 msgid "Paysage"
-msgstr "页数："
+msgstr "景观"
 
 #: templates/conversion/excel_to_pdf.html:47
 #: templates/conversion/html_to_pdf.html:59
@@ -1248,7 +1230,7 @@ msgstr "页面格式："
 #: templates/conversion/excel_to_pdf.html:50
 #: templates/conversion/image_to_pdf.html:60
 msgid "Letter"
-msgstr ""
+msgstr "信"
 
 #: templates/conversion/excel_to_pdf.html:89
 msgid "Vos fichiers PDF sont prêts à être téléchargés"
@@ -1277,11 +1259,11 @@ msgstr "或者粘贴您的 HTML 代码："
 #: templates/conversion/html_to_pdf.html:62
 #: templates/conversion/txt_to_pdf.html:50
 msgid "Lettre"
-msgstr ""
+msgstr "信"
 
 #: templates/conversion/html_to_pdf.html:76
 msgid "Marges (mm) :"
-msgstr ""
+msgstr "边距（毫米）："
 
 #: templates/conversion/html_to_pdf.html:84
 #: templates/conversion/pdf_to_ppt.html:68
@@ -1337,9 +1319,8 @@ msgstr "将您的文件拖放到此处"
 
 #: templates/conversion/image_to_excel.html:25
 #: templates/conversion/image_to_word.html:26
-#, fuzzy
 msgid "Formats acceptés : JPG, PNG, BMP, TIFF, WEBP, PDF (jusqu'à 50MB)"
-msgstr "接受的格式：JPG、PNG、BMP、GIF、TIFF、WEBP（每个文件最大 50MB）"
+msgstr "接受的格式：JPG、PNG、BMP、TIFF、WEBP、PDF（最大 50MB）"
 
 #: templates/conversion/image_to_excel.html:34
 #: templates/conversion/pdf_to_excel.html:37
@@ -1367,7 +1348,7 @@ msgstr "提取方式"
 #: templates/conversion/jpg_to_pdf.html:51
 #: templates/conversion/png_to_pdf.html:51
 msgid "Automatique"
-msgstr ""
+msgstr "自动的"
 
 #: templates/conversion/image_to_excel.html:55
 msgid "Détection intelligente des tableaux"
@@ -1375,7 +1356,7 @@ msgstr "智能板卡检测"
 
 #: templates/conversion/image_to_excel.html:61
 msgid "Grille"
-msgstr ""
+msgstr "网格"
 
 #: templates/conversion/image_to_excel.html:62
 msgid "Extraction par grille fixe"
@@ -1384,7 +1365,7 @@ msgstr "固定网格提取"
 #: templates/conversion/image_to_excel.html:69
 #: templates/conversion/prepare_form.html:104
 msgid "Options"
-msgstr ""
+msgstr "选项"
 
 #: templates/conversion/image_to_excel.html:74
 msgid "Détecter les en-têtes"
@@ -1404,15 +1385,15 @@ msgstr "OCR准确率"
 
 #: templates/conversion/image_to_excel.html:94
 msgid "Haute (plus lent)"
-msgstr ""
+msgstr "高（较慢）"
 
 #: templates/conversion/image_to_excel.html:95
 msgid "Moyenne (équilibré)"
-msgstr ""
+msgstr "平均（平衡）"
 
 #: templates/conversion/image_to_excel.html:96
 msgid "Basse (plus rapide)"
-msgstr ""
+msgstr "低音（更快）"
 
 #: templates/conversion/image_to_excel.html:101
 #: templates/conversion/image_to_word.html:109
@@ -1421,16 +1402,15 @@ msgstr "输出格式"
 
 #: templates/conversion/image_to_excel.html:103
 msgid "Excel (XLSX)"
-msgstr ""
+msgstr "Excel (XLSX)"
 
 #: templates/conversion/image_to_excel.html:113
-#, fuzzy
 msgid "tableau(x) détecté(s)"
-msgstr "检测到阵列"
+msgstr "检测到的表"
 
 #: templates/conversion/image_to_excel.html:114
 msgid "cellule(s)"
-msgstr ""
+msgstr "细胞"
 
 #: templates/conversion/image_to_excel.html:115
 msgid "Prêt pour extraction"
@@ -1452,7 +1432,7 @@ msgstr "提取的细胞"
 #: templates/conversion/image_to_excel.html:165
 #: templates/conversion/image_to_word.html:204
 msgid "Confiance"
-msgstr ""
+msgstr "相信"
 
 #: templates/conversion/image_to_excel.html:180
 #: templates/conversion/image_to_word.html:340
@@ -1492,9 +1472,7 @@ msgid "Glissez-déposez vos images ici"
 msgstr "将您的图像拖放到此处"
 
 #: templates/conversion/image_to_pdf.html:26
-msgid ""
-"Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par "
-"fichier)"
+msgid "Formats acceptés : JPG, PNG, BMP, GIF, TIFF, WEBP (jusqu'à 50MB par fichier)"
 msgstr "接受的格式：JPG、PNG、BMP、GIF、TIFF、WEBP（每个文件最大 50MB）"
 
 #: templates/conversion/image_to_pdf.html:49
@@ -1504,19 +1482,19 @@ msgstr "质量 ："
 
 #: templates/conversion/image_to_pdf.html:51
 msgid "Haute (fichier plus gros)"
-msgstr ""
+msgstr "高（较大的文件）"
 
 #: templates/conversion/image_to_pdf.html:52
 #: templates/conversion/jpg_to_pdf.html:60
 #: templates/conversion/pdf_to_image.html:65
 #: templates/conversion/sign_pdf.html:108
 msgid "Moyenne"
-msgstr ""
+msgstr "平均的"
 
 #: templates/conversion/image_to_pdf.html:53
 #: templates/conversion/jpg_to_pdf.html:61
 msgid "Basse (fichier plus petit)"
-msgstr ""
+msgstr "低（较小的文件）"
 
 #: templates/conversion/image_to_pdf.html:69
 #: templates/conversion/jpg_to_pdf.html:68
@@ -1531,9 +1509,9 @@ msgid "Veuillez patienter pendant le traitement de vos images"
 msgstr "正在处理您的图像，请稍候"
 
 #: templates/conversion/image_to_pdf.html:99
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Traitement de 0/{total} images..."
-msgstr "图像预处理..."
+msgstr "正在处理 0/{total} 张图像..."
 
 #: templates/conversion/image_to_pdf.html:117
 #: templates/conversion/jpg_to_pdf.html:110
@@ -1546,13 +1524,13 @@ msgid "Veuillez sélectionner au moins une image"
 msgstr "请至少选择一张图片"
 
 #: templates/conversion/image_to_pdf.html:195
+msgid "images..."
+msgstr "图片..."
+
+#: templates/conversion/image_to_pdf.html:195
 #: templates/conversion/image_to_pdf.html:208
 msgid "Traitement de"
 msgstr "治疗"
-
-#: templates/conversion/image_to_pdf.html:195
-msgid "images..."
-msgstr "图片..."
 
 #: templates/conversion/image_to_pdf.html:208
 msgid "images terminé"
@@ -1587,9 +1565,8 @@ msgstr "法语"
 #: templates/conversion/pdf_to_excel.html:55
 #: templates/conversion/pdf_to_word.html:35
 #: templates/conversion/prepare_form.html:124
-#, fuzzy
 msgid "Anglais"
-msgstr "法语"
+msgstr "英语"
 
 #: templates/conversion/image_to_word.html:57
 #: templates/conversion/pdf_to_doc.html:57
@@ -1597,7 +1574,7 @@ msgstr "法语"
 #: templates/conversion/pdf_to_word.html:37
 #: templates/conversion/prepare_form.html:126
 msgid "Espagnol"
-msgstr ""
+msgstr "西班牙语"
 
 #: templates/conversion/image_to_word.html:63
 #: templates/conversion/pdf_to_doc.html:56
@@ -1605,21 +1582,19 @@ msgstr ""
 #: templates/conversion/pdf_to_word.html:36
 #: templates/conversion/prepare_form.html:125
 msgid "Allemand"
-msgstr ""
+msgstr "德语"
 
 #: templates/conversion/image_to_word.html:67
 #: templates/conversion/pdf_to_doc.html:58
 #: templates/conversion/pdf_to_excel.html:58
 #: templates/conversion/pdf_to_word.html:38
 #: templates/conversion/prepare_form.html:127
-#, fuzzy
 msgid "Italien"
-msgstr "重置"
+msgstr "意大利语"
 
 #: templates/conversion/image_to_word.html:71
-#, fuzzy
 msgid "Portugais"
-msgstr "改组"
+msgstr "葡萄牙语"
 
 #: templates/conversion/image_to_word.html:79
 msgid "Niveau de confiance OCR"
@@ -1627,11 +1602,11 @@ msgstr "OCR 置信度"
 
 #: templates/conversion/image_to_word.html:82
 msgid "Bas (plus de texte)"
-msgstr ""
+msgstr "底部（更多文字）"
 
 #: templates/conversion/image_to_word.html:84
 msgid "Haut (plus précis)"
-msgstr ""
+msgstr "高（更准确）"
 
 #: templates/conversion/image_to_word.html:91
 #: templates/conversion/pdf_to_doc.html:45
@@ -1649,16 +1624,15 @@ msgstr "图像预处理"
 
 #: templates/conversion/image_to_word.html:100
 msgid "Aucun"
-msgstr ""
+msgstr "没有任何"
 
 #: templates/conversion/image_to_word.html:101
 msgid "Niveaux de gris"
 msgstr "灰度"
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/image_to_word.html:102
 msgid "Binarisation (recommandé)"
-msgstr ""
+msgstr "二值化（推荐）"
 
 #: templates/conversion/image_to_word.html:103
 msgid "Réduction du bruit"
@@ -1670,19 +1644,19 @@ msgstr "倾斜校正"
 
 #: templates/conversion/image_to_word.html:111
 msgid "DOCX (Word moderne)"
-msgstr ""
+msgstr "DOCX（现代词）"
 
 #: templates/conversion/image_to_word.html:112
 msgid "DOC (Word ancien)"
-msgstr ""
+msgstr "DOC（旧词）"
 
 #: templates/conversion/image_to_word.html:113
 msgid "TXT (texte brut)"
-msgstr ""
+msgstr "TXT（纯文本）"
 
 #: templates/conversion/image_to_word.html:114
 msgid "RTF (format riche)"
-msgstr ""
+msgstr "RTF（丰富格式）"
 
 #: templates/conversion/image_to_word.html:123
 msgid "Extraire et convertir en Word"
@@ -1725,7 +1699,7 @@ msgstr "检测到的单词"
 #: templates/conversion/image_to_word.html:196
 #: templates/conversion/pdf_to_excel.html:185
 msgid "Lignes"
-msgstr ""
+msgstr "线路"
 
 #: templates/conversion/image_to_word.html:290
 #: templates/conversion/pdf_to_html.html:192
@@ -1766,13 +1740,16 @@ msgid "Vérification du vocabulaire"
 msgstr "词汇检查"
 
 #: templates/conversion/image_to_word.html:316
-#, fuzzy
 msgid "Structuration du document..."
-msgstr "构建数据..."
+msgstr "构建文档..."
 
 #: templates/conversion/image_to_word.html:316
 msgid "Organisation en paragraphes"
 msgstr "段落组织"
+
+#: templates/conversion/image_to_word.html:317
+msgid "Préparation du document Word"
+msgstr "准备Word文档"
 
 #: templates/conversion/image_to_word.html:317
 #: templates/conversion/prepare_form.html:323
@@ -1781,10 +1758,6 @@ msgstr "段落组织"
 #: templates/pdf/rotate.html:97 templates/pdf/split.html:89
 msgid "Finalisation..."
 msgstr "最终确定..."
-
-#: templates/conversion/image_to_word.html:317
-msgid "Préparation du document Word"
-msgstr "准备Word文档"
 
 #: templates/conversion/image_to_word.html:341
 msgid "Document prêt"
@@ -1801,10 +1774,7 @@ msgid "Convertisseur PDF en ligne gratuit – PDF Fusion Pro"
 msgstr "免费在线 PDF 转换器 – PDF Fusion Pro"
 
 #: templates/conversion/index.html:13
-msgid ""
-"Convertissez gratuitement vos fichiers PDF, Word, Excel, PowerPoint et "
-"images en ligne. Plus de 26 outils de conversion rapides, sécurisés et "
-"sans inscription."
+msgid "Convertissez gratuitement vos fichiers PDF, Word, Excel, PowerPoint et images en ligne. Plus de 26 outils de conversion rapides, sécurisés et sans inscription."
 msgstr "免费在线转换您的 PDF、Word、Excel、PowerPoint 和图像文件。超过 26 个快速、安全、免注册的转换工具。"
 
 #: templates/conversion/index.html:123
@@ -1812,9 +1782,7 @@ msgid "Transformez vos documents en tous formats, gratuitement et en ligne"
 msgstr "免费在线将您的文档转换为所有格式"
 
 #: templates/conversion/index.html:128
-msgid ""
-"Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple,"
-" rapide et sécurisé."
+msgid "Convertissez PDF, Word, Excel, PowerPoint, images et plus encore. Simple, rapide et sécurisé."
 msgstr "转换 PDF、Word、Excel、PowerPoint、图像等。简单、快速、安全。"
 
 #: templates/conversion/index.html:134
@@ -1826,7 +1794,6 @@ msgid "Outils de conversion"
 msgstr "转换工具"
 
 #: templates/conversion/index.html:151
-#, fuzzy
 msgid "Gratuit"
 msgstr "自由的"
 
@@ -1852,7 +1819,7 @@ msgstr "秒级转换，无需等待"
 
 #: templates/conversion/index.html:226
 msgid "Multiplateforme"
-msgstr ""
+msgstr "多平台"
 
 #: templates/conversion/index.html:227 templates/pdf/index.html:161
 msgid "Compatible avec tous les navigateurs modernes"
@@ -1871,9 +1838,8 @@ msgid "Toutes les conversions disponibles"
 msgstr "所有可用转换"
 
 #: templates/conversion/index.html:257
-#, fuzzy
 msgid "Utiliser"
-msgstr "使用我们的"
+msgstr "使用"
 
 #: templates/conversion/index.html:273
 msgid "Choisissez votre outil de conversion"
@@ -1885,7 +1851,7 @@ msgstr "下载您的源文件"
 
 #: templates/conversion/index.html:275
 msgid "Configurez les options (si besoin)"
-msgstr ""
+msgstr "配置选项（如果需要）"
 
 #: templates/conversion/index.html:276
 msgid "Lancez la conversion"
@@ -1928,10 +1894,7 @@ msgid "Les fichiers sont-ils sécurisés ?"
 msgstr "文件安全吗？"
 
 #: templates/conversion/index.html:326 templates/conversion/index.html:384
-msgid ""
-"Oui, tous les fichiers sont traités localement et automatiquement "
-"supprimés après 1 heure. Nous ne stockons jamais vos documents sur nos "
-"serveurs."
+msgid "Oui, tous les fichiers sont traités localement et automatiquement supprimés après 1 heure. Nous ne stockons jamais vos documents sur nos serveurs."
 msgstr "是的，所有文件都在本地处理并在 1 小时后自动删除。我们绝不会将您的文档存储在我们的服务器上。"
 
 #: templates/conversion/index.html:336 templates/conversion/index.html:389
@@ -1939,9 +1902,7 @@ msgid "Quelles sont les limites de taille ?"
 msgstr "尺寸限制是多少？"
 
 #: templates/conversion/index.html:339 templates/conversion/index.html:392
-msgid ""
-"Taille maximale par fichier : 50MB. Nombre maximum de fichiers par "
-"conversion : variable selon l'outil (de 1 à 20)."
+msgid "Taille maximale par fichier : 50MB. Nombre maximum de fichiers par conversion : variable selon l'outil (de 1 à 20)."
 msgstr "每个文件的最大大小：50MB。每次转换的最大文件数：根据工具而变化（从 1 到 20）。"
 
 #: templates/conversion/index.html:349 templates/conversion/index.html:397
@@ -1949,9 +1910,7 @@ msgid "Combien de temps dure une conversion ?"
 msgstr "转换需要多长时间？"
 
 #: templates/conversion/index.html:352 templates/conversion/index.html:400
-msgid ""
-"La plupart des conversions prennent moins de 30 secondes. Pour les gros "
-"fichiers ou les conversions complexes (OCR), comptez 1 à 2 minutes."
+msgid "La plupart des conversions prennent moins de 30 secondes. Pour les gros fichiers ou les conversions complexes (OCR), comptez 1 à 2 minutes."
 msgstr "大多数转换只需不到 30 秒。对于大文件或复杂的转换 (OCR)，需要 1 到 2 分钟。"
 
 #: templates/conversion/index.html:362 templates/conversion/index.html:405
@@ -1959,9 +1918,7 @@ msgid "Quels formats sont supportés ?"
 msgstr "支持哪些格式？"
 
 #: templates/conversion/index.html:365 templates/conversion/index.html:408
-msgid ""
-"Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, "
-"PPTX, JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore."
+msgid "Nous supportons plus de 20 formats : PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, BMP, TIFF, CSV, et plus encore."
 msgstr "我们支持 20 多种格式：PDF、DOC、DOCX、XLS、XLSX、PPT、PPTX、JPG、PNG、GIF、BMP、TIFF、CSV等。"
 
 #: templates/conversion/jpg_to_pdf.html:10
@@ -1969,30 +1926,28 @@ msgid "Téléchargez vos images JPG"
 msgstr "上传您的 JPG 图片"
 
 #: templates/conversion/jpg_to_pdf.html:26
-#, fuzzy
 msgid "Formats acceptés : JPG, JPEG (jusqu'à 20 fichiers)"
-msgstr "接受的格式：JPG、PNG、BMP、GIF、TIFF、WEBP（每个文件最大 50MB）"
+msgstr "接受的格式：JPG、JPEG（最多 20 个文件）"
 
 #: templates/conversion/jpg_to_pdf.html:42
 #: templates/conversion/pdf_to_ppt.html:57
 #: templates/conversion/png_to_pdf.html:42
 msgid "A4 (21 x 29,7 cm)"
-msgstr ""
+msgstr "A4（21×29.7 厘米）"
 
 #: templates/conversion/jpg_to_pdf.html:43
 #: templates/conversion/png_to_pdf.html:43
 msgid "Lettre (21,6 x 27,9 cm)"
-msgstr ""
+msgstr "信纸（8.5 x 11 英寸）"
 
 #: templates/conversion/jpg_to_pdf.html:44
 #: templates/conversion/png_to_pdf.html:44
 msgid "Legal (21,6 x 35,6 cm)"
-msgstr ""
+msgstr "合法（8.5 x 14 英寸）"
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/jpg_to_pdf.html:59
 msgid "Haute (recommandé)"
-msgstr ""
+msgstr "高（推荐）"
 
 #: templates/conversion/jpg_to_pdf.html:193
 #: templates/conversion/png_to_pdf.html:193
@@ -2004,9 +1959,7 @@ msgid "Convertissez votre PDF en DOC"
 msgstr "将 PDF 转换为 DOC"
 
 #: templates/conversion/pdf_to_doc.html:11
-msgid ""
-"Transformez vos documents PDF en format Word compatible avec les "
-"anciennes versions"
+msgid "Transformez vos documents PDF en format Word compatible avec les anciennes versions"
 msgstr "将您的 PDF 文档转换为与旧版本兼容的 Word 格式"
 
 #: templates/conversion/pdf_to_doc.html:26
@@ -2014,9 +1967,8 @@ msgstr "将您的 PDF 文档转换为与旧版本兼容的 Word 格式"
 #: templates/conversion/pdf_to_image.html:26
 #: templates/conversion/pdf_to_pdfa.html:26
 #: templates/conversion/pdf_to_ppt.html:26
-#, fuzzy
 msgid "Format accepté : PDF (jusqu'à 50MB)"
-msgstr "接受的格式：PDF"
+msgstr "接受的格式：PDF（最多 50MB）"
 
 #: templates/conversion/pdf_to_doc.html:44
 #: templates/conversion/prepare_form.html:62
@@ -2121,18 +2073,17 @@ msgstr "文件大小"
 #: templates/conversion/pdf_to_image.html:192
 #: templates/conversion/pdf_to_ppt.html:188
 #: templates/conversion/powerpoint_to_pdf.html:198
-#, fuzzy
 msgid "Format"
-msgstr "PDF格式"
+msgstr "格式"
+
+#: templates/conversion/pdf_to_doc.html:274
+msgid "Lecture de la structure du document"
+msgstr "阅读文档结构"
 
 #: templates/conversion/pdf_to_doc.html:274
 #: templates/conversion/pdf_to_ppt.html:148
 msgid "Analyse du PDF..."
 msgstr "PDF 分析..."
-
-#: templates/conversion/pdf_to_doc.html:274
-msgid "Lecture de la structure du document"
-msgstr "阅读文档结构"
 
 #: templates/conversion/pdf_to_doc.html:275
 msgid "Récupération du contenu textuel"
@@ -2155,9 +2106,8 @@ msgid "Conversion des structures tabulaires"
 msgstr "转换表格结构"
 
 #: templates/conversion/pdf_to_doc.html:278
-#, fuzzy
 msgid "Génération du document..."
-msgstr "准备Word文档"
+msgstr "正在生成文档..."
 
 #: templates/conversion/pdf_to_doc.html:278
 msgid "Création du fichier DOC"
@@ -2179,7 +2129,6 @@ msgstr "仅提取表"
 msgid "Extraire tout le texte"
 msgstr "提取所有文本"
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/pdf_to_excel.html:46
 msgid "Détection intelligente"
 msgstr "智能检测"
@@ -2209,9 +2158,7 @@ msgid "Extraction intelligente :"
 msgstr "智能提取："
 
 #: templates/conversion/pdf_to_excel.html:86
-msgid ""
-"Les tableaux seront automatiquement détectés et convertis en feuilles "
-"Excel. L'OCR permet de reconnaître le texte dans les documents scannés."
+msgid "Les tableaux seront automatiquement détectés et convertis en feuilles Excel. L'OCR permet de reconnaître le texte dans les documents scannés."
 msgstr "系统将自动检测表格并将其转换为 Excel 工作表。 OCR 允许您识别扫描文档中的文本。"
 
 #: templates/conversion/pdf_to_excel.html:93
@@ -2233,30 +2180,27 @@ msgstr "提取的行"
 
 #: templates/conversion/pdf_to_excel.html:137
 msgid "Colonnes"
-msgstr ""
+msgstr "专栏"
 
 #: templates/conversion/pdf_to_excel.html:145
-#, fuzzy
 msgid "Recherche de tableaux dans le document..."
-msgstr "正在搜索表..."
+msgstr "正在文档中搜索表格..."
 
 #: templates/conversion/pdf_to_excel.html:159
 msgid "Votre fichier Excel est prêt au téléchargement"
 msgstr "您的 Excel 文件已可供下载"
 
 #: templates/conversion/pdf_to_excel.html:177
-#, fuzzy
 msgid "Tableaux"
-msgstr "检测到阵列"
+msgstr "绘画"
 
 #: templates/conversion/pdf_to_excel.html:193
-#, fuzzy
 msgid "Cellules"
-msgstr "提取的细胞"
+msgstr "细胞"
 
 #: templates/conversion/pdf_to_excel.html:201
 msgid "Feuilles"
-msgstr ""
+msgstr "树叶"
 
 #: templates/conversion/pdf_to_excel.html:304
 msgid "Détection des zones de texte"
@@ -2318,7 +2262,7 @@ msgstr "单个 HTML 文件"
 
 #: templates/conversion/pdf_to_html.html:43
 msgid "Plusieurs fichiers (une par page)"
-msgstr ""
+msgstr "多个文件（每页一个）"
 
 #: templates/conversion/pdf_to_html.html:44
 msgid "Archive ZIP"
@@ -2353,9 +2297,8 @@ msgid "Convertissez votre PDF en images"
 msgstr "将 PDF 转换为图像"
 
 #: templates/conversion/pdf_to_image.html:11
-#, fuzzy
 msgid "Transformez chaque page de votre PDF en image (PNG ou JPG)"
-msgstr "将 PDF 的每一页变成可编辑的幻灯片"
+msgstr "将 PDF 的每一页转换为图像（PNG 或 JPG）"
 
 #: templates/conversion/pdf_to_image.html:42
 msgid "Format d'image"
@@ -2363,56 +2306,51 @@ msgstr "图片格式"
 
 #: templates/conversion/pdf_to_image.html:44
 msgid "PNG (qualité supérieure, sans perte)"
-msgstr ""
+msgstr "PNG（高品质，无损）"
 
 #: templates/conversion/pdf_to_image.html:45
 msgid "JPG (taille réduite, compression)"
-msgstr ""
+msgstr "JPG（缩小尺寸，压缩）"
 
 #: templates/conversion/pdf_to_image.html:47
 msgid "Le PNG préserve la qualité, le JPG est plus léger"
 msgstr "PNG 保持质量，JPG 更轻"
 
 #: templates/conversion/pdf_to_image.html:51
-#, fuzzy
 msgid "Résolution (DPI)"
-msgstr "解决"
+msgstr "分辨率（DPI）"
 
 #: templates/conversion/pdf_to_image.html:53
 msgid "72 DPI (web, léger)"
-msgstr ""
+msgstr "72 DPI（网络、轻型）"
 
 #: templates/conversion/pdf_to_image.html:54
 msgid "150 DPI (standard)"
-msgstr ""
+msgstr "150 DPI（标准）"
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/pdf_to_image.html:55
 msgid "300 DPI (haute qualité, impression)"
-msgstr ""
+msgstr "300 DPI（高质量，打印）"
 
 #: templates/conversion/pdf_to_image.html:56
 msgid "600 DPI (très haute qualité)"
-msgstr ""
+msgstr "600 DPI（非常高的质量）"
 
 #: templates/conversion/pdf_to_image.html:58
 msgid "Plus de DPI = meilleure qualité, fichier plus gros"
-msgstr ""
+msgstr "更高的 DPI = 更好的质量、更大的文件"
 
 #: templates/conversion/pdf_to_image.html:62
-#, fuzzy
 msgid "Qualité (pour JPG)"
-msgstr "PDF 质量"
+msgstr "质量（JPG）"
 
 #: templates/conversion/pdf_to_image.html:64
-#, fuzzy
 msgid "Haute"
-msgstr "日期："
+msgstr "高的"
 
 #: templates/conversion/pdf_to_image.html:66
-#, fuzzy
 msgid "Basse"
-msgstr "厚的"
+msgstr "低的"
 
 #: templates/conversion/pdf_to_image.html:68
 msgid "Uniquement pour le format JPG"
@@ -2489,24 +2427,21 @@ msgid "Conversion de la page"
 msgstr "页面转换"
 
 #: templates/conversion/pdf_to_image.html:334
-#: templates/conversion/pdf_to_image.html:395
-#: templates/conversion/prepare_form.html:103
-#, fuzzy
-msgid "Page"
-msgstr "页数："
-
-#: templates/conversion/pdf_to_image.html:334
 msgid "convertie en"
 msgstr "转换为"
+
+#: templates/conversion/pdf_to_image.html:334
+#: templates/conversion/pdf_to_image.html:395
+#: templates/conversion/prepare_form.html:103
+msgid "Page"
+msgstr "页"
 
 #: templates/conversion/pdf_to_pdfa.html:10
 msgid "Convertissez votre PDF en format d'archivage"
 msgstr "将 PDF 转换为存档格式"
 
 #: templates/conversion/pdf_to_pdfa.html:11
-msgid ""
-"Le format PDF/A garantit la pérennité de vos documents pour l'archivage à"
-" long terme"
+msgid "Le format PDF/A garantit la pérennité de vos documents pour l'archivage à long terme"
 msgstr "PDF/A 格式保证文档的持久性以进行长期存档"
 
 #: templates/conversion/pdf_to_pdfa.html:37
@@ -2519,28 +2454,27 @@ msgstr "PDF/A版"
 
 #: templates/conversion/pdf_to_pdfa.html:44
 msgid "PDF/A-1b (2005) - Niveau B (basique)"
-msgstr ""
+msgstr "PDF/A-1b (2005) - B 级（基础）"
 
 #: templates/conversion/pdf_to_pdfa.html:45
 msgid "PDF/A-1a (2005) - Niveau A (accessible)"
-msgstr ""
+msgstr "PDF/A-1a (2005) - A 级（无障碍）"
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/pdf_to_pdfa.html:46
 msgid "PDF/A-2b (2011) - Niveau B (recommandé)"
-msgstr ""
+msgstr "PDF/A-2b (2011) - B 级（推荐）"
 
 #: templates/conversion/pdf_to_pdfa.html:47
 msgid "PDF/A-2u (2011) - Unicode"
-msgstr ""
+msgstr "PDF/A-2u (2011) - Unicode"
 
 #: templates/conversion/pdf_to_pdfa.html:48
 msgid "PDF/A-3b (2012) - Niveau B"
-msgstr ""
+msgstr "PDF/A-3b (2012) - B 级"
 
 #: templates/conversion/pdf_to_pdfa.html:49
 msgid "PDF/A-3u (2012) - Unicode"
-msgstr ""
+msgstr "PDF/A-3u (2012) - Unicode"
 
 #: templates/conversion/pdf_to_pdfa.html:52
 msgid "PDF/A-2"
@@ -2563,22 +2497,15 @@ msgid "Qu'est-ce que le format PDF/A ?"
 msgstr "什么是 PDF/A 格式？"
 
 #: templates/conversion/pdf_to_pdfa.html:63
-msgid ""
-"Le PDF/A est une version standardisée du PDF conçue pour l'archivage à "
-"long terme. Il garantit que votre document sera exactement le même dans "
-"10, 20 ou 50 ans, indépendamment des logiciels utilisés."
+msgid "Le PDF/A est une version standardisée du PDF conçue pour l'archivage à long terme. Il garantit que votre document sera exactement le même dans 10, 20 ou 50 ans, indépendamment des logiciels utilisés."
 msgstr "PDF/A 是 PDF 的标准化版本，专为长期存档而设计。它保证您的文档在 10 年、20 年或 50 年内都完全相同，无论使用什么软件。"
 
 #: templates/conversion/pdf_to_pdfa.html:70
-#, fuzzy
 msgid "Attention"
-msgstr "注意力 ："
+msgstr "注意力"
 
 #: templates/conversion/pdf_to_pdfa.html:70
-msgid ""
-"La conversion en PDF/A peut modifier légèrement l'apparence du document "
-"pour garantir sa pérennité. Les fonctionnalités interactives "
-"(formulaires, JavaScript) seront supprimées."
+msgid "La conversion en PDF/A peut modifier légèrement l'apparence du document pour garantir sa pérennité. Les fonctionnalités interactives (formulaires, JavaScript) seront supprimées."
 msgstr "转换为 PDF/A 可能会稍微改变文档的外观，以确保其使用寿命。交互功能（表单、JavaScript）将被删除。"
 
 #: templates/conversion/pdf_to_pdfa.html:80
@@ -2622,9 +2549,8 @@ msgid "Conversion en PDF/A en cours..."
 msgstr "正在转换为 PDF/A..."
 
 #: templates/conversion/pdf_to_pdfa.html:134
-#, fuzzy
 msgid "Analyse et conversion du document..."
-msgstr "页面分析和转换..."
+msgstr "文档的分析和转换..."
 
 #: templates/conversion/pdf_to_pdfa.html:153
 msgid "Polices incorporées"
@@ -2663,9 +2589,8 @@ msgid "Taille PDF/A"
 msgstr "PDF/A尺寸"
 
 #: templates/conversion/pdf_to_pdfa.html:351
-#, fuzzy
 msgid "Conversion"
-msgstr "版本："
+msgstr "转换"
 
 #: templates/conversion/pdf_to_pdfa.html:352
 msgid "Incorporation des polices - Page"
@@ -2709,7 +2634,7 @@ msgstr "每张幻灯片有多页"
 
 #: templates/conversion/pdf_to_ppt.html:46
 msgid "Document de distribution (2 pages/feuille)"
-msgstr ""
+msgstr "分发文件（2页/张）"
 
 #: templates/conversion/pdf_to_ppt.html:48
 msgid "Choisissez comment organiser vos pages"
@@ -2719,18 +2644,17 @@ msgstr "选择如何组织页面"
 msgid "Format de diapositive"
 msgstr "幻灯片格式"
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/pdf_to_ppt.html:54
 msgid "Standard (4:3) - Écrans classiques"
-msgstr ""
+msgstr "标准 (4:3) - 经典屏幕"
 
 #: templates/conversion/pdf_to_ppt.html:55
 msgid "Widescreen (16:9) - Écrans larges"
-msgstr ""
+msgstr "宽屏 (16:9) - 宽屏幕"
 
 #: templates/conversion/pdf_to_ppt.html:56
 msgid "Letter (21,6 x 27,9 cm)"
-msgstr ""
+msgstr "信纸（8.5 x 11 英寸）"
 
 #: templates/conversion/pdf_to_ppt.html:59
 msgid "Adapté à votre support de projection"
@@ -2753,9 +2677,7 @@ msgid "Format PowerPoint :"
 msgstr "幻灯片格式："
 
 #: templates/conversion/pdf_to_ppt.html:89
-msgid ""
-"Le fichier généré est au format PPTX, compatible avec PowerPoint 2007 et "
-"versions ultérieures, ainsi qu'avec LibreOffice et Google Slides."
+msgid "Le fichier généré est au format PPTX, compatible avec PowerPoint 2007 et versions ultérieures, ainsi qu'avec LibreOffice et Google Slides."
 msgstr "生成的文件为 PPTX 格式，与 PowerPoint 2007 及更高版本以及 LibreOffice 和 Google Slides兼容。"
 
 #: templates/conversion/pdf_to_ppt.html:96
@@ -2770,9 +2692,8 @@ msgstr "创建您的 PowerPoint 演示文稿..."
 #: templates/conversion/pdf_to_ppt.html:180
 #: templates/conversion/powerpoint_to_pdf.html:126
 #: templates/conversion/powerpoint_to_pdf.html:182
-#, fuzzy
 msgid "Diapositives"
-msgstr "幻灯片格式"
+msgstr "幻灯片"
 
 #: templates/conversion/pdf_to_ppt.html:140
 #: templates/conversion/powerpoint_to_pdf.html:134
@@ -2788,13 +2709,12 @@ msgid "Télécharger PowerPoint"
 msgstr "下载幻灯片"
 
 #: templates/conversion/pdf_to_ppt.html:196
-#, fuzzy
 msgid "Taille"
-msgstr "尺寸 ："
+msgstr "尺寸"
 
 #: templates/conversion/pdf_to_ppt.html:204
 msgid "Mode"
-msgstr ""
+msgstr "时尚"
 
 #: templates/conversion/pdf_to_ppt.html:205
 #: templates/conversion/pdf_to_ppt.html:369
@@ -2806,22 +2726,20 @@ msgid "Aperçu des premières diapositives"
 msgstr "预览第一张幻灯片"
 
 #: templates/conversion/pdf_to_ppt.html:336
-#, fuzzy
 msgid "Création des diapositives (page"
-msgstr "嵌入字体 - 页面"
+msgstr "创建幻灯片（页面"
 
 #: templates/conversion/pdf_to_ppt.html:369
 msgid "2 pages/diapo"
 msgstr "2 页/幻灯片"
 
 #: templates/conversion/pdf_to_ppt.html:369
-#, fuzzy
 msgid "Document"
-msgstr "文件准备好"
+msgstr "文档"
 
 #: templates/conversion/pdf_to_ppt.html:401
 msgid "Diapo"
-msgstr ""
+msgstr "滑动"
 
 #: templates/conversion/pdf_to_txt.html:10 templates/pdf/split.html:51
 msgid "Veuillez spécifier les pages à extraire"
@@ -2852,9 +2770,8 @@ msgid "Exemple: 1-5,8,11-13"
 msgstr "示例：1-5,8,11-13"
 
 #: templates/conversion/pdf_to_txt.html:84
-#, fuzzy
 msgid "Spécifiez les pages à extraire (ex: 1-3,5,7-9)"
-msgstr "请指定要提取的页面"
+msgstr "指定要提取的页面（例如：1-3,5,7-9）"
 
 #: templates/conversion/pdf_to_txt.html:93
 msgid "Extraire le texte"
@@ -2881,9 +2798,7 @@ msgid "Convertissez votre PDF en document Word"
 msgstr "将 PDF 转换为 Word 文档"
 
 #: templates/conversion/pdf_to_word.html:11
-msgid ""
-"Transformez vos PDF en documents Word modifiables avec mise en page "
-"préservée"
+msgid "Transformez vos PDF en documents Word modifiables avec mise en page préservée"
 msgstr "将 PDF 转换为可编辑的 Word 文档，并保留布局"
 
 #: templates/conversion/pdf_to_word.html:15
@@ -2898,17 +2813,15 @@ msgstr "仅限 PDF • 最大大小：50MB"
 
 #: templates/conversion/pdf_to_word.html:26
 msgid "Texte uniquement (plus léger)"
-msgstr ""
+msgstr "仅文本（较轻）"
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/pdf_to_word.html:27
 msgid "Conserver la mise en page (recommandé)"
-msgstr ""
+msgstr "保持布局（推荐）"
 
 #: templates/conversion/pdf_to_word.html:28
-#, fuzzy
 msgid "Texte et images (complet)"
-msgstr "文字和图像"
+msgstr "文字及图片（完整）"
 
 #: templates/conversion/pdf_to_word.html:65
 msgid "Convertir en Word"
@@ -2923,9 +2836,8 @@ msgid "Téléchargez vos images PNG"
 msgstr "上传您的 PNG 图像"
 
 #: templates/conversion/png_to_pdf.html:26
-#, fuzzy
 msgid "Format accepté : PNG (jusqu'à 20 fichiers)"
-msgstr "接受的格式：JPG、PNG、BMP、GIF、TIFF、WEBP（每个文件最大 50MB）"
+msgstr "接受的格式：PNG（最多 20 个文件）"
 
 #: templates/conversion/png_to_pdf.html:60
 msgid "Conserver la transparence"
@@ -2944,9 +2856,8 @@ msgid "Glissez-déposez vos fichiers PowerPoint ici"
 msgstr "将 PowerPoint 文件拖放到此处"
 
 #: templates/conversion/powerpoint_to_pdf.html:26
-#, fuzzy
 msgid "Formats acceptés : PPT, PPTX (jusqu'à 50MB par fichier, 5 fichiers max)"
-msgstr "接受的格式：JPG、PNG、BMP、GIF、TIFF、WEBP（每个文件最大 50MB）"
+msgstr "接受的格式：PPT、PPTX（每个文件最多 50MB，最多 5 个文件）"
 
 #: templates/conversion/powerpoint_to_pdf.html:45
 msgid "Inclure les notes"
@@ -2969,18 +2880,16 @@ msgid "Qualité du PDF"
 msgstr "PDF 质量"
 
 #: templates/conversion/powerpoint_to_pdf.html:64
-#, fuzzy
 msgid "Haute (pour impression)"
-msgstr "压缩级别"
+msgstr "高（用于打印）"
 
 #: templates/conversion/powerpoint_to_pdf.html:65
 msgid "Moyenne (pour partage)"
-msgstr ""
+msgstr "平均（用于分享）"
 
 #: templates/conversion/powerpoint_to_pdf.html:66
-#, fuzzy
 msgid "Basse (pour email)"
-msgstr "电子邮件"
+msgstr "低（用于电子邮件）"
 
 #: templates/conversion/powerpoint_to_pdf.html:68
 msgid "Influence la taille et la qualité"
@@ -2990,10 +2899,9 @@ msgstr "影响尺寸和质量"
 msgid "Fichiers multiples"
 msgstr "多个文件"
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/powerpoint_to_pdf.html:74
 msgid "PDF séparés (ZIP)"
-msgstr ""
+msgstr "单独的 PDF (ZIP)"
 
 #: templates/conversion/powerpoint_to_pdf.html:75
 msgid "Fusionner en un seul PDF"
@@ -3008,9 +2916,7 @@ msgid "Format PDF"
 msgstr "PDF格式"
 
 #: templates/conversion/powerpoint_to_pdf.html:83
-msgid ""
-"Compatible avec tous les lecteurs PDF. Les animations et transitions ne "
-"sont pas conservées dans le PDF."
+msgid "Compatible avec tous les lecteurs PDF. Les animations et transitions ne sont pas conservées dans le PDF."
 msgstr "与所有 PDF 阅读器兼容。 PDF 中不保留动画和过渡。"
 
 #: templates/conversion/powerpoint_to_pdf.html:107
@@ -3035,9 +2941,8 @@ msgid "Fichiers convertis"
 msgstr "转换后的文件"
 
 #: templates/conversion/powerpoint_to_pdf.html:199
-#, fuzzy
 msgid "PDF"
-msgstr "PDF/A"
+msgstr "PDF"
 
 #: templates/conversion/powerpoint_to_pdf.html:292
 msgid "Veuillez sélectionner au moins un fichier PowerPoint"
@@ -3053,7 +2958,7 @@ msgstr "单个PDF"
 
 #: templates/conversion/powerpoint_to_pdf.html:379
 msgid "PDFs (ZIP)"
-msgstr ""
+msgstr "PDF (ZIP)"
 
 #: templates/conversion/prepare_form.html:10
 msgid "Téléchargez votre document"
@@ -3069,7 +2974,7 @@ msgstr "将您的文档拖放到此处"
 
 #: templates/conversion/prepare_form.html:26
 msgid "Formats acceptés : PDF, Word, Excel, Images (jusqu'à 50MB)"
-msgstr ""
+msgstr "接受的格式：PDF、Word、Excel、图像（最大 50MB）"
 
 #: templates/conversion/prepare_form.html:36
 msgid "Configuration du formulaire"
@@ -3081,20 +2986,19 @@ msgstr "表格类型："
 
 #: templates/conversion/prepare_form.html:45
 msgid "Interactif (champs remplissables)"
-msgstr ""
+msgstr "互动（可填写字段）"
 
 #: templates/conversion/prepare_form.html:50
 msgid "Imprimable (lignes pour écrire)"
-msgstr ""
+msgstr "可打印（用于书写的行）"
 
 #: templates/conversion/prepare_form.html:57
 msgid "Détection des champs :"
 msgstr "现场检测："
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/prepare_form.html:61
 msgid "Automatique (recommandé)"
-msgstr ""
+msgstr "自动（推荐）"
 
 #: templates/conversion/prepare_form.html:63
 msgid "Cases à cocher"
@@ -3106,16 +3010,14 @@ msgstr "签名地点"
 
 #: templates/conversion/prepare_form.html:65
 msgid "Manuel (je définis les champs)"
-msgstr ""
+msgstr "手册（我定义字段）"
 
 #: templates/conversion/prepare_form.html:70
 msgid "Détecter les champs"
 msgstr "检测字段"
 
 #: templates/conversion/prepare_form.html:76
-msgid ""
-"La détection automatique identifie les zones de texte, cases à cocher et "
-"emplacements de signature"
+msgid "La détection automatique identifie les zones de texte, cases à cocher et emplacements de signature"
 msgstr "自动检测识别文本框、复选框和签名位置"
 
 #: templates/conversion/prepare_form.html:82
@@ -3136,7 +3038,7 @@ msgstr "检测字段"
 
 #: templates/conversion/prepare_form.html:101
 msgid "Type"
-msgstr ""
+msgstr "种类"
 
 #: templates/conversion/prepare_form.html:102
 msgid "Étiquette"
@@ -3172,18 +3074,16 @@ msgid "Fond coloré"
 msgstr "多彩背景"
 
 #: templates/conversion/prepare_form.html:140
-#, fuzzy
 msgid "Invisible"
-msgstr "无法使用"
+msgstr "无形的"
 
 #: templates/conversion/prepare_form.html:149
 msgid "Ajouter des textes indicatifs (ex: \"Nom\", \"Prénom\"...)"
 msgstr "添加指示性文本（例如“姓氏”、“名字”...）"
 
 #: templates/conversion/prepare_form.html:155
-#, fuzzy
 msgid "Marquer les champs obligatoires (avec *)"
-msgstr "请填写所有必填字段。"
+msgstr "标记必填字段（带 *）"
 
 #: templates/conversion/prepare_form.html:161
 msgid "Ajouter un bouton de soumission"
@@ -3235,22 +3135,20 @@ msgid "Prénom"
 msgstr "名"
 
 #: templates/conversion/prepare_form.html:263
-#, fuzzy
 msgid "Adresse"
-msgstr "电子邮件"
+msgstr "地址"
 
 #: templates/conversion/prepare_form.html:264
 msgid "Code postal"
 msgstr "邮政编码"
 
 #: templates/conversion/prepare_form.html:265
-#, fuzzy
 msgid "Ville"
-msgstr "尺寸 ："
+msgstr "城市"
 
 #: templates/conversion/prepare_form.html:266
 msgid "Email"
-msgstr ""
+msgstr "电子邮件"
 
 #: templates/conversion/prepare_form.html:267
 msgid "Téléphone"
@@ -3261,14 +3159,12 @@ msgid "J'accepte les conditions"
 msgstr "我接受条件"
 
 #: templates/conversion/prepare_form.html:269
-#, fuzzy
 msgid "Signature"
-msgstr "签名类型："
+msgstr "签名"
 
 #: templates/conversion/prepare_form.html:270
-#, fuzzy
 msgid "Date"
-msgstr "日期："
+msgstr "日期"
 
 #: templates/conversion/prepare_form.html:294
 msgid "Édition du champ - À implémenter"
@@ -3276,7 +3172,7 @@ msgstr "编辑字段 - 待实施"
 
 #: templates/conversion/prepare_form.html:296
 msgid "Chargement de l'aperçu - À implémenter avec PDF.js"
-msgstr ""
+msgstr "加载预览 - 使用 PDF.js 实施"
 
 #: templates/conversion/prepare_form.html:301
 msgid "Veuillez sélectionner un document"
@@ -3349,7 +3245,7 @@ msgstr "确认密码"
 
 #: templates/conversion/protect_pdf.html:53
 msgid "Mot de passe de modification (optionnel)"
-msgstr ""
+msgstr "更改密码（可选）"
 
 #: templates/conversion/protect_pdf.html:54
 msgid "Mot de passe propriétaire"
@@ -3360,9 +3256,8 @@ msgid "Permet de restreindre la modification"
 msgstr "允许您限制修改"
 
 #: templates/conversion/protect_pdf.html:58
-#, fuzzy
 msgid "Permissions"
-msgstr "我们的使命"
+msgstr "权限"
 
 #: templates/conversion/protect_pdf.html:60
 msgid "Aucune restriction"
@@ -3381,9 +3276,7 @@ msgid "Impression et modification"
 msgstr "打印和编辑"
 
 #: templates/conversion/protect_pdf.html:71
-msgid ""
-"Notez bien votre mot de passe. Il n'y a aucun moyen de le récupérer en "
-"cas d'oubli."
+msgid "Notez bien votre mot de passe. Il n'y a aucun moyen de le récupérer en cas d'oubli."
 msgstr "仔细写下您的密码。如果您忘记了，则无法恢复。"
 
 #: templates/conversion/protect_pdf.html:78
@@ -3428,9 +3321,8 @@ msgid "Les mots de passe ne correspondent pas"
 msgstr "密码不匹配"
 
 #: templates/conversion/protect_pdf.html:226
-#, fuzzy
 msgid "document_protege.pdf"
-msgstr "文件准备好"
+msgstr "文档_保护.pdf"
 
 #: templates/conversion/protect_pdf.html:241
 msgid "Erreur lors de la protection :"
@@ -3458,7 +3350,7 @@ msgstr "矩形区域"
 
 #: templates/conversion/redact_pdf.html:55
 msgid "Motif (email, téléphone...)"
-msgstr ""
+msgstr "原因（电子邮件、电话等）"
 
 #: templates/conversion/redact_pdf.html:62
 msgid "Texte à caviarder :"
@@ -3469,32 +3361,28 @@ msgid "Ex: nom, prénom, adresse, numéro de carte..."
 msgstr "例如：姓名、名字、地址、卡号..."
 
 #: templates/conversion/redact_pdf.html:68
-#, fuzzy
 msgid "Ajouter"
-msgstr "添加文字"
+msgstr "添加"
 
 #: templates/conversion/redact_pdf.html:75
-#, fuzzy
 msgid "confidentiel"
-msgstr "保密性"
+msgstr "机密的"
 
 #: templates/conversion/redact_pdf.html:78
 msgid "secret"
-msgstr ""
+msgstr "秘密"
 
 #: templates/conversion/redact_pdf.html:87
-msgid ""
-"Après avoir chargé votre PDF, vous pourrez dessiner des zones à caviarder"
-" sur l'aperçu."
+msgid "Après avoir chargé votre PDF, vous pourrez dessiner des zones à caviarder sur l'aperçu."
 msgstr "加载 PDF 后，您将能够在预览中绘制要编辑的区域。"
 
 #: templates/conversion/redact_pdf.html:96
 msgid "Opaque"
-msgstr ""
+msgstr "不透明"
 
 #: templates/conversion/redact_pdf.html:99
 msgid "Transparent"
-msgstr ""
+msgstr "透明的"
 
 #: templates/conversion/redact_pdf.html:104
 msgid "Bordure :"
@@ -3506,7 +3394,7 @@ msgstr "无边框"
 
 #: templates/conversion/redact_pdf.html:107
 msgid "Fine"
-msgstr ""
+msgstr "美好的"
 
 #: templates/conversion/redact_pdf.html:108
 msgid "Épaisse"
@@ -3537,9 +3425,8 @@ msgid "Numéros de sécurité sociale"
 msgstr "社会安全号码"
 
 #: templates/conversion/redact_pdf.html:154
-#, fuzzy
 msgid "Dates"
-msgstr "日期："
+msgstr "枣子"
 
 #: templates/conversion/redact_pdf.html:166
 msgid "Pages à traiter :"
@@ -3557,15 +3444,13 @@ msgstr "选择页面"
 msgid "Première page uniquement"
 msgstr "仅第一页"
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/redact_pdf.html:171
 msgid "Dernière page uniquement"
 msgstr "仅最后一页"
 
 #: templates/conversion/redact_pdf.html:175
-#, fuzzy
 msgid "Plage de pages (si sélection) :"
-msgstr "插入页面："
+msgstr "页面范围（如果选择）："
 
 #: templates/conversion/redact_pdf.html:176
 msgid "Ex: 1-5, 8, 11-13"
@@ -3621,7 +3506,7 @@ msgstr "无绘制区域"
 
 #: templates/conversion/redact_pdf.html:406
 msgid "Zone"
-msgstr ""
+msgstr "区域"
 
 #: templates/conversion/redact_pdf.html:441
 msgid "Erreur lors du chargement de l'aperçu PDF"
@@ -3645,11 +3530,11 @@ msgstr "签名类型："
 
 #: templates/conversion/sign_pdf.html:45
 msgid "Dessiner"
-msgstr ""
+msgstr "画"
 
 #: templates/conversion/sign_pdf.html:50
 msgid "Taper"
-msgstr ""
+msgstr "类型"
 
 #: templates/conversion/sign_pdf.html:62
 msgid "Dessinez votre signature :"
@@ -3657,15 +3542,15 @@ msgstr "画出你的签名："
 
 #: templates/conversion/sign_pdf.html:68
 msgid "Effacer"
-msgstr ""
+msgstr "擦除"
 
 #: templates/conversion/sign_pdf.html:71
 msgid "Fin"
-msgstr ""
+msgstr "结尾"
 
 #: templates/conversion/sign_pdf.html:74 templates/pdf/compress.html:14
 msgid "Moyen"
-msgstr ""
+msgstr "平均的"
 
 #: templates/conversion/sign_pdf.html:77
 msgid "Épais"
@@ -3673,19 +3558,19 @@ msgstr "厚的"
 
 #: templates/conversion/sign_pdf.html:80
 msgid "Noir"
-msgstr ""
+msgstr "黑色的"
 
 #: templates/conversion/sign_pdf.html:81
 msgid "Bleu"
-msgstr ""
+msgstr "蓝色的"
 
 #: templates/conversion/sign_pdf.html:82
 msgid "Rouge"
-msgstr ""
+msgstr "红色的"
 
 #: templates/conversion/sign_pdf.html:83
 msgid "Vert"
-msgstr ""
+msgstr "绿色的"
 
 #: templates/conversion/sign_pdf.html:91
 msgid "Tapez votre signature :"
@@ -3708,26 +3593,21 @@ msgid "Script simple"
 msgstr "简单的脚本"
 
 #: templates/conversion/sign_pdf.html:100
-#, fuzzy
 msgid "Standard"
-msgstr "标准化"
+msgstr "标准"
 
 #: templates/conversion/sign_pdf.html:101
 msgid "Élégant"
 msgstr "优雅的"
 
 #: templates/conversion/sign_pdf.html:107
-#, fuzzy
 msgid "Petite"
-msgstr "已处理的页面"
+msgstr "小的"
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/sign_pdf.html:109
-#, fuzzy
 msgid "Grande"
-msgstr "非常大"
+msgstr "大的"
 
-# ===== TEMPLATES CONVERSION =====
 #: templates/conversion/sign_pdf.html:110
 msgid "Très grande"
 msgstr "非常大"
@@ -3742,7 +3622,7 @@ msgstr "将您的签名拖放到此处"
 
 #: templates/conversion/sign_pdf.html:127
 msgid "Formats acceptés : PNG, JPG, GIF (fond transparent recommandé)"
-msgstr ""
+msgstr "接受的格式：PNG、JPG、GIF（推荐透明背景）"
 
 #: templates/conversion/sign_pdf.html:137 templates/errors/500.html:154
 msgid "Page :"
@@ -3853,13 +3733,12 @@ msgid "Interligne :"
 msgstr "行间距："
 
 #: templates/conversion/txt_to_pdf.html:74
-#, fuzzy
 msgid "Simple"
-msgstr "简单的脚本"
+msgstr "简单的"
 
 #: templates/conversion/txt_to_pdf.html:76
 msgid "Double"
-msgstr ""
+msgstr "双倍的"
 
 #: templates/conversion/txt_to_pdf.html:83
 msgid "Numéros de page"
@@ -3906,9 +3785,7 @@ msgid "Note :"
 msgstr "笔记 ："
 
 #: templates/conversion/unlock_pdf.html:48
-msgid ""
-"Cette opération ne fonctionne que si vous connaissez le mot de passe du "
-"PDF."
+msgid "Cette opération ne fonctionne que si vous connaissez le mot de passe du PDF."
 msgstr "仅当您知道 PDF 密码时此操作才有效。"
 
 #: templates/conversion/unlock_pdf.html:53
@@ -3920,89 +3797,76 @@ msgid "Erreur lors du déverrouillage"
 msgstr "解锁时出错"
 
 #: templates/conversion/unlock_pdf.html:187
-#, fuzzy
 msgid "document_deverrouille.pdf"
-msgstr "解锁 PDF"
+msgstr "文档_解锁.pdf"
 
 #: templates/conversion/unlock_pdf.html:202
 msgid "Erreur:"
 msgstr "错误："
 
 #: templates/conversion/word_to_pdf.html:12
-#, fuzzy
 msgid "Traitement..."
-msgstr "OCR 处理..."
+msgstr "治疗..."
 
 #: templates/conversion/word_to_pdf.html:25
-#, fuzzy
 msgid "Convertissez votre document Word en PDF"
-msgstr "将 PDF 转换为 Word 文档"
+msgstr "将您的 Word 文档转换为 PDF"
 
 #: templates/conversion/word_to_pdf.html:26
-#, fuzzy
 msgid "Transformez vos fichiers DOC/DOCX en PDF"
-msgstr "将您的 PPT/PPTX 文件转换为易于共享的 PDF 文档"
+msgstr "将您的 DOC/DOCX 文件转换为 PDF"
 
 #: templates/conversion/word_to_pdf.html:30
-#, fuzzy
 msgid "Sélectionnez votre document Word"
-msgstr "选择您的 PDF 文件"
+msgstr "选择您的 Word 文档"
 
 #: templates/conversion/word_to_pdf.html:32
-#, fuzzy
 msgid "Formats acceptés : DOC, DOCX (jusqu'à 50MB)"
-msgstr "接受的格式：PDF"
+msgstr "接受的格式：DOC、DOCX（最大 50MB）"
 
 #: templates/conversion/word_to_pdf.html:39
-#, fuzzy
 msgid "Format de page"
-msgstr "页面格式："
+msgstr "页面格式"
 
 #: templates/conversion/word_to_pdf.html:41
 msgid "A4 (210 × 297 mm)"
-msgstr ""
+msgstr "A4（210×297毫米）"
 
 #: templates/conversion/word_to_pdf.html:42
 msgid "Letter (8.5 × 11 in)"
-msgstr ""
+msgstr "信纸（8.5 × 11 英寸）"
 
 #: templates/conversion/word_to_pdf.html:43
 msgid "Legal (8.5 × 14 in)"
-msgstr ""
+msgstr "合法（8.5 × 14 英寸）"
 
 #: templates/conversion/word_to_pdf.html:47
-#, fuzzy
 msgid "Orientation"
-msgstr "方向 ："
+msgstr "方向"
 
 #: templates/conversion/word_to_pdf.html:86
-#, fuzzy
 msgid "Votre PDF est prêt au téléchargement"
-msgstr "您的文件已可供下载"
+msgstr "您的 PDF 已可供下载"
 
 #: templates/conversion/word_to_pdf.html:87
-#, fuzzy
 msgid "Télécharger PDF"
-msgstr "下载PDF/A"
+msgstr "下载PDF"
 
 #: templates/conversion/word_to_pdf.html:100
-#, fuzzy
 msgid "Veuillez sélectionner un fichier Word"
-msgstr "请选择 PDF 文件"
+msgstr "请选择一个Word文件"
 
 #: templates/conversion/word_to_pdf.html:101
 msgid "Le fichier doit être au format DOC ou DOCX"
-msgstr ""
+msgstr "文件必须为 DOC 或 DOCX 格式"
 
 #: templates/conversion/word_to_pdf.html:102
-#, fuzzy
 msgid "Démarrage..."
-msgstr "图片..."
+msgstr "启动..."
 
 #: templates/conversion/word_to_pdf.html:105
-#, fuzzy
 msgid "Erreur"
-msgstr "错误："
+msgstr "错误"
 
 #: templates/errors/404.html:6
 msgid "Page non trouvée - PDF Fusion Pro"
@@ -4061,9 +3925,7 @@ msgid "Erreur interne du serveur"
 msgstr "内部服务器错误"
 
 #: templates/errors/500.html:145
-msgid ""
-"Désolé, une erreur inattendue s'est produite. Notre équipe technique a "
-"été informée."
+msgid "Désolé, une erreur inattendue s'est produite. Notre équipe technique a été informée."
 msgstr "抱歉，发生意外错误。我们的技术团队已获悉。"
 
 #: templates/errors/500.html:150
@@ -4095,9 +3957,7 @@ msgid "Nous contacter"
 msgstr "联系我们"
 
 #: templates/errors/500.html:182
-msgid ""
-"Cette erreur a été automatiquement enregistrée et sera analysée par nos "
-"équipes."
+msgid "Cette erreur a été automatiquement enregistrée et sera analysée par nos équipes."
 msgstr "该错误会被自动记录并由我们的团队进行分析。"
 
 #: templates/includes/adsterra_ads.html:8
@@ -4107,12 +3967,10 @@ msgstr "广告 - 支持我们的免费服务"
 #: templates/includes/adsterra_ads.html:27
 #: templates/includes/adsterra_ads.html:46
 msgid "Annonce"
-msgstr ""
+msgstr "公告"
 
 #: templates/includes/adsterra_ads.html:110 templates/pdf/pdf_base.html:216
-msgid ""
-"Cet outil est entièrement gratuit. Un clic sur les annonces nous aide à "
-"le maintenir !"
+msgid "Cet outil est entièrement gratuit. Un clic sur les annonces nous aide à le maintenir !"
 msgstr "这个工具是完全免费的。点击广告可以帮助我们维护它！"
 
 #: templates/legal/about.html:4
@@ -4124,9 +3982,7 @@ msgid "Notre mission"
 msgstr "我们的使命"
 
 #: templates/legal/about.html:12
-msgid ""
-"Offrir un outil PDF en ligne performant, intuitif et respectueux de votre"
-" vie privée."
+msgid "Offrir un outil PDF en ligne performant, intuitif et respectueux de votre vie privée."
 msgstr "提供功能强大、直观的在线 PDF 工具，尊重您的隐私。"
 
 #: templates/legal/about.html:16
@@ -4142,9 +3998,8 @@ msgid "Divisez vos PDF par page, par plage ou selon des pages spécifiques."
 msgstr "按页面、范围或特定页面划分 PDF。"
 
 #: templates/legal/about.html:50
-#, fuzzy
 msgid "Faites pivoter des pages spécifiques ou l'ensemble du document."
-msgstr "旋转特定页面或整个文档"
+msgstr "旋转特定页面或整个文档。"
 
 #: templates/legal/about.html:62
 msgid "Réduisez la taille de vos fichiers PDF sans perte de qualité notable."
@@ -4159,23 +4014,19 @@ msgid "Sécurité"
 msgstr "安全"
 
 #: templates/legal/about.html:71
-msgid ""
-"Tous les traitements sont effectués en mémoire. Aucun fichier n'est "
-"stocké sur nos serveurs."
+msgid "Tous les traitements sont effectués en mémoire. Aucun fichier n'est stocké sur nos serveurs."
 msgstr "所有处理都在内存中完成。我们的服务器上不存储任何文件。"
 
 #: templates/legal/about.html:73
 msgid "Performance"
-msgstr ""
+msgstr "表现"
 
 #: templates/legal/about.html:74
 msgid "Interface optimisée pour une expérience utilisateur fluide et rapide."
 msgstr "界面经过优化，可提供流畅、快速的用户体验。"
 
 #: templates/legal/about.html:77
-msgid ""
-"Nous ne collectons pas de données personnelles liées au contenu de vos "
-"fichiers."
+msgid "Nous ne collectons pas de données personnelles liées au contenu de vos fichiers."
 msgstr "我们不会收集与您的文件内容相关的个人数据。"
 
 #: templates/legal/about.html:79
@@ -4183,9 +4034,7 @@ msgid "Gratuité"
 msgstr "自由的"
 
 #: templates/legal/about.html:80
-msgid ""
-"Service entièrement gratuit, financé par des publicités discrètes et non "
-"intrusives."
+msgid "Service entièrement gratuit, financé par des publicités discrètes et non intrusives."
 msgstr "完全免费的服务，由谨慎且非侵入性的广告资助。"
 
 #: templates/legal/about.html:82
@@ -4217,9 +4066,7 @@ msgid "Formulaire de contact :"
 msgstr "联系方式："
 
 #: templates/legal/contact.html:7
-msgid ""
-"Utilisez ce formulaire pour nous contacter directement. Nous vous "
-"répondrons dans les meilleurs délais."
+msgid "Utilisez ce formulaire pour nous contacter directement. Nous vous répondrons dans les meilleurs délais."
 msgstr "使用此表格直接联系我们。我们将尽快回复您。"
 
 #: templates/legal/contact.html:10
@@ -4227,9 +4074,7 @@ msgid "Formulaire de Contact"
 msgstr "联系表"
 
 #: templates/legal/contact.html:11
-msgid ""
-"Remplissez ce formulaire pour nous contacter. Tous les champs marqués "
-"d'un astérisque (*) sont obligatoires."
+msgid "Remplissez ce formulaire pour nous contacter. Tous les champs marqués d'un astérisque (*) sont obligatoires."
 msgstr "填写此表格以联系我们。所有标有星号 (*) 的字段均为必填字段。"
 
 #: templates/legal/contact.html:16
@@ -4245,9 +4090,7 @@ msgid "Merci pour votre message."
 msgstr "谢谢您的留言。"
 
 #: templates/legal/contact.html:18
-msgid ""
-"Nous avons bien reçu votre demande et nous vous répondrons dans les plus "
-"brefs délais."
+msgid "Nous avons bien reçu votre demande et nous vous répondrons dans les plus brefs délais."
 msgstr "我们已收到您的请求，我们将尽快回复您。"
 
 #: templates/legal/contact.html:26
@@ -4323,9 +4166,7 @@ msgid "Information importante :"
 msgstr "重要信息："
 
 #: templates/legal/legal.html:7
-msgid ""
-"Cette application traite vos fichiers PDF uniquement en mémoire. Aucun "
-"fichier n'est stocké de manière permanente sur nos serveurs."
+msgid "Cette application traite vos fichiers PDF uniquement en mémoire. Aucun fichier n'est stocké de manière permanente sur nos serveurs."
 msgstr "此应用程序仅在内存中处理您的 PDF 文件。没有文件会永久存储在我们的服务器上。"
 
 #: templates/legal/legal.html:10
@@ -4334,13 +4175,8 @@ msgstr "服务编辑"
 
 #: templates/legal/legal.html:11
 #, python-format
-msgid ""
-"%(app_name)s est développé et maintenu par %(developer_name)s, un "
-"développeur passionné par la création d'outils web utiles et accessibles."
-msgstr ""
-"%(app_name)s 由 %(developer_name)s "
-"开发和维护，%(developer_name)s是一位热衷于创建有用且易于访问的 Web 工具的开发人员。%(app_name)s 由 "
-"%(developer_name)s 开发和维护，%(developer_name)s是一位热衷于创建有用且易于访问的 Web 工具的开发人员。"
+msgid "%(app_name)s est développé et maintenu par %(developer_name)s, un développeur passionné par la création d'outils web utiles et accessibles."
+msgstr "%(app_name)s 由 %(developer_name)s 开发和维护，%(developer_name)s是一位热衷于创建有用且易于访问的 Web 工具的开发人员。"
 
 #: templates/legal/legal.html:19
 msgid "Pour nous contacter :"
@@ -4360,15 +4196,11 @@ msgstr "住宿"
 
 #: templates/legal/legal.html:28
 #, python-format
-msgid ""
-"Ce service est hébergé sur la plateforme %(hosting)s (<a "
-"href=\"https://%(domain)s\" target=\"_blank\">(domain)s</a>)."
-msgstr "此服务托管在 %(hosting)s 平台上 (<a href=\\"
+msgid "Ce service est hébergé sur la plateforme %(hosting)s (<a href=\"https://%(domain)s\" target=\"_blank\">(domain)s</a>)."
+msgstr "此服务托管在 %(hosting)s 平台上 (<a href=\"
 
 #: templates/legal/legal.html:30
-msgid ""
-"Les serveurs sont localisés dans des centres de données sécurisés et "
-"conformes aux normes européennes de protection des données."
+msgid "Les serveurs sont localisés dans des centres de données sécurisés et conformes aux normes européennes de protection des données."
 msgstr "服务器位于符合欧洲数据保护标准的安全数据中心。"
 
 #: templates/legal/legal.html:32 templates/legal/terms.html:48
@@ -4376,16 +4208,11 @@ msgid "Propriété intellectuelle"
 msgstr "知识产权"
 
 #: templates/legal/legal.html:33
-msgid ""
-"L'ensemble des contenus présents sur ce site (design, code source, "
-"interfaces, textes, graphismes) est protégé par les lois relatives à la "
-"propriété intellectuelle."
+msgid "L'ensemble des contenus présents sur ce site (design, code source, interfaces, textes, graphismes) est protégé par les lois relatives à la propriété intellectuelle."
 msgstr "本网站上的所有内容（设计、源代码、界面、文本、图形）均受知识产权相关法律的保护。"
 
 #: templates/legal/legal.html:34
-msgid ""
-"Toute reproduction, modification, distribution ou exploitation non "
-"autorisée est strictement interdite."
+msgid "Toute reproduction, modification, distribution ou exploitation non autorisée est strictement interdite."
 msgstr "严禁任何未经授权的复制、修改、分发或利用。"
 
 #: templates/legal/legal.html:36
@@ -4393,15 +4220,11 @@ msgid "Responsabilité"
 msgstr "责任"
 
 #: templates/legal/legal.html:37
-msgid ""
-"L'utilisateur reste l'unique responsable des fichiers PDF qu'il téléverse"
-" et traite via ce service."
+msgid "L'utilisateur reste l'unique responsable des fichiers PDF qu'il téléverse et traite via ce service."
 msgstr "用户对其通过本服务上传和处理的 PDF 文件承担全部责任。"
 
 #: templates/legal/legal.html:38
-msgid ""
-"Il s'engage à ne pas utiliser le service pour des contenus illicites ou "
-"protégés par des droits d'auteur sans autorisation."
+msgid "Il s'engage à ne pas utiliser le service pour des contenus illicites ou protégés par des droits d'auteur sans autorisation."
 msgstr "他承诺未经授权不会将服务用于非法或受版权保护的内容。"
 
 #: templates/legal/legal.html:40
@@ -4409,15 +4232,11 @@ msgid "Disponibilité du service"
 msgstr "服务可用性"
 
 #: templates/legal/legal.html:41
-msgid ""
-"Nous nous efforçons d'assurer une disponibilité continue du service, mais"
-" ne pouvons garantir un fonctionnement ininterrompu."
+msgid "Nous nous efforçons d'assurer une disponibilité continue du service, mais ne pouvons garantir un fonctionnement ininterrompu."
 msgstr "我们努力确保服务的持续可用性，但不能保证不间断运行。"
 
 #: templates/legal/legal.html:42
-msgid ""
-"Des périodes de maintenance technique peuvent être nécessaires pour "
-"améliorer le service."
+msgid "Des périodes de maintenance technique peuvent être nécessaires pour améliorer le service."
 msgstr "为了改善服务，可能需要进行技术维护。"
 
 #: templates/legal/privacy.html:4
@@ -4425,9 +4244,7 @@ msgid "Respect de votre vie privée"
 msgstr "尊重您的隐私"
 
 #: templates/legal/privacy.html:5
-msgid ""
-"Votre confidentialité est notre priorité. Cette politique explique "
-"comment nous collectons, utilisons et protégeons vos informations."
+msgid "Votre confidentialité est notre priorité. Cette politique explique comment nous collectons, utilisons et protégeons vos informations."
 msgstr "您的隐私是我们的首要任务。本政策解释了我们如何收集、使用和保护您的信息。"
 
 #: templates/legal/privacy.html:9
@@ -4435,10 +4252,7 @@ msgid "Engagement de confidentialité :"
 msgstr "保密承诺："
 
 #: templates/legal/privacy.html:10
-msgid ""
-"Nous ne stockons jamais le contenu de vos fichiers PDF. Tous les "
-"traitements sont effectués en mémoire vive et les fichiers sont supprimés"
-" immédiatement après traitement."
+msgid "Nous ne stockons jamais le contenu de vos fichiers PDF. Tous les traitements sont effectués en mémoire vive et les fichiers sont supprimés immédiatement après traitement."
 msgstr "我们从不存储您的 PDF 文件的内容。所有处理均在 RAM 中进行，文件在处理后立即删除。"
 
 #: templates/legal/privacy.html:13
@@ -4450,9 +4264,7 @@ msgid "Données techniques"
 msgstr "技术数据"
 
 #: templates/legal/privacy.html:15
-msgid ""
-"Nous collectons des données techniques anonymes pour améliorer le service"
-" :"
+msgid "Nous collectons des données techniques anonymes pour améliorer le service :"
 msgstr "我们收集匿名技术数据以改进服务："
 
 #: templates/legal/privacy.html:17
@@ -4473,11 +4285,11 @@ msgstr "浏览器和设备信息（类型、版本）"
 
 #: templates/legal/privacy.html:23
 msgid "Cookies"
-msgstr ""
+msgstr "曲奇饼"
 
 #: templates/legal/privacy.html:24
 msgid "Nous utilisons uniquement des cookies techniques essentiels :"
-msgstr "我们仅使用必要的技术 cookie："
+msgstr "Nous utilisons uniquement des cookies techniques essentiels :"
 
 #: templates/legal/privacy.html:26
 msgid "Session cookie :"
@@ -4500,15 +4312,11 @@ msgid "Publicité — Google AdSense"
 msgstr "广告——Google AdSense"
 
 #: templates/legal/privacy.html:31
-msgid ""
-"Ce site utilise <strong>Google AdSense</strong> pour afficher des "
-"publicités pertinentes."
+msgid "Ce site utilise <strong>Google AdSense</strong> pour afficher des publicités pertinentes."
 msgstr "本网站使用 <strong>Google AdSense</strong> 来显示相关广告。"
 
 #: templates/legal/privacy.html:32
-msgid ""
-"Google utilise des cookies pour personnaliser les annonces en fonction de"
-" votre navigation sur ce site et d'autres sites web."
+msgid "Google utilise des cookies pour personnaliser les annonces en fonction de votre navigation sur ce site et d'autres sites web."
 msgstr "Google 使用 cookie 根据您在此网站和其他网站上的浏览情况来个性化广告。"
 
 #: templates/legal/privacy.html:33
@@ -4524,9 +4332,7 @@ msgid "Vos droits (RGPD)"
 msgstr "您的权利 (GDPR)"
 
 #: templates/legal/privacy.html:36
-msgid ""
-"Conformément au Règlement Général sur la Protection des Données (RGPD), "
-"vous disposez des droits suivants :"
+msgid "Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez des droits suivants :"
 msgstr "根据《通用数据保护条例》(GDPR)，您拥有以下权利："
 
 #: templates/legal/privacy.html:38
@@ -4562,10 +4368,7 @@ msgid "Sécurité des données"
 msgstr "数据安全"
 
 #: templates/legal/privacy.html:50
-msgid ""
-"Nous mettons en œuvre des mesures de sécurité techniques et "
-"organisationnelles appropriées pour protéger vos données contre tout "
-"accès non autorisé, altération ou destruction."
+msgid "Nous mettons en œuvre des mesures de sécurité techniques et organisationnelles appropriées pour protéger vos données contre tout accès non autorisé, altération ou destruction."
 msgstr "我们实施适当的技术和组织安全措施，以保护您的数据免遭未经授权的访问、更改或破坏。"
 
 #: templates/legal/terms.html:4
@@ -4574,9 +4377,7 @@ msgstr "接受条件"
 
 #: templates/legal/terms.html:5
 #, python-format
-msgid ""
-"En utilisant le service %(app_name)s, vous acceptez pleinement et sans "
-"réserve les présentes conditions d'utilisation."
+msgid "En utilisant le service %(app_name)s, vous acceptez pleinement et sans réserve les présentes conditions d'utilisation."
 msgstr "通过使用 %(app_name)s 服务，您完全且无保留地接受这些使用条件。"
 
 #: templates/legal/terms.html:9
@@ -4584,9 +4385,7 @@ msgid "Avertissement important :"
 msgstr "重要警告："
 
 #: templates/legal/terms.html:10
-msgid ""
-"Ce service est fourni \"tel quel\". Nous déclinons toute responsabilité "
-"concernant les fichiers traités par l'utilisateur."
+msgid "Ce service est fourni \"tel quel\". Nous déclinons toute responsabilité concernant les fichiers traités par l'utilisateur."
 msgstr "该服务是为用户处理的文件提供的。"
 
 #: templates/legal/terms.html:13
@@ -4599,12 +4398,10 @@ msgstr "您同意负责任且合法地使用服务："
 
 #: templates/legal/terms.html:16
 msgid "Interdictions"
-msgstr ""
+msgstr "禁止事项"
 
 #: templates/legal/terms.html:18
-msgid ""
-"Téléverser des fichiers contenant des données illicites ou protégés par "
-"des droits d'auteur sans autorisation"
+msgid "Téléverser des fichiers contenant des données illicites ou protégés par des droits d'auteur sans autorisation"
 msgstr "未经许可上传包含非法或受版权保护的数据的文件"
 
 #: templates/legal/terms.html:19
@@ -4625,11 +4422,11 @@ msgstr "未经许可将服务内容重复用于商业目的"
 
 #: templates/legal/terms.html:25
 msgid "Obligations"
-msgstr ""
+msgstr "债券"
 
 #: templates/legal/terms.html:27
 msgid "Respecter les droits de propriété intellectuelle des documents traités"
-msgstr "尊重所处理文件的知识产权"
+msgstr "尊重所处理文档的知识产权"
 
 #: templates/legal/terms.html:28
 msgid "Assurer la confidentialité de vos propres fichiers"
@@ -4644,10 +4441,7 @@ msgid "Limitation de responsabilité"
 msgstr "责任限制"
 
 #: templates/legal/terms.html:33
-msgid ""
-"Le service est fourni sans aucune garantie, expresse ou implicite, y "
-"compris, mais sans s'y limiter, les garanties de qualité marchande, "
-"d'adéquation à un usage particulier et de non-contrefaçon."
+msgid "Le service est fourni sans aucune garantie, expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande, d'adéquation à un usage particulier et de non-contrefaçon."
 msgstr "提供的服务不附带任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不侵权的保证。"
 
 #: templates/legal/terms.html:35
@@ -4656,9 +4450,7 @@ msgid "En aucun cas, %(developer_name)s ne pourra être tenu responsable :"
 msgstr "在任何情况下，%(developer_name)s 均不会承担以下责任："
 
 #: templates/legal/terms.html:39
-msgid ""
-"Des dommages directs ou indirects résultant de l'utilisation ou de "
-"l'impossibilité d'utiliser le service"
+msgid "Des dommages directs ou indirects résultant de l'utilisation ou de l'impossibilité d'utiliser le service"
 msgstr "因使用或无法使用服务而造成的直接或间接损害"
 
 #: templates/legal/terms.html:40
@@ -4674,28 +4466,20 @@ msgid "Modifications des conditions"
 msgstr "条款变更"
 
 #: templates/legal/terms.html:45
-msgid ""
-"Nous nous réservons le droit de modifier ces conditions d'utilisation à "
-"tout moment."
+msgid "Nous nous réservons le droit de modifier ces conditions d'utilisation à tout moment."
 msgstr "我们保留随时修改这些使用条款的权利。"
 
 #: templates/legal/terms.html:46
-msgid ""
-"Les utilisateurs seront informés des changements significatifs via une "
-"notification sur le site."
+msgid "Les utilisateurs seront informés des changements significatifs via une notification sur le site."
 msgstr "用户将通过网站上的通知得知重大变化。"
 
 #: templates/legal/terms.html:50
 #, python-format
-msgid ""
-"Le service, son code source, son design et son contenu sont la propriété "
-"exclusive de %(developer_name)s."
+msgid "Le service, son code source, son design et son contenu sont la propriété exclusive de %(developer_name)s."
 msgstr "该服务、其源代码、其设计及其内容是 %(developer_name)s 的专有财产。"
 
 #: templates/legal/terms.html:53
-msgid ""
-"Toute reproduction, même partielle, est interdite sans autorisation "
-"préalable écrite."
+msgid "Toute reproduction, même partielle, est interdite sans autorisation préalable écrite."
 msgstr "未经事先书面授权，禁止任何复制，即使是部分复制。"
 
 #: templates/legal/terms.html:57
@@ -4720,11 +4504,11 @@ msgstr "压缩级别"
 
 #: templates/pdf/compress.html:12
 msgid "Faible"
-msgstr ""
+msgstr "虚弱的"
 
 #: templates/pdf/compress.html:16
 msgid "Fort"
-msgstr ""
+msgstr "强的"
 
 #: templates/pdf/compress.html:18
 msgid "Compression plus forte = fichier plus petit, qualité réduite"
@@ -4747,10 +4531,7 @@ msgid "Accueil - PDF Fusion Pro – Outils PDF Gratuits"
 msgstr "主页 - PDF Fusion Pro – 免费 PDF 工具"
 
 #: templates/pdf/index.html:5
-msgid ""
-"Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, "
-"compresser et convertir des fichiers PDF. Totalement gratuit, sécurisé et"
-" sans inscription."
+msgid "Tous les outils PDF en un seul endroit : fusionner, diviser, tourner, compresser et convertir des fichiers PDF. Totalement gratuit, sécurisé et sans inscription."
 msgstr "所有 PDF 工具集中于一处：合并、分割、旋转、压缩和转换 PDF 文件。完全免费、安全且无需注册。"
 
 #: templates/pdf/index.html:10
@@ -4758,15 +4539,11 @@ msgid "Transformez vos PDFs en toute simplicité"
 msgstr "轻松转换您的 PDF"
 
 #: templates/pdf/index.html:12
-msgid ""
-"Outil PDF tout-en-un : fusion, division, rotation, compression et "
-"conversion. Rapide, sécurisé et entièrement gratuit."
+msgid "Outil PDF tout-en-un : fusion, division, rotation, compression et conversion. Rapide, sécurisé et entièrement gratuit."
 msgstr "多合一 PDF 工具：合并、分割、旋转、压缩和转换。快速、安全且完全免费。"
 
 #: templates/pdf/index.html:13
-msgid ""
-"Aucune inscription requise – vos fichiers ne quittent jamais votre "
-"navigateur."
+msgid "Aucune inscription requise – vos fichiers ne quittent jamais votre navigateur."
 msgstr "无需注册 - 您的文件永远不会离开您的浏览器。"
 
 #: templates/pdf/index.html:26
@@ -4834,9 +4611,7 @@ msgid "Convertisseur universel"
 msgstr "万能转换器"
 
 #: templates/pdf/index.html:101
-msgid ""
-"Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et "
-"vice-versa"
+msgid "Convertissez vos fichiers Word, Excel, PowerPoint et images en PDF et vice-versa"
 msgstr "将 Word、Excel、PowerPoint 和图像文件转换为 PDF，反之亦然"
 
 #: templates/pdf/index.html:117
@@ -4844,32 +4619,27 @@ msgid "PDF Fusion Pro en chiffres"
 msgstr "PDF Fusion Pro 的数字"
 
 #: templates/pdf/index.html:123
-#, fuzzy
 msgid "Utilisateurs"
-msgstr "使用我们的"
+msgstr "用户"
 
 #: templates/pdf/index.html:127
 msgid "PDF traités"
 msgstr "已处理的 PDF"
 
 #: templates/pdf/index.html:131
-#, fuzzy
 msgid "Satisfaction"
-msgstr "行动 ："
+msgstr "满意"
 
 #: templates/pdf/index.html:135
-#, fuzzy
 msgid "Disponible"
-msgstr "无法使用"
+msgstr "可用的"
 
 #: templates/pdf/index.html:148
 msgid "Votre solution PDF tout-en-un, entièrement gratuite et sécurisée"
 msgstr "您的一体化 PDF 解决方案，完全免费且安全"
 
 #: templates/pdf/index.html:150
-msgid ""
-"PDF Fusion Pro est la plateforme idéale pour tous vos besoins en "
-"manipulation de fichiers PDF. Que vous ayez besoin de"
+msgid "PDF Fusion Pro est la plateforme idéale pour tous vos besoins en manipulation de fichiers PDF. Que vous ayez besoin de"
 msgstr "PDF Fusion Pro 是满足您所有 PDF 文件操作需求的理想平台。无论您需要"
 
 #: templates/pdf/index.html:151
@@ -5013,7 +4783,7 @@ msgid "Pages à extraire"
 msgstr "要提取的页面"
 
 #: templates/pdf/split.html:11
-msgid "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\""
+msgid "Format: numéros séparés par des virgules, plages avec tiret. Ex: \"1,3-5\"
 msgstr "格式：数字用逗号分隔，范围用连字符分隔。例如：“1.3-5”"
 
 #: templates/pdf/split.html:16
@@ -5029,37 +4799,11 @@ msgid "Erreur lors de la division :"
 msgstr "划分时出错："
 
 
-# ===== CLOUD UPLOAD JAVASCRIPT =====
-#: static/js/cloud/cloud-upload.js
+msgid "Respecter les droits de propriété intellectuelle des documents traités"
+msgstr "尊重所处理文档的知识产权"
 
-msgid "Comment utiliser {service}"
-msgstr "如何使用{service}"
+msgid "Assurer la confidentialité de vos propres fichiers"
+msgstr "确保您自己文件的保密性"
 
-msgid "Depuis {service} vers votre ordinateur"
-msgstr "从{service}到您的计算机"
-
-msgid "Revenez sur cette page"
-msgstr "返回此页面"
-
-msgid "L'onglet de {service} s'est ouvert"
-msgstr "{service}标签页已打开"
-
-msgid "Utilisez le bouton \"Parcourir\""
-msgstr "使用\"浏览\"按钮"
-
-msgid "Pour sélectionner le fichier téléchargé"
-msgstr "选择下载的文件"
-
-msgid "J'ai compris"
-msgstr "我明白了"
-
-msgid "☁️ Upload cloud prêt - Ouvre les services cloud"
-msgstr "☁️ 云上传就绪 - 打开云服务"
-
-
-# ===== CLOUD UPLOAD JAVASCRIPT =====
-#: static/js/cloud/cloud-upload.js
-
-msgid "Utilisez le bouton \"Parcourir\""
-msgstr "使用\"浏览\"按钮"
-
+msgid "Utiliser le service conformément à sa destination première"
+msgstr "按照服务的原始目的使用服务"
