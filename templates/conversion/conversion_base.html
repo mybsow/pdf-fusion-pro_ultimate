@@ -335,28 +335,34 @@
                             {{ _('Importer depuis le cloud') }}
                         </div>
                     </div>
+                    {#
+                        CORRECTION : les onclick inline sont remplacés par data-cloud="..."
+                        Les event listeners sont attachés en bas de page, après le chargement
+                        de cloud-upload.js, avec un fallback d'ouverture directe si le script
+                        n'est pas encore disponible.
+                    #}
                     <div class="cloud-btn-group">
-                        <button type="button" class="cloud-btn cloud-btn-google" onclick="window.cloudUpload && cloudUpload.open('google')">
+                        <button type="button" class="cloud-btn cloud-btn-google" data-cloud="google">
                             <i class="fab fa-google-drive"></i>
                             <span>Google Drive</span>
                         </button>
-                        <button type="button" class="cloud-btn cloud-btn-onedrive" onclick="window.cloudUpload && cloudUpload.open('onedrive')">
+                        <button type="button" class="cloud-btn cloud-btn-onedrive" data-cloud="onedrive">
                             <i class="fab fa-microsoft"></i>
                             <span>OneDrive</span>
                         </button>
-                        <button type="button" class="cloud-btn cloud-btn-dropbox" onclick="window.cloudUpload && cloudUpload.open('dropbox')">
+                        <button type="button" class="cloud-btn cloud-btn-dropbox" data-cloud="dropbox">
                             <i class="fab fa-dropbox"></i>
                             <span>Dropbox</span>
                         </button>
-                        <button type="button" class="cloud-btn cloud-btn-icloud" onclick="window.cloudUpload && cloudUpload.open('icloud')">
+                        <button type="button" class="cloud-btn cloud-btn-icloud" data-cloud="icloud">
                             <i class="fab fa-apple"></i>
                             <span>iCloud</span>
                         </button>
-                        <button type="button" class="cloud-btn cloud-btn-box" onclick="window.cloudUpload && cloudUpload.open('box')">
+                        <button type="button" class="cloud-btn cloud-btn-box" data-cloud="box">
                             <i class="fas fa-box"></i>
                             <span>Box</span>
                         </button>
-                        <button type="button" class="cloud-btn cloud-btn-pcloud" onclick="window.cloudUpload && cloudUpload.open('pcloud')">
+                        <button type="button" class="cloud-btn cloud-btn-pcloud" data-cloud="pcloud">
                             <i class="fas fa-cloud"></i>
                             <span>pCloud</span>
                         </button>
@@ -492,7 +498,6 @@ function hideLoader() {
 }
 
 function resetConversion() {
-    // Réinitialiser le formulaire et les étapes
     const step1 = document.getElementById('step1Content');
     const step2 = document.getElementById('step2Content');
     const step3 = document.getElementById('step3Content');
@@ -506,29 +511,24 @@ function resetConversion() {
 
 // Gestion du drag & drop
 const uploadZone = document.getElementById('uploadZone');
-const fileInput = document.getElementById('fileInput');
+const fileInput  = document.getElementById('fileInput');
 
 if (uploadZone) {
     uploadZone.addEventListener('dragover', (e) => {
         e.preventDefault();
         uploadZone.classList.add('dragover');
     });
-    
     uploadZone.addEventListener('dragleave', () => {
         uploadZone.classList.remove('dragover');
     });
-    
     uploadZone.addEventListener('drop', (e) => {
         e.preventDefault();
         uploadZone.classList.remove('dragover');
-        const files = e.dataTransfer.files;
         if (fileInput) {
-            fileInput.files = files;
-            const event = new Event('change', { bubbles: true });
-            fileInput.dispatchEvent(event);
+            fileInput.files = e.dataTransfer.files;
+            fileInput.dispatchEvent(new Event('change', { bubbles: true }));
         }
     });
-    
     uploadZone.addEventListener('click', () => {
         if (fileInput) fileInput.click();
     });
@@ -550,23 +550,50 @@ if (uploadForm) {
 
 document.addEventListener('DOMContentLoaded', () => updateStep(1));
 
-// Initialiser cloud upload
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof cloudUpload !== 'undefined') {
-        console.log('☁️ Cloud upload ready');
-    }
+// ── Boutons cloud — CORRECTION ──────────────────────────────────────────────
+// Les boutons utilisent data-cloud="..." au lieu d'onclick inline.
+// On attache les listeners ici, après que cloud-upload.js est chargé (il est
+// inclus dans base.html avant ce bloc). En cas d'échec de chargement du script,
+// un fallback ouvre directement l'URL du service dans un nouvel onglet.
+document.addEventListener('DOMContentLoaded', function () {
+    var CLOUD_FALLBACK_URLS = {
+        google:   'https://drive.google.com',
+        onedrive: 'https://onedrive.live.com',
+        dropbox:  'https://www.dropbox.com',
+        icloud:   'https://www.icloud.com',
+        box:      'https://www.box.com',
+        pcloud:   'https://www.pcloud.com'
+    };
+
+    document.querySelectorAll('[data-cloud]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var provider = this.getAttribute('data-cloud');
+            if (typeof window.cloudUpload !== 'undefined') {
+                // Script chargé correctement → comportement normal
+                window.cloudUpload.open(provider);
+            } else {
+                // Fallback : ouverture directe dans un nouvel onglet
+                var url = CLOUD_FALLBACK_URLS[provider];
+                if (url) {
+                    window.open(url, '_blank');
+                }
+                console.warn('[cloud] cloudUpload non disponible, ouverture directe de', provider);
+            }
+        });
+    });
 });
+// ────────────────────────────────────────────────────────────────────────────
 
 // Rendre les fonctions disponibles globalement pour les templates enfants
-window.updateStep = updateStep;
-window.showError = showError;
+window.updateStep      = updateStep;
+window.showError       = showError;
 window.resetConversion = resetConversion;
-window.showLoader = showLoader;
-window.hideLoader = hideLoader;
+window.showLoader      = showLoader;
+window.hideLoader      = hideLoader;
 </script>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
-<!-- Cloud upload JS is already loaded in base.html -->
+{# cloud-upload.js est déjà chargé dans base.html — pas besoin de le recharger ici #}
 {% endblock %}

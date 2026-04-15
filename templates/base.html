@@ -513,8 +513,9 @@
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 <script src="{{ url_for('static', filename='js/components/upload.js') }}"></script>
 <script src="{{ url_for('static', filename='js/pages/pdf-tools.js') }}"></script>
-<!-- Chargement explicite du script cloud -->
-<script src="{{ url_for('static', filename='js/cloud/upload.js') }}"></script>
+
+{# ── CORRECTION : nom de fichier corrigé (cloud-upload.js et non upload.js) ── #}
+<script src="{{ url_for('static', filename='js/cloud/cloud-upload.js') }}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded',function(){

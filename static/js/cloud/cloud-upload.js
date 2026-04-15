@@ -127,6 +127,9 @@
             return CLOUD_SERVICES;
         }
     };
+
+    // En bas du fichier, après window.cloudUpload = { ... }
+    console.log('✅ cloudUpload initialisé', Object.keys(window.cloudUpload));
     
     console.log('☁️ Cloud upload ready - Ouvre les services cloud');
 })();
