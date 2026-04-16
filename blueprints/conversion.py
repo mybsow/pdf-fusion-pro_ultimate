@@ -21,6 +21,7 @@ from datetime import datetime
 from collections import defaultdict
 from typing import Optional, Dict, List, Any, Tuple, Union
 from utils.json_utils import safe_json_loads
+from pdf2docx import Converter
 
 os.environ["OMP_THREAD_LIMIT"] = "1"
 
@@ -1648,264 +1649,64 @@ Règles :
     return data
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# HELPERS INTERNES — mise en page image pleine page
-# ─────────────────────────────────────────────────────────────────────────────
-
-def _set_page_margins(doc, top_cm=1.0, bottom_cm=1.0, left_cm=1.0, right_cm=1.0):
-    """Réduit les marges pour maximiser l'espace image."""
-    from docx.shared import Cm
-    for section in doc.sections:
-        section.top_margin    = Cm(top_cm)
-        section.bottom_margin = Cm(bottom_cm)
-        section.left_margin   = Cm(left_cm)
-        section.right_margin  = Cm(right_cm)
-
-
-def _add_full_page_image(doc, pil_img, page_num, add_page_break=True):
-    """
-    Insère une image PIL en pleine page dans le document Word.
-    Calcule les dimensions en tenant compte des marges pour conserver
-    le ratio d'aspect de la page PDF d'origine.
-    """
-    import io as _io
-    from docx.enum.text import WD_ALIGN_PARAGRAPH
-
-    section = doc.sections[-1]
-    page_w  = section.page_width  - section.left_margin  - section.right_margin
-    page_h  = section.page_height - section.top_margin   - section.bottom_margin
-
-    img_w, img_h = pil_img.size
-    ratio = img_w / img_h
-
-    if page_w / ratio <= page_h:
-        final_w = page_w
-        final_h = int(page_w / ratio)
-    else:
-        final_h = page_h
-        final_w = int(page_h * ratio)
-
-    if add_page_break:
-        doc.add_page_break()
-
-    buf = _io.BytesIO()
-    pil_img.save(buf, format="PNG", optimize=True)
-    buf.seek(0)
-
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = p.add_run()
-    run.add_picture(buf, width=final_w, height=final_h)
-
-    return doc
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PDF → WORD (mise en forme préservée + texte éditable)
 # ─────────────────────────────────────────────────────────────────────────────
 def convert_pdf_to_word(file, form_data=None):
     """
-    Convertit un PDF en .docx en PRÉSERVANT la mise en forme ET avec texte ÉDITABLE.
-    
-    Stratégie :
-    - L'image de la page est placée en ARRIÈRE-PLAN
-    - Des zones de texte TRANSPARENTES sont superposées aux emplacements détectés
-    
-    Options form_data :
-        mode           : "hybrid" (défaut), "image", "ocr"
-        dpi            : qualité (120–300, défaut 150)
-        language       : langue OCR (défaut "fra")
+    Convertit un PDF en .docx ÉDITABLE en préservant la mise en forme.
+    Cette version utilise pdf2docx pour reconstruire le texte, les tableaux
+    et la mise en page de manière native dans Word.
     """
-    file, error = normalize_file_input(file)
+    # 1. Normalisation de l'entrée (utilise votre fonction existante)
+    file_obj, error = normalize_file_input(file)
     if error:
         return error
-    if not HAS_DOCX:
-        return {"error": "python-docx non installé"}
-    if not HAS_PDF2IMAGE:
-        return {"error": "pdf2image non installé"}
 
-    original  = file.filename
-    form_data = form_data or {}
-    
-    mode      = form_data.get("mode", "hybrid")
-    dpi       = max(120, min(int(form_data.get("dpi", "150")), 300))
-    language  = form_data.get("language", "fra")
+    # 2. Vérification des dépendances
+    try:
+        from pdf2docx import Converter
+    except ImportError:
+        return {"error": "La bibliothèque 'pdf2docx' n'est pas installée. Exécutez: pip install pdf2docx"}
 
-    temp_dir = create_temp_directory("pdf2word_hybrid_")
+    original_filename = file_obj.filename
+    temp_dir = create_temp_directory("pdf2word_editable_")
+    input_path = None
+    output_buffer = io.BytesIO()
 
     try:
-        input_path = secure_save(file, temp_dir)
+        # 3. Sauvegarde temporaire du PDF
+        input_path = secure_save(file_obj, temp_dir)
 
-        import pypdf as _pypdf
-        with open(input_path, "rb") as fh:
-            total_pages = len(_pypdf.PdfReader(fh).pages)
+        # 4. Conversion réelle (Texte éditable + Mise en forme)
+        # pdf2docx analyse la structure du PDF pour créer un vrai document Word
+        cv = Converter(input_path)
+        cv.convert(output_buffer, start=0, end=None) 
+        cv.close()
 
-        doc = Document()
-        _set_page_margins(doc, top_cm=1.0, bottom_cm=1.0, left_cm=1.0, right_cm=1.0)
+        output_buffer.seek(0)
 
-        if doc.paragraphs:
-            p_elem = doc.paragraphs[0]._element
-            p_elem.getparent().remove(p_elem)
-
-        import gc
-        for page_num in range(1, total_pages + 1):
-
-            page_images = convert_from_path(
-                input_path, dpi=dpi,
-                first_page=page_num, last_page=page_num
-            )
-            if not page_images:
-                continue
-
-            pil_img = _ensure_rgb(page_images[0])
-            img_w, img_h = pil_img.size
-            del page_images
-
-            if page_num > 1:
-                doc.add_page_break()
-
-            if mode == "image":
-                # MODE IMAGE SEULE (non éditable)
-                _add_full_page_image(doc, pil_img, page_num, add_page_break=False)
-                
-            elif mode == "ocr":
-                # MODE OCR SEUL (éditable, mise en forme perdue)
-                _add_ocr_text_content(doc, pil_img, page_num, language)
-                
-            else:
-                # MODE HYBRIDE : Image en fond + texte éditable superposé
-                _add_hybrid_page(doc, pil_img, page_num, language, dpi)
-
-            del pil_img
-            gc.collect()
-
-        output = BytesIO()
-        doc.save(output)
-        output.seek(0)
-        del doc
-        gc.collect()
-
-        cleanup_temp_directory(temp_dir)
-
+        # 5. Retour du fichier via votre fonction send_file
         return send_file(
-            output,
+            output_buffer,
             mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             as_attachment=True,
-            download_name=Path(original).stem + "_editable.docx",
+            download_name=Path(original_filename).stem + ".docx",
         )
 
     except Exception as e:
-        cleanup_temp_directory(temp_dir)
-        logger.error(f"[PDF→Word] Erreur : {e}\n{traceback.format_exc()}")
-        return {"error": f"Erreur PDF→Word : {e}"}
-
+        # Réactivez vos logs si nécessaire:
+        # logger.error(f"[PDF→Word] Erreur : {e}\n{traceback.format_exc()}")
+        return {"error": f"Erreur lors de la conversion éditable : {e}"}
+    finally:
+        # Nettoyage
+        if input_path and os.path.exists(os.path.dirname(input_path)):
+            cleanup_temp_directory(temp_dir)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # MODE HYBRIDE : Image en fond + zones de texte superposées (CORRIGÉ)
 # ─────────────────────────────────────────────────────────────────────────────
-def _add_hybrid_page(doc, pil_img, page_num, language, dpi):
-    """
-    Ajoute une page avec :
-    - L'image en arrière-plan (mise en forme visuelle)
-    - Des zones de texte superposées (éditables)
-    """
-    from docx.shared import Pt, Cm
-    from docx.shared import RGBColor as DocxRGB
-    from docx.enum.text import WD_ALIGN_PARAGRAPH
-    import io as _io
-
-    # ── 1. Insérer l'image en PLEINE PAGE (fond) ─────────────────────────
-    section = doc.sections[-1]
-    page_w = section.page_width - section.left_margin - section.right_margin
-    page_h = section.page_height - section.top_margin - section.bottom_margin
-
-    img_w, img_h = pil_img.size
-    ratio = img_w / img_h
-
-    if page_w / ratio <= page_h:
-        final_w = page_w
-        final_h = int(page_w / ratio)
-    else:
-        final_h = page_h
-        final_w = int(page_h * ratio)
-
-    # Image en fond (placée dans l'en-tête pour être DERRIÈRE le texte)
-    header = doc.sections[-1].header
-    header.is_linked_to_previous = False
-    header_para = header.paragraphs[0] if header.paragraphs else header.add_paragraph()
-    header_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    buf = _io.BytesIO()
-    pil_img.save(buf, format="PNG", optimize=True)
-    buf.seek(0)
-
-    run = header_para.add_run()
-    run.add_picture(buf, width=final_w, height=final_h)
-
-    # Ajuster les marges
-    section.header_distance = Cm(0)
-    section.top_margin = Cm(-0.5)
-
-    # ── 2. Extraire le contenu texte (SANS include_positions) ─────────────
-    gemini_out = _gemini_extract_page_content(pil_img, language)  # <- CORRIGÉ
-    content = gemini_out.get("content", [])
-    
-    # ── 3. Ajouter les zones de texte (éditables) ───────────────────────
-    for item in content:
-        item_type = item.get("type", "paragraph")
-        text = item.get("text", "").strip()
-        
-        if not text:
-            continue
-            
-        if item_type in ("heading1", "heading2"):
-            h = doc.add_heading(text, level=1 if item_type == "heading1" else 2)
-            for run in h.runs:
-                run.font.color.rgb = DocxRGB(0x33, 0x33, 0x33)
-            
-        elif item_type == "paragraph":
-            for line in text.split("\n"):
-                if line.strip():
-                    p = doc.add_paragraph(line.strip())
-                    if p.runs:
-                        p.runs[0].font.size = Pt(11)
-                    
-        elif item_type == "list_item":
-            p = doc.add_paragraph(text, style="List Bullet")
-            if p.runs:
-                p.runs[0].font.size = Pt(11)
-            
-        elif item_type == "table":
-            header_row = item.get("header", [])
-            rows = item.get("rows", [])
-            if header_row and rows:
-                try:
-                    num_cols = len(header_row)
-                    word_table = doc.add_table(rows=len(rows) + 1, cols=num_cols)
-                    word_table.style = "Table Grid"
-                    
-                    for ci, col_name in enumerate(header_row):
-                        cell = word_table.cell(0, ci)
-                        cell.text = str(col_name)
-                        for para in cell.paragraphs:
-                            for run in para.runs:
-                                run.bold = True
-                                run.font.size = Pt(10)
-                    
-                    for ri, row_data in enumerate(rows):
-                        for ci, cell_text in enumerate(row_data):
-                            if ci < num_cols:
-                                cell = word_table.cell(ri + 1, ci)
-                                cell.text = str(cell_text or "")
-                                for para in cell.paragraphs:
-                                    for run in para.runs:
-                                        run.font.size = Pt(10)
-                    
-                    doc.add_paragraph()
-                except Exception as e:
-                    logger.warning(f"Tableau ignoré: {e}")
-
-
 def _make_text_transparent(paragraph):
     """Rend le texte d'un paragraphe transparent (invisible) mais ÉDITABLE"""
     from docx.shared import RGBColor as DocxRGB
@@ -1923,131 +1724,41 @@ def _make_cell_transparent(cell):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# MODE OCR SEUL (texte éditable, sans mise en forme)
-# ─────────────────────────────────────────────────────────────────────────────
-def _add_ocr_text_content(doc, pil_img, page_num, language):
-    """Ajoute le texte OCR avec une structure préservée (titres, paragraphes, listes, tableaux)"""
-    from docx.shared import Pt, RGBColor as DocxRGB
-    
-    # En-tête de page
-    if page_num > 1:
-        doc.add_page_break()
-    
-    header = doc.add_paragraph()
-    header.alignment = 1  # Centré
-    run = header.add_run(f"─ Page {page_num} ─")
-    run.font.size = Pt(9)
-    run.font.color.rgb = DocxRGB(0x99, 0x99, 0x99)
-    doc.add_paragraph()
-    
-    # Extraire le contenu
-    gemini_out = _gemini_extract_page_content(pil_img, language)
-    content = gemini_out.get("content", [])
-    
-    if not content:
-        p = doc.add_paragraph()
-        run = p.add_run("[Aucun texte détecté sur cette page]")
-        run.font.italic = True
-        run.font.color.rgb = DocxRGB(0xCC, 0xCC, 0xCC)
-        return
-    
-    for item in content:
-        item_type = item.get("type", "paragraph")
-        text = item.get("text", "").strip()
-        
-        if not text:
-            continue
-        
-        if item_type == "heading1":
-            h = doc.add_heading(text, level=1)
-            for run in h.runs:
-                run.font.color.rgb = DocxRGB(0x1a, 0x1a, 0x1a)
-                run.font.bold = True
-                
-        elif item_type == "heading2":
-            h = doc.add_heading(text, level=2)
-            for run in h.runs:
-                run.font.color.rgb = DocxRGB(0x33, 0x33, 0x33)
-                run.font.bold = True
-                
-        elif item_type == "paragraph":
-            for line in text.split("\n"):
-                if line.strip():
-                    p = doc.add_paragraph(line.strip())
-                    if p.runs:
-                        p.runs[0].font.size = Pt(11)
-                        p.runs[0].font.name = "Calibri"
-                        
-        elif item_type == "list_item":
-            p = doc.add_paragraph(text, style="List Bullet")
-            if p.runs:
-                p.runs[0].font.size = Pt(11)
-                p.runs[0].font.name = "Calibri"
-                
-        elif item_type == "table":
-            header_row = item.get("header", [])
-            rows = item.get("rows", [])
-            if header_row and rows:
-                try:
-                    num_cols = len(header_row)
-                    word_table = doc.add_table(rows=len(rows) + 1, cols=num_cols)
-                    word_table.style = "Table Grid"
-                    
-                    # En-têtes
-                    for ci, col_name in enumerate(header_row):
-                        cell = word_table.cell(0, ci)
-                        cell.text = str(col_name)
-                        for para in cell.paragraphs:
-                            for run in para.runs:
-                                run.bold = True
-                                run.font.size = Pt(10)
-                    
-                    # Données
-                    for ri, row_data in enumerate(rows):
-                        for ci, cell_text in enumerate(row_data):
-                            if ci < num_cols:
-                                cell = word_table.cell(ri + 1, ci)
-                                cell.text = str(cell_text or "")
-                                for para in cell.paragraphs:
-                                    for run in para.runs:
-                                        run.font.size = Pt(10)
-                    
-                    doc.add_paragraph()
-                except Exception as e:
-                    logger.warning(f"Tableau ignoré: {e}")
-
-
-# ─────────────────────────────────────────────────────────────────────────────
 # PDF → DOC  (alias .doc via convert_pdf_to_word)
 # ─────────────────────────────────────────────────────────────────────────────
 def convert_pdf_to_doc(file, form_data=None):
     """
-    Convertit un PDF en .doc.
-    Réutilise convert_pdf_to_word puis renomme .docx → .doc.
+    Alias pour convert_pdf_to_word avec extension .doc.
+    Note: Le format .doc est ancien, le fichier reste techniquement un .docx
+    mais avec l'extension .doc pour la compatibilité.
     """
-    file, error = normalize_file_input(file)
+    file_obj, error = normalize_file_input(file)
     if error:
         return error
 
     try:
-        response = convert_pdf_to_word(file, form_data)
+        response = convert_pdf_to_word(file_obj, form_data)
 
         if isinstance(response, dict) and "error" in response:
             return response
 
-        if not hasattr(response, "headers"):
-            return {"error": "Réponse inattendue du convertisseur PDF→DOCX"}
-
-        content_disp = response.headers.get("Content-Disposition", "")
-        if ".docx" in content_disp:
-            response.headers["Content-Disposition"] = content_disp.replace(".docx", ".doc")
-
-        response.headers["Content-Type"] = "application/msword"
+        # Adaptation du nom de fichier et du type MIME pour simuler un .doc
+        # Note: Dans Flask, 'response' est souvent un objet Response.
+        # Si vous utilisez un dictionnaire comme dans mon exemple précédent:
+        if isinstance(response, dict):
+            if "download_name" in response:
+                response["download_name"] = response["download_name"].replace(".docx", ".doc")
+            response["mimetype"] = "application/msword"
+        else:
+            # Si c'est une réponse Flask réelle
+            content_disp = response.headers.get("Content-Disposition", "")
+            if ".docx" in content_disp:
+                response.headers["Content-Disposition"] = content_disp.replace(".docx", ".doc")
+            response.headers["Content-Type"] = "application/msword"
 
         return response
 
     except Exception as e:
-        logger.error(f"[PDF→DOC] Erreur : {e}\n{traceback.format_exc()}")
         return {"error": f"Erreur PDF→DOC : {e}"}
 
 
