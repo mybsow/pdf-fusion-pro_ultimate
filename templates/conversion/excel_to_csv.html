@@ -164,4 +164,121 @@
         if (msgSpan) msgSpan.textContent = message;
     }
 
-   
+    function updateFileNameDisplay() {
+        const display = document.getElementById('excelFileInputName');
+        if (display) {
+            if (selectedFiles.length > 0) {
+                const names = selectedFiles.map(f => f.name).join(', ');
+                display.textContent = names.length > 50 ? names.substring(0, 47) + '...' : names;
+            } else {
+                display.textContent = i18nMessages.noFileSelected;
+            }
+        }
+    }
+
+    function updateConvertButton() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.disabled = selectedFiles.length === 0;
+        }
+    }
+
+    function startConversion() {
+        if (selectedFiles.length === 0) {
+            showError(i18nMessages.selectAtLeastOne);
+            return;
+        }
+
+        const formData = new FormData();
+        selectedFiles.forEach(file => formData.append('files', file));
+
+        formData.append('separator', document.getElementById('separator').value);
+        formData.append('sheet', document.getElementById('sheet').value);
+        formData.append('includeHeader', document.getElementById('includeHeader').checked ? 'true' : 'false');
+        formData.append('utf8Bom', document.getElementById('utf8Bom').checked ? 'true' : 'false');
+
+        updateStep(2);
+
+        let progress = 0;
+        updateProgress(0, i18nMessages.starting);
+
+        progressInterval = setInterval(() => {
+            if (progress < 95) {
+                progress += Math.random() * 15;
+                progress = Math.min(progress, 95);
+                updateProgress(progress, i18nMessages.converting);
+            }
+        }, 400);
+
+        fetch('{{ url_for("conversion.universal_converter", conversion_type="excel-en-csv") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(async response => {
+            clearInterval(progressInterval);
+            updateProgress(100, i18nMessages.finalizing);
+
+            if (!response.ok) throw new Error(i18nMessages.errorPrefix + ' ' + response.status);
+
+            const blob = await response.blob();
+            if (blob.size === 0) throw new Error(i18nMessages.emptyFile);
+
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
+
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink) {
+                downloadLink.href = downloadUrl;
+                downloadLink.download = selectedFiles.length > 1 ? 'excel_converted.zip' : 'converted.csv';
+            }
+
+            updateStep(3);
+        })
+        .catch(error => {
+            clearInterval(progressInterval);
+            updateStep(1);
+            showError(i18nMessages.conversionError + ' ' + error.message);
+        });
+    }
+
+    function resetConversion() {
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        if (progressInterval) clearInterval(progressInterval);
+        
+        selectedFiles = [];
+        const fileInput = document.getElementById('excelFileInput');
+        if (fileInput) fileInput.value = '';
+        
+        const progressBar = document.getElementById('conversionProgress');
+        if (progressBar) progressBar.style.width = '0%';
+        
+        updateFileNameDisplay();
+        updateConvertButton();
+        updateStep(1);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const convertBtn = document.getElementById('convertBtn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', startConversion);
+        }
+        
+        const fileInput = document.getElementById('excelFileInput');
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedFiles = Array.from(e.target.files);
+                updateFileNameDisplay();
+            } else {
+                selectedFiles = [];
+                updateFileNameDisplay();
+            }
+            updateConvertButton();
+        });
+        
+        updateConvertButton();
+    });
+
+    window.startConversion = startConversion;
+    window.resetConversion = resetConversion;
+</script>
+{% endblock %}
