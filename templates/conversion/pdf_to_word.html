@@ -134,8 +134,9 @@
         if (step2) step2.style.display = step === 2 ? 'block' : 'none';
         if (step3) step3.style.display = step === 3 ? 'block' : 'none';
 
-        if (window.updateStep && typeof window.updateStep === 'function') {
-            window.updateStep(step);
+        // CORRECTION : Ne pas s'appeler soi-même
+        if (window.parentUpdateStep && typeof window.parentUpdateStep === 'function') {
+            window.parentUpdateStep(step);
         }
     }
 
