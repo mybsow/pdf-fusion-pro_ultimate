@@ -1653,22 +1653,26 @@ Règles :
 # ─────────────────────────────────────────────────────────────────────────────
 # PDF → WORD (mise en forme préservée + texte éditable)
 # ─────────────────────────────────────────────────────────────────────────────
+# Tentative d'importation sécurisée de pdf2docx
+try:
+    from pdf2docx import Converter
+    HAS_PDF2DOCX = True
+except ImportError:
+    HAS_PDF2DOCX = False
+
 def convert_pdf_to_word(file, form_data=None):
     """
-    Convertit un PDF en .docx ÉDITABLE en préservant la mise en forme.
-    Cette version utilise pdf2docx pour reconstruire le texte, les tableaux
-    et la mise en page de manière native dans Word.
+    Convertit un PDF en .docx ÉDITABLE.
+    Remplace l'ancienne méthode qui créait des images non modifiables.
     """
-    # 1. Normalisation de l'entrée (utilise votre fonction existante)
+    # 1. Vérification de la bibliothèque
+    if not HAS_PDF2DOCX:
+        return {"error": "La bibliothèque 'pdf2docx' n'est pas installée sur le serveur. Ajoutez-la au fichier requirements.txt."}
+
+    # 2. Utilisation de vos fonctions utilitaires existantes
     file_obj, error = normalize_file_input(file)
     if error:
         return error
-
-    # 2. Vérification des dépendances
-    try:
-        from pdf2docx import Converter
-    except ImportError:
-        return {"error": "La bibliothèque 'pdf2docx' n'est pas installée. Exécutez: pip install pdf2docx"}
 
     original_filename = file_obj.filename
     temp_dir = create_temp_directory("pdf2word_editable_")
@@ -1676,18 +1680,17 @@ def convert_pdf_to_word(file, form_data=None):
     output_buffer = io.BytesIO()
 
     try:
-        # 3. Sauvegarde temporaire du PDF
+        # 3. Sauvegarde temporaire du PDF pour analyse par pdf2docx
         input_path = secure_save(file_obj, temp_dir)
 
-        # 4. Conversion réelle (Texte éditable + Mise en forme)
-        # pdf2docx analyse la structure du PDF pour créer un vrai document Word
+        # 4. Conversion réelle (Reconstruction du texte et de la mise en page)
         cv = Converter(input_path)
         cv.convert(output_buffer, start=0, end=None) 
         cv.close()
 
         output_buffer.seek(0)
 
-        # 5. Retour du fichier via votre fonction send_file
+        # 5. Envoi du fichier Word éditable
         return send_file(
             output_buffer,
             mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -1696,12 +1699,13 @@ def convert_pdf_to_word(file, form_data=None):
         )
 
     except Exception as e:
-        # Réactivez vos logs si nécessaire:
-        # logger.error(f"[PDF→Word] Erreur : {e}\n{traceback.format_exc()}")
-        return {"error": f"Erreur lors de la conversion éditable : {e}"}
+        # Utilise votre logger existant si disponible
+        if 'logger' in globals():
+            logger.error(f"[PDF→Word] Erreur : {e}\n{traceback.format_exc()}")
+        return {"error": f"Erreur lors de la conversion éditable : {str(e)}"}
     finally:
-        # Nettoyage
-        if input_path and os.path.exists(os.path.dirname(input_path)):
+        # Nettoyage systématique du dossier temporaire
+        if input_path and os.path.exists(temp_dir):
             cleanup_temp_directory(temp_dir)
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1728,38 +1732,21 @@ def _make_cell_transparent(cell):
 # ─────────────────────────────────────────────────────────────────────────────
 def convert_pdf_to_doc(file, form_data=None):
     """
-    Alias pour convert_pdf_to_word avec extension .doc.
-    Note: Le format .doc est ancien, le fichier reste techniquement un .docx
-    mais avec l'extension .doc pour la compatibilité.
+    Alias pour convert_pdf_to_word qui simule un format .doc
     """
-    file_obj, error = normalize_file_input(file)
-    if error:
-        return error
-
-    try:
-        response = convert_pdf_to_word(file_obj, form_data)
-
-        if isinstance(response, dict) and "error" in response:
-            return response
-
-        # Adaptation du nom de fichier et du type MIME pour simuler un .doc
-        # Note: Dans Flask, 'response' est souvent un objet Response.
-        # Si vous utilisez un dictionnaire comme dans mon exemple précédent:
-        if isinstance(response, dict):
-            if "download_name" in response:
-                response["download_name"] = response["download_name"].replace(".docx", ".doc")
-            response["mimetype"] = "application/msword"
-        else:
-            # Si c'est une réponse Flask réelle
-            content_disp = response.headers.get("Content-Disposition", "")
-            if ".docx" in content_disp:
-                response.headers["Content-Disposition"] = content_disp.replace(".docx", ".doc")
-            response.headers["Content-Type"] = "application/msword"
-
+    response = convert_pdf_to_word(file, form_data)
+    
+    if isinstance(response, dict) and "error" in response:
         return response
 
-    except Exception as e:
-        return {"error": f"Erreur PDF→DOC : {e}"}
+    # Modification de l'extension pour le téléchargement
+    if hasattr(response, "headers"):
+        content_disp = response.headers.get("Content-Disposition", "")
+        if ".docx" in content_disp:
+            response.headers["Content-Disposition"] = content_disp.replace(".docx", ".doc")
+        response.headers["Content-Type"] = "application/msword"
+    
+    return response
 
 
 # ─────────────────────────────────────────────────────────────────────────────
