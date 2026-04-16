@@ -1801,19 +1801,17 @@ def convert_pdf_to_word(file, form_data=None):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# MODE HYBRIDE : Image en fond + zones de texte superposées
+# MODE HYBRIDE : Image en fond + zones de texte superposées (CORRIGÉ)
 # ─────────────────────────────────────────────────────────────────────────────
 def _add_hybrid_page(doc, pil_img, page_num, language, dpi):
     """
     Ajoute une page avec :
     - L'image en arrière-plan (mise en forme visuelle)
-    - Des zones de texte TRANSPARENTES superposées (éditables)
+    - Des zones de texte superposées (éditables)
     """
     from docx.shared import Pt, Cm
     from docx.shared import RGBColor as DocxRGB
     from docx.enum.text import WD_ALIGN_PARAGRAPH
-    from docx.oxml.ns import qn
-    from docx.oxml import parse_xml
     import io as _io
 
     # ── 1. Insérer l'image en PLEINE PAGE (fond) ─────────────────────────
@@ -1844,16 +1842,15 @@ def _add_hybrid_page(doc, pil_img, page_num, language, dpi):
     run = header_para.add_run()
     run.add_picture(buf, width=final_w, height=final_h)
 
-    # Ajuster les marges de l'en-tête pour que l'image couvre toute la page
-    header_distance = Cm(0)
-    section.header_distance = header_distance
-    section.top_margin = Cm(-0.5)  # Remonter pour couvrir le haut
+    # Ajuster les marges
+    section.header_distance = Cm(0)
+    section.top_margin = Cm(-0.5)
 
-    # ── 2. Extraire le contenu texte avec positions ───────────────────────
-    gemini_out = _gemini_extract_page_content(pil_img, language, include_positions=True)
+    # ── 2. Extraire le contenu texte (SANS include_positions) ─────────────
+    gemini_out = _gemini_extract_page_content(pil_img, language)  # <- CORRIGÉ
     content = gemini_out.get("content", [])
     
-    # ── 3. Ajouter les zones de texte TRANSPARENTES ───────────────────────
+    # ── 3. Ajouter les zones de texte (éditables) ───────────────────────
     for item in content:
         item_type = item.get("type", "paragraph")
         text = item.get("text", "").strip()
@@ -1863,38 +1860,46 @@ def _add_hybrid_page(doc, pil_img, page_num, language, dpi):
             
         if item_type in ("heading1", "heading2"):
             h = doc.add_heading(text, level=1 if item_type == "heading1" else 2)
-            _make_text_transparent(h)
+            for run in h.runs:
+                run.font.color.rgb = DocxRGB(0x33, 0x33, 0x33)
             
         elif item_type == "paragraph":
             for line in text.split("\n"):
                 if line.strip():
                     p = doc.add_paragraph(line.strip())
-                    _make_text_transparent(p)
+                    if p.runs:
+                        p.runs[0].font.size = Pt(11)
                     
         elif item_type == "list_item":
             p = doc.add_paragraph(text, style="List Bullet")
-            _make_text_transparent(p)
+            if p.runs:
+                p.runs[0].font.size = Pt(11)
             
         elif item_type == "table":
-            header = item.get("header", [])
+            header_row = item.get("header", [])
             rows = item.get("rows", [])
-            if header and rows:
+            if header_row and rows:
                 try:
-                    num_cols = len(header)
+                    num_cols = len(header_row)
                     word_table = doc.add_table(rows=len(rows) + 1, cols=num_cols)
                     word_table.style = "Table Grid"
                     
-                    for ci, col_name in enumerate(header):
+                    for ci, col_name in enumerate(header_row):
                         cell = word_table.cell(0, ci)
                         cell.text = str(col_name)
-                        _make_cell_transparent(cell)
+                        for para in cell.paragraphs:
+                            for run in para.runs:
+                                run.bold = True
+                                run.font.size = Pt(10)
                     
                     for ri, row_data in enumerate(rows):
                         for ci, cell_text in enumerate(row_data):
                             if ci < num_cols:
                                 cell = word_table.cell(ri + 1, ci)
                                 cell.text = str(cell_text or "")
-                                _make_cell_transparent(cell)
+                                for para in cell.paragraphs:
+                                    for run in para.runs:
+                                        run.font.size = Pt(10)
                     
                     doc.add_paragraph()
                 except Exception as e:
