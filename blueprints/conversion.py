@@ -1926,45 +1926,92 @@ def _make_cell_transparent(cell):
 # MODE OCR SEUL (texte éditable, sans mise en forme)
 # ─────────────────────────────────────────────────────────────────────────────
 def _add_ocr_text_content(doc, pil_img, page_num, language):
-    """Ajoute uniquement le texte OCR (éditable, mise en forme perdue)"""
+    """Ajoute le texte OCR avec une structure préservée (titres, paragraphes, listes, tableaux)"""
     from docx.shared import Pt, RGBColor as DocxRGB
     
+    # En-tête de page
+    if page_num > 1:
+        doc.add_page_break()
+    
     header = doc.add_paragraph()
-    header.alignment = 1
+    header.alignment = 1  # Centré
     run = header.add_run(f"─ Page {page_num} ─")
     run.font.size = Pt(9)
     run.font.color.rgb = DocxRGB(0x99, 0x99, 0x99)
     doc.add_paragraph()
     
+    # Extraire le contenu
     gemini_out = _gemini_extract_page_content(pil_img, language)
     content = gemini_out.get("content", [])
+    
+    if not content:
+        p = doc.add_paragraph()
+        run = p.add_run("[Aucun texte détecté sur cette page]")
+        run.font.italic = True
+        run.font.color.rgb = DocxRGB(0xCC, 0xCC, 0xCC)
+        return
     
     for item in content:
         item_type = item.get("type", "paragraph")
         text = item.get("text", "").strip()
         
-        if item_type in ("heading1", "heading2") and text:
-            doc.add_heading(text, level=1 if item_type == "heading1" else 2)
-        elif item_type == "paragraph" and text:
+        if not text:
+            continue
+        
+        if item_type == "heading1":
+            h = doc.add_heading(text, level=1)
+            for run in h.runs:
+                run.font.color.rgb = DocxRGB(0x1a, 0x1a, 0x1a)
+                run.font.bold = True
+                
+        elif item_type == "heading2":
+            h = doc.add_heading(text, level=2)
+            for run in h.runs:
+                run.font.color.rgb = DocxRGB(0x33, 0x33, 0x33)
+                run.font.bold = True
+                
+        elif item_type == "paragraph":
             for line in text.split("\n"):
                 if line.strip():
-                    doc.add_paragraph(line.strip())
-        elif item_type == "list_item" and text:
-            doc.add_paragraph(text, style="List Bullet")
+                    p = doc.add_paragraph(line.strip())
+                    if p.runs:
+                        p.runs[0].font.size = Pt(11)
+                        p.runs[0].font.name = "Calibri"
+                        
+        elif item_type == "list_item":
+            p = doc.add_paragraph(text, style="List Bullet")
+            if p.runs:
+                p.runs[0].font.size = Pt(11)
+                p.runs[0].font.name = "Calibri"
+                
         elif item_type == "table":
-            header = item.get("header", [])
+            header_row = item.get("header", [])
             rows = item.get("rows", [])
-            if header and rows:
+            if header_row and rows:
                 try:
-                    num_cols = len(header)
+                    num_cols = len(header_row)
                     word_table = doc.add_table(rows=len(rows) + 1, cols=num_cols)
                     word_table.style = "Table Grid"
-                    for ci, col_name in enumerate(header):
-                        word_table.cell(0, ci).text = str(col_name)
+                    
+                    # En-têtes
+                    for ci, col_name in enumerate(header_row):
+                        cell = word_table.cell(0, ci)
+                        cell.text = str(col_name)
+                        for para in cell.paragraphs:
+                            for run in para.runs:
+                                run.bold = True
+                                run.font.size = Pt(10)
+                    
+                    # Données
                     for ri, row_data in enumerate(rows):
                         for ci, cell_text in enumerate(row_data):
                             if ci < num_cols:
-                                word_table.cell(ri + 1, ci).text = str(cell_text or "")
+                                cell = word_table.cell(ri + 1, ci)
+                                cell.text = str(cell_text or "")
+                                for para in cell.paragraphs:
+                                    for run in para.runs:
+                                        run.font.size = Pt(10)
+                    
                     doc.add_paragraph()
                 except Exception as e:
                     logger.warning(f"Tableau ignoré: {e}")
