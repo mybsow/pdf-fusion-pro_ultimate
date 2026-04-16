@@ -21,7 +21,6 @@ from datetime import datetime
 from collections import defaultdict
 from typing import Optional, Dict, List, Any, Tuple, Union
 from utils.json_utils import safe_json_loads
-from pdf2docx import Converter
 
 os.environ["OMP_THREAD_LIMIT"] = "1"
 
@@ -1653,60 +1652,44 @@ Règles :
 # ─────────────────────────────────────────────────────────────────────────────
 # PDF → WORD (mise en forme préservée + texte éditable)
 # ─────────────────────────────────────────────────────────────────────────────
-# Tentative d'importation sécurisée de pdf2docx
+# Import sécurisé pour éviter le crash au démarrage du serveur
 try:
     from pdf2docx import Converter
     HAS_PDF2DOCX = True
-except ImportError:
+except Exception as e:
     HAS_PDF2DOCX = False
+    # On ne fait qu'afficher l'erreur dans les logs au lieu de faire planter Gunicorn
+    print(f"ATTENTION: pdf2docx non disponible: {e}")
 
 def convert_pdf_to_word(file, form_data=None):
-    """
-    Convertit un PDF en .docx ÉDITABLE.
-    Remplace l'ancienne méthode qui créait des images non modifiables.
-    """
-    # 1. Vérification de la bibliothèque
     if not HAS_PDF2DOCX:
-        return {"error": "La bibliothèque 'pdf2docx' n'est pas installée sur le serveur. Ajoutez-la au fichier requirements.txt."}
+        return {"error": "Le module de conversion éditable est mal configuré sur le serveur (libGL manquante ou pdf2docx non installé)."}
 
-    # 2. Utilisation de vos fonctions utilitaires existantes
     file_obj, error = normalize_file_input(file)
-    if error:
-        return error
+    if error: return error
 
-    original_filename = file_obj.filename
     temp_dir = create_temp_directory("pdf2word_editable_")
-    input_path = None
     output_buffer = io.BytesIO()
 
     try:
-        # 3. Sauvegarde temporaire du PDF pour analyse par pdf2docx
         input_path = secure_save(file_obj, temp_dir)
-
-        # 4. Conversion réelle (Reconstruction du texte et de la mise en page)
+        
+        # La conversion native pdf2docx pour du texte éditable
         cv = Converter(input_path)
-        cv.convert(output_buffer, start=0, end=None) 
+        cv.convert(output_buffer) 
         cv.close()
 
         output_buffer.seek(0)
-
-        # 5. Envoi du fichier Word éditable
         return send_file(
             output_buffer,
             mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             as_attachment=True,
-            download_name=Path(original_filename).stem + ".docx",
+            download_name=Path(file_obj.filename).stem + ".docx"
         )
-
     except Exception as e:
-        # Utilise votre logger existant si disponible
-        if 'logger' in globals():
-            logger.error(f"[PDF→Word] Erreur : {e}\n{traceback.format_exc()}")
-        return {"error": f"Erreur lors de la conversion éditable : {str(e)}"}
+        return {"error": f"Erreur technique lors de la conversion : {str(e)}"}
     finally:
-        # Nettoyage systématique du dossier temporaire
-        if input_path and os.path.exists(temp_dir):
-            cleanup_temp_directory(temp_dir)
+        cleanup_temp_directory(temp_dir)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # MODE HYBRIDE : Image en fond + zones de texte superposées (CORRIGÉ)
@@ -1731,22 +1714,8 @@ def _make_cell_transparent(cell):
 # PDF → DOC  (alias .doc via convert_pdf_to_word)
 # ─────────────────────────────────────────────────────────────────────────────
 def convert_pdf_to_doc(file, form_data=None):
-    """
-    Alias pour convert_pdf_to_word qui simule un format .doc
-    """
-    response = convert_pdf_to_word(file, form_data)
-    
-    if isinstance(response, dict) and "error" in response:
-        return response
-
-    # Modification de l'extension pour le téléchargement
-    if hasattr(response, "headers"):
-        content_disp = response.headers.get("Content-Disposition", "")
-        if ".docx" in content_disp:
-            response.headers["Content-Disposition"] = content_disp.replace(".docx", ".doc")
-        response.headers["Content-Type"] = "application/msword"
-    
-    return response
+    # Réutilise la fonction ci-dessus
+    return convert_pdf_to_word(file, form_data)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -48,6 +48,7 @@ RUN apt-get update && \
         libglib2.0-0 \
         libcairo2 \
         libpango-1.0-0 \
+        libgl1 \
         curl \
         gettext \
     && rm -rf /var/lib/apt/lists/*
