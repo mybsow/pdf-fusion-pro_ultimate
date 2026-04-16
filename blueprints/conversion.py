@@ -1655,6 +1655,7 @@ Règles :
 # Import sécurisé pour éviter le crash au démarrage du serveur
 try:
     from pdf2docx import Converter
+    from docx import Document
     HAS_PDF2DOCX = True
 except Exception as e:
     HAS_PDF2DOCX = False
@@ -1662,34 +1663,62 @@ except Exception as e:
     print(f"ATTENTION: pdf2docx non disponible: {e}")
 
 def convert_pdf_to_word(file, form_data=None):
+    """
+    Convertit un PDF en document Word (.docx) éditable.
+    Nettoie les restrictions de protection pour éviter le mode 'Lecture seule'.
+    """
     if not HAS_PDF2DOCX:
         return {"error": "Le module de conversion éditable est mal configuré sur le serveur (libGL manquante ou pdf2docx non installé)."}
 
+    # 1. Normalisation et préparation
     file_obj, error = normalize_file_input(file)
     if error: return error
 
     temp_dir = create_temp_directory("pdf2word_editable_")
-    output_buffer = io.BytesIO()
-
+    # Utilisation d'un chemin temporaire pour la conversion initiale
+    temp_docx_path = os.path.join(temp_dir, "temp_output.docx")
+    
     try:
+        # 2. Sauvegarde du PDF source
         input_path = secure_save(file_obj, temp_dir)
         
-        # La conversion native pdf2docx pour du texte éditable
+        # 3. Conversion native pdf2docx (Reconstruction de la structure)
         cv = Converter(input_path)
-        cv.convert(output_buffer) 
+        cv.convert(temp_docx_path, start=0, end=None) 
         cv.close()
 
+        # 4. Suppression des restrictions de protection avec python-docx
+        # Cette étape garantit que Word n'ouvre pas le fichier en mode "Affichage protégé"
+        doc = Document(temp_docx_path)
+        
+        # Accès aux paramètres du document pour supprimer la protection
+        settings = doc.settings.element
+        protection = settings.find('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}documentProtection' )
+        if protection is not None:
+            settings.remove(protection)
+
+        # 5. Sauvegarde finale dans un buffer mémoire pour l'envoi
+        output_buffer = io.BytesIO()
+        doc.save(output_buffer)
         output_buffer.seek(0)
+
         return send_file(
             output_buffer,
             mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             as_attachment=True,
             download_name=Path(file_obj.filename).stem + ".docx"
         )
+
     except Exception as e:
+        # Log de l'erreur si nécessaire
+        if 'logger' in globals():
+            logger.error(f"[PDF→Word] Erreur : {e}\n{traceback.format_exc()}")
         return {"error": f"Erreur technique lors de la conversion : {str(e)}"}
+        
     finally:
-        cleanup_temp_directory(temp_dir)
+        # 6. Nettoyage systématique des fichiers temporaires
+        if os.path.exists(temp_dir):
+            cleanup_temp_directory(temp_dir)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # MODE HYBRIDE : Image en fond + zones de texte superposées (CORRIGÉ)
@@ -1714,9 +1743,21 @@ def _make_cell_transparent(cell):
 # PDF → DOC  (alias .doc via convert_pdf_to_word)
 # ─────────────────────────────────────────────────────────────────────────────
 def convert_pdf_to_doc(file, form_data=None):
-    # Réutilise la fonction ci-dessus
-    return convert_pdf_to_word(file, form_data)
-
+    """
+    Alias pour la conversion .doc (réutilise la logique .docx)
+    """
+    response = convert_pdf_to_word(file, form_data)
+    if isinstance(response, dict) and "error" in response:
+        return response
+    
+    # Ajustement des en-têtes pour simuler un format .doc
+    if hasattr(response, "headers"):
+        content_disp = response.headers.get("Content-Disposition", "")
+        if ".docx" in content_disp:
+            response.headers["Content-Disposition"] = content_disp.replace(".docx", ".doc")
+        response.headers["Content-Type"] = "application/msword"
+    
+    return response
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PDF → TXT  (avec Gemini)
