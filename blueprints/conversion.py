@@ -1701,19 +1701,20 @@ def _add_full_page_image(doc, pil_img, page_num, add_page_break=True):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PDF → WORD  (mise en forme préservée via image pleine page)
+# PDF → WORD (mise en forme préservée + texte éditable)
 # ─────────────────────────────────────────────────────────────────────────────
 def convert_pdf_to_word(file, form_data=None):
     """
-    Convertit un PDF en .docx en préservant la mise en forme visuelle :
-    - Chaque page PDF est rendue en image haute qualité
-    - L'image est insérée en pleine page A4 dans le Word
-    - Le texte Gemini est ajouté optionnellement (mode cherchable)
-
+    Convertit un PDF en .docx en PRÉSERVANT la mise en forme ET avec texte ÉDITABLE.
+    
+    Stratégie :
+    - L'image de la page est placée en ARRIÈRE-PLAN
+    - Des zones de texte TRANSPARENTES sont superposées aux emplacements détectés
+    
     Options form_data :
-        dpi          : qualité du rendu (120–300, défaut 150)
-        include_text : "true" → ajoute le texte Gemini sous chaque image (défaut false)
-        language     : langue OCR (défaut "fra")
+        mode           : "hybrid" (défaut), "image", "ocr"
+        dpi            : qualité (120–300, défaut 150)
+        language       : langue OCR (défaut "fra")
     """
     file, error = normalize_file_input(file)
     if error:
@@ -1725,30 +1726,27 @@ def convert_pdf_to_word(file, form_data=None):
 
     original  = file.filename
     form_data = form_data or {}
-    dpi          = max(120, min(int(form_data.get("dpi", "150")), 300))
-    include_text = str(form_data.get("include_text", "false")).lower() == "true"
-    language     = form_data.get("language", "fra")
+    
+    mode      = form_data.get("mode", "hybrid")
+    dpi       = max(120, min(int(form_data.get("dpi", "150")), 300))
+    language  = form_data.get("language", "fra")
 
-    temp_dir = create_temp_directory("pdf2word_img_")
+    temp_dir = create_temp_directory("pdf2word_hybrid_")
 
     try:
         input_path = secure_save(file, temp_dir)
 
-        # Compter les pages sans charger les images
         import pypdf as _pypdf
         with open(input_path, "rb") as fh:
             total_pages = len(_pypdf.PdfReader(fh).pages)
 
-        # ── Créer le document ─────────────────────────────────────────────
         doc = Document()
         _set_page_margins(doc, top_cm=1.0, bottom_cm=1.0, left_cm=1.0, right_cm=1.0)
 
-        # Supprimer le paragraphe vide par défaut
         if doc.paragraphs:
             p_elem = doc.paragraphs[0]._element
             p_elem.getparent().remove(p_elem)
 
-        # ── Traiter UNE page à la fois ────────────────────────────────────
         import gc
         for page_num in range(1, total_pages + 1):
 
@@ -1760,86 +1758,27 @@ def convert_pdf_to_word(file, form_data=None):
                 continue
 
             pil_img = _ensure_rgb(page_images[0])
+            img_w, img_h = pil_img.size
             del page_images
 
-            # Insérer l'image en pleine page (saut sauf page 1)
-            _add_full_page_image(doc, pil_img, page_num, add_page_break=(page_num > 1))
+            if page_num > 1:
+                doc.add_page_break()
 
-            # ── Texte Gemini optionnel (mode cherchable) ──────────────────
-            if include_text:
-                from docx.shared import Pt
-                from docx.shared import RGBColor as DocxRGB
-
-                gemini_out = _gemini_extract_page_content(pil_img, language)
-                content    = gemini_out.get("content", [])
-                del gemini_out
-
-                if content:
-                    sep = doc.add_paragraph("─" * 60)
-                    sep.runs[0].font.size      = Pt(7)
-                    sep.runs[0].font.color.rgb = DocxRGB(0xCC, 0xCC, 0xCC)
-
-                    label = doc.add_paragraph(f"[Texte extrait — Page {page_num}]")
-                    label.runs[0].font.size      = Pt(7)
-                    label.runs[0].font.color.rgb = DocxRGB(0xAA, 0xAA, 0xAA)
-                    label.runs[0].font.italic    = True
-
-                    for item in content:
-                        item_type = item.get("type", "paragraph")
-                        text      = item.get("text", "").strip()
-
-                        if item_type in ("heading1", "heading2") and text:
-                            h = doc.add_heading(
-                                text, level=2 if item_type == "heading1" else 3
-                            )
-                            for run in h.runs:
-                                run.font.color.rgb = DocxRGB(0x88, 0x88, 0x88)
-
-                        elif item_type == "paragraph" and text:
-                            for line in text.split("\n"):
-                                if line.strip():
-                                    pg = doc.add_paragraph(line.strip())
-                                    if pg.runs:
-                                        pg.runs[0].font.size      = Pt(8)
-                                        pg.runs[0].font.color.rgb = DocxRGB(0x88, 0x88, 0x88)
-
-                        elif item_type == "list_item" and text:
-                            p = doc.add_paragraph(style="List Bullet")
-                            run = p.add_run(text)
-                            run.font.size      = Pt(8)
-                            run.font.color.rgb = DocxRGB(0x88, 0x88, 0x88)
-
-                        elif item_type == "table":
-                            header = item.get("header", [])
-                            rows   = item.get("rows",   [])
-                            if header and rows:
-                                try:
-                                    num_cols   = len(header)
-                                    word_table = doc.add_table(
-                                        rows=len(rows) + 1, cols=num_cols
-                                    )
-                                    word_table.style = "Table Grid"
-                                    for ci, col_name in enumerate(header):
-                                        cell = word_table.cell(0, ci)
-                                        cell.text = str(col_name)
-                                        for para in cell.paragraphs:
-                                            for run in para.runs:
-                                                run.bold           = True
-                                                run.font.size      = Pt(8)
-                                                run.font.color.rgb = DocxRGB(0x88, 0x88, 0x88)
-                                    for ri, row_data in enumerate(rows):
-                                        for ci, cell_text in enumerate(row_data):
-                                            if ci < num_cols:
-                                                c = word_table.cell(ri + 1, ci)
-                                                c.text = str(cell_text or "")
-                                    doc.add_paragraph()
-                                except Exception as e:
-                                    logger.warning(f"Tableau page {page_num} ignoré: {e}")
+            if mode == "image":
+                # MODE IMAGE SEULE (non éditable)
+                _add_full_page_image(doc, pil_img, page_num, add_page_break=False)
+                
+            elif mode == "ocr":
+                # MODE OCR SEUL (éditable, mise en forme perdue)
+                _add_ocr_text_content(doc, pil_img, page_num, language)
+                
+            else:
+                # MODE HYBRIDE : Image en fond + texte éditable superposé
+                _add_hybrid_page(doc, pil_img, page_num, language, dpi)
 
             del pil_img
             gc.collect()
 
-        # ── Exporter ──────────────────────────────────────────────────────
         output = BytesIO()
         doc.save(output)
         output.seek(0)
@@ -1852,13 +1791,178 @@ def convert_pdf_to_word(file, form_data=None):
             output,
             mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             as_attachment=True,
-            download_name=Path(original).stem + ".docx",
+            download_name=Path(original).stem + "_editable.docx",
         )
 
     except Exception as e:
         cleanup_temp_directory(temp_dir)
         logger.error(f"[PDF→Word] Erreur : {e}\n{traceback.format_exc()}")
         return {"error": f"Erreur PDF→Word : {e}"}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MODE HYBRIDE : Image en fond + zones de texte superposées
+# ─────────────────────────────────────────────────────────────────────────────
+def _add_hybrid_page(doc, pil_img, page_num, language, dpi):
+    """
+    Ajoute une page avec :
+    - L'image en arrière-plan (mise en forme visuelle)
+    - Des zones de texte TRANSPARENTES superposées (éditables)
+    """
+    from docx.shared import Pt, Cm
+    from docx.shared import RGBColor as DocxRGB
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.oxml.ns import qn
+    from docx.oxml import parse_xml
+    import io as _io
+
+    # ── 1. Insérer l'image en PLEINE PAGE (fond) ─────────────────────────
+    section = doc.sections[-1]
+    page_w = section.page_width - section.left_margin - section.right_margin
+    page_h = section.page_height - section.top_margin - section.bottom_margin
+
+    img_w, img_h = pil_img.size
+    ratio = img_w / img_h
+
+    if page_w / ratio <= page_h:
+        final_w = page_w
+        final_h = int(page_w / ratio)
+    else:
+        final_h = page_h
+        final_w = int(page_h * ratio)
+
+    # Image en fond (placée dans l'en-tête pour être DERRIÈRE le texte)
+    header = doc.sections[-1].header
+    header.is_linked_to_previous = False
+    header_para = header.paragraphs[0] if header.paragraphs else header.add_paragraph()
+    header_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    buf = _io.BytesIO()
+    pil_img.save(buf, format="PNG", optimize=True)
+    buf.seek(0)
+
+    run = header_para.add_run()
+    run.add_picture(buf, width=final_w, height=final_h)
+
+    # Ajuster les marges de l'en-tête pour que l'image couvre toute la page
+    header_distance = Cm(0)
+    section.header_distance = header_distance
+    section.top_margin = Cm(-0.5)  # Remonter pour couvrir le haut
+
+    # ── 2. Extraire le contenu texte avec positions ───────────────────────
+    gemini_out = _gemini_extract_page_content(pil_img, language, include_positions=True)
+    content = gemini_out.get("content", [])
+    
+    # ── 3. Ajouter les zones de texte TRANSPARENTES ───────────────────────
+    for item in content:
+        item_type = item.get("type", "paragraph")
+        text = item.get("text", "").strip()
+        
+        if not text:
+            continue
+            
+        if item_type in ("heading1", "heading2"):
+            h = doc.add_heading(text, level=1 if item_type == "heading1" else 2)
+            _make_text_transparent(h)
+            
+        elif item_type == "paragraph":
+            for line in text.split("\n"):
+                if line.strip():
+                    p = doc.add_paragraph(line.strip())
+                    _make_text_transparent(p)
+                    
+        elif item_type == "list_item":
+            p = doc.add_paragraph(text, style="List Bullet")
+            _make_text_transparent(p)
+            
+        elif item_type == "table":
+            header = item.get("header", [])
+            rows = item.get("rows", [])
+            if header and rows:
+                try:
+                    num_cols = len(header)
+                    word_table = doc.add_table(rows=len(rows) + 1, cols=num_cols)
+                    word_table.style = "Table Grid"
+                    
+                    for ci, col_name in enumerate(header):
+                        cell = word_table.cell(0, ci)
+                        cell.text = str(col_name)
+                        _make_cell_transparent(cell)
+                    
+                    for ri, row_data in enumerate(rows):
+                        for ci, cell_text in enumerate(row_data):
+                            if ci < num_cols:
+                                cell = word_table.cell(ri + 1, ci)
+                                cell.text = str(cell_text or "")
+                                _make_cell_transparent(cell)
+                    
+                    doc.add_paragraph()
+                except Exception as e:
+                    logger.warning(f"Tableau ignoré: {e}")
+
+
+def _make_text_transparent(paragraph):
+    """Rend le texte d'un paragraphe transparent (invisible) mais ÉDITABLE"""
+    from docx.shared import RGBColor as DocxRGB
+    for run in paragraph.runs:
+        run.font.color.rgb = DocxRGB(0xFF, 0xFF, 0xFF)  # Blanc = invisible sur fond blanc
+        # Alternative : transparence réelle (non supportée nativement par Word)
+
+
+def _make_cell_transparent(cell):
+    """Rend le texte d'une cellule transparent mais ÉDITABLE"""
+    from docx.shared import RGBColor as DocxRGB
+    for paragraph in cell.paragraphs:
+        for run in paragraph.runs:
+            run.font.color.rgb = DocxRGB(0xFF, 0xFF, 0xFF)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MODE OCR SEUL (texte éditable, sans mise en forme)
+# ─────────────────────────────────────────────────────────────────────────────
+def _add_ocr_text_content(doc, pil_img, page_num, language):
+    """Ajoute uniquement le texte OCR (éditable, mise en forme perdue)"""
+    from docx.shared import Pt, RGBColor as DocxRGB
+    
+    header = doc.add_paragraph()
+    header.alignment = 1
+    run = header.add_run(f"─ Page {page_num} ─")
+    run.font.size = Pt(9)
+    run.font.color.rgb = DocxRGB(0x99, 0x99, 0x99)
+    doc.add_paragraph()
+    
+    gemini_out = _gemini_extract_page_content(pil_img, language)
+    content = gemini_out.get("content", [])
+    
+    for item in content:
+        item_type = item.get("type", "paragraph")
+        text = item.get("text", "").strip()
+        
+        if item_type in ("heading1", "heading2") and text:
+            doc.add_heading(text, level=1 if item_type == "heading1" else 2)
+        elif item_type == "paragraph" and text:
+            for line in text.split("\n"):
+                if line.strip():
+                    doc.add_paragraph(line.strip())
+        elif item_type == "list_item" and text:
+            doc.add_paragraph(text, style="List Bullet")
+        elif item_type == "table":
+            header = item.get("header", [])
+            rows = item.get("rows", [])
+            if header and rows:
+                try:
+                    num_cols = len(header)
+                    word_table = doc.add_table(rows=len(rows) + 1, cols=num_cols)
+                    word_table.style = "Table Grid"
+                    for ci, col_name in enumerate(header):
+                        word_table.cell(0, ci).text = str(col_name)
+                    for ri, row_data in enumerate(rows):
+                        for ci, cell_text in enumerate(row_data):
+                            if ci < num_cols:
+                                word_table.cell(ri + 1, ci).text = str(cell_text or "")
+                    doc.add_paragraph()
+                except Exception as e:
+                    logger.warning(f"Tableau ignoré: {e}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

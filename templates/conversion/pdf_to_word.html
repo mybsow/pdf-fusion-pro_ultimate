@@ -29,14 +29,17 @@
     <div class="file-info-card mt-4">
         <h5 class="mb-4"><i class="fas fa-cog me-2"></i>{{ _('Options de conversion') }}</h5>
         <div class="row g-4">
+            <!-- NOUVEAU : Mode de conversion -->
             <div class="col-md-6">
-                <label for="extractionMode" class="form-label fw-bold">{{ _("Mode d'extraction") }}</label>
-                <select class="form-select" id="extractionMode">
-                    <option value="text">{{ _('Texte uniquement (plus léger)') }}</option>
-                    <option value="layout" selected>{{ _('Conserver la mise en page (recommandé)') }}</option>
-                    <option value="full">{{ _('Texte et images (complet)') }}</option>
+                <label for="conversionMode" class="form-label fw-bold">{{ _('Mode de conversion') }}</label>
+                <select class="form-select" id="conversionMode">
+                    <option value="hybrid" selected>{{ _('Hybride (mise en forme + texte éditable) - Recommandé') }}</option>
+                    <option value="ocr">{{ _('Texte uniquement (éditable, mise en forme perdue)') }}</option>
+                    <option value="image">{{ _('Image seule (mise en forme exacte, non éditable)') }}</option>
                 </select>
+                <small class="text-muted">{{ _('Le mode hybride préserve l\'apparence tout en permettant l\'édition') }}</small>
             </div>
+            
             <div class="col-md-6">
                 <label for="language" class="form-label fw-bold">{{ _('Langue du document') }}</label>
                 <select class="form-select" id="language">
@@ -47,7 +50,9 @@
                     <option value="ita">{{ _('Italien') }}</option>
                 </select>
             </div>
-            <div class="col-12">
+            
+            <!-- Options supplémentaires (affichées seulement pour certains modes) -->
+            <div class="col-12" id="ocrOptions">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-check form-switch">
@@ -133,11 +138,6 @@
         if (step1) step1.style.display = step === 1 ? 'block' : 'none';
         if (step2) step2.style.display = step === 2 ? 'block' : 'none';
         if (step3) step3.style.display = step === 3 ? 'block' : 'none';
-
-        // CORRECTION : Ne pas s'appeler soi-même
-        if (window.parentUpdateStep && typeof window.parentUpdateStep === 'function') {
-            window.parentUpdateStep(step);
-        }
     }
 
     function showError(message) {
@@ -175,7 +175,7 @@
         
         var formData = new FormData();
         formData.append('file', file);
-        formData.append('mode', document.getElementById('extractionMode').value);
+        formData.append('mode', document.getElementById('conversionMode').value);  // NOUVEAU
         formData.append('language', document.getElementById('language').value);
         formData.append('detect_tables', document.getElementById('detectTables').checked);
         formData.append('preserve_formatting', document.getElementById('preserveFormatting').checked);
@@ -251,6 +251,18 @@
                 fileNameDisplay.textContent = e.target.files[0].name;
             } else {
                 fileNameDisplay.textContent = i18nMessages.noFileSelected;
+            }
+        });
+        
+        // Afficher/masquer les options selon le mode
+        var modeSelect = document.getElementById('conversionMode');
+        var ocrOptions = document.getElementById('ocrOptions');
+        
+        modeSelect.addEventListener('change', function() {
+            if (this.value === 'image') {
+                ocrOptions.style.display = 'none';
+            } else {
+                ocrOptions.style.display = 'block';
             }
         });
     });
