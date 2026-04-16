@@ -1649,44 +1649,251 @@ Règles :
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PDF → WORD  (avec Gemini)
+# HELPERS INTERNES — mise en page image pleine page
 # ─────────────────────────────────────────────────────────────────────────────
-def convert_pdf_to_doc(file, form_data=None):
+
+def _set_page_margins(doc, top_cm=1.0, bottom_cm=1.0, left_cm=1.0, right_cm=1.0):
+    """Réduit les marges pour maximiser l'espace image."""
+    from docx.shared import Cm
+    for section in doc.sections:
+        section.top_margin    = Cm(top_cm)
+        section.bottom_margin = Cm(bottom_cm)
+        section.left_margin   = Cm(left_cm)
+        section.right_margin  = Cm(right_cm)
+
+
+def _add_full_page_image(doc, pil_img, page_num, add_page_break=True):
     """
-    Convertit un PDF en .doc (format Word ancien).
-    Réutilise convert_pdf_to_word puis renomme l'extension .docx → .doc.
-    La mise en forme est identique (image pleine page par page).
+    Insère une image PIL en pleine page dans le document Word.
+    Calcule les dimensions en tenant compte des marges pour conserver
+    le ratio d'aspect de la page PDF d'origine.
+    """
+    import io as _io
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+    section = doc.sections[-1]
+    page_w  = section.page_width  - section.left_margin  - section.right_margin
+    page_h  = section.page_height - section.top_margin   - section.bottom_margin
+
+    img_w, img_h = pil_img.size
+    ratio = img_w / img_h
+
+    if page_w / ratio <= page_h:
+        final_w = page_w
+        final_h = int(page_w / ratio)
+    else:
+        final_h = page_h
+        final_w = int(page_h * ratio)
+
+    if add_page_break:
+        doc.add_page_break()
+
+    buf = _io.BytesIO()
+    pil_img.save(buf, format="PNG", optimize=True)
+    buf.seek(0)
+
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run()
+    run.add_picture(buf, width=final_w, height=final_h)
+
+    return doc
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PDF → WORD  (mise en forme préservée via image pleine page)
+# ─────────────────────────────────────────────────────────────────────────────
+def convert_pdf_to_word(file, form_data=None):
+    """
+    Convertit un PDF en .docx en préservant la mise en forme visuelle :
+    - Chaque page PDF est rendue en image haute qualité
+    - L'image est insérée en pleine page A4 dans le Word
+    - Le texte Gemini est ajouté optionnellement (mode cherchable)
+
+    Options form_data :
+        dpi          : qualité du rendu (120–300, défaut 150)
+        include_text : "true" → ajoute le texte Gemini sous chaque image (défaut false)
+        language     : langue OCR (défaut "fra")
     """
     file, error = normalize_file_input(file)
     if error:
         return error
- 
+    if not HAS_DOCX:
+        return {"error": "python-docx non installé"}
+    if not HAS_PDF2IMAGE:
+        return {"error": "pdf2image non installé"}
+
+    original  = file.filename
+    form_data = form_data or {}
+    dpi          = max(120, min(int(form_data.get("dpi", "150")), 300))
+    include_text = str(form_data.get("include_text", "false")).lower() == "true"
+    language     = form_data.get("language", "fra")
+
+    temp_dir = create_temp_directory("pdf2word_img_")
+
+    try:
+        input_path = secure_save(file, temp_dir)
+
+        # Compter les pages sans charger les images
+        import pypdf as _pypdf
+        with open(input_path, "rb") as fh:
+            total_pages = len(_pypdf.PdfReader(fh).pages)
+
+        # ── Créer le document ─────────────────────────────────────────────
+        doc = Document()
+        _set_page_margins(doc, top_cm=1.0, bottom_cm=1.0, left_cm=1.0, right_cm=1.0)
+
+        # Supprimer le paragraphe vide par défaut
+        if doc.paragraphs:
+            p_elem = doc.paragraphs[0]._element
+            p_elem.getparent().remove(p_elem)
+
+        # ── Traiter UNE page à la fois ────────────────────────────────────
+        import gc
+        for page_num in range(1, total_pages + 1):
+
+            page_images = convert_from_path(
+                input_path, dpi=dpi,
+                first_page=page_num, last_page=page_num
+            )
+            if not page_images:
+                continue
+
+            pil_img = _ensure_rgb(page_images[0])
+            del page_images
+
+            # Insérer l'image en pleine page (saut sauf page 1)
+            _add_full_page_image(doc, pil_img, page_num, add_page_break=(page_num > 1))
+
+            # ── Texte Gemini optionnel (mode cherchable) ──────────────────
+            if include_text:
+                from docx.shared import Pt
+                from docx.shared import RGBColor as DocxRGB
+
+                gemini_out = _gemini_extract_page_content(pil_img, language)
+                content    = gemini_out.get("content", [])
+                del gemini_out
+
+                if content:
+                    sep = doc.add_paragraph("─" * 60)
+                    sep.runs[0].font.size      = Pt(7)
+                    sep.runs[0].font.color.rgb = DocxRGB(0xCC, 0xCC, 0xCC)
+
+                    label = doc.add_paragraph(f"[Texte extrait — Page {page_num}]")
+                    label.runs[0].font.size      = Pt(7)
+                    label.runs[0].font.color.rgb = DocxRGB(0xAA, 0xAA, 0xAA)
+                    label.runs[0].font.italic    = True
+
+                    for item in content:
+                        item_type = item.get("type", "paragraph")
+                        text      = item.get("text", "").strip()
+
+                        if item_type in ("heading1", "heading2") and text:
+                            h = doc.add_heading(
+                                text, level=2 if item_type == "heading1" else 3
+                            )
+                            for run in h.runs:
+                                run.font.color.rgb = DocxRGB(0x88, 0x88, 0x88)
+
+                        elif item_type == "paragraph" and text:
+                            for line in text.split("\n"):
+                                if line.strip():
+                                    pg = doc.add_paragraph(line.strip())
+                                    if pg.runs:
+                                        pg.runs[0].font.size      = Pt(8)
+                                        pg.runs[0].font.color.rgb = DocxRGB(0x88, 0x88, 0x88)
+
+                        elif item_type == "list_item" and text:
+                            p = doc.add_paragraph(style="List Bullet")
+                            run = p.add_run(text)
+                            run.font.size      = Pt(8)
+                            run.font.color.rgb = DocxRGB(0x88, 0x88, 0x88)
+
+                        elif item_type == "table":
+                            header = item.get("header", [])
+                            rows   = item.get("rows",   [])
+                            if header and rows:
+                                try:
+                                    num_cols   = len(header)
+                                    word_table = doc.add_table(
+                                        rows=len(rows) + 1, cols=num_cols
+                                    )
+                                    word_table.style = "Table Grid"
+                                    for ci, col_name in enumerate(header):
+                                        cell = word_table.cell(0, ci)
+                                        cell.text = str(col_name)
+                                        for para in cell.paragraphs:
+                                            for run in para.runs:
+                                                run.bold           = True
+                                                run.font.size      = Pt(8)
+                                                run.font.color.rgb = DocxRGB(0x88, 0x88, 0x88)
+                                    for ri, row_data in enumerate(rows):
+                                        for ci, cell_text in enumerate(row_data):
+                                            if ci < num_cols:
+                                                c = word_table.cell(ri + 1, ci)
+                                                c.text = str(cell_text or "")
+                                    doc.add_paragraph()
+                                except Exception as e:
+                                    logger.warning(f"Tableau page {page_num} ignoré: {e}")
+
+            del pil_img
+            gc.collect()
+
+        # ── Exporter ──────────────────────────────────────────────────────
+        output = BytesIO()
+        doc.save(output)
+        output.seek(0)
+        del doc
+        gc.collect()
+
+        cleanup_temp_directory(temp_dir)
+
+        return send_file(
+            output,
+            mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            as_attachment=True,
+            download_name=Path(original).stem + ".docx",
+        )
+
+    except Exception as e:
+        cleanup_temp_directory(temp_dir)
+        logger.error(f"[PDF→Word] Erreur : {e}\n{traceback.format_exc()}")
+        return {"error": f"Erreur PDF→Word : {e}"}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PDF → DOC  (alias .doc via convert_pdf_to_word)
+# ─────────────────────────────────────────────────────────────────────────────
+def convert_pdf_to_doc(file, form_data=None):
+    """
+    Convertit un PDF en .doc.
+    Réutilise convert_pdf_to_word puis renomme .docx → .doc.
+    """
+    file, error = normalize_file_input(file)
+    if error:
+        return error
+
     try:
         response = convert_pdf_to_word(file, form_data)
- 
-        # Propager les erreurs dict
+
         if isinstance(response, dict) and "error" in response:
             return response
- 
-        # Vérifier que c'est une réponse Flask valide
+
         if not hasattr(response, "headers"):
             return {"error": "Réponse inattendue du convertisseur PDF→DOCX"}
- 
-        # Renommer .docx → .doc dans les headers
+
         content_disp = response.headers.get("Content-Disposition", "")
         if ".docx" in content_disp:
             response.headers["Content-Disposition"] = content_disp.replace(".docx", ".doc")
- 
-        # Changer le mimetype pour .doc
-        response.headers["Content-Type"] = (
-            "application/msword"
-        )
- 
+
+        response.headers["Content-Type"] = "application/msword"
+
         return response
- 
+
     except Exception as e:
         logger.error(f"[PDF→DOC] Erreur : {e}\n{traceback.format_exc()}")
         return {"error": f"Erreur PDF→DOC : {e}"}
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PDF → TXT  (avec Gemini)
@@ -1950,46 +2157,6 @@ footer { margin-top: 50px; border-top: 2px solid #1a3a6b; font-size: .8em; color
         logger.error(f"[PDF→HTML] Erreur : {e}\n{traceback.format_exc()}")
         return {"error": f"Erreur PDF→HTML : {e}"}
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# A. PDF → DOC 
-# ─────────────────────────────────────────────────────────────────────────────
-def convert_pdf_to_doc(file, form_data=None):
-    """
-    Convertit un PDF en .doc (format Word ancien).
-    Réutilise convert_pdf_to_word puis renomme l'extension .docx → .doc.
-    La mise en forme est identique (image pleine page par page).
-    """
-    file, error = normalize_file_input(file)
-    if error:
-        return error
- 
-    try:
-        response = convert_pdf_to_word(file, form_data)
- 
-        # Propager les erreurs dict
-        if isinstance(response, dict) and "error" in response:
-            return response
- 
-        # Vérifier que c'est une réponse Flask valide
-        if not hasattr(response, "headers"):
-            return {"error": "Réponse inattendue du convertisseur PDF→DOCX"}
- 
-        # Renommer .docx → .doc dans les headers
-        content_disp = response.headers.get("Content-Disposition", "")
-        if ".docx" in content_disp:
-            response.headers["Content-Disposition"] = content_disp.replace(".docx", ".doc")
- 
-        # Changer le mimetype pour .doc
-        response.headers["Content-Type"] = (
-            "application/msword"
-        )
- 
-        return response
- 
-    except Exception as e:
-        logger.error(f"[PDF→DOC] Erreur : {e}\n{traceback.format_exc()}")
-        return {"error": f"Erreur PDF→DOC : {e}"}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
