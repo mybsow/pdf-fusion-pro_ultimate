@@ -50,36 +50,22 @@
         padding: 8px 20px;
     }
     .btn-cloud:hover { transform: translateY(-2px); }
-    
+
     /* Styles pour les étapes de progression */
-    .step-container {
-        transition: all 0.3s ease;
-    }
-    .progress-container {
-        margin: 20px auto;
-        max-width: 500px;
-    }
-    .progress-bar {
-        transition: width 0.3s ease;
-    }
+    .step-container { transition: all 0.3s ease; }
+    .progress-container { margin: 20px auto; max-width: 500px; }
+    .progress-bar { transition: width 0.3s ease; }
     .success-animation {
-        width: 80px;
-        height: 80px;
-        background: #28a745;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        width: 80px; height: 80px;
+        background: #28a745; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
         margin: 0 auto 20px;
         animation: bounceIn 0.6s ease;
     }
-    .success-animation i {
-        font-size: 40px;
-        color: white;
-    }
+    .success-animation i { font-size: 40px; color: white; }
     @keyframes bounceIn {
-        0% { transform: scale(0); opacity: 0; }
-        50% { transform: scale(1.1); }
+        0%   { transform: scale(0); opacity: 0; }
+        50%  { transform: scale(1.1); }
         100% { transform: scale(1); opacity: 1; }
     }
 </style>
@@ -97,12 +83,13 @@
 <div class="row">
     <div class="col-lg-8">
         <div class="tool-container">
-            
+
             <!-- ================= ÉTAPE 1 : UPLOAD ================= -->
             <div id="step1Content" class="step-container">
+
                 <!-- Zone d'upload -->
-                <div class="upload-zone-pro" id="{{ upload_zone_id }}" 
-                     data-info-id="{{ file_info_id }}" 
+                <div class="upload-zone-pro" id="{{ upload_zone_id }}"
+                     data-info-id="{{ file_info_id }}"
                      data-btn-id="{{ button_id }}">
                     <div class="upload-inner">
                         <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
@@ -129,35 +116,42 @@
                     </button>
                 </div>
 
-                <!-- Boutons cloud -->
+                <!-- ── Boutons cloud ─────────────────────────────────────────
+                     CORRECTION : onclick inline supprimés → data-cloud="..."
+                     Les event listeners sont attachés en bas de page avec
+                     fallback d'ouverture directe si cloud-upload.js n'est
+                     pas encore disponible.
+                ──────────────────────────────────────────────────────────── -->
                 <div class="btn-cloud-group text-center">
                     <div class="position-relative">
                         <hr class="my-3">
                         <div class="text-center">
-                            <span class="px-3 bg-white text-muted small">{{ _('Ou importez depuis le cloud') }}</span>
+                            <span class="px-3 bg-white text-muted small">
+                                {{ _('Ou importez depuis le cloud') }}
+                            </span>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
-                        <button type="button" class="btn btn-outline-danger btn-cloud" 
-                                onclick="window.cloudUpload && cloudUpload.open('google')">
+                        <button type="button" class="btn btn-outline-danger btn-cloud"
+                                data-cloud="google">
                             <i class="fab fa-google-drive me-1"></i>Google Drive
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-cloud" 
-                                onclick="window.cloudUpload && cloudUpload.open('onedrive')">
+                        <button type="button" class="btn btn-outline-primary btn-cloud"
+                                data-cloud="onedrive">
                             <i class="fab fa-microsoft me-1"></i>OneDrive
                         </button>
-                        <button type="button" class="btn btn-outline-info btn-cloud" 
-                                onclick="window.cloudUpload && cloudUpload.open('dropbox')">
+                        <button type="button" class="btn btn-outline-info btn-cloud"
+                                data-cloud="dropbox">
                             <i class="fab fa-dropbox me-1"></i>Dropbox
                         </button>
-                        <button type="button" class="btn btn-outline-secondary btn-cloud" 
-                                onclick="window.cloudUpload && cloudUpload.open('icloud')">
+                        <button type="button" class="btn btn-outline-secondary btn-cloud"
+                                data-cloud="icloud">
                             <i class="fab fa-apple me-1"></i>iCloud
                         </button>
                     </div>
                 </div>
             </div>
-            
+
             <!-- ================= ÉTAPE 2 : TRAITEMENT ================= -->
             <div id="step2Content" class="step-container" style="display: none;">
                 <div class="text-center py-5">
@@ -170,13 +164,14 @@
                     </p>
                     <div class="progress-container mx-auto">
                         <div class="progress bg-light rounded-pill" style="height: 10px;">
-                            <div class="progress-bar bg-primary rounded-pill" id="conversionProgress" style="width: 0%;"></div>
+                            <div class="progress-bar bg-primary rounded-pill"
+                                 id="conversionProgress" style="width: 0%;"></div>
                         </div>
                     </div>
                     <p class="mt-2 text-muted" id="progressPercent">0%</p>
                 </div>
             </div>
-            
+
             <!-- ================= ÉTAPE 3 : TÉLÉCHARGEMENT ================= -->
             <div id="step3Content" class="step-container" style="display: none;">
                 <div class="text-center py-5">
@@ -197,10 +192,10 @@
                     </div>
                 </div>
             </div>
-            
+
         </div>
     </div>
-    
+
     <!-- Sidebar avec pub -->
     <div class="col-lg-4 mt-4 mt-lg-0">
         <div class="adsterra-container text-center">
@@ -208,9 +203,10 @@
             <script type="text/javascript">
                 adsterra_banner_300x250 = '28968036';
             </script>
-            <script type="text/javascript" src="https://publishers.adsterra.com/v3/api/banner.php?placement_id=28968036"></script>
+            <script type="text/javascript"
+                    src="https://publishers.adsterra.com/v3/api/banner.php?placement_id=28968036"></script>
         </div>
-        
+
         <div class="alert alert-warning mt-3 text-center">
             <i class="fas fa-heart text-danger me-2"></i>
             <small>{{ _('Cet outil est entièrement gratuit. Un clic sur les annonces nous aide à le maintenir !') }}</small>
@@ -218,13 +214,13 @@
     </div>
 </div>
 
+{# ── JS global de la page ────────────────────────────────────────────────── #}
 <script>
-// Fonctions globales pour la gestion des étapes
+// ── Gestion des étapes ────────────────────────────────────────────────────
 function updateStep(step) {
     var step1 = document.getElementById('step1Content');
     var step2 = document.getElementById('step2Content');
     var step3 = document.getElementById('step3Content');
-    
     if (step1) step1.style.display = step === 1 ? 'block' : 'none';
     if (step2) step2.style.display = step === 2 ? 'block' : 'none';
     if (step3) step3.style.display = step === 3 ? 'block' : 'none';
@@ -236,47 +232,75 @@ function showError(message) {
         errorDiv = document.createElement('div');
         errorDiv.id = 'conversionError';
         errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
-        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span id="conversionErrorMsg"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        errorDiv.innerHTML =
+            '<i class="fas fa-exclamation-circle me-2"></i>' +
+            '<span id="conversionErrorMsg"></span>' +
+            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
         var step1 = document.getElementById('step1Content');
         if (step1) step1.prepend(errorDiv);
     }
     var msgSpan = document.getElementById('conversionErrorMsg');
     if (msgSpan) msgSpan.textContent = message;
     errorDiv.style.display = 'block';
-    setTimeout(function() {
-        if (errorDiv) errorDiv.style.display = 'none';
-    }, 8000);
+    setTimeout(function () { if (errorDiv) errorDiv.style.display = 'none'; }, 8000);
 }
 
 function resetConversion() {
     var downloadUrl = window.downloadUrl;
     if (downloadUrl) { URL.revokeObjectURL(downloadUrl); window.downloadUrl = null; }
-    
+
     var progressInterval = window.progressInterval;
     if (progressInterval) { clearInterval(progressInterval); window.progressInterval = null; }
-    
+
     var manager = window.uploadManagers && window.uploadManagers['{{ upload_zone_id }}'];
     if (manager && manager.removeFile) {
         var files = manager.getFiles();
         for (var i = files.length - 1; i >= 0; i--) manager.removeFile(i);
     }
-    
+
     var errorDiv = document.getElementById('conversionError');
     if (errorDiv) errorDiv.style.display = 'none';
-    
+
     var progressBar = document.getElementById('conversionProgress');
     if (progressBar) progressBar.style.width = '0%';
-    
+
     var percentSpan = document.getElementById('progressPercent');
     if (percentSpan) percentSpan.textContent = '0%';
-    
+
     updateStep(1);
 }
 
-// Rendre la fonction disponible globalement
 window.resetConversion = resetConversion;
-window.updateStep = updateStep;
-window.showError = showError;
+window.updateStep      = updateStep;
+window.showError       = showError;
+
+// ── Boutons cloud — CORRECTION ────────────────────────────────────────────
+// data-cloud="..." au lieu des onclick inline.
+// Fallback d'ouverture directe si cloud-upload.js n'est pas encore chargé.
+document.addEventListener('DOMContentLoaded', function () {
+    var CLOUD_FALLBACK_URLS = {
+        google:   'https://drive.google.com',
+        onedrive: 'https://onedrive.live.com',
+        dropbox:  'https://www.dropbox.com',
+        icloud:   'https://www.icloud.com',
+        box:      'https://www.box.com',
+        pcloud:   'https://www.pcloud.com'
+    };
+
+    document.querySelectorAll('[data-cloud]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var provider = this.getAttribute('data-cloud');
+            if (typeof window.cloudUpload !== 'undefined') {
+                window.cloudUpload.open(provider);
+            } else {
+                var url = CLOUD_FALLBACK_URLS[provider];
+                if (url) window.open(url, '_blank');
+                console.warn('[cloud] cloudUpload non disponible, ouverture directe de', provider);
+            }
+        });
+    });
+});
+// ─────────────────────────────────────────────────────────────────────────
 </script>
 
 {% endblock %}
